@@ -57,7 +57,16 @@ final class LaunchTests: XCTestCase {
         let settings = app.navigationBars["Settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 5))
 
-        let rows = ["Jobs", "Working schedule", "Fields", "Holidays", "Export", "iCloud", "Backup and data", "Privacy"]
+        // Row titles, not section headers: "Export" is a heading and tapping it
+        // would go nowhere. Rows behind a switched-off feature are skipped
+        // below rather than listed here, since which ones exist depends on the
+        // settings the app starts with.
+        let rows = [
+            "Working schedule", "Jobs", "Calculation",
+            "Fields", "Day types", "Reminders", "Holidays",
+            "Theme", "Export options",
+            "iCloud", "Backup and data", "Privacy",
+        ]
         var opened = 0
 
         for row in rows {
@@ -65,9 +74,11 @@ final class LaunchTests: XCTestCase {
             guard label.exists, label.isHittable else { continue }
             label.tap()
 
-            // Coming back is the assertion: if the screen had crashed there
-            // would be no back button to find.
-            let back = app.navigationBars.buttons.element(boundBy: 0)
+            // A back button labelled "Settings" is proof both that the screen
+            // opened and that it did not crash on the way in. Matched by name
+            // rather than by position, so a screen with its own toolbar button
+            // does not quietly pass this by being tapped somewhere else.
+            let back = app.navigationBars.buttons["Settings"]
             XCTAssertTrue(back.waitForExistence(timeout: 5), "\(row) did not open")
             back.tap()
             XCTAssertTrue(settings.waitForExistence(timeout: 5), "could not get back from \(row)")
@@ -90,7 +101,12 @@ final class LaunchTests: XCTestCase {
         XCTAssertTrue(today.waitForExistence(timeout: 10), "today's cell is not on screen")
         today.tap()
 
+        // A tap selects the day; a tap on the day already selected opens the
+        // editor. Today starts selected, so one tap is normally enough — but
+        // the second tap is here rather than relying on that, since which day
+        // starts selected is a product decision and not this test's subject.
         let save = app.buttons["day-editor-save"]
+        if !save.waitForExistence(timeout: 3) { today.tap() }
         XCTAssertTrue(save.waitForExistence(timeout: 5), "the day editor did not open")
         save.tap()
 

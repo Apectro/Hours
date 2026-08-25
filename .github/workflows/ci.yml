@@ -28,6 +28,13 @@ jobs:
     container: swift:6.0
     timeout-minutes: 15
 
+    # A container job runs its steps under `sh`, not bash, and dash has no
+    # `set -o pipefail` — which failed the job in under a second, before the
+    # compiler was ever reached.
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v4
 
