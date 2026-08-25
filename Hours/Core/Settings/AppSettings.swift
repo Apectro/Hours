@@ -28,6 +28,10 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// User-defined day types, merged with the built-ins at read time.
     var customDayTypes: [DayTypeDefinition]
 
+    /// Places you work. Empty means the single-job case, where the primary job
+    /// is synthesised from `schedule`; see `resolvedJobs`.
+    var jobs: [Job]
+
     /// Balance carried in from before the app was used, so someone starting
     /// mid-year does not begin at zero.
     var openingBalanceMinutes: Int
@@ -45,6 +49,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         rounding: RoundingRule = .exact,
         displayDurationStyle: DurationStyle = .hoursAndMinutes,
         customDayTypes: [DayTypeDefinition] = [],
+        jobs: [Job] = [],
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil
     ) {
@@ -58,6 +63,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.rounding = rounding
         self.displayDurationStyle = displayDurationStyle
         self.customDayTypes = customDayTypes
+        self.jobs = jobs
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
     }
@@ -80,7 +86,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case schemaVersion, features, schedule, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
-        case customDayTypes, openingBalanceMinutes, balanceStartDate
+        case customDayTypes, jobs, openingBalanceMinutes, balanceStartDate
     }
 
     init(from decoder: Decoder) throws {
@@ -97,6 +103,7 @@ struct AppSettings: Hashable, Codable, Sendable {
             rounding: container.lenient(.rounding, defaults.rounding),
             displayDurationStyle: container.lenient(.displayDurationStyle, defaults.displayDurationStyle),
             customDayTypes: container.lenient(.customDayTypes, defaults.customDayTypes),
+            jobs: container.lenient(.jobs, defaults.jobs),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
             balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self)
         )

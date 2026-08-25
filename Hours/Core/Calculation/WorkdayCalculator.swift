@@ -99,7 +99,15 @@ struct WorkdayCalculator: Sendable {
         case .zero:
             return 0
         case .scheduled, .creditedAbsence:
-            return settings.schedule.contractedMinutes(forWeekday: date.weekday(in: calendar))
+            // Summed across active jobs. With one job this is exactly the
+            // contracted week it always was.
+            //
+            // A day type applies to the whole day rather than to one job, so a
+            // day of leave credits every job's hours. That is the right answer
+            // for someone taking a day off, and the wrong one for someone off
+            // from one job and working another — who should record the day as
+            // worked and set the leave with a per-day expected override.
+            return settings.contractedMinutes(forWeekday: date.weekday(in: calendar))
         }
     }
 

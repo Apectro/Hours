@@ -72,10 +72,77 @@ struct PeriodEngine: Sendable {
         return (days, PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough))
     }
 
+    /// What one job contributed over a period.
+    struct JobTotals: Identifiable, Hashable, Sendable {
+        var job: Job
+        var workedMinutes: Int
+        var creditedMinutes: Int
+        var expectedMinutes: Int
+        var daysWorked: Int
+
+        var id: UUID { job.id }
+        var paidMinutes: Int { workedMinutes + creditedMinutes }
+        var balanceMinutes: Int { paidMinutes - expectedMinutes }
+    }
+
+    /// Splits a period by job.
+    ///
+    /// Worked time comes from the shifts, which each know their job. Expected
+    /// and credited hours come from each job's own contracted week, so two jobs
+    /// with different schedules each get their own honest balance rather than
+    /// sharing one.
+    func jobTotals(
+        for days: [DayComputation],
+        countingThrough: CalendarDate? = nil
+    ) -> [JobTotals] {
+        let jobs = settings.activeJobs
+        guard !jobs.isEmpty else { return [] }
+
+        var worked: [UUID: Int] = [:]
+        var credited: [UUID: Int] = [:]
+        var expected: [UUID: Int] = [:]
+        var daysWorked: [UUID: Set<Int>] = [:]
+
+        for day in days where day.isIncluded {
+            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
+
+            for shift in day.shifts where shift.workedMinutes > 0 {
+                let id = shift.jobID ?? Job.primaryID
+                worked[id, default: 0] += shift.workedMinutes
+                daysWorked[id, default: []].insert(day.date.key)
+            }
+
+            guard settings.features.trackExpectedHours else { continue }
+            let weekday = day.date.weekday(in: calendar)
+            for job in jobs {
+                let contracted = job.schedule.contractedMinutes(forWeekday: weekday)
+                switch day.dayType.expectation {
+                case .zero:
+                    continue
+                case .scheduled:
+                    expected[job.id, default: 0] += contracted
+                case .creditedAbsence:
+                    expected[job.id, default: 0] += contracted
+                    credited[job.id, default: 0] += contracted
+                }
+            }
+        }
+
+        return jobs.map { job in
+            JobTotals(
+                job: job,
+                workedMinutes: worked[job.id] ?? 0,
+                creditedMinutes: credited[job.id] ?? 0,
+                expectedMinutes: expected[job.id] ?? 0,
+                daysWorked: daysWorked[job.id]?.count ?? 0
+            )
+        }
+    }
+
     /// The record a brand-new day should start from, pre-filled from the
     /// schedule so the common case is "open, glance, save".
     func draftRecord(for date: CalendarDate, holidays: [HolidayRule]) -> DayRecord {
-        let schedule = settings.schedule
+        let schedule = settings.primaryJob.schedule
         let resolver = HolidayResolver(
             rules: holidays,
             calendar: calendar,
@@ -92,11 +159,16 @@ struct PeriodEngine: Sendable {
         return DayRecord(
             date: date,
             dayTypeID: typeID,
-            start: schedule.defaultStart,
-            end: schedule.defaultEnd,
-            breaks: settings.features.trackBreaks && schedule.defaultBreakMinutes > 0
-                ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
-                : []
+            shifts: [
+                Shift(
+                    start: schedule.defaultStart,
+                    end: schedule.defaultEnd,
+                    breaks: settings.features.trackBreaks && schedule.defaultBreakMinutes > 0
+                        ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
+                        : [],
+                    jobID: settings.tracksMultipleJobs ? settings.primaryJob.id : nil
+                )
+            ]
         )
     }
 }
