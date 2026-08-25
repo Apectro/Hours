@@ -21,10 +21,21 @@ struct ZIPArchive {
 
     init(modified: Date = Date(), calendar: Calendar = Calendar(identifier: .gregorian)) {
         let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: modified)
+        // Bound to a named local each. Written as one expression per field it
+        // is a chain of shifts, masks and nil-coalescings over a literal type
+        // the compiler has to pick, and it gives up trying: whether it happens
+        // to finish depends on the compiler's mood, and on Linux it does not.
         // The DOS date field only has seven bits for the year.
-        let year = min(max((parts.year ?? 1980) - 1980, 0), 127)
-        dosDate = UInt16((year << 9) | ((parts.month ?? 1) << 5) | (parts.day ?? 1))
-        dosTime = UInt16((((parts.hour ?? 0) << 11) | ((parts.minute ?? 0) << 5) | ((parts.second ?? 0) / 2)))
+        let year: Int = min(max((parts.year ?? 1980) - 1980, 0), 127)
+        let month: Int = parts.month ?? 1
+        let day: Int = parts.day ?? 1
+        let hour: Int = parts.hour ?? 0
+        let minute: Int = parts.minute ?? 0
+        // Two-second resolution is all the DOS time field has.
+        let second: Int = (parts.second ?? 0) / 2
+
+        dosDate = UInt16(year << 9 | month << 5 | day)
+        dosTime = UInt16(hour << 11 | minute << 5 | second)
     }
 
     mutating func addFile(name: String, contents: Data) {

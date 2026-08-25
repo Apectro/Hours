@@ -125,6 +125,36 @@ database either, so a "clock in" button there could only pretend to work. Siri
 and the Shortcuts app can start and stop the clock instead, and those run in
 the app.
 
+## iCloud
+
+Off by default, and the app is designed to be complete without it. Turn it on
+in Settings › iCloud and your days and holidays go into **your own** private
+iCloud storage, which only your devices can read — no account to make, no
+server of ours, nothing that any third party sees. Your settings travel with
+them, through iCloud's key-value storage, because a second device computing
+expected hours from a different contracted week would produce wrong figures
+rather than merely different ones.
+
+A store's iCloud setting is fixed at the moment it opens, so the switch takes
+effect the next time the app is opened, and says so rather than pretending
+otherwise.
+
+Two devices can each record the same Tuesday while offline, and CloudKit has no
+idea the two rows mean the same day — it merges both in. The last one edited
+wins and the other is removed the moment the day is next read. Hours are not
+meaningfully mergeable: a start time from one device and an end time from
+another would invent a shift nobody worked.
+
+**iCloud needs a paid Apple Developer account**, like the widgets. It is not
+wired into the entitlements for the same reason, so a free-account build still
+installs. To enable it: select the **Hours** target, Signing & Capabilities,
+add **iCloud**, tick **CloudKit** and **Key-value storage**, and create the
+container `iCloud.com.hours.app`. If the switch is on but the entitlement is
+missing, the app opens its local store instead and says so; it never refuses to
+start.
+
+Sync is not a backup. A day you delete is deleted everywhere.
+
 ## Backups
 
 Nothing is synced anywhere, so a backup file is the only copy that survives

@@ -116,7 +116,7 @@ which case it keeps its contracted hours and only its name is carried through.
 
 ## Persistence
 
-- **SwiftData** for entities: `DayEntry` (unique on `dateKey`) and
+- **SwiftData** for entities: `DayEntry` (one per `dateKey`) and
   `HolidayRecord`. These are records the user creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
@@ -132,6 +132,21 @@ lightweight migration. Settings decode leniently: every field falls back to its
 default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
+
+**Uniqueness is a rule, not a constraint.** `dateKey` used to carry
+`@Attribute(.unique)`. It does not any more, for two reasons that arrive
+together: CloudKit refuses a store with a unique constraint on it, and even with
+one, two devices editing the same Tuesday offline produce two rows that CloudKit
+merges in without knowing they mean the same day. So `WorkdayRepository` owns
+the rule instead — every read that could see duplicates collapses them, keeping
+the most recently edited row and deleting the rest, and `reconcileDuplicates()`
+runs on every return to the app. Ties break on creation date and then on the
+identifier, so every device resolves a tie the same way rather than each
+keeping a different row and handing it back to the others forever.
+
+Last edit wins rather than a merge. Hours are not meaningfully mergeable: a
+start time from one device and an end time from another would invent a shift
+nobody worked.
 
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
@@ -161,8 +176,26 @@ as a real table with a header block and a totals footer.
 
 ## Privacy
 
-Everything is on the device. There is no network code in the app at all: no
-URLSession, no analytics SDK, no crash reporter, no remote configuration. The
-only data that leaves is a file the user explicitly exports through the system
-share sheet. iCloud sync is deliberately not enabled; the model is designed so
-it could be added later as an opt-in, and the app works identically without it.
+Everything is on the device unless the user says otherwise. There is no
+network code in the app at all: no URLSession, no analytics SDK, no crash
+reporter, no remote configuration, no third-party code of any kind. The only
+data that leaves is a file the user explicitly exports through the system share
+sheet.
+
+iCloud sync is off by default and opt-in. When it is on, the days and holidays
+go through SwiftData's own CloudKit mirroring into the user's private database,
+and the settings blob through `NSUbiquitousKeyValueStore` — settings are not in
+the SwiftData store, and a second device computing expected hours from a
+different contracted week would be wrong rather than merely different. Both are
+the user's own iCloud; neither we nor anyone else can read them.
+
+The preference deliberately lives outside `AppSettings`, in its own
+`UserDefaults` key. Settings travel in a backup file, and restoring a backup
+taken on a synced device onto a different phone must not quietly start
+uploading someone's hours. Sync is a property of an installation, not of the
+data.
+
+The privacy screen is written from `HoursStack.isSyncing` rather than from what
+the app intends in general — it reports the store that actually opened. A
+screen that says "nothing leaves the device" while the store is syncing is the
+one screen in the app it would be worst to be wrong on.

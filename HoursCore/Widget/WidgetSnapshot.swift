@@ -44,14 +44,18 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     )
 
     /// Elapsed time on the running clock, worked out by the widget itself.
+    ///
+    /// Nothing when no clock is running, whatever start time the file happens
+    /// to carry: a stale one would otherwise read as hours that are still
+    /// accruing, and grow for as long as the widget was left alone.
     func runningMinutes(at instant: Date) -> Int {
-        guard let clockStartedAt else { return 0 }
+        guard isClockRunning, let clockStartedAt else { return 0 }
         return max(0, Int(instant.timeIntervalSince(clockStartedAt)) / 60)
     }
 
     /// Today's total including whatever the running clock has accumulated.
     func todayIncludingRunningClock(at instant: Date) -> Int {
-        todayWorkedMinutes + (isClockRunning ? runningMinutes(at: instant) : 0)
+        todayWorkedMinutes + runningMinutes(at: instant)
     }
 
     var formatting: DurationFormatting {

@@ -5,14 +5,17 @@ import SwiftData
 enum HoursModelContainer {
     static let schema = Schema([DayEntry.self, HolidayRecord.self])
 
-    static func make(inMemory: Bool = false) throws -> ModelContainer {
+    static func make(inMemory: Bool = false, syncsWithICloud: Bool = false) throws -> ModelContainer {
         let configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory,
-            // Explicitly no CloudKit: this app is local-first by design, and
-            // enabling it would also rule out the unique constraints the data
-            // model depends on.
-            cloudKitDatabase: .none
+            // Local by default and by preference. Turning sync on is an
+            // explicit choice, made once, and it is fixed for the life of the
+            // container — which is why it is read before the store is opened
+            // rather than watched.
+            cloudKitDatabase: inMemory || !syncsWithICloud
+                ? .none
+                : .private(SyncPreference.containerIdentifier)
         )
         return try ModelContainer(for: schema, configurations: [configuration])
     }

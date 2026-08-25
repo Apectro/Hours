@@ -2,9 +2,12 @@ import Foundation
 import SwiftData
 
 /// A stored holiday rule. Mirrors `HolidayRule`, decomposed into primitives.
+///
+/// `identifier` is unique by rule rather than by constraint, for the same
+/// reason as `DayEntry.dateKey`.
 @Model
 final class HolidayRecord {
-    @Attribute(.unique) var identifier: UUID = UUID()
+    var identifier: UUID = UUID()
     var name: String = ""
 
     /// `HolidayRecurrence.Kind` raw value.

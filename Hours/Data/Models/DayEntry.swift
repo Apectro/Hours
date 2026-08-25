@@ -9,9 +9,12 @@ import SwiftData
 /// the `DayRecord` value type this maps to.
 @Model
 final class DayEntry {
-    /// `yyyyMMdd`. Unique, so a duplicate entry for a day is impossible at the
-    /// storage layer rather than by convention.
-    @Attribute(.unique) var dateKey: Int = 0
+    /// `yyyyMMdd`. One entry per day is a rule the repository enforces rather
+    /// than the schema: CloudKit refuses a store with a unique constraint on
+    /// it, and two devices editing the same day while offline can produce two
+    /// rows for it whatever the schema says. `WorkdayRepository` reconciles
+    /// them; see `reconcileDuplicates`.
+    var dateKey: Int = 0
 
     /// `nil` means the day type is derived from holidays and the schedule.
     var dayTypeRawValue: String?

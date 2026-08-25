@@ -109,6 +109,15 @@ struct SettingsScreen: View {
 
                 Section("Data") {
                     NavigationLink {
+                        SyncSettingsScreen()
+                    } label: {
+                        SettingsRow(
+                            title: "iCloud",
+                            value: HoursStack.isSyncing ? "On" : "Off",
+                            systemImage: "icloud"
+                        )
+                    }
+                    NavigationLink {
                         DataSettingsScreen()
                     } label: {
                         SettingsRow(title: "Backup and data", value: nil, systemImage: "externaldrive")

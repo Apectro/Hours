@@ -19,11 +19,19 @@ struct WorkdayRepository {
 
     // MARK: - Reading days
 
+    /// The entry for a day, and only one.
+    ///
+    /// No fetch limit, deliberately: with sync on, two devices can each create
+    /// the day while offline and both rows arrive. Taking the first would mean
+    /// the app showed one of them and silently edited the other on the next
+    /// save. Instead the newest wins and the rest are removed on the spot, so a
+    /// duplicate lives exactly until the day is next looked at.
     func entry(on date: CalendarDate) -> DayEntry? {
         let key = date.key
-        var descriptor = FetchDescriptor<DayEntry>(predicate: #Predicate<DayEntry> { $0.dateKey == key })
-        descriptor.fetchLimit = 1
-        return (try? context.fetch(descriptor))?.first
+        let descriptor = FetchDescriptor<DayEntry>(predicate: #Predicate<DayEntry> { $0.dateKey == key })
+        guard let matches = try? context.fetch(descriptor), !matches.isEmpty else { return nil }
+        guard matches.count > 1 else { return matches[0] }
+        return resolve(matches)
     }
 
     func entries(in range: CalendarDateRange) -> [DayEntry] {
@@ -33,12 +41,12 @@ struct WorkdayRepository {
             predicate: #Predicate<DayEntry> { $0.dateKey >= lower && $0.dateKey <= upper },
             sortBy: [SortDescriptor(\DayEntry.dateKey)]
         )
-        return (try? context.fetch(descriptor)) ?? []
+        return deduplicated((try? context.fetch(descriptor)) ?? [])
     }
 
     func allEntries() -> [DayEntry] {
         let descriptor = FetchDescriptor<DayEntry>(sortBy: [SortDescriptor(\DayEntry.dateKey)])
-        return (try? context.fetch(descriptor)) ?? []
+        return deduplicated((try? context.fetch(descriptor)) ?? [])
     }
 
     func record(on date: CalendarDate) -> DayRecord? {
@@ -107,7 +115,7 @@ struct WorkdayRepository {
 
     func holidayRecords() -> [HolidayRecord] {
         let descriptor = FetchDescriptor<HolidayRecord>(sortBy: [SortDescriptor(\HolidayRecord.name)])
-        return (try? context.fetch(descriptor)) ?? []
+        return deduplicatedHolidays((try? context.fetch(descriptor)) ?? [])
     }
 
     func holidayRules() -> [HolidayRule] {
@@ -116,9 +124,9 @@ struct WorkdayRepository {
 
     func upsert(_ rule: HolidayRule) {
         let identifier = rule.id
-        var descriptor = FetchDescriptor<HolidayRecord>(predicate: #Predicate<HolidayRecord> { $0.identifier == identifier })
-        descriptor.fetchLimit = 1
-        if let existing = (try? context.fetch(descriptor))?.first {
+        let descriptor = FetchDescriptor<HolidayRecord>(predicate: #Predicate<HolidayRecord> { $0.identifier == identifier })
+        let matches = deduplicatedHolidays((try? context.fetch(descriptor)) ?? [])
+        if let existing = matches.first {
             existing.apply(rule)
         } else {
             context.insert(HolidayRecord(rule: rule))
@@ -127,16 +135,88 @@ struct WorkdayRepository {
     }
 
     func deleteHoliday(id: UUID) {
-        var descriptor = FetchDescriptor<HolidayRecord>(predicate: #Predicate<HolidayRecord> { $0.identifier == id })
-        descriptor.fetchLimit = 1
-        guard let existing = (try? context.fetch(descriptor))?.first else { return }
-        context.delete(existing)
+        let descriptor = FetchDescriptor<HolidayRecord>(predicate: #Predicate<HolidayRecord> { $0.identifier == id })
+        let matches = (try? context.fetch(descriptor)) ?? []
+        guard !matches.isEmpty else { return }
+        for existing in matches { context.delete(existing) }
         persist()
     }
 
     func deleteAllHolidays() {
         for record in holidayRecords() { context.delete(record) }
         persist()
+    }
+
+    // MARK: - Duplicates
+
+    /// Removes duplicate days, keeping the one edited most recently.
+    ///
+    /// Only sync can create these. Without it the app is one process on one
+    /// device writing on the main actor, and the repository never inserts a day
+    /// it has not just failed to find. With it, two devices offline on the same
+    /// Tuesday each create one and CloudKit merges both in — it has no idea
+    /// they mean the same thing.
+    ///
+    /// Last edit wins rather than any attempt to merge the two: hours are not
+    /// meaningfully mergeable — a start time from one device and an end time
+    /// from another would invent a shift neither person worked — and the losing
+    /// row's contents are what the older device already showed as replaced.
+    @discardableResult
+    func reconcileDuplicates() -> Int {
+        let before = (try? context.fetchCount(FetchDescriptor<DayEntry>())) ?? 0
+        _ = allEntries()
+        _ = holidayRecords()
+        let after = (try? context.fetchCount(FetchDescriptor<DayEntry>())) ?? 0
+        return max(0, before - after)
+    }
+
+    private func deduplicated(_ entries: [DayEntry]) -> [DayEntry] {
+        var byKey: [Int: [DayEntry]] = [:]
+        for entry in entries { byKey[entry.dateKey, default: []].append(entry) }
+        guard byKey.contains(where: { $0.value.count > 1 }) else { return entries }
+
+        var survivors: Set<PersistentIdentifier> = []
+        for (_, group) in byKey where group.count > 1 {
+            survivors.insert(resolve(group).persistentModelID)
+        }
+        persist()
+        return entries.filter { entry in
+            byKey[entry.dateKey]?.count == 1 || survivors.contains(entry.persistentModelID)
+        }
+    }
+
+    /// Keeps the newest of a group and deletes the rest.
+    private func resolve(_ group: [DayEntry]) -> DayEntry {
+        // `updatedAt` first, then creation, then the identifier — so that two
+        // rows saved in the same second still resolve the same way on every
+        // device rather than each keeping a different one.
+        let ordered = group.sorted {
+            if $0.updatedAt != $1.updatedAt { return $0.updatedAt > $1.updatedAt }
+            if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+            return $0.persistentModelID.hashValue > $1.persistentModelID.hashValue
+        }
+        for loser in ordered.dropFirst() { context.delete(loser) }
+        return ordered[0]
+    }
+
+    private func deduplicatedHolidays(_ records: [HolidayRecord]) -> [HolidayRecord] {
+        var byID: [UUID: [HolidayRecord]] = [:]
+        for record in records { byID[record.identifier, default: []].append(record) }
+        guard byID.contains(where: { $0.value.count > 1 }) else { return records }
+
+        var survivors: Set<PersistentIdentifier> = []
+        for (_, group) in byID where group.count > 1 {
+            let ordered = group.sorted {
+                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
+                return $0.persistentModelID.hashValue > $1.persistentModelID.hashValue
+            }
+            for loser in ordered.dropFirst() { context.delete(loser) }
+            survivors.insert(ordered[0].persistentModelID)
+        }
+        persist()
+        return records.filter { record in
+            byID[record.identifier]?.count == 1 || survivors.contains(record.persistentModelID)
+        }
     }
 
     // MARK: - Saving

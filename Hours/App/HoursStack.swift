@@ -10,24 +10,54 @@ import SwiftData
 @MainActor
 enum HoursStack {
     /// Built once, on first use.
-    private static let opened: (container: ModelContainer, failure: String?) = {
-        do {
-            return (try HoursModelContainer.make(), nil)
-        } catch {
-            // Never refuse to start. A temporary store keeps the app usable and
-            // the banner says so, which beats a blank screen over data nobody
-            // can reach.
-            return (
-                HoursModelContainer.ephemeral(),
-                "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved."
-            )
+    private static let opened: (container: ModelContainer, failure: String?, isSyncing: Bool) = {
+        let wantsSync = SyncPreference.isEnabled
+
+        if wantsSync {
+            do {
+                return (try HoursModelContainer.make(syncsWithICloud: true), nil, true)
+            } catch {
+                // Almost always the iCloud capability not being enabled in the
+                // build, or no iCloud account on the device. Falling back to
+                // the local store is right either way: the hours are on this
+                // device and readable, they are simply not being sent anywhere.
+                if let local = try? HoursModelContainer.make(syncsWithICloud: false) {
+                    return (
+                        local,
+                        "iCloud sync could not be started, so this device is using its own copy. Everything you enter is still saved here.",
+                        false
+                    )
+                }
+            }
+        } else {
+            if let local = try? HoursModelContainer.make(syncsWithICloud: false) {
+                return (local, nil, false)
+            }
         }
+
+        // Never refuse to start. A temporary store keeps the app usable and the
+        // banner says so, which beats a blank screen over data nobody can reach.
+        return (
+            HoursModelContainer.ephemeral(),
+            "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved.",
+            false
+        )
     }()
 
     static var container: ModelContainer { opened.container }
     static var storeFailure: String? { opened.failure }
 
-    static let settings = SettingsStore()
+    /// Whether this session actually opened a syncing store — which is not the
+    /// same as the preference being on, since the store may have refused.
+    static var isSyncing: Bool { opened.isSyncing }
+
+    /// Settings live in `UserDefaults`, not in the SwiftData store, so they
+    /// need their own way across. The key-value store is only reached once
+    /// a syncing container has opened, which is the proof that this build
+    /// actually carries the iCloud entitlement.
+    static let settings = SettingsStore(
+        shared: isSyncing ? NSUbiquitousKeyValueStore.default : nil
+    )
     static let clock = ActiveShiftStore()
 
     static var calendar: Calendar { settings.workCalendar }

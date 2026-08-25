@@ -38,6 +38,10 @@ struct RootView: View {
             // that are actually missing rather than going stale.
             if phase == .active {
                 Task { await refreshReminder() }
+                // Anything that arrived from another device while the app was
+                // away is merged by now, so this is the moment to notice two
+                // rows meaning the same Tuesday. A no-op without sync.
+                HoursStack.repository.reconcileDuplicates()
                 HoursStack.refreshWidget()
             }
             // And again on the way out, which is the moment the widget is about

@@ -29,6 +29,7 @@ let package = Package(
             // services above it, which only exist inside the app.
             exclude: [
                 "AdjustmentTests.swift",
+                "DuplicateReconciliationTests.swift",
                 "ExportTests.swift",
                 "PersistenceCodingTests.swift",
                 "ShiftTests.swift",
