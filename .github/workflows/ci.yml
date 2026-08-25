@@ -84,6 +84,22 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test.log"
 
+      # A green tick does not say how many tests ran, and "0 tests passed" looks
+      # identical to "126 tests passed". Put the count where it can be read.
+      - name: Test summary
+        if: always()
+        run: |
+          {
+            echo "### Tests"
+            echo ''
+            echo '```'
+            grep -hE "Test Suite '.*' (passed|failed)|Executed [0-9]+ test" \
+              "$RUNNER_TEMP"/test.log 2>/dev/null \
+              | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+              | tail -30
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # Compiler diagnostics are what someone reading a failed run wants, and
       # they are easy to lose in xcodebuild's noise.
       - name: Summarise failures
