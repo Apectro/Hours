@@ -210,6 +210,7 @@ enum PDFReportRenderer {
         case .date: return 1.1
         case .weekday: return 0.6
         case .dayType: return 1.2
+        case .job: return 1.1
         case .start, .end: return 0.8
         case .breakTime: return 0.7
         case .worked, .expected, .overtime, .balance, .credited: return 0.9

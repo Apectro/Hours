@@ -58,6 +58,7 @@ struct WorkdayCalculator: Sendable {
             creditedMinutes: credited,
             expectedMinutes: expected,
             adjustmentMinutes: adjustment,
+            adjustmentReason: record?.adjustmentReason ?? .correction,
             balanceMinutes: balance,
             hasEntry: record.map { !$0.isBlank } ?? false,
             isIncluded: isIncluded,

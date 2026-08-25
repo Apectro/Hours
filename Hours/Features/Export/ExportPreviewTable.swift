@@ -9,7 +9,7 @@ struct ExportPreviewTable: View {
     var rowLimit: Int = 12
 
     private static let columnWidths: [ReportColumn: CGFloat] = [
-        .date: 92, .weekday: 46, .dayType: 96, .start: 60, .end: 68,
+        .date: 92, .weekday: 46, .dayType: 96, .job: 96, .start: 60, .end: 68,
         .breakTime: 60, .worked: 70, .credited: 84, .expected: 74,
         .overtime: 74, .balance: 74, .cumulativeBalance: 96,
         .holiday: 120, .location: 110, .tags: 110, .note: 160

@@ -11,6 +11,9 @@ struct PeriodSummary: Hashable, Sendable {
     var expectedMinutes: Int
     var breakMinutes: Int
     var adjustmentMinutes: Int
+    /// Adjustments split by what they were for, so a report can say
+    /// "10 h paid out" rather than showing an unexplained correction.
+    var adjustmentsByReason: [AdjustmentReason: Int]
 
     /// Net of the period: the sum of daily balances.
     var balanceMinutes: Int
@@ -43,6 +46,8 @@ struct PeriodSummary: Hashable, Sendable {
 
     func count(of type: DayTypeID) -> Int { countsByType[type] ?? 0 }
 
+    func adjustment(for reason: AdjustmentReason) -> Int { adjustmentsByReason[reason] ?? 0 }
+
     var isEmpty: Bool {
         workedMinutes == 0 && creditedMinutes == 0 && expectedMinutes == 0 && daysWithEntries == 0
     }
@@ -55,6 +60,7 @@ struct PeriodSummary: Hashable, Sendable {
             expectedMinutes: 0,
             breakMinutes: 0,
             adjustmentMinutes: 0,
+            adjustmentsByReason: [:],
             balanceMinutes: 0,
             overtimeMinutes: 0,
             deficitMinutes: 0,
@@ -94,6 +100,9 @@ enum PeriodAggregator {
             summary.expectedMinutes += day.expectedMinutes
             summary.breakMinutes += day.breakMinutes
             summary.adjustmentMinutes += day.adjustmentMinutes
+            if day.adjustmentMinutes != 0 {
+                summary.adjustmentsByReason[day.adjustmentReason, default: 0] += day.adjustmentMinutes
+            }
             summary.balanceMinutes += day.balanceMinutes
             summary.overtimeMinutes += day.overtimeMinutes
             summary.deficitMinutes += day.deficitMinutes

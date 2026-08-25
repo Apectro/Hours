@@ -118,10 +118,10 @@ struct DaySummaryCard: View {
             }
             if computation.adjustmentMinutes != 0 {
                 MetricRow(
-                    label: "Adjustment",
+                    label: computation.adjustmentReason.title,
                     value: duration.signedString(computation.adjustmentMinutes),
                     tint: Color.hoursBalance(computation.adjustmentMinutes),
-                    systemImage: "slider.horizontal.3"
+                    systemImage: computation.adjustmentReason.symbolName
                 )
             }
             if settings.features.trackLocation && !computation.location.isEmpty {

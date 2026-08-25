@@ -28,6 +28,9 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     /// the raw hours *and* the adjusted balance.
     var adjustmentMinutes: Int
 
+    /// What the adjustment was for. Only meaningful when the figure is not zero.
+    var adjustmentReason: AdjustmentReason
+
     /// Set when automatic overtime calculation is off: the balance is then
     /// whatever the user says it is.
     var manualBalanceMinutes: Int?
@@ -53,6 +56,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         manualWorkedMinutes: Int? = nil,
         expectedOverrideMinutes: Int? = nil,
         adjustmentMinutes: Int = 0,
+        adjustmentReason: AdjustmentReason = .correction,
         manualBalanceMinutes: Int? = nil,
         note: String = "",
         location: String = "",
@@ -74,6 +78,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         self.manualWorkedMinutes = manualWorkedMinutes
         self.expectedOverrideMinutes = expectedOverrideMinutes
         self.adjustmentMinutes = adjustmentMinutes
+        self.adjustmentReason = adjustmentReason
         self.manualBalanceMinutes = manualBalanceMinutes
         self.note = note
         self.location = location
@@ -128,7 +133,8 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case date, dayTypeID, shifts
-        case manualWorkedMinutes, expectedOverrideMinutes, adjustmentMinutes, manualBalanceMinutes
+        case manualWorkedMinutes, expectedOverrideMinutes, adjustmentMinutes, adjustmentReason
+        case manualBalanceMinutes
         case note, location, tags, isIncluded, timeZoneIdentifier
         // Written by versions that held a single shift on the day itself. Read
         // so that a backup taken before shifts existed still restores.
@@ -160,6 +166,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
             manualWorkedMinutes: container.lenientOptional(.manualWorkedMinutes, Int.self),
             expectedOverrideMinutes: container.lenientOptional(.expectedOverrideMinutes, Int.self),
             adjustmentMinutes: container.lenient(.adjustmentMinutes, 0),
+            adjustmentReason: container.lenient(.adjustmentReason, .correction),
             manualBalanceMinutes: container.lenientOptional(.manualBalanceMinutes, Int.self),
             note: container.lenient(.note, ""),
             location: container.lenient(.location, ""),
@@ -177,6 +184,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         try container.encodeIfPresent(manualWorkedMinutes, forKey: .manualWorkedMinutes)
         try container.encodeIfPresent(expectedOverrideMinutes, forKey: .expectedOverrideMinutes)
         try container.encode(adjustmentMinutes, forKey: .adjustmentMinutes)
+        try container.encode(adjustmentReason, forKey: .adjustmentReason)
         try container.encodeIfPresent(manualBalanceMinutes, forKey: .manualBalanceMinutes)
         try container.encode(note, forKey: .note)
         try container.encode(location, forKey: .location)

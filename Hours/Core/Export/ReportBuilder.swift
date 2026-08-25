@@ -188,6 +188,20 @@ struct ReportBuilder: Sendable {
             }
         }
 
+        // Named separately so a reader can see where the balance went. Payouts
+        // and time off in lieu are the two ways overtime leaves without being
+        // un-worked, and a bare negative correction explains neither.
+        for reason in AdjustmentReason.allCases where reason != .correction {
+            let minutes = summary.adjustment(for: reason)
+            if minutes != 0 {
+                totals.append(ReportTotal(
+                    label: reason.title,
+                    value: duration.signedString(minutes),
+                    isEmphasised: false
+                ))
+            }
+        }
+
         totals.append(ReportTotal(label: "Days worked", value: "\(summary.daysWorked)", isEmphasised: false))
         if settings.features.trackExpectedHours {
             totals.append(ReportTotal(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", isEmphasised: false))

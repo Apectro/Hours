@@ -31,6 +31,7 @@ final class DayEntry {
     var expectedOverrideMinutes: Int?
     var manualBalanceMinutes: Int?
     var adjustmentMinutes: Int = 0
+    var adjustmentReasonRawValue: String = AdjustmentReason.correction.rawValue
 
     var note: String = ""
     var locationName: String = ""
@@ -62,6 +63,7 @@ extension DayEntry {
             manualWorkedMinutes: manualWorkedMinutes,
             expectedOverrideMinutes: expectedOverrideMinutes,
             adjustmentMinutes: adjustmentMinutes,
+            adjustmentReason: AdjustmentReason(rawValue: adjustmentReasonRawValue) ?? .correction,
             manualBalanceMinutes: manualBalanceMinutes,
             note: note,
             location: locationName,
@@ -98,6 +100,7 @@ extension DayEntry {
         expectedOverrideMinutes = record.expectedOverrideMinutes
         manualBalanceMinutes = record.manualBalanceMinutes
         adjustmentMinutes = record.adjustmentMinutes
+        adjustmentReasonRawValue = record.adjustmentReason.rawValue
         note = record.note
         locationName = record.location
         tagsJoined = record.tags

@@ -312,6 +312,14 @@ struct DayEditorForm: View {
                 signed: true,
                 formatting: formatter
             )
+            if draft.adjustmentMinutes != 0 {
+                Picker("Reason", selection: $draft.adjustmentReason) {
+                    ForEach(AdjustmentReason.allCases) { reason in
+                        Label(reason.title, systemImage: reason.symbolName).tag(reason)
+                    }
+                }
+            }
+
             if !settings.features.autoCalculateOvertime {
                 Toggle("Set balance manually", isOn: manualBalanceToggle)
                 if draft.manualBalanceMinutes != nil {
@@ -328,7 +336,9 @@ struct DayEditorForm: View {
         } header: {
             Text("Corrections")
         } footer: {
-            Text("An adjustment changes the balance without changing the hours you worked.")
+            Text(draft.adjustmentMinutes == 0
+                 ? "An adjustment changes the balance without changing the hours you worked."
+                 : draft.adjustmentReason.explanation)
         }
     }
 

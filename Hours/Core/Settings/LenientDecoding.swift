@@ -8,15 +8,15 @@ import Foundation
 /// This is the settings half of the migration strategy; see `SettingsStore`
 /// for versioning.
 extension KeyedDecodingContainer {
+    /// `try?` flattens the nested optional, so a missing key and an unreadable
+    /// value both arrive here as nil and both fall back.
     func lenient<T: Decodable>(_ key: Key, _ fallback: T) -> T {
-        guard let value = try? decodeIfPresent(T.self, forKey: key) else { return fallback }
-        return value ?? fallback
+        (try? decodeIfPresent(T.self, forKey: key)) ?? fallback
     }
 
     /// Optional-valued properties, where "absent" and "explicitly null" mean
     /// the same thing.
     func lenientOptional<T: Decodable>(_ key: Key, _ type: T.Type = T.self) -> T? {
-        guard let value = try? decodeIfPresent(T.self, forKey: key) else { return nil }
-        return value
+        (try? decodeIfPresent(T.self, forKey: key)) ?? nil
     }
 }

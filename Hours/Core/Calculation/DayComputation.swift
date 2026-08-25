@@ -61,6 +61,7 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     var expectedMinutes: Int
     /// Manual correction included in the balance.
     var adjustmentMinutes: Int
+    var adjustmentReason: AdjustmentReason
     /// `paidMinutes - expectedMinutes + adjustment`, or a manual override.
     var balanceMinutes: Int
 
@@ -111,6 +112,7 @@ struct DayComputation: Identifiable, Hashable, Sendable {
             creditedMinutes: 0,
             expectedMinutes: 0,
             adjustmentMinutes: 0,
+            adjustmentReason: .correction,
             balanceMinutes: 0,
             hasEntry: false,
             isIncluded: true,
