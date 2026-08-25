@@ -99,7 +99,9 @@ struct DayCell: View {
     private var detailLabel: some View {
         if let text = detailText {
             Text(text)
-                .font(.caption2.weight(.medium))
+                // Rounded, to match the day number above it. `.caption2` alone
+                // lost that when the cell was made to scale with Dynamic Type.
+                .font(.system(.caption2, design: .rounded, weight: .medium))
                 .monospacedDigit()
                 .foregroundStyle(detailColor)
                 .lineLimit(1)
