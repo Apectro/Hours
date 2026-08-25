@@ -1,0 +1,107 @@
+name: Build and test
+
+# The app cannot be built anywhere but macOS — SwiftUI, SwiftData and UIKit are
+# Apple-platform only. Simulator builds need no signing certificate and no
+# Apple Developer account, so this verifies the code compiles and the tests
+# pass; it does not produce anything installable on a device.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # The project uses Xcode 16 synchronized folder groups (objectVersion 77),
+      # so an older Xcode cannot open it at all. Fail clearly rather than with a
+      # confusing parse error.
+      - name: Require Xcode 16 or newer
+        run: |
+          MAJOR=$(xcodebuild -version | head -1 | sed -E 's/Xcode ([0-9]+).*/\1/')
+          echo "Xcode major version: $MAJOR"
+          if [ "$MAJOR" -lt 16 ]; then
+            echo "::error::This project needs Xcode 16 or newer (synchronized folder groups)."
+            exit 1
+          fi
+
+      # Runner images change their simulator line-up, so pick whatever iPhone is
+      # installed rather than hard-coding a model that may not be there.
+      - name: Pick a simulator
+        id: sim
+        run: |
+          xcrun simctl list devices available | sed -n '/-- iOS/,/^--/p'
+          UDID=$(xcrun simctl list devices available \
+            | grep "iPhone" \
+            | head -1 \
+            | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/')
+          if [ -z "$UDID" ]; then
+            echo "::error::No iPhone simulator available on this runner."
+            exit 1
+          fi
+          echo "Using simulator $UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      # Building first gives a clean compile-error list without the test
+      # bundle's output interleaved, which matters on a first green-field build.
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/build.log"
+
+      - name: Test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/test.log"
+
+      # Compiler diagnostics are what someone reading a failed run wants, and
+      # they are easy to lose in xcodebuild's noise.
+      - name: Summarise failures
+        if: failure()
+        run: |
+          {
+            echo "### Compiler diagnostics"
+            echo ''
+            echo '```'
+            cat "$RUNNER_TEMP"/*.log 2>/dev/null \
+              | grep -E "(error|warning):" \
+              | sort -u \
+              | head -60
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-logs
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+          retention-days: 7
