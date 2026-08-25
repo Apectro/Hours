@@ -17,7 +17,10 @@ concurrency:
 
 jobs:
   build-and-test:
-    runs-on: macos-15
+    # `macos-latest` rather than a pinned version: a pinned label that the
+    # account cannot schedule fails the job before any step runs, with no logs
+    # to explain why.
+    runs-on: macos-latest
     timeout-minutes: 30
 
     steps:
