@@ -20,11 +20,13 @@ struct CalendarScreen: View {
     private enum ActiveSheet: Identifiable {
         case day(CalendarDate)
         case export(CalendarDateRange)
+        case bulkEdit(CalendarDateRange)
 
         var id: String {
             switch self {
             case let .day(date): return "day-\(date.key)"
             case let .export(range): return "export-\(range.start.key)-\(range.end.key)"
+            case let .bulkEdit(range): return "bulk-\(range.start.key)-\(range.end.key)"
             }
         }
     }
@@ -75,6 +77,8 @@ struct CalendarScreen: View {
                     DayEditorSheet(date: date)
                 case let .export(range):
                     ExportScreen(initialRange: range)
+                case let .bulkEdit(range):
+                    BulkEditSheet(initialRange: range)
                 }
             }
         }
@@ -235,6 +239,15 @@ struct CalendarScreen: View {
                 .pickerStyle(.inline)
 
                 Divider()
+
+                Button {
+                    // Seeded with the selected day rather than the whole month:
+                    // a range edit almost always starts from a day you are
+                    // looking at, and widening is easier than narrowing.
+                    activeSheet = .bulkEdit(CalendarDateRange(single: selectedDate))
+                } label: {
+                    Label("Edit a range…", systemImage: "calendar.badge.plus")
+                }
 
                 Button {
                     activeSheet = .export(summaryRange)
