@@ -76,7 +76,8 @@ struct WorkdayCalculator: Sendable {
     func resolveDayTypeID(record: DayRecord?, date: CalendarDate, holiday: HolidayRule?) -> DayTypeID {
         if let explicit = record?.dayTypeID { return explicit }
         let weekday = date.weekday(in: calendar)
-        let contracted = settings.schedule.contractedMinutes(forWeekday: weekday)
+        // Summed across jobs: a day is a working day if any job expects hours.
+        let contracted = settings.contractedMinutes(forWeekday: weekday)
         if let holiday {
             // A "working holiday" is still an ordinary day for the arithmetic;
             // only its name is carried through to the calendar and reports.

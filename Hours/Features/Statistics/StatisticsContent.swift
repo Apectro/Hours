@@ -51,6 +51,7 @@ struct StatisticsContent: View {
                 .padding(.vertical, Metrics.large)
             } else {
                 breakdown
+                jobBreakdown
                 chartSection
                 dayTypeBreakdown
             }
@@ -179,6 +180,48 @@ struct StatisticsContent: View {
             startDate: settings.balanceStartDate,
             countingThrough: CalendarDate.today(in: calendar)
         )
+    }
+
+    // MARK: - Jobs
+
+    /// Only appears once there is more than one job — with one, it would just
+    /// restate the totals above.
+    @ViewBuilder
+    private var jobBreakdown: some View {
+        if settings.tracksMultipleJobs {
+            let totals = PeriodEngine(settings: settings, calendar: calendar)
+                .jobTotals(for: days, countingThrough: CalendarDate.today(in: calendar))
+            if !totals.isEmpty {
+                SurfaceCard {
+                    VStack(alignment: .leading, spacing: Metrics.medium) {
+                        Text("By job")
+                            .font(.subheadline.weight(.semibold))
+                        ForEach(totals) { total in
+                            HStack(spacing: Metrics.medium) {
+                                Circle()
+                                    .fill(total.job.tint.color)
+                                    .frame(width: 10, height: 10)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(total.job.name)
+                                        .font(.subheadline)
+                                    Text("\(duration.string(total.workedMinutes)) of \(duration.string(total.expectedMinutes))")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: Metrics.small)
+                                if settings.features.showsBalance {
+                                    BalanceText(
+                                        minutes: total.balanceMinutes,
+                                        formatting: duration,
+                                        font: .hoursFigure(.subheadline)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Day types

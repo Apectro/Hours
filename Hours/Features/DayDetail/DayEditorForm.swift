@@ -107,14 +107,18 @@ struct DayEditorForm: View {
                 title: "Start",
                 time: $draft.shifts[index].start,
                 calendar: calendar,
-                fallback: settings.schedule.defaultStart
+                fallback: settings.primarySchedule.defaultStart
             )
             OptionalTimeRow(
                 title: "End",
                 time: $draft.shifts[index].end,
                 calendar: calendar,
-                fallback: settings.schedule.defaultEnd
+                fallback: settings.primarySchedule.defaultEnd
             )
+
+            if settings.tracksMultipleJobs {
+                jobPicker(at: index)
+            }
 
             if settings.features.trackBreaks {
                 breakRows(at: index)
@@ -134,21 +138,54 @@ struct DayEditorForm: View {
         }
     }
 
+    /// Only ever shown when there is more than one job to choose between.
+    @ViewBuilder
+    private func jobPicker(at index: Int) -> some View {
+        Picker("Job", selection: jobBinding(at: index)) {
+            ForEach(settings.activeJobs) { job in
+                Text(job.name).tag(job.id)
+            }
+        }
+    }
+
+    private func jobBinding(at index: Int) -> Binding<UUID> {
+        Binding(
+            get: {
+                guard index < draft.shifts.count else { return settings.primaryJob.id }
+                // A shift recorded before jobs existed carries no id; it belongs
+                // to the primary job, and saying so explicitly is what makes the
+                // picker show the right thing.
+                return draft.shifts[index].jobID ?? settings.primaryJob.id
+            },
+            set: { newValue in
+                guard index < draft.shifts.count else { return }
+                draft.shifts[index].jobID = newValue
+            }
+        )
+    }
+
     private func sectionTitle(at index: Int) -> String {
         guard draft.shifts.count > 1 else { return "Work" }
-        return "Block \(index + 1)"
+        guard settings.tracksMultipleJobs, index < draft.shifts.count else {
+            return "Block \(index + 1)"
+        }
+        return settings.job(draft.shifts[index].jobID).name
     }
 
     private func defaultShift() -> Shift {
         // A second block starts where the schedule's day would have ended,
         // which is a better guess than repeating the morning.
         let isFirst = draft.shifts.isEmpty
+        let schedule = settings.primarySchedule
         return Shift(
-            start: isFirst ? settings.schedule.defaultStart : settings.schedule.defaultEnd,
+            start: isFirst ? schedule.defaultStart : schedule.defaultEnd,
             end: nil,
-            breaks: isFirst && settings.schedule.defaultBreakMinutes > 0
-                ? [BreakSpan.duration(settings.schedule.defaultBreakMinutes)]
-                : []
+            breaks: isFirst && schedule.defaultBreakMinutes > 0
+                ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
+                : [],
+            // Carry the previous block's job forward: a split shift is usually
+            // two halves of the same day at the same place.
+            jobID: draft.shifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
         )
     }
 
@@ -177,7 +214,7 @@ struct DayEditorForm: View {
             }
 
             Button {
-                let minutes = settings.schedule.defaultBreakMinutes
+                let minutes = settings.primarySchedule.defaultBreakMinutes
                 draft.shifts[index].breaks.append(.duration(minutes > 0 ? minutes : 15))
             } label: {
                 Label("Add break", systemImage: "plus.circle")

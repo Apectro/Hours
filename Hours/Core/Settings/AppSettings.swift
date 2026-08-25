@@ -78,7 +78,8 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Export columns filtered by the enabled features, preserving the user's
     /// chosen order.
     var effectiveExportColumns: [ReportColumn] {
-        let allowed = Set(features.availableColumns())
+        var allowed = Set(features.availableColumns())
+        if !tracksMultipleJobs { allowed.remove(.job) }
         let selected = export.columns.filter { allowed.contains($0) }
         return selected.isEmpty ? ReportColumn.defaultSelection.filter { allowed.contains($0) } : selected
     }

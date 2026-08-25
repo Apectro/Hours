@@ -22,6 +22,15 @@ struct SettingsScreen: View {
                         )
                     }
                     NavigationLink {
+                        JobSettingsScreen()
+                    } label: {
+                        SettingsRow(
+                            title: "Jobs",
+                            value: jobsSummary,
+                            systemImage: "bag"
+                        )
+                    }
+                    NavigationLink {
                         CalculationSettingsScreen()
                     } label: {
                         SettingsRow(
@@ -108,9 +117,14 @@ struct SettingsScreen: View {
 
     private var settings: AppSettings { settingsStore.settings }
 
+    private var jobsSummary: String {
+        let jobs = settings.activeJobs
+        return jobs.count == 1 ? jobs[0].name : "\(jobs.count)"
+    }
+
     private var scheduleSummary: String {
-        let weekly = settings.schedule.weeklyTargetMinutes
-        let days = settings.schedule.workingDaysPerWeek
+        let weekly = settings.primarySchedule.weeklyTargetMinutes
+        let days = settings.primarySchedule.workingDaysPerWeek
         return "\(settings.displayFormatting.string(weekly)) over \(days) \(days == 1 ? "day" : "days")"
     }
 

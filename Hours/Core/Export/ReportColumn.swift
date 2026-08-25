@@ -9,6 +9,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     case date
     case weekday
     case dayType
+    case job
     case start
     case end
     case breakTime
@@ -30,6 +31,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         case .date: return "Date"
         case .weekday: return "Day"
         case .dayType: return "Type"
+        case .job: return "Job"
         case .start: return "Start"
         case .end: return "End"
         case .breakTime: return "Break"

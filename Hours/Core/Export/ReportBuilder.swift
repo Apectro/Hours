@@ -98,6 +98,13 @@ struct ReportBuilder: Sendable {
             return (formatting.shortWeekdaySymbol(for: day.date.weekday(in: calendar)), nil)
         case .dayType:
             return (day.dayType.name, nil)
+        case .job:
+            let names = day.shifts
+                .map { settings.job($0.jobID).name }
+                .reduce(into: [String]()) { unique, name in
+                    if !unique.contains(name) { unique.append(name) }
+                }
+            return (names.isEmpty ? emptyPlaceholder : names.joined(separator: ", "), nil)
         case .start:
             guard let start = day.start else { return (emptyPlaceholder, nil) }
             return (settings.export.timeStyle.string(for: start), nil)

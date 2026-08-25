@@ -95,6 +95,46 @@ extension AppSettings {
     /// the UI starts showing job pickers at all.
     var tracksMultipleJobs: Bool { activeJobs.count > 1 }
 
+    /// The primary job's contracted week, wherever it currently lives.
+    var primarySchedule: WorkSchedule { primaryJob.schedule }
+
+    /// Writes the primary job's week back to whichever place holds it.
+    mutating func setPrimarySchedule(_ newValue: WorkSchedule) {
+        if let index = jobs.firstIndex(where: { $0.isPrimary }) {
+            jobs[index].schedule = newValue
+        } else if jobs.isEmpty {
+            schedule = newValue
+        } else {
+            jobs[0].schedule = newValue
+        }
+    }
+
+    /// Adds a job, materialising the implicit primary one first so the list is
+    /// complete the moment there is more than one thing in it.
+    mutating func addJob(_ job: Job) {
+        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule)] }
+        var appended = job
+        appended.sortOrder = (jobs.map(\.sortOrder).max() ?? 0) + 1
+        jobs.append(appended)
+    }
+
+    /// Removing the last remaining extra job collapses back to the single-job
+    /// case rather than leaving a one-element list behind.
+    mutating func removeJob(id: UUID) {
+        guard !jobs.isEmpty else { return }
+        jobs.removeAll { $0.id == id }
+        if jobs.count <= 1 {
+            schedule = jobs.first?.schedule ?? schedule
+            jobs = []
+        }
+    }
+
+    mutating func updateJob(id: UUID, _ transform: (inout Job) -> Void) {
+        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule)] }
+        guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
+        transform(&jobs[index])
+    }
+
     /// Contracted minutes for a weekday across every active job.
     func contractedMinutes(forWeekday weekday: Int) -> Int {
         activeJobs.reduce(0) { $0 + $1.schedule.contractedMinutes(forWeekday: weekday) }

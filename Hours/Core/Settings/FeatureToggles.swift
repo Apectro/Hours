@@ -63,6 +63,9 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             case .location: return trackLocation
             case .tags: return trackTags
             case .note: return trackNotes
+            // Filtered again by AppSettings, which knows whether a second job
+            // exists; the toggles alone cannot tell.
+            case .job: return true
             default: return true
             }
         }
