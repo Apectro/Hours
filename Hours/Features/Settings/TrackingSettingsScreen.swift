@@ -32,6 +32,14 @@ struct TrackingSettingsScreen: View {
                 Text("Overtime needs expected hours to measure against, so it follows that setting.")
             }
 
+            Section {
+                Toggle("Clock in and out", isOn: settingsStore.binding(\.features.useTimeClock))
+            } header: {
+                Text("Recording")
+            } footer: {
+                Text("Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.")
+            }
+
             Section("Holidays") {
                 Toggle("Holidays", isOn: settingsStore.binding(\.features.trackHolidays))
             }

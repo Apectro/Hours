@@ -13,6 +13,7 @@ enum PreviewSupport {
     }
 
     static let settings = SettingsStore.ephemeral()
+    static let clock = ActiveShiftStore.ephemeral()
 
     private static func seed(_ context: ModelContext, reference: Date) {
         var calendar = Calendar(identifier: .gregorian)
@@ -62,30 +63,35 @@ enum PreviewSupport {
 #Preview("Calendar") {
     CalendarScreen()
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 
 #Preview("Insights") {
     StatisticsScreen()
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 
 #Preview("Settings") {
     SettingsScreen()
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 
 #Preview("Day editor") {
     DayEditorSheet(date: CalendarDate.today(in: .current))
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 
 #Preview("Export") {
     ExportScreen(initialRange: CalendarDate.today(in: .current).yearMonth.range(in: .current))
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 #endif

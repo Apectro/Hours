@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct HoursApp: App {
     @State private var settingsStore = SettingsStore()
+    @State private var clockStore = ActiveShiftStore()
 
     private let container: ModelContainer
     private let storeFailure: String?
@@ -25,6 +26,7 @@ struct HoursApp: App {
         WindowGroup {
             RootView(storeFailure: storeFailure)
                 .environment(settingsStore)
+                .environment(clockStore)
                 .preferredColorScheme(settingsStore.settings.appearance.colorScheme)
         }
         .modelContainer(container)

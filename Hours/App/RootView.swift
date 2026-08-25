@@ -78,6 +78,7 @@ private struct StoreFailureBanner: View {
 #Preview {
     RootView()
         .environment(PreviewSupport.settings)
+        .environment(PreviewSupport.clock)
         .modelContainer(PreviewSupport.seededContainer())
 }
 #endif

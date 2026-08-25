@@ -8,6 +8,8 @@ struct DaySummaryCard: View {
     let settings: AppSettings
     let formatting: CalendarFormatting
     let onEdit: () -> Void
+    /// Present only on today, and only when no clock is already running.
+    var onClockIn: (() -> Void)? = nil
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
@@ -34,15 +36,34 @@ struct DaySummaryCard: View {
 
                 warnings
 
-                Button(action: onEdit) {
-                    Label(
-                        computation.hasEntry ? "Edit day" : "Add hours",
-                        systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
-                    )
-                    .frame(maxWidth: .infinity)
+                if let onClockIn {
+                    Button(action: onClockIn) {
+                        Label("Clock in", systemImage: "play.circle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+
+                    Button(action: onEdit) {
+                        Label(
+                            computation.hasEntry ? "Edit day" : "Add hours by hand",
+                            systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                } else {
+                    Button(action: onEdit) {
+                        Label(
+                            computation.hasEntry ? "Edit day" : "Add hours",
+                            systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
             }
         }
     }

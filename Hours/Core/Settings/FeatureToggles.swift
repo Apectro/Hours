@@ -17,6 +17,8 @@ struct FeatureToggles: Hashable, Codable, Sendable {
     var trackTags: Bool
     var allowManualAdjustments: Bool
     var allowPerDayExpectedOverride: Bool
+    /// The clock in / clock out button on today.
+    var useTimeClock: Bool
 
     var autoCalculateWorkedHours: Bool
     var autoCalculateOvertime: Bool
@@ -32,6 +34,7 @@ struct FeatureToggles: Hashable, Codable, Sendable {
         trackTags: Bool = false,
         allowManualAdjustments: Bool = true,
         allowPerDayExpectedOverride: Bool = true,
+        useTimeClock: Bool = true,
         autoCalculateWorkedHours: Bool = true,
         autoCalculateOvertime: Bool = true
     ) {
@@ -45,6 +48,7 @@ struct FeatureToggles: Hashable, Codable, Sendable {
         self.trackTags = trackTags
         self.allowManualAdjustments = allowManualAdjustments
         self.allowPerDayExpectedOverride = allowPerDayExpectedOverride
+        self.useTimeClock = useTimeClock
         self.autoCalculateWorkedHours = autoCalculateWorkedHours
         self.autoCalculateOvertime = autoCalculateOvertime
     }
@@ -74,7 +78,7 @@ struct FeatureToggles: Hashable, Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case trackBreaks, multipleBreaksPerDay, trackExpectedHours, trackOvertime
         case trackHolidays, trackNotes, trackLocation, trackTags
-        case allowManualAdjustments, allowPerDayExpectedOverride
+        case allowManualAdjustments, allowPerDayExpectedOverride, useTimeClock
         case autoCalculateWorkedHours, autoCalculateOvertime
     }
 
@@ -92,6 +96,7 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             trackTags: container.lenient(.trackTags, defaults.trackTags),
             allowManualAdjustments: container.lenient(.allowManualAdjustments, defaults.allowManualAdjustments),
             allowPerDayExpectedOverride: container.lenient(.allowPerDayExpectedOverride, defaults.allowPerDayExpectedOverride),
+            useTimeClock: container.lenient(.useTimeClock, defaults.useTimeClock),
             autoCalculateWorkedHours: container.lenient(.autoCalculateWorkedHours, defaults.autoCalculateWorkedHours),
             autoCalculateOvertime: container.lenient(.autoCalculateOvertime, defaults.autoCalculateOvertime)
         )

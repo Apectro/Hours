@@ -8,6 +8,8 @@ import SwiftData
 /// never navigates away — the grid stays put and the detail appears beneath it.
 struct CalendarScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(ActiveShiftStore.self) private var clockStore
+    @Environment(\.modelContext) private var modelContext
 
     @State private var anchorDate = CalendarDate.today(in: .current)
     @State private var selectedDate = CalendarDate.today(in: .current)
@@ -30,6 +32,18 @@ struct CalendarScreen: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                if settings.features.useTimeClock, let running = clockStore.running {
+                    ClockCard(
+                        running: running,
+                        settings: settings,
+                        formatting: settingsStore.dateFormatting,
+                        onClockOut: clockOut,
+                        onDiscard: { timeClock.discard() }
+                    )
+                    .padding(.bottom, Metrics.large)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 PeriodDataProvider(range: layout.coveredRange) { data in
                     CalendarPeriodView(
                         layout: layout,
@@ -42,7 +56,8 @@ struct CalendarScreen: View {
                         today: today,
                         scope: scope,
                         onSelect: select,
-                        onEdit: { activeSheet = .day(selectedDate) }
+                        onEdit: { activeSheet = .day(selectedDate) },
+                        onClockIn: showsClockInOnSelectedDay ? clockIn : nil
                     )
                 }
                 .padding(.horizontal, Metrics.large)
@@ -140,6 +155,42 @@ struct CalendarScreen: View {
         }
     }
 
+    // MARK: - The clock
+
+    private var timeClock: TimeClock {
+        TimeClock(
+            repository: WorkdayRepository(context: modelContext),
+            clock: clockStore,
+            settings: settings,
+            calendar: calendar
+        )
+    }
+
+    /// Offered on today only, and only while nothing is already running.
+    private var showsClockInOnSelectedDay: Bool {
+        settings.features.useTimeClock
+            && clockStore.running == nil
+            && selectedDate == today
+    }
+
+    private func clockIn() {
+        withAnimation(.snappy(duration: 0.25)) {
+            timeClock.clockIn()
+        }
+    }
+
+    private func clockOut() {
+        withAnimation(.snappy(duration: 0.25)) {
+            let result = timeClock.clockOut()
+            // Stopping a clock that was started on an earlier day should show
+            // the day it belonged to, not the day you happened to stop it.
+            if case let .recorded(date, _, _) = result {
+                selectedDate = date
+                if !summaryRange.contains(date) { anchorDate = date }
+            }
+        }
+    }
+
     private func goToToday() {
         withAnimation(.snappy(duration: 0.25)) {
             anchorDate = today
@@ -212,6 +263,7 @@ private struct CalendarPeriodView: View {
     let scope: CalendarScope
     let onSelect: (CalendarDate) -> Void
     let onEdit: () -> Void
+    let onClockIn: (() -> Void)?
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
@@ -229,7 +281,8 @@ private struct CalendarPeriodView: View {
         today: CalendarDate,
         scope: CalendarScope,
         onSelect: @escaping (CalendarDate) -> Void,
-        onEdit: @escaping () -> Void
+        onEdit: @escaping () -> Void,
+        onClockIn: (() -> Void)? = nil
     ) {
         self.layout = layout
         self.settings = settings
@@ -239,6 +292,7 @@ private struct CalendarPeriodView: View {
         self.scope = scope
         self.onSelect = onSelect
         self.onEdit = onEdit
+        self.onClockIn = onClockIn
 
         let engine = PeriodEngine(settings: settings, calendar: calendar)
         // The grid can show days from neighbouring months, and the selected day
@@ -290,7 +344,8 @@ private struct CalendarPeriodView: View {
                 computation: selectedComputation,
                 settings: settings,
                 formatting: formatting,
-                onEdit: onEdit
+                onEdit: onEdit,
+                onClockIn: onClockIn
             )
 
             if scope == .week && !weekDays.isEmpty {
