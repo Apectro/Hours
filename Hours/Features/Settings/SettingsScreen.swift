@@ -56,6 +56,15 @@ struct SettingsScreen: View {
                             systemImage: "tag"
                         )
                     }
+                    NavigationLink {
+                        ReminderSettingsScreen()
+                    } label: {
+                        SettingsRow(
+                            title: "Reminders",
+                            value: settings.reminders.isEnabled ? "On" : "Off",
+                            systemImage: "bell"
+                        )
+                    }
                     if settings.features.trackHolidays {
                         NavigationLink {
                             HolidaySettingsScreen()

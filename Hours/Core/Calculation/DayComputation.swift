@@ -99,6 +99,19 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     /// True when the day was worked in more than one block.
     var isSplitShift: Bool { shifts.count > 1 }
 
+    /// A working day in the past with nothing recorded against it.
+    ///
+    /// The single definition of a gap: the calendar draws these with a dashed
+    /// outline and the reminder counts them, so the two can never disagree
+    /// about what is missing.
+    func isUnrecordedWorkingDay(asOf today: CalendarDate) -> Bool {
+        isIncluded
+            && isScheduledWorkingDay
+            && !hasEntry
+            && workedMinutes == 0
+            && date < today
+    }
+
     static func empty(on date: CalendarDate) -> DayComputation {
         DayComputation(
             date: date,

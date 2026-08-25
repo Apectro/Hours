@@ -39,7 +39,7 @@ struct CalendarMonthGrid: View {
                         isInMonth: layout.isInMonth(date),
                         isSelected: date == selectedDate,
                         isToday: date == today,
-                        isPast: date < today,
+                        today: today,
                         detail: detail,
                         durationFormatting: durationFormatting
                     )
@@ -64,7 +64,7 @@ struct DayCell: View {
     let isInMonth: Bool
     let isSelected: Bool
     let isToday: Bool
-    let isPast: Bool
+    let today: CalendarDate
     let detail: DayCellDetail
     let durationFormatting: DurationFormatting
 
@@ -166,8 +166,8 @@ struct DayCell: View {
     }
 
     private var isMissingData: Bool {
-        guard isInMonth, isPast, !isToday, let computation else { return false }
-        return computation.isScheduledWorkingDay && !computation.hasEntry && computation.workedMinutes == 0
+        guard isInMonth, let computation else { return false }
+        return computation.isUnrecordedWorkingDay(asOf: today)
     }
 
     private var accessibilityLabel: String {

@@ -32,6 +32,9 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// is synthesised from `schedule`; see `resolvedJobs`.
     var jobs: [Job]
 
+    /// Nudges about days with nothing recorded.
+    var reminders: ReminderPreferences
+
     /// Balance carried in from before the app was used, so someone starting
     /// mid-year does not begin at zero.
     var openingBalanceMinutes: Int
@@ -50,6 +53,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         displayDurationStyle: DurationStyle = .hoursAndMinutes,
         customDayTypes: [DayTypeDefinition] = [],
         jobs: [Job] = [],
+        reminders: ReminderPreferences = ReminderPreferences(),
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil
     ) {
@@ -64,6 +68,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.displayDurationStyle = displayDurationStyle
         self.customDayTypes = customDayTypes
         self.jobs = jobs
+        self.reminders = reminders
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
     }
@@ -87,7 +92,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case schemaVersion, features, schedule, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
-        case customDayTypes, jobs, openingBalanceMinutes, balanceStartDate
+        case customDayTypes, jobs, reminders, openingBalanceMinutes, balanceStartDate
     }
 
     init(from decoder: Decoder) throws {
@@ -105,6 +110,7 @@ struct AppSettings: Hashable, Codable, Sendable {
             displayDurationStyle: container.lenient(.displayDurationStyle, defaults.displayDurationStyle),
             customDayTypes: container.lenient(.customDayTypes, defaults.customDayTypes),
             jobs: container.lenient(.jobs, defaults.jobs),
+            reminders: container.lenient(.reminders, defaults.reminders),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
             balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self)
         )

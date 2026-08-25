@@ -16,6 +16,10 @@ struct RootView: View {
         case settings
     }
 
+    @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         VStack(spacing: 0) {
             // Above the tabs rather than floating over them: a warning that
@@ -25,6 +29,41 @@ struct RootView: View {
             }
             tabs
         }
+        .task { await refreshReminder() }
+        .onChange(of: scenePhase) { _, phase in
+            // Rewritten on every return to the app, so the body names the days
+            // that are actually missing rather than going stale.
+            if phase == .active {
+                Task { await refreshReminder() }
+            }
+        }
+    }
+
+    private func refreshReminder() async {
+        let settings = settingsStore.settings
+        let scheduler = ReminderScheduler()
+        guard settings.reminders.isEnabled else {
+            scheduler.cancel()
+            return
+        }
+
+        let calendar = settingsStore.workCalendar
+        let today = CalendarDate.today(in: calendar)
+        let window = GapFinder.window(
+            endingAt: today,
+            lookBackDays: settings.reminders.lookBackDays,
+            calendar: calendar
+        )
+        let repository = WorkdayRepository(context: modelContext)
+        let days = PeriodEngine(settings: settings, calendar: calendar).days(
+            in: window,
+            records: repository.records(in: window),
+            holidays: repository.holidayRules()
+        )
+        let gaps = GapFinder.unrecordedWorkingDays(in: days, asOf: today)
+        let body = GapFinder.message(for: gaps, formatting: settingsStore.dateFormatting)
+
+        await scheduler.schedule(preferences: settings.reminders, body: body)
     }
 
     private var tabs: some View {
