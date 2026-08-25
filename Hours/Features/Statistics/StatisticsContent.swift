@@ -230,6 +230,12 @@ struct ProgressBar: View {
                     Capsule()
                         .fill(fraction > 1 ? Color.hoursPositive : Color.accentColor)
                         .frame(width: max(0, min(fraction, 1.5) / 1.5) * proxy.size.width)
+                    // The bar runs to 150%, so without a mark at the full-hours
+                    // point a reading of 96% looks like two thirds.
+                    Rectangle()
+                        .fill(Color.hoursSubdued)
+                        .frame(width: 1.5, height: 8)
+                        .offset(x: proxy.size.width / 1.5)
                 }
             }
             .frame(height: 8)

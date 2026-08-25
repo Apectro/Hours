@@ -15,7 +15,7 @@ struct DailyHoursChart: View {
             ForEach(days) { day in
                 BarMark(
                     x: .value("Date", day.date.date(in: calendar), unit: .day),
-                    y: .value("Hours", Double(day.workedMinutes) / 60.0)
+                    y: .value("Hours", hours(for: day))
                 )
                 .foregroundStyle(color(for: day))
                 .cornerRadius(2)
@@ -45,6 +45,14 @@ struct DailyHoursChart: View {
         }
         .frame(height: 180)
         .accessibilityLabel("Hours worked per day")
+    }
+
+    /// A day of paid absence is plotted at its credited hours, in the day
+    /// type's own colour. Plotting only worked time would draw a fortnight of
+    /// leave as a fortnight of nothing, which is the opposite of what happened.
+    private func hours(for day: DayComputation) -> Double {
+        let minutes = day.workedMinutes > 0 ? day.workedMinutes : day.creditedMinutes
+        return Double(minutes) / 60.0
     }
 
     private func color(for day: DayComputation) -> Color {
