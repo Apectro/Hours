@@ -51,19 +51,25 @@ struct PeriodEngine: Sendable {
     func summary(
         in range: CalendarDateRange,
         records: [Int: DayRecord],
-        holidays: [HolidayRule]
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate? = nil
     ) -> PeriodSummary {
-        PeriodAggregator.summarize(days(in: range, records: records, holidays: holidays), range: range)
+        PeriodAggregator.summarize(
+            days(in: range, records: records, holidays: holidays),
+            range: range,
+            countingThrough: countingThrough
+        )
     }
 
     /// Days and totals in one pass, for screens that need both.
     func resolve(
         in range: CalendarDateRange,
         records: [Int: DayRecord],
-        holidays: [HolidayRule]
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate? = nil
     ) -> (days: [DayComputation], summary: PeriodSummary) {
         let days = days(in: range, records: records, holidays: holidays)
-        return (days, PeriodAggregator.summarize(days, range: range))
+        return (days, PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough))
     }
 
     /// The record a brand-new day should start from, pre-filled from the

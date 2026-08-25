@@ -1,78 +1,15 @@
 import SwiftUI
 
-/// Break entry, in whichever form the user has enabled.
+/// One break, edited either as a length or as a pair of clock times.
 ///
-/// One break is the overwhelmingly common case and gets a single row. Multiple
-/// breaks are opt-in, and each can be either a length or a pair of times.
-struct BreakEditor: View {
-    @Binding var breaks: [BreakSpan]
-    let allowsMultiple: Bool
-    let calendar: Calendar
-    let defaultBreakMinutes: Int
-    let shiftStart: TimeOfDay?
-    var formatting: DurationFormatting = .display
-
-    var body: some View {
-        if allowsMultiple {
-            multipleBreaks
-        } else {
-            DurationStepperRow(
-                title: "Break",
-                minutes: singleBreakBinding,
-                range: 0...(12 * 60),
-                step: 5,
-                formatting: formatting
-            )
-        }
-    }
-
-    // MARK: - Single
-
-    private var singleBreakBinding: Binding<Int> {
-        Binding(
-            get: { breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) } },
-            set: { minutes in
-                breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
-            }
-        )
-    }
-
-    // MARK: - Multiple
-
-    @ViewBuilder
-    private var multipleBreaks: some View {
-        ForEach($breaks) { $span in
-            BreakRow(
-                span: $span,
-                calendar: calendar,
-                fallbackStart: fallbackBreakStart,
-                formatting: formatting
-            )
-        }
-        .onDelete { offsets in
-            breaks.remove(atOffsets: offsets)
-        }
-
-        Button {
-            breaks.append(.duration(defaultBreakMinutes > 0 ? defaultBreakMinutes : 15))
-        } label: {
-            Label("Add break", systemImage: "plus.circle")
-        }
-    }
-
-    private var fallbackBreakStart: TimeOfDay {
-        // Midday if we have nothing better; otherwise four hours into the shift,
-        // which is where a break usually lands.
-        guard let shiftStart else { return TimeOfDay(hour: 12, minute: 0) }
-        return TimeOfDay(minutes: (shiftStart.minutes + 240) % TimeOfDay.minutesPerDay)
-    }
-}
-
-private struct BreakRow: View {
+/// This is a single list row by design. The section that holds several of them
+/// builds the `ForEach` itself, so swipe-to-delete and the "add" button are
+/// real rows of the form rather than views nested inside another view.
+struct BreakRow: View {
     @Binding var span: BreakSpan
     let calendar: Calendar
     let fallbackStart: TimeOfDay
-    let formatting: DurationFormatting
+    var formatting: DurationFormatting = .display
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {

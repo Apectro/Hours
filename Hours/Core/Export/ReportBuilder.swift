@@ -28,11 +28,16 @@ struct ReportBuilder: Sendable {
         CalendarFormatting(locale: .current, calendar: calendar)
     }
 
+    /// - Parameter countingThrough: the last day that counts towards the
+    ///   totals. Every day in the range still gets a row; only the summary
+    ///   block stops at this date, so exporting a month in progress does not
+    ///   report a deficit for days that have not happened yet.
     func makeTable(
         days: [DayComputation],
         range: CalendarDateRange,
         title: String,
-        openingBalanceMinutes: Int = 0
+        openingBalanceMinutes: Int = 0,
+        countingThrough: CalendarDate? = nil
     ) -> ReportTable {
         let columns = settings.effectiveExportColumns
         let included = settings.export.includeEmptyDays
@@ -44,11 +49,13 @@ struct ReportBuilder: Sendable {
         rows.reserveCapacity(included.count)
 
         for day in included {
-            if day.isIncluded { running += day.balanceMinutes }
+            let counts = day.isIncluded
+                && !(countingThrough.map { day.date > $0 && !day.hasEntry } ?? false)
+            if counts { running += day.balanceMinutes }
             rows.append(makeRow(day: day, columns: columns, runningBalance: running))
         }
 
-        let summary = PeriodAggregator.summarize(days, range: range)
+        let summary = PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough)
 
         return ReportTable(
             title: title,

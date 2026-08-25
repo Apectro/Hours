@@ -25,11 +25,13 @@ enum BalanceLedger {
     static func cumulative(
         over days: [DayComputation],
         openingMinutes: Int,
-        startDate: CalendarDate?
+        startDate: CalendarDate?,
+        countingThrough: CalendarDate? = nil
     ) -> Int {
         days.reduce(openingMinutes) { total, day in
             guard day.isIncluded else { return total }
             if let startDate, day.date < startDate { return total }
+            if let countingThrough, day.date > countingThrough, !day.hasEntry { return total }
             return total + day.balanceMinutes
         }
     }
@@ -39,12 +41,14 @@ enum BalanceLedger {
     static func monthlySeries(
         over days: [DayComputation],
         openingMinutes: Int,
-        startDate: CalendarDate?
+        startDate: CalendarDate?,
+        countingThrough: CalendarDate? = nil
     ) -> [MonthlyBalancePoint] {
         var buckets: [YearMonth: (worked: Int, expected: Int, balance: Int)] = [:]
 
         for day in days where day.isIncluded {
             if let startDate, day.date < startDate { continue }
+            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
             let month = day.date.yearMonth
             var bucket = buckets[month] ?? (0, 0, 0)
             bucket.worked += day.workedMinutes

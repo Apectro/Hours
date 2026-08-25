@@ -70,6 +70,9 @@ struct DurationFormatting: Hashable, Sendable {
     private static func hoursAndMinutesString(_ magnitude: Int) -> String {
         let hours = magnitude / 60
         let minutes = magnitude % 60
+        // Zero reads as "0h", not "0m": in a column of hours the unit should
+        // not change just because the value happens to be nothing.
+        if magnitude == 0 { return "0h" }
         if hours == 0 { return "\(minutes)m" }
         if minutes == 0 { return "\(hours)h" }
         return "\(hours)h \(minutes)m"

@@ -27,7 +27,12 @@ struct StatisticsContent: View {
         self.formatting = formatting
 
         let engine = PeriodEngine(settings: settings, calendar: calendar)
-        let resolved = engine.resolve(in: range, records: data.records, holidays: data.holidays)
+        let resolved = engine.resolve(
+            in: range,
+            records: data.records,
+            holidays: data.holidays,
+            countingThrough: CalendarDate.today(in: calendar)
+        )
         self.days = resolved.days
         self.summary = resolved.summary
     }
@@ -171,7 +176,8 @@ struct StatisticsContent: View {
         BalanceLedger.monthlySeries(
             over: days,
             openingMinutes: 0,
-            startDate: settings.balanceStartDate
+            startDate: settings.balanceStartDate,
+            countingThrough: CalendarDate.today(in: calendar)
         )
     }
 

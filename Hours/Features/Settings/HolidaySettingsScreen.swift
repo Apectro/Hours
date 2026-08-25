@@ -12,7 +12,6 @@ struct HolidaySettingsScreen: View {
     @Query(sort: \HolidayRecord.name) private var records: [HolidayRecord]
 
     @State private var editingRule: HolidayRule?
-    @State private var isCreating = false
 
     var body: some View {
         List {
@@ -23,7 +22,7 @@ struct HolidaySettingsScreen: View {
                     } description: {
                         Text("Add the days that apply where you work. A recurring holiday only has to be entered once.")
                     } actions: {
-                        Button("Add a holiday") { isCreating = true }
+                        Button("Add a holiday") { editingRule = newRule() }
                             .buttonStyle(.borderedProminent)
                     }
                 }
@@ -47,7 +46,7 @@ struct HolidaySettingsScreen: View {
 
             Section {
                 Button {
-                    isCreating = true
+                    editingRule = newRule()
                 } label: {
                     Label("Add a holiday", systemImage: "plus.circle")
                 }
@@ -58,12 +57,13 @@ struct HolidaySettingsScreen: View {
         .sheet(item: $editingRule) { rule in
             HolidayEditor(rule: rule)
         }
-        .sheet(isPresented: $isCreating) {
-            HolidayEditor(rule: HolidayEditor.blankRule(on: CalendarDate.today(in: calendar)))
-        }
     }
 
     private var calendar: Calendar { settingsStore.workCalendar }
+
+    private func newRule() -> HolidayRule {
+        HolidayEditor.blankRule(on: CalendarDate.today(in: calendar))
+    }
 
     private func delete(at offsets: IndexSet) {
         let repository = WorkdayRepository(context: modelContext)

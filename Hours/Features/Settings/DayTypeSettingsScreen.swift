@@ -8,15 +8,21 @@ import SwiftUI
 struct DayTypeSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
 
-    @State private var editing: DayTypeDefinition?
-    @State private var isCreating = false
+    @State private var draft: Draft?
+
+    /// A single sheet, carrying whether it is a new type or an existing one.
+    private struct Draft: Identifiable {
+        let definition: DayTypeDefinition
+        let isNew: Bool
+        var id: String { definition.id.rawValue }
+    }
 
     var body: some View {
         List {
             Section {
                 ForEach(settingsStore.settings.dayTypeCatalog.all) { definition in
                     Button {
-                        editing = definition
+                        draft = Draft(definition: definition, isNew: false)
                     } label: {
                         row(for: definition)
                     }
@@ -29,7 +35,7 @@ struct DayTypeSettingsScreen: View {
 
             Section {
                 Button {
-                    isCreating = true
+                    draft = Draft(definition: DayTypeEditor.blankDefinition(), isNew: true)
                 } label: {
                     Label("Add a day type", systemImage: "plus.circle")
                 }
@@ -37,11 +43,8 @@ struct DayTypeSettingsScreen: View {
         }
         .navigationTitle("Day types")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $editing) { definition in
-            DayTypeEditor(definition: definition, isNew: false)
-        }
-        .sheet(isPresented: $isCreating) {
-            DayTypeEditor(definition: DayTypeEditor.blankDefinition(), isNew: true)
+        .sheet(item: $draft) { draft in
+            DayTypeEditor(definition: draft.definition, isNew: draft.isNew)
         }
     }
 

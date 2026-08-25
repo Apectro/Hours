@@ -85,17 +85,17 @@ struct DataSettingsScreen: View {
         } message: {
             Text("This cannot be undone. Create a backup first if you are not sure.")
         }
-        .confirmationDialog(
+        // An alert rather than a second confirmation dialog: two dialogs of the
+        // same kind on one view is undefined behaviour.
+        .alert(
             "Replace everything on this device with the backup?",
             isPresented: restoreConfirmationBinding,
-            titleVisibility: .visible
-        ) {
-            Button("Replace", role: .destructive) { applyRestore() }
+            presenting: pendingRestore
+        ) { archive in
+            Button("Replace", role: .destructive) { applyRestore(archive) }
             Button("Cancel", role: .cancel) { pendingRestore = nil }
-        } message: {
-            if let pendingRestore {
-                Text("The backup holds \(pendingRestore.days.count) days and \(pendingRestore.holidays.count) holidays. Everything currently stored will be removed.")
-            }
+        } message: { archive in
+            Text("The backup holds \(archive.days.count) days and \(archive.holidays.count) holidays. Everything currently stored will be removed.")
         }
     }
 
@@ -152,8 +152,7 @@ struct DataSettingsScreen: View {
         }
     }
 
-    private func applyRestore() {
-        guard let archive = pendingRestore else { return }
+    private func applyRestore(_ archive: BackupArchive) {
         pendingRestore = nil
 
         repository.deleteAllDays()
@@ -173,8 +172,8 @@ struct DataSettingsScreen: View {
 }
 
 private extension ISO8601DateFormatter {
-    /// `2026-08-25 14-30` — sortable, and legal in a filename on every system
-    /// the file might end up on.
+    /// `2026-08-25` — sortable, and legal in a filename on every system the
+    /// file might end up on.
     static let backupStamp: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate]

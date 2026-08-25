@@ -66,7 +66,8 @@ struct CumulativeBalanceCard: View {
         return BalanceLedger.cumulative(
             over: days,
             openingMinutes: settings.openingBalanceMinutes,
-            startDate: settings.balanceStartDate
+            startDate: settings.balanceStartDate,
+            countingThrough: CalendarDate.today(in: calendar)
         )
     }
 

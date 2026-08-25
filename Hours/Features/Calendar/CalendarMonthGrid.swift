@@ -81,7 +81,7 @@ struct DayCell: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: Metrics.dayCellHeight)
-        .background(background)
+        .background { background }
         .opacity(isInMonth ? 1 : 0.35)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)

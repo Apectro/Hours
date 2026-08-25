@@ -11,8 +11,21 @@ struct CalendarScreen: View {
 
     @State private var anchorDate = CalendarDate.today(in: .current)
     @State private var selectedDate = CalendarDate.today(in: .current)
-    @State private var editingDate: CalendarDate?
-    @State private var isShowingExport = false
+    @State private var activeSheet: ActiveSheet?
+
+    /// One sheet at a time, chosen by value. Stacking several `.sheet`
+    /// modifiers on a single view has undefined behaviour.
+    private enum ActiveSheet: Identifiable {
+        case day(CalendarDate)
+        case export(CalendarDateRange)
+
+        var id: String {
+            switch self {
+            case let .day(date): return "day-\(date.key)"
+            case let .export(range): return "export-\(range.start.key)-\(range.end.key)"
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -29,7 +42,7 @@ struct CalendarScreen: View {
                         today: today,
                         scope: scope,
                         onSelect: select,
-                        onEdit: { editingDate = selectedDate }
+                        onEdit: { activeSheet = .day(selectedDate) }
                     )
                 }
                 .padding(.horizontal, Metrics.large)
@@ -41,11 +54,13 @@ struct CalendarScreen: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar { toolbarContent }
-            .sheet(item: $editingDate) { date in
-                DayEditorSheet(date: date)
-            }
-            .sheet(isPresented: $isShowingExport) {
-                ExportScreen(initialRange: summaryRange)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case let .day(date):
+                    DayEditorSheet(date: date)
+                case let .export(range):
+                    ExportScreen(initialRange: range)
+                }
             }
         }
     }
@@ -96,7 +111,7 @@ struct CalendarScreen: View {
 
     private func select(_ date: CalendarDate) {
         if selectedDate == date {
-            editingDate = date
+            activeSheet = .day(date)
             return
         }
         withAnimation(.snappy(duration: 0.2)) {
@@ -171,7 +186,7 @@ struct CalendarScreen: View {
                 Divider()
 
                 Button {
-                    isShowingExport = true
+                    activeSheet = .export(summaryRange)
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
                 }
@@ -241,7 +256,8 @@ private struct CalendarPeriodView: View {
 
         self.summary = PeriodAggregator.summarize(
             resolved.filter { summaryRange.contains($0.date) },
-            range: summaryRange
+            range: summaryRange,
+            countingThrough: today
         )
         self.selectedComputation = byKey[selectedDate.key] ?? DayComputation.empty(on: selectedDate)
         self.weekDays = scope == .week

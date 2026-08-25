@@ -71,10 +71,24 @@ struct PeriodSummary: Hashable, Sendable {
 /// Rolls days up into a summary. Excluded days contribute nothing at all —
 /// not to totals, not to counts, not to averages.
 enum PeriodAggregator {
-    static func summarize(_ days: [DayComputation], range: CalendarDateRange) -> PeriodSummary {
+    /// - Parameter countingThrough: the last day that counts towards the
+    ///   totals, normally today. Days after it are only counted if something
+    ///   was actually recorded on them.
+    ///
+    ///   Without this, the current month would show a deficit of eight hours
+    ///   for every working day still to come — arithmetically true and
+    ///   completely useless. A day already recorded in the future (booked
+    ///   leave, a shift entered in advance) still counts, because the user
+    ///   meant it.
+    static func summarize(
+        _ days: [DayComputation],
+        range: CalendarDateRange,
+        countingThrough: CalendarDate? = nil
+    ) -> PeriodSummary {
         var summary = PeriodSummary.empty(range: range)
 
         for day in days where day.isIncluded {
+            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
             summary.workedMinutes += day.workedMinutes
             summary.creditedMinutes += day.creditedMinutes
             summary.expectedMinutes += day.expectedMinutes

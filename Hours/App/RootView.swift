@@ -67,8 +67,10 @@ private struct StoreFailureBanner: View {
     }
 }
 
+#if DEBUG
 #Preview {
     RootView()
-        .environment(SettingsStore.ephemeral())
-        .modelContainer(HoursModelContainer.ephemeral())
+        .environment(PreviewSupport.settings)
+        .modelContainer(PreviewSupport.seededContainer())
 }
+#endif

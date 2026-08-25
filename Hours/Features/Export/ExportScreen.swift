@@ -82,8 +82,10 @@ struct ExportScreen: View {
     private var formatSection: some View {
         Section {
             Picker("Format", selection: $format) {
+                // Plain text, not labels: a segmented control shows one or the
+                // other, and the words are what identify a file format.
                 ForEach(ExportFormat.allCases) { option in
-                    Label(option.title, systemImage: option.systemImage).tag(option)
+                    Text(option.title).tag(option)
                 }
             }
             .pickerStyle(.segmented)
@@ -218,10 +220,23 @@ struct ExportScreen: View {
 
         // Two builds of the same table: files want empty cells, the preview
         // reads better with a dash.
+        let today = CalendarDate.today(in: calendar)
         let fileTable = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
-            .makeTable(days: days, range: range, title: reportTitle, openingBalanceMinutes: opening)
+            .makeTable(
+                days: days,
+                range: range,
+                title: reportTitle,
+                openingBalanceMinutes: opening,
+                countingThrough: today
+            )
         previewTable = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
-            .makeTable(days: days, range: range, title: reportTitle, openingBalanceMinutes: opening)
+            .makeTable(
+                days: days,
+                range: range,
+                title: reportTitle,
+                openingBalanceMinutes: opening,
+                countingThrough: today
+            )
 
         do {
             fileURL = try ExportFileFactory.write(
@@ -260,7 +275,8 @@ struct ExportScreen: View {
         return BalanceLedger.cumulative(
             over: priorDays,
             openingMinutes: opening,
-            startDate: settings.balanceStartDate
+            startDate: settings.balanceStartDate,
+            countingThrough: CalendarDate.today(in: calendar)
         )
     }
 }

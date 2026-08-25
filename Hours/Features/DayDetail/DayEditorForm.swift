@@ -94,17 +94,55 @@ struct DayEditorForm: View {
 
     // MARK: - Breaks
 
+    @ViewBuilder
     private var breakSection: some View {
         Section("Break") {
-            BreakEditor(
-                breaks: $draft.breaks,
-                allowsMultiple: settings.features.multipleBreaksPerDay,
-                calendar: calendar,
-                defaultBreakMinutes: settings.schedule.defaultBreakMinutes,
-                shiftStart: draft.start,
-                formatting: formatter
-            )
+            if settings.features.multipleBreaksPerDay {
+                ForEach($draft.breaks) { $span in
+                    BreakRow(
+                        span: $span,
+                        calendar: calendar,
+                        fallbackStart: suggestedBreakStart,
+                        formatting: formatter
+                    )
+                }
+                .onDelete { offsets in
+                    draft.breaks.remove(atOffsets: offsets)
+                }
+
+                Button {
+                    let minutes = settings.schedule.defaultBreakMinutes
+                    draft.breaks.append(.duration(minutes > 0 ? minutes : 15))
+                } label: {
+                    Label("Add break", systemImage: "plus.circle")
+                }
+            } else {
+                DurationStepperRow(
+                    title: "Break",
+                    minutes: singleBreakBinding,
+                    range: 0...(12 * 60),
+                    step: 5,
+                    formatting: formatter
+                )
+            }
         }
+    }
+
+    /// With one break the whole section is a single length, so switching a day
+    /// between the two modes never loses the time already recorded.
+    private var singleBreakBinding: Binding<Int> {
+        Binding(
+            get: { draft.breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) } },
+            set: { minutes in
+                draft.breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
+            }
+        )
+    }
+
+    /// Four hours into the shift, which is where a break usually lands.
+    private var suggestedBreakStart: TimeOfDay {
+        guard let start = draft.start else { return TimeOfDay(hour: 12, minute: 0) }
+        return TimeOfDay(minutes: (start.minutes + 240) % TimeOfDay.minutesPerDay)
     }
 
     // MARK: - Expected
