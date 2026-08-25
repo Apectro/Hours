@@ -100,6 +100,10 @@ extension CalendarDate: Codable {
     }
 }
 
+extension CalendarDate: Identifiable {
+    var id: Int { key }
+}
+
 extension CalendarDate: CustomStringConvertible {
     /// ISO-8601 (`2026-08-04`). Used for logs, backups and stable identifiers —
     /// never for anything the user reads, which is always locale formatted.

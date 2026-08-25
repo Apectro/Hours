@@ -21,6 +21,9 @@ struct AppSettings: Hashable, Codable, Sendable {
     var appearance: AppearancePreference
     var durationPolicy: DurationPolicy
     var rounding: RoundingRule
+    /// How durations are written on screen. Independent of the export setting:
+    /// people often want `8h 30m` to read and `8.50` to hand to payroll.
+    var displayDurationStyle: DurationStyle
 
     /// User-defined day types, merged with the built-ins at read time.
     var customDayTypes: [DayTypeDefinition]
@@ -40,6 +43,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         appearance: AppearancePreference = .system,
         durationPolicy: DurationPolicy = .wallClock,
         rounding: RoundingRule = .exact,
+        displayDurationStyle: DurationStyle = .hoursAndMinutes,
         customDayTypes: [DayTypeDefinition] = [],
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil
@@ -52,12 +56,18 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.appearance = appearance
         self.durationPolicy = durationPolicy
         self.rounding = rounding
+        self.displayDurationStyle = displayDurationStyle
         self.customDayTypes = customDayTypes
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
     }
 
     var dayTypeCatalog: DayTypeCatalog { DayTypeCatalog(custom: customDayTypes) }
+
+    /// The formatter every on-screen duration goes through.
+    var displayFormatting: DurationFormatting {
+        DurationFormatting(style: displayDurationStyle)
+    }
 
     /// Export columns filtered by the enabled features, preserving the user's
     /// chosen order.
@@ -69,7 +79,8 @@ struct AppSettings: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion, features, schedule, calendar, export, appearance
-        case durationPolicy, rounding, customDayTypes, openingBalanceMinutes, balanceStartDate
+        case durationPolicy, rounding, displayDurationStyle
+        case customDayTypes, openingBalanceMinutes, balanceStartDate
     }
 
     init(from decoder: Decoder) throws {
@@ -84,6 +95,7 @@ struct AppSettings: Hashable, Codable, Sendable {
             appearance: container.lenient(.appearance, defaults.appearance),
             durationPolicy: container.lenient(.durationPolicy, defaults.durationPolicy),
             rounding: container.lenient(.rounding, defaults.rounding),
+            displayDurationStyle: container.lenient(.displayDurationStyle, defaults.displayDurationStyle),
             customDayTypes: container.lenient(.customDayTypes, defaults.customDayTypes),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
             balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self)

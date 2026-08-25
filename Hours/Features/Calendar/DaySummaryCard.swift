@@ -1,0 +1,151 @@
+import SwiftUI
+
+/// The selected day, shown inline under the calendar.
+///
+/// Reading a day should not cost a sheet. Editing does.
+struct DaySummaryCard: View {
+    let computation: DayComputation
+    let settings: AppSettings
+    let formatting: CalendarFormatting
+    let onEdit: () -> Void
+
+    private var duration: DurationFormatting { settings.displayFormatting }
+
+    var body: some View {
+        SurfaceCard {
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                header
+
+                if computation.hasEntry || computation.workedMinutes > 0 {
+                    Divider()
+                    figures
+                } else {
+                    Text(emptyMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                if !computation.note.isEmpty {
+                    Text(computation.note)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+
+                warnings
+
+                Button(action: onEdit) {
+                    Label(
+                        computation.hasEntry ? "Edit day" : "Add hours",
+                        systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
+                    )
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+            }
+        }
+    }
+
+    // MARK: - Pieces
+
+    private var header: some View {
+        HStack(alignment: .center, spacing: Metrics.medium) {
+            DayTypeBadge(definition: computation.dayType, size: 32)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(formatting.fullDate(computation.date))
+                    .font(.headline)
+                HStack(spacing: Metrics.tiny) {
+                    Text(computation.dayType.name)
+                    if let holidayName = computation.holidayName {
+                        Text("·")
+                        Text(holidayName)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            if settings.features.showsBalance && computation.hasEntry {
+                BalanceText(
+                    minutes: computation.balanceMinutes,
+                    formatting: duration,
+                    font: .hoursFigure(.title3)
+                )
+            }
+        }
+    }
+
+    private var figures: some View {
+        VStack(spacing: Metrics.small) {
+            if let start = computation.start, let end = computation.end {
+                MetricRow(
+                    label: "Hours",
+                    value: "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
+                        + (computation.crossesMidnight ? " (+1)" : ""),
+                    systemImage: "clock"
+                )
+            }
+            if settings.features.trackBreaks && computation.breakMinutes > 0 {
+                MetricRow(label: "Break", value: duration.string(computation.breakMinutes), systemImage: "cup.and.saucer")
+            }
+            MetricRow(
+                label: "Worked",
+                value: duration.string(computation.workedMinutes),
+                systemImage: "timer"
+            )
+            if computation.creditedMinutes > 0 {
+                MetricRow(
+                    label: "Paid absence",
+                    value: duration.string(computation.creditedMinutes),
+                    systemImage: "checkmark.seal"
+                )
+            }
+            if settings.features.trackExpectedHours {
+                MetricRow(label: "Expected", value: duration.string(computation.expectedMinutes), systemImage: "target")
+            }
+            if computation.adjustmentMinutes != 0 {
+                MetricRow(
+                    label: "Adjustment",
+                    value: duration.signedString(computation.adjustmentMinutes),
+                    tint: Color.hoursBalance(computation.adjustmentMinutes),
+                    systemImage: "slider.horizontal.3"
+                )
+            }
+            if settings.features.trackLocation && !computation.location.isEmpty {
+                MetricRow(label: "Location", value: computation.location, systemImage: "mappin.and.ellipse")
+            }
+            if settings.features.trackTags && !computation.tags.isEmpty {
+                MetricRow(label: "Tags", value: computation.tags.joined(separator: ", "), systemImage: "tag")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var warnings: some View {
+        let visible = computation.warnings.filter { $0.isProblem || $0 == .excludedFromTotals }
+        if !visible.isEmpty {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                ForEach(visible) { warning in
+                    Label(warning.message, systemImage: "exclamationmark.circle")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    private var emptyMessage: String {
+        switch computation.dayType.expectation {
+        case .scheduled:
+            return computation.expectedMinutes > 0
+                ? "Nothing recorded yet. \(duration.string(computation.expectedMinutes)) expected."
+                : "Nothing recorded yet."
+        case .zero:
+            return "Not a working day."
+        case .creditedAbsence:
+            return "\(duration.string(computation.creditedMinutes)) credited."
+        }
+    }
+}

@@ -141,10 +141,21 @@ struct DayTypeCatalog: Hashable, Sendable {
         self.custom = custom
     }
 
+    /// Built-ins, with any custom definition of the same id replacing it.
+    /// That is what lets the user adjust a built-in type — "vacation is unpaid
+    /// here" — without the app having to ship every policy variant.
     var all: [DayTypeDefinition] {
-        (DayTypeDefinition.builtIns + custom).sorted { lhs, rhs in
+        var byID: [DayTypeID: DayTypeDefinition] = [:]
+        for definition in DayTypeDefinition.builtIns { byID[definition.id] = definition }
+        for definition in custom { byID[definition.id] = definition }
+        return byID.values.sorted { lhs, rhs in
             lhs.sortOrder == rhs.sortOrder ? lhs.name < rhs.name : lhs.sortOrder < rhs.sortOrder
         }
+    }
+
+    /// Whether `id` names one of the types the app ships with.
+    static func isBuiltIn(_ id: DayTypeID) -> Bool {
+        DayTypeDefinition.builtIns.contains { $0.id == id }
     }
 
     func definition(for id: DayTypeID) -> DayTypeDefinition {

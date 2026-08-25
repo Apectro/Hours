@@ -74,6 +74,26 @@ struct CalendarFormatting: Sendable {
         orderedSymbols(calendar.shortStandaloneWeekdaySymbols)
     }
 
+    /// A single-letter symbol for one weekday number (1 = Sunday).
+    func veryShortWeekdaySymbol(for weekday: Int) -> String {
+        symbol(from: calendar.veryShortStandaloneWeekdaySymbols, weekday: weekday)
+    }
+
+    /// A short name for one weekday number (1 = Sunday), e.g. "Mon".
+    func shortWeekdaySymbol(for weekday: Int) -> String {
+        symbol(from: calendar.shortStandaloneWeekdaySymbols, weekday: weekday)
+    }
+
+    /// The full name for one weekday number (1 = Sunday), e.g. "Monday".
+    func weekdayName(for weekday: Int) -> String {
+        symbol(from: calendar.standaloneWeekdaySymbols, weekday: weekday)
+    }
+
+    private func symbol(from symbols: [String], weekday: Int) -> String {
+        guard symbols.count == 7, (1...7).contains(weekday) else { return "" }
+        return symbols[weekday - 1]
+    }
+
     /// Weekday numbers (1 = Sunday) in the calendar's display order.
     var orderedWeekdayNumbers: [Int] {
         (0..<7).map { ((calendar.firstWeekday - 1 + $0) % 7) + 1 }
