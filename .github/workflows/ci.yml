@@ -110,14 +110,22 @@ jobs:
       - name: Summarise failures
         if: failure()
         run: |
+          DIAGS=$(cat "$RUNNER_TEMP"/*.log 2>/dev/null \
+            | grep -E "(error|warning):" \
+            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+            | sort -u \
+            | head -60)
+          # Printed as well as written to the summary. The summary file cannot
+          # be read back through the API, and on a failed build the diagnostics
+          # are the only output anyone actually wants.
+          echo "----- compiler diagnostics -----"
+          echo "$DIAGS"
+          echo "--------------------------------"
           {
             echo "### Compiler diagnostics"
             echo ''
             echo '```'
-            cat "$RUNNER_TEMP"/*.log 2>/dev/null \
-              | grep -E "(error|warning):" \
-              | sort -u \
-              | head -60
+            echo "$DIAGS"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 

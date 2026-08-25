@@ -142,7 +142,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         let date = try container.decode(CalendarDate.self, forKey: .date)
 
         let shifts: [Shift]
-        if let stored: [Shift] = try? container.decodeIfPresent([Shift].self, forKey: .shifts), let stored {
+        if let stored = container.lenientOptional(.shifts, [Shift].self), !stored.isEmpty {
             shifts = stored
         } else {
             let start = container.lenientOptional(.legacyStart, TimeOfDay.self)

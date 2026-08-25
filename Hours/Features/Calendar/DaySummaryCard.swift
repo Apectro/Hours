@@ -79,7 +79,18 @@ struct DaySummaryCard: View {
 
     private var figures: some View {
         VStack(spacing: Metrics.small) {
-            if let start = computation.start, let end = computation.end {
+            if computation.isSplitShift {
+                // Each block gets its own line: the time between them is
+                // neither worked nor a break, and one merged range would say
+                // the opposite.
+                ForEach(computation.shifts.indices, id: \.self) { position in
+                    MetricRow(
+                        label: "Block \(position + 1)",
+                        value: shiftRange(computation.shifts[position]),
+                        systemImage: position == 0 ? "clock" : "clock.arrow.circlepath"
+                    )
+                }
+            } else if let start = computation.start, let end = computation.end {
                 MetricRow(
                     label: "Hours",
                     value: "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
@@ -134,6 +145,12 @@ struct DaySummaryCard: View {
                 }
             }
         }
+    }
+
+    private func shiftRange(_ shift: ShiftPeriod) -> String {
+        guard let start = shift.start, let end = shift.end else { return "—" }
+        let range = "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
+        return range + (shift.crossesMidnight ? " (+1)" : "")
     }
 
     private var emptyMessage: String {

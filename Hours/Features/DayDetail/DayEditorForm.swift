@@ -17,8 +17,7 @@ struct DayEditorForm: View {
         Form {
             summarySection
             dayTypeSection
-            if showsTimes { timesSection }
-            if settings.features.trackBreaks && showsTimes { breakSection }
+            workSections
             if settings.features.trackExpectedHours { expectedSection }
             if settings.features.allowManualAdjustments { adjustmentSection }
             detailsSection
@@ -51,23 +50,18 @@ struct DayEditorForm: View {
         }
     }
 
-    // MARK: - Times
+    // MARK: - Work
 
+    /// True once the day is one where times make sense, or the user has already
+    /// entered some.
     private var showsTimes: Bool {
-        computation.dayType.showsTimesByDefault || draft.start != nil || draft.end != nil
+        computation.dayType.showsTimesByDefault || !draft.shifts.isEmpty
     }
 
-    private var timesSection: some View {
-        Section {
-            if settings.features.autoCalculateWorkedHours {
-                OptionalTimeRow(title: "Start", time: $draft.start, calendar: calendar, fallback: settings.schedule.defaultStart)
-                OptionalTimeRow(title: "End", time: $draft.end, calendar: calendar, fallback: settings.schedule.defaultEnd)
-                if computation.crossesMidnight {
-                    Label("Ends the next day", systemImage: "moon.stars")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            } else {
+    @ViewBuilder
+    private var workSections: some View {
+        if !settings.features.autoCalculateWorkedHours {
+            Section {
                 DurationStepperRow(
                     title: "Worked",
                     minutes: manualWorkedBinding,
@@ -75,14 +69,87 @@ struct DayEditorForm: View {
                     step: 5,
                     formatting: formatter
                 )
+            } header: {
+                Text("Work")
+            }
+        } else if draft.shifts.isEmpty {
+            Section {
+                Button {
+                    draft.shifts = [defaultShift()]
+                } label: {
+                    Label(showsTimes ? "Add hours" : "Add work times", systemImage: "clock")
+                }
+            } footer: {
+                if !showsTimes {
+                    Text("Working a day off or a public holiday is a real thing, so times can be added to any day.")
+                }
+            }
+        } else {
+            ForEach(draft.shifts.indices, id: \.self) { index in
+                shiftSection(at: index)
+            }
+            Section {
+                Button {
+                    draft.shifts.append(defaultShift())
+                } label: {
+                    Label("Add another block", systemImage: "plus.circle")
+                }
+            } footer: {
+                Text("A second block records a split shift — the time between blocks is neither worked nor a break.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func shiftSection(at index: Int) -> some View {
+        Section {
+            OptionalTimeRow(
+                title: "Start",
+                time: $draft.shifts[index].start,
+                calendar: calendar,
+                fallback: settings.schedule.defaultStart
+            )
+            OptionalTimeRow(
+                title: "End",
+                time: $draft.shifts[index].end,
+                calendar: calendar,
+                fallback: settings.schedule.defaultEnd
+            )
+
+            if settings.features.trackBreaks {
+                breakRows(at: index)
+            }
+
+            if draft.shifts.count > 1 {
+                Button("Remove this block", role: .destructive) {
+                    draft.shifts.remove(at: index)
+                }
             }
         } header: {
-            Text("Work")
+            Text(sectionTitle(at: index))
         } footer: {
-            if settings.features.autoCalculateWorkedHours {
+            if index == 0 {
                 Text("An end time earlier than the start is treated as an overnight shift.")
             }
         }
+    }
+
+    private func sectionTitle(at index: Int) -> String {
+        guard draft.shifts.count > 1 else { return "Work" }
+        return "Block \(index + 1)"
+    }
+
+    private func defaultShift() -> Shift {
+        // A second block starts where the schedule's day would have ended,
+        // which is a better guess than repeating the morning.
+        let isFirst = draft.shifts.isEmpty
+        return Shift(
+            start: isFirst ? settings.schedule.defaultStart : settings.schedule.defaultEnd,
+            end: nil,
+            breaks: isFirst && settings.schedule.defaultBreakMinutes > 0
+                ? [BreakSpan.duration(settings.schedule.defaultBreakMinutes)]
+                : []
+        )
     }
 
     private var manualWorkedBinding: Binding<Int> {
@@ -95,53 +162,57 @@ struct DayEditorForm: View {
     // MARK: - Breaks
 
     @ViewBuilder
-    private var breakSection: some View {
-        Section("Break") {
-            if settings.features.multipleBreaksPerDay {
-                ForEach($draft.breaks) { $span in
-                    BreakRow(
-                        span: $span,
-                        calendar: calendar,
-                        fallbackStart: suggestedBreakStart,
-                        formatting: formatter
-                    )
-                }
-                .onDelete { offsets in
-                    draft.breaks.remove(atOffsets: offsets)
-                }
-
-                Button {
-                    let minutes = settings.schedule.defaultBreakMinutes
-                    draft.breaks.append(.duration(minutes > 0 ? minutes : 15))
-                } label: {
-                    Label("Add break", systemImage: "plus.circle")
-                }
-            } else {
-                DurationStepperRow(
-                    title: "Break",
-                    minutes: singleBreakBinding,
-                    range: 0...(12 * 60),
-                    step: 5,
+    private func breakRows(at index: Int) -> some View {
+        if settings.features.multipleBreaksPerDay {
+            ForEach($draft.shifts[index].breaks) { $span in
+                BreakRow(
+                    span: $span,
+                    calendar: calendar,
+                    fallbackStart: suggestedBreakStart(at: index),
                     formatting: formatter
                 )
             }
+            .onDelete { offsets in
+                draft.shifts[index].breaks.remove(atOffsets: offsets)
+            }
+
+            Button {
+                let minutes = settings.schedule.defaultBreakMinutes
+                draft.shifts[index].breaks.append(.duration(minutes > 0 ? minutes : 15))
+            } label: {
+                Label("Add break", systemImage: "plus.circle")
+            }
+        } else {
+            DurationStepperRow(
+                title: "Break",
+                minutes: singleBreakBinding(at: index),
+                range: 0...(12 * 60),
+                step: 5,
+                formatting: formatter
+            )
         }
     }
 
-    /// With one break the whole section is a single length, so switching a day
-    /// between the two modes never loses the time already recorded.
-    private var singleBreakBinding: Binding<Int> {
+    /// With one break per block the whole thing is a single length, so
+    /// switching a day between the two modes never loses what was recorded.
+    private func singleBreakBinding(at index: Int) -> Binding<Int> {
         Binding(
-            get: { draft.breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) } },
+            get: {
+                guard index < draft.shifts.count else { return 0 }
+                return draft.shifts[index].breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+            },
             set: { minutes in
-                draft.breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
+                guard index < draft.shifts.count else { return }
+                draft.shifts[index].breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
             }
         )
     }
 
-    /// Four hours into the shift, which is where a break usually lands.
-    private var suggestedBreakStart: TimeOfDay {
-        guard let start = draft.start else { return TimeOfDay(hour: 12, minute: 0) }
+    /// Four hours into the block, which is where a break usually lands.
+    private func suggestedBreakStart(at index: Int) -> TimeOfDay {
+        guard index < draft.shifts.count, let start = draft.shifts[index].start else {
+            return TimeOfDay(hour: 12, minute: 0)
+        }
         return TimeOfDay(minutes: (start.minutes + 240) % TimeOfDay.minutesPerDay)
     }
 
