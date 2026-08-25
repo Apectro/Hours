@@ -196,6 +196,7 @@ struct BulkEditSheet: View {
         let plan = self.plan
         for record in plan.changes { repository.save(record) }
         for date in plan.deletions { repository.delete(on: date) }
+        HoursStack.refreshWidget()
         dismiss()
     }
 }

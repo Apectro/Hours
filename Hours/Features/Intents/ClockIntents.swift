@@ -25,6 +25,7 @@ struct ClockInIntent: AppIntent {
         guard let started = clock.clockIn() else {
             return .result(dialog: IntentDialog("The clock could not be started."))
         }
+        HoursStack.refreshWidget()
         return .result(dialog: IntentDialog(
             "Clocked in at \(formatting.time(started.start, on: started.date))."
         ))
@@ -48,6 +49,7 @@ struct ClockOutIntent: AppIntent {
         case .nothingRunning:
             return .result(dialog: IntentDialog("You are not clocked in."))
         case let .recorded(date, workedMinutes, wasCapped):
+            HoursStack.refreshWidget()
             let formatting = HoursStack.settings.dateFormatting
             if wasCapped {
                 return .result(dialog: IntentDialog(

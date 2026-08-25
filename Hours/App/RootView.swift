@@ -29,12 +29,23 @@ struct RootView: View {
             }
             tabs
         }
-        .task { await refreshReminder() }
+        .task {
+            await refreshReminder()
+            HoursStack.refreshWidget()
+        }
         .onChange(of: scenePhase) { _, phase in
             // Rewritten on every return to the app, so the body names the days
             // that are actually missing rather than going stale.
             if phase == .active {
                 Task { await refreshReminder() }
+                HoursStack.refreshWidget()
+            }
+            // And again on the way out, which is the moment the widget is about
+            // to be looked at. Individual edits refresh as they happen; this
+            // catches everything else — a changed setting, a deleted holiday —
+            // without every screen in the app having to remember to.
+            if phase == .background {
+                HoursStack.refreshWidget()
             }
         }
     }

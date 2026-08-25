@@ -184,6 +184,7 @@ struct CalendarScreen: View {
             // it beyond leaving the running clock alone.
             _ = timeClock.clockIn()
         }
+        HoursStack.refreshWidget()
     }
 
     private func clockOut() {
@@ -196,6 +197,7 @@ struct CalendarScreen: View {
                 if !summaryRange.contains(date) { anchorDate = date }
             }
         }
+        HoursStack.refreshWidget()
     }
 
     private func goToToday() {

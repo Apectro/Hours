@@ -85,11 +85,13 @@ struct DayEditorSheet: View {
 
     private func save() {
         repository.save(draft)
+        HoursStack.refreshWidget()
         dismiss()
     }
 
     private func delete() {
         repository.delete(on: date)
+        HoursStack.refreshWidget()
         dismiss()
     }
 }

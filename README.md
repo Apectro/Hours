@@ -83,6 +83,7 @@ Hours/
   App/         entry point and the tab structure
   Data/        SwiftData models, repository, settings store
   Features/    one folder per screen
+HoursWidget/   the Home Screen and Lock Screen widgets
 HoursTests/    unit tests for the engine, holidays, DST and the exports
 ```
 
@@ -90,6 +91,39 @@ HoursTests/    unit tests for the engine, holidays, DST and the exports
 read values that are already resolved. `Package.swift` builds that same folder
 as a Swift package so CI can compile and test it on Linux — where there is no
 UIKit, SwiftUI or SwiftData to accidentally import.
+
+## Widgets
+
+Two of them, in every size iOS offers: **Today** (worked so far, against what
+was expected, with the running clock counting up live) and **This month**
+(worked against expected, and the balance). Both work on the Lock Screen as
+well as the Home Screen.
+
+A widget runs in its own process and cannot open the app's database, so the app
+writes a small JSON snapshot into a shared container and the widget reads that.
+It is refreshed whenever anything it shows changes — a day saved, the clock
+started or stopped, the app closed.
+
+**The shared container needs an App Group, and App Groups need a paid Apple
+Developer account.** Nothing else in the app does, so the widgets are the one
+part a free account cannot use. They are not wired up by default, precisely so
+that a free-account build still installs:
+
+1. Open the project, select the **Hours** target, then Signing & Capabilities.
+2. Add the **App Groups** capability and create `group.com.hours.app`.
+3. Do the same for the **HoursWidgetExtension** target, ticking the same group.
+
+Nothing else to change; the identifier is already in the code
+(`WidgetSnapshotStore.appGroupIdentifier`, if you would rather use a different
+one). Until that is done the app behaves exactly as it does now — it notices
+the container is missing and writes nothing — and the widgets say so instead of
+showing a convincing screenful of zeroes.
+
+Tapping a widget opens the app. There are no buttons on it: an interactive
+widget runs its action inside the widget's own process, which cannot reach the
+database either, so a "clock in" button there could only pretend to work. Siri
+and the Shortcuts app can start and stop the clock instead, and those run in
+the app.
 
 ## Backups
 

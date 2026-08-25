@@ -6,9 +6,29 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AA000000000000000000006A /* HoursWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000061 /* HoursWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA0000000000000000000069 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA000000000000000000006A /* HoursWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		AA0000000000000000000011 /* Hours.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000021 /* HoursTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HoursTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000061 /* HoursWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HoursWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000000000000000000006D /* HoursWidget-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HoursWidget-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -25,6 +45,11 @@
 		AA0000000000000000000050 /* HoursCore */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HoursCore;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000062 /* HoursWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HoursWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,6 +69,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000064 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -52,6 +84,8 @@
 			children = (
 				AA0000000000000000000050 /* HoursCore */,
 				AA0000000000000000000012 /* Hours */,
+				AA0000000000000000000062 /* HoursWidget */,
+				AA000000000000000000006D /* HoursWidget-Info.plist */,
 				AA0000000000000000000022 /* HoursTests */,
 				AA0000000000000000000003 /* Products */,
 			);
@@ -62,6 +96,7 @@
 			children = (
 				AA0000000000000000000011 /* Hours.app */,
 				AA0000000000000000000021 /* HoursTests.xctest */,
+				AA0000000000000000000061 /* HoursWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,10 +111,12 @@
 				AA0000000000000000000013 /* Sources */,
 				AA0000000000000000000014 /* Frameworks */,
 				AA0000000000000000000015 /* Resources */,
+				AA0000000000000000000069 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA000000000000000000006B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000050 /* HoursCore */,
@@ -115,6 +152,29 @@
 			productReference = AA0000000000000000000021 /* HoursTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		AA0000000000000000000060 /* HoursWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000066 /* Build configuration list for PBXNativeTarget "HoursWidgetExtension" */;
+			buildPhases = (
+				AA0000000000000000000063 /* Sources */,
+				AA0000000000000000000064 /* Frameworks */,
+				AA0000000000000000000065 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000050 /* HoursCore */,
+				AA0000000000000000000062 /* HoursWidget */,
+			);
+			name = HoursWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HoursWidgetExtension;
+			productReference = AA0000000000000000000061 /* HoursWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -131,6 +191,9 @@
 					AA0000000000000000000020 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = AA0000000000000000000010;
+					};
+					AA0000000000000000000060 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -149,6 +212,7 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000010 /* Hours */,
+				AA0000000000000000000060 /* HoursWidgetExtension */,
 				AA0000000000000000000020 /* HoursTests */,
 			);
 		};
@@ -163,6 +227,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AA0000000000000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000065 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -186,6 +257,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000063 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -193,6 +271,11 @@
 			isa = PBXTargetDependency;
 			target = AA0000000000000000000010 /* Hours */;
 			targetProxy = AA0000000000000000000041 /* PBXContainerItemProxy */;
+		};
+		AA000000000000000000006B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000060 /* HoursWidgetExtension */;
+			targetProxy = AA000000000000000000006C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -203,6 +286,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AA0000000000000000000010;
 			remoteInfo = Hours;
+		};
+		AA000000000000000000006C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000060;
+			remoteInfo = HoursWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -380,6 +470,58 @@
 			};
 			name = Release;
 		};
+		AA0000000000000000000067 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HoursWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Hours;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hours.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000068 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HoursWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Hours;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hours.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -406,6 +548,15 @@
 			buildConfigurations = (
 				AA0000000000000000000027 /* Debug */,
 				AA0000000000000000000028 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000066 /* Build configuration list for PBXNativeTarget "HoursWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000067 /* Debug */,
+				AA0000000000000000000068 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

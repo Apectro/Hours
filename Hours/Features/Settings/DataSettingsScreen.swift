@@ -161,12 +161,14 @@ struct DataSettingsScreen: View {
         for holiday in archive.holidays { repository.upsert(holiday) }
         settingsStore.replace(with: archive.settings)
 
+        HoursStack.refreshWidget()
         message = "Restored \(archive.days.count) days and \(archive.holidays.count) holidays."
     }
 
     private func deleteAll() {
         repository.deleteAllDays()
         repository.deleteAllHolidays()
+        HoursStack.refreshWidget()
         message = "All recorded days and holidays were removed."
     }
 }
