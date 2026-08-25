@@ -50,9 +50,10 @@ struct WorkdayCalculator: Sendable {
             date: date,
             dayType: definition,
             holidayName: effectiveHoliday?.name,
-            start: record?.start,
-            end: record?.end,
+            start: shift.periods.first?.start,
+            end: shift.periods.last?.end,
             breakMinutes: shift.breakMinutes,
+            shifts: shift.periods,
             workedMinutes: worked,
             creditedMinutes: credited,
             expectedMinutes: expected,
@@ -109,50 +110,74 @@ struct WorkdayCalculator: Sendable {
         var breakMinutes: Int
         var grossMinutes: Int
         var crossesMidnight: Bool
+        /// One entry per shift that resolved to something, in the order entered.
+        var periods: [ShiftPeriod] = []
     }
 
-    /// Gross shift length minus breaks, never negative.
+    /// The day's shifts, summed. Each is measured independently and then added,
+    /// so a split shift is two real blocks of work rather than one long block
+    /// with a hole punched in it.
     func shiftMinutes(
         record: DayRecord?,
         on date: CalendarDate,
         definition: DayTypeDefinition,
         warnings: inout [DayWarning]
     ) -> ShiftResult {
-        guard let record else {
+        guard let record, !record.shifts.isEmpty else {
             return ShiftResult(workedMinutes: 0, breakMinutes: 0, grossMinutes: 0, crossesMidnight: false)
         }
 
-        guard let start = record.start, let end = record.end else {
-            // Only nag when times were expected: a vacation day with no times is
-            // complete, a work day with a start but no end is not.
-            let expectsTimes = definition.showsTimesByDefault || record.start != nil || record.end != nil
-            if expectsTimes && record.hasEntryWorthValidating {
-                if record.start == nil { warnings.append(.missingStartTime) }
-                if record.end == nil { warnings.append(.missingEndTime) }
+        var total = ShiftResult(workedMinutes: 0, breakMinutes: 0, grossMinutes: 0, crossesMidnight: false)
+
+        for shift in record.shifts {
+            guard let start = shift.start, let end = shift.end else {
+                // Only nag when times were expected: a vacation day with no
+                // times is complete, a work day with a start but no end is not.
+                let expectsTimes = definition.showsTimesByDefault || shift.start != nil || shift.end != nil
+                if expectsTimes && record.hasEntryWorthValidating {
+                    if shift.start == nil && !warnings.contains(.missingStartTime) {
+                        warnings.append(.missingStartTime)
+                    }
+                    if shift.end == nil && !warnings.contains(.missingEndTime) {
+                        warnings.append(.missingEndTime)
+                    }
+                }
+                continue
             }
-            return ShiftResult(workedMinutes: 0, breakMinutes: 0, grossMinutes: 0, crossesMidnight: false)
+
+            let crossesMidnight = end.minutes < start.minutes
+            let gross = grossMinutes(start: start, end: end, on: date, record: record, warnings: &warnings)
+            if gross == 0 && start.minutes == end.minutes && !warnings.contains(.zeroLengthShift) {
+                warnings.append(.zeroLengthShift)
+            }
+
+            let breakTotal = settings.features.trackBreaks
+                ? breakMinutes(shift: shift, start: start, grossMinutes: gross, warnings: &warnings)
+                : 0
+
+            if breakTotal > gross && gross > 0 && !warnings.contains(.breakLongerThanShift) {
+                warnings.append(.breakLongerThanShift)
+            }
+
+            let worked = max(0, gross - breakTotal)
+            total.workedMinutes += worked
+            total.breakMinutes += breakTotal
+            total.grossMinutes += gross
+            total.crossesMidnight = total.crossesMidnight || crossesMidnight
+            total.periods.append(
+                ShiftPeriod(
+                    id: shift.id,
+                    start: start,
+                    end: end,
+                    workedMinutes: worked,
+                    breakMinutes: breakTotal,
+                    crossesMidnight: crossesMidnight,
+                    jobID: shift.jobID
+                )
+            )
         }
 
-        let crossesMidnight = end.minutes < start.minutes
-        let gross = grossMinutes(start: start, end: end, on: date, record: record, warnings: &warnings)
-        if gross == 0 && start.minutes == end.minutes {
-            warnings.append(.zeroLengthShift)
-        }
-
-        let breakTotal = settings.features.trackBreaks
-            ? breakMinutes(record: record, start: start, grossMinutes: gross, warnings: &warnings)
-            : 0
-
-        if breakTotal > gross && gross > 0 {
-            warnings.append(.breakLongerThanShift)
-        }
-
-        return ShiftResult(
-            workedMinutes: max(0, gross - breakTotal),
-            breakMinutes: breakTotal,
-            grossMinutes: gross,
-            crossesMidnight: crossesMidnight
-        )
+        return total
     }
 
     /// Length of the shift before breaks.
@@ -199,7 +224,7 @@ struct WorkdayCalculator: Sendable {
     /// minutes, clipped to the shift, and merged so overlaps are not deducted
     /// twice.
     func breakMinutes(
-        record: DayRecord,
+        shift: Shift,
         start: TimeOfDay,
         grossMinutes: Int,
         warnings: inout [DayWarning]
@@ -208,7 +233,7 @@ struct WorkdayCalculator: Sendable {
         var explicitTotal = 0
         var sawOutsideShift = false
 
-        for span in record.breaks {
+        for span in shift.breaks {
             if let breakStart = span.start, let breakEnd = span.end {
                 var relativeStart = breakStart.minutes - start.minutes
                 if relativeStart < 0 { relativeStart += TimeOfDay.minutesPerDay }
@@ -267,6 +292,6 @@ private extension DayRecord {
     /// A record is worth validating once the user has committed to the day in
     /// some way; a completely blank day should never show warnings.
     var hasEntryWorthValidating: Bool {
-        start != nil || end != nil || !breaks.isEmpty || dayTypeID != nil
+        shifts.contains { !$0.isEmpty } || dayTypeID != nil
     }
 }

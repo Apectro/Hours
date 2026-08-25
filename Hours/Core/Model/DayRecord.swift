@@ -12,9 +12,8 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     /// a plain working day. An explicit value always wins.
     var dayTypeID: DayTypeID?
 
-    var start: TimeOfDay?
-    var end: TimeOfDay?
-    var breaks: [BreakSpan]
+    /// The blocks of work in this day. Usually exactly one.
+    var shifts: [Shift]
 
     /// Set when automatic worked-hours calculation is off, or when the user
     /// overrides the computed value for this one day.
@@ -50,6 +49,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         start: TimeOfDay? = nil,
         end: TimeOfDay? = nil,
         breaks: [BreakSpan] = [],
+        shifts: [Shift]? = nil,
         manualWorkedMinutes: Int? = nil,
         expectedOverrideMinutes: Int? = nil,
         adjustmentMinutes: Int = 0,
@@ -62,9 +62,15 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     ) {
         self.date = date
         self.dayTypeID = dayTypeID
-        self.start = start
-        self.end = end
-        self.breaks = breaks
+        // An explicit shift list wins; otherwise the single-shift arguments
+        // build one, and a day with none of them starts with no shifts at all.
+        if let shifts {
+            self.shifts = shifts
+        } else if start != nil || end != nil || !breaks.isEmpty {
+            self.shifts = [Shift(start: start, end: end, breaks: breaks)]
+        } else {
+            self.shifts = []
+        }
         self.manualWorkedMinutes = manualWorkedMinutes
         self.expectedOverrideMinutes = expectedOverrideMinutes
         self.adjustmentMinutes = adjustmentMinutes
@@ -78,10 +84,105 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
 
     var id: Int { date.key }
 
-    var hasTimes: Bool { start != nil && end != nil }
+    // MARK: - Single-shift accessors
+    //
+    // The overwhelming majority of days are one shift, so these address the
+    // first one and let the rest of the app stay simple. Multi-shift editing
+    // goes through `shifts` directly.
+
+    var start: TimeOfDay? {
+        get { shifts.first?.start }
+        set { updateFirstShift(discardIfEmpty: newValue == nil) { $0.start = newValue } }
+    }
+
+    var end: TimeOfDay? {
+        get { shifts.first?.end }
+        set { updateFirstShift(discardIfEmpty: newValue == nil) { $0.end = newValue } }
+    }
+
+    var breaks: [BreakSpan] {
+        get { shifts.first?.breaks ?? [] }
+        set { updateFirstShift(discardIfEmpty: newValue.isEmpty) { $0.breaks = newValue } }
+    }
+
+    /// Breaks across every shift, which is what totals need.
+    var allBreaks: [BreakSpan] { shifts.flatMap(\.breaks) }
+
+    private mutating func updateFirstShift(discardIfEmpty: Bool, _ change: (inout Shift) -> Void) {
+        if shifts.isEmpty {
+            // Setting a value to nothing on a day that has no shifts should not
+            // conjure an empty one into existence.
+            guard !discardIfEmpty else { return }
+            shifts = [Shift()]
+        }
+        change(&shifts[0])
+    }
+
+    var hasTimes: Bool { shifts.contains(where: \.hasTimes) }
 
     var totalExplicitBreakMinutes: Int {
-        breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+        allBreaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+    }
+
+    // MARK: - Coding
+
+    private enum CodingKeys: String, CodingKey {
+        case date, dayTypeID, shifts
+        case manualWorkedMinutes, expectedOverrideMinutes, adjustmentMinutes, manualBalanceMinutes
+        case note, location, tags, isIncluded, timeZoneIdentifier
+        // Written by versions that held a single shift on the day itself. Read
+        // so that a backup taken before shifts existed still restores.
+        case legacyStart = "start"
+        case legacyEnd = "end"
+        case legacyBreaks = "breaks"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let date = try container.decode(CalendarDate.self, forKey: .date)
+
+        let shifts: [Shift]
+        if let stored: [Shift] = try? container.decodeIfPresent([Shift].self, forKey: .shifts), let stored {
+            shifts = stored
+        } else {
+            let start = container.lenientOptional(.legacyStart, TimeOfDay.self)
+            let end = container.lenientOptional(.legacyEnd, TimeOfDay.self)
+            let breaks: [BreakSpan] = container.lenient(.legacyBreaks, [])
+            shifts = (start == nil && end == nil && breaks.isEmpty)
+                ? []
+                : [Shift(start: start, end: end, breaks: breaks)]
+        }
+
+        self.init(
+            date: date,
+            dayTypeID: container.lenientOptional(.dayTypeID, DayTypeID.self),
+            shifts: shifts,
+            manualWorkedMinutes: container.lenientOptional(.manualWorkedMinutes, Int.self),
+            expectedOverrideMinutes: container.lenientOptional(.expectedOverrideMinutes, Int.self),
+            adjustmentMinutes: container.lenient(.adjustmentMinutes, 0),
+            manualBalanceMinutes: container.lenientOptional(.manualBalanceMinutes, Int.self),
+            note: container.lenient(.note, ""),
+            location: container.lenient(.location, ""),
+            tags: container.lenient(.tags, []),
+            isIncluded: container.lenient(.isIncluded, true),
+            timeZoneIdentifier: container.lenientOptional(.timeZoneIdentifier, String.self)
+        )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(date, forKey: .date)
+        try container.encodeIfPresent(dayTypeID, forKey: .dayTypeID)
+        try container.encode(shifts, forKey: .shifts)
+        try container.encodeIfPresent(manualWorkedMinutes, forKey: .manualWorkedMinutes)
+        try container.encodeIfPresent(expectedOverrideMinutes, forKey: .expectedOverrideMinutes)
+        try container.encode(adjustmentMinutes, forKey: .adjustmentMinutes)
+        try container.encodeIfPresent(manualBalanceMinutes, forKey: .manualBalanceMinutes)
+        try container.encode(note, forKey: .note)
+        try container.encode(location, forKey: .location)
+        try container.encode(tags, forKey: .tags)
+        try container.encode(isIncluded, forKey: .isIncluded)
+        try container.encodeIfPresent(timeZoneIdentifier, forKey: .timeZoneIdentifier)
     }
 
     /// True when the record carries no information worth persisting. The editor
@@ -89,9 +190,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     /// indicators on the calendar honest.
     var isBlank: Bool {
         dayTypeID == nil
-            && start == nil
-            && end == nil
-            && breaks.allSatisfy { $0.isEmpty }
+            && shifts.allSatisfy(\.isEmpty)
             && manualWorkedMinutes == nil
             && expectedOverrideMinutes == nil
             && adjustmentMinutes == 0

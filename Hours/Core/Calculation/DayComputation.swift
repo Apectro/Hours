@@ -45,9 +45,13 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     var dayType: DayTypeDefinition
     var holidayName: String?
 
+    /// First shift's start and last shift's end. With one shift — the usual
+    /// case — these are simply that shift's times.
     var start: TimeOfDay?
     var end: TimeOfDay?
     var breakMinutes: Int
+    /// Every shift the day resolved to, in the order entered.
+    var shifts: [ShiftPeriod]
 
     /// Time actually worked.
     var workedMinutes: Int
@@ -91,6 +95,9 @@ struct DayComputation: Identifiable, Hashable, Sendable {
 
     var hasProblem: Bool { warnings.contains { $0.isProblem } }
 
+    /// True when the day was worked in more than one block.
+    var isSplitShift: Bool { shifts.count > 1 }
+
     static func empty(on date: CalendarDate) -> DayComputation {
         DayComputation(
             date: date,
@@ -99,6 +106,7 @@ struct DayComputation: Identifiable, Hashable, Sendable {
             start: nil,
             end: nil,
             breakMinutes: 0,
+            shifts: [],
             workedMinutes: 0,
             creditedMinutes: 0,
             expectedMinutes: 0,
