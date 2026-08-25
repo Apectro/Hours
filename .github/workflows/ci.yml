@@ -110,22 +110,39 @@ jobs:
       - name: Summarise failures
         if: failure()
         run: |
-          DIAGS=$(cat "$RUNNER_TEMP"/*.log 2>/dev/null \
-            | grep -E "(error|warning):" \
+          # Failing tests first and on their own. CoreData logs several hundred
+          # lines containing the word "error:" while the simulator sets up, and
+          # a single sorted list let that noise crowd the real failures out of
+          # the head of the output.
+          FAILS=$(grep -hE 'error: -\[' "$RUNNER_TEMP"/*.log 2>/dev/null \
             | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
             | sort -u \
-            | head -60)
+            | head -40)
+          DIAGS=$(cat "$RUNNER_TEMP"/*.log 2>/dev/null \
+            | grep -E "(error|warning):" \
+            | grep -v 'CoreData: error:' \
+            | grep -vE 'error: -\[' \
+            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+            | sort -u \
+            | head -40)
           # Printed as well as written to the summary. The summary file cannot
-          # be read back through the API, and on a failed build the diagnostics
-          # are the only output anyone actually wants.
+          # be read back through the API, and on a failed run these are the only
+          # output anyone actually wants.
+          echo "----- failing tests -----"
+          echo "${FAILS:-（none）}"
           echo "----- compiler diagnostics -----"
-          echo "$DIAGS"
+          echo "${DIAGS:-（none）}"
           echo "--------------------------------"
           {
+            echo "### Failing tests"
+            echo ''
+            echo '```'
+            echo "${FAILS:-none}"
+            echo '```'
             echo "### Compiler diagnostics"
             echo ''
             echo '```'
-            echo "$DIAGS"
+            echo "${DIAGS:-none}"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 

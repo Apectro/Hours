@@ -6,7 +6,7 @@ import UserNotifications
 /// The only part of the app that asks the system for anything. It is asked for
 /// nothing until the reminder is switched on, so someone who never wants it is
 /// never prompted.
-struct ReminderScheduler: Sendable {
+struct ReminderScheduler {
     static let identifier = "hours.gap-reminder"
 
     private let center: UNUserNotificationCenter

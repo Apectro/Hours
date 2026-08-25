@@ -5,8 +5,8 @@ import XCTest
 final class BulkEditTests: XCTestCase {
     private let calendar = Fixture.calendar()
 
-    /// Monday 3 August to Friday 14 August 2026: ten working days and four
-    /// weekend days.
+    /// Monday 3 August to Friday 14 August 2026: twelve days, of which ten are
+    /// working days and two are the weekend of the 8th and 9th.
     private var fortnight: CalendarDateRange {
         CalendarDateRange(start: Fixture.workingMonday, end: Fixture.date(2026, 8, 14))
     }
@@ -37,14 +37,14 @@ final class BulkEditTests: XCTestCase {
         let result = plan(.setDayType(.vacation))
 
         XCTAssertEqual(result.changes.count, 10)
-        XCTAssertEqual(result.skippedNonWorking, 4)
+        XCTAssertEqual(result.skippedNonWorking, 2)
         XCTAssertTrue(result.changes.allSatisfy { $0.dayTypeID == .vacation })
     }
 
     func testIncludingNonWorkingDaysWhenAsked() {
         let result = plan(.setDayType(.vacation), skipsNonWorking: false)
 
-        XCTAssertEqual(result.changes.count, 14)
+        XCTAssertEqual(result.changes.count, 12)
         XCTAssertEqual(result.skippedNonWorking, 0)
     }
 
@@ -105,7 +105,7 @@ final class BulkEditTests: XCTestCase {
 
         XCTAssertEqual(result.changes.count, 9)
         XCTAssertNil(result.changes.first { $0.date == Fixture.date(2026, 8, 5) })
-        XCTAssertEqual(result.skippedNonWorking, 5, "four weekend days and the holiday")
+        XCTAssertEqual(result.skippedNonWorking, 3, "the two weekend days and the holiday")
     }
 
     func testAWorkingHolidayIsFilledLikeAnyOtherDay() {

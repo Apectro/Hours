@@ -179,7 +179,10 @@ struct CalendarScreen: View {
 
     private func clockIn() {
         withAnimation(.snappy(duration: 0.25)) {
-            timeClock.clockIn()
+            // Discarded deliberately: a second tap while a clock is already
+            // running returns nil, and there is nothing for the UI to do about
+            // it beyond leaving the running clock alone.
+            _ = timeClock.clockIn()
         }
     }
 
