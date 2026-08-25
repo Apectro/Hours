@@ -73,24 +73,45 @@ final class GapReminderTests: XCTestCase {
         XCTAssertNil(GapFinder.message(for: [], formatting: formatting))
     }
 
+    // The dates are written by the formatter rather than spelled out, because
+    // how a locale abbreviates a date is Foundation's business and not this
+    // test's subject — and the two platforms this suite runs on disagree about
+    // it. On Apple's Foundation en_GB gives "Mon 3 Aug"; on Linux's it gives
+    // "Mon, 3 Aug". What is being tested is the sentence built around them.
+
     func testOneMissingDayIsNamed() {
-        let message = GapFinder.message(for: [Fixture.workingMonday], formatting: formatting)
-        XCTAssertEqual(message, "Mon 3 Aug has no hours recorded.")
+        let day = Fixture.workingMonday
+        let message = GapFinder.message(for: [day], formatting: formatting)
+
+        XCTAssertEqual(message, "\(formatting.mediumDate(day)) has no hours recorded.")
     }
 
     func testTwoMissingDaysAreBothNamed() {
-        let message = GapFinder.message(
-            for: [Fixture.workingMonday, Fixture.workingTuesday],
-            formatting: formatting
+        let first = Fixture.workingMonday
+        let second = Fixture.workingTuesday
+        let message = GapFinder.message(for: [first, second], formatting: formatting)
+
+        XCTAssertEqual(
+            message,
+            "\(formatting.mediumDate(first)) and \(formatting.mediumDate(second)) have no hours recorded."
         )
-        XCTAssertEqual(message, "Mon 3 Aug and Tue 4 Aug have no hours recorded.")
+        XCTAssertNotEqual(
+            formatting.mediumDate(first),
+            formatting.mediumDate(second),
+            "both days have to be named, so they must be distinguishable"
+        )
     }
 
     func testManyMissingDaysAreCounted() {
         let dates = [3, 4, 5, 6].map { Fixture.date(2026, 8, $0) }
         let message = GapFinder.message(for: dates, formatting: formatting)
 
-        XCTAssertEqual(message, "4 days have no hours recorded, starting Mon 3 Aug.")
+        // The count, and only the first date: naming four is a notification
+        // nobody reads to the end of.
+        XCTAssertEqual(
+            message,
+            "4 days have no hours recorded, starting \(formatting.mediumDate(dates[0]))."
+        )
     }
 
     private var formatting: CalendarFormatting {
