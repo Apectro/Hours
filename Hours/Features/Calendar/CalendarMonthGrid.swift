@@ -53,6 +53,12 @@ struct CalendarMonthGrid: View {
 
 /// One day.
 struct DayCell: View {
+    // The cell grows with the user's text size rather than clipping it.
+    // Not `private`: a private stored property makes the memberwise
+    // initializer private too.
+    @ScaledMetric(relativeTo: .subheadline) var cellHeight: CGFloat = Metrics.dayCellHeight
+    @ScaledMetric(relativeTo: .subheadline) var numberDiameter: CGFloat = 28
+
     let date: CalendarDate
     let computation: DayComputation?
     let isInMonth: Bool
@@ -74,13 +80,12 @@ struct DayCell: View {
                     .font(.system(.subheadline, design: .rounded, weight: isToday || isSelected ? .bold : .regular))
                     .foregroundStyle(numberColor)
             }
-            .frame(width: 28, height: 28)
+            .frame(width: numberDiameter, height: numberDiameter)
 
             detailLabel
-                .frame(height: 12)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: Metrics.dayCellHeight)
+        .frame(height: cellHeight)
         .background { background }
         .opacity(isInMonth ? 1 : 0.35)
         .accessibilityElement(children: .ignore)
@@ -94,11 +99,11 @@ struct DayCell: View {
     private var detailLabel: some View {
         if let text = detailText {
             Text(text)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .font(.caption2.weight(.medium))
                 .monospacedDigit()
                 .foregroundStyle(detailColor)
                 .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .minimumScaleFactor(0.7)
         } else if let computation, computation.hasContent {
             Circle()
                 .fill(computation.dayType.tint.color)

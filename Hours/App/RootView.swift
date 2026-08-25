@@ -17,6 +17,17 @@ struct RootView: View {
     }
 
     var body: some View {
+        VStack(spacing: 0) {
+            // Above the tabs rather than floating over them: a warning that
+            // covers the navigation bar is worse than the problem it reports.
+            if let storeFailure {
+                StoreFailureBanner(message: storeFailure)
+            }
+            tabs
+        }
+    }
+
+    private var tabs: some View {
         TabView(selection: $selection) {
             CalendarScreen()
                 .tabItem { Label("Calendar", systemImage: "calendar") }
@@ -29,11 +40,6 @@ struct RootView: View {
             SettingsScreen()
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(Destination.settings)
-        }
-        .overlay(alignment: .top) {
-            if let storeFailure {
-                StoreFailureBanner(message: storeFailure)
-            }
         }
     }
 }
@@ -59,9 +65,10 @@ private struct StoreFailureBanner: View {
                 .accessibilityLabel("Dismiss")
             }
             .padding(Metrics.medium)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
             .foregroundStyle(Color.hoursNegative)
             .padding(.horizontal, Metrics.medium)
+            .padding(.bottom, Metrics.small)
             .transition(.move(edge: .top).combined(with: .opacity))
         }
     }

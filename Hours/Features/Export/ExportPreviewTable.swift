@@ -8,7 +8,7 @@ struct ExportPreviewTable: View {
     let table: ReportTable
     var rowLimit: Int = 12
 
-    private let columnWidths: [ReportColumn: CGFloat] = [
+    private static let columnWidths: [ReportColumn: CGFloat] = [
         .date: 92, .weekday: 46, .dayType: 96, .start: 60, .end: 68,
         .breakTime: 60, .worked: 70, .credited: 84, .expected: 74,
         .overtime: 74, .balance: 74, .cumulativeBalance: 96,
@@ -86,6 +86,6 @@ struct ExportPreviewTable: View {
     }
 
     private func width(for column: ReportColumn) -> CGFloat {
-        columnWidths[column] ?? 80
+        ExportPreviewTable.columnWidths[column] ?? 80
     }
 }

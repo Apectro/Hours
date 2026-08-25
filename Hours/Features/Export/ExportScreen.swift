@@ -45,6 +45,9 @@ struct ExportScreen: View {
                 }
             }
             .task {
+                // Clear anything a previous export left in the temporary
+                // directory before writing a new file into it.
+                ExportFileFactory.clearPreviousExports()
                 rangeKind = settingsStore.settings.export.defaultRange
                 regenerate()
             }

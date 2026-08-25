@@ -164,6 +164,7 @@ struct DayTypeMenu: View {
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
         }
         .accessibilityLabel("Day type")

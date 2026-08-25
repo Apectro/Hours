@@ -67,6 +67,7 @@ struct DayTypeSettingsScreen: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
         }
     }
 
@@ -198,10 +199,10 @@ struct DayTypeEditor: View {
 struct TintPicker: View {
     @Binding var selection: TypeTint
 
-    private let columns = [GridItem(.adaptive(minimum: 40), spacing: Metrics.medium)]
+    private static let columns = [GridItem(.adaptive(minimum: 40), spacing: Metrics.medium)]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Metrics.medium) {
+        LazyVGrid(columns: TintPicker.columns, spacing: Metrics.medium) {
             ForEach(TypeTint.allCases, id: \.self) { tint in
                 Button {
                     selection = tint
@@ -240,10 +241,10 @@ struct SymbolPicker: View {
         "phone.fill", "envelope.fill", "clock.fill", "square.dashed"
     ]
 
-    private let columns = [GridItem(.adaptive(minimum: 44), spacing: Metrics.medium)]
+    private static let columns = [GridItem(.adaptive(minimum: 44), spacing: Metrics.medium)]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Metrics.medium) {
+        LazyVGrid(columns: SymbolPicker.columns, spacing: Metrics.medium) {
             ForEach(SymbolPicker.symbols, id: \.self) { symbol in
                 Button {
                     selection = symbol
