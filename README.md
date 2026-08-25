@@ -1,5 +1,7 @@
 # Hours
 
+[![Build and test](https://github.com/Apectro/Hours/actions/workflows/ci.yml/badge.svg)](https://github.com/Apectro/Hours/actions/workflows/ci.yml)
+
 A private work-hours calendar for iOS. Everything stays on the device: no
 account, no server, no analytics, no third-party code, and no networking of any
 kind in the app.
