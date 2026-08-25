@@ -78,16 +78,18 @@ the reasoning behind each decision.
 ## Layout
 
 ```
+HoursCore/     pure Swift + Foundation: the entire calculation engine
 Hours/
   App/         entry point and the tab structure
-  Core/        pure Swift + Foundation: the entire calculation engine
   Data/        SwiftData models, repository, settings store
   Features/    one folder per screen
 HoursTests/    unit tests for the engine, holidays, DST and the exports
 ```
 
-`Core` imports nothing but Foundation. No view calculates anything; screens read
-values that are already resolved.
+`HoursCore` imports nothing but Foundation. No view calculates anything; screens
+read values that are already resolved. `Package.swift` builds that same folder
+as a Swift package so CI can compile and test it on Linux — where there is no
+UIKit, SwiftUI or SwiftData to accidentally import.
 
 ## Backups
 

@@ -19,16 +19,31 @@ noise without adding safety to a single-user, main-actor app.
 ## Layers
 
 ```
-Core/        pure Swift + Foundation. No SwiftUI, no SwiftData, no UIKit.
-Data/        SwiftData models, repository, settings store.
-Features/    SwiftUI screens, one folder per feature.
+HoursCore/     pure Swift + Foundation. No SwiftUI, no SwiftData, no UIKit.
+Hours/Data/    SwiftData models, repository, settings store.
+Hours/Features/ SwiftUI screens, one folder per feature.
 ```
 
-`Core` is import-clean by rule, not by convention — it is the entire
+`HoursCore` is import-clean by rule, not by convention — it is the entire
 calculation engine, and it is the only part of the app that has to be right.
-It could be lifted into a Swift package unchanged; it lives in the app target
-so the test bundle can reach it with `@testable import Hours` and the project
-stays a single, openable Xcode project.
+
+That rule is now enforced by a machine rather than by review. `Package.swift`
+describes the same folder as a Swift package, and CI builds and tests it on
+Linux, where UIKit, SwiftUI and SwiftData do not exist: one stray import and
+the job stops compiling. It is also the fast half of the feedback loop, since
+the engine's tests run there in about a minute instead of five.
+
+Two builds of the same files, then, and no duplication: the Xcode app target
+compiles `HoursCore/` directly rather than depending on the package, so there
+is nothing to keep in step and no `public` scattered through the engine to
+satisfy a module boundary that only one of the two builds has. The package
+module is deliberately named `Hours`, the same as the app module, so the test
+files say `@testable import Hours` and either build compiles them unchanged.
+
+It sits beside the app folder rather than inside it because an Xcode
+synchronized folder group can belong to more than one target, but a folder
+nested inside another target's group cannot — so this is the shape an app
+extension can share.
 
 Business logic never appears in a view. Views read `DayComputation` and
 `PeriodSummary` values that are already fully resolved.

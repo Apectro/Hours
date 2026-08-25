@@ -22,6 +22,11 @@
 			path = HoursTests;
 			sourceTree = "<group>";
 		};
+		AA0000000000000000000050 /* HoursCore */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HoursCore;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +50,7 @@
 		AA0000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
+				AA0000000000000000000050 /* HoursCore */,
 				AA0000000000000000000012 /* Hours */,
 				AA0000000000000000000022 /* HoursTests */,
 				AA0000000000000000000003 /* Products */,
@@ -76,6 +82,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				AA0000000000000000000050 /* HoursCore */,
 				AA0000000000000000000012 /* Hours */,
 			);
 			name = Hours;

@@ -16,7 +16,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The calculation engine imports nothing but Foundation, on purpose: it is the
+  # part worth testing exhaustively, and Apple frameworks in it would make that
+  # slow and awkward. Until now that rule was upheld by review. This job upholds
+  # it mechanically — there is no UIKit, no SwiftUI and no SwiftData on Linux,
+  # so a single stray import stops it compiling. It also runs the engine's tests
+  # in about a minute, which is the fast half of the feedback loop.
+  engine:
+    name: Engine (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
   build-and-test:
+    name: App and tests (iOS simulator)
     # `macos-latest` rather than a pinned version: a pinned label that the
     # account cannot schedule fails the job before any step runs, with no logs
     # to explain why.
