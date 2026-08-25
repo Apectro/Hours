@@ -38,6 +38,16 @@
                ReferencedContainer = "container:Hours.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AA0000000000000000000070"
+               BuildableName = "HoursUITests.xctest"
+               BlueprintName = "HoursUITests"
+               ReferencedContainer = "container:Hours.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

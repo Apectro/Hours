@@ -91,6 +91,9 @@ struct DayCell: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        // The label is a spoken sentence and will be translated; a test that
+        // matched on it would break on a rewording. The date does not change.
+        .accessibilityIdentifier("day-\(date.key)")
     }
 
     // MARK: - Pieces

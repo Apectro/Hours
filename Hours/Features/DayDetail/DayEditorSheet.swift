@@ -37,17 +37,21 @@ struct DayEditorSheet: View {
             )
             .navigationTitle(settingsStore.dateFormatting.mediumDate(date))
             .navigationBarTitleDisplayMode(.inline)
+            .accessibilityIdentifier("day-editor")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("day-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
                         .fontWeight(.semibold)
+                        .accessibilityIdentifier("day-editor-save")
                 }
                 if storedRecord != nil {
                     ToolbarItem(placement: .bottomBar) {
                         Button("Delete day", role: .destructive) { isConfirmingDelete = true }
+                            .accessibilityIdentifier("day-editor-delete")
                     }
                 }
             }

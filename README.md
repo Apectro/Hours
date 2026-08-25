@@ -85,6 +85,7 @@ Hours/
   Features/    one folder per screen
 HoursWidget/   the Home Screen and Lock Screen widgets
 HoursTests/    unit tests for the engine, holidays, DST and the exports
+HoursUITests/  launch and end-to-end tests against the simulator
 ```
 
 `HoursCore` imports nothing but Foundation. No view calculates anything; screens

@@ -63,6 +63,10 @@ enum GapFinder {
     /// What the notification should say. Returns nil when there is nothing to
     /// report — a reminder that fires to say "all good" is a reminder people
     /// switch off.
+    /// Written out per count rather than through `String(localized:)`.
+    /// Everything in this folder also builds on Linux, where the localisation
+    /// APIs are not reliably present; the branching gives the same plural
+    /// correctness and the strings are extracted from the app that calls it.
     static func message(for gaps: [CalendarDate], formatting: CalendarFormatting) -> String? {
         switch gaps.count {
         case 0:

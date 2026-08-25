@@ -35,10 +35,34 @@ jobs:
         run: swift --version
 
       - name: Build
-        run: swift build
+        run: |
+          set -o pipefail
+          swift build 2>&1 | tee "$RUNNER_TEMP/engine.log"
 
       - name: Test
-        run: swift test
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee -a "$RUNNER_TEMP/engine.log"
+
+      # SwiftPM repeats the same diagnostic once per file in the module, so a
+      # single error can fill a screen and a second one hides below it.
+      - name: Summarise failures
+        if: failure()
+        run: |
+          DIAGS=$(grep -hE "error:|warning:" "$RUNNER_TEMP/engine.log" 2>/dev/null \
+            | grep -v '`- ' \
+            | sort -u \
+            | head -40)
+          echo "----- engine diagnostics -----"
+          echo "${DIAGS:-（none）}"
+          echo "------------------------------"
+          {
+            echo "### Engine diagnostics (Linux)"
+            echo ''
+            echo '```'
+            echo "${DIAGS:-none}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-and-test:
     name: App and tests (iOS simulator)

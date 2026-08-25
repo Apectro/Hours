@@ -57,7 +57,10 @@ struct PeriodSummaryBar: View {
 
     private var countsLine: String {
         var parts: [String] = []
-        parts.append("\(summary.daysWorked) \(summary.daysWorked == 1 ? "day" : "days") worked")
+        // Inflected rather than a hand-picked noun: "1 day"/"2 days" is the
+        // easy half, and the pattern is what a translator needs for languages
+        // where the number itself changes the word.
+        parts.append(String(localized: "^[\(summary.daysWorked) day](inflect: true) worked"))
         if summary.scheduledWorkingDays > 0 {
             parts.append("\(summary.scheduledWorkingDays) scheduled")
         }

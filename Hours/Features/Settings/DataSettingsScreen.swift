@@ -95,7 +95,7 @@ struct DataSettingsScreen: View {
             Button("Replace", role: .destructive) { applyRestore(archive) }
             Button("Cancel", role: .cancel) { pendingRestore = nil }
         } message: { archive in
-            Text("The backup holds \(archive.days.count) days and \(archive.holidays.count) holidays. Everything currently stored will be removed.")
+            Text("The backup holds ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true). Everything currently stored will be removed.")
         }
     }
 
@@ -128,7 +128,7 @@ struct DataSettingsScreen: View {
             let url = directory.appendingPathComponent("Hours backup \(stamp).json")
             try data.write(to: url, options: .atomic)
             backupURL = url
-            message = "Backup ready: \(archive.days.count) days."
+            message = String(localized: "Backup ready: ^[\(archive.days.count) day](inflect: true).")
         } catch {
             message = "The backup could not be created. \(error.localizedDescription)"
         }
@@ -162,7 +162,7 @@ struct DataSettingsScreen: View {
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
-        message = "Restored \(archive.days.count) days and \(archive.holidays.count) holidays."
+        message = String(localized: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true).")
     }
 
     private func deleteAll() {

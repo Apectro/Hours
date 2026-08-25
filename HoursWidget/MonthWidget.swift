@@ -149,8 +149,6 @@ struct MonthWidgetView: View {
     }
 
     private var unrecordedText: String {
-        snapshot.unrecordedDayCount == 1
-            ? "1 day missing"
-            : "\(snapshot.unrecordedDayCount) days missing"
+        String(localized: "^[\(snapshot.unrecordedDayCount) day](inflect: true) missing")
     }
 }

@@ -172,17 +172,23 @@ struct BulkEditSheet: View {
 
     private var applyTitle: String {
         let count = plan.affectedDayCount
-        let noun = count == 1 ? "day" : "days"
         switch actionKind {
-        case .clear: return count == 0 ? "Nothing to clear" : "Clear \(count) \(noun)"
-        default: return count == 0 ? "Nothing to change" : "Apply to \(count) \(noun)"
+        case .clear:
+            return count == 0
+                ? String(localized: "Nothing to clear")
+                : String(localized: "Clear ^[\(count) day](inflect: true)")
+        default:
+            return count == 0
+                ? String(localized: "Nothing to change")
+                : String(localized: "Apply to ^[\(count) day](inflect: true)")
         }
     }
 
     private var confirmationTitle: String {
-        actionKind == .clear
-            ? "Clear \(plan.affectedDayCount) days?"
-            : "Replace what is on \(plan.affectedDayCount) days?"
+        let count = plan.affectedDayCount
+        return actionKind == .clear
+            ? String(localized: "Clear ^[\(count) day](inflect: true)?")
+            : String(localized: "Replace what is on ^[\(count) day](inflect: true)?")
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {

@@ -19,10 +19,18 @@ noise without adding safety to a single-user, main-actor app.
 ## Layers
 
 ```
-HoursCore/     pure Swift + Foundation. No SwiftUI, no SwiftData, no UIKit.
-Hours/Data/    SwiftData models, repository, settings store.
+HoursCore/      pure Swift + Foundation. No SwiftUI, no SwiftData, no UIKit,
+                and no Apple-only API: it is built on Linux too.
+HoursShared/    Apple-platform code the app and the widget both need.
+Hours/Data/     SwiftData models, repository, settings store.
 Hours/Features/ SwiftUI screens, one folder per feature.
+HoursWidget/    the widget extension.
 ```
+
+`HoursShared` exists because "shared between the app and the extension" and
+"portable" are two different things, and one folder cannot be both. Finding the
+app group is shared but not portable, so it goes there; the snapshot it writes
+is arithmetic and Codable, so it stays in the engine where the tests reach it.
 
 `HoursCore` is import-clean by rule, not by convention — it is the entire
 calculation engine, and it is the only part of the app that has to be right.
@@ -199,3 +207,33 @@ The privacy screen is written from `HoursStack.isSyncing` rather than from what
 the app intends in general — it reports the store that actually opened. A
 screen that says "nothing leaves the device" while the store is syncing is the
 one screen in the app it would be worst to be wrong on.
+
+## Text and tests
+
+**Every string the user reads is in a String Catalog.** `Localizable.xcstrings`
+starts empty; the build extracts the keys, so translating the app later is a
+matter of adding a language rather than of first finding the words. Counts go
+through automatic grammatical agreement — `^[\(count) day](inflect: true)` —
+rather than a hand-picked noun, because "1 day" / "2 days" is the easy half and
+the pattern is what a translator needs for a language where the number changes
+the word.
+
+`HoursCore` is the exception. It also builds on Linux, where the localisation
+APIs are not reliably present, so the one string it produces — the reminder
+body — branches per count instead. Same plural correctness, no dependency.
+
+**UI tests exist for what unit tests cannot see.** Two hundred of them cover
+the arithmetic and not one would notice the app crashing on launch, a store
+that refuses to open, or a settings screen that traps. `HoursUITests` launches
+the app and checks that the tabs are there, that every settings screen opens
+and comes back, and that a day can be opened and saved.
+
+They run against an app told to start from nothing: `-hours-ui-testing` gives
+it an in-memory store, default settings and no running clock. Read from the
+launch arguments rather than compiled behind `#if DEBUG`, because the build
+under test should be the build that ships. Without it a test would read
+whatever is on the machine running it, and would write to it.
+
+Elements are matched by accessibility identifier, not by label. The labels are
+sentences that will be translated; the identifiers are dates and roles that
+will not.

@@ -9,8 +9,18 @@ import SwiftData
 /// would be two caches of the same rows disagreeing with each other.
 @MainActor
 enum HoursStack {
+    /// Set by the UI test target, which needs an app that starts from nothing
+    /// and cannot touch whatever is really on the device. It is read from the
+    /// launch arguments rather than compiled in behind `#if DEBUG`, because the
+    /// build under test is the one that ships.
+    static let isRunningUITests = ProcessInfo.processInfo.arguments.contains("-hours-ui-testing")
+
     /// Built once, on first use.
     private static let opened: (container: ModelContainer, failure: String?, isSyncing: Bool) = {
+        if isRunningUITests {
+            return (HoursModelContainer.ephemeral(), nil, false)
+        }
+
         let wantsSync = SyncPreference.isEnabled
 
         if wantsSync {
@@ -55,10 +65,16 @@ enum HoursStack {
     /// need their own way across. The key-value store is only reached once
     /// a syncing container has opened, which is the proof that this build
     /// actually carries the iCloud entitlement.
-    static let settings = SettingsStore(
-        shared: isSyncing ? NSUbiquitousKeyValueStore.default : nil
-    )
-    static let clock = ActiveShiftStore()
+    static let settings: SettingsStore = {
+        // Defaults, and a suite nothing else reads: a UI test asserting on
+        // "8h 30m" must not fail because the person running it prefers 8.50.
+        if isRunningUITests { return SettingsStore.ephemeral() }
+        return SettingsStore(shared: isSyncing ? NSUbiquitousKeyValueStore.default : nil)
+    }()
+
+    static let clock: ActiveShiftStore = isRunningUITests
+        ? ActiveShiftStore.ephemeral()
+        : ActiveShiftStore()
 
     static var calendar: Calendar { settings.workCalendar }
 
