@@ -734,7 +734,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           <label class="step-title" id="s13-t" for="s13">Collect the screenshots</label>
           <p class="step-where">github.com/Apectro/Hours › branch <code>screenshots</code></p>
           <p>They already exist. A test drives the app in a simulator with a month of sample data and captures the calendar, a day, the insights, settings, the privacy screen and the export sheet — plus the actual exported PDF pages, CSV and XLSX. Ten files, on the <code>screenshots</code> branch, kept current.</p>
-          <p>Apple wants <strong>6.9-inch and 6.5-inch</strong> iPhone sizes. The capture job runs one simulator; add the second device to <code>.github/workflows/ci.yml</code> to get both, or take the second set by hand.</p>
+          <p>Apple wants <strong>two iPhone sizes</strong>, and both are now captured for you: the suite runs on the largest iPhone the runner has, then takes the screenshots again on a smaller one. The two sets arrive in a folder each, named after the simulator, so they can be uploaded separately without sorting them out first.</p>
           <p>That job runs on pull requests and on demand, not on every push — Actions › Build and test › Run workflow.</p>
         </div>
       </li>
@@ -742,10 +742,19 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s14" aria-labelledby="s14-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Needs somewhere to host it</span></div>
-          <label class="step-title" id="s14-t" for="s14">Write a privacy policy and put it on the web</label>
-          <p>Every App Store listing needs a reachable privacy policy URL, even one that collects nothing. A GitHub Pages page is enough. The text is unusually short here because it is true: no account, no server, no analytics, no third-party code, nothing transmitted anywhere except the user's own iCloud if they switch it on.</p>
-          <p>The app's own Privacy screen (Settings › Privacy) already says all of this; it is a reasonable first draft.</p>
+          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip chip--free">Written for you</span><span class="chip">10 minutes</span></div>
+          <label class="step-title" id="s14-t" for="s14">Put the privacy policy on the web</label>
+          <p class="step-where">docs/privacy/index.html</p>
+          <p>Every App Store listing needs a privacy policy URL that resolves, even one for an app that collects nothing. <strong>The policy is written</strong> — from the code rather than from a template, with a table in <code>docs/README.md</code> showing where each claim comes from, so it can be checked rather than trusted.</p>
+          <p>To publish it: Settings › Pages, deploy from branch <code>main</code>, folder <code>/docs</code>. It appears at:</p>
+          <ul class="literals">
+            <li><span class="what">URL</span> <button class="copy">https://apectro.github.io/Hours/privacy/</button></li>
+          </ul>
+          <p>Two edits before you do: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, and the date at the top should be the day you publish.</p>
+          <div class="callout">
+            <span class="callout-label">Interacts with step 20</span>
+            <p>Making the repository private stops Pages serving on a free plan, and the URL dies — which fails review at your next submission. Host the page elsewhere first, or keep the repository public.</p>
+          </div>
         </div>
       </li>
 
@@ -762,10 +771,12 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s16" aria-labelledby="s16-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">Writing</span></div>
-          <label class="step-title" id="s16-t" for="s16">Write the listing and the review notes</label>
-          <p>Name, subtitle, description, keywords, a support URL, and an age rating. The category is already set in the project to Productivity.</p>
-          <p>In the <strong>App Review notes</strong>, say two things explicitly: that the app is fully functional without paying, and how to reach the paywall. Reviewers reject paywalls they cannot get behind, and this one gates producing timesheets rather than recording hours, which is not obvious from the outside.</p>
+          <div class="chips"><span class="chip chip--free">Drafted for you</span><span class="chip">30 minutes to edit</span></div>
+          <label class="step-title" id="s16-t" for="s16">Edit the listing and paste it in</label>
+          <p class="step-where">docs/app-store-listing.md</p>
+          <p>Every field App Store Connect asks for is drafted, with the character limit it enforces marked against each: name, subtitle, promotional text, the full description, keywords, URLs, age rating and the review notes. The category is already set in the project to Productivity.</p>
+          <p>The <strong>review notes</strong> are the ones worth reading before you send. They say plainly that the app is fully functional unpaid and how to reach the paywall — reviewers reject paywalls they cannot get behind, and this one gates producing timesheets rather than recording hours, which is not obvious from outside.</p>
+          <p>Three things in it still need you: the name if <em>Hours</em> is taken, the prices, and the contact email.</p>
         </div>
       </li>
 
