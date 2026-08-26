@@ -135,8 +135,11 @@ extension AppSettings {
         transform(&jobs[index])
     }
 
-    /// Contracted minutes for a weekday across every active job.
+    /// What every active job expects of this weekday, added together.
+    ///
+    /// Each job's own weekly override is applied before the sum, so two jobs
+    /// with different contracts each contribute their own share.
     func contractedMinutes(forWeekday weekday: Int) -> Int {
-        activeJobs.reduce(0) { $0 + $1.schedule.contractedMinutes(forWeekday: weekday) }
+        activeJobs.reduce(0) { $0 + $1.schedule.expectedMinutes(forWeekday: weekday) }
     }
 }

@@ -65,6 +65,45 @@ struct WorkSchedule: Hashable, Codable, Sendable {
         contractedMinutes(forWeekday: weekday) > 0
     }
 
+    /// What this weekday is actually expected to be, once a weekly override is
+    /// taken into account.
+    ///
+    /// The per-day figures say how the week is shaped; a weekly override says
+    /// what it has to add up to. When both are set they can disagree, and the
+    /// balance used to be computed from the days while the settings screen
+    /// displayed the override — so someone whose contract says 37½ hours, set
+    /// as the override over days summing to 40, ran two and a half hours short
+    /// every week, forever, while the app told them their target was 37½. The
+    /// screen reassuring you is what makes that one nasty.
+    ///
+    /// The override wins, because it is the contract. The shape is kept: a
+    /// short Friday stays proportionally short.
+    ///
+    /// Distributed through a running total rather than by scaling each day on
+    /// its own. Scaling independently rounds seven times and the week lands a
+    /// few minutes off its target — small, but this is a balance measured in
+    /// minutes and the error repeats every week of the year. Taking the
+    /// difference between two cumulative totals puts every remainder
+    /// somewhere, sums to the target exactly, and still lets one day be worked
+    /// out without looking at the others.
+    func expectedMinutes(forWeekday weekday: Int) -> Int {
+        guard let target = weeklyTargetOverrideMinutes else {
+            return contractedMinutes(forWeekday: weekday)
+        }
+        let index = weekday - 1
+        guard index >= 0, index < storedMinutesByWeekday.count else { return 0 }
+
+        let summed = summedWeeklyMinutes
+        // No shape to spread the target over. Sharing it evenly would invent
+        // working days out of nothing.
+        guard summed > 0 else { return 0 }
+
+        func cumulative(throughIndex end: Int) -> Int {
+            storedMinutesByWeekday.prefix(end).reduce(0, +) * target / summed
+        }
+        return cumulative(throughIndex: index + 1) - cumulative(throughIndex: index)
+    }
+
     /// The contracted week, honouring an explicit override if one is set.
     var weeklyTargetMinutes: Int {
         weeklyTargetOverrideMinutes ?? storedMinutesByWeekday.reduce(0, +)

@@ -172,6 +172,54 @@ final class CalendarMathTests: XCTestCase {
         XCTAssertEqual(schedule.summedWeeklyMinutes, 5 * 480, "the per-day figures are untouched")
     }
 
+    /// A weekly override is the contract, so the balance has to honour it.
+    ///
+    /// It used to be display-only: the settings screen showed the override
+    /// while every day's expected hours came from the per-day figures. Someone
+    /// whose contract said 37½ hours, set as the override over days summing to
+    /// 40, ran two and a half hours short every week — and the screen told
+    /// them their target was 37½ the whole time.
+    func testAWeeklyOverrideChangesWhatEachDayExpects() {
+        var schedule = WorkSchedule()
+        XCTAssertEqual(schedule.expectedMinutes(forWeekday: 2), 480, "eight hours before any override")
+
+        schedule.weeklyTargetOverrideMinutes = 37 * 60 + 30
+        XCTAssertEqual(schedule.expectedMinutes(forWeekday: 2), 450, "seven and a half after it")
+        XCTAssertEqual(schedule.expectedMinutes(forWeekday: 1), 0, "a day off stays a day off")
+    }
+
+    /// Every remainder lands somewhere, so the week hits the contract exactly.
+    ///
+    /// Scaling each day on its own rounds seven times and misses by a few
+    /// minutes. On a balance measured in minutes, repeated every week of the
+    /// year, that is not a rounding error anyone should have to explain.
+    func testTheOverriddenWeekAddsUpToTheContractExactly() {
+        for target in [2250, 2220, 2400, 1, 2399] {
+            var schedule = WorkSchedule(minutesByWeekday: [0, 480, 480, 480, 480, 240, 0])
+            schedule.weeklyTargetOverrideMinutes = target
+            let week = (1...7).map { schedule.expectedMinutes(forWeekday: $0) }
+            XCTAssertEqual(week.reduce(0, +), target, "target \(target) was not distributed exactly")
+        }
+    }
+
+    /// The shape of the week survives being rescaled.
+    func testAShortDayStaysProportionallyShort() {
+        var schedule = WorkSchedule(minutesByWeekday: [0, 480, 480, 480, 480, 240, 0])
+        schedule.weeklyTargetOverrideMinutes = 1110
+        let week = (1...7).map { schedule.expectedMinutes(forWeekday: $0) }
+
+        XCTAssertEqual(week[5], 120, "the half day is still half")
+        XCTAssertEqual(week[1], 240)
+        XCTAssertEqual(week.reduce(0, +), 1110)
+    }
+
+    /// A schedule with no working days has no shape to spread a target over.
+    func testAnOverrideOnAnEmptyWeekExpectsNothing() {
+        var schedule = WorkSchedule(minutesByWeekday: [0, 0, 0, 0, 0, 0, 0])
+        schedule.weeklyTargetOverrideMinutes = 2400
+        XCTAssertEqual((1...7).map { schedule.expectedMinutes(forWeekday: $0) }.reduce(0, +), 0)
+    }
+
     func testScheduleIndexesWeekdaysFromSunday() {
         var schedule = WorkSchedule(minutesByWeekday: [0, 0, 0, 0, 0, 0, 0])
         schedule.setContractedMinutes(360, forWeekday: 7)
