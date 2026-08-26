@@ -87,6 +87,24 @@ struct DayComputation: Identifiable, Hashable, Sendable {
         dayType.expectation == .scheduled && expectedMinutes > 0
     }
 
+    /// Whether this day counts towards a total at all.
+    ///
+    /// One definition, because there were three: the period aggregator and
+    /// both halves of the balance ledger each carried a copy of these two
+    /// conditions. Numbers derived from copies of a rule are fine right up
+    /// until someone edits one of them, and the symptom is a screen showing
+    /// two totals that disagree while each looks perfectly reasonable alone.
+    ///
+    /// A day past the cut-off still counts when hours were actually recorded
+    /// on it. What the cut-off excludes is expected hours not yet worked —
+    /// without it the current month would show a deficit for every day still
+    /// to come.
+    func counts(through cutoff: CalendarDate?) -> Bool {
+        guard isIncluded else { return false }
+        if let cutoff, date > cutoff, !hasEntry { return false }
+        return true
+    }
+
     var isPaidAbsence: Bool { creditedMinutes > 0 || dayType.expectation == .creditedAbsence }
 
     /// Whether the calendar should mark this day as carrying data.

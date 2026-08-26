@@ -47,13 +47,10 @@ enum BalanceLedger {
         startDate: CalendarDate?,
         countingThrough: CalendarDate?
     ) -> Bool {
-        guard day.isIncluded else { return false }
+        // The opening balance is the ledger's own rule and nothing else's: a
+        // period summary is not affected by when someone started counting.
         if let startDate, day.date < startDate { return false }
-        // A day past the cut-off still counts when hours were actually
-        // recorded on it: what the cut-off excludes is expected hours not yet
-        // worked, not work someone has already done and entered.
-        if let countingThrough, day.date > countingThrough, !day.hasEntry { return false }
-        return true
+        return day.counts(through: countingThrough)
     }
 
     /// Month-by-month totals with a running cumulative column, for the year

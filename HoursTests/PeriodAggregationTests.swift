@@ -263,6 +263,51 @@ final class PeriodAggregationTests: XCTestCase {
         }
     }
 
+    /// The summary and the ledger agree about which days count.
+    ///
+    /// They are separate code paths over the same days, and the totals they
+    /// produce sit on the same screen. The rule they share now lives in one
+    /// place; this is what notices if it stops being shared.
+    func testTheSummaryAndTheLedgerCountTheSameDays() {
+        let excluded = Fixture.date(2026, 3, 4)
+        let future = Fixture.date(2026, 3, 25)
+        var records: [Int: DayRecord] = [
+            // Recorded but deliberately left out of totals.
+            excluded.key: DayRecord(
+                date: excluded,
+                start: Fixture.time(8),
+                end: Fixture.time(18),
+                isIncluded: false
+            ),
+            // Past the cut-off, but with hours actually recorded on it.
+            future.key: DayRecord(date: future, start: Fixture.time(8), end: Fixture.time(18))
+        ]
+        for day in [10, 11, 12] {
+            let date = Fixture.date(2026, 3, day)
+            records[date.key] = DayRecord(date: date, start: Fixture.time(8), end: Fixture.time(17))
+        }
+
+        let range = CalendarDateRange(start: Fixture.date(2026, 3, 1), end: Fixture.date(2026, 3, 31))
+        let engine = Fixture.engine(calendar: calendar)
+        let cutoff = Fixture.date(2026, 3, 15)
+        let days = engine.days(in: range, records: records, holidays: [])
+
+        let summary = engine.summary(
+            in: range,
+            records: records,
+            holidays: [],
+            countingThrough: cutoff
+        )
+        let ledger = BalanceLedger.cumulative(
+            over: days,
+            openingMinutes: 0,
+            startDate: nil,
+            countingThrough: cutoff
+        )
+
+        XCTAssertEqual(summary.balanceMinutes, ledger)
+    }
+
     // MARK: - A year
 
     func testAYearOfPerfectDaysBalancesToZero() {

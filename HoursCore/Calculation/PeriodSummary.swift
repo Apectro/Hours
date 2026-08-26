@@ -93,8 +93,7 @@ enum PeriodAggregator {
     ) -> PeriodSummary {
         var summary = PeriodSummary.empty(range: range)
 
-        for day in days where day.isIncluded {
-            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
+        for day in days where day.counts(through: countingThrough) {
             summary.workedMinutes += day.workedMinutes
             summary.creditedMinutes += day.creditedMinutes
             summary.expectedMinutes += day.expectedMinutes
