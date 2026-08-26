@@ -313,6 +313,19 @@ jobs:
         if: always()
         run: |
           echo "=============== diagnostics ==============="
+          # Failing tests are repeated here, and this is not redundant with the
+          # step above. The logs API caps its response, so only the tail of a
+          # job is reliably readable — three separate investigations were slowed
+          # by reading a summary that had been truncated away. Whatever a person
+          # needs after a red run goes last, where it survives.
+          echo "--- failing tests ---"
+          grep -hE 'error: -\[' "$RUNNER_TEMP"/*.log 2>/dev/null \
+            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+            | sed -E 's|^/Users/runner/work/Hours/Hours/||' \
+            | sort -u \
+            | head -25 \
+            || echo "(none)"
+          echo "--- inflection ---"
           sed -n '/----- inflection -----/,/----- end inflection -----/p' \
             "$RUNNER_TEMP"/test.log 2>/dev/null \
             | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
