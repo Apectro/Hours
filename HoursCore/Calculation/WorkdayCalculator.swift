@@ -187,6 +187,24 @@ struct WorkdayCalculator: Sendable {
             )
         }
 
+        // Chronological, not the order the blocks were typed in.
+        //
+        // The day's start and end are read off the first and last period, and
+        // those are what the Start and End columns of an export contain. Left
+        // in entry order, a split shift whose afternoon was entered before its
+        // morning exported "13:00" as the start and "12:00" as the end — a
+        // reversed range, on a timesheet, going to a payroll department.
+        // Adding a block appends it, so entering two out of order takes no
+        // effort at all.
+        //
+        // Only when nothing crosses midnight. A day running past it has no
+        // unambiguous wall-clock order — 00:30 sorts before 22:00 and is later
+        // in real time — so entry order is left alone there rather than
+        // replaced by an ordering that is confidently wrong.
+        if !total.crossesMidnight {
+            total.periods.sort { ($0.start?.minutes ?? 0) < ($1.start?.minutes ?? 0) }
+        }
+
         return total
     }
 

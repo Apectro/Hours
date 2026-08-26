@@ -248,4 +248,69 @@ final class ShiftTests: XCTestCase {
 
         XCTAssertEqual(entry.record, record)
     }
+
+    // MARK: - The order blocks are read in
+
+    /// A split shift entered afternoon-first still reads morning-first.
+    ///
+    /// The day's start and end come off the first and last period, and those
+    /// are the Start and End columns of an export. In entry order this day
+    /// exported "13:00" as its start and "12:00" as its end — a reversed range
+    /// on a timesheet. Adding a block appends it, so entering two out of order
+    /// takes no effort at all.
+    func testBlocksAreReadInTimeOrderNotEntryOrder() {
+        let record = DayRecord(
+            date: Fixture.workingTuesday,
+            shifts: [
+                Shift(start: Fixture.time(13), end: Fixture.time(17)),
+                Shift(start: Fixture.time(8), end: Fixture.time(12))
+            ]
+        )
+        let result = Fixture.calculator().compute(record: record, on: Fixture.workingTuesday)
+
+        XCTAssertEqual(result.start, Fixture.time(8), "the day starts when the first block starts")
+        XCTAssertEqual(result.end, Fixture.time(17), "the day ends when the last block ends")
+        XCTAssertEqual(result.shifts.map(\.start), [Fixture.time(8), Fixture.time(13)])
+        XCTAssertEqual(result.workedMinutes, 480, "reordering changes nothing about the total")
+    }
+
+    /// Three blocks, thoroughly shuffled.
+    func testAnyNumberOfBlocksComesBackInOrder() {
+        let record = DayRecord(
+            date: Fixture.workingTuesday,
+            shifts: [
+                Shift(start: Fixture.time(16), end: Fixture.time(18)),
+                Shift(start: Fixture.time(8), end: Fixture.time(10)),
+                Shift(start: Fixture.time(12), end: Fixture.time(14))
+            ]
+        )
+        let result = Fixture.calculator().compute(record: record, on: Fixture.workingTuesday)
+
+        XCTAssertEqual(
+            result.shifts.map(\.start),
+            [Fixture.time(8), Fixture.time(12), Fixture.time(16)]
+        )
+        XCTAssertEqual(result.start, Fixture.time(8))
+        XCTAssertEqual(result.end, Fixture.time(18))
+    }
+
+    /// A day running past midnight keeps the order it was entered in.
+    ///
+    /// There is no unambiguous wall-clock order once a day crosses midnight:
+    /// 00:30 sorts before 22:00 and happens after it. Entry order is at least
+    /// what the person typed, which beats an ordering that is confidently
+    /// wrong — and the hours, which is what actually gets paid, are the same
+    /// either way.
+    func testAnOvernightDayIsLeftInTheOrderItWasEnteredIn() {
+        let record = DayRecord(
+            date: Fixture.workingTuesday,
+            shifts: [Shift(start: Fixture.time(22), end: Fixture.time(2))]
+        )
+        let result = Fixture.calculator().compute(record: record, on: Fixture.workingTuesday)
+
+        XCTAssertTrue(result.crossesMidnight)
+        XCTAssertEqual(result.start, Fixture.time(22))
+        XCTAssertEqual(result.end, Fixture.time(2))
+        XCTAssertEqual(result.workedMinutes, 240)
+    }
 }

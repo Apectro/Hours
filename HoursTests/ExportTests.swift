@@ -120,6 +120,40 @@ final class ExportTests: XCTestCase {
         XCTAssertEqual(CSVExporter.escape(" padded ", separator: ","), "\" padded \"")
     }
 
+    /// The Start and End columns of a split shift entered out of order.
+    ///
+    /// This is where the ordering bug actually reached a person: not on a
+    /// screen they could squint at, but in a file sent to whoever pays them,
+    /// reading Start 13:00 and End 12:00 for a perfectly ordinary day.
+    func testASplitShiftExportsItsStartAndEndTheRightWayRound() {
+        let settings = Fixture.settings()
+        let date = Fixture.workingTuesday
+        let records = [
+            date.key: DayRecord(
+                date: date,
+                shifts: [
+                    Shift(start: Fixture.time(13), end: Fixture.time(17)),
+                    Shift(start: Fixture.time(8), end: Fixture.time(12))
+                ]
+            )
+        ]
+        let range = CalendarDateRange(single: date)
+        let days = PeriodEngine(settings: settings, calendar: calendar)
+            .days(in: range, records: records, holidays: [])
+        let table = ReportBuilder(settings: settings, calendar: calendar)
+            .makeTable(days: days, range: range, title: "Split", countingThrough: date)
+
+        let row = table.rows.first
+        let startColumn = table.columns.firstIndex(of: .start)
+        let endColumn = table.columns.firstIndex(of: .end)
+        guard let row, let startColumn, let endColumn else {
+            return XCTFail("the report has no start and end columns to check")
+        }
+
+        XCTAssertEqual(row.values[startColumn], "08:00")
+        XCTAssertEqual(row.values[endColumn], "17:00")
+    }
+
     // MARK: - What the file does on someone else's machine
 
     /// A note is free text, and free text beginning `=` is a formula to every
