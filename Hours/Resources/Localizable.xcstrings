@@ -437,6 +437,39 @@
         }
       }
     },
+    "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown and stop counting towards your balance. The hours recorded on them are kept.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@days@ still use “%@”. Those days will show as Unknown and stop counting towards your balance. The hours recorded on them are kept."
+          },
+          "substitutions": {
+            "days": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld day"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld days"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "^[%lld day](inflect: true) with no readable date": {
       "extractionState": "manual",
       "localizations": {

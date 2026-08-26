@@ -108,6 +108,13 @@ APP_STRINGS = {
         "Your existing hours have not been touched.",
         DAYS(),
     ),
+    # Warning before deleting a day type that recorded days still point at.
+    "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
+    "and stop counting towards your balance. The hours recorded on them are kept.": entry(
+        "%#@days@ still use “%@”. Those days will show as Unknown and stop counting "
+        "towards your balance. The hours recorded on them are kept.",
+        DAYS(),
+    ),
 }
 
 WIDGET_STRINGS = {

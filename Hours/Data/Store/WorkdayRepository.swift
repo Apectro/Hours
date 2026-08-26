@@ -109,6 +109,21 @@ struct WorkdayRepository {
         persist()
     }
 
+    /// How many recorded days are marked with a given day type.
+    ///
+    /// Asked before deleting a custom type. A day whose type no longer exists
+    /// resolves to "Unknown", which expects nothing and credits nothing — so
+    /// deleting a type that ten days of paid leave point at moves the balance
+    /// by eighty hours, from a settings screen, with no warning and nothing
+    /// undone. Knowing the count is what lets the app say so first.
+    func dayCount(using type: DayTypeID) -> Int {
+        let raw = type.rawValue
+        let descriptor = FetchDescriptor<DayEntry>(
+            predicate: #Predicate<DayEntry> { $0.dayTypeRawValue == raw }
+        )
+        return (try? context.fetchCount(descriptor)) ?? 0
+    }
+
     // MARK: - Holidays
 
     func holidayRecords() -> [HolidayRecord] {

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Manages day types.
 ///
@@ -7,14 +8,24 @@ import SwiftUI
 /// existing days keep working.
 struct DayTypeSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.modelContext) private var modelContext
 
     @State private var draft: Draft?
+    @State private var pendingDeletion: PendingDeletion?
 
     /// A single sheet, carrying whether it is a new type or an existing one.
     private struct Draft: Identifiable {
         let definition: DayTypeDefinition
         let isNew: Bool
         var id: String { definition.id.rawValue }
+    }
+
+    /// A deletion held back because recorded days already point at the type.
+    private struct PendingDeletion: Identifiable {
+        let types: [DayTypeID]
+        let name: String
+        let dayCount: Int
+        var id: String { types.map(\.rawValue).joined(separator: ",") }
     }
 
     var body: some View {
@@ -46,6 +57,28 @@ struct DayTypeSettingsScreen: View {
         .sheet(item: $draft) { draft in
             DayTypeEditor(definition: draft.definition, isNew: draft.isNew)
         }
+        .alert(
+            "This day type is still in use",
+            isPresented: deletionConfirmationBinding,
+            presenting: pendingDeletion
+        ) { pending in
+            Button("Delete anyway", role: .destructive) {
+                remove(pending.types)
+                pendingDeletion = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDeletion = nil }
+        } message: { pending in
+            Text(String(
+                inflected: "^[\(pending.dayCount) day](inflect: true) still use “\(pending.name)”. Those days will show as Unknown and stop counting towards your balance. The hours recorded on them are kept."
+            ))
+        }
+    }
+
+    private var deletionConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { pendingDeletion != nil },
+            set: { isPresented in if !isPresented { pendingDeletion = nil } }
+        )
     }
 
     private func row(for definition: DayTypeDefinition) -> some View {
@@ -78,14 +111,34 @@ struct DayTypeSettingsScreen: View {
 
     private func deleteCustom(at offsets: IndexSet) {
         let all = settingsStore.settings.dayTypeCatalog.all
-        let removable = offsets.compactMap { index -> DayTypeID? in
+        let removable = offsets.compactMap { index -> DayTypeDefinition? in
             guard index < all.count else { return nil }
             let definition = all[index]
-            return DayTypeCatalog.isBuiltIn(definition.id) ? nil : definition.id
+            return DayTypeCatalog.isBuiltIn(definition.id) ? nil : definition
         }
         guard !removable.isEmpty else { return }
+
+        // A day whose type no longer exists resolves to "Unknown", which
+        // expects nothing and credits nothing. So deleting a type that ten days
+        // of paid leave point at moves the balance by eighty hours — from a
+        // settings screen, with a swipe, and nothing to undo it. Days already
+        // recorded are not this screen's to change without asking.
+        let repository = WorkdayRepository(context: modelContext)
+        let affected = removable.reduce(0) { $0 + repository.dayCount(using: $1.id) }
+        guard affected > 0 else {
+            remove(removable.map(\.id))
+            return
+        }
+        pendingDeletion = PendingDeletion(
+            types: removable.map(\.id),
+            name: removable.count == 1 ? removable[0].name : String(localized: "those types"),
+            dayCount: affected
+        )
+    }
+
+    private func remove(_ types: [DayTypeID]) {
         settingsStore.update { settings in
-            settings.customDayTypes.removeAll { removable.contains($0.id) }
+            settings.customDayTypes.removeAll { types.contains($0.id) }
         }
     }
 
