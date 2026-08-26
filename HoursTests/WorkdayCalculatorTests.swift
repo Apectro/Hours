@@ -371,7 +371,29 @@ final class WorkdayCalculatorTests: XCTestCase {
         XCTAssertEqual(result.balanceMinutes, -60)
     }
 
-    func testAManualWorkedFigureOverridesTheTimes() {
+    /// With automatic calculation switched off, the typed figure is the only
+    /// source there is.
+    func testAManualWorkedFigureIsUsedWhenCalculationIsSwitchedOff() {
+        var record = Fixture.record(
+            on: Fixture.workingTuesday,
+            start: Fixture.time(8),
+            end: Fixture.time(16, 30),
+            breaks: [.duration(30)]
+        )
+        record.manualWorkedMinutes = 300
+        let settings = Fixture.settings(
+            features: FeatureToggles(autoCalculateWorkedHours: false)
+        )
+        let result = Fixture.calculator(settings: settings)
+            .compute(record: record, on: Fixture.workingTuesday)
+
+        XCTAssertEqual(result.workedMinutes, 300)
+        XCTAssertEqual(result.balanceMinutes, -180)
+    }
+
+    /// And switched back on, it stops counting rather than silently outranking
+    /// the times the editor is showing.
+    func testAStaleManualFigureDoesNotOutrankTheTimesOnScreen() {
         var record = Fixture.record(
             on: Fixture.workingTuesday,
             start: Fixture.time(8),
@@ -381,8 +403,27 @@ final class WorkdayCalculatorTests: XCTestCase {
         record.manualWorkedMinutes = 300
         let result = Fixture.calculator().compute(record: record, on: Fixture.workingTuesday)
 
-        XCTAssertEqual(result.workedMinutes, 300)
-        XCTAssertEqual(result.balanceMinutes, -180)
+        XCTAssertEqual(result.workedMinutes, 480, "the clock times are what the day editor shows")
+        XCTAssertEqual(result.balanceMinutes, 0)
+    }
+
+    /// Kept, not deleted: switching the toggle back off finds it where it was.
+    func testTheTypedFigureSurvivesTheToggleBeingSwitchedBackAndForth() {
+        var record = Fixture.record(
+            on: Fixture.workingTuesday,
+            start: Fixture.time(8),
+            end: Fixture.time(16, 30),
+            breaks: [.duration(30)]
+        )
+        record.manualWorkedMinutes = 300
+        let manual = Fixture.settings(features: FeatureToggles(autoCalculateWorkedHours: false))
+
+        XCTAssertEqual(Fixture.calculator(settings: manual)
+            .compute(record: record, on: Fixture.workingTuesday).workedMinutes, 300)
+        XCTAssertEqual(Fixture.calculator()
+            .compute(record: record, on: Fixture.workingTuesday).workedMinutes, 480)
+        XCTAssertEqual(Fixture.calculator(settings: manual)
+            .compute(record: record, on: Fixture.workingTuesday).workedMinutes, 300)
     }
 
     func testAManualBalanceOverridesTheCalculation() {

@@ -29,9 +29,19 @@ struct WorkdayCalculator: Sendable {
         let expected = expectedMinutes(record: record, date: date, definition: definition)
         let shift = shiftMinutes(record: record, on: date, definition: definition, warnings: &warnings)
 
-        // A manual figure always wins: it is either the only source (automatic
-        // calculation switched off) or a deliberate override for this one day.
-        let rawWorked = record?.manualWorkedMinutes ?? shift.workedMinutes
+        // A typed-in figure is the source only while automatic calculation is
+        // switched off. Every other stored override here is gated by the toggle
+        // that produces it — the adjustment, the per-day expectation, the manual
+        // balance — and this one was not.
+        //
+        // So a figure typed while the toggle was off went on outranking the
+        // clock times forever once it was switched back on, and the day editor
+        // in that state shows times and offers no way to see or clear it: the
+        // screen said 08:00–16:30 and the total said something else. The value
+        // is kept rather than deleted, so switching back restores what was
+        // typed.
+        let manualWorked = features.autoCalculateWorkedHours ? nil : record?.manualWorkedMinutes
+        let rawWorked = manualWorked ?? shift.workedMinutes
         let worked = max(0, settings.rounding.apply(to: rawWorked))
 
         let credited = definition.expectation == .creditedAbsence ? expected : 0
