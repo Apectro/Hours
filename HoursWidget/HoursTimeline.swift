@@ -69,8 +69,15 @@ struct HoursProvider: TimelineProvider {
             return
         }
 
+        // One read, twelve renderings of it. Reading the file again for each
+        // entry would let a timeline be built from two different snapshots,
+        // and the figures within one timeline have to come from one file.
         let steps = stride(from: 0, through: 110, by: 10).map { minutes in
-            entry(at: now.addingTimeInterval(TimeInterval(minutes * 60)))
+            HoursEntry(
+                date: now.addingTimeInterval(TimeInterval(minutes * 60)),
+                snapshot: current.snapshot,
+                state: current.state
+            )
         }
         completion(Timeline(entries: steps, policy: .atEnd))
     }

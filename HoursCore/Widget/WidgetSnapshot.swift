@@ -53,9 +53,38 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         return max(0, Int(instant.timeIntervalSince(clockStartedAt)) / 60)
     }
 
+    /// Whether the day figures still describe the day `instant` falls in.
+    ///
+    /// A widget is drawn whenever someone glances at their phone, and only the
+    /// app can rewrite this file. Glance at midnight past and the snapshot is
+    /// still the one written yesterday evening: its month figures are very
+    /// nearly right, and its "today" is a whole day out. Yesterday's eight
+    /// hours displayed under the word TODAY is the kind of wrong that is worse
+    /// than showing nothing.
+    func describesDay(of instant: Date, calendar: Calendar) -> Bool {
+        calendar.isDate(generatedAt, inSameDayAs: instant)
+    }
+
     /// Today's total including whatever the running clock has accumulated.
-    func todayIncludingRunningClock(at instant: Date) -> Int {
-        todayWorkedMinutes + runningMinutes(at: instant)
+    ///
+    /// Once the snapshot is about an earlier day, the stored total is dropped
+    /// and only the clock is counted. A clock's elapsed time is measured from
+    /// an absolute instant, so it stays true across midnight; the day's total
+    /// does not. What is left is right for a new day with nothing yet recorded
+    /// — the overwhelmingly common case — and it errs towards showing too
+    /// little rather than towards showing yesterday.
+    func todayIncludingRunningClock(at instant: Date, calendar: Calendar) -> Int {
+        guard describesDay(of: instant, calendar: calendar) else {
+            return runningMinutes(at: instant)
+        }
+        return todayWorkedMinutes + runningMinutes(at: instant)
+    }
+
+    /// Expected hours for the day `instant` falls in — nothing once the
+    /// snapshot is about an earlier day, since a new day's schedule is not
+    /// something this file knows.
+    func expectedMinutes(at instant: Date, calendar: Calendar) -> Int {
+        describesDay(of: instant, calendar: calendar) ? todayExpectedMinutes : 0
     }
 
     var formatting: DurationFormatting {
@@ -65,14 +94,34 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     /// Progress towards the expected hours, or nil when nothing is expected —
     /// a weekend, a holiday, a day of leave. A ring sitting at zero on a Sunday
     /// reads as a failure rather than as a day off, so there is no ring.
-    func todayFraction(at instant: Date) -> Double? {
-        guard todayExpectedMinutes > 0 else { return nil }
-        return Double(todayIncludingRunningClock(at: instant)) / Double(todayExpectedMinutes)
+    func todayFraction(at instant: Date, calendar: Calendar) -> Double? {
+        let expected = expectedMinutes(at: instant, calendar: calendar)
+        guard expected > 0 else { return nil }
+        return Double(todayIncludingRunningClock(at: instant, calendar: calendar)) / Double(expected)
     }
 
-    var monthFraction: Double? {
-        guard monthExpectedMinutes > 0 else { return nil }
-        return Double(monthWorkedMinutes) / Double(monthExpectedMinutes)
+    /// The same rule one granularity up. Rarer — the first of the month rather
+    /// than every night — and just as wrong when it happens.
+    func describesMonth(of instant: Date, calendar: Calendar) -> Bool {
+        calendar.isDate(generatedAt, equalTo: instant, toGranularity: .month)
+    }
+
+    func monthWorked(at instant: Date, calendar: Calendar) -> Int {
+        describesMonth(of: instant, calendar: calendar) ? monthWorkedMinutes : 0
+    }
+
+    func monthExpected(at instant: Date, calendar: Calendar) -> Int {
+        describesMonth(of: instant, calendar: calendar) ? monthExpectedMinutes : 0
+    }
+
+    func monthBalance(at instant: Date, calendar: Calendar) -> Int {
+        describesMonth(of: instant, calendar: calendar) ? monthBalanceMinutes : 0
+    }
+
+    func monthFraction(at instant: Date, calendar: Calendar) -> Double? {
+        let expected = monthExpected(at: instant, calendar: calendar)
+        guard expected > 0 else { return nil }
+        return Double(monthWorked(at: instant, calendar: calendar)) / Double(expected)
     }
 
     private enum CodingKeys: String, CodingKey {

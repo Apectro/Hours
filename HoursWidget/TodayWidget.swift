@@ -25,7 +25,11 @@ struct TodayWidgetView: View {
 
     private var snapshot: WidgetSnapshot { entry.snapshot }
     private var hasData: Bool { entry.state == .data || entry.state == .sample }
-    private var worked: Int { snapshot.todayIncludingRunningClock(at: entry.date) }
+    /// A widget knows the device's zone and nothing else about the user's
+    /// calendar preferences, and the zone is all "is this still today" needs.
+    private var calendar: Calendar { .current }
+    private var worked: Int { snapshot.todayIncludingRunningClock(at: entry.date, calendar: calendar) }
+    private var expected: Int { snapshot.expectedMinutes(at: entry.date, calendar: calendar) }
     private var tint: Color { snapshot.isClockRunning ? WidgetPalette.running : .primary }
 
     var body: some View {
@@ -60,7 +64,7 @@ struct TodayWidgetView: View {
                 expectationLine
                     .padding(.top, 1)
 
-                if let fraction = snapshot.todayFraction(at: entry.date) {
+                if let fraction = snapshot.todayFraction(at: entry.date, calendar: calendar) {
                     ProgressBar(fraction: fraction, tint: tint)
                         .padding(.top, 8)
                 }
@@ -93,16 +97,16 @@ struct TodayWidgetView: View {
 
             Spacer(minLength: 4)
 
-            Text(snapshot.formatting.string(snapshot.monthWorkedMinutes))
+            Text(snapshot.formatting.string(snapshot.monthWorked(at: entry.date, calendar: calendar)))
                 .font(.widgetFigure(.title2, weight: .bold))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
 
-            Text("of \(snapshot.formatting.string(snapshot.monthExpectedMinutes))")
+            Text("of \(snapshot.formatting.string(snapshot.monthExpected(at: entry.date, calendar: calendar)))")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            if let fraction = snapshot.monthFraction {
+            if let fraction = snapshot.monthFraction(at: entry.date, calendar: calendar) {
                 ProgressBar(fraction: fraction, tint: .primary)
                     .padding(.top, 8)
             }
@@ -110,9 +114,9 @@ struct TodayWidgetView: View {
             Spacer(minLength: 4)
 
             if snapshot.showsBalance {
-                Text(snapshot.formatting.signedString(snapshot.monthBalanceMinutes))
+                Text(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar)))
                     .font(.widgetFigure(.subheadline, weight: .semibold))
-                    .foregroundStyle(WidgetPalette.balance(snapshot.monthBalanceMinutes))
+                    .foregroundStyle(WidgetPalette.balance(snapshot.monthBalance(at: entry.date, calendar: calendar)))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -135,8 +139,8 @@ struct TodayWidgetView: View {
 
     @ViewBuilder
     private var expectationLine: some View {
-        if snapshot.todayExpectedMinutes > 0 {
-            Text("of \(snapshot.formatting.string(snapshot.todayExpectedMinutes))")
+        if expected > 0 {
+            Text("of \(snapshot.formatting.string(expected))")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         } else {
@@ -156,13 +160,23 @@ struct TodayWidgetView: View {
                 Image(systemName: "play.fill").font(.caption2)
                 Text(startedAt, style: .timer)
                     .font(.widgetFigure(.caption, weight: .medium))
-                    .lineLimit(1)
+                    .fixedSize()
+                // Only ever set when a second job exists, so a single-job
+                // widget looks exactly as it did. With two, "clocked in" is
+                // half an answer without it.
+                if let job = snapshot.clockJobName {
+                    Text(job)
+                        .font(.caption2)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
             }
+            .lineLimit(1)
             .foregroundStyle(WidgetPalette.running)
         } else if hasData, snapshot.showsBalance {
-            Text("\(snapshot.formatting.signedString(snapshot.monthBalanceMinutes)) this month")
+            Text("\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month")
                 .font(.caption2)
-                .foregroundStyle(WidgetPalette.balance(snapshot.monthBalanceMinutes))
+                .foregroundStyle(WidgetPalette.balance(snapshot.monthBalance(at: entry.date, calendar: calendar)))
                 .lineLimit(1)
         }
     }
@@ -171,7 +185,7 @@ struct TodayWidgetView: View {
 
     private var circular: some View {
         Group {
-            if hasData, let fraction = snapshot.todayFraction(at: entry.date) {
+            if hasData, let fraction = snapshot.todayFraction(at: entry.date, calendar: calendar) {
                 ZStack {
                     ProgressRing(fraction: fraction, tint: .primary, lineWidth: 5)
                     Text(compactHours(worked))
@@ -191,16 +205,17 @@ struct TodayWidgetView: View {
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 2) {
             if hasData {
-                Text("Today")
+                Text(snapshot.isClockRunning ? (snapshot.clockJobName ?? "Today") : "Today")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 Text(snapshot.formatting.string(worked))
                     .font(.widgetFigure(.headline, weight: .semibold))
                 if snapshot.isClockRunning, let startedAt = snapshot.clockStartedAt {
                     Text(startedAt, style: .timer)
                         .font(.widgetFigure(.caption2, weight: .regular))
                 } else if snapshot.showsBalance {
-                    Text("\(snapshot.formatting.signedString(snapshot.monthBalanceMinutes)) this month")
+                    Text("\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month")
                         .font(.caption2)
                 }
             } else {

@@ -23,7 +23,12 @@ struct MonthWidgetView: View {
 
     private var snapshot: WidgetSnapshot { entry.snapshot }
     private var hasData: Bool { entry.state == .data || entry.state == .sample }
-    private var balanceColor: Color { WidgetPalette.balance(snapshot.monthBalanceMinutes) }
+    private var calendar: Calendar { .current }
+    private var worked: Int { snapshot.monthWorked(at: entry.date, calendar: calendar) }
+    private var expected: Int { snapshot.monthExpected(at: entry.date, calendar: calendar) }
+    private var balance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
+    private var fraction: Double? { snapshot.monthFraction(at: entry.date, calendar: calendar) }
+    private var balanceColor: Color { WidgetPalette.balance(balance) }
 
     var body: some View {
         Group {
@@ -46,16 +51,16 @@ struct MonthWidgetView: View {
             Spacer(minLength: 4)
 
             if hasData {
-                Text(snapshot.formatting.string(snapshot.monthWorkedMinutes))
+                Text(snapshot.formatting.string(worked))
                     .font(.widgetFigure(.title, weight: .bold))
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
 
-                Text("of \(snapshot.formatting.string(snapshot.monthExpectedMinutes))")
+                Text("of \(snapshot.formatting.string(expected))")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
-                if let fraction = snapshot.monthFraction {
+                if let fraction {
                     ProgressBar(fraction: fraction, tint: balanceColor)
                         .padding(.top, 8)
                 }
@@ -79,7 +84,7 @@ struct MonthWidgetView: View {
                 Divider()
 
                 VStack(spacing: 6) {
-                    if let fraction = snapshot.monthFraction {
+                    if let fraction {
                         ZStack {
                             ProgressRing(fraction: fraction, tint: balanceColor)
                             Text("\(Int((fraction * 100).rounded()))%")
@@ -107,10 +112,10 @@ struct MonthWidgetView: View {
                 Text("This month")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                Text(snapshot.formatting.string(snapshot.monthWorkedMinutes))
+                Text(snapshot.formatting.string(worked))
                     .font(.widgetFigure(.headline, weight: .semibold))
                 if snapshot.showsBalance {
-                    Text(snapshot.formatting.signedString(snapshot.monthBalanceMinutes))
+                    Text(snapshot.formatting.signedString(balance))
                         .font(.caption2)
                 }
             } else {
@@ -124,9 +129,9 @@ struct MonthWidgetView: View {
     private var inline: some View {
         Group {
             if hasData, snapshot.showsBalance {
-                Label(snapshot.formatting.signedString(snapshot.monthBalanceMinutes), systemImage: "calendar")
+                Label(snapshot.formatting.signedString(balance), systemImage: "calendar")
             } else if hasData {
-                Label(snapshot.formatting.string(snapshot.monthWorkedMinutes), systemImage: "calendar")
+                Label(snapshot.formatting.string(worked), systemImage: "calendar")
             } else {
                 Label("Open Hours", systemImage: "calendar")
             }
@@ -136,7 +141,7 @@ struct MonthWidgetView: View {
     @ViewBuilder
     private var balanceLine: some View {
         if snapshot.showsBalance {
-            Text(snapshot.formatting.signedString(snapshot.monthBalanceMinutes))
+            Text(snapshot.formatting.signedString(balance))
                 .font(.widgetFigure(.subheadline, weight: .semibold))
                 .foregroundStyle(balanceColor)
                 .lineLimit(1)
