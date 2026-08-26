@@ -231,20 +231,62 @@ jobs:
 
       # Runner images change their simulator line-up, so pick whatever iPhone is
       # installed rather than hard-coding a model that may not be there.
-      - name: Pick a simulator
+      # Two devices, because the App Store wants two iPhone sizes and taking
+      # the second set by hand is the sort of chore that gets skipped.
+      #
+      # The first is whatever large iPhone the runner has — a Pro Max or Plus
+      # if one is installed, otherwise the first iPhone in the list — and it
+      # runs the whole suite. The second is any *other* iPhone, and it runs
+      # only ScreenshotTests, which costs about a minute.
+      #
+      # Neither model is named. Runner images retire simulators without notice,
+      # and a hard-coded model that is no longer installed fails the job before
+      # a line of the app has run.
+      - name: Pick simulators
         id: sim
         run: |
           xcrun simctl list devices available | sed -n '/-- iOS/,/^--/p'
-          UDID=$(xcrun simctl list devices available \
-            | grep "iPhone" \
-            | head -1 \
-            | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/')
-          if [ -z "$UDID" ]; then
+
+          udid_of() { sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/'; }
+          name_of() { sed -E 's/^ *(.+) \([0-9A-Fa-f-]{36}\).*/\1/'; }
+
+          IPHONES=$(xcrun simctl list devices available | grep "iPhone" || true)
+          if [ -z "$IPHONES" ]; then
             echo "::error::No iPhone simulator available on this runner."
             exit 1
           fi
-          echo "Using simulator $UDID"
-          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+          # In preference order: a Pro Max is the 6.9-inch device Apple asks
+          # for, a Plus is the same size, and anything else is a fallback so
+          # the job still runs on a runner with a thin line-up. Matching
+          # "Pro Max|Plus" in one pass took whichever came first in the list,
+          # which was the Plus.
+          BIG=$(echo "$IPHONES" | grep "Pro Max" | head -1)
+          [ -n "$BIG" ] || BIG=$(echo "$IPHONES" | grep "Plus" | head -1)
+          [ -n "$BIG" ] || BIG=$(echo "$IPHONES" | head -1)
+          PRIMARY=$(echo "$BIG" | udid_of)
+          PRIMARY_NAME=$(echo "$BIG" | name_of)
+
+          # Any iPhone that is not the one already chosen.
+          SMALL=$(echo "$IPHONES" | grep -v "$PRIMARY" | grep -vE "Pro Max|Plus" | head -1)
+          [ -n "$SMALL" ] || SMALL=$(echo "$IPHONES" | grep -v "$PRIMARY" | head -1)
+          SECONDARY=$(echo "$SMALL" | udid_of)
+          SECONDARY_NAME=$(echo "$SMALL" | name_of)
+
+          echo "primary   -> $PRIMARY_NAME ($PRIMARY)"
+          if [ -n "$SECONDARY" ]; then
+            echo "secondary -> $SECONDARY_NAME ($SECONDARY)"
+          else
+            echo "::warning::only one iPhone simulator on this runner; \
+              the second screenshot size will have to be taken by hand"
+          fi
+
+          {
+            echo "udid=$PRIMARY"
+            echo "name=$PRIMARY_NAME"
+            echo "second_udid=$SECONDARY"
+            echo "second_name=$SECONDARY_NAME"
+          } >> "$GITHUB_OUTPUT"
 
       # Guards a step whose failure mode is not a red build but a green one that
       # quietly exports nothing. Here rather than on the cheaper Linux job
@@ -283,29 +325,67 @@ jobs:
       # pulled out of the result bundle. xcresulttool names every exported file
       # after its UUID, so Scripts/name-screenshots.py puts the names the test
       # gave them back on.
+      # The same screenshots at the second size. Only ScreenshotTests, so the
+      # suite is not paid for twice — the rest of it has already run above and
+      # does not depend on the screen.
+      - name: Screenshots at the second size
+        if: always() && steps.sim.outputs.second_udid != ''
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          rm -rf "$RUNNER_TEMP/HoursSecond.xcresult"
+          xcodebuild test \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=${{ steps.sim.outputs.second_udid }}" \
+            -only-testing:HoursUITests/ScreenshotTests \
+            -resultBundlePath "$RUNNER_TEMP/HoursSecond.xcresult" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/test-second.log"
+
+      # The screenshots for the App Store listing, taken by ScreenshotTests and
+      # pulled out of the result bundles. xcresulttool names every exported file
+      # after its UUID, so Scripts/name-screenshots.py puts the names the test
+      # gave them back on.
+      #
+      # A folder per device, named after the simulator, because the two sets are
+      # otherwise identical filenames and Apple wants them uploaded separately.
       - name: App Store screenshots
         if: always()
         continue-on-error: true
+        env:
+          PRIMARY_NAME: ${{ steps.sim.outputs.name }}
+          SECOND_NAME: ${{ steps.sim.outputs.second_name }}
         run: |
-          RAW="$RUNNER_TEMP/attachments"
           OUT="$RUNNER_TEMP/screenshots"
-          rm -rf "$RAW" "$OUT"
-          mkdir -p "$RAW" "$OUT"
-          xcrun xcresulttool export attachments \
-            --path "$RUNNER_TEMP/Hours.xcresult" \
-            --output-path "$RAW" || echo "::warning::could not export attachments"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
 
-          echo "----- manifest.json -----"
-          head -c 4000 "$RAW/manifest.json" 2>/dev/null || echo "(no manifest)"
-          echo ""
-          echo "-------------------------"
+          # Turns "iPhone 16 Pro Max" into "iPhone-16-Pro-Max", so the folder is
+          # a name rather than something that needs quoting forever after.
+          slug() { echo "$1" | tr ' ' '-' | tr -cd '[:alnum:]-'; }
 
-          python3 Scripts/name-screenshots.py "$RAW" "$OUT"
+          harvest() {
+            BUNDLE="$1"; FOLDER="$2"
+            [ -d "$BUNDLE" ] || { echo "no result bundle at $BUNDLE"; return 0; }
+            RAW="$RUNNER_TEMP/attachments-$(basename "$FOLDER")"
+            rm -rf "$RAW"; mkdir -p "$RAW" "$OUT/$FOLDER"
+            xcrun xcresulttool export attachments \
+              --path "$BUNDLE" \
+              --output-path "$RAW" || echo "::warning::could not export $BUNDLE"
+            python3 Scripts/name-screenshots.py "$RAW" "$OUT/$FOLDER"
+          }
+
+          harvest "$RUNNER_TEMP/Hours.xcresult" "$(slug "$PRIMARY_NAME")"
+          if [ -n "$SECOND_NAME" ]; then
+            harvest "$RUNNER_TEMP/HoursSecond.xcresult" "$(slug "$SECOND_NAME")"
+          fi
 
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
           FILES=$(find "$OUT" -type f ! -name '*.png' | wc -l | tr -d ' ')
           echo "screenshots: $SHOTS   export artifacts: $FILES"
-          ls -la "$OUT"
+          find "$OUT" -type f | sort
           # Six app screens plus up to four PDF pages; the CSV and the workbook
           # are the two non-images. A count below this means an attachment was
           # dropped, which has happened twice and looked green both times.
@@ -334,7 +414,7 @@ jobs:
           WORK="$RUNNER_TEMP/shotbranch"
           rm -rf "$WORK"
           mkdir -p "$WORK"
-          cp "$OUT"/* "$WORK"/
+          cp -R "$OUT"/. "$WORK"/
           cd "$WORK"
           {
             echo "# Screenshots"

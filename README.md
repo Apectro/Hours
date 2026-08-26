@@ -187,17 +187,19 @@ Everything here needs an Apple account, so none of it can be done from a
 repository. It is written down so that the sequence is not something to work
 out under pressure.
 
-**Screenshots are already made for you.** `ScreenshotTests` drives the app in a
-simulator with a month of sample data and captures the calendar, a day, the
-insights, settings, the privacy screen and the export sheet. They are attached
-to the run as `app-store-screenshots` and pushed to the `screenshots` branch.
+**Screenshots are already made for you, at both sizes.** `ScreenshotTests`
+drives the app in a simulator with a month of sample data and captures the
+calendar, a day, the insights, settings, the privacy screen and the export
+sheet. It runs twice — on the largest iPhone the runner has, and again on a
+smaller one, which is the two sizes the App Store asks for — and the two sets
+land in a folder each, named after the simulator. They are attached to the run
+as `app-store-screenshots` and pushed to the `screenshots` branch.
 The branch is usually the easier one to reach for: artifacts are served from a
 storage host that some networks cannot get to at all.
 
 That happens in the full simulator job, which does **not** run on every push:
 macOS minutes bill at ten times the Linux rate, so it runs on pull requests and
-on demand — Actions › Build and test › Run workflow. Apple wants 6.9-inch and
-6.5-inch iPhone sizes; add the matching simulator to that job to get each.
+on demand — Actions › Build and test › Run workflow.
 
 A push runs the Linux engine job, in about a minute, and — only when it touched
 something outside `HoursCore`, `Scripts` or the prose — a build-only macOS job

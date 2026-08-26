@@ -81,10 +81,19 @@ enum BulkEditor {
             case let .setDayType(id):
                 var record = current ?? DayRecord(date: date)
                 record.dayTypeID = id
-                // A day of leave has no hours in it. Keeping the shifts would
-                // both credit the absence and count the work.
+                // A day of leave has no hours in it. Keeping them would both
+                // credit the absence and count the work, which pays the day
+                // twice.
+                //
+                // Hours reach a day by two routes, and this cleared only one.
+                // A figure typed by hand — what "Calculate worked hours" off
+                // produces — survived being marked as leave, so a fortnight
+                // bulk-set to Vacation came back as a fortnight of overtime on
+                // days nobody worked. The shifts were gone from the screen, so
+                // there was nothing left to explain the number.
                 if !catalog.definition(for: id).showsTimesByDefault {
                     record.shifts = []
+                    record.manualWorkedMinutes = nil
                 }
                 changes.append(record)
 

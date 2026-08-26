@@ -65,6 +65,43 @@ final class BulkEditTests: XCTestCase {
         XCTAssertTrue(tuesday?.shifts.isEmpty ?? false, "crediting the absence and counting the work would double it")
     }
 
+    /// The other route hours take into a day.
+    ///
+    /// Clearing the shifts is only half of "a day of leave has no hours in it":
+    /// a figure typed by hand is hours too, and it used to survive. The day
+    /// then credited the absence *and* counted the typed figure, and showed no
+    /// times on screen to account for it.
+    func testLeaveAlsoRemovesAFigureThatWasTypedByHand() {
+        var typed = DayRecord(date: Fixture.workingTuesday)
+        typed.manualWorkedMinutes = 360
+        let result = plan(
+            .setDayType(.vacation),
+            existing: [typed.date.key: typed],
+            overwrites: true
+        )
+
+        let tuesday = result.changes.first { $0.date == Fixture.workingTuesday }
+        XCTAssertEqual(tuesday?.dayTypeID, .vacation)
+        XCTAssertNil(tuesday?.manualWorkedMinutes, "six hours would be paid on top of the credited day")
+    }
+
+    /// And a day type that does keep times keeps everything, because there is
+    /// nothing contradictory about it.
+    func testAWorkingDayTypeKeepsAFigureThatWasTypedByHand() {
+        var typed = DayRecord(date: Fixture.workingTuesday)
+        typed.manualWorkedMinutes = 360
+        let result = plan(
+            .setDayType(.work),
+            existing: [typed.date.key: typed],
+            overwrites: true
+        )
+
+        XCTAssertEqual(
+            result.changes.first { $0.date == Fixture.workingTuesday }?.manualWorkedMinutes,
+            360
+        )
+    }
+
     func testDaysAlreadyRecordedAreLeftAloneByDefault() {
         let worked = DayRecord(
             date: Fixture.workingTuesday,
