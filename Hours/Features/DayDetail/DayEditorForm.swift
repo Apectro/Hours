@@ -85,7 +85,15 @@ struct DayEditorForm: View {
                 }
             }
         } else {
-            ForEach(draft.shifts.indices, id: \.self) { index in
+            // Keyed by the shift's own id rather than by its position.
+            //
+            // Every row here binds straight into draft.shifts[index], and
+            // "Remove this block" deletes from that same array. Keyed by
+            // position, deleting the middle of three shifts renumbers the one
+            // after it, so SwiftUI keeps the view it already had and evaluates
+            // it against an index that is now past the end. Shift has carried a
+            // stable id since it was written; this uses it.
+            ForEach(Array(draft.shifts.enumerated()), id: \.element.id) { index, _ in
                 shiftSection(at: index)
             }
             Section {
@@ -102,38 +110,49 @@ struct DayEditorForm: View {
 
     @ViewBuilder
     private func shiftSection(at index: Int) -> some View {
-        Section {
-            OptionalTimeRow(
-                title: String(localized: "Start"),
-                time: $draft.shifts[index].start,
-                calendar: calendar,
-                fallback: settings.primarySchedule.defaultStart
-            )
-            OptionalTimeRow(
-                title: String(localized: "End"),
-                time: $draft.shifts[index].end,
-                calendar: calendar,
-                fallback: settings.primarySchedule.defaultEnd
-            )
+        // Belt as well as braces. Stable ids stop the renumbering that caused
+        // the problem, but every row below binds into draft.shifts[index] and
+        // a binding read one frame after a removal would still be out of
+        // range. A section that briefly does not draw is a far better outcome
+        // than a crash in the middle of someone's timesheet.
+        if index < draft.shifts.count {
+            Section {
+                OptionalTimeRow(
+                    title: String(localized: "Start"),
+                    time: $draft.shifts[index].start,
+                    calendar: calendar,
+                    fallback: settings.primarySchedule.defaultStart
+                )
+                OptionalTimeRow(
+                    title: String(localized: "End"),
+                    time: $draft.shifts[index].end,
+                    calendar: calendar,
+                    fallback: settings.primarySchedule.defaultEnd
+                )
 
-            if settings.tracksMultipleJobs {
-                jobPicker(at: index)
-            }
-
-            if settings.features.trackBreaks {
-                breakRows(at: index)
-            }
-
-            if draft.shifts.count > 1 {
-                Button("Remove this block", role: .destructive) {
-                    draft.shifts.remove(at: index)
+                if settings.tracksMultipleJobs {
+                    jobPicker(at: index)
                 }
-            }
-        } header: {
-            Text(sectionTitle(at: index))
-        } footer: {
-            if index == 0 {
-                Text("An end time earlier than the start is treated as an overnight shift.")
+
+                if settings.features.trackBreaks {
+                    breakRows(at: index)
+                }
+
+                if draft.shifts.count > 1 {
+                    Button("Remove this block", role: .destructive) {
+                        // Guarded because the button's closure captures the index
+                        // it was built with, and two quick taps on two different
+                        // blocks both fire against the longer array.
+                        guard index < draft.shifts.count else { return }
+                        draft.shifts.remove(at: index)
+                    }
+                }
+            } header: {
+                Text(sectionTitle(at: index))
+            } footer: {
+                if index == 0 {
+                    Text("An end time earlier than the start is treated as an overnight shift.")
+                }
             }
         }
     }

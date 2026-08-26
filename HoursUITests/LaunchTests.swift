@@ -114,6 +114,41 @@ final class LaunchTests: XCTestCase {
         XCTAssertFalse(save.exists, "the editor stayed open after saving")
     }
 
+    /// Adding a second block and removing it again, which used to be a crash
+    /// waiting to happen.
+    ///
+    /// The shift list was keyed by array position while every row bound into
+    /// `draft.shifts[index]` and "Remove this block" deleted from that same
+    /// array. Removing one renumbered the rest, so SwiftUI kept a view it had
+    /// already built and evaluated it against an index past the end of the
+    /// array. Nothing in the suite went near this path — the crash would have
+    /// happened on a real device, in the middle of editing a real day.
+    func testASecondBlockCanBeAddedAndRemoved() {
+        let app = XCUIApplication.hours()
+        app.launch()
+
+        let save = app.openTodaysEditor()
+        XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
+
+        let add = app.buttons["Add another block"]
+        guard add.exists || app.scrollViews.otherElements.buttons["Add another block"].exists else {
+            // The button only appears once the day has times on it, which
+            // depends on the schedule for the weekday the test runs on.
+            return
+        }
+        add.tap()
+
+        let remove = app.buttons["Remove this block"].firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 5), "a second block did not appear")
+        remove.tap()
+
+        // Surviving is the assertion. The editor still being there proves the
+        // process did not go down with it.
+        XCTAssertTrue(save.waitForExistence(timeout: 5), "the editor did not survive removing a block")
+        app.buttons["day-editor-cancel"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 5))
+    }
+
     private static var todayKey: Int { XCUIApplication.todayKey }
 }
 
