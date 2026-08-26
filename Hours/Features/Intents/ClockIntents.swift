@@ -43,7 +43,6 @@ struct ClockOutIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let clock = HoursStack.timeClock
-        let duration = HoursStack.settings.settings.displayFormatting
 
         switch clock.clockOut() {
         case .nothingRunning:
@@ -53,11 +52,11 @@ struct ClockOutIntent: AppIntent {
             let formatting = HoursStack.settings.dateFormatting
             if wasCapped {
                 return .result(dialog: IntentDialog(
-                    "Clocked out. That shift had been running over a day, so \(formatting.mediumDate(date)) was capped — worth checking."
+                    "Clocked out. That shift had been running over a day, so \(formatting.fullDate(date)) was capped — worth checking."
                 ))
             }
             return .result(dialog: IntentDialog(
-                "Clocked out. \(duration.string(workedMinutes)) recorded for \(formatting.mediumDate(date))."
+                "Clocked out. \(SpokenDuration.string(workedMinutes)) recorded for \(formatting.fullDate(date))."
             ))
         }
     }
@@ -74,7 +73,6 @@ struct HoursStatusIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let settings = HoursStack.settings.settings
-        let duration = settings.displayFormatting
         let calendar = HoursStack.calendar
         let today = CalendarDate.today(in: calendar)
 
@@ -82,7 +80,7 @@ struct HoursStatusIntent: AppIntent {
 
         if let running = HoursStack.clock.running {
             let minutes = running.elapsedMinutes(at: Date())
-            sentences.append("You have been clocked in for \(duration.string(minutes)).")
+            sentences.append("You have been clocked in for \(SpokenDuration.string(minutes)).")
         }
 
         let range = today.yearMonth.range(in: calendar)
@@ -94,16 +92,16 @@ struct HoursStatusIntent: AppIntent {
             countingThrough: today
         )
 
-        sentences.append("This month you have worked \(duration.string(summary.workedMinutes)).")
+        sentences.append("This month you have worked \(SpokenDuration.string(summary.workedMinutes)).")
 
         if settings.features.showsBalance {
             let balance = summary.balanceMinutes
             if balance == 0 {
                 sentences.append("You are exactly on target.")
             } else if balance > 0 {
-                sentences.append("You are \(duration.string(balance)) ahead.")
+                sentences.append("You are \(SpokenDuration.string(balance)) ahead.")
             } else {
-                sentences.append("You are \(duration.string(-balance)) behind.")
+                sentences.append("You are \(SpokenDuration.string(-balance)) behind.")
             }
         }
 

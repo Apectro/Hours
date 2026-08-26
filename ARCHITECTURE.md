@@ -210,13 +210,21 @@ one screen in the app it would be worst to be wrong on.
 
 ## Text and tests
 
-**Every string the user reads is in a String Catalog.** `Localizable.xcstrings`
-starts empty; the build extracts the keys, so translating the app later is a
-matter of adding a language rather than of first finding the words. Counts go
-through automatic grammatical agreement — `^[\(count) day](inflect: true)` —
-rather than a hand-picked noun, because "1 day" / "2 days" is the easy half and
-the pattern is what a translator needs for a language where the number changes
-the word.
+**Strings the user reads go through a String Catalog.** One per bundle: the app
+has its own and the widget extension has its own, since an extension looks up
+strings in its own bundle and would otherwise never be translatable at all.
+Both start empty and the build extracts the keys, so adding a language later is
+a matter of adding a language rather than of first finding the words.
+
+Counts go through automatic grammatical agreement — `^[\(count) day](inflect:
+true)` — rather than a hand-picked noun, because "1 day" / "2 days" is the easy
+half and the pattern is what a translator needs for a language where the number
+changes the word itself.
+
+This is groundwork rather than the finished job, and worth being plain about: a
+`Text("literal")` localises itself, but the computed summary strings in the
+settings screens are `String` values assembled from literals, and each would
+need `String(localized:)` before a translator could see it.
 
 `HoursCore` is the exception. It also builds on Linux, where the localisation
 APIs are not reliably present, so the one string it produces — the reminder

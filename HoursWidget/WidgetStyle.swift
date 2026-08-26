@@ -79,11 +79,20 @@ struct EmptyStateView: View {
         state == .unavailable ? "exclamationmark.triangle" : "clock.badge.questionmark"
     }
 
+    // Built as `String`, so unlike a `Text("literal")` these do not localise
+    // themselves — they have to ask.
     private var message: String {
         switch state {
-        case .unavailable: return compact ? "Set up" : "Turn on App Groups to use the widget"
-        case .waiting: return compact ? "Open Hours" : "Open Hours once to fill this in"
-        case .data, .sample: return ""
+        case .unavailable:
+            return compact
+                ? String(localized: "Set up")
+                : String(localized: "Turn on App Groups to use the widget")
+        case .waiting:
+            return compact
+                ? String(localized: "Open Hours")
+                : String(localized: "Open Hours once to fill this in")
+        case .data, .sample:
+            return ""
         }
     }
 

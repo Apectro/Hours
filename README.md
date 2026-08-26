@@ -83,6 +83,7 @@ Hours/
   App/         entry point and the tab structure
   Data/        SwiftData models, repository, settings store
   Features/    one folder per screen
+HoursShared/   Apple-platform code the app and the widget both need
 HoursWidget/   the Home Screen and Lock Screen widgets
 HoursTests/    unit tests for the engine, holidays, DST and the exports
 HoursUITests/  launch and end-to-end tests against the simulator
