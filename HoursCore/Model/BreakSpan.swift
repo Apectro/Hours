@@ -31,6 +31,21 @@ struct BreakSpan: Identifiable, Hashable, Codable, Sendable {
 
     var isTimed: Bool { start != nil && end != nil }
 
+    /// How long this break is, whichever of the two ways it was recorded.
+    ///
+    /// The nominal length, not the counted one: the calculator additionally
+    /// clips breaks to the shift they sit in and merges overlapping ones, so a
+    /// break running past the end of a shift counts for less than it says
+    /// here. This is the number to *show* someone — what they entered — while
+    /// the calculator's is the number their hours are worked out from.
+    ///
+    /// A timed break whose end is before its start ran past midnight.
+    var minutes: Int {
+        guard let start, let end else { return explicitMinutes ?? 0 }
+        let span = end.minutes - start.minutes
+        return span >= 0 ? span : span + TimeOfDay.minutesPerDay
+    }
+
     var isEmpty: Bool {
         if isTimed { return false }
         return (explicitMinutes ?? 0) == 0

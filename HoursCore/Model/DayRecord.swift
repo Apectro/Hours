@@ -125,8 +125,9 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
 
     var hasTimes: Bool { shifts.contains(where: \.hasTimes) }
 
-    var totalExplicitBreakMinutes: Int {
-        allBreaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+    /// Every break on this day, timed or plain, as entered.
+    var totalBreakMinutes: Int {
+        allBreaks.reduce(0) { $0 + $1.minutes }
     }
 
     // MARK: - Coding

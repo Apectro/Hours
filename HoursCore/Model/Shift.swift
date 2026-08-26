@@ -37,8 +37,13 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
         start == nil && end == nil && breaks.allSatisfy(\.isEmpty)
     }
 
-    var totalExplicitBreakMinutes: Int {
-        breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+    /// Every break in this shift, timed or plain, as entered.
+    ///
+    /// Was `totalExplicitBreakMinutes` and summed only `explicitMinutes`, so a
+    /// break recorded as 12:00–12:30 counted as nothing. Nothing called it,
+    /// which is the only reason that never showed anywhere.
+    var totalBreakMinutes: Int {
+        breaks.reduce(0) { $0 + $1.minutes }
     }
 
     private enum CodingKeys: String, CodingKey {

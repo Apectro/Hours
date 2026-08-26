@@ -80,13 +80,35 @@ struct StatisticsContent: View {
                 }
 
                 if settings.features.trackExpectedHours && summary.expectedMinutes > 0 {
-                    ProgressBar(
-                        fraction: min(Double(summary.paidMinutes) / Double(summary.expectedMinutes), 1.5),
-                        label: String(localized: "\(Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded()))% of expected")
-                    )
+                    ProgressBar(fraction: paidFraction, label: paidFractionLabel)
                 }
             }
         }
+    }
+
+    /// How far through the expected hours this period is, counting paid
+    /// absence. Capped at the bar's own 150% scale.
+    private var paidFraction: Double {
+        guard summary.expectedMinutes > 0 else { return 0 }
+        return min(Double(summary.paidMinutes) / Double(summary.expectedMinutes), 1.5)
+    }
+
+    /// The bar measures paid time, which is worked hours *plus* holiday, sick
+    /// leave and anything else credited. The tile immediately above it is
+    /// labelled "Worked" and shows only the hours — so a month of 123h worked
+    /// and 24h of paid absence against 144h expected read "123h 15m" beside
+    /// "102% of expected", and there was nothing on screen to reconcile them.
+    ///
+    /// Naming the difference is enough, and it only needs naming when there is
+    /// one: on a month with no absence the two are the same number and the
+    /// longer wording would be noise.
+    private var paidFractionLabel: String {
+        let percent = Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded())
+        guard summary.creditedMinutes > 0 else {
+            return String(localized: "\(percent)% of expected")
+        }
+        let credited = duration.string(summary.creditedMinutes)
+        return String(localized: "\(percent)% of expected, including \(credited) paid absence")
     }
 
     // MARK: - Breakdown

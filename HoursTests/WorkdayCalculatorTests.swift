@@ -129,6 +129,61 @@ final class WorkdayCalculatorTests: XCTestCase {
         XCTAssertEqual(span.explicitMinutes, 0)
     }
 
+    // MARK: - How long a break is
+
+    /// A break recorded on the clock has a length, and everything that shows
+    /// one to a person needs to know it.
+    ///
+    /// The day editor summed `explicitMinutes` alone, so lunch at 12:00–12:30
+    /// displayed as 0h while the calculator counted its half hour: the two
+    /// halves of the app disagreeing about the same break.
+    func testATimedBreakKnowsItsOwnLength() {
+        XCTAssertEqual(BreakSpan.timed(from: Fixture.time(12), to: Fixture.time(12, 30)).minutes, 30)
+    }
+
+    func testAPlainDurationKnowsItsOwnLength() {
+        XCTAssertEqual(BreakSpan.duration(45).minutes, 45)
+    }
+
+    func testABreakRunningPastMidnightIsNotNegative() {
+        XCTAssertEqual(BreakSpan.timed(from: Fixture.time(23, 45), to: Fixture.time(0, 15)).minutes, 30)
+    }
+
+    func testAnEmptyBreakIsNoMinutes() {
+        XCTAssertEqual(BreakSpan().minutes, 0)
+    }
+
+    /// The two forms mix within a day, so a total has to count both.
+    func testAShiftTotalsTimedAndPlainBreaksTogether() {
+        let shift = Shift(
+            start: Fixture.time(8),
+            end: Fixture.time(17),
+            breaks: [
+                .timed(from: Fixture.time(12), to: Fixture.time(12, 30)),
+                .duration(15),
+            ]
+        )
+        XCTAssertEqual(shift.totalBreakMinutes, 45)
+    }
+
+    /// What the editor shows and what the calculator counts are different
+    /// numbers on purpose, and this is the case that separates them: the
+    /// calculator clips a break to the shift it sits in, while the editor has
+    /// to show what was actually entered.
+    func testTheNominalLengthIsWhatWasEnteredNotWhatWasCounted() {
+        let span = BreakSpan.timed(from: Fixture.time(16, 30), to: Fixture.time(18))
+        XCTAssertEqual(span.minutes, 90, "an hour and a half was entered")
+
+        let record = Fixture.record(
+            on: Fixture.workingMonday,
+            start: Fixture.time(9),
+            end: Fixture.time(17),
+            breaks: [span]
+        )
+        let result = Fixture.calculator().compute(record: record, on: Fixture.workingMonday)
+        XCTAssertEqual(result.breakMinutes, 30, "only the half hour inside the shift counts")
+    }
+
     // MARK: - Overnight
 
     func testOvernightShiftIsMeasuredAcrossMidnight() {

@@ -198,9 +198,24 @@ struct DayEditorForm: View {
 
     // MARK: - Breaks
 
+    /// A single stepper cannot express "12:00–12:30", so a shift holding a
+    /// timed break gets the full list whether or not multiple breaks are on.
+    ///
+    /// Without this the stepper read such a break as 0h — the sample month
+    /// records lunch as 12:00–12:30 and the editor showed no break at all —
+    /// and, worse, its setter replaced every break with one plain duration, so
+    /// a single tap on "+" destroyed the times. The flag decides whether
+    /// someone may *add* further breaks. It was never meant to decide whether
+    /// what they already recorded stays editable.
+    private func needsBreakList(at index: Int) -> Bool {
+        guard index < draft.shifts.count else { return false }
+        return settings.features.multipleBreaksPerDay
+            || draft.shifts[index].breaks.contains(where: \.isTimed)
+    }
+
     @ViewBuilder
     private func breakRows(at index: Int) -> some View {
-        if settings.features.multipleBreaksPerDay {
+        if needsBreakList(at: index) {
             ForEach($draft.shifts[index].breaks) { $span in
                 BreakRow(
                     span: $span,
@@ -236,10 +251,13 @@ struct DayEditorForm: View {
         Binding(
             get: {
                 guard index < draft.shifts.count else { return 0 }
-                return draft.shifts[index].breaks.reduce(0) { $0 + ($1.explicitMinutes ?? 0) }
+                return draft.shifts[index].totalBreakMinutes
             },
             set: { minutes in
                 guard index < draft.shifts.count else { return }
+                // Safe to replace wholesale only because needsBreakList(at:)
+                // sends any shift with a timed break to the list instead, so
+                // nothing here can be holding times to lose.
                 draft.shifts[index].breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
             }
         )

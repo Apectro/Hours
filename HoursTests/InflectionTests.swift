@@ -51,6 +51,55 @@ final class InflectionTests: XCTestCase {
         print("----- end inflection -----")
     }
 
+    // MARK: - Whether the catalog took
+
+    /// Does `String(localized:)` work now that the catalog has entries?
+    ///
+    /// The app does not depend on the answer: every call site uses
+    /// `String(inflected:)`, which is correct whether the lookup finds a
+    /// plural-varied value or falls through to inflecting the key. These say
+    /// whether the catalog compiled into the bundle, which decides whether the
+    /// wrapper can eventually go away and whether a translator has anything to
+    /// work with.
+    ///
+    /// Written to fail loudly rather than to pass quietly, because a catalog
+    /// that silently does not compile is exactly the state this app was in.
+    func testTheCatalogGivesStringLocalizedTheRightPlural() {
+        XCTAssertEqual(String(localized: "^[\(16) day](inflect: true) worked"), "16 days worked")
+        XCTAssertEqual(String(localized: "^[\(1) day](inflect: true) worked"), "1 day worked")
+    }
+
+    /// The count is the second argument here, which the catalog has to say.
+    func testTheCatalogHandlesACountThatIsNotTheFirstArgument() {
+        XCTAssertEqual(String(localized: "\("40h") over ^[\(5) day](inflect: true)"), "40h over 5 days")
+        XCTAssertEqual(String(localized: "\("8h") over ^[\(1) day](inflect: true)"), "8h over 1 day")
+    }
+
+    /// Two counts in one sentence, each pluralising on its own.
+    func testTheCatalogHandlesTwoCountsInOneString() {
+        XCTAssertEqual(
+            String(localized: "Restored ^[\(1) day](inflect: true) and ^[\(3) holiday](inflect: true)."),
+            "Restored 1 day and 3 holidays."
+        )
+    }
+
+    /// Whatever the catalog does, the app reads correctly — this is the
+    /// property that must hold regardless of how the lookup goes.
+    func testEveryFormReadsCorrectlyThroughTheWrapper() {
+        let cases: [(String, String)] = [
+            (String(inflected: "^[\(1) day](inflect: true) worked"), "1 day worked"),
+            (String(inflected: "^[\(2) day](inflect: true) worked"), "2 days worked"),
+            (String(inflected: "\("40h") over ^[\(5) day](inflect: true)"), "40h over 5 days"),
+            (String(inflected: "^[\(1) hour](inflect: true)"), "1 hour"),
+            (String(inflected: "^[\(90) minute](inflect: true)"), "90 minutes"),
+            (String(inflected: "Clear ^[\(1) day](inflect: true)"), "Clear 1 day"),
+        ]
+        for (rendered, expected) in cases {
+            XCTAssertFalse(leaks(rendered), "markup reached the screen: \(rendered)")
+            XCTAssertEqual(rendered, expected)
+        }
+    }
+
     func testTheCalendarSummaryDoesNotShowItsOwnMarkup() {
         let rendered = String(inflected: "^[\(16) day](inflect: true) worked")
         XCTAssertFalse(leaks(rendered), "the calendar shows raw markup: \(rendered)")
