@@ -213,6 +213,56 @@ final class PeriodAggregationTests: XCTestCase {
         XCTAssertEqual(series[1].cumulativeMinutes, 120)
     }
 
+    /// The running total and the chart beside it are the same number.
+    ///
+    /// `cumulative` and `monthlySeries` appear together on the statistics
+    /// screen — one as the headline figure, the other as the last point of the
+    /// year chart — and they used to decide separately which days counted,
+    /// from two copies of the same three conditions. Two plausible-looking
+    /// numbers that quietly disagree is a bug nobody reports, because neither
+    /// looks wrong on its own. Run over every combination of the filters.
+    func testTheRunningTotalAgreesWithTheLastPointOfTheChart() {
+        var records: [Int: DayRecord] = [:]
+        for month in 1...6 {
+            for day in [3, 11, 19] {
+                let date = Fixture.date(2026, month, day)
+                records[date.key] = DayRecord(
+                    date: date,
+                    start: Fixture.time(8),
+                    // Alternating over and under, so the balance is not
+                    // trivially zero and a dropped day would show.
+                    end: day == 11 ? Fixture.time(15) : Fixture.time(18)
+                )
+            }
+        }
+        let range = CalendarDateRange(start: Fixture.date(2026, 1, 1), end: Fixture.date(2026, 6, 30))
+        let days = Fixture.engine(calendar: calendar).days(in: range, records: records, holidays: [])
+
+        for opening in [0, 180, -90] {
+            for start in [nil, Fixture.date(2026, 3, 1)] as [CalendarDate?] {
+                for through in [nil, Fixture.date(2026, 4, 15)] as [CalendarDate?] {
+                    let total = BalanceLedger.cumulative(
+                        over: days,
+                        openingMinutes: opening,
+                        startDate: start,
+                        countingThrough: through
+                    )
+                    let series = BalanceLedger.monthlySeries(
+                        over: days,
+                        openingMinutes: opening,
+                        startDate: start,
+                        countingThrough: through
+                    )
+                    XCTAssertEqual(
+                        series.last?.cumulativeMinutes ?? opening,
+                        total,
+                        "opening \(opening), start \(String(describing: start)), through \(String(describing: through))"
+                    )
+                }
+            }
+        }
+    }
+
     // MARK: - A year
 
     func testAYearOfPerfectDaysBalancesToZero() {

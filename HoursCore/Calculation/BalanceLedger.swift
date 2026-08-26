@@ -29,11 +29,31 @@ enum BalanceLedger {
         countingThrough: CalendarDate? = nil
     ) -> Int {
         days.reduce(openingMinutes) { total, day in
-            guard day.isIncluded else { return total }
-            if let startDate, day.date < startDate { return total }
-            if let countingThrough, day.date > countingThrough, !day.hasEntry { return total }
-            return total + day.balanceMinutes
+            counts(day, startDate: startDate, countingThrough: countingThrough)
+                ? total + day.balanceMinutes
+                : total
         }
+    }
+
+    /// Whether a day contributes to the balance at all.
+    ///
+    /// One copy, shared by both functions here. It was two copies of the same
+    /// three conditions — a quiet invitation for the running total on the
+    /// statistics screen to stop agreeing with the last point of the chart
+    /// printed directly beside it, and for nobody to notice, because both
+    /// numbers would look perfectly plausible on their own.
+    private static func counts(
+        _ day: DayComputation,
+        startDate: CalendarDate?,
+        countingThrough: CalendarDate?
+    ) -> Bool {
+        guard day.isIncluded else { return false }
+        if let startDate, day.date < startDate { return false }
+        // A day past the cut-off still counts when hours were actually
+        // recorded on it: what the cut-off excludes is expected hours not yet
+        // worked, not work someone has already done and entered.
+        if let countingThrough, day.date > countingThrough, !day.hasEntry { return false }
+        return true
     }
 
     /// Month-by-month totals with a running cumulative column, for the year
@@ -46,9 +66,7 @@ enum BalanceLedger {
     ) -> [MonthlyBalancePoint] {
         var buckets: [YearMonth: (worked: Int, expected: Int, balance: Int)] = [:]
 
-        for day in days where day.isIncluded {
-            if let startDate, day.date < startDate { continue }
-            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
+        for day in days where counts(day, startDate: startDate, countingThrough: countingThrough) {
             let month = day.date.yearMonth
             var bucket = buckets[month] ?? (0, 0, 0)
             bucket.worked += day.workedMinutes
