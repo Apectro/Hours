@@ -22,20 +22,33 @@ final class InflectionTests: XCTestCase {
     /// Deliberately has no assertion: its output is the point. The assertions
     /// are the tests below it.
     func testWhatEachApproachActuallyRenders() {
-        let count = 16
-
-        let direct = String(localized: "^[\(count) day](inflect: true) worked")
-        let attributed = String(
-            AttributedString(localized: "^[\(count) day](inflect: true) worked").characters
-        )
+        let many = 16
+        let one = 1
 
         print("----- inflection -----")
-        print("String(localized:)      -> \(direct)")
-        print("AttributedString        -> \(attributed)")
-        print("bundle localizations    -> \(Bundle.main.localizations)")
-        print("preferredLocalizations  -> \(Bundle.main.preferredLocalizations)")
-        print("has en.lproj            -> \(Bundle.main.path(forResource: "en", ofType: "lproj") != nil)")
-        print("----------------------")
+        print("String(localized:) 16   -> \(String(localized: "^[\(many) day](inflect: true) worked"))")
+        print("String(localized:) 1    -> \(String(localized: "^[\(one) day](inflect: true) worked"))")
+        print("AttributedString 16     -> \(String(AttributedString(localized: "^[\(many) day](inflect: true) worked").characters))")
+        print("AttributedString 1      -> \(String(AttributedString(localized: "^[\(one) day](inflect: true) worked").characters))")
+
+        // Whether a bundle is even being consulted, and what it holds. If the
+        // catalog compiled to nothing there is no en.lproj to find, and every
+        // lookup silently returns its own key.
+        print("localizations           -> \(Bundle.main.localizations)")
+        print("preferred               -> \(Bundle.main.preferredLocalizations)")
+        print("development             -> \(String(describing: Bundle.main.developmentLocalization))")
+        print("en.lproj                -> \(String(describing: Bundle.main.path(forResource: "en", ofType: "lproj")))")
+        print("Localizable.strings     -> \(String(describing: Bundle.main.path(forResource: "Localizable", ofType: "strings")))")
+        print("Localizable.stringsdict -> \(String(describing: Bundle.main.path(forResource: "Localizable", ofType: "stringsdict")))")
+
+        // What the bundle returns for the raw key, with a sentinel for "absent".
+        // This separates "the table has no such key" from "the key is there and
+        // the markup is simply not being processed" — which is the whole
+        // question, and the two have different fixes.
+        let key = "^[%lld day](inflect: true) worked"
+        let missing = "<<absent>>"
+        print("lookup %lld             -> \(Bundle.main.localizedString(forKey: key, value: missing, table: nil))")
+        print("----- end inflection -----")
     }
 
     func testTheCalendarSummaryDoesNotShowItsOwnMarkup() {

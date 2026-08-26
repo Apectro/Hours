@@ -232,15 +232,6 @@ jobs:
       # Diagnostics a test printed on purpose. The full test log is only kept as
       # an artifact, and an artifact is served from a host some checkouts cannot
       # reach — so anything meant to be read back has to come through stdout.
-      - name: Test diagnostics
-        if: always()
-        run: |
-          sed -n '/----- inflection -----/,/^.*----------------------/p' \
-            "$RUNNER_TEMP"/test.log 2>/dev/null \
-            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
-            | head -40 \
-            || echo "(none)"
-
       # A green tick does not say how many tests ran, and "0 tests passed" looks
       # identical to "126 tests passed". Put the count where it can be read.
       - name: Test summary
@@ -311,3 +302,19 @@ jobs:
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
           retention-days: 7
+
+      # Diagnostics a test printed on purpose, and deliberately the LAST step in
+      # the job. The full test log is only kept as an artifact, artifacts are
+      # served from a host some checkouts cannot reach, and the logs API caps
+      # its response — so a block printed in the middle of a long job gets
+      # truncated away. The end of the log is the one place that always
+      # survives.
+      - name: Test diagnostics
+        if: always()
+        run: |
+          echo "=============== diagnostics ==============="
+          sed -n '/----- inflection -----/,/----- end inflection -----/p' \
+            "$RUNNER_TEMP"/test.log 2>/dev/null \
+            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+            | head -40
+          echo "==========================================="

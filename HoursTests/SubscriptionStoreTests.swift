@@ -226,16 +226,27 @@ final class SubscriptionStoreTests: XCTestCase {
         // cache of its own.
         let reinstalled = SubscriptionStore.ephemeral()
 
+        let before = await liveEntitlementCount()
         let restored = await reinstalled.restore()
-        XCTAssertTrue(restored, "restore did not report finding the purchase")
+        let after = await liveEntitlementCount()
 
-        // restore() syncs and then reads, but StoreKit does not promise the
-        // synced transaction is visible to a store that has never seen it by
-        // the time sync returns. This test asserted immediately and passed four
-        // runs in a row before failing on a commit that changed no Swift.
-        await eventually("the restored purchase to unlock", refreshing: reinstalled) {
-            reinstalled.isPro
-        }
+        // restore() is AppStore.sync() followed by a read. Under SKTestSession
+        // the sync is what makes this test unstable: it passed for four runs,
+        // then failed twice with the read finding nothing for a full five
+        // seconds — far too long to be the propagation delay it was first
+        // mistaken for. Recording what StoreKit held either side of the sync is
+        // what separates "sync disturbed the session" from "our read is wrong",
+        // and the previous message could not tell those apart.
+        let unlocked = await eventually(
+            "the restored purchase to unlock",
+            timeout: 20,
+            refreshing: reinstalled
+        ) { reinstalled.isPro }
+
+        XCTAssertTrue(
+            unlocked,
+            "entitlements before sync: \(before), after: \(after), restore() returned \(restored)"
+        )
     }
 
     func testRestoringWithNothingToRestoreSaysSo() async {
