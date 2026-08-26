@@ -3,7 +3,9 @@ import SwiftData
 
 /// Builds the app's SwiftData stack.
 enum HoursModelContainer {
-    static let schema = Schema([DayEntry.self, HolidayRecord.self])
+    /// Always the current version's schema. The older one is reachable through
+    /// `HoursMigrationPlan`, which is what gets a store from there to here.
+    static let schema = Schema(versionedSchema: HoursSchemaV2.self)
 
     static func make(inMemory: Bool = false, syncsWithICloud: Bool = false) throws -> ModelContainer {
         let configuration = ModelConfiguration(
@@ -17,7 +19,22 @@ enum HoursModelContainer {
                 ? .none
                 : .private(SyncPreference.containerIdentifier)
         )
-        return try ModelContainer(for: schema, configurations: [configuration])
+        return try ModelContainer(
+            for: schema,
+            migrationPlan: HoursMigrationPlan.self,
+            configurations: [configuration]
+        )
+    }
+
+    /// Opens a store at a specific file. Only the migration tests need this —
+    /// everything else wants the one store in the usual place.
+    static func make(at url: URL, syncsWithICloud: Bool = false) throws -> ModelContainer {
+        let configuration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
+        return try ModelContainer(
+            for: schema,
+            migrationPlan: HoursMigrationPlan.self,
+            configurations: [configuration]
+        )
     }
 
     /// A throwaway in-memory stack. Used by previews, by tests, and as the

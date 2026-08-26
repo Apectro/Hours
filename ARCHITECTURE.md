@@ -260,10 +260,19 @@ true)` — rather than a hand-picked noun, because "1 day" / "2 days" is the eas
 half and the pattern is what a translator needs for a language where the number
 changes the word itself.
 
-This is groundwork rather than the finished job, and worth being plain about: a
-`Text("literal")` localises itself, but the computed summary strings in the
-settings screens are `String` values assembled from literals, and each would
-need `String(localized:)` before a translator could see it.
+The distinction that matters in SwiftUI is which type a parameter is declared
+as. `Text`, `Label`, `Button`, `Section` and `.navigationTitle` take
+`LocalizedStringKey`, so a literal handed to any of them extracts itself. Our
+own components take `String` — `StatTile(label:)`, `SettingsRow(title:)`,
+`PrivacyPoint(detail:)` — and a literal there is just a literal, invisible to a
+translator. Those call sites say `String(localized:)`, as do the summary
+strings assembled at runtime.
+
+They keep the `String` parameter rather than becoming `LocalizedStringKey`
+because three call sites pass values that are already localised text — a
+weekday name from `DateFormatter`, an adjustment reason from the engine — and
+handing a runtime string to `LocalizedStringKey` asks it to be looked up as a
+key, which is wrong even where it happens to work.
 
 `HoursCore` is the exception. It also builds on Linux, where the localisation
 APIs are not reliably present, so the one string it produces — the reminder

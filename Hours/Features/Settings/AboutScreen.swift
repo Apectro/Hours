@@ -18,38 +18,38 @@ struct AboutScreen: View {
             Section("What leaves the device") {
                 PrivacyPoint(
                     symbol: "square.and.arrow.up",
-                    title: "Only what you export",
-                    detail: "Files you create in Export go through the system share sheet, and you choose where they go."
+                    title: String(localized: "Only what you export"),
+                    detail: String(localized: "Files you create in Export go through the system share sheet, and you choose where they go.")
                 )
                 if isSyncing {
                     PrivacyPoint(
                         symbol: "icloud",
-                        title: "Your own iCloud",
-                        detail: "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud."
+                        title: String(localized: "Your own iCloud"),
+                        detail: String(localized: "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.")
                     )
                 } else {
                     PrivacyPoint(
                         symbol: "icloud.slash",
-                        title: "No sync",
-                        detail: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud."
+                        title: String(localized: "No sync"),
+                        detail: String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud.")
                     )
                 }
                 PrivacyPoint(
                     symbol: "location.slash",
-                    title: "No location access",
-                    detail: "The optional location field is a text note you type. The app never asks the system where you are."
+                    title: String(localized: "No location access"),
+                    detail: String(localized: "The optional location field is a text note you type. The app never asks the system where you are.")
                 )
                 PrivacyPoint(
                     symbol: "creditcard",
-                    title: "Buying Hours Pro",
-                    detail: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into."
+                    title: String(localized: "Buying Hours Pro"),
+                    detail: String(localized: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.")
                 )
             }
 
             Section("Keeping your data safe") {
                 PrivacyPoint(
                     symbol: "externaldrive",
-                    title: "Make a backup",
+                    title: String(localized: "Make a backup"),
                     detail: isSyncing
                         ? "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › Backup and data."
                         : "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › Backup and data."

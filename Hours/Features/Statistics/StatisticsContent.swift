@@ -64,15 +64,15 @@ struct StatisticsContent: View {
         SurfaceCard {
             VStack(alignment: .leading, spacing: Metrics.large) {
                 HStack(alignment: .top, spacing: Metrics.small) {
-                    StatTile(label: "Worked", value: duration.string(summary.workedMinutes))
+                    StatTile(label: String(localized: "Worked"), value: duration.string(summary.workedMinutes))
                     if settings.features.trackExpectedHours {
                         Divider().frame(height: 34)
-                        StatTile(label: "Expected", value: duration.string(summary.expectedMinutes))
+                        StatTile(label: String(localized: "Expected"), value: duration.string(summary.expectedMinutes))
                     }
                     if settings.features.showsBalance {
                         Divider().frame(height: 34)
                         StatTile(
-                            label: "Balance",
+                            label: String(localized: "Balance"),
                             value: duration.signedString(summary.balanceMinutes),
                             tint: Color.hoursBalance(summary.balanceMinutes)
                         )
@@ -82,7 +82,7 @@ struct StatisticsContent: View {
                 if settings.features.trackExpectedHours && summary.expectedMinutes > 0 {
                     ProgressBar(
                         fraction: min(Double(summary.paidMinutes) / Double(summary.expectedMinutes), 1.5),
-                        label: "\(Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded()))% of expected"
+                        label: String(localized: "\(Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded()))% of expected")
                     )
                 }
             }
@@ -99,19 +99,19 @@ struct StatisticsContent: View {
                     MetricRow(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", systemImage: "target")
                 }
                 MetricRow(
-                    label: "Average per day worked",
+                    label: String(localized: "Average per day worked"),
                     value: duration.string(summary.averageWorkedMinutesPerWorkedDay),
                     systemImage: "chart.bar"
                 )
                 if settings.features.showsBalance && (summary.overtimeMinutes > 0 || summary.deficitMinutes > 0) {
                     MetricRow(
-                        label: "Overtime",
+                        label: String(localized: "Overtime"),
                         value: duration.string(summary.overtimeMinutes),
                         tint: summary.overtimeMinutes > 0 ? .hoursPositive : .primary,
                         systemImage: "arrow.up.right"
                     )
                     MetricRow(
-                        label: "Short",
+                        label: String(localized: "Short"),
                         value: duration.string(summary.deficitMinutes),
                         tint: summary.deficitMinutes > 0 ? .hoursNegative : .primary,
                         systemImage: "arrow.down.right"
@@ -122,7 +122,7 @@ struct StatisticsContent: View {
                 }
                 if summary.creditedMinutes > 0 {
                     MetricRow(
-                        label: "Paid absence",
+                        label: String(localized: "Paid absence"),
                         value: duration.string(summary.creditedMinutes),
                         systemImage: "checkmark.seal"
                     )

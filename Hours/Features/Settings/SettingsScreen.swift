@@ -34,7 +34,7 @@ struct SettingsScreen: View {
                         ScheduleSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Working schedule",
+                            title: String(localized: "Working schedule"),
                             value: scheduleSummary,
                             systemImage: "calendar.badge.clock"
                         )
@@ -43,7 +43,7 @@ struct SettingsScreen: View {
                         JobSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Jobs",
+                            title: String(localized: "Jobs"),
                             value: jobsSummary,
                             systemImage: "bag"
                         )
@@ -52,7 +52,7 @@ struct SettingsScreen: View {
                         CalculationSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Calculation",
+                            title: String(localized: "Calculation"),
                             value: settings.durationPolicy.title,
                             systemImage: "function"
                         )
@@ -69,7 +69,7 @@ struct SettingsScreen: View {
                         DayTypeSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Day types",
+                            title: String(localized: "Day types"),
                             value: "\(settings.dayTypeCatalog.all.count)",
                             systemImage: "tag"
                         )
@@ -78,7 +78,7 @@ struct SettingsScreen: View {
                         ReminderSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Reminders",
+                            title: String(localized: "Reminders"),
                             value: settings.reminders.isEnabled ? "On" : "Off",
                             systemImage: "bell"
                         )
@@ -97,7 +97,7 @@ struct SettingsScreen: View {
                         CalendarSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Calendar",
+                            title: String(localized: "Calendar"),
                             value: settings.calendar.showWeekends ? "All days" : "Weekdays only",
                             systemImage: "square.grid.3x3"
                         )
@@ -106,7 +106,7 @@ struct SettingsScreen: View {
                         AppearanceSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Theme",
+                            title: String(localized: "Theme"),
                             value: settings.appearance.title,
                             systemImage: "circle.lefthalf.filled"
                         )
@@ -118,7 +118,7 @@ struct SettingsScreen: View {
                         ExportSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "Export options",
+                            title: String(localized: "Export options"),
                             value: "\(settings.effectiveExportColumns.count) columns",
                             systemImage: "tablecells"
                         )
@@ -130,7 +130,7 @@ struct SettingsScreen: View {
                         SyncSettingsScreen()
                     } label: {
                         SettingsRow(
-                            title: "iCloud",
+                            title: String(localized: "iCloud"),
                             value: HoursStack.isSyncing ? "On" : "Off",
                             systemImage: "icloud"
                         )
@@ -170,12 +170,14 @@ struct SettingsScreen: View {
 
     private var fieldsSummary: String {
         var enabled: [String] = []
-        if settings.features.trackBreaks { enabled.append("breaks") }
-        if settings.features.trackOvertime { enabled.append("overtime") }
-        if settings.features.trackNotes { enabled.append("notes") }
-        if settings.features.trackLocation { enabled.append("location") }
-        if settings.features.trackTags { enabled.append("tags") }
-        return enabled.isEmpty ? "None" : enabled.joined(separator: ", ").capitalizedFirstLetter
+        if settings.features.trackBreaks { enabled.append(String(localized: "breaks")) }
+        if settings.features.trackOvertime { enabled.append(String(localized: "overtime")) }
+        if settings.features.trackNotes { enabled.append(String(localized: "notes")) }
+        if settings.features.trackLocation { enabled.append(String(localized: "location")) }
+        if settings.features.trackTags { enabled.append(String(localized: "tags")) }
+        return enabled.isEmpty
+            ? String(localized: "None")
+            : enabled.joined(separator: ", ").capitalizedFirstLetter
     }
 }
 

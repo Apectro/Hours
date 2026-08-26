@@ -35,7 +35,7 @@ struct WeekdayHoursSection: View {
             Toggle("Different weekly target", isOn: overrideToggle)
             if schedule.weeklyTargetOverrideMinutes != nil {
                 DurationStepperRow(
-                    title: "Weekly target",
+                    title: String(localized: "Weekly target"),
                     minutes: overrideBinding,
                     range: 0...(7 * 24 * 60),
                     step: 30,
@@ -83,7 +83,7 @@ struct ShiftDefaultsSection: View {
     var body: some View {
         Section {
             OptionalTimeRow(
-                title: "Start",
+                title: String(localized: "Start"),
                 time: Binding(
                     get: { schedule.defaultStart },
                     set: { newValue in if let newValue { schedule.defaultStart = newValue } }
@@ -92,7 +92,7 @@ struct ShiftDefaultsSection: View {
                 fallback: TimeOfDay(hour: 8, minute: 0)
             )
             OptionalTimeRow(
-                title: "End",
+                title: String(localized: "End"),
                 time: Binding(
                     get: { schedule.defaultEnd },
                     set: { newValue in if let newValue { schedule.defaultEnd = newValue } }
@@ -102,7 +102,7 @@ struct ShiftDefaultsSection: View {
             )
             if tracksBreaks {
                 DurationStepperRow(
-                    title: "Break",
+                    title: String(localized: "Break"),
                     minutes: Binding(
                         get: { schedule.defaultBreakMinutes },
                         set: { schedule.defaultBreakMinutes = $0 }

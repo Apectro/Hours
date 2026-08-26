@@ -15,7 +15,7 @@ struct PeriodSummaryBar: View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
             HStack(alignment: .top, spacing: Metrics.small) {
                 StatTile(
-                    label: "Worked",
+                    label: String(localized: "Worked"),
                     value: formatting.string(summary.workedMinutes),
                     caption: settings.features.trackExpectedHours
                         ? "of \(formatting.string(summary.expectedMinutes))"
@@ -25,7 +25,7 @@ struct PeriodSummaryBar: View {
                 if settings.features.showsBalance {
                     Divider().frame(height: 34)
                     StatTile(
-                        label: "Balance",
+                        label: String(localized: "Balance"),
                         value: formatting.signedString(summary.balanceMinutes),
                         caption: balanceCaption,
                         tint: Color.hoursBalance(summary.balanceMinutes)
@@ -34,9 +34,9 @@ struct PeriodSummaryBar: View {
 
                 Divider().frame(height: 34)
                 StatTile(
-                    label: "Average",
+                    label: String(localized: "Average"),
                     value: formatting.string(summary.averageWorkedMinutesPerWorkedDay),
-                    caption: "per day worked"
+                    caption: String(localized: "per day worked")
                 )
             }
 
@@ -62,13 +62,13 @@ struct PeriodSummaryBar: View {
         // where the number itself changes the word.
         parts.append(String(localized: "^[\(summary.daysWorked) day](inflect: true) worked"))
         if summary.scheduledWorkingDays > 0 {
-            parts.append("\(summary.scheduledWorkingDays) scheduled")
+            parts.append(String(localized: "\(summary.scheduledWorkingDays) scheduled"))
         }
         for definition in catalog.all where definition.expectation == .creditedAbsence {
             let count = summary.count(of: definition.id)
             if count > 0 { parts.append("\(count) \(definition.name.lowercased())") }
         }
-        if summary.daysOff > 0 { parts.append("\(summary.daysOff) off") }
+        if summary.daysOff > 0 { parts.append(String(localized: "\(summary.daysOff) off")) }
         return parts.joined(separator: "  ·  ")
     }
 }

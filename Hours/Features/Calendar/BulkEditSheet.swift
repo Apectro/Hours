@@ -40,9 +40,9 @@ struct BulkEditSheet: View {
 
         var title: String {
             switch self {
-            case .dayType: return "Set type"
-            case .workingPattern: return "Fill hours"
-            case .clear: return "Clear"
+            case .dayType: return String(localized: "Set type")
+            case .workingPattern: return String(localized: "Fill hours")
+            case .clear: return String(localized: "Clear")
             }
         }
     }
@@ -173,11 +173,11 @@ struct BulkEditSheet: View {
         switch actionKind {
         case .dayType:
             let name = settings.dayTypeCatalog.definition(for: dayTypeID).name.lowercased()
-            return "Marks each day as \(name). Any hours on those days are removed if the type does not use times."
+            return String(localized: "Marks each day as \(name). Any hours on those days are removed if the type does not use times.")
         case .workingPattern:
-            return "Fills each day with your usual start, end and break. Public holidays in the range are left alone."
+            return String(localized: "Fills each day with your usual start, end and break. Public holidays in the range are left alone.")
         case .clear:
-            return "Removes everything recorded on those days."
+            return String(localized: "Removes everything recorded on those days.")
         }
     }
 

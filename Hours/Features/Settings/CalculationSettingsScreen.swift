@@ -43,7 +43,7 @@ struct CalculationSettingsScreen: View {
 
             Section {
                 DurationStepperRow(
-                    title: "Opening balance",
+                    title: String(localized: "Opening balance"),
                     minutes: settingsStore.binding(\.openingBalanceMinutes),
                     range: (-500 * 60)...(500 * 60),
                     step: 30,

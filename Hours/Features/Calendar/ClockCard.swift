@@ -81,7 +81,9 @@ struct ClockCard: View {
     }
 
     private var title: String {
-        running.date == CalendarDate.today(in: Calendar.current) ? "Clocked in" : "Still clocked in"
+        running.date == CalendarDate.today(in: Calendar.current)
+            ? String(localized: "Clocked in")
+            : String(localized: "Still clocked in")
     }
 
     private var jobSuffix: String {

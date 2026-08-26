@@ -169,7 +169,7 @@ struct DataSettingsScreen: View {
         repository.deleteAllDays()
         repository.deleteAllHolidays()
         HoursStack.refreshWidget()
-        message = "All recorded days and holidays were removed."
+        message = String(localized: "All recorded days and holidays were removed.")
     }
 }
 

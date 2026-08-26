@@ -11,11 +11,11 @@ struct DayResultHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
             HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(label: "Worked", value: duration.string(computation.workedMinutes))
+                StatTile(label: String(localized: "Worked"), value: duration.string(computation.workedMinutes))
 
                 if settings.features.trackExpectedHours {
                     Divider().frame(height: 34)
-                    StatTile(label: "Expected", value: duration.string(computation.expectedMinutes))
+                    StatTile(label: String(localized: "Expected"), value: duration.string(computation.expectedMinutes))
                 }
 
                 if settings.features.showsBalance {

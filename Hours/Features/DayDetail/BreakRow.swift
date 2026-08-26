@@ -21,16 +21,16 @@ struct BreakRow: View {
             .labelsHidden()
 
             if span.isTimed {
-                OptionalTimeRow(title: "From", time: $span.start, calendar: calendar, fallback: fallbackStart)
+                OptionalTimeRow(title: String(localized: "From"), time: $span.start, calendar: calendar, fallback: fallbackStart)
                 OptionalTimeRow(
-                    title: "To",
+                    title: String(localized: "To"),
                     time: $span.end,
                     calendar: calendar,
                     fallback: TimeOfDay(minutes: (fallbackStart.minutes + 30) % TimeOfDay.minutesPerDay)
                 )
             } else {
                 DurationStepperRow(
-                    title: "Length",
+                    title: String(localized: "Length"),
                     minutes: lengthBinding,
                     range: 0...(12 * 60),
                     step: 5,

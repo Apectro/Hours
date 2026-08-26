@@ -63,7 +63,7 @@ struct DayEditorForm: View {
         if !settings.features.autoCalculateWorkedHours {
             Section {
                 DurationStepperRow(
-                    title: "Worked",
+                    title: String(localized: "Worked"),
                     minutes: manualWorkedBinding,
                     range: 0...(24 * 60),
                     step: 5,
@@ -104,13 +104,13 @@ struct DayEditorForm: View {
     private func shiftSection(at index: Int) -> some View {
         Section {
             OptionalTimeRow(
-                title: "Start",
+                title: String(localized: "Start"),
                 time: $draft.shifts[index].start,
                 calendar: calendar,
                 fallback: settings.primarySchedule.defaultStart
             )
             OptionalTimeRow(
-                title: "End",
+                title: String(localized: "End"),
                 time: $draft.shifts[index].end,
                 calendar: calendar,
                 fallback: settings.primarySchedule.defaultEnd
@@ -221,7 +221,7 @@ struct DayEditorForm: View {
             }
         } else {
             DurationStepperRow(
-                title: "Break",
+                title: String(localized: "Break"),
                 minutes: singleBreakBinding(at: index),
                 range: 0...(12 * 60),
                 step: 5,
@@ -261,7 +261,7 @@ struct DayEditorForm: View {
                 Toggle("Custom expected hours", isOn: expectedOverrideToggle)
                 if draft.expectedOverrideMinutes != nil {
                     DurationStepperRow(
-                        title: "Expected",
+                        title: String(localized: "Expected"),
                         minutes: expectedOverrideBinding,
                         range: 0...(24 * 60),
                         step: 15,
@@ -305,7 +305,7 @@ struct DayEditorForm: View {
     private var adjustmentSection: some View {
         Section {
             DurationStepperRow(
-                title: "Adjustment",
+                title: String(localized: "Adjustment"),
                 minutes: $draft.adjustmentMinutes,
                 range: (-12 * 60)...(12 * 60),
                 step: 15,
@@ -324,7 +324,7 @@ struct DayEditorForm: View {
                 Toggle("Set balance manually", isOn: manualBalanceToggle)
                 if draft.manualBalanceMinutes != nil {
                     DurationStepperRow(
-                        title: "Balance",
+                        title: String(localized: "Balance"),
                         minutes: manualBalanceBinding,
                         range: (-24 * 60)...(24 * 60),
                         step: 15,

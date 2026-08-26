@@ -106,14 +106,14 @@ struct DaySummaryCard: View {
                 // the opposite.
                 ForEach(computation.shifts.indices, id: \.self) { position in
                     MetricRow(
-                        label: "Block \(position + 1)",
+                        label: String(localized: "Block \(position + 1)"),
                         value: shiftRange(computation.shifts[position]),
                         systemImage: position == 0 ? "clock" : "clock.arrow.circlepath"
                     )
                 }
             } else if let start = computation.start, let end = computation.end {
                 MetricRow(
-                    label: "Hours",
+                    label: String(localized: "Hours"),
                     value: "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
                         + (computation.crossesMidnight ? " (+1)" : ""),
                     systemImage: "clock"
@@ -123,13 +123,13 @@ struct DaySummaryCard: View {
                 MetricRow(label: "Break", value: duration.string(computation.breakMinutes), systemImage: "cup.and.saucer")
             }
             MetricRow(
-                label: "Worked",
+                label: String(localized: "Worked"),
                 value: duration.string(computation.workedMinutes),
                 systemImage: "timer"
             )
             if computation.creditedMinutes > 0 {
                 MetricRow(
-                    label: "Paid absence",
+                    label: String(localized: "Paid absence"),
                     value: duration.string(computation.creditedMinutes),
                     systemImage: "checkmark.seal"
                 )
@@ -179,9 +179,9 @@ struct DaySummaryCard: View {
         case .scheduled:
             return computation.expectedMinutes > 0
                 ? "Nothing recorded yet. \(duration.string(computation.expectedMinutes)) expected."
-                : "Nothing recorded yet."
+                : String(localized: "Nothing recorded yet.")
         case .zero:
-            return "Not a working day."
+            return String(localized: "Not a working day.")
         case .creditedAbsence:
             return "\(duration.string(computation.creditedMinutes)) credited."
         }

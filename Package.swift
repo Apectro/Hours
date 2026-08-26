@@ -28,11 +28,15 @@ let package = Package(
             // The rest of the suite covers the SwiftData layer and the
             // services above it, which only exist inside the app.
             exclude: [
+                // Not a source file; the scheme and the StoreKit tests read it.
+                "Hours.storekit",
                 "AdjustmentTests.swift",
                 "DuplicateReconciliationTests.swift",
                 "ExportTests.swift",
+                "MigrationTests.swift",
                 "PersistenceCodingTests.swift",
                 "ShiftTests.swift",
+                "SubscriptionStoreTests.swift",
                 "TimeClockTests.swift",
             ]
         )
