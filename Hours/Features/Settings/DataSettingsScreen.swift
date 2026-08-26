@@ -160,6 +160,16 @@ struct DataSettingsScreen: View {
     private func applyRestore(_ archive: BackupArchive) {
         pendingRestore = nil
 
+        // Nothing in, nothing destroyed. A backup with no days in it can only
+        // erase, and there is already a button for erasing that says so. The
+        // decoder now refuses damaged files, which is what made this reachable
+        // in the first place; this is the second lock on the same door,
+        // because the thing behind it is every hour the person ever recorded.
+        guard !archive.days.isEmpty || !archive.holidays.isEmpty else {
+            message = "That backup holds no days, so nothing was changed. Use “Delete everything” if you meant to start over."
+            return
+        }
+
         repository.deleteAllDays()
         repository.deleteAllHolidays()
         for record in archive.days { repository.save(record) }

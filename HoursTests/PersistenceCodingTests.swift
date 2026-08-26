@@ -177,10 +177,76 @@ final class PersistenceCodingTests: XCTestCase {
         XCTAssertEqual(archive.days.map(\.date.day), [1, 10, 20])
     }
 
+    /// A backup missing its optional parts still loads, as long as it says
+    /// what it is. The version marker is what identifies it as ours.
     func testAnIncompleteBackupStillLoads() throws {
-        let archive = try BackupArchive.decoded(from: Data(#"{"days":[]}"#.utf8))
+        let archive = try BackupArchive.decoded(from: Data(#"{"formatVersion":1,"days":[]}"#.utf8))
         XCTAssertTrue(archive.holidays.isEmpty)
         XCTAssertEqual(archive.settings, AppSettings())
+    }
+
+    // MARK: - Refusing to restore from something that is not a backup
+    //
+    // Restoring erases everything on the device before writing what it read.
+    // Decoding used to be lenient about every field, `try?` included, so any
+    // JSON object at all decoded successfully — as an archive holding no days,
+    // no holidays and default settings. Picking the wrong file, or a backup
+    // truncated by a bad copy, deleted everything and put nothing back. The
+    // importer's catch block could not fire, because nothing ever threw.
+
+    func testAFileThatIsNotABackupIsRefused() {
+        // All valid JSON, none of it a backup. This is what wiped the device.
+        for json in [#"{}"#, #"{"days":[]}"#, #"{"hello":"world"}"#, #"{"formatVersion":"1"}"#] {
+            XCTAssertThrowsError(
+                try BackupArchive.decoded(from: Data(json.utf8)),
+                "\(json) was accepted as a backup"
+            ) { error in
+                XCTAssertEqual(error as? BackupArchive.BackupError, .notABackup)
+            }
+        }
+    }
+
+    func testABackupFromANewerVersionIsRefused() {
+        XCTAssertThrowsError(
+            try BackupArchive.decoded(from: Data(#"{"formatVersion":99,"days":[]}"#.utf8))
+        ) { error in
+            XCTAssertEqual(error as? BackupArchive.BackupError, .fromANewerVersion(99))
+        }
+    }
+
+    /// Damage in the records is damage, not an empty backup.
+    func testADamagedListOfDaysIsRefused() {
+        XCTAssertThrowsError(
+            try BackupArchive.decoded(from: Data(#"{"formatVersion":1,"days":[{"date":"not a date"}]}"#.utf8))
+        ) { error in
+            XCTAssertEqual(error as? BackupArchive.BackupError, .unreadable("list of days"))
+        }
+    }
+
+    /// Truncation is the realistic form of damage: a copy that stopped early.
+    func testATruncatedBackupIsRefused() throws {
+        let complete = try BackupArchive(
+            settings: AppSettings(),
+            days: [DayRecord(date: Fixture.workingMonday, start: Fixture.time(9), end: Fixture.time(17))],
+            holidays: []
+        ).encoded()
+
+        XCTAssertThrowsError(
+            try BackupArchive.decoded(from: Data(complete.prefix(complete.count / 2))),
+            "half a backup file was accepted as a whole one"
+        )
+    }
+
+    /// And a real one still loads, which is the point of all of it.
+    func testARealBackupIsStillAccepted() throws {
+        let archive = BackupArchive(
+            settings: AppSettings(),
+            days: [DayRecord(date: Fixture.workingMonday, start: Fixture.time(9), end: Fixture.time(17))],
+            holidays: []
+        )
+        let restored = try BackupArchive.decoded(from: try archive.encoded())
+        XCTAssertEqual(restored.days.count, 1)
+        XCTAssertEqual(restored.formatVersion, BackupArchive.currentFormatVersion)
     }
 
     // MARK: - Entity mapping

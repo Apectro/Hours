@@ -45,14 +45,74 @@ struct BackupArchive: Codable, Sendable {
         case formatVersion, exportedAt, settings, days, holidays
     }
 
+    /// Why a file was refused as a backup.
+    ///
+    /// These exist because restoring is destructive: it erases everything on
+    /// the device before writing what it read. Decoding used to be lenient
+    /// about every field, `try?` included, so *any* JSON object decoded
+    /// successfully — as an archive holding no days, no holidays and default
+    /// settings. Restoring from a file that was not a backup, or from a backup
+    /// truncated by a bad copy, therefore deleted everything and put nothing
+    /// back. The importer's catch block could not fire, because nothing ever
+    /// threw.
+    enum BackupError: LocalizedError, Equatable {
+        case notABackup
+        case fromANewerVersion(Int)
+        case unreadable(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .notABackup:
+                return "This file is not a Hours backup."
+            case let .fromANewerVersion(version):
+                return "This backup was made by a newer version of Hours (format \(version)). Update Hours and try again."
+            case let .unreadable(part):
+                return "This backup is damaged: its \(part) could not be read."
+            }
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Identity before content. A backup always carries a format version, so
+        // a file without one is something else — and something else must never
+        // reach a restore, which erases before it writes.
+        guard let version = try? container.decode(Int.self, forKey: .formatVersion) else {
+            throw BackupError.notABackup
+        }
+        // Reading a newer file with older rules would drop whatever it holds
+        // that this version does not understand, and the loss becomes
+        // permanent the moment the restore finishes.
+        guard version <= BackupArchive.currentFormatVersion else {
+            throw BackupError.fromANewerVersion(version)
+        }
+
+        // The records are strict. A malformed list is damage, and reading
+        // damage as "no days" is how a restore empties a device.
+        let days: [DayRecord]
+        do {
+            days = try container.decodeIfPresent([DayRecord].self, forKey: .days) ?? []
+        } catch {
+            throw BackupError.unreadable("list of days")
+        }
+
+        let holidays: [HolidayRule]
+        do {
+            holidays = try container.decodeIfPresent([HolidayRule].self, forKey: .holidays) ?? []
+        } catch {
+            throw BackupError.unreadable("list of holidays")
+        }
+
         self.init(
-            formatVersion: container.lenient(.formatVersion, BackupArchive.currentFormatVersion),
+            formatVersion: version,
             exportedAt: container.lenient(.exportedAt, Date()),
+            // Settings stay lenient, field by field, on purpose: a preference
+            // this version does not recognise should cost that preference and
+            // nothing else. Losing a theme is not losing a year of work.
             settings: container.lenient(.settings, AppSettings()),
-            days: container.lenient(.days, []),
-            holidays: container.lenient(.holidays, [])
+            days: days,
+            holidays: holidays
         )
     }
 }
