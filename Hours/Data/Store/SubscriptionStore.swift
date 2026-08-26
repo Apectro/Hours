@@ -212,6 +212,19 @@ final class SubscriptionStore {
     /// Purchases follow the Apple ID, so this is rarely needed — but the App
     /// Store requires the button to exist, and it is the honest answer to
     /// "I already paid for this".
+    ///
+    /// Not covered end to end by a test, and deliberately so. `AppStore.sync()`
+    /// empties an `SKTestSession` rather than re-delivering what it holds —
+    /// measured, not assumed: an entitlement count of 1 before the call and 0
+    /// after it, printed by the test that used to drive this path. So a test
+    /// through here exercises the simulator's fidelity rather than this app,
+    /// and fails at random depending on timing; it did, three times, and was
+    /// twice misdiagnosed as a race.
+    ///
+    /// `testAFreshStoreFindsAPurchaseTheAppleIDAlreadyHas` covers the half that
+    /// is ours: a store with no cache reading an entitlement StoreKit holds.
+    /// The sync stays, because a Restore button that does not ask Apple to
+    /// re-deliver is not a Restore button.
     func restore() async -> Bool {
         try? await AppStore.sync()
         await refresh()

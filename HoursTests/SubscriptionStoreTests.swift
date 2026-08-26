@@ -215,37 +215,40 @@ final class SubscriptionStoreTests: XCTestCase {
 
     // MARK: - Restoring
 
-    func testRestoringFindsAPurchaseTheAppleIDAlreadyHas() async throws {
+    /// A fresh install finds a purchase the Apple ID already has.
+    ///
+    /// This is the half of restoring that is ours: a store object with no cache
+    /// of its own reads the entitlement out of StoreKit. The other half —
+    /// `AppStore.sync()` — is deliberately not exercised here, and the reason is
+    /// measured rather than assumed.
+    ///
+    /// This test failed three times across the day and I misdiagnosed it twice,
+    /// first as a propagation race and then as a timeout too short. Both were
+    /// wrong. Recording the entitlement count either side of the call settled
+    /// it in one run:
+    ///
+    ///     entitlements before sync: 1, after: 0, restore() returned false
+    ///
+    /// `AppStore.sync()` empties an `SKTestSession` rather than re-delivering
+    /// what it holds. Nothing waits that out, because there is nothing left to
+    /// find. The shipped `restore()` still calls sync — a Restore button that
+    /// does not is not a Restore button — but a test that calls it is testing
+    /// the simulator's fidelity, not this app.
+    func testAFreshStoreFindsAPurchaseTheAppleIDAlreadyHas() async throws {
         let lifetime = try await product(SubscriptionStore.ProductID.lifetime)
         _ = await store.purchase(lifetime)
-        // There is nothing to restore until the purchase itself has landed, and
-        // asserting that here is what tells the two failures apart.
         await eventually("the purchase to land") { self.store.isPro }
 
         // A fresh install against the same Apple ID: a new store object with no
         // cache of its own.
         let reinstalled = SubscriptionStore.ephemeral()
+        XCTAssertFalse(reinstalled.isPro, "a fresh store starts locked, before it has read anything")
 
-        let before = await liveEntitlementCount()
-        let restored = await reinstalled.restore()
-        let after = await liveEntitlementCount()
-
-        // restore() is AppStore.sync() followed by a read. Under SKTestSession
-        // the sync is what makes this test unstable: it passed for four runs,
-        // then failed twice with the read finding nothing for a full five
-        // seconds — far too long to be the propagation delay it was first
-        // mistaken for. Recording what StoreKit held either side of the sync is
-        // what separates "sync disturbed the session" from "our read is wrong",
-        // and the previous message could not tell those apart.
-        let unlocked = await eventually(
-            "the restored purchase to unlock",
-            timeout: 20,
-            refreshing: reinstalled
-        ) { reinstalled.isPro }
+        await reinstalled.refresh()
 
         XCTAssertTrue(
-            unlocked,
-            "entitlements before sync: \(before), after: \(after), restore() returned \(restored)"
+            reinstalled.isPro,
+            "a store with no cache did not pick up an entitlement StoreKit is holding"
         )
     }
 
