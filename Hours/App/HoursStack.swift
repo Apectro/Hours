@@ -85,7 +85,7 @@ enum HoursStack {
     static let subscriptions: SubscriptionStore = {
         guard isRunningUITests else { return SubscriptionStore() }
         let paid = ProcessInfo.processInfo.arguments.contains("-hours-pro")
-        return SubscriptionStore.ephemeral(paid ? Entitlement(kind: .lifetime) : .free)
+        return SubscriptionStore.pinned(paid ? Entitlement(kind: .lifetime) : .free)
     }()
 
     static var calendar: Calendar { settings.workCalendar }

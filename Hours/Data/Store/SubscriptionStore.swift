@@ -51,8 +51,19 @@ final class SubscriptionStore {
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let cacheKey: String
     @ObservationIgnored private var updates: Task<Void, Never>?
+    /// A pinned store answers from what it was handed and never asks the App
+    /// Store. Only the UI-test seam sets it, and it has to exist because
+    /// `refresh()` is now unconditional: the app under test has no
+    /// transactions, so the first refresh would overwrite the entitlement the
+    /// test asked for with StoreKit's perfectly correct "nothing".
+    @ObservationIgnored private let isPinned: Bool
 
-    init(defaults: UserDefaults = .standard, cacheKey: String = "hours.entitlement") {
+    init(
+        defaults: UserDefaults = .standard,
+        cacheKey: String = "hours.entitlement",
+        pinned: Bool = false
+    ) {
+        self.isPinned = pinned
         self.defaults = defaults
         self.cacheKey = cacheKey
         // Provisional, and only until the first `refresh()` returns: without it
@@ -89,6 +100,8 @@ final class SubscriptionStore {
     /// Recomputes the entitlement from the transactions Apple currently
     /// recognises.
     func refresh(at instant: Date = Date()) async {
+        guard !isPinned else { return }
+
         var kind: Entitlement.Kind = .free
         var expiresAt: Date?
         var isRetrying = false
@@ -219,10 +232,20 @@ final class SubscriptionStore {
         return try? JSONDecoder().decode(Entitlement.self, from: data)
     }
 
-    /// An isolated store for previews and tests.
+    /// An isolated store for previews and for the StoreKit tests, which need
+    /// `refresh()` to do its real work.
     static func ephemeral(_ entitlement: Entitlement = .free) -> SubscriptionStore {
         let defaults = UserDefaults(suiteName: "hours.preview.\(UUID().uuidString)") ?? .standard
         let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
+        store.entitlement = entitlement
+        return store
+    }
+
+    /// A store that will keep saying what it was told, whatever StoreKit
+    /// thinks. For UI tests, which drive an app with no transactions in it.
+    static func pinned(_ entitlement: Entitlement) -> SubscriptionStore {
+        let defaults = UserDefaults(suiteName: "hours.uitest.\(UUID().uuidString)") ?? .standard
+        let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement", pinned: true)
         store.entitlement = entitlement
         return store
     }

@@ -12,6 +12,18 @@ final class PaywallTests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// Settings is longer than a screen — more so since the Pro row went on
+    /// top of it — so anything in the last section has to be scrolled to
+    /// before it can be tapped.
+    @discardableResult
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 5) -> Bool {
+        for _ in 0..<swipes {
+            if element.exists, element.isHittable { return true }
+            app.swipeUp()
+        }
+        return element.exists && element.isHittable
+    }
+
     private func openSettings(_ app: XCUIApplication) {
         app.launch()
         XCTAssertTrue(app.tabBars.buttons["Settings"].waitForExistence(timeout: 10))
@@ -70,9 +82,7 @@ final class PaywallTests: XCTestCase {
         openSettings(app)
 
         let row = app.staticTexts["Backup and data"]
-        guard row.exists, row.isHittable else {
-            return XCTFail("the backup row should be reachable without paying")
-        }
+        XCTAssertTrue(reveal(row, in: app), "the backup row should be reachable without paying")
         row.tap()
 
         XCTAssertTrue(app.navigationBars.buttons["Settings"].waitForExistence(timeout: 5))
