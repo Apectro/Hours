@@ -85,9 +85,14 @@ DECORATION = re.compile(r"_\d+_[0-9A-F-]{36}$", re.I)
 # listing. Requiring the numbered form is what separates the two.
 OURS = re.compile(r"^\d{2}-[a-z0-9-]+(\.[a-z0-9]+)?$", re.I)
 
-# Screenshots, plus the files the export tests produce. Anything else an
-# attachment might be is not something to publish.
-KEPT_TYPES = {".png", ".csv", ".xlsx", ".pdf", ".txt"}
+# Screenshots, plus the files the export tests produce.
+#
+# The generic types are here because the extension on disk comes from the UTI
+# the test attached with, not from the name it gave: attaching the workbook as
+# "public.data" produced a file with no .xlsx on the end, so this filter
+# dropped the one export artifact that mattered most and the run stayed green.
+# The name still has to match OURS, so widening this admits nothing unwanted.
+KEPT_TYPES = {".png", ".csv", ".xlsx", ".pdf", ".txt", ".dat", ".bin", ".zip", ".json"}
 
 
 def tidy(label):

@@ -26,10 +26,7 @@ final class ExportCaptureTests: XCTestCase {
         var records: [Int: DayRecord] = [:]
         for day in 1...dayCount {
             let date = Fixture.date(2026, 8, day)
-            let weekday = calendar.component(
-                .weekday,
-                from: date.date(in: calendar) ?? Date()
-            )
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
             guard weekday != 1, weekday != 7 else { continue }
 
             switch day % 5 {
@@ -176,7 +173,14 @@ final class ExportCaptureTests: XCTestCase {
         add(csvAttachment)
 
         let xlsx = XLSXWriter.data(for: table, preferences: preferences)
-        let xlsxAttachment = XCTAttachment(data: xlsx, uniformTypeIdentifier: "public.data")
+        // The workbook's own type, not "public.data". Attached as generic data
+        // it came out of the result bundle with no .xlsx on the end, so the
+        // renamer did not recognise it and the workbook was the one export
+        // artifact that never reached the branch.
+        let xlsxAttachment = XCTAttachment(
+            data: xlsx,
+            uniformTypeIdentifier: "org.openxmlformats.spreadsheetml.sheet"
+        )
         xlsxAttachment.name = "09-export-xlsx.xlsx"
         xlsxAttachment.lifetime = .keepAlways
         add(xlsxAttachment)
