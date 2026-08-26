@@ -84,6 +84,107 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # What a push actually touched.
+  #
+  # Cheap, on Linux, and the reason the job below it can exist at all: a push
+  # that only moved the engine or the documentation skips macOS entirely.
+  scope:
+    name: What changed
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      needsXcode: ${{ steps.check.outputs.needsXcode }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: check
+        run: |
+          BEFORE="${{ github.event.before }}"
+          # A new branch, a force-push or a first commit gives no usable base.
+          # Assume the worst: a missed compile is the failure this exists to
+          # prevent, and an extra run only costs money.
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "no usable base commit — compiling to be sure"
+            echo "needsXcode=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          echo "----- changed -----"
+          echo "$CHANGED"
+          echo "-------------------"
+
+          # HoursCore is compiled and tested in full by the job above, and the
+          # rest of this pattern is not code. Everything else — the app target,
+          # the widget, the shared layer, the Apple-only tests, the project file
+          # — has no compiler anywhere else in this workflow.
+          UNCOVERED=$(echo "$CHANGED" | grep -vE '^(HoursCore/|Scripts/|[^/]*\.md$|\.gitignore$)' || true)
+          if [ -n "$UNCOVERED" ]; then
+            echo "needs Xcode, because of:"
+            echo "$UNCOVERED"
+            echo "needsXcode=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "engine, scripts and prose only — Linux already covered all of it"
+            echo "needsXcode=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Does the app still compile?
+  #
+  # Splitting the cheap half of the macOS job out from the expensive half, for
+  # a reason found the hard way: after the full job was moved off pushes to
+  # stop it exhausting the account's macOS allowance, nothing compiled the app
+  # target on a push at all. Changes to app-only code — a screen, the
+  # notification text — reached main having never been through a compiler,
+  # green the whole way, because the Linux job builds HoursCore and nothing
+  # else. A workflow that reports success on code it never built is worse than
+  # one that reports nothing.
+  #
+  # So: build only, no tests, no simulator boot, on a generic destination.
+  # Around a quarter of the full job, and it runs only when the push touched
+  # something Linux cannot reach. `build-for-testing` rather than `build`
+  # because the test bundles are code too, and a test file that does not
+  # compile fails the same way.
+  compile:
+    name: App compiles (iOS simulator)
+    needs: scope
+    if: needs.scope.outputs.needsXcode == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the app and the test bundles
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination 'generic/platform=iOS Simulator' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/compile.log"
+
+      # Same reason as the engine job: xcodebuild's failure output is long and
+      # the one line that matters is rarely the last.
+      - name: Summarise failures
+        if: failure()
+        run: |
+          DIAGS=$(grep -hE "error:" "$RUNNER_TEMP/compile.log" 2>/dev/null | sort -u | head -40)
+          echo "----- compile errors -----"
+          echo "${DIAGS:-（none found — read the full log）}"
+          echo "--------------------------"
+          {
+            echo "### Compile errors"
+            echo ''
+            echo '```'
+            echo "${DIAGS:-none found — read the full log}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build-and-test:
     name: App and tests (iOS simulator)
     # Not on every push, on purpose.

@@ -194,11 +194,18 @@ to the run as `app-store-screenshots` and pushed to the `screenshots` branch.
 The branch is usually the easier one to reach for: artifacts are served from a
 storage host that some networks cannot get to at all.
 
-That happens in the simulator job, which does **not** run on every push. macOS
-minutes bill at ten times the Linux rate, so it runs on pull requests and on
-demand — Actions › Build and test › Run workflow. A push runs the Linux engine
-job alone, in about a minute. Apple wants 6.9-inch and 6.5-inch iPhone sizes;
-add the matching simulator to that job to get each.
+That happens in the full simulator job, which does **not** run on every push:
+macOS minutes bill at ten times the Linux rate, so it runs on pull requests and
+on demand — Actions › Build and test › Run workflow. Apple wants 6.9-inch and
+6.5-inch iPhone sizes; add the matching simulator to that job to get each.
+
+A push runs the Linux engine job, in about a minute, and — only when it touched
+something outside `HoursCore`, `Scripts` or the prose — a build-only macOS job
+that compiles the app and the test bundles without running them. That second
+job exists because moving the full one off pushes left nothing compiling the
+app target at all: app-only changes reached `main` green, having never been
+through a compiler. Roughly a quarter of the cost of the full job, and skipped
+entirely on the engine-only pushes that make up most of the history.
 
 **The rest, in order:**
 
