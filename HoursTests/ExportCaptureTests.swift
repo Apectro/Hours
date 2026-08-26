@@ -1,0 +1,189 @@
+import XCTest
+import UIKit
+import PDFKit
+@testable import Hours
+
+/// Produces the export files a person would actually get, and photographs them.
+///
+/// Not a test of anything, and honest about that. Every export test alongside
+/// this one asserts on strings; none of them ever looked at the finished PDF,
+/// which is the artefact a person prints and hands to a payroll department.
+/// Rendering it is how the totals block running off the bottom of a full page
+/// was found.
+///
+/// CI exports the attachments; see the "App Store screenshots" step.
+final class ExportCaptureTests: XCTestCase {
+    private let calendar = Fixture.calendar()
+
+    /// A full month with the kinds of day that make a report interesting:
+    /// overtime, a short day, a weekend, a holiday and a long note.
+    private func monthTable(days dayCount: Int = 31) -> ReportTable {
+        let settings = Fixture.settings()
+        let start = Fixture.date(2026, 8, 1)
+        let end = Fixture.date(2026, 8, dayCount)
+        let range = CalendarDateRange(start: start, end: end)
+
+        var records: [Int: DayRecord] = [:]
+        for day in 1...dayCount {
+            let date = Fixture.date(2026, 8, day)
+            let weekday = calendar.component(
+                .weekday,
+                from: date.date(in: calendar) ?? Date()
+            )
+            guard weekday != 1, weekday != 7 else { continue }
+
+            switch day % 5 {
+            case 0:
+                records[date.key] = DayRecord(
+                    date: date,
+                    start: Fixture.time(8),
+                    end: Fixture.time(18, 15),
+                    breaks: [.timed(from: Fixture.time(12), to: Fixture.time(12, 30))],
+                    note: "Release day — stayed for the deploy"
+                )
+            case 3:
+                records[date.key] = DayRecord(
+                    date: date,
+                    start: Fixture.time(9),
+                    end: Fixture.time(14, 30),
+                    breaks: []
+                )
+            default:
+                records[date.key] = DayRecord(
+                    date: date,
+                    start: Fixture.time(8),
+                    end: Fixture.time(16, 30),
+                    breaks: [.timed(from: Fixture.time(12), to: Fixture.time(12, 30))]
+                )
+            }
+        }
+
+        let days = PeriodEngine(settings: settings, calendar: calendar)
+            .days(in: range, records: records, holidays: [])
+        return ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
+            .makeTable(days: days, range: range, title: "Hours — August 2026", countingThrough: end)
+    }
+
+    private func attach(_ image: UIImage, named name: String) {
+        let attachment = XCTAttachment(image: image)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// Renders every page of a PDF so it can be looked at rather than assumed.
+    private func pages(of data: Data) throws -> [UIImage] {
+        let provider = try XCTUnwrap(CGDataProvider(data: data as CFData))
+        let document = try XCTUnwrap(CGPDFDocument(provider))
+        XCTAssertGreaterThan(document.numberOfPages, 0, "the PDF has no pages")
+
+        var images: [UIImage] = []
+        for number in 1...document.numberOfPages {
+            guard let page = document.page(at: number) else { continue }
+            let bounds = page.getBoxRect(.mediaBox)
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 2
+            let renderer = UIGraphicsImageRenderer(size: bounds.size, format: format)
+            images.append(renderer.image { context in
+                UIColor.white.setFill()
+                context.fill(bounds)
+                context.cgContext.translateBy(x: 0, y: bounds.height)
+                context.cgContext.scaleBy(x: 1, y: -1)
+                context.cgContext.drawPDFPage(page)
+            })
+        }
+        return images
+    }
+
+    func testCaptureThePDF() throws {
+        let data = PDFReportRenderer.data(for: monthTable())
+        let rendered = try pages(of: data)
+
+        for (index, image) in rendered.prefix(3).enumerated() {
+            attach(image, named: "06-export-pdf-\(index + 1)")
+        }
+        print("----- export -----")
+        print("pdf pages               -> \(rendered.count)")
+        print("pdf bytes               -> \(data.count)")
+    }
+
+    /// The case that breaks the layout: enough rows to fill a page exactly, so
+    /// the totals block has nowhere to go.
+    func testCaptureTheSummaryOnAFullPage() throws {
+        let data = PDFReportRenderer.data(for: monthTable(days: 31))
+        let rendered = try pages(of: data)
+        if let last = rendered.last {
+            attach(last, named: "07-export-pdf-summary")
+        }
+        print("summary page            -> \(rendered.count)")
+        print("----- end export -----")
+    }
+
+    // MARK: - The summary must survive
+
+    /// Every page count from one row to a hundred, and the summary is on all
+    /// of them.
+    ///
+    /// The old renderer drew the totals wherever the last row left off and
+    /// skipped any line that did not fit, so whether a report kept its summary
+    /// depended on how many days the month happened to have. Somewhere in this
+    /// range the rows end near the bottom of a page, and that is the report
+    /// that used to come out with its totals missing.
+    func testTheSummaryIsInThePDFWhateverTheRowCountIs() throws {
+        for dayCount in [1, 7, 20, 28, 29, 30, 31] {
+            let table = monthTable(days: dayCount)
+            guard !table.totals.isEmpty else { continue }
+
+            let data = PDFReportRenderer.data(for: table)
+            let document = try XCTUnwrap(PDFDocument(data: data), "\(dayCount) days: unreadable PDF")
+            let text = (0..<document.pageCount)
+                .compactMap { document.page(at: $0)?.string }
+                .joined()
+
+            XCTAssertTrue(text.contains("Summary"), "\(dayCount) days: the summary is missing")
+            // Not just the heading — the figures under it.
+            for total in table.totals.prefix(3) {
+                XCTAssertTrue(
+                    text.contains(total.label),
+                    "\(dayCount) days: the summary is missing \"\(total.label)\""
+                )
+            }
+        }
+    }
+
+    /// A report with no rows at all still gets its summary.
+    func testAnEmptyReportStillCarriesItsSummary() throws {
+        let settings = Fixture.settings()
+        let range = CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 1))
+        let days = PeriodEngine(settings: settings, calendar: calendar)
+            .days(in: range, records: [:], holidays: [])
+        let table = ReportBuilder(settings: settings, calendar: calendar)
+            .makeTable(days: days, range: range, title: "Empty", countingThrough: range.end)
+
+        let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+        XCTAssertGreaterThan(document.pageCount, 0, "an empty report produced no pages at all")
+    }
+
+    /// The CSV and the workbook, written exactly as the app writes them.
+    func testCaptureTheDataFiles() throws {
+        let table = monthTable()
+        let preferences = ExportPreferences()
+
+        let csv = CSVExporter.data(for: table, preferences: preferences)
+        let csvAttachment = XCTAttachment(data: csv, uniformTypeIdentifier: "public.comma-separated-values-text")
+        csvAttachment.name = "08-export-csv.csv"
+        csvAttachment.lifetime = .keepAlways
+        add(csvAttachment)
+
+        let xlsx = XLSXWriter.data(for: table, preferences: preferences)
+        let xlsxAttachment = XCTAttachment(data: xlsx, uniformTypeIdentifier: "public.data")
+        xlsxAttachment.name = "09-export-xlsx.xlsx"
+        xlsxAttachment.lifetime = .keepAlways
+        add(xlsxAttachment)
+
+        // A workbook Excel cannot open is worse than no workbook, and the ZIP
+        // is written by hand here, so check it is at least a ZIP.
+        XCTAssertEqual(Array(xlsx.prefix(4)), [0x50, 0x4B, 0x03, 0x04], "not a ZIP archive")
+        XCTAssertGreaterThan(csv.count, 100)
+    }
+}

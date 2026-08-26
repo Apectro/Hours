@@ -83,12 +83,30 @@ DECORATION = re.compile(r"_\d+_[0-9A-F-]{36}$", re.I)
 # "kXCTAttachmentLegacyScreenImageData", and those are a picture of whatever
 # the simulator was showing when a step ran — not something to put on a store
 # listing. Requiring the numbered form is what separates the two.
-OURS = re.compile(r"^\d{2}-[a-z0-9-]+$", re.I)
+OURS = re.compile(r"^\d{2}-[a-z0-9-]+(\.[a-z0-9]+)?$", re.I)
+
+# Screenshots, plus the files the export tests produce. Anything else an
+# attachment might be is not something to publish.
+KEPT_TYPES = {".png", ".csv", ".xlsx", ".pdf", ".txt"}
 
 
 def tidy(label):
-    """The name the test asked for, with Xcode's decoration taken back off."""
-    return DECORATION.sub("", (label or "").removesuffix(".png"))
+    """The name the test asked for, with Xcode's decoration taken back off.
+
+    The decoration sits before the extension — "01-calendar_0_<UUID>.png" —
+    so the extension has to come off first or the anchored pattern never
+    matches. Getting that wrong silently drops every non-PNG attachment,
+    which is the same shape of failure as the original UUID bug.
+    """
+    label = label or ""
+    stem, suffix = os.path.splitext(label)
+    if suffix.lower() not in KEPT_TYPES:
+        stem, suffix = label, ""
+    stem = DECORATION.sub("", stem)
+    # A name the test already spelled with an extension keeps its own.
+    if os.path.splitext(stem)[1].lower() in KEPT_TYPES:
+        return stem
+    return stem + suffix
 
 
 def main(raw, out):
@@ -103,14 +121,20 @@ def main(raw, out):
     os.makedirs(out, exist_ok=True)
     kept = 0
     for entry in sorted(os.listdir(raw)):
-        if not entry.lower().endswith(".png"):
+        if entry == "manifest.json":
+            continue
+        suffix = os.path.splitext(entry)[1].lower()
+        if suffix not in KEPT_TYPES:
             continue
         label = tidy(named.get(entry))
         if not OURS.match(label):
             print(f"skipping {entry} ({label or 'unnamed'})")
             continue
-        shutil.copyfile(os.path.join(raw, entry), os.path.join(out, f"{label}.png"))
-        print(f"{entry} -> {label}.png")
+        # The exported CSV and workbook carry their own extension in the name
+        # the test gave them; a screenshot does not.
+        name = label if os.path.splitext(label)[1] else label + suffix
+        shutil.copyfile(os.path.join(raw, entry), os.path.join(out, name))
+        print(f"{entry} -> {name}")
         kept += 1
 
     print(f"named screenshots: {kept}")

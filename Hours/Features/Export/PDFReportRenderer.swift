@@ -29,6 +29,7 @@ enum PDFReportRenderer {
             var pageNumber = 0
             var rowIndex = 0
             var isFirstPage = true
+            var totalsDrawn = table.totals.isEmpty
 
             repeat {
                 context.beginPage()
@@ -40,22 +41,53 @@ enum PDFReportRenderer {
                     isFirstPage = false
                 }
 
-                y = drawHeaderRow(table: table, widths: widths, at: y)
+                // A page carrying nothing but the summary gets no column
+                // header, because there is no column under it.
+                if rowIndex < table.rows.count {
+                    y = drawHeaderRow(table: table, widths: widths, at: y)
+                }
 
-                while rowIndex < table.rows.count, y + rowHeight <= pageSize.height - margin - 24 {
+                while rowIndex < table.rows.count, y + rowHeight <= contentBottom {
                     drawRow(table.rows[rowIndex], table: table, widths: widths, at: y, isEven: rowIndex.isMultiple(of: 2))
                     y += rowHeight
                     rowIndex += 1
                 }
 
-                if rowIndex >= table.rows.count {
+                // The summary takes a page of its own rather than being
+                // silently dropped. drawTotals skips any line that does not
+                // fit, so a report whose rows happened to end near the bottom
+                // of a page exported with its totals partly or entirely
+                // missing — and looked perfectly fine otherwise.
+                if rowIndex >= table.rows.count,
+                   !totalsDrawn,
+                   y + 12 + totalsHeight(for: table) <= contentBottom {
                     y = drawTotals(table: table, at: y + 12)
+                    totalsDrawn = true
                 }
 
                 drawFooter(pageNumber: pageNumber, title: table.title)
-            } while rowIndex < table.rows.count && pageNumber < 500
+            } while (rowIndex < table.rows.count || !totalsDrawn) && pageNumber < maximumPages
         }
     }
+
+    /// The lowest a row may reach before the page is full, leaving the footer
+    /// its band at the bottom.
+    private static var contentBottom: CGFloat { pageSize.height - margin - 24 }
+
+    /// How tall the summary block will be, so the space can be asked for in
+    /// advance rather than discovered halfway down the page.
+    static func totalsHeight(for table: ReportTable) -> CGFloat {
+        guard !table.totals.isEmpty else { return 0 }
+        let perColumn = Int((Double(table.totals.count) / 2.0).rounded(.up))
+        return 20 + CGFloat(perColumn) * 15
+    }
+
+    /// A hard stop, so a table that somehow never advances cannot spin
+    /// forever. At roughly 23 rows to a page the old limit of 500 pages was
+    /// about thirty years of daily entries — a working lifetime, and so not
+    /// beyond reach — and reaching it dropped the remaining rows without
+    /// saying so. This is set where reaching it is not possible.
+    private static let maximumPages = 100_000
 
     // MARK: - Sections
 

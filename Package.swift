@@ -32,6 +32,7 @@ let package = Package(
                 "Hours.storekit",
                 "AdjustmentTests.swift",
                 "DuplicateReconciliationTests.swift",
+                "ExportCaptureTests.swift",
                 "ExportTests.swift",
                 // Inflection is a Foundation-on-Apple feature, and the point of
                 // these is what the app bundle renders.

@@ -120,15 +120,15 @@ jobs:
           echo "Using simulator $UDID"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
-      # Building first gives a clean compile-error list without the test
-      # bundle's output interleaved, which matters on a first green-field build.
-      # Guards a step whose failure mode is not a red build but a green one
-      # that quietly exports nothing. Here rather than on the cheaper Linux
-      # job because the swift:6.0 container has no python3 — which is how the
-      # first attempt at running these failed.
+      # Guards a step whose failure mode is not a red build but a green one that
+      # quietly exports nothing. Here rather than on the cheaper Linux job
+      # because the swift:6.0 container has no python3 — which is how the first
+      # attempt at running these failed.
       - name: Screenshot renamer
         run: python3 Scripts/test_name_screenshots.py
 
+      # Building first gives a clean compile-error list without the test
+      # bundle's output interleaved, which matters on a first green-field build.
       - name: Build
         run: |
           set -o pipefail
@@ -176,10 +176,18 @@ jobs:
 
           python3 Scripts/name-screenshots.py "$RAW" "$OUT"
 
-          COUNT=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
-          echo "PNG attachments exported: $COUNT"
-          if [ "$COUNT" -ne 5 ]; then
-            echo "::warning::expected 5 named screenshots, got $COUNT"
+          SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
+          FILES=$(find "$OUT" -type f ! -name '*.png' | wc -l | tr -d ' ')
+          echo "screenshots: $SHOTS   export artifacts: $FILES"
+          ls -la "$OUT"
+          # Six app screens plus up to four PDF pages; the CSV and the workbook
+          # are the two non-images. A count below this means an attachment was
+          # dropped, which has happened twice and looked green both times.
+          if [ "$SHOTS" -lt 6 ]; then
+            echo "::warning::expected at least 6 screenshots, got $SHOTS"
+          fi
+          if [ "$FILES" -lt 2 ]; then
+            echo "::warning::expected the CSV and the workbook, got $FILES files"
           fi
 
       # The run's artifacts live on a storage host that not every checkout can
@@ -200,7 +208,7 @@ jobs:
           WORK="$RUNNER_TEMP/shotbranch"
           rm -rf "$WORK"
           mkdir -p "$WORK"
-          cp "$OUT"/*.png "$WORK"/
+          cp "$OUT"/* "$WORK"/
           cd "$WORK"
           {
             echo "# Screenshots"

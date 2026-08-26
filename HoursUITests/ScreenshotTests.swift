@@ -80,9 +80,22 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Privacy"].waitForExistence(timeout: 10))
         capture("05-privacy", app)
 
+        // 6 — the export screen, reached from the calendar's overflow menu.
+        app.tabBars.buttons["Calendar"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+        app.buttons["More"].tap()
+        let exportItem = app.buttons["Export…"]
+        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "the overflow menu has no Export item")
+        exportItem.tap()
+        XCTAssertTrue(app.navigationBars["Export"].waitForExistence(timeout: 10), "Export did not open")
+        capture("10-export", app)
+
         XCTAssertEqual(
             taken,
-            ["01-calendar", "02-day-editor", "03-insights", "04-settings", "05-privacy"],
+            [
+                "01-calendar", "02-day-editor", "03-insights",
+                "04-settings", "05-privacy", "10-export",
+            ],
             "a screenshot is missing"
         )
     }

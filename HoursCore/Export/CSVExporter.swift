@@ -45,6 +45,7 @@ enum CSVExporter {
 
     /// Quotes a field only when it needs it, and doubles any quotes inside.
     static func escape(_ field: String, separator: String) -> String {
+        let field = defused(field)
         let needsQuoting = field.contains(separator)
             || field.contains("\"")
             || field.contains("\n")
@@ -54,5 +55,27 @@ enum CSVExporter {
             || field.hasSuffix(" ")
         guard needsQuoting else { return field }
         return "\"" + field.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+    }
+
+    /// Stops a note from being run as a formula by whoever opens the file.
+    ///
+    /// A cell beginning `=`, `+` or `@` is a formula to Excel, Sheets and
+    /// LibreOffice, and formulas can reach outside the document — the
+    /// `HYPERLINK` and DDE families do. Nothing in this app executes anything,
+    /// but this app is not where the file ends up: the point of an export is to
+    /// send it to someone else, and it is their machine that runs whatever a
+    /// note happened to start with.
+    ///
+    /// A leading apostrophe is what a spreadsheet reads as "this is text". It
+    /// is not shown in the cell.
+    ///
+    /// `-` is deliberately not in the set. It can begin a formula, but it far
+    /// more often begins an ordinary note — "-2h owed", "- see email" — and
+    /// mangling those to defend against a formula someone typed into their own
+    /// timesheet is the worse trade. XLSX needs none of this: its cells are
+    /// `inlineStr`, which is text by declaration.
+    static func defused(_ field: String) -> String {
+        guard let first = field.first, "=+@\t\r".contains(first) else { return field }
+        return "'" + field
     }
 }

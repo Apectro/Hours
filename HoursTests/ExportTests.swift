@@ -120,6 +120,40 @@ final class ExportTests: XCTestCase {
         XCTAssertEqual(CSVExporter.escape(" padded ", separator: ","), "\" padded \"")
     }
 
+    // MARK: - What the file does on someone else's machine
+
+    /// A note is free text, and free text beginning `=` is a formula to every
+    /// spreadsheet that opens it. The export exists to be sent to a payroll
+    /// department, so the machine that runs it is not this one.
+    func testANoteIsNeverAFormula() {
+        XCTAssertEqual(
+            CSVExporter.escape("=HYPERLINK(\"http://elsewhere\",\"payslip\")", separator: ","),
+            "\"'=HYPERLINK(\"\"http://elsewhere\"\",\"\"payslip\"\")\""
+        )
+        XCTAssertEqual(CSVExporter.defused("=1+1"), "'=1+1")
+        XCTAssertEqual(CSVExporter.defused("+1"), "'+1")
+        XCTAssertEqual(CSVExporter.defused("@SUM(A1)"), "'@SUM(A1)")
+        XCTAssertEqual(CSVExporter.defused("\tstarts with a tab"), "'\tstarts with a tab")
+    }
+
+    /// The other half of that trade: ordinary notes are left alone.
+    func testOrdinaryNotesAreNotMangled() {
+        for note in ["-2h owed", "- see email", "Release day", "8:00 start", "100% done", ""] {
+            XCTAssertEqual(CSVExporter.defused(note), note, "\(note) was altered")
+        }
+    }
+
+    /// The workbook needs no such guard, and this is why: its cells declare
+    /// themselves text. If that ever changes to a shared-string or general
+    /// cell type, this fails and says so.
+    func testTheWorkbookWritesNotesAsDeclaredText() {
+        let table = sampleTable()
+        // Readable straight out of the archive because ZIPArchive stores its
+        // entries uncompressed, so the sheet XML is in there as plain bytes.
+        let package = String(decoding: XLSXWriter.data(for: table, preferences: ExportPreferences()), as: UTF8.self)
+        XCTAssertTrue(package.contains("t=\"inlineStr\""), "text cells are no longer declared as inline strings")
+    }
+
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
         let table = sampleTable()
         let csv = CSVExporter.string(for: table, preferences: ExportPreferences())

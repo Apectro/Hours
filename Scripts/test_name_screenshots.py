@@ -74,12 +74,28 @@ class RenamingTests(unittest.TestCase):
         self.assertIsNone(name_screenshots.label_key_rank("deviceName"))
 
     def test_xcodes_decoration_comes_back_off(self):
+        # tidy returns a whole filename, extension included: it has to, now
+        # that the exported CSV and workbook come through here too and the
+        # extension is the only thing telling them apart.
         self.assertEqual(
             name_screenshots.tidy("01-calendar_0_14ABDA6E-77DC-466B-8D0B-901055A459EA.png"),
-            "01-calendar",
+            "01-calendar.png",
         )
         # A name that was never decorated survives unchanged.
         self.assertEqual(name_screenshots.tidy("01-calendar"), "01-calendar")
+
+    def test_export_artifacts_keep_their_own_file_type(self):
+        # The exported CSV and workbook are attachments too, and Xcode puts its
+        # decoration before the extension. Stripping ".png" alone left the
+        # underscores in place, the name failed the pattern, and every
+        # non-image attachment was dropped without a word — the same shape of
+        # failure as the UUID bug this script exists to fix.
+        uuid = "14ABDA6E-77DC-466B-8D0B-901055A459EA"
+        self.assertEqual(name_screenshots.tidy(f"08-export-csv_0_{uuid}.csv"), "08-export-csv.csv")
+        self.assertEqual(name_screenshots.tidy(f"09-export-xlsx_1_{uuid}.xlsx"), "09-export-xlsx.xlsx")
+        self.assertEqual(name_screenshots.tidy(f"06-export-pdf-1_0_{uuid}.png"), "06-export-pdf-1.png")
+        # A name the test already spelled with its extension is not doubled.
+        self.assertEqual(name_screenshots.tidy(f"08-export-csv.csv_0_{uuid}.csv"), "08-export-csv.csv")
 
     def test_a_manifest_that_cannot_be_read_is_a_warning_not_a_crash(self):
         os.remove(os.path.join(self.raw, "manifest.json"))
