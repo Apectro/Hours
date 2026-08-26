@@ -85,11 +85,28 @@ APP_STRINGS = {
     "Restored ^[%lld day](inflect: true) and ^[%lld holiday](inflect: true).": entry(
         "Restored %#@days@ and %#@holidays@.", DAYS(1), HOLIDAYS(2)
     ),
-    "The backup holds ^[%lld day](inflect: true) and ^[%lld holiday](inflect: true). "
+    # %@ is the damage warning, which is empty when the file is undamaged.
+    "The backup holds ^[%lld day](inflect: true) and ^[%lld holiday](inflect: true).%@ "
     "Everything currently stored will be removed.": entry(
-        "The backup holds %#@days@ and %#@holidays@. Everything currently stored will be removed.",
+        "The backup holds %#@days@ and %#@holidays@.%@ Everything currently stored will be removed.",
         DAYS(1),
         HOLIDAYS(2),
+    ),
+    # Reporting days a backup held but could not be read.
+    "^[%lld day](inflect: true) in the file is damaged and will not be restored.": entry(
+        "%#@days@ in the file is damaged and will not be restored.", DAYS()
+    ),
+    "^[%lld day](inflect: true) with no readable date": entry(
+        "%#@days@ with no readable date", DAYS()
+    ),
+    "^[%lld day](inflect: true) could not be read and was not restored: %@.": entry(
+        "%#@days@ could not be read and was not restored: %@.", DAYS()
+    ),
+    "Nothing was restored: all ^[%lld day](inflect: true) in that file are damaged. "
+    "Your existing hours have not been touched.": entry(
+        "Nothing was restored: all %#@days@ in that file are damaged. "
+        "Your existing hours have not been touched.",
+        DAYS(),
     ),
 }
 

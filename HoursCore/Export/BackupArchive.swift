@@ -133,7 +133,7 @@ struct BackupArchive: Codable, Sendable {
         // empties a device. Within the list, each day is decoded on its own so
         // that one bad record does not cost the person the other nine hundred.
         let days: [DayRecord]
-        var damaged: [String] = []
+        var damaged: [DamagedDay] = []
         do {
             let attempts = try container.decodeIfPresent([DayOrDamage].self, forKey: .days) ?? []
             days = attempts.compactMap(\.record)
