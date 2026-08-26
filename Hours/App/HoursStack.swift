@@ -79,9 +79,14 @@ enum HoursStack {
     /// What has been paid for. Built once, because it holds a listener on the
     /// App Store for the life of the app — a second one would mean two answers
     /// to the same question.
-    static let subscriptions: SubscriptionStore = isRunningUITests
-        ? SubscriptionStore.ephemeral(Entitlement(kind: .lifetime))
-        : SubscriptionStore()
+    /// UI tests run as someone who has not paid unless they ask otherwise.
+    /// That way the locks, the gates and the paywall are what gets exercised by
+    /// default, and a test that wants the other side says so out loud.
+    static let subscriptions: SubscriptionStore = {
+        guard isRunningUITests else { return SubscriptionStore() }
+        let paid = ProcessInfo.processInfo.arguments.contains("-hours-pro")
+        return SubscriptionStore.ephemeral(paid ? Entitlement(kind: .lifetime) : .free)
+    }()
 
     static var calendar: Calendar { settings.workCalendar }
 

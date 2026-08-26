@@ -259,6 +259,15 @@ struct ExportScreen: View {
                 countingThrough: today
             )
 
+        // The preview is built for everyone; the file is not. Writing one that
+        // only the paywall stands between would be work done for nothing, and
+        // a copy of the timesheet sitting in the temporary directory.
+        guard subscriptions.allows(.fileExport) else {
+            fileURL = nil
+            failureMessage = nil
+            return
+        }
+
         do {
             fileURL = try ExportFileFactory.write(
                 table: fileTable,

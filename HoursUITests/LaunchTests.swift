@@ -92,7 +92,8 @@ final class LaunchTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(opened, 3, "no settings rows were reachable")
     }
 
-    /// The one flow the app exists for: open a day, save it, come back.
+    /// The one flow the app exists for: open a day, save it, come back. Run
+    /// unpaid, so it doubles as the assertion that recording hours is free.
     func testADayOpensAndSaves() {
         let app = XCUIApplication.hours()
         app.launch()
@@ -129,9 +130,12 @@ extension XCUIApplication {
     /// An app told to start from nothing: its own empty store, default
     /// settings, no running clock. Without this a test would read whatever is
     /// on the machine running it, and would write to it.
-    static func hours() -> XCUIApplication {
+    static func hours(pro: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments += ["-hours-ui-testing"]
+        // Unpaid by default, so what gets exercised is the app most people
+        // open on day one.
+        if pro { app.launchArguments += ["-hours-pro"] }
         return app
     }
 }

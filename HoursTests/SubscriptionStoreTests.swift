@@ -38,6 +38,30 @@ final class SubscriptionStoreTests: XCTestCase {
         try await super.tearDown()
     }
 
+    /// Waits for the entitlement to reach a state, refreshing as it goes.
+    ///
+    /// StoreKit does not promise that a refund or an expiry is visible to
+    /// `currentEntitlements` the instant the test session is told to make one —
+    /// revocations arrive through `Transaction.updates`, which is asynchronous
+    /// by design. Polling is the honest way to write that down. It hides
+    /// nothing: an entitlement that never closes still fails, just five seconds
+    /// later.
+    @discardableResult
+    private func eventually(
+        _ description: String,
+        timeout: TimeInterval = 5,
+        until condition: () -> Bool
+    ) async -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return true }
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            await store.refresh()
+        }
+        XCTAssertTrue(condition(), "timed out waiting for \(description)")
+        return condition()
+    }
+
     private func product(_ id: String) async throws -> Product {
         let products = try await Product.products(for: [id])
         return try XCTUnwrap(products.first, "\(id) is missing from Hours.storekit")
@@ -113,9 +137,8 @@ final class SubscriptionStoreTests: XCTestCase {
         XCTAssertTrue(store.isPro)
 
         try session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
-        await store.refresh()
 
-        XCTAssertFalse(store.isPro, "a lapsed subscription closes the paid features")
+        await eventually("a lapsed subscription to close the paid features") { !self.store.isPro }
     }
 
     /// A refund is Apple revoking the transaction, and the store reads the
@@ -125,11 +148,15 @@ final class SubscriptionStoreTests: XCTestCase {
         _ = await store.purchase(lifetime)
         XCTAssertTrue(store.isPro)
 
-        let transaction = try XCTUnwrap(session.allTransactions().first)
-        try session.refundTransaction(identifier: transaction.identifier)
-        await store.refresh()
+        // By product id rather than by position: a test session can hold more
+        // than one transaction, and refunding whichever came back first is a
+        // coin toss.
+        let bought = try XCTUnwrap(
+            session.allTransactions().first { $0.productIdentifier == SubscriptionStore.ProductID.lifetime }
+        )
+        try session.refundTransaction(identifier: bought.identifier)
 
-        XCTAssertFalse(store.isPro)
+        await eventually("a refunded purchase to stop counting") { !self.store.isPro }
     }
 
     /// Whatever else changes, the free half must stay open — this is the test
@@ -137,10 +164,11 @@ final class SubscriptionStoreTests: XCTestCase {
     func testLosingAccessNeverTouchesTheFreeHalf() async throws {
         let monthly = try await product(SubscriptionStore.ProductID.monthly)
         _ = await store.purchase(monthly)
-        try session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
-        await store.refresh()
+        XCTAssertTrue(store.isPro, "the purchase has to have landed before expiring it means anything")
 
-        XCTAssertFalse(store.isPro)
+        try session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
+
+        await eventually("an expired subscription to close") { !self.store.isPro }
         XCTAssertFalse(
             ProFeature.allCases.map(\.rawValue).contains("backup"),
             "the backup file is never sold, so there is nothing here for a lapse to take away"
