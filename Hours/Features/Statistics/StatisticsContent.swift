@@ -103,6 +103,15 @@ struct StatisticsContent: View {
     /// one: on a month with no absence the two are the same number and the
     /// longer wording would be noise.
     private var paidFractionLabel: String {
+        // Guarded here as well as at the call site, because the two failures
+        // are not the same size. With no expected hours this is 0/0, which is
+        // nan, and `Int(nan)` traps — so the version without a guard is not a
+        // wrong percentage on screen, it is the app closing. Its sibling
+        // `paidFraction` already guards; this one did not, which is an
+        // asymmetry with a crash on one side of it.
+        guard summary.expectedMinutes > 0 else {
+            return String(localized: "No expected hours set for this period")
+        }
         let percent = Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded())
         guard summary.creditedMinutes > 0 else {
             return String(localized: "\(percent)% of expected")
