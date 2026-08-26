@@ -185,10 +185,12 @@ as a real table with a header block and a totals footer.
 ## Privacy
 
 Everything is on the device unless the user says otherwise. There is no
-network code in the app at all: no URLSession, no analytics SDK, no crash
-reporter, no remote configuration, no third-party code of any kind. The only
-data that leaves is a file the user explicitly exports through the system share
-sheet.
+URLSession in the app, no analytics SDK, no crash reporter, no remote
+configuration and no third-party code of any kind. Two Apple frameworks make
+network calls on its behalf and nothing else does: StoreKit, to ask whether Pro
+has been paid for, and — only when the user turns it on — CloudKit. Neither
+carries a single recorded hour anywhere we can see. The only data that leaves
+deliberately is a file the user exports through the system share sheet.
 
 iCloud sync is off by default and opt-in. When it is on, the days and holidays
 go through SwiftData's own CloudKit mirroring into the user's private database,

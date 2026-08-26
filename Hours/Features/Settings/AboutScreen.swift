@@ -68,9 +68,15 @@ struct AboutScreen: View {
     /// would be worst to be wrong on.
     private var headlineDetail: String {
         let common = "There is no account to make, no server of ours, no analytics, no advertising and no third-party code."
+        // The App Store half is stated in both branches. Hours talks to Apple
+        // to ask whether Pro has been paid for, so the old line about making no
+        // network connections at all stopped being true the day it could be
+        // bought — and this is the worst screen in the app to leave a stale
+        // promise on.
+        let purchases = "The one thing it asks the network is whether Hours Pro has been paid for, which it asks the App Store; no part of your hours goes with the question."
         return isSyncing
-            ? "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common)"
-            : "Your hours are stored locally and nowhere else. \(common) It makes no network connections at all, so there is nothing for it to send even if it wanted to."
+            ? "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common) \(purchases)"
+            : "Your hours are stored locally and nowhere else. \(common) \(purchases)"
     }
 }
 

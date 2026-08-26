@@ -23,6 +23,12 @@ final class SubscriptionStore {
         static let lifetime = "com.hours.app.pro.lifetime"
 
         static let all = [monthly, yearly, lifetime]
+
+        /// The subscription group the two renewing products share. Must match
+        /// App Store Connect and `Hours.storekit`; a typo here does not fail
+        /// anything loudly, it just silently stops billing retries being
+        /// noticed, so it lives next to the ids rather than inline.
+        static let subscriptionGroup = "hours.pro"
     }
 
     /// What a purchase attempt did, in the app's own words.
@@ -127,7 +133,9 @@ final class SubscriptionStore {
     /// Whether the App Store is retrying a failed renewal, which is not a
     /// cancellation and usually not something the person knows about.
     private func isInBillingRetry() async -> Bool {
-        guard let statuses = try? await Product.SubscriptionInfo.status(for: "hours.pro") else { return false }
+        guard let statuses = try? await Product.SubscriptionInfo.status(for: ProductID.subscriptionGroup) else {
+            return false
+        }
         return statuses.contains { $0.state == .inBillingRetryPeriod || $0.state == .inGracePeriod }
     }
 

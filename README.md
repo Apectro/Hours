@@ -2,14 +2,15 @@
 
 [![Build and test](https://github.com/Apectro/Hours/actions/workflows/ci.yml/badge.svg)](https://github.com/Apectro/Hours/actions/workflows/ci.yml)
 
-A private work-hours calendar for iOS. Everything stays on the device: no
-account, no server, no analytics, no third-party code, and no networking of any
-kind in the app.
+A private work-hours calendar for iOS. Your hours stay on the device: no
+account, no server of ours, no analytics, no third-party code. The only network
+call the app makes is to the App Store, to ask whether Hours Pro has been paid
+for — and to your own iCloud, if you switch sync on.
 
 - **Requirements:** Xcode 16 or later, iOS 18 or later.
-- **Open:** `ios/Hours/Hours.xcodeproj`
+- **Open:** `Hours.xcodeproj`
 - **Run:** select the *Hours* scheme and press ⌘R.
-- **Test:** ⌘U runs the unit tests.
+- **Test:** ⌘U runs the unit tests and the UI tests.
 
 The project uses Xcode's synchronized folder groups, so the file list *is* the
 directory tree — adding a Swift file to `Hours/` is all it takes for it to build,
