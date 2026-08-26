@@ -14,18 +14,35 @@ struct BackupArchive: Codable, Sendable {
     var days: [DayRecord]
     var holidays: [HolidayRule]
 
+    /// Days that were in the file and could not be read.
+    ///
+    /// Damage is rarely total. One day mangled by a bad edit, a truncated
+    /// copy-paste, a sync that half-wrote a record — the other nine hundred are
+    /// perfectly good, and refusing the whole file would throw them away to
+    /// punish one. So the good days restore and the bad ones are counted and
+    /// named, which is the only version of this where the person can go and
+    /// re-enter what was lost.
+    ///
+    /// Not encoded: it describes one attempt at reading a file, not anything
+    /// the file contains. Absent from `CodingKeys` for exactly that reason.
+    var damagedDays: [DamagedDay]
+
+    var hasDamage: Bool { !damagedDays.isEmpty }
+
     init(
         formatVersion: Int = BackupArchive.currentFormatVersion,
         exportedAt: Date = Date(),
         settings: AppSettings,
         days: [DayRecord],
-        holidays: [HolidayRule]
+        holidays: [HolidayRule],
+        damagedDays: [DamagedDay] = []
     ) {
         self.formatVersion = formatVersion
         self.exportedAt = exportedAt
         self.settings = settings
         self.days = days.sorted { $0.date < $1.date }
         self.holidays = holidays
+        self.damagedDays = damagedDays
     }
 
     func encoded() throws -> Data {
@@ -43,6 +60,29 @@ struct BackupArchive: Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case formatVersion, exportedAt, settings, days, holidays
+    }
+
+    /// Written out rather than synthesised, so that `damagedDays` being absent
+    /// from the file is a decision on the page instead of a consequence of how
+    /// Swift happens to treat a property missing from `CodingKeys`.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(formatVersion, forKey: .formatVersion)
+        try container.encode(exportedAt, forKey: .exportedAt)
+        try container.encode(settings, forKey: .settings)
+        try container.encode(days, forKey: .days)
+        try container.encode(holidays, forKey: .holidays)
+    }
+
+    /// A day that was in the file and could not be read.
+    ///
+    /// Carries the date rather than a sentence, because dates shown to people
+    /// are formatted for their locale and this type has no business deciding
+    /// that. Sometimes even the date is gone, which is worth saying out loud
+    /// rather than dropping the day from the count.
+    enum DamagedDay: Hashable, Sendable {
+        case dated(CalendarDate)
+        case unidentified
     }
 
     /// Why a file was refused as a backup.
@@ -88,11 +128,16 @@ struct BackupArchive: Codable, Sendable {
             throw BackupError.fromANewerVersion(version)
         }
 
-        // The records are strict. A malformed list is damage, and reading
-        // damage as "no days" is how a restore empties a device.
+        // The list itself is strict — a `days` key that is not an array of
+        // objects is damage, and reading damage as "no days" is how a restore
+        // empties a device. Within the list, each day is decoded on its own so
+        // that one bad record does not cost the person the other nine hundred.
         let days: [DayRecord]
+        var damaged: [String] = []
         do {
-            days = try container.decodeIfPresent([DayRecord].self, forKey: .days) ?? []
+            let attempts = try container.decodeIfPresent([DayOrDamage].self, forKey: .days) ?? []
+            days = attempts.compactMap(\.record)
+            damaged = attempts.compactMap(\.damage)
         } catch {
             throw BackupError.unreadable("list of days")
         }
@@ -112,7 +157,42 @@ struct BackupArchive: Codable, Sendable {
             // nothing else. Losing a theme is not losing a year of work.
             settings: container.lenient(.settings, AppSettings()),
             days: days,
-            holidays: holidays
+            holidays: holidays,
+            damagedDays: damaged
         )
+    }
+}
+
+/// One entry in the list of days: either a record, or a note that it could not
+/// be read.
+///
+/// Its `init(from:)` never throws, and that is the whole design. Recovering
+/// element by element from an unkeyed container is the obvious alternative and
+/// a trap: a `decode` that throws is not guaranteed to advance the container's
+/// index, so the loop that tries to skip a bad element can spin on it forever.
+/// Decoding an array of these has no such problem, because nothing fails.
+private struct DayOrDamage: Decodable {
+    let record: DayRecord?
+    let damage: BackupArchive.DamagedDay?
+
+    /// Just enough of a day to name it in a report, when the rest is unreadable.
+    private enum Naming: String, CodingKey { case date }
+
+    init(from decoder: Decoder) throws {
+        if let decoded = try? DayRecord(from: decoder) {
+            record = decoded
+            damage = nil
+            return
+        }
+        record = nil
+
+        // Salvage the date if it survived, so the report can say which days to
+        // go and re-enter. "A day with no readable date" is a poor thing to
+        // have to tell someone, but it beats a silent gap in their year.
+        var salvaged: CalendarDate?
+        if let container = try? decoder.container(keyedBy: Naming.self) {
+            salvaged = try? container.decode(CalendarDate.self, forKey: .date)
+        }
+        damage = salvaged.map(BackupArchive.DamagedDay.dated) ?? .unidentified
     }
 }

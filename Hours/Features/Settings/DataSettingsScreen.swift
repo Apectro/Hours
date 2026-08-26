@@ -99,7 +99,7 @@ struct DataSettingsScreen: View {
             // String(localized:), so this needs resolving before it is handed
             // over rather than after.
             Text(String(
-                inflected: "The backup holds ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true). Everything currently stored will be removed."
+                inflected: "The backup holds ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true).\(damageWarning(for: archive)) Everything currently stored will be removed."
             ))
         }
     }
@@ -157,6 +157,41 @@ struct DataSettingsScreen: View {
         }
     }
 
+    /// What to say about days the backup file holds but could not be read.
+    ///
+    /// Said before the restore rather than after, because after is too late:
+    /// this is the sentence that lets someone cancel, go and find a better copy
+    /// of the file, and keep what is still on the device.
+    private func damageWarning(for archive: BackupArchive) -> String {
+        guard archive.hasDamage else { return "" }
+        return " " + String(
+            inflected: "^[\(archive.damagedDays.count) day](inflect: true) in the file is damaged and will not be restored."
+        )
+    }
+
+    /// The damaged days, named, so they can be re-entered by hand.
+    ///
+    /// Capped: a badly damaged file could name hundreds, and a message nobody
+    /// can read is the same as no message.
+    private func damageDetail(for archive: BackupArchive) -> String {
+        let formatting = settingsStore.dateFormatting
+        let named = archive.damagedDays.compactMap { day -> String? in
+            if case let .dated(date) = day { return formatting.mediumDate(date) }
+            return nil
+        }
+        let unidentified = archive.damagedDays.count - named.count
+
+        var parts: [String] = []
+        if !named.isEmpty {
+            let shown = named.prefix(8).joined(separator: ", ")
+            parts.append(named.count > 8 ? "\(shown) and \(named.count - 8) more" : shown)
+        }
+        if unidentified > 0 {
+            parts.append(String(inflected: "^[\(unidentified) day](inflect: true) with no readable date"))
+        }
+        return parts.joined(separator: ", plus ")
+    }
+
     private func applyRestore(_ archive: BackupArchive) {
         pendingRestore = nil
 
@@ -166,7 +201,12 @@ struct DataSettingsScreen: View {
         // in the first place; this is the second lock on the same door,
         // because the thing behind it is every hour the person ever recorded.
         guard !archive.days.isEmpty || !archive.holidays.isEmpty else {
-            message = "That backup holds no days, so nothing was changed. Use “Delete everything” if you meant to start over."
+            // A file whose every day is damaged is not an empty file, and
+            // saying "holds no days" about it would be a lie that costs the
+            // person the chance to look for a better copy.
+            message = archive.hasDamage
+                ? String(inflected: "Nothing was restored: all ^[\(archive.damagedDays.count) day](inflect: true) in that file are damaged. Your existing hours have not been touched.")
+                : "That backup holds no days, so nothing was changed. Use “Delete everything” if you meant to start over."
             return
         }
 
@@ -177,7 +217,18 @@ struct DataSettingsScreen: View {
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
-        message = String(inflected: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true).")
+
+        var restored = String(
+            inflected: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true)."
+        )
+        if archive.hasDamage {
+            // Named, not just counted. A count tells someone they have lost
+            // something; the dates tell them what to go and type back in.
+            restored += " " + String(
+                inflected: "^[\(archive.damagedDays.count) day](inflect: true) could not be read and was not restored: \(damageDetail(for: archive))."
+            )
+        }
+        message = restored
     }
 
     private func deleteAll() {

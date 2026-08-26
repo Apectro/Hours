@@ -52,11 +52,22 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        // Strict about the times and the breaks; lenient about the rest.
+        //
+        // Those three fields are the hours. Read leniently, a damaged start
+        // time becomes "no start time" — a day that looks deliberately blank,
+        // which is indistinguishable on screen from a day someone genuinely did
+        // not work. Throwing is what lets the archive count that day as damaged
+        // and name it, so it can be typed back in.
+        //
+        // The id and the job stay lenient: a fresh id is harmless, and a shift
+        // pointing at a job that no longer exists already falls back to the
+        // primary one by design.
         self.init(
             id: container.lenient(.id, UUID()),
-            start: container.lenientOptional(.start, TimeOfDay.self),
-            end: container.lenientOptional(.end, TimeOfDay.self),
-            breaks: container.lenient(.breaks, []),
+            start: try container.decodeIfPresent(TimeOfDay.self, forKey: .start),
+            end: try container.decodeIfPresent(TimeOfDay.self, forKey: .end),
+            breaks: try container.decodeIfPresent([BreakSpan].self, forKey: .breaks) ?? [],
             jobID: container.lenientOptional(.jobID, UUID.self)
         )
     }

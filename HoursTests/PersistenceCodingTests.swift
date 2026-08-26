@@ -237,6 +237,86 @@ final class PersistenceCodingTests: XCTestCase {
         )
     }
 
+    // MARK: - Damage in one day is not damage to the file
+    //
+    // A day whose shifts could not be read used to decode as a day with no
+    // shifts: the date and type survived, the hours vanished, and nothing said
+    // so. Restoring such a backup put the day back looking deliberately empty,
+    // which is indistinguishable from a day someone genuinely did not work.
+
+    private func archiveJSON(days: String) -> Data {
+        Data(#"{"formatVersion":1,"days":[\#(days)]}"#.utf8)
+    }
+
+    func testOneDamagedDayDoesNotCostTheOthers() throws {
+        let archive = try BackupArchive.decoded(from: archiveJSON(days: """
+        {"date":20260803,"shifts":[{"start":"nine o'clock"}]},
+        {"date":20260804,"shifts":[]},
+        {"date":20260805,"shifts":[]}
+        """))
+
+        XCTAssertEqual(archive.days.map(\.date.day), [4, 5], "the readable days were lost with the bad one")
+        XCTAssertEqual(archive.damagedDays.count, 1)
+    }
+
+    /// The damaged day is named, so it can be re-entered.
+    func testADamagedDayIsNamedByItsDate() throws {
+        let archive = try BackupArchive.decoded(from: archiveJSON(days: """
+        {"date":20260803,"shifts":[{"start":"nine o'clock"}]}
+        """))
+
+        XCTAssertEqual(
+            archive.damagedDays,
+            [.dated(CalendarDate(year: 2026, month: 8, day: 3))]
+        )
+    }
+
+    /// And when even the date is gone, the day is still counted rather than
+    /// quietly dropped from the total.
+    func testADayWithNoReadableDateIsStillCounted() throws {
+        let archive = try BackupArchive.decoded(from: archiveJSON(days: """
+        {"shifts":[]},
+        {"date":20260804,"shifts":[]}
+        """))
+
+        XCTAssertEqual(archive.days.count, 1)
+        XCTAssertEqual(archive.damagedDays, [.unidentified])
+    }
+
+    /// The hours are the point of the file, so a damaged shift list is damage
+    /// — not a day that happens to have no shifts.
+    func testADamagedShiftListIsNotReadAsAnEmptyDay() {
+        XCTAssertThrowsError(
+            try JSONDecoder().decode(
+                DayRecord.self,
+                from: Data(#"{"date":20260803,"shifts":"gone"}"#.utf8)
+            ),
+            "a damaged shift list decoded as a day with no hours"
+        )
+    }
+
+    /// Absent, null and empty shift lists all still mean "look at the old
+    /// keys", which is how a backup from before shifts existed still restores.
+    func testABackupFromBeforeShiftsExistedStillReads() throws {
+        let archive = try BackupArchive.decoded(from: archiveJSON(days: """
+        {"date":20260803,"start":540,"end":1020,"breaks":[]}
+        """))
+
+        XCTAssertTrue(archive.damagedDays.isEmpty)
+        XCTAssertEqual(archive.days.first?.shifts.first?.start, TimeOfDay(minutes: 540))
+        XCTAssertEqual(archive.days.first?.shifts.first?.end, TimeOfDay(minutes: 1020))
+    }
+
+    func testAnUndamagedBackupReportsNoDamage() throws {
+        let archive = BackupArchive(
+            settings: AppSettings(),
+            days: [DayRecord(date: Fixture.workingMonday, start: Fixture.time(9), end: Fixture.time(17))],
+            holidays: []
+        )
+        let restored = try BackupArchive.decoded(from: try archive.encoded())
+        XCTAssertFalse(restored.hasDamage)
+    }
+
     /// And a real one still loads, which is the point of all of it.
     func testARealBackupIsStillAccepted() throws {
         let archive = BackupArchive(

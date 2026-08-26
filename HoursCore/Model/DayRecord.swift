@@ -148,8 +148,16 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let date = try container.decode(CalendarDate.self, forKey: .date)
 
+        // Strict, unlike everything below it. The shifts are the hours, and the
+        // hours are the point of the file: reading a damaged list as "no
+        // shifts" restores the day with its times gone and says nothing about
+        // it. Throwing here lets the archive count that day as damaged and name
+        // it, rather than quietly handing back an empty one.
+        //
+        // Absent, null and empty all still fall through to the legacy keys, so
+        // a backup taken before shifts existed reads exactly as it did before.
         let shifts: [Shift]
-        if let stored = container.lenientOptional(.shifts, [Shift].self), !stored.isEmpty {
+        if let stored = try container.decodeIfPresent([Shift].self, forKey: .shifts), !stored.isEmpty {
             shifts = stored
         } else {
             let start = container.lenientOptional(.legacyStart, TimeOfDay.self)
