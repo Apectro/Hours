@@ -73,6 +73,9 @@ jobs:
 
   build-and-test:
     name: App and tests (iOS simulator)
+    # Write access is for one thing only: force-pushing the screenshots branch.
+    permissions:
+      contents: write
     # `macos-latest` rather than a pinned version: a pinned label that the
     # account cannot schedule fails the job before any step runs, with no logs
     # to explain why.
@@ -143,20 +146,70 @@ jobs:
             | tee "$RUNNER_TEMP/test.log"
 
       # The screenshots for the App Store listing, taken by ScreenshotTests and
-      # pulled out of the result bundle. Downloadable from the run's artifacts,
-      # which is the only way to get them on a machine with no Xcode.
+      # pulled out of the result bundle. xcresulttool names every exported file
+      # after its UUID, so Scripts/name-screenshots.py puts the names the test
+      # gave them back on.
       - name: App Store screenshots
         if: always()
         continue-on-error: true
         run: |
+          RAW="$RUNNER_TEMP/attachments"
           OUT="$RUNNER_TEMP/screenshots"
-          mkdir -p "$OUT"
+          rm -rf "$RAW" "$OUT"
+          mkdir -p "$RAW" "$OUT"
           xcrun xcresulttool export attachments \
             --path "$RUNNER_TEMP/Hours.xcresult" \
-            --output-path "$OUT" || echo "::warning::could not export attachments"
-          find "$OUT" -type f | head -40
+            --output-path "$RAW" || echo "::warning::could not export attachments"
+
+          echo "----- manifest.json -----"
+          head -c 4000 "$RAW/manifest.json" 2>/dev/null || echo "(no manifest)"
+          echo ""
+          echo "-------------------------"
+
+          python3 Scripts/name-screenshots.py "$RAW" "$OUT"
+
           COUNT=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
           echo "PNG attachments exported: $COUNT"
+          if [ "$COUNT" -ne 5 ]; then
+            echo "::warning::expected 5 named screenshots, got $COUNT"
+          fi
+
+      # The run's artifacts live on a storage host that not every checkout can
+      # reach, so the pictures also go to a branch of their own. An orphan
+      # branch: they are build output, and build output in the history of the
+      # source is a mistake that compounds.
+      - name: Publish the screenshots to a branch
+        if: always() && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUT="$RUNNER_TEMP/screenshots"
+          if [ -z "$(ls -A "$OUT" 2>/dev/null)" ]; then
+            echo "nothing to publish"
+            exit 0
+          fi
+          WORK="$RUNNER_TEMP/shotbranch"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          cp "$OUT"/*.png "$WORK"/
+          cd "$WORK"
+          {
+            echo "# Screenshots"
+            echo ""
+            echo "Taken by ScreenshotTests on an iOS simulator in CI, from commit"
+            echo "${GITHUB_SHA}. Build output: this branch is replaced on every"
+            echo "run and shares no history with main."
+          } > README.md
+          git init -q -b screenshots
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Screenshots from ${GITHUB_SHA}"
+          git push -q --force \
+            "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            screenshots
+          echo "pushed to the screenshots branch"
 
       - name: Keep the screenshots
         if: always()

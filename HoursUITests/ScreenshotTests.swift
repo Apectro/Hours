@@ -30,7 +30,25 @@ final class ScreenshotTests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+        taken.append(name)
     }
+
+    /// Settings is taller than a screen, so a row near the bottom has to be
+    /// brought up before it can be tapped.
+    @discardableResult
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 6) -> Bool {
+        for _ in 0..<swipes {
+            if element.exists, element.isHittable { return true }
+            app.swipeUp()
+        }
+        return element.exists && element.isHittable
+    }
+
+    /// Which shots actually got taken. The first version of this test wrapped
+    /// every capture in `if it exists`, so a screen that failed to open simply
+    /// produced no picture and a green tick — four files where five were
+    /// expected, and nothing in the log saying which one was missing.
+    private var taken: [String] = []
 
     func testCaptureTheListing() {
         let app = launchForShots()
@@ -38,42 +56,39 @@ final class ScreenshotTests: XCTestCase {
         // 1 — the calendar, which is what the app is.
         capture("01-calendar", app)
 
-        // 2 — a day open, showing what one holds.
-        let today = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'day-'")).firstMatch
-        if today.waitForExistence(timeout: 5) {
-            today.tap()
-            if app.buttons["day-editor-save"].waitForExistence(timeout: 3) {
-                capture("02-day-editor", app)
-                app.buttons["day-editor-cancel"].tap()
-            } else {
-                today.tap()
-                if app.buttons["day-editor-save"].waitForExistence(timeout: 3) {
-                    capture("02-day-editor", app)
-                    app.buttons["day-editor-cancel"].tap()
-                }
-            }
-        }
+        // 2 — a day open, showing what one holds. Sample data fills the month,
+        // so any cell in it has hours on it.
+        let day = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'day-'")).firstMatch
+        XCTAssertTrue(day.waitForExistence(timeout: 10), "no calendar day to open")
+        day.tap()
+        XCTAssertTrue(
+            app.buttons["day-editor-save"].waitForExistence(timeout: 10),
+            "tapping a day did not open the editor"
+        )
+        capture("02-day-editor", app)
+        app.buttons["day-editor-cancel"].tap()
 
         // 3 — the month's figures.
         app.tabBars.buttons["Insights"].tap()
-        XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 10))
         capture("03-insights", app)
 
         // 4 — settings, which is where the configurability shows.
         app.tabBars.buttons["Settings"].tap()
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
         capture("04-settings", app)
 
         // 5 — the privacy screen, which is the reason to choose this one.
         let privacy = app.staticTexts["Privacy"]
-        for _ in 0..<5 where !(privacy.exists && privacy.isHittable) {
-            app.swipeUp()
-        }
-        if privacy.exists, privacy.isHittable {
-            privacy.tap()
-            if app.navigationBars["Privacy"].waitForExistence(timeout: 5) {
-                capture("05-privacy", app)
-            }
-        }
+        XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
+        privacy.tap()
+        XCTAssertTrue(app.navigationBars["Privacy"].waitForExistence(timeout: 10))
+        capture("05-privacy", app)
+
+        XCTAssertEqual(
+            taken,
+            ["01-calendar", "02-day-editor", "03-insights", "04-settings", "05-privacy"],
+            "a screenshot is missing"
+        )
     }
 }
