@@ -84,7 +84,9 @@ final class SubscriptionStoreTests: XCTestCase {
     func testBuyingOutrightNeverExpires() async throws {
         let lifetime = try await product(SubscriptionStore.ProductID.lifetime)
 
-        XCTAssertEqual(await store.purchase(lifetime), .bought)
+        let outcome = await store.purchase(lifetime)
+
+        XCTAssertEqual(outcome, .bought)
         XCTAssertEqual(store.entitlement.kind, .lifetime)
         XCTAssertNil(store.entitlement.expiresAt)
         XCTAssertTrue(store.entitlement.isActive(at: .distantFuture))
@@ -97,7 +99,9 @@ final class SubscriptionStoreTests: XCTestCase {
         session.askToBuyEnabled = true
         let monthly = try await product(SubscriptionStore.ProductID.monthly)
 
-        XCTAssertEqual(await store.purchase(monthly), .pending)
+        let outcome = await store.purchase(monthly)
+
+        XCTAssertEqual(outcome, .pending)
         XCTAssertFalse(store.isPro, "nothing opens until it is actually approved")
     }
 
@@ -108,7 +112,7 @@ final class SubscriptionStoreTests: XCTestCase {
         _ = await store.purchase(monthly)
         XCTAssertTrue(store.isPro)
 
-        try await session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
+        try session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
         await store.refresh()
 
         XCTAssertFalse(store.isPro, "a lapsed subscription closes the paid features")
@@ -121,8 +125,8 @@ final class SubscriptionStoreTests: XCTestCase {
         _ = await store.purchase(lifetime)
         XCTAssertTrue(store.isPro)
 
-        let transaction = try XCTUnwrap(try session.allTransactions().first)
-        try await session.refundTransaction(identifier: transaction.identifier)
+        let transaction = try XCTUnwrap(session.allTransactions().first)
+        try session.refundTransaction(identifier: transaction.identifier)
         await store.refresh()
 
         XCTAssertFalse(store.isPro)
@@ -133,7 +137,7 @@ final class SubscriptionStoreTests: XCTestCase {
     func testLosingAccessNeverTouchesTheFreeHalf() async throws {
         let monthly = try await product(SubscriptionStore.ProductID.monthly)
         _ = await store.purchase(monthly)
-        try await session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
+        try session.expireSubscription(productIdentifier: SubscriptionStore.ProductID.monthly)
         await store.refresh()
 
         XCTAssertFalse(store.isPro)
@@ -153,14 +157,18 @@ final class SubscriptionStoreTests: XCTestCase {
         // cache of its own.
         let reinstalled = SubscriptionStore.ephemeral()
 
-        XCTAssertTrue(await reinstalled.restore())
+        let restored = await reinstalled.restore()
+
+        XCTAssertTrue(restored)
         XCTAssertTrue(reinstalled.isPro)
     }
 
     func testRestoringWithNothingToRestoreSaysSo() async {
         let fresh = SubscriptionStore.ephemeral()
 
-        XCTAssertFalse(await fresh.restore())
+        let restored = await fresh.restore()
+
+        XCTAssertFalse(restored)
         XCTAssertFalse(fresh.isPro)
     }
 
