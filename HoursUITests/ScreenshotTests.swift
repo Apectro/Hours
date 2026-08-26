@@ -56,15 +56,10 @@ final class ScreenshotTests: XCTestCase {
         // 1 — the calendar, which is what the app is.
         capture("01-calendar", app)
 
-        // 2 — a day open, showing what one holds. Sample data fills the month,
-        // so any cell in it has hours on it.
-        let day = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'day-'")).firstMatch
-        XCTAssertTrue(day.waitForExistence(timeout: 10), "no calendar day to open")
-        day.tap()
-        XCTAssertTrue(
-            app.buttons["day-editor-save"].waitForExistence(timeout: 10),
-            "tapping a day did not open the editor"
-        )
+        // 2 — a day open, showing what one holds. Today, because the sample
+        // month is seeded around it and because it is the day already selected.
+        let save = app.openTodaysEditor()
+        XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
         capture("02-day-editor", app)
         app.buttons["day-editor-cancel"].tap()
 

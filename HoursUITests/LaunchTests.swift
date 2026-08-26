@@ -98,16 +98,11 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
 
-        let today = app.buttons["day-\(Self.todayKey)"]
-        XCTAssertTrue(today.waitForExistence(timeout: 10), "today's cell is not on screen")
-        today.tap()
-
-        // A tap selects the day; a tap on the day already selected opens the
-        // editor. Today starts selected, so one tap is normally enough — but
-        // the second tap is here rather than relying on that, since which day
-        // starts selected is a product decision and not this test's subject.
-        let save = app.buttons["day-editor-save"]
-        if !save.waitForExistence(timeout: 3) { today.tap() }
+        XCTAssertTrue(
+            app.buttons["day-\(Self.todayKey)"].waitForExistence(timeout: 10),
+            "today's cell is not on screen"
+        )
+        let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 5), "the day editor did not open")
         save.tap()
 
@@ -119,11 +114,7 @@ final class LaunchTests: XCTestCase {
         XCTAssertFalse(save.exists, "the editor stayed open after saving")
     }
 
-    /// `yyyyMMdd` for today, the same key the calendar cells are identified by.
-    private static var todayKey: Int {
-        let parts = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-        return (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
-    }
+    private static var todayKey: Int { XCUIApplication.todayKey }
 }
 
 extension XCUIApplication {
@@ -137,5 +128,28 @@ extension XCUIApplication {
         // open on day one.
         if pro { app.launchArguments += ["-hours-pro"] }
         return app
+    }
+
+    /// `yyyyMMdd` for today, the same key the calendar cells are identified by.
+    static var todayKey: Int {
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        return (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
+    }
+
+    /// Opens the editor for today and returns its Save button.
+    ///
+    /// A tap selects a day; a tap on the day already selected opens the
+    /// editor. Today starts selected, so one tap is normally enough — but
+    /// which day starts selected is a product decision, so the second tap is
+    /// here rather than assumed away. Both callers got this wrong once by
+    /// asserting on the first tap alone.
+    func openTodaysEditor(timeout: TimeInterval = 10) -> XCUIElement {
+        let today = buttons["day-\(Self.todayKey)"]
+        if today.waitForExistence(timeout: timeout) {
+            today.tap()
+            let save = buttons["day-editor-save"]
+            if !save.waitForExistence(timeout: 3) { today.tap() }
+        }
+        return buttons["day-editor-save"]
     }
 }
