@@ -27,8 +27,44 @@ final class SubscriptionStoreTests: XCTestCase {
         // Nothing here should ever wait for a person to tap something.
         session.disableDialogs = true
 
+        // clearTransactions() returns before StoreKit has finished forgetting.
+        // Starting a test while the previous one's purchase is still visible is
+        // how two stable tests failed on two consecutive runs, each on a commit
+        // that changed nothing they touch.
+        await storeKitForgetsEverything()
+
         store = SubscriptionStore.ephemeral()
         await store.refresh()
+    }
+
+    /// What StoreKit itself currently reports, with no store object involved.
+    private func liveEntitlementCount() async -> Int {
+        var count = 0
+        for await _ in Transaction.currentEntitlements { count += 1 }
+        return count
+    }
+
+    /// Waits until StoreKit reports no entitlements at all.
+    ///
+    /// Separate from `eventually` on purpose: this waits on the framework, not
+    /// on any code of ours, so a test that needs a clean slate can get one
+    /// without weakening what it then asserts about a single refresh.
+    private func storeKitForgetsEverything(
+        timeout: TimeInterval = 5,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if await liveEntitlementCount() == 0 { return }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        let remaining = await liveEntitlementCount()
+        XCTAssertEqual(
+            remaining, 0,
+            "StoreKit still holds \(remaining) entitlement(s) after clearTransactions()",
+            file: file, line: line
+        )
     }
 
     override func tearDown() async throws {
@@ -238,8 +274,18 @@ final class SubscriptionStoreTests: XCTestCase {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: "hours.test.\(UUID().uuidString)"))
         let first = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
         _ = await first.purchase(monthly)
+        // The cache being written is the precondition for the rest, so waiting
+        // for it here means a failure below is about the refresh and not about
+        // a purchase that had not landed yet.
+        await eventually("the purchase to be cached", refreshing: first) { first.isPro }
 
         session.clearTransactions()
+        // Waiting on StoreKit, not on us: clearTransactions() returns before
+        // currentEntitlements stops reporting the purchase, and the single
+        // refresh below has to be the one that sees the cleared state for the
+        // assertion to mean what it says.
+        await storeKitForgetsEverything()
+
         let relaunched = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
         XCTAssertTrue(relaunched.isPro, "still showing the cached answer")
 
