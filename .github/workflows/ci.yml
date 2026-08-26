@@ -54,6 +54,15 @@ jobs:
 
       # SwiftPM repeats the same diagnostic once per file in the module, so a
       # single error can fill a screen and a second one hides below it.
+      # Printed on success as well as failure: the point of measuring is the
+      # trend, and a number nobody sees while things are fine tells nobody
+      # anything when they stop being fine.
+      - name: Scale
+        if: always()
+        run: |
+          sed -n '/----- scale -----/,/----- end scale -----/p' \
+            "$RUNNER_TEMP/engine.log" 2>/dev/null || echo "(none)"
+
       - name: Summarise failures
         if: failure()
         run: |
