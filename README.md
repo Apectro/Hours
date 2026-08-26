@@ -189,10 +189,16 @@ out under pressure.
 
 **Screenshots are already made for you.** `ScreenshotTests` drives the app in a
 simulator with a month of sample data and captures the calendar, a day, the
-insights, settings and the privacy screen. Every CI run attaches them as
-`app-store-screenshots` — download that from the run's page. Apple wants
-6.9-inch and 6.5-inch iPhone sizes; add the matching simulator to the CI matrix
-to get each.
+insights, settings, the privacy screen and the export sheet. They are attached
+to the run as `app-store-screenshots` and pushed to the `screenshots` branch.
+The branch is usually the easier one to reach for: artifacts are served from a
+storage host that some networks cannot get to at all.
+
+That happens in the simulator job, which does **not** run on every push. macOS
+minutes bill at ten times the Linux rate, so it runs on pull requests and on
+demand — Actions › Build and test › Run workflow. A push runs the Linux engine
+job alone, in about a minute. Apple wants 6.9-inch and 6.5-inch iPhone sizes;
+add the matching simulator to that job to get each.
 
 **The rest, in order:**
 
