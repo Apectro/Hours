@@ -1,0 +1,927 @@
+<title>Getting Hours Onto Your Phone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<style>
+:root {
+  --ground: #F1F3F8;
+  --surface: #FFFFFF;
+  --surface-sunk: #E9ECF4;
+  --ink: #141A2E;
+  --ink-soft: #545C74;
+  --ink-faint: #7E8699;
+  --rule: #D8DDE9;
+  --rule-soft: #E6EAF2;
+  --accent: #2B4A93;
+  --accent-soft: #E4EAF7;
+  --over: #9A6412;
+  --over-soft: #F7EEDD;
+  --done: #2C6B4E;
+  --done-soft: #E2EFE8;
+  --shadow: 0 1px 2px rgba(20, 26, 46, .06), 0 8px 24px -16px rgba(20, 26, 46, .28);
+
+  --measure: 68ch;
+  --step: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0E1220;
+    --surface: #161B2B;
+    --surface-sunk: #1D2334;
+    --ink: #E7EAF2;
+    --ink-soft: #A2AABF;
+    --ink-faint: #7A8299;
+    --rule: #293147;
+    --rule-soft: #222941;
+    --accent: #8FAAE8;
+    --accent-soft: #1E2740;
+    --over: #E0A94F;
+    --over-soft: #2C2517;
+    --done: #6FBF95;
+    --done-soft: #16281F;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -16px rgba(0, 0, 0, .8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0E1220;
+  --surface: #161B2B;
+  --surface-sunk: #1D2334;
+  --ink: #E7EAF2;
+  --ink-soft: #A2AABF;
+  --ink-faint: #7A8299;
+  --rule: #293147;
+  --rule-soft: #222941;
+  --accent: #8FAAE8;
+  --accent-soft: #1E2740;
+  --over: #E0A94F;
+  --over-soft: #2C2517;
+  --done: #6FBF95;
+  --done-soft: #16281F;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -16px rgba(0, 0, 0, .8);
+}
+
+* { box-sizing: border-box; }
+
+/* Steps are numbered continuously across the phases, and the prose points at
+   those numbers — so the number has to be on the page, not just implied by the
+   markup. A counter rather than hand-written digits: inserting a step in the
+   middle should not silently renumber the sentences that refer to them. */
+body { counter-reset: step; }
+.step { counter-increment: step; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem) 6rem;
+}
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  padding: clamp(3rem, 8vw, 5.5rem) 0 2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 1.25rem;
+}
+
+h1 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6.5vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+  margin: 0 0 1.25rem;
+}
+
+.standfirst {
+  max-width: var(--measure);
+  font-size: 1.075rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.standfirst + .standfirst { margin-top: .9rem; }
+
+/* ---------- progress ---------- */
+
+.progress {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+  margin: 0 calc(-1 * clamp(1rem, 4vw, 2.5rem));
+  padding: .7rem clamp(1rem, 4vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.progress-count {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.progress-count b { color: var(--ink); font-weight: 500; }
+
+.progress-track {
+  flex: 1 1 12rem;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface-sunk);
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width .35s cubic-bezier(.4, 0, .2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill { transition: none; }
+}
+
+.reset {
+  font: inherit;
+  font-size: .78rem;
+  color: var(--ink-faint);
+  background: none;
+  border: 0;
+  padding: .2rem .35rem;
+  cursor: pointer;
+  border-radius: 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.reset:hover { color: var(--ink); }
+
+/* ---------- phases ---------- */
+
+.phase {
+  padding-top: clamp(3rem, 7vw, 4.5rem);
+}
+
+.phase-head {
+  max-width: var(--measure);
+  margin-bottom: 2rem;
+}
+
+.phase-mark {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: .55rem;
+}
+
+.phase h2 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.6vw, 2rem);
+  line-height: 1.12;
+  letter-spacing: -.018em;
+  text-wrap: balance;
+  margin: 0 0 .65rem;
+}
+
+.phase-note {
+  color: var(--ink-soft);
+  margin: 0;
+  font-size: .97rem;
+}
+
+/* ---------- steps ---------- */
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 1rem;
+  padding: 1.15rem 1.35rem 1.25rem;
+  transition: opacity .2s ease;
+}
+
+.step[data-done="true"] { opacity: .55; }
+.step[data-done="true"] .step-title { text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+
+.tick {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: .28rem 0 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 4px;
+  background: var(--surface-sunk);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  flex: none;
+}
+
+.tick::after {
+  content: "";
+  width: .62rem;
+  height: .34rem;
+  border-left: 2px solid var(--surface);
+  border-bottom: 2px solid var(--surface);
+  transform: rotate(-45deg) translate(1px, -1px);
+  opacity: 0;
+}
+
+.tick:checked { background: var(--done); border-color: var(--done); }
+.tick:checked::after { opacity: 1; }
+.tick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.step-body { grid-column: 2; min-width: 0; }
+
+.step-title::before {
+  content: counter(step);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .76rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-right: .55rem;
+  vertical-align: .1em;
+}
+
+.step[data-done="true"] .step-title::before { color: var(--ink-faint); }
+
+.step-title {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.06rem;
+  letter-spacing: -.008em;
+  line-height: 1.3;
+  margin: 0 0 .1rem;
+  display: block;
+  cursor: pointer;
+}
+
+.step-where {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .75rem;
+  color: var(--ink-faint);
+  margin: .3rem 0 .6rem;
+}
+
+.step-body p {
+  margin: .55rem 0 0;
+  max-width: var(--measure);
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
+
+.step-body p:first-of-type { margin-top: .35rem; }
+.step-body strong { color: var(--ink); font-weight: 600; }
+
+.step-body ul {
+  margin: .6rem 0 0;
+  padding-left: 1.1rem;
+  max-width: var(--measure);
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
+
+.step-body li { margin: .3rem 0; }
+
+/* ---------- chips ---------- */
+
+.chips {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-bottom: .5rem;
+}
+
+.chip {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .66rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .18rem .48rem;
+  border-radius: 3px;
+  background: var(--surface-sunk);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.chip--blocks { background: var(--over-soft); color: var(--over); }
+.chip--free { background: var(--done-soft); color: var(--done); }
+.chip--paid { background: var(--accent-soft); color: var(--accent); }
+
+/* ---------- copyable literals ---------- */
+
+code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .86em;
+  background: var(--surface-sunk);
+  padding: .1em .38em;
+  border-radius: 3px;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.copy {
+  font: inherit;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .82rem;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule-soft);
+  color: var(--ink);
+  padding: .12rem .45rem;
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  word-break: break-all;
+  text-align: left;
+}
+
+.copy:hover { border-color: var(--accent); }
+.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.copy[data-copied="true"] { background: var(--done-soft); border-color: var(--done); color: var(--done); }
+
+.literals {
+  list-style: none;
+  margin: .75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  border-left: 2px solid var(--rule);
+  padding-left: .9rem;
+}
+
+.literals li {
+  display: flex;
+  gap: .6rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: .88rem;
+  color: var(--ink-soft);
+}
+
+.literals .what { flex: 0 0 auto; }
+
+/* ---------- callout ---------- */
+
+.callout {
+  border-left: 3px solid var(--over);
+  background: var(--over-soft);
+  padding: .8rem 1rem;
+  border-radius: 0 4px 4px 0;
+  margin: .85rem 0 0;
+  max-width: var(--measure);
+}
+
+.callout p { margin: 0; color: var(--ink); font-size: .93rem; }
+.callout p + p { margin-top: .5rem; }
+
+.callout-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--over);
+  display: block;
+  margin-bottom: .3rem;
+}
+
+/* ---------- done-already panel ---------- */
+
+.settled {
+  margin-top: 2.5rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.5rem 1.6rem;
+}
+
+.settled h2 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 .3rem;
+  letter-spacing: -.01em;
+}
+
+.settled > p {
+  margin: 0 0 1.1rem;
+  color: var(--ink-soft);
+  font-size: .95rem;
+  max-width: var(--measure);
+}
+
+.settled dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) 1fr;
+  gap: .5rem 1.4rem;
+  font-size: .92rem;
+}
+
+.settled dt {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .78rem;
+  color: var(--ink-faint);
+  padding-top: .12rem;
+}
+
+.settled dd { margin: 0; color: var(--ink-soft); }
+
+@media (max-width: 34rem) {
+  .settled dl { grid-template-columns: 1fr; gap: .1rem .5rem; }
+  .settled dd { margin-bottom: .7rem; }
+}
+
+/* ---------- close ---------- */
+
+.close {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+  color: var(--ink-soft);
+  font-size: .95rem;
+}
+
+.close p { margin: 0 0 .9rem; }
+
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Hours · setup runbook</p>
+    <h1>Everything left that only you can do</h1>
+    <p class="standfirst">The app is written, tested and green. What remains is the part a repository cannot reach: things that need an Apple account with your name on it, a bank account, and a card.</p>
+    <p class="standfirst">In order, because the order matters — two of these steps fail silently and confusingly if you do them in the wrong sequence. Tick as you go; the page remembers.</p>
+  </header>
+
+  <div class="progress">
+    <span class="progress-count"><b id="done-count">0</b> of <span id="total-count">0</span> done</span>
+    <span class="progress-track"><span class="progress-fill" id="progress-fill"></span></span>
+    <button class="reset" id="reset">Clear all ticks</button>
+  </div>
+
+  <section class="settled">
+    <h2>You need none of this to use the app yourself today</h2>
+    <p>Clone the repository, open <code>Hours.xcodeproj</code>, press ⌘R. It runs in the simulator with no Apple account, no signing and no network. Everything below is about getting it off the simulator.</p>
+    <dl>
+      <dt>Already works</dt>
+      <dd>Calendar, day editor, shifts, breaks, balance, insights, settings, export to CSV / XLSX / PDF, backup and restore, reminders, Shortcuts.</dd>
+      <dt>Already tested</dt>
+      <dd>210 engine tests passing on every push, plus the simulator suite on pull requests.</dd>
+      <dt>Needs no account</dt>
+      <dd>Everything except the widgets, iCloud sync, and taking payment.</dd>
+    </dl>
+  </section>
+
+  <!-- ================= PHASE 1 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 1 — free</span>
+      <h2>Put it on your own iPhone</h2>
+      <p class="phase-note">A free Apple ID is enough. You get the app on your phone; you do not get widgets, iCloud sync, or the ability to sell it.</p>
+    </div>
+
+    <ol class="steps">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s1" aria-labelledby="s1-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--free">Free</span><span class="chip">5 minutes</span></div>
+          <label class="step-title" id="s1-t" for="s1">Replace the bundle identifier with one you own</label>
+          <p class="step-where">Xcode › Hours target › Signing &amp; Capabilities › Bundle Identifier</p>
+          <p>Everything currently uses the placeholder <code>com.hours.app</code>. It has to become something derived from a domain you control — reverse-DNS, so <code>com.yourname.hours</code>. Four targets carry it and <strong>the other three must stay children of the first</strong>, or the widget will not install:</p>
+          <ul class="literals">
+            <li><span class="what">App</span> <button class="copy">com.hours.app</button></li>
+            <li><span class="what">Widget</span> <button class="copy">com.hours.app.widget</button></li>
+            <li><span class="what">Unit tests</span> <button class="copy">com.hours.app.tests</button></li>
+            <li><span class="what">UI tests</span> <button class="copy">com.hours.app.uitests</button></li>
+          </ul>
+          <p>If you change this, come back and change the three product identifiers in step 8 to match — they are prefixed with it.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s2" aria-labelledby="s2-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--free">Free</span><span class="chip">2 minutes</span></div>
+          <label class="step-title" id="s2-t" for="s2">Pick your signing team</label>
+          <p class="step-where">Xcode › Hours target › Signing &amp; Capabilities › Team</p>
+          <p>The project deliberately ships with no <code>DEVELOPMENT_TEAM</code> set, so it does not carry someone else's account around. Choose your Apple ID from the dropdown and leave <em>Automatically manage signing</em> ticked. Do it for the <strong>HoursWidgetExtension</strong> target too.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s3" aria-labelledby="s3-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--free">Free</span><span class="chip">2 minutes</span></div>
+          <label class="step-title" id="s3-t" for="s3">Trust yourself on the phone</label>
+          <p class="step-where">iPhone › Settings › General › VPN &amp; Device Management</p>
+          <p>The first build onto a device installs but refuses to open, with an unhelpful message. Tap your developer certificate there and trust it. Once, per device.</p>
+          <div class="callout">
+            <span class="callout-label">Free-account limit</span>
+            <p>An app signed with a free Apple ID <strong>stops working after seven days</strong> and has to be rebuilt from Xcode. That is Apple's rule, not something in the code. It is the main reason to go to Phase 2 even if you never sell anything.</p>
+          </div>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ================= PHASE 2 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 2 — $99 a year</span>
+      <h2>Join the Developer Program</h2>
+      <p class="phase-note">This is what unlocks the two features the code already contains but cannot switch on: the widgets and iCloud sync. Both are written, both are dormant, and both need a paid account for reasons that are Apple's, not the app's.</p>
+    </div>
+
+    <ol class="steps" start="4">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s4" aria-labelledby="s4-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--paid">$99 / year</span><span class="chip chip--blocks">Blocks 5–16</span><span class="chip">1–2 days to be approved</span></div>
+          <label class="step-title" id="s4-t" for="s4">Enrol in the Apple Developer Program</label>
+          <p class="step-where">developer.apple.com/programs</p>
+          <p>Nothing below this line is possible without it. Approval usually takes a day or two and occasionally asks for identity documents, so start it before you need it rather than on the evening you want to ship.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s5" aria-labelledby="s5-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--paid">Needs step 4</span><span class="chip">10 minutes</span><span class="chip">Turns on widgets</span></div>
+          <label class="step-title" id="s5-t" for="s5">Add the App Group — on both targets</label>
+          <p class="step-where">Signing &amp; Capabilities › + Capability › App Groups</p>
+          <p>A widget runs in its own process and cannot open the app's database, so the app writes a small snapshot into a shared container and the widget reads that. The container is the App Group. Add the capability to the <strong>Hours</strong> target and to the <strong>HoursWidgetExtension</strong> target, ticking the same group on each:</p>
+          <ul class="literals">
+            <li><span class="what">Group</span> <button class="copy">group.com.hours.app</button></li>
+          </ul>
+          <p>That exact string is already in the code, at <code>WidgetSnapshotStore.appGroupIdentifier</code>. Use a different one if you prefer, and change it there to match. Until this is done the widgets say so on their face rather than showing a convincing screenful of zeroes.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s6" aria-labelledby="s6-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--paid">Needs step 4</span><span class="chip">10 minutes</span><span class="chip">Turns on sync</span></div>
+          <label class="step-title" id="s6-t" for="s6">Add iCloud, with CloudKit and key-value storage</label>
+          <p class="step-where">Signing &amp; Capabilities › + Capability › iCloud</p>
+          <p>Tick <strong>CloudKit</strong> and <strong>Key-value storage</strong>, then create the container. Days and holidays travel through CloudKit; your settings travel through key-value storage, because a second device computing expected hours from a different contracted week would produce wrong figures rather than merely different ones.</p>
+          <ul class="literals">
+            <li><span class="what">Container</span> <button class="copy">iCloud.com.hours.app</button></li>
+          </ul>
+          <p>Already in the code at <code>SyncPreference.containerIdentifier</code>. If the switch is on but the entitlement is missing, the app quietly opens its local store and tells you — it never refuses to start. The switch itself takes effect at the <em>next</em> launch, because a store's iCloud setting is fixed at the moment it opens.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s7" aria-labelledby="s7-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">Decision, not a task</span></div>
+          <label class="step-title" id="s7-t" for="s7">Understand that sync is not a backup</label>
+          <p>A day you delete is deleted on every device. The backup file in Settings › Backup and data is the only copy that survives losing the phone — plain readable JSON with every day, every holiday and all your settings. Write one somewhere before you trust the app with a year of hours.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ================= PHASE 3 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 3 — only if you sell it</span>
+      <h2>Switch on Hours Pro</h2>
+      <p class="phase-note">Skip this entirely if the app is just for you — everything works unpaid in a build you sign yourself. The order in this phase is not a suggestion: step 8 done before step 9 wastes an afternoon.</p>
+    </div>
+
+    <ol class="steps" start="8">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s8" aria-labelledby="s8-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--blocks">Do this first</span><span class="chip">Days, if the bank details bounce</span></div>
+          <label class="step-title" id="s8-t" for="s8">Sign the Paid Applications agreement</label>
+          <p class="step-where">App Store Connect › Business › Agreements, Tax, and Banking</p>
+          <div class="callout">
+            <span class="callout-label">The expensive mistake</span>
+            <p>Until this agreement is signed <em>and</em> your bank and tax details are accepted, <strong>StoreKit returns zero products and no error</strong>. The paywall renders empty, the app looks broken, and nothing anywhere tells you why. People lose a day to this.</p>
+            <p>Sign it before you create the products, not after.</p>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s9" aria-labelledby="s9-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">20 minutes</span><span class="chip chip--blocks">Identifiers must match exactly</span></div>
+          <label class="step-title" id="s9-t" for="s9">Create the three products</label>
+          <p class="step-where">App Store Connect › your app › Monetization</p>
+          <p>The identifiers must match <code>SubscriptionStore.ProductID</code> character for character. A typo here is another silent empty paywall.</p>
+          <ul class="literals">
+            <li><span class="what">Monthly</span> <button class="copy">com.hours.app.pro.monthly</button></li>
+            <li><span class="what">Yearly</span> <button class="copy">com.hours.app.pro.yearly</button></li>
+            <li><span class="what">Lifetime</span> <button class="copy">com.hours.app.pro.lifetime</button></li>
+          </ul>
+          <p>Monthly and yearly are <strong>auto-renewable subscriptions in one shared group</strong> — call it <code>hours.pro</code> — so someone can move between them. Lifetime is a <strong>non-consumable</strong>. Each needs a display name, a description and a price before it will even appear.</p>
+          <p>If you changed the bundle identifier back in step 1, change these three constants in <code>Hours/Data/Store/SubscriptionStore.swift</code> to match your new prefix.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s10" aria-labelledby="s10-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">Decision</span></div>
+          <label class="step-title" id="s10-t" for="s10">Decide the real prices</label>
+          <p>The numbers in <code>HoursTests/Hours.storekit</code> — £1.99 monthly, £12.99 yearly, £24.99 outright — were chosen to make the paywall render in the simulator. They are placeholders, not a recommendation. The real prices live only in App Store Connect.</p>
+          <p>Worth remembering what is and is not behind the payment: recording hours is free forever, and <strong>nothing already recorded is ever withheld</strong> — if a subscription lapses every figure is still there and the backup still writes. What is paid for is producing and creating: the exports, the widgets, a second job, editing a range in one pass, and iCloud sync.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s11" aria-labelledby="s11-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--blocks">Easy to miss</span><span class="chip">1 minute</span></div>
+          <label class="step-title" id="s11-t" for="s11">Clear the StoreKit configuration from the Run scheme</label>
+          <p class="step-where">Product › Scheme › Edit Scheme › Run › Options › StoreKit Configuration → None</p>
+          <p>The Hours scheme currently points Run and Test at <code>HoursTests/Hours.storekit</code>, which is what lets you exercise buying, cancelling, expiring and refunding in the simulator with no account and no network. It is genuinely useful — right up to the moment you want to test a <em>real</em> sandbox purchase.</p>
+          <p>While that file is selected, Xcode serves it instead of talking to App Store Connect. A product you have configured perfectly will still look missing. Set it to None when you want the real thing, and put it back afterwards.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ================= PHASE 4 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 4 — submission</span>
+      <h2>The listing itself</h2>
+      <p class="phase-note">The part that is writing rather than configuration. Two of these will get the build rejected if they are missing.</p>
+    </div>
+
+    <ol class="steps" start="12">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s12" aria-labelledby="s12-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Placeholder is in place</span></div>
+          <label class="step-title" id="s12-t" for="s12">Replace the app icon with one you actually like</label>
+          <p class="step-where">Hours/Resources/Assets.xcassets/AppIcon.appiconset/</p>
+          <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a real one: four rules of a timesheet, one of them run long and picked out in amber.</p>
+          <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are a dozen editable numbers at the top of the file. Run it again after changing them. <strong>Treat it as a working placeholder</strong> — it clears the blocker and it is not embarrassing, but it is not a designed identity either.</p>
+          <p>If you replace it by hand: 1024×1024, <strong>no alpha channel</strong> (iOS rejects transparency in an icon), square — the system applies its own rounded mask.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s13" aria-labelledby="s13-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--free">Mostly done for you</span><span class="chip">30 minutes</span></div>
+          <label class="step-title" id="s13-t" for="s13">Collect the screenshots</label>
+          <p class="step-where">github.com/Apectro/Hours › branch <code>screenshots</code></p>
+          <p>They already exist. A test drives the app in a simulator with a month of sample data and captures the calendar, a day, the insights, settings, the privacy screen and the export sheet — plus the actual exported PDF pages, CSV and XLSX. Ten files, on the <code>screenshots</code> branch, kept current.</p>
+          <p>Apple wants <strong>6.9-inch and 6.5-inch</strong> iPhone sizes. The capture job runs one simulator; add the second device to <code>.github/workflows/ci.yml</code> to get both, or take the second set by hand.</p>
+          <p>That job runs on pull requests and on demand, not on every push — Actions › Build and test › Run workflow.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s14" aria-labelledby="s14-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Needs somewhere to host it</span></div>
+          <label class="step-title" id="s14-t" for="s14">Write a privacy policy and put it on the web</label>
+          <p>Every App Store listing needs a reachable privacy policy URL, even one that collects nothing. A GitHub Pages page is enough. The text is unusually short here because it is true: no account, no server, no analytics, no third-party code, nothing transmitted anywhere except the user's own iCloud if they switch it on.</p>
+          <p>The app's own Privacy screen (Settings › Privacy) already says all of this; it is a reasonable first draft.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s15" aria-labelledby="s15-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--free">Ten minutes of ticking "No"</span></div>
+          <label class="step-title" id="s15-t" for="s15">Fill in the privacy nutrition label</label>
+          <p class="step-where">App Store Connect › App Privacy</p>
+          <p><strong>Data Not Collected</strong>, in every category. This is the easiest form you will ever fill in, and it is worth being able to answer it honestly — most apps cannot.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s16" aria-labelledby="s16-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">Writing</span></div>
+          <label class="step-title" id="s16-t" for="s16">Write the listing and the review notes</label>
+          <p>Name, subtitle, description, keywords, a support URL, and an age rating. The category is already set in the project to Productivity.</p>
+          <p>In the <strong>App Review notes</strong>, say two things explicitly: that the app is fully functional without paying, and how to reach the paywall. Reviewers reject paywalls they cannot get behind, and this one gates producing timesheets rather than recording hours, which is not obvious from the outside.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ================= PHASE 5 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 5 — housekeeping</span>
+      <h2>Small things I could not do from here</h2>
+      <p class="phase-note">Each of these needs an account I do not have access to.</p>
+    </div>
+
+    <ol class="steps" start="17">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s17" aria-labelledby="s17-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">1 minute</span></div>
+          <label class="step-title" id="s17-t" for="s17">Delete the stale working branch</label>
+          <p class="step-where">github.com/Apectro/FiveAdmin/branches</p>
+          <p>The branch <code>claude/work-hours-tracking-app-i0iomp</code> is left over and holds nothing that is not on <code>main</code>. Deleting it needs a permission this session does not have.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s18" aria-labelledby="s18-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">Decision</span><span class="chip">Costs money if you say yes</span></div>
+          <label class="step-title" id="s18-t" for="s18">Decide about the macOS CI budget</label>
+          <p class="step-where">GitHub › Settings › Billing › Spending limits</p>
+          <p>GitHub bills macOS runner minutes at <strong>ten times</strong> the Linux rate, and the simulator job needs macOS. So the workflow is split: the engine's 210 tests run on Linux on every push in about a minute, and the full simulator build, the UI tests and the screenshot capture run on pull requests and on demand.</p>
+          <p>Leave it as it is and it costs nothing extra. Raise the limit if you would rather the simulator suite ran on every push too.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ================= PHASE 6 ================= -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-mark">Phase 6 — only if you want it</span>
+      <h2>Genuinely optional</h2>
+      <p class="phase-note">Nothing here blocks anything. Listed so you know it exists rather than discovering it later.</p>
+    </div>
+
+    <ol class="steps" start="19">
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s19" aria-labelledby="s19-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">Half a day per language</span></div>
+          <label class="step-title" id="s19-t" for="s19">Add another language</label>
+          <p>The app is English only. The string catalogues are wired up and working — nineteen keys across the app and the widget — so adding a language is mostly translation rather than plumbing.</p>
+          <p>Two strings would need moving into a catalogue first: the reminder notification's fallback body in <code>ReminderScheduler</code>, and the gap message built in <code>GapFinder.message</code>. Both are literal English inside the engine, which imports nothing but Foundation on purpose.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s20" aria-labelledby="s20-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip">A few minutes</span></div>
+          <label class="step-title" id="s20-t" for="s20">Make the repository private</label>
+          <p>Nothing in it is secret — there are no keys, no tokens and no personal data anywhere in the tree, and the CI runs without any secret at all. But the App Store listing does not link to it, and a private repository is one fewer thing to think about.</p>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <footer class="close">
+    <p><strong>If you only do one phase, do the first.</strong> Three steps, no money, and the app is on your phone this afternoon. Everything after that is about other people being able to use it.</p>
+    <p>The two steps worth reading twice before you start are <strong>8</strong> and <strong>11</strong> — both fail by showing you an empty paywall with no error, and both are ten seconds to fix once you know.</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var KEY = "hours-setup-checklist-v1";
+  var ticks = Array.prototype.slice.call(document.querySelectorAll(".tick"));
+  var fill = document.getElementById("progress-fill");
+  var doneCount = document.getElementById("done-count");
+  document.getElementById("total-count").textContent = ticks.length;
+
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function save(state) {
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(state));
+    } catch (e) {
+      /* private window, blocked storage — the page still works, it just forgets */
+    }
+  }
+
+  function paint() {
+    var done = 0;
+    ticks.forEach(function (tick) {
+      var step = tick.closest(".step");
+      if (step) step.setAttribute("data-done", String(tick.checked));
+      if (tick.checked) done++;
+    });
+    doneCount.textContent = done;
+    fill.style.width = ticks.length ? (done / ticks.length * 100) + "%" : "0%";
+  }
+
+  var state = load();
+  ticks.forEach(function (tick) {
+    if (state[tick.id]) tick.checked = true;
+    tick.addEventListener("change", function () {
+      state[tick.id] = tick.checked;
+      save(state);
+      paint();
+    });
+  });
+  paint();
+
+  document.getElementById("reset").addEventListener("click", function () {
+    ticks.forEach(function (tick) { tick.checked = false; });
+    state = {};
+    save(state);
+    paint();
+  });
+
+  document.querySelectorAll(".copy").forEach(function (button) {
+    button.setAttribute("type", "button");
+    var value = button.textContent.trim();
+    button.setAttribute("aria-label", "Copy " + value);
+    button.addEventListener("click", function () {
+      function flash() {
+        button.setAttribute("data-copied", "true");
+        window.setTimeout(function () { button.removeAttribute("data-copied"); }, 1200);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(flash, function () {});
+        return;
+      }
+      var field = document.createElement("textarea");
+      field.value = value;
+      field.setAttribute("readonly", "");
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      try { document.execCommand("copy"); flash(); } catch (e) {}
+      document.body.removeChild(field);
+    });
+  });
+})();
+</script>
