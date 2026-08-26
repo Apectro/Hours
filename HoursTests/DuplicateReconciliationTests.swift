@@ -57,9 +57,8 @@ final class DuplicateReconciliationTests: XCTestCase {
         XCTAssertEqual(count(context), 1)
     }
 
-    /// Two edits within the same second are possible, and every device has to
-    /// keep the same one or they will hand each other back the row they deleted.
-    func testASharedTimestampFallsBackToWhichWasCreatedFirst() {
+    /// Two edits within the same second are possible; creation breaks it.
+    func testASharedUpdateTimeFallsBackToWhichWasCreatedLast() {
         let (repository, context) = makeRepository()
         let sameInstant = Date(timeIntervalSince1970: 500)
         insertRaw(into: context, note: "older", updatedAt: sameInstant, createdAt: Date(timeIntervalSince1970: 1))
@@ -67,6 +66,52 @@ final class DuplicateReconciliationTests: XCTestCase {
 
         XCTAssertEqual(repository.record(on: date)?.note, "newer")
         XCTAssertEqual(count(context), 1)
+    }
+
+    /// The dangerous case, and the reason nothing is deleted here.
+    ///
+    /// If two rows are indistinguishable and each device broke the tie its own
+    /// way, both would delete what the other kept, both deletions would sync,
+    /// and the day would be gone. A surviving duplicate is untidy; a deleted
+    /// day is data loss.
+    func testRowsNothingCanTellApartAreBothKept() {
+        let (repository, context) = makeRepository()
+        let sameInstant = Date(timeIntervalSince1970: 500)
+        insertRaw(into: context, note: "one", updatedAt: sameInstant, createdAt: sameInstant)
+        insertRaw(into: context, note: "other", updatedAt: sameInstant, createdAt: sameInstant)
+
+        XCTAssertEqual(repository.reconcileDuplicates(), 0, "a tie is not a licence to delete")
+        XCTAssertEqual(count(context), 2)
+        XCTAssertNotNil(repository.record(on: date), "the day still reads as recorded")
+    }
+
+    /// And it resolves itself: an edit stamps one of them, which then wins
+    /// outright on every device.
+    func testEditingATiedDayResolvesIt() {
+        let (repository, context) = makeRepository()
+        let sameInstant = Date(timeIntervalSince1970: 500)
+        insertRaw(into: context, note: "one", updatedAt: sameInstant, createdAt: sameInstant)
+        insertRaw(into: context, note: "other", updatedAt: sameInstant, createdAt: sameInstant)
+
+        repository.save(DayRecord(date: date, note: "typed just now"))
+
+        // Read first, then count: the edit stamps one row, and the collapse
+        // happens on the next read of the day rather than on the write.
+        XCTAssertEqual(repository.record(on: date)?.note, "typed just now")
+        XCTAssertEqual(count(context), 1, "the row the edit did not touch is plainly older now, and goes")
+    }
+
+    /// A tie among the newest does not protect a row that is plainly older —
+    /// every device agrees that one loses, so deleting it is safe.
+    func testAnOlderRowStillGoesWhenTheNewestTwoTie() {
+        let (repository, context) = makeRepository()
+        let sameInstant = Date(timeIntervalSince1970: 500)
+        insertRaw(into: context, note: "stale", updatedAt: Date(timeIntervalSince1970: 100), createdAt: Date(timeIntervalSince1970: 100))
+        insertRaw(into: context, note: "one", updatedAt: sameInstant, createdAt: sameInstant)
+        insertRaw(into: context, note: "other", updatedAt: sameInstant, createdAt: sameInstant)
+
+        XCTAssertEqual(repository.reconcileDuplicates(), 1)
+        XCTAssertEqual(count(context), 2)
     }
 
     func testReadingARangeCollapsesDuplicatesToo() {

@@ -29,9 +29,7 @@ struct WorkdayRepository {
     func entry(on date: CalendarDate) -> DayEntry? {
         let key = date.key
         let descriptor = FetchDescriptor<DayEntry>(predicate: #Predicate<DayEntry> { $0.dateKey == key })
-        guard let matches = try? context.fetch(descriptor), !matches.isEmpty else { return nil }
-        guard matches.count > 1 else { return matches[0] }
-        return resolve(matches)
+        return deduplicated((try? context.fetch(descriptor)) ?? []).first
     }
 
     func entries(in range: CalendarDateRange) -> [DayEntry] {
@@ -161,6 +159,9 @@ struct WorkdayRepository {
     /// meaningfully mergeable — a start time from one device and an end time
     /// from another would invent a shift neither person worked — and the losing
     /// row's contents are what the older device already showed as replaced.
+    ///
+    /// The one exception is rows nothing can tell apart, which are all kept.
+    /// See `collapse` for why that is the safe answer rather than the lazy one.
     @discardableResult
     func reconcileDuplicates() -> Int {
         let before = (try? context.fetchCount(FetchDescriptor<DayEntry>())) ?? 0
@@ -171,52 +172,83 @@ struct WorkdayRepository {
     }
 
     private func deduplicated(_ entries: [DayEntry]) -> [DayEntry] {
-        var byKey: [Int: [DayEntry]] = [:]
-        for entry in entries { byKey[entry.dateKey, default: []].append(entry) }
-        guard byKey.contains(where: { $0.value.count > 1 }) else { return entries }
-
-        var survivors: Set<PersistentIdentifier> = []
-        for (_, group) in byKey where group.count > 1 {
-            survivors.insert(resolve(group).persistentModelID)
+        collapse(entries, by: \.dateKey) {
+            Freshness(updatedAt: $0.updatedAt, createdAt: $0.createdAt)
         }
-        persist()
-        return entries.filter { entry in
-            byKey[entry.dateKey]?.count == 1 || survivors.contains(entry.persistentModelID)
-        }
-    }
-
-    /// Keeps the newest of a group and deletes the rest.
-    private func resolve(_ group: [DayEntry]) -> DayEntry {
-        // `updatedAt` first, then creation, then the identifier — so that two
-        // rows saved in the same second still resolve the same way on every
-        // device rather than each keeping a different one.
-        let ordered = group.sorted {
-            if $0.updatedAt != $1.updatedAt { return $0.updatedAt > $1.updatedAt }
-            if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
-            return $0.persistentModelID.hashValue > $1.persistentModelID.hashValue
-        }
-        for loser in ordered.dropFirst() { context.delete(loser) }
-        return ordered[0]
     }
 
     private func deduplicatedHolidays(_ records: [HolidayRecord]) -> [HolidayRecord] {
-        var byID: [UUID: [HolidayRecord]] = [:]
-        for record in records { byID[record.identifier, default: []].append(record) }
-        guard byID.contains(where: { $0.value.count > 1 }) else { return records }
+        // Holiday rules carry no updatedAt, so creation is all there is.
+        collapse(records, by: \.identifier) {
+            Freshness(updatedAt: $0.createdAt, createdAt: $0.createdAt)
+        }
+    }
 
-        var survivors: Set<PersistentIdentifier> = []
-        for (_, group) in byID where group.count > 1 {
-            let ordered = group.sorted {
-                if $0.createdAt != $1.createdAt { return $0.createdAt > $1.createdAt }
-                return $0.persistentModelID.hashValue > $1.persistentModelID.hashValue
+    /// How recent a row is, for choosing between duplicates.
+    ///
+    /// Two rows of equal freshness are ones nothing can tell apart, which is
+    /// deliberately not a tie to be broken — see `collapse`.
+    private struct Freshness: Comparable {
+        let updatedAt: Date
+        let createdAt: Date
+
+        static func < (a: Self, b: Self) -> Bool {
+            a.updatedAt == b.updatedAt ? a.createdAt < b.createdAt : a.updatedAt < b.updatedAt
+        }
+    }
+
+    /// Groups rows by what makes them the same thing, keeps the freshest, and
+    /// deletes the rest.
+    ///
+    /// Two properties this has to have, and neither is incidental.
+    ///
+    /// **Every survivor is chosen before anything is deleted.** Reading a
+    /// property off a model that has been deleted and saved is undefined, so
+    /// the grouping cannot happen afterwards — it would be doing exactly that
+    /// to every row it just removed.
+    ///
+    /// **Rows nothing can tell apart are all kept.** Breaking that tie
+    /// arbitrarily is the one genuinely dangerous thing this function could
+    /// do: two devices picking differently would each delete what the other
+    /// kept, both deletions would sync, and the day would be gone. Keeping
+    /// both leaves a duplicate, which is untidy and self-healing — the next
+    /// edit stamps one of them and it wins outright from then on. In practice
+    /// the tie needs two devices to agree to sub-millisecond precision on both
+    /// timestamps, so it is the unreachable branch that matters rather than
+    /// the reachable one.
+    private func collapse<Model: PersistentModel, Key: Hashable, Rank: Comparable>(
+        _ models: [Model],
+        by key: KeyPath<Model, Key>,
+        freshness: (Model) -> Rank
+    ) -> [Model] {
+        var groups: [Key: [Model]] = [:]
+        var order: [Key] = []
+        for model in models {
+            let identity = model[keyPath: key]
+            if groups[identity] == nil { order.append(identity) }
+            groups[identity, default: []].append(model)
+        }
+        guard groups.contains(where: { $0.value.count > 1 }) else { return models }
+
+        var kept: [Model] = []
+        var doomed: [Model] = []
+        for identity in order {
+            let group = groups[identity] ?? []
+            guard group.count > 1 else {
+                kept.append(contentsOf: group)
+                continue
             }
-            for loser in ordered.dropFirst() { context.delete(loser) }
-            survivors.insert(ordered[0].persistentModelID)
+            let best = group.map(freshness).max()
+            for model in group {
+                if freshness(model) == best { kept.append(model) } else { doomed.append(model) }
+            }
         }
+
+        for loser in doomed { context.delete(loser) }
         persist()
-        return records.filter { record in
-            byID[record.identifier]?.count == 1 || survivors.contains(record.persistentModelID)
-        }
+        // Returned in the order they arrived, which is the order the fetch
+        // sorted them into.
+        return kept
     }
 
     // MARK: - Saving

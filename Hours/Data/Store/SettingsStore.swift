@@ -40,6 +40,14 @@ final class SettingsStore {
         // set up months ago.
         self.settings = remote ?? local ?? AppSettings()
 
+        // A copy taken from iCloud is written down here as well. Without this
+        // it would live only in the key-value store, and switching sync off
+        // would drop the device back to whatever stale settings it had before
+        // — or to defaults, on a device that had never had any.
+        if remote != nil, remote != local {
+            persistLocally()
+        }
+
         if let shared {
             shared.synchronize()
             observer = NotificationCenter.default.addObserver(
@@ -82,6 +90,13 @@ final class SettingsStore {
         shared?.set(data, forKey: storageKey)
     }
 
+    /// Writes to this device only. Used when adopting a copy that came from
+    /// iCloud, which is already there and does not need sending back.
+    private func persistLocally() {
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        defaults.set(data, forKey: storageKey)
+    }
+
     /// Another device changed the settings. Last write wins, which is what the
     /// key-value store gives us anyway, and is the right rule for a single
     /// person's own devices: the change they just made is the one they meant.
@@ -92,8 +107,7 @@ final class SettingsStore {
             incoming != settings
         else { return }
         settings = incoming
-        guard let data = try? JSONEncoder().encode(incoming) else { return }
-        defaults.set(data, forKey: storageKey)
+        persistLocally()
     }
 
     private static func decode(_ data: Data?) -> AppSettings? {
