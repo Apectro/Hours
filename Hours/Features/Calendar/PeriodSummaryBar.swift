@@ -60,7 +60,7 @@ struct PeriodSummaryBar: View {
         // Inflected rather than a hand-picked noun: "1 day"/"2 days" is the
         // easy half, and the pattern is what a translator needs for languages
         // where the number itself changes the word.
-        parts.append(String(localized: "^[\(summary.daysWorked) day](inflect: true) worked"))
+        parts.append(String(inflected: "^[\(summary.daysWorked) day](inflect: true) worked"))
         if summary.scheduledWorkingDays > 0 {
             parts.append(String(localized: "\(summary.scheduledWorkingDays) scheduled"))
         }

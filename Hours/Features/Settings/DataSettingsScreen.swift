@@ -95,7 +95,12 @@ struct DataSettingsScreen: View {
             Button("Replace", role: .destructive) { applyRestore(archive) }
             Button("Cancel", role: .cancel) { pendingRestore = nil }
         } message: { archive in
-            Text("The backup holds ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true). Everything currently stored will be removed.")
+            // Text's LocalizedStringKey goes through the same absent table as
+            // String(localized:), so this needs resolving before it is handed
+            // over rather than after.
+            Text(String(
+                inflected: "The backup holds ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true). Everything currently stored will be removed."
+            ))
         }
     }
 
@@ -128,7 +133,7 @@ struct DataSettingsScreen: View {
             let url = directory.appendingPathComponent("Hours backup \(stamp).json")
             try data.write(to: url, options: .atomic)
             backupURL = url
-            message = String(localized: "Backup ready: ^[\(archive.days.count) day](inflect: true).")
+            message = String(inflected: "Backup ready: ^[\(archive.days.count) day](inflect: true).")
         } catch {
             message = "The backup could not be created. \(error.localizedDescription)"
         }
@@ -162,7 +167,7 @@ struct DataSettingsScreen: View {
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
-        message = String(localized: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true).")
+        message = String(inflected: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true).")
     }
 
     private func deleteAll() {

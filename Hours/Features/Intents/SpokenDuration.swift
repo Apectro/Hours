@@ -20,11 +20,11 @@ enum SpokenDuration {
         case (0, 0):
             return String(localized: "no time at all")
         case (0, _):
-            return String(localized: "^[\(remainder) minute](inflect: true)")
+            return String(inflected: "^[\(remainder) minute](inflect: true)")
         case (_, 0):
-            return String(localized: "^[\(hours) hour](inflect: true)")
+            return String(inflected: "^[\(hours) hour](inflect: true)")
         default:
-            return String(localized: "^[\(hours) hour](inflect: true) ^[\(remainder) minute](inflect: true)")
+            return String(inflected: "^[\(hours) hour](inflect: true) ^[\(remainder) minute](inflect: true)")
         }
     }
 }

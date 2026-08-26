@@ -189,7 +189,7 @@ struct ExportScreen: View {
 
     private var dayCountText: String {
         let count = resolvedRange.days(in: calendar).count
-        return String(localized: "^[\(count) day](inflect: true)")
+        return String(inflected: "^[\(count) day](inflect: true)")
     }
 
     private var entryCountText: String {

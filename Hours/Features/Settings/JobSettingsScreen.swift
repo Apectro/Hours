@@ -89,7 +89,7 @@ struct JobSettingsScreen: View {
     private func summary(for job: Job) -> String {
         let weekly = settingsStore.settings.displayFormatting.string(job.schedule.weeklyTargetMinutes)
         let days = job.schedule.workingDaysPerWeek
-        var parts = [String(localized: "\(weekly) over ^[\(days) day](inflect: true)")]
+        var parts = [String(inflected: "\(weekly) over ^[\(days) day](inflect: true)")]
         if job.isArchived { parts.append(String(localized: "archived")) }
         return parts.joined(separator: "  ·  ")
     }

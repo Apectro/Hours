@@ -52,20 +52,56 @@ final class InflectionTests: XCTestCase {
     }
 
     func testTheCalendarSummaryDoesNotShowItsOwnMarkup() {
-        let rendered = String(localized: "^[\(16) day](inflect: true) worked")
+        let rendered = String(inflected: "^[\(16) day](inflect: true) worked")
         XCTAssertFalse(leaks(rendered), "the calendar shows raw markup: \(rendered)")
         XCTAssertEqual(rendered, "16 days worked")
     }
 
     func testASingleDayReadsAsOneDay() {
-        let rendered = String(localized: "^[\(1) day](inflect: true) worked")
+        let rendered = String(inflected: "^[\(1) day](inflect: true) worked")
         XCTAssertFalse(leaks(rendered), "the calendar shows raw markup: \(rendered)")
         XCTAssertEqual(rendered, "1 day worked")
     }
 
     func testTheScheduleSummaryDoesNotShowItsOwnMarkup() {
-        let rendered = String(localized: "40h over ^[\(5) day](inflect: true)")
+        let rendered = String(inflected: "40h over ^[\(5) day](inflect: true)")
         XCTAssertFalse(leaks(rendered), "settings shows raw markup: \(rendered)")
         XCTAssertEqual(rendered, "40h over 5 days")
+    }
+
+    func testZeroIsPluralToo() {
+        XCTAssertEqual(String(inflected: "^[\(0) day](inflect: true) worked"), "0 days worked")
+    }
+
+    /// The guard that outlives this fix.
+    ///
+    /// The bug was not that one string was written wrong — all fourteen were
+    /// written correctly and none of them worked. What was missing was anything
+    /// that looked at rendered text, so a call site added tomorrow with
+    /// `String(localized:)` would put the markup straight back on screen with
+    /// every existing test still green. This is the test that notices.
+    func testNoSourceFileStillUsesTheUninflectingCall() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()   // HoursTests
+            .deletingLastPathComponent()   // repository root
+
+        var offenders: [String] = []
+        let enumerator = try XCTUnwrap(
+            FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
+        )
+        for case let url as URL in enumerator where url.pathExtension == "swift" {
+            // This file quotes the broken form on purpose, in the diagnostic.
+            guard url.lastPathComponent != "InflectionTests.swift" else { continue }
+            guard let source = try? String(contentsOf: url, encoding: .utf8) else { continue }
+            for line in source.split(separator: "\n", omittingEmptySubsequences: false)
+            where line.contains("inflect: true") && line.contains("String(localized:") {
+                offenders.append("\(url.lastPathComponent): \(line.trimmingCharacters(in: .whitespaces))")
+            }
+        }
+
+        XCTAssertEqual(
+            offenders, [],
+            "String(localized:) does not inflect in this app; use String(inflected:)"
+        )
     }
 }
