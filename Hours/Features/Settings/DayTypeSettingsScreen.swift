@@ -252,7 +252,7 @@ struct DayTypeEditor: View {
 struct TintPicker: View {
     @Binding var selection: TypeTint
 
-    private static let columns = [GridItem(.adaptive(minimum: 40), spacing: Metrics.medium)]
+    private static let columns = [GridItem(.adaptive(minimum: 44), spacing: Metrics.medium)]
 
     var body: some View {
         LazyVGrid(columns: TintPicker.columns, spacing: Metrics.medium) {
@@ -268,6 +268,12 @@ struct TintPicker: View {
                                 Circle().strokeBorder(Color.primary, lineWidth: 2)
                             }
                         }
+                        // The swatch stays 30pt; what you can hit is 44,
+                        // which is the smallest target the HIG allows. They
+                        // were the same size, so a third of the intended
+                        // target was not there.
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(tint.title)
@@ -309,6 +315,8 @@ struct SymbolPicker: View {
                         .background(
                             Circle().fill(selection == symbol ? tint : tint.opacity(0.12))
                         )
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(symbol)

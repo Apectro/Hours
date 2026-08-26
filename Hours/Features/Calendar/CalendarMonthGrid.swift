@@ -174,11 +174,20 @@ struct DayCell: View {
     }
 
     private var accessibilityLabel: String {
+        let duration = DurationFormatting(style: .hoursAndMinutes)
         var parts: [String] = ["\(date.day)"]
         if let computation {
             parts.append(computation.dayType.name)
             if computation.workedMinutes > 0 {
-                parts.append(DurationFormatting(style: .hoursAndMinutes).string(computation.workedMinutes) + " worked")
+                parts.append(duration.string(computation.workedMinutes) + " worked")
+            }
+            // Whether the day ran over or short is said out loud, because the
+            // only other place it appears is the cell's tint — and a colour is
+            // not information to someone using VoiceOver, nor to the one man in
+            // twelve who cannot tell this particular green from this red.
+            if computation.balanceMinutes != 0 {
+                let magnitude = duration.string(abs(computation.balanceMinutes))
+                parts.append(computation.balanceMinutes > 0 ? "\(magnitude) over" : "\(magnitude) short")
             }
             if isMissingData { parts.append("no hours recorded") }
         }
