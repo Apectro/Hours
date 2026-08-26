@@ -132,13 +132,41 @@ jobs:
       - name: Test
         run: |
           set -o pipefail
+          rm -rf "$RUNNER_TEMP/Hours.xcresult"
           xcodebuild test \
             -project Hours.xcodeproj \
             -scheme Hours \
             -destination "id=${{ steps.sim.outputs.udid }}" \
+            -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test.log"
+
+      # The screenshots for the App Store listing, taken by ScreenshotTests and
+      # pulled out of the result bundle. Downloadable from the run's artifacts,
+      # which is the only way to get them on a machine with no Xcode.
+      - name: App Store screenshots
+        if: always()
+        continue-on-error: true
+        run: |
+          OUT="$RUNNER_TEMP/screenshots"
+          mkdir -p "$OUT"
+          xcrun xcresulttool export attachments \
+            --path "$RUNNER_TEMP/Hours.xcresult" \
+            --output-path "$OUT" || echo "::warning::could not export attachments"
+          find "$OUT" -type f | head -40
+          COUNT=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
+          echo "PNG attachments exported: $COUNT"
+
+      - name: Keep the screenshots
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-store-screenshots
+          path: ${{ runner.temp }}/screenshots
+          if-no-files-found: warn
+          retention-days: 30
 
       # A green tick does not say how many tests ran, and "0 tests passed" looks
       # identical to "126 tests passed". Put the count where it can be read.

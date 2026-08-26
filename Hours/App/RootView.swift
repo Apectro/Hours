@@ -30,6 +30,16 @@ struct RootView: View {
             tabs
         }
         .task {
+            // Only ever true behind a launch argument the UI test target
+            // passes, and it writes into the in-memory store those tests use,
+            // so it cannot reach anyone's real hours.
+            if SampleData.isRequested {
+                SampleData.seed(
+                    into: HoursStack.repository,
+                    calendar: HoursStack.calendar,
+                    today: CalendarDate.today(in: HoursStack.calendar)
+                )
+            }
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
             HoursStack.refreshWidget()

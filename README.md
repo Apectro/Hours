@@ -87,7 +87,7 @@ Hours/
 HoursShared/   Apple-platform code the app and the widget both need
 HoursWidget/   the Home Screen and Lock Screen widgets
 HoursTests/    unit tests for the engine, holidays, DST and the exports
-HoursUITests/  launch and end-to-end tests against the simulator
+HoursUITests/  launch and end-to-end tests, and the App Store screenshots
 ```
 
 `HoursCore` imports nothing but Foundation. No view calculates anything; screens
@@ -180,6 +180,50 @@ paid for.
 `Hours.storekit` lets the whole thing be exercised in the simulator with no App
 Store Connect account and no network — the scheme already points at it, so Buy,
 cancel, expire and refund all work locally.
+
+## Putting it on the App Store
+
+Everything here needs an Apple account, so none of it can be done from a
+repository. It is written down so that the sequence is not something to work
+out under pressure.
+
+**Screenshots are already made for you.** `ScreenshotTests` drives the app in a
+simulator with a month of sample data and captures the calendar, a day, the
+insights, settings and the privacy screen. Every CI run attaches them as
+`app-store-screenshots` — download that from the run's page. Apple wants
+6.9-inch and 6.5-inch iPhone sizes; add the matching simulator to the CI matrix
+to get each.
+
+**The rest, in order:**
+
+1. **Apple Developer Program** — $99 a year, at developer.apple.com. Nothing
+   below is possible without it, and the widgets and iCloud sync need it too.
+2. **Bundle identifier** — replace the `com.hours.app` placeholder with one you
+   own, in the Hours target and in `com.hours.app.widget`.
+3. **Capabilities** — App Groups (`group.com.hours.app`) on both targets for
+   the widgets; iCloud with CloudKit and Key-value storage, and a container, for
+   sync. Both are optional: without them the app runs and says so.
+4. **Paid Applications agreement** — App Store Connect › Business. Until this is
+   signed and your bank and tax details are accepted, purchases fail with no
+   useful error, which is a confusing afternoon if you have not been warned.
+5. **The three products**, matching `SubscriptionStore.ProductID` exactly:
+   - `com.hours.app.pro.monthly` — auto-renewable, group `hours.pro`
+   - `com.hours.app.pro.yearly` — auto-renewable, same group
+   - `com.hours.app.pro.lifetime` — non-consumable
+
+   Each needs a display name, a description and a price. `Hours.storekit`
+   carries placeholders; the real ones live only in App Store Connect.
+6. **Privacy nutrition label** — "Data Not Collected", every category. That is
+   unusually easy to fill in here because it is true: no analytics, no
+   third-party code, no account, and nothing sent anywhere but the user's own
+   iCloud if they ask for it.
+7. **App Review notes** — say that Hours Pro can be exercised with a sandbox
+   account, and that the app is fully functional unpaid. Reviewers reject
+   paywalls they cannot get behind.
+
+**One thing worth deciding before you submit:** the prices in `Hours.storekit`
+(£1.99 monthly, £12.99 yearly, £24.99 outright) are placeholders chosen to make
+the paywall render, not a recommendation.
 
 ## Backups
 
