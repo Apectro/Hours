@@ -172,30 +172,54 @@ final class SubscriptionStoreTests: XCTestCase {
         XCTAssertFalse(fresh.isPro)
     }
 
-    // MARK: - The offline cache
+    // MARK: - What the cache is actually for
 
-    /// The failure this whole mechanism exists for: a paying customer whose
-    /// device cannot reach the App Store must not be told to buy the app again.
-    func testARecentlyPaidStoreStaysUnlockedWhenTheStoreCannotBeReached() async throws {
+    /// It fills the gap between launch and StoreKit answering, and nothing
+    /// more. A new store object with a paid cache shows paid straight away, so
+    /// a subscriber does not watch their own app sit locked for a second.
+    func testACachedAnswerShowsBeforeTheFirstRefresh() async throws {
         let monthly = try await product(SubscriptionStore.ProductID.monthly)
-        _ = await store.purchase(monthly)
-        XCTAssertTrue(store.isPro)
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "hours.test.\(UUID().uuidString)"))
+        let first = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
+        _ = await first.purchase(monthly)
+        XCTAssertTrue(first.isPro)
 
-        // Everything gone from StoreKit's point of view, which is what being
-        // offline looks like from inside `currentEntitlements`.
-        session.clearTransactions()
-        await store.refresh()
+        // Relaunch: same device, same defaults, before anything is asked of
+        // StoreKit.
+        let relaunched = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
 
-        XCTAssertTrue(store.isPro, "a recent paid answer outlives a launch that heard nothing")
+        XCTAssertTrue(relaunched.isPro, "the app opens unlocked rather than flashing a paywall")
     }
 
-    func testAnAnswerOlderThanTheGraceIsNotBelieved() async throws {
+    /// And it is provisional. A completed refresh is the truth whichever way it
+    /// goes — this is the assertion that stops the cache from becoming a way to
+    /// keep Pro after cancelling.
+    func testACompletedRefreshOverridesTheCache() async throws {
         let monthly = try await product(SubscriptionStore.ProductID.monthly)
-        _ = await store.purchase(monthly)
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "hours.test.\(UUID().uuidString)"))
+        let first = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
+        _ = await first.purchase(monthly)
 
         session.clearTransactions()
-        // A month later, still with nothing to hear.
-        await store.refresh(at: Date().addingTimeInterval(30 * 24 * 3600))
+        let relaunched = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
+        XCTAssertTrue(relaunched.isPro, "still showing the cached answer")
+
+        await relaunched.refresh()
+
+        XCTAssertFalse(relaunched.isPro, "StoreKit said no, and StoreKit is the answer")
+    }
+
+    /// A cache old enough to be meaningless is not even worth showing.
+    func testAVeryOldCacheOpensLocked() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "hours.test.\(UUID().uuidString)"))
+        let stale = Entitlement(
+            kind: .subscription,
+            expiresAt: Date().addingTimeInterval(30 * 24 * 3600),
+            checkedAt: Date().addingTimeInterval(-60 * 24 * 3600)
+        )
+        defaults.set(try JSONEncoder().encode(stale), forKey: "hours.entitlement")
+
+        let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
 
         XCTAssertFalse(store.isPro)
     }

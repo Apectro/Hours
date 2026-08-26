@@ -231,11 +231,19 @@ writes the JSON backup that holds the lot. What they lose is the formatted
 timesheet and the ability to set more up. `ProFeature.alwaysFree` lists what
 that protects, and a test asserts the sold list has not quietly grown.
 
-**A cached answer may extend what was paid for, never invent it.** The failure
-worth designing against is a paying customer with no signal being told to buy
-the app again, so a recent paid entitlement survives a launch that cannot reach
-the App Store, for a bounded fortnight. A cached `.free` is worth nothing and is
-never consulted.
+**StoreKit's answer is the answer, including when it is no.** An early version
+kept a recent paid entitlement when `currentEntitlements` came back empty, on
+the theory that empty might mean a device with no signal. That was wrong, and
+the StoreKit tests caught it: `currentEntitlements` reads Apple-signed
+transactions held on the device and needs no network, so empty means genuinely
+nothing. Second-guessing it did not protect anyone offline — StoreKit had
+already done that — it only made an expiry or a refund take a fortnight to
+take effect.
+
+The cached entitlement survives for one purpose: to fill the moment between
+launch and StoreKit replying, so a subscriber does not watch their own app sit
+locked for a second. It is provisional, the first completed refresh overwrites
+it either way, and one older than a fortnight is not shown at all.
 
 Gates sit at the moment of doing the thing, not at the door of the screen. A
 person who has not paid can open Export, choose their range and columns, and

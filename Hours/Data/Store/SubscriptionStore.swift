@@ -10,10 +10,12 @@ import StoreKit
 /// anywhere. `Transaction.currentEntitlements` is asked afresh on every launch
 /// and whenever the App Store says something changed.
 ///
-/// The one thing written down is a cache of the last answer, and only so that a
-/// paying customer with no signal is not told to buy the app again. It can
-/// extend what was already paid for, never invent it — see
-/// `Entitlement.isTrustworthyOffline`.
+/// The one thing written down is a cache of the last answer, and its only job is
+/// to fill the moment between launch and StoreKit replying, so that a paying
+/// customer does not watch their app sit locked for a second. It is provisional:
+/// the first completed `refresh()` overwrites it either way. Being genuinely
+/// offline needs no help from us — `currentEntitlements` reads signed
+/// transactions held on the device.
 @Observable
 @MainActor
 final class SubscriptionStore {
@@ -53,7 +55,11 @@ final class SubscriptionStore {
     init(defaults: UserDefaults = .standard, cacheKey: String = "hours.entitlement") {
         self.defaults = defaults
         self.cacheKey = cacheKey
-        self.entitlement = SubscriptionStore.cached(from: defaults, key: cacheKey) ?? .free
+        // Provisional, and only until the first `refresh()` returns: without it
+        // a paying customer sees a locked app for the moment it takes StoreKit
+        // to answer on launch. A stale one is not even worth that much.
+        let cached = SubscriptionStore.cached(from: defaults, key: cacheKey)
+        self.entitlement = cached?.isTrustworthyOffline(at: Date()) == true ? cached! : .free
 
         // A transaction can arrive at any moment — a renewal, a refund, a
         // purchase made on another device, a family member sharing. Listening
@@ -120,13 +126,15 @@ final class SubscriptionStore {
             checkedAt: instant
         )
 
-        // Nothing came back. That is either a genuine lapse or a device that
-        // cannot reach the App Store, and the two look identical from here —
-        // so a recent paid answer is kept rather than thrown away.
-        if kind == .free, entitlement.isTrustworthyOffline(at: instant) {
-            return
-        }
-
+        // Whatever came back is the answer, including nothing.
+        //
+        // An earlier version kept a recent paid answer here, on the theory that
+        // an empty result might mean a device that could not reach the App
+        // Store. That was wrong, and the tests caught it: `currentEntitlements`
+        // reads Apple-signed transactions cached on the device and does not
+        // need the network, so empty means genuinely nothing — StoreKit has
+        // already solved the offline problem, and second-guessing it only made
+        // expiries and refunds take a fortnight to bite.
         apply(fresh)
     }
 

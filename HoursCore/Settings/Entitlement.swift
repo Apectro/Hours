@@ -60,18 +60,20 @@ struct Entitlement: Equatable, Codable, Sendable {
         isActive(at: instant)
     }
 
-    /// How long a cached answer may be trusted without hearing from the App
-    /// Store again.
+    /// How old a stored answer may be and still be worth showing while the
+    /// real one is fetched.
     ///
-    /// The failure this exists for is a paying customer opening the app on a
-    /// plane and being told to buy it again. Weighed against someone keeping
-    /// the features for a fortnight after cancelling, which costs nothing and
-    /// which they will not notice, the choice is not close.
+    /// This is not about being offline — `Transaction.currentEntitlements`
+    /// reads signed transactions held on the device and needs no network, so
+    /// StoreKit has that covered. It is about the second between launch and
+    /// StoreKit replying, which a subscriber should not spend looking at a
+    /// paywall. A fortnight is generous for that purpose and harmless, because
+    /// the first completed refresh overwrites it either way.
     static let cacheGrace: TimeInterval = 14 * 24 * 60 * 60
 
-    /// Whether a stored answer is still worth believing when the App Store
-    /// cannot be reached. Only ever extends what was already paid for; it
-    /// cannot turn a `.free` into anything.
+    /// Whether a stored answer is recent enough to show provisionally. Only
+    /// ever about something already paid for; it cannot turn a `.free` into
+    /// anything.
     func isTrustworthyOffline(at instant: Date) -> Bool {
         guard kind != .free else { return false }
         guard instant >= checkedAt else { return true }

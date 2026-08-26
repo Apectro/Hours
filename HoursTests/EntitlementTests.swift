@@ -49,17 +49,19 @@ final class EntitlementTests: XCTestCase {
         XCTAssertTrue(subscription(expiringIn: -2, retrying: true).isActive(at: now))
     }
 
-    // MARK: - Being offline
+    // MARK: - The provisional answer shown at launch
 
-    /// The failure this guards against is a paying customer on a plane being
-    /// told to buy the app again.
-    func testARecentAnswerIsBelievedWhenTheStoreCannotBeReached() {
+    /// Not about being offline — StoreKit's own entitlements are cached on the
+    /// device and need no network. This is the second between launch and
+    /// StoreKit replying, which a subscriber should not spend looking at a
+    /// paywall.
+    func testARecentAnswerIsWorthShowingWhileTheRealOneLoads() {
         let checkedThreeDaysAgo = subscription(expiringIn: 20, checkedAt: now.addingTimeInterval(-3 * 24 * 3600))
 
         XCTAssertTrue(checkedThreeDaysAgo.isTrustworthyOffline(at: now))
     }
 
-    func testAVeryOldAnswerIsNotBelievedForever() {
+    func testAVeryOldAnswerIsNotEvenWorthShowing() {
         let checkedLastMonth = subscription(expiringIn: 20, checkedAt: now.addingTimeInterval(-30 * 24 * 3600))
 
         XCTAssertFalse(checkedLastMonth.isTrustworthyOffline(at: now))
