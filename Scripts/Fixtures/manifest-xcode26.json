@@ -1,0 +1,14 @@
+[
+  {
+    "attachments" : [
+      { "configurationName" : "Test Scheme Action", "deviceId" : "6F69910C", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "0AAA4249-C36E-4D5A-9804-68BA826D9225.png", "isAssociatedWithFailure" : false, "suggestedHumanReadableName" : "05-privacy_0_AAAAAAAA-7A39-4D4A-9270-CC9F8B17A4F0.png", "timestamp" : 1787725840.1 },
+      { "configurationName" : "Test Scheme Action", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "12BAC506-CB45-4396-BB30-2855B0AE20BF.png", "isAssociatedWithFailure" : false, "suggestedHumanReadableName" : "03-insights_0_38CA20AB-7A39-4D4A-9270-CC9F8B17A4F0.png", "timestamp" : 1787725835.216 },
+      { "configurationName" : "Test Scheme Action", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "238EB98E-E7C3-4352-963E-F2C0F5EE58B0.png", "isAssociatedWithFailure" : false, "suggestedHumanReadableName" : "02-day-editor_0_9DE9BD3B-70CC-46C0-9AE7-51B785F72BFF.png", "timestamp" : 1787725829.368 },
+      { "configurationName" : "Test Scheme Action", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "4C5D85BB-E6FC-4B66-A4A2-FF72C5AD0E64.png", "isAssociatedWithFailure" : false, "suggestedHumanReadableName" : "01-calendar_0_14ABDA6E-77DC-466B-8D0B-901055A459EA.png", "timestamp" : 1787725824.161 },
+      { "configurationName" : "Test Scheme Action", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "A4C815D1-602F-4208-B2BC-F28CCE84E06C.png", "isAssociatedWithFailure" : false, "suggestedHumanReadableName" : "04-settings_0_BBBBBBBB-70CC-46C0-9AE7-51B785F72BFF.png", "timestamp" : 1787725838.0 },
+      { "configurationName" : "Test Scheme Action", "deviceName" : "iPhone 17 Pro", "exportedFileName" : "DEADBEEF-602F-4208-B2BC-F28CCE84E06C.png", "isAssociatedWithFailure" : true, "suggestedHumanReadableName" : "kXCTAttachmentLegacyScreenImageData_1_CCCCCCCC-70CC-46C0-9AE7-51B785F72BFF.png", "timestamp" : 1787725839.0 }
+    ],
+    "testIdentifier" : "ScreenshotTests/testCaptureTheListing()",
+    "testIdentifierURL" : "test://com.apple.xcode/Hours/HoursUITests/ScreenshotTests/testCaptureTheListing"
+  }
+]

@@ -16,27 +16,57 @@ import shutil
 import sys
 
 
-def pairs(node):
-    """Every (file on disk, name a human chose) pair anywhere in the manifest.
+# A manifest entry, as Xcode 26 writes it:
+#
+#     {
+#       "configurationName": "Test Scheme Action",
+#       "deviceName": "iPhone 17 Pro",
+#       "exportedFileName": "4C5D85BB-....png",
+#       "isAssociatedWithFailure": false,
+#       "suggestedHumanReadableName": "01-calendar_0_14ABDA6E-....png",
+#       "timestamp": 1787725824.161
+#     }
+#
+# Four keys there end in "Name" and only one of them is the attachment's. The
+# first version of this script took whichever came first and named every file
+# "Test Scheme Action", so the ranking below is the whole point: keys are
+# scored, best wins, and a key naming a device or a scheme is never eligible.
+FILE_KEY = re.compile(r"file_?name", re.I)
+NEVER = re.compile(r"device|configuration|scheme|class|target|test|module", re.I)
 
-    Written loosely on purpose: the manifest's key names are Xcode's, not
-    ours, and they have changed between versions. Matching on the shape of
-    the data rather than on exact keys means a rename upstream costs a
-    warning here instead of a silent directory of UUIDs.
+
+def label_key_rank(key):
+    """How likely a key is to hold the name the test gave its attachment."""
+    if NEVER.search(key):
+        return None
+    if re.search(r"human", key, re.I):
+        return 0
+    if re.search(r"suggested", key, re.I):
+        return 1
+    if key.lower() in ("name", "attachmentname"):
+        return 2
+    return None
+
+
+def pairs(node):
+    """Every (file on disk, name the test chose) pair anywhere in the manifest.
+
+    Still walks the whole tree rather than assuming the layout above: the
+    manifest is Xcode's, not ours, and it has changed between versions. What
+    is no longer loose is which key wins.
     """
     if isinstance(node, dict):
         filename = next(
-            (v for k, v in node.items()
-             if re.search(r"file_?ame|file ?name", k, re.I) and isinstance(v, str)),
+            (v for k, v in node.items() if FILE_KEY.search(k) and isinstance(v, str)),
             None,
         )
-        label = next(
-            (v for k, v in node.items()
-             if re.search(r"name", k, re.I) and isinstance(v, str) and v != filename),
-            None,
+        candidates = sorted(
+            (rank, v)
+            for k, v in node.items()
+            if isinstance(v, str) and v != filename and (rank := label_key_rank(k)) is not None
         )
         if filename:
-            yield filename, label
+            yield filename, candidates[0][1] if candidates else None
         for value in node.values():
             yield from pairs(value)
     elif isinstance(node, list):
@@ -44,12 +74,21 @@ def pairs(node):
             yield from pairs(value)
 
 
+# Xcode appends "_<n>_<UUID>" to the name the test gave: "01-calendar" comes
+# back as "01-calendar_0_14ABDA6E-77DC-466B-8D0B-901055A459EA.png".
+DECORATION = re.compile(r"_\d+_[0-9A-F-]{36}$", re.I)
+
 # The names ScreenshotTests gives its captures: "01-calendar" and its four
 # siblings. XCTest attaches automatic screenshots of its own under names like
 # "kXCTAttachmentLegacyScreenImageData", and those are a picture of whatever
 # the simulator was showing when a step ran — not something to put on a store
 # listing. Requiring the numbered form is what separates the two.
 OURS = re.compile(r"^\d{2}-[a-z0-9-]+$", re.I)
+
+
+def tidy(label):
+    """The name the test asked for, with Xcode's decoration taken back off."""
+    return DECORATION.sub("", (label or "").removesuffix(".png"))
 
 
 def main(raw, out):
@@ -66,7 +105,7 @@ def main(raw, out):
     for entry in sorted(os.listdir(raw)):
         if not entry.lower().endswith(".png"):
             continue
-        label = (named.get(entry) or "").removesuffix(".png")
+        label = tidy(named.get(entry))
         if not OURS.match(label):
             print(f"skipping {entry} ({label or 'unnamed'})")
             continue

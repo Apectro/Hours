@@ -51,6 +51,11 @@ jobs:
           set -o pipefail
           swift test 2>&1 | tee -a "$RUNNER_TEMP/engine.log"
 
+      # Not Swift, but it runs on the cheap machine and it guards a step whose
+      # failure mode is a silent directory of UUIDs on a green run.
+      - name: Screenshot renamer
+        run: python3 Scripts/test_name_screenshots.py
+
       # SwiftPM repeats the same diagnostic once per file in the module, so a
       # single error can fill a screen and a second one hides below it.
       - name: Summarise failures
