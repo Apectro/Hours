@@ -50,13 +50,15 @@ final class SubscriptionStoreTests: XCTestCase {
     private func eventually(
         _ description: String,
         timeout: TimeInterval = 5,
+        refreshing target: SubscriptionStore? = nil,
         until condition: () -> Bool
     ) async -> Bool {
+        let polled = target ?? store!
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if condition() { return true }
             try? await Task.sleep(nanoseconds: 150_000_000)
-            await store.refresh()
+            await polled.refresh()
         }
         XCTAssertTrue(condition(), "timed out waiting for \(description)")
         return condition()
@@ -180,15 +182,24 @@ final class SubscriptionStoreTests: XCTestCase {
     func testRestoringFindsAPurchaseTheAppleIDAlreadyHas() async throws {
         let lifetime = try await product(SubscriptionStore.ProductID.lifetime)
         _ = await store.purchase(lifetime)
+        // There is nothing to restore until the purchase itself has landed, and
+        // asserting that here is what tells the two failures apart.
+        await eventually("the purchase to land") { self.store.isPro }
 
         // A fresh install against the same Apple ID: a new store object with no
         // cache of its own.
         let reinstalled = SubscriptionStore.ephemeral()
 
         let restored = await reinstalled.restore()
+        XCTAssertTrue(restored, "restore did not report finding the purchase")
 
-        XCTAssertTrue(restored)
-        XCTAssertTrue(reinstalled.isPro)
+        // restore() syncs and then reads, but StoreKit does not promise the
+        // synced transaction is visible to a store that has never seen it by
+        // the time sync returns. This test asserted immediately and passed four
+        // runs in a row before failing on a commit that changed no Swift.
+        await eventually("the restored purchase to unlock", refreshing: reinstalled) {
+            reinstalled.isPro
+        }
     }
 
     func testRestoringWithNothingToRestoreSaysSo() async {

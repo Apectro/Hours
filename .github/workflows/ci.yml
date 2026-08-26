@@ -51,10 +51,6 @@ jobs:
           set -o pipefail
           swift test 2>&1 | tee -a "$RUNNER_TEMP/engine.log"
 
-      # Not Swift, but it runs on the cheap machine and it guards a step whose
-      # failure mode is a silent directory of UUIDs on a green run.
-      - name: Screenshot renamer
-        run: python3 Scripts/test_name_screenshots.py
 
       # SwiftPM repeats the same diagnostic once per file in the module, so a
       # single error can fill a screen and a second one hides below it.
@@ -126,6 +122,13 @@ jobs:
 
       # Building first gives a clean compile-error list without the test
       # bundle's output interleaved, which matters on a first green-field build.
+      # Guards a step whose failure mode is not a red build but a green one
+      # that quietly exports nothing. Here rather than on the cheaper Linux
+      # job because the swift:6.0 container has no python3 — which is how the
+      # first attempt at running these failed.
+      - name: Screenshot renamer
+        run: python3 Scripts/test_name_screenshots.py
+
       - name: Build
         run: |
           set -o pipefail
