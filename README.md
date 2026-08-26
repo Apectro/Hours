@@ -191,8 +191,11 @@ out under pressure.
 drives the app in a simulator with a month of sample data and captures the
 calendar, a day, the insights, settings, the privacy screen and the export
 sheet. It runs twice — on the largest iPhone the runner has, and again on a
-smaller one, which is the two sizes the App Store asks for — and the two sets
-land in a folder each, named after the simulator. They are attached to the run
+smaller one — and the two sets land in a folder each, named after the
+simulator. The larger is the 6.9-inch set App Store Connect asks for; the
+smaller is a second size to choose from, not a required one. A true 6.5-inch
+device (an iPhone 11 Pro Max) is not installed on the runner image, so if you
+specifically need that size it has to be taken by hand. They are attached to the run
 as `app-store-screenshots` and pushed to the `screenshots` branch.
 The branch is usually the easier one to reach for: artifacts are served from a
 storage host that some networks cannot get to at all.
