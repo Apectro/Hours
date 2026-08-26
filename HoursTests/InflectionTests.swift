@@ -3,12 +3,13 @@ import XCTest
 
 /// Whether `^[n day](inflect: true)` actually becomes "16 days" on screen.
 ///
-/// The screenshots say it does not: the calendar reads
-/// "^[16 day](inflect: true) worked" and Settings reads "40h over ^[5 day](infl…".
-/// Fourteen call sites use this markup and nothing caught it, because the UI
-/// tests assert on element identifiers rather than on rendered text.
+/// It did not. The calendar read "^[16 day](inflect: true) worked" and Settings
+/// read "40h over ^[5 day](infl…" — fifteen call sites, every one of them
+/// written correctly, and not one of them working. Nothing caught it because
+/// the UI tests assert on element identifiers rather than on rendered text, so
+/// the one thing a person actually reads was the one thing untested.
 ///
-/// These tests run in the app's own bundle — HoursTests is hosted by Hours, so
+/// These run in the app's own bundle: HoursTests is hosted by Hours, so
 /// `Bundle.main` here is the app the screenshots came from.
 final class InflectionTests: XCTestCase {
     /// The markup, if any of it survived into what the user reads.
@@ -64,6 +65,24 @@ final class InflectionTests: XCTestCase {
     ///
     /// Written to fail loudly rather than to pass quietly, because a catalog
     /// that silently does not compile is exactly the state this app was in.
+    /// The catalog compiled into the app at all.
+    ///
+    /// This is the regression that started it: an empty `Localizable.xcstrings`
+    /// compiles to nothing — no `en.lproj`, no strings table — and every lookup
+    /// then returns its own key. It is invisible from the outside, survived 252
+    /// tests, and took a screenshot to notice. Emptying the catalog again
+    /// should cost one red build instead.
+    func testTheCatalogIsActuallyInTheBundle() {
+        XCTAssertNotNil(
+            Bundle.main.path(forResource: "en", ofType: "lproj"),
+            "no en.lproj: the string catalog compiled to nothing"
+        )
+        XCTAssertNotNil(
+            Bundle.main.path(forResource: "Localizable", ofType: "stringsdict"),
+            "no stringsdict: the catalog has no plural entries"
+        )
+    }
+
     func testTheCatalogGivesStringLocalizedTheRightPlural() {
         XCTAssertEqual(String(localized: "^[\(16) day](inflect: true) worked"), "16 days worked")
         XCTAssertEqual(String(localized: "^[\(1) day](inflect: true) worked"), "1 day worked")
