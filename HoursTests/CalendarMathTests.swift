@@ -204,13 +204,15 @@ final class CalendarMathTests: XCTestCase {
 
     /// The shape of the week survives being rescaled.
     func testAShortDayStaysProportionallyShort() {
+        // The days sum to 2160; half of that is 1080, so every day should come
+        // back halved — the full days at 240 and the short Friday at 120.
         var schedule = WorkSchedule(minutesByWeekday: [0, 480, 480, 480, 480, 240, 0])
-        schedule.weeklyTargetOverrideMinutes = 1110
+        schedule.weeklyTargetOverrideMinutes = 1080
         let week = (1...7).map { schedule.expectedMinutes(forWeekday: $0) }
 
         XCTAssertEqual(week[5], 120, "the half day is still half")
         XCTAssertEqual(week[1], 240)
-        XCTAssertEqual(week.reduce(0, +), 1110)
+        XCTAssertEqual(week.reduce(0, +), 1080)
     }
 
     /// A schedule with no working days has no shape to spread a target over.
