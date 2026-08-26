@@ -5,8 +5,9 @@ import WidgetKit
 struct HoursEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot
-    /// Three states worth telling apart: real data, sample data behind a
-    /// preview, and "the app has never written anything I can read".
+    /// The states worth telling apart, because each needs different words:
+    /// real data, sample data behind a preview, and three different kinds of
+    /// nothing.
     let state: State
 
     enum State: Equatable {
@@ -18,6 +19,10 @@ struct HoursEntry: TimelineEntry {
         /// The group exists but the app has not written yet — usually a widget
         /// added before the app was opened once.
         case waiting
+        /// Read perfectly well; the widgets are simply not part of what was
+        /// bought. The only one of these three the person can act on from
+        /// here, and the only one that is not a fault.
+        case locked
     }
 }
 

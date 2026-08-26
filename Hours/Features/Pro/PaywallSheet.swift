@@ -9,14 +9,13 @@ import SwiftUI
 struct PaywallSheet: View {
     /// What the person was trying to do when they hit the wall. Naming it puts
     /// the relevant line at the top rather than making them find it.
-    var reason: ProFeature?
+    var reason: ProFeature? = nil
 
     @Environment(SubscriptionStore.self) private var subscriptions
     @Environment(\.dismiss) private var dismiss
 
     @State private var isWorking = false
     @State private var message: String?
-    @State private var selection: Product.ID?
 
     var body: some View {
         NavigationStack {
