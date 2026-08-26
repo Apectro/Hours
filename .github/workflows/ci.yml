@@ -333,6 +333,20 @@ jobs:
             | sort -u \
             | head -25 \
             || echo "(none)"
+          # Compiler errors, which are what a red build usually is and were the
+          # one thing this block did not print. Three investigations in a row
+          # ended in guesswork because the real error was in the middle of the
+          # log, where the API truncates it away. The tests excluded from the
+          # Linux job — the ones touching SwiftUI and SwiftData — can only fail
+          # here, so here is where their errors have to be readable.
+          echo "--- compiler errors ---"
+          grep -hE "error: " "$RUNNER_TEMP"/*.log 2>/dev/null \
+            | grep -v 'CoreData: error:' \
+            | grep -vE 'error: -\[' \
+            | sed -E 's/^[0-9-]+ [0-9:.]+ //' \
+            | sed -E 's|^/Users/runner/work/Hours/Hours/||' \
+            | sort -u \
+            | head -20
           echo "--- inflection ---"
           sed -n '/----- inflection -----/,/----- end inflection -----/p' \
             "$RUNNER_TEMP"/test.log 2>/dev/null \
