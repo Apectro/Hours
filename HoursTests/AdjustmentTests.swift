@@ -73,17 +73,6 @@ final class AdjustmentTests: XCTestCase {
         XCTAssertEqual(table.totals.first { $0.label == "Paid out" }?.value, "-10h")
     }
 
-    func testTheReasonSurvivesStorageAndBackup() throws {
-        let record = day(Fixture.workingTuesday, minutes: -600, reason: .timeOffInLieu)
-
-        let entry = DayEntry(dateKey: record.date.key)
-        entry.apply(record)
-        XCTAssertEqual(entry.record.adjustmentReason, .timeOffInLieu)
-
-        let restored = try JSONDecoder().decode(DayRecord.self, from: try JSONEncoder().encode(record))
-        XCTAssertEqual(restored.adjustmentReason, .timeOffInLieu)
-    }
-
     func testARecordWrittenBeforeReasonsExistedReadsAsACorrection() throws {
         let legacy = """
         {"date": 20260804, "adjustmentMinutes": -60, "note": "", "location": "", "tags": [], "isIncluded": true}

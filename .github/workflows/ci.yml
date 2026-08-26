@@ -22,6 +22,9 @@ jobs:
   # it mechanically — there is no UIKit, no SwiftUI and no SwiftData on Linux,
   # so a single stray import stops it compiling. It also runs the engine's tests
   # in about a minute, which is the fast half of the feedback loop.
+  # Every push. It is cheap, it is fast, and it now covers most of the suite:
+  # the calculation engine, the exports, the shifts, the adjustments and the
+  # aggregation. See Package.swift for what it cannot reach.
   engine:
     name: Engine (Linux)
     runs-on: ubuntu-latest
@@ -52,8 +55,6 @@ jobs:
           swift test 2>&1 | tee -a "$RUNNER_TEMP/engine.log"
 
 
-      # SwiftPM repeats the same diagnostic once per file in the module, so a
-      # single error can fill a screen and a second one hides below it.
       # Printed on success as well as failure: the point of measuring is the
       # trend, and a number nobody sees while things are fine tells nobody
       # anything when they stop being fine.
@@ -63,6 +64,8 @@ jobs:
           sed -n '/----- scale -----/,/----- end scale -----/p' \
             "$RUNNER_TEMP/engine.log" 2>/dev/null || echo "(none)"
 
+      # SwiftPM repeats the same diagnostic once per file in the module, so a
+      # single error can fill a screen and a second one hides below it.
       - name: Summarise failures
         if: failure()
         run: |
@@ -83,6 +86,19 @@ jobs:
 
   build-and-test:
     name: App and tests (iOS simulator)
+    # Not on every push, on purpose.
+    #
+    # macOS minutes bill at ten times the Linux rate, and this job is around
+    # ten minutes: roughly a hundred billable minutes a run. A day of ordinary
+    # engine work ran it thirty times and exhausted the account's allowance,
+    # after which nothing ran at all — one startup failure, then runs that sat
+    # queued for hours without ever being picked up. A CI that cannot start is
+    # worth less than one that covers less.
+    #
+    # So it runs where it earns its cost: on pull requests, and on demand. Most
+    # of what it uniquely covers — SwiftData, StoreKit, SwiftUI, the
+    # screenshots — changes far less often than the engine does.
+    if: github.event_name != 'push'
     # Write access is for one thing only: force-pushing the screenshots branch.
     permissions:
       contents: write

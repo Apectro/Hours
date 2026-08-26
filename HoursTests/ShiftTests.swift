@@ -208,47 +208,6 @@ final class ShiftTests: XCTestCase {
         XCTAssertEqual(restored.shifts.count, 2)
     }
 
-    func testAStoredEntryFromBeforeShiftsIsMigratedOnRead() {
-        let entry = DayEntry(dateKey: Fixture.workingTuesday.key)
-        // Exactly what an older build would have written.
-        entry.startMinutes = 480
-        entry.endMinutes = 990
-        entry.breaksData = try? JSONEncoder().encode([BreakSpan.duration(30)])
-
-        XCTAssertEqual(entry.resolvedShifts.count, 1)
-        XCTAssertEqual(entry.record.start, Fixture.time(8))
-        XCTAssertEqual(entry.record.end, Fixture.time(16, 30))
-        XCTAssertEqual(entry.record.breaks.first?.explicitMinutes, 30)
-    }
-
-    func testWritingAnEntryClearsTheLegacyColumns() {
-        let entry = DayEntry(dateKey: Fixture.workingTuesday.key)
-        entry.startMinutes = 480
-        entry.endMinutes = 990
-
-        entry.apply(DayRecord(date: Fixture.workingTuesday, start: Fixture.time(9), end: Fixture.time(17)))
-
-        XCTAssertNil(entry.startMinutes)
-        XCTAssertNil(entry.endMinutes)
-        XCTAssertNil(entry.breaksData)
-        XCTAssertNotNil(entry.shiftsData)
-        XCTAssertEqual(entry.record.start, Fixture.time(9))
-    }
-
-    func testASplitShiftEntryRoundTripsThroughStorage() {
-        let record = DayRecord(
-            date: Fixture.workingTuesday,
-            shifts: [
-                Shift(start: Fixture.time(8), end: Fixture.time(12)),
-                Shift(start: Fixture.time(13), end: Fixture.time(17))
-            ]
-        )
-        let entry = DayEntry(dateKey: record.date.key)
-        entry.apply(record)
-
-        XCTAssertEqual(entry.record, record)
-    }
-
     // MARK: - The order blocks are read in
 
     /// A split shift entered afternoon-first still reads morning-first.

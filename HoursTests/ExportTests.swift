@@ -353,9 +353,4 @@ final class ExportTests: XCTestCase {
         XCTAssertEqual(table.rows[0].values[index], "06:00 (+1)")
     }
 
-    func testFilenamesAreSafe() {
-        XCTAssertEqual(ExportFileFactory.sanitise("Hours 2026-08"), "Hours 2026-08")
-        XCTAssertEqual(ExportFileFactory.sanitise("a/b:c"), "a-b-c")
-        XCTAssertEqual(ExportFileFactory.sanitise("   "), "Hours")
-    }
 }

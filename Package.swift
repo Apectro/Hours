@@ -30,16 +30,16 @@ let package = Package(
             exclude: [
                 // Not a source file; the scheme and the StoreKit tests read it.
                 "Hours.storekit",
-                "AdjustmentTests.swift",
                 "DuplicateReconciliationTests.swift",
                 "ExportCaptureTests.swift",
-                "ExportTests.swift",
                 // Inflection is a Foundation-on-Apple feature, and the point of
                 // these is what the app bundle renders.
                 "InflectionTests.swift",
                 "MigrationTests.swift",
                 "PersistenceCodingTests.swift",
-                "ShiftTests.swift",
+                // The Apple-only handful that used to keep whole files off
+                // this job. See StorageBridgeTests for what moved and why.
+                "StorageBridgeTests.swift",
                 "SubscriptionStoreTests.swift",
                 "TimeClockTests.swift",
             ]
