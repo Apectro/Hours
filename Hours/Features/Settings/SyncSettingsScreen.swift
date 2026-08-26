@@ -6,7 +6,10 @@ import SwiftUI
 /// which is once per launch. So the switch records a choice and says plainly
 /// that it takes effect next time, rather than appearing to work and then not.
 struct SyncSettingsScreen: View {
+    @Environment(SubscriptionStore.self) private var subscriptions
+
     @State private var isEnabled = SyncPreference.isEnabled
+    @State private var paywallReason: ProFeature?
 
     /// What was actually opened this launch, which is what tells us whether the
     /// switch is still waiting to take effect.
@@ -18,8 +21,22 @@ struct SyncSettingsScreen: View {
         Form {
             Section {
                 Toggle("Sync with iCloud", isOn: $isEnabled)
+                    .proLock(!subscriptions.allows(.iCloudSync) && !isEnabled)
                     .onChange(of: isEnabled) { _, newValue in
-                        SyncPreference.isEnabled = newValue
+                        // Turning it *off* is never gated, and neither is
+                        // leaving it on: a lapsed subscription must not
+                        // silently strand a second device holding hours the
+                        // first one no longer receives.
+                        guard newValue else {
+                            SyncPreference.isEnabled = false
+                            return
+                        }
+                        guard subscriptions.allows(.iCloudSync) else {
+                            isEnabled = false
+                            paywallReason = .iCloudSync
+                            return
+                        }
+                        SyncPreference.isEnabled = true
                     }
             } footer: {
                 Text(
@@ -72,6 +89,7 @@ struct SyncSettingsScreen: View {
                 )
             }
         }
+        .paywall(for: $paywallReason)
         .navigationTitle("iCloud")
         .navigationBarTitleDisplayMode(.inline)
     }

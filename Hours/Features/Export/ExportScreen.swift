@@ -11,6 +11,7 @@ struct ExportScreen: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(SubscriptionStore.self) private var subscriptions
 
     @State private var rangeKind: ExportRangeKind = .month
     @State private var anchor: CalendarDate
@@ -21,6 +22,7 @@ struct ExportScreen: View {
     @State private var previewTable: ReportTable?
     @State private var fileURL: URL?
     @State private var failureMessage: String?
+    @State private var paywallReason: ProFeature?
 
     init(initialRange: CalendarDateRange) {
         self.initialRange = initialRange
@@ -52,6 +54,7 @@ struct ExportScreen: View {
                 regenerate()
             }
             .onChange(of: regenerationKey) { _, _ in regenerate() }
+            .paywall(for: $paywallReason)
         }
     }
 
@@ -123,7 +126,18 @@ struct ExportScreen: View {
     @ViewBuilder
     private var shareSection: some View {
         Section {
-            if let fileURL {
+            if !subscriptions.allows(.fileExport) {
+                // Stopped at the file, not at the door. Everything above —
+                // the range, the columns, the preview — is what the person
+                // needs in order to know what they would be buying.
+                Button {
+                    paywallReason = .fileExport
+                } label: {
+                    Label("Share timesheet", systemImage: "square.and.arrow.up")
+                        .frame(maxWidth: .infinity)
+                }
+                .proLock(true)
+            } else if let fileURL {
                 ShareLink(item: fileURL) {
                     Label("Share \(fileURL.lastPathComponent)", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
@@ -142,6 +156,10 @@ struct ExportScreen: View {
                 ExportSettingsScreen()
             } label: {
                 Label("Export options", systemImage: "slider.horizontal.3")
+            }
+        } footer: {
+            if !subscriptions.allows(.fileExport) {
+                Text("Timesheets are part of Hours Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
             }
         }
     }

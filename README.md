@@ -157,6 +157,29 @@ start.
 
 Sync is not a backup. A day you delete is deleted everywhere.
 
+## Hours Pro
+
+Recording your hours is free and stays free: the calendar, the day editor,
+breaks, overtime, the balance, reminders, and the backup file that holds every
+day you ever entered. **Nothing you have recorded is ever held behind a
+payment** — if a subscription lapses, every figure is still there and the
+backup still writes.
+
+What is paid for is producing and creating: timesheets as CSV, XLSX or PDF; the
+widgets; a second job; editing a range in one pass; and iCloud sync. Sold as a
+monthly or yearly subscription, or bought outright once — an app with no server
+behind it shouldn't only be rentable.
+
+There is **no account and no login**. A purchase belongs to your Apple ID, so it
+is already on your other devices; the Restore button exists because the App
+Store asks for one, not because you should need it. Payment is handled by the
+App Store, and the app is told exactly one thing in return: whether it has been
+paid for.
+
+`Hours.storekit` lets the whole thing be exercised in the simulator with no App
+Store Connect account and no network — the scheme already points at it, so Buy,
+cancel, expire and refund all work locally.
+
 ## Backups
 
 Nothing is synced anywhere, so a backup file is the only copy that survives

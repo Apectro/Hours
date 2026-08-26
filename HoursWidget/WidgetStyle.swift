@@ -76,7 +76,11 @@ struct EmptyStateView: View {
     var compact: Bool = false
 
     private var symbol: String {
-        state == .unavailable ? "exclamationmark.triangle" : "clock.badge.questionmark"
+        switch state {
+        case .unavailable: return "exclamationmark.triangle"
+        case .locked: return "lock.fill"
+        default: return "clock.badge.questionmark"
+        }
     }
 
     // Built as `String`, so unlike a `Text("literal")` these do not localise
@@ -91,6 +95,10 @@ struct EmptyStateView: View {
             return compact
                 ? String(localized: "Open Hours")
                 : String(localized: "Open Hours once to fill this in")
+        case .locked:
+            return compact
+                ? String(localized: "Hours Pro")
+                : String(localized: "Widgets are part of Hours Pro")
         case .data, .sample:
             return ""
         }

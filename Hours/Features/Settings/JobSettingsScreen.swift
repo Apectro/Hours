@@ -6,9 +6,11 @@ import SwiftUI
 /// single row, and no job picker appears anywhere else in the app.
 struct JobSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(SubscriptionStore.self) private var subscriptions
 
     @State private var editing: Job?
     @State private var isCreating = false
+    @State private var paywallReason: ProFeature?
 
     var body: some View {
         List {
@@ -27,12 +29,26 @@ struct JobSettingsScreen: View {
 
             Section {
                 Button {
-                    isCreating = true
+                    // Only the *second* job is sold. One job is the app
+                    // working as it always has, and every job already set up
+                    // keeps working whatever happens to a subscription — the
+                    // hours recorded against it are the person's, not ours.
+                    if needsProForAnotherJob {
+                        paywallReason = .multipleJobs
+                    } else {
+                        isCreating = true
+                    }
                 } label: {
                     Label("Add a job", systemImage: "plus.circle")
+                        .proLock(needsProForAnotherJob)
+                }
+            } footer: {
+                if needsProForAnotherJob {
+                    Text("A second job is part of Hours Pro. The job you have keeps working either way.")
                 }
             }
         }
+        .paywall(for: $paywallReason)
         .navigationTitle("Jobs")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editing) { job in
@@ -61,6 +77,13 @@ struct JobSettingsScreen: View {
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
+    }
+
+    /// `resolvedJobs` always contains at least the primary job — settings with
+    /// none synthesise one from the schedule — so anything added from here is
+    /// by definition a second, which is the thing that is sold.
+    private var needsProForAnotherJob: Bool {
+        !subscriptions.allows(.multipleJobs)
     }
 
     private func summary(for job: Job) -> String {

@@ -8,6 +8,7 @@ struct HoursApp: App {
             RootView(storeFailure: HoursStack.storeFailure)
                 .environment(HoursStack.settings)
                 .environment(HoursStack.clock)
+                .environment(HoursStack.subscriptions)
                 .preferredColorScheme(HoursStack.settings.settings.appearance.colorScheme)
         }
         // The same container Shortcuts and Siri use, rather than a second one

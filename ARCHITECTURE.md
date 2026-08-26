@@ -208,6 +208,43 @@ the app intends in general — it reports the store that actually opened. A
 screen that says "nothing leaves the device" while the store is syncing is the
 one screen in the app it would be worst to be wrong on.
 
+## Being paid for
+
+The entitlement is a value type in the engine — `Entitlement`, with
+`ProFeature` naming what is sold — so the rules are tested exhaustively and
+off-platform, and StoreKit appears in exactly one file. `SubscriptionStore`
+builds one from `Transaction.currentEntitlements`; nothing else may invent one,
+and there is no `isPro` boolean written anywhere a user could reach.
+
+**No account, deliberately.** A purchase belongs to the buyer's Apple ID, which
+is what puts it on their other devices without anyone logging in. Requiring a
+login for an app that works offline would also risk App Review guideline
+5.1.1(v), which allows an account only where it is core to the functionality.
+
+Two rules the code is written to keep:
+
+**Pro gates producing and creating, never viewing or keeping.** Someone whose
+subscription lapsed opens every day they recorded, sees every total, and still
+writes the JSON backup that holds the lot. What they lose is the formatted
+timesheet and the ability to set more up. `ProFeature.alwaysFree` lists what
+that protects, and a test asserts the sold list has not quietly grown.
+
+**A cached answer may extend what was paid for, never invent it.** The failure
+worth designing against is a paying customer with no signal being told to buy
+the app again, so a recent paid entitlement survives a launch that cannot reach
+the App Store, for a bounded fortnight. A cached `.free` is worth nothing and is
+never consulted.
+
+Gates sit at the moment of doing the thing, not at the door of the screen. A
+person who has not paid can open Export, choose their range and columns, and
+read the preview — they are stopped where the file would be written. Hiding the
+screen would leave them guessing what they were being sold.
+
+The widget cannot ask StoreKit cheaply from its own short-lived process, so the
+answer travels in the snapshot the app already writes. It defaults closed, which
+is what makes a file written by an older version read as unpaid rather than as a
+free pass.
+
 ## Text and tests
 
 **Strings the user reads go through a String Catalog.** One per bundle: the app

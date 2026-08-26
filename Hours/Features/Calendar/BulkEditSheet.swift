@@ -12,6 +12,7 @@ struct BulkEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(SubscriptionStore.self) private var subscriptions
 
     @Query(sort: \HolidayRecord.name) private var holidayRecords: [HolidayRecord]
 
@@ -22,6 +23,7 @@ struct BulkEditSheet: View {
     @State private var skipsNonWorkingDays = true
     @State private var overwrites = false
     @State private var isConfirming = false
+    @State private var paywallReason: ProFeature?
 
     init(initialRange: CalendarDateRange) {
         self.initialRange = initialRange
@@ -94,6 +96,13 @@ struct BulkEditSheet: View {
 
                 Section {
                     Button(role: actionKind == .clear ? .destructive : nil) {
+                        // The plan above is computed and shown either way, so
+                        // the offer is "this is what it would do" rather than
+                        // "trust us".
+                        guard subscriptions.allows(.rangeEditing) else {
+                            paywallReason = .rangeEditing
+                            return
+                        }
                         if actionKind == .clear || overwrites {
                             isConfirming = true
                         } else {
@@ -102,10 +111,12 @@ struct BulkEditSheet: View {
                     } label: {
                         Text(applyTitle)
                             .frame(maxWidth: .infinity)
+                            .proLock(!subscriptions.allows(.rangeEditing))
                     }
                     .disabled(plan.isEmpty)
                 }
             }
+            .paywall(for: $paywallReason)
             .navigationTitle("Edit a range")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

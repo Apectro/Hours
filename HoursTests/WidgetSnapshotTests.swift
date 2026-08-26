@@ -26,7 +26,8 @@ final class WidgetSnapshotTests: XCTestCase {
             monthBalanceMinutes: monthWorked - monthExpected,
             showsBalance: true,
             unrecordedDayCount: 0,
-            durationStyle: .hoursAndMinutes
+            durationStyle: .hoursAndMinutes,
+            isUnlocked: true
         )
     }
 
@@ -181,6 +182,10 @@ final class WidgetSnapshotTests: XCTestCase {
         XCTAssertFalse(decoded.isClockRunning)
         XCTAssertNil(decoded.clockStartedAt)
         XCTAssertEqual(decoded.durationStyle, .hoursAndMinutes)
+        XCTAssertFalse(
+            decoded.isUnlocked,
+            "a file written before the widgets were sold must not read as paid for"
+        )
     }
 
     func testAnUnreadableValueFallsBackRatherThanFailingTheWholeFile() throws {

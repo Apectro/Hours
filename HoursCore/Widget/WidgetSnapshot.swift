@@ -28,6 +28,14 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     /// rather than picking its own format and looking like a different app.
     var durationStyle: DurationStyle
 
+    /// Whether the widgets are paid for.
+    ///
+    /// Carried rather than asked, because a widget runs in its own short-lived
+    /// process and reaching StoreKit there would mean a network round trip on
+    /// every render. The app already knows, and it already writes this file
+    /// whenever anything changes.
+    var isUnlocked: Bool
+
     static let empty = WidgetSnapshot(
         generatedAt: .distantPast,
         isClockRunning: false,
@@ -40,7 +48,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         monthBalanceMinutes: 0,
         showsBalance: true,
         unrecordedDayCount: 0,
-        durationStyle: .hoursAndMinutes
+        durationStyle: .hoursAndMinutes,
+        isUnlocked: false
     )
 
     /// Elapsed time on the running clock, worked out by the widget itself.
@@ -128,7 +137,7 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         case generatedAt, isClockRunning, clockStartedAt, clockJobName
         case todayWorkedMinutes, todayExpectedMinutes
         case monthWorkedMinutes, monthExpectedMinutes, monthBalanceMinutes
-        case showsBalance, unrecordedDayCount, durationStyle
+        case showsBalance, unrecordedDayCount, durationStyle, isUnlocked
     }
 
     init(from decoder: Decoder) throws {
@@ -145,7 +154,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
             monthBalanceMinutes: container.lenient(.monthBalanceMinutes, 0),
             showsBalance: container.lenient(.showsBalance, true),
             unrecordedDayCount: container.lenient(.unrecordedDayCount, 0),
-            durationStyle: container.lenient(.durationStyle, DurationStyle.hoursAndMinutes)
+            durationStyle: container.lenient(.durationStyle, DurationStyle.hoursAndMinutes),
+            isUnlocked: container.lenient(.isUnlocked, false)
         )
     }
 
@@ -161,7 +171,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         monthBalanceMinutes: Int,
         showsBalance: Bool,
         unrecordedDayCount: Int,
-        durationStyle: DurationStyle
+        durationStyle: DurationStyle,
+        isUnlocked: Bool
     ) {
         self.generatedAt = generatedAt
         self.isClockRunning = isClockRunning
@@ -175,5 +186,6 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         self.showsBalance = showsBalance
         self.unrecordedDayCount = unrecordedDayCount
         self.durationStyle = durationStyle
+        self.isUnlocked = isUnlocked
     }
 }

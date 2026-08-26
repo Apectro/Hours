@@ -7,10 +7,28 @@ import SwiftUI
 /// — does not need a tap.
 struct SettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(SubscriptionStore.self) private var subscriptions
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Button {
+                        isShowingPaywall = true
+                    } label: {
+                        SettingsRow(
+                            title: subscriptions.isPro ? "Hours Pro" : "Unlock Hours Pro",
+                            value: subscriptions.isPro ? "Active" : nil,
+                            systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
+                        )
+                    }
+                    .tint(.primary)
+                } footer: {
+                    if !subscriptions.isPro {
+                        Text("Timesheets, widgets, a second job, range editing and iCloud sync. Recording your hours is free and stays free.")
+                    }
+                }
+
                 Section("Work") {
                     NavigationLink {
                         ScheduleSettingsScreen()
@@ -129,9 +147,12 @@ struct SettingsScreen: View {
                     }
                 }
             }
+            .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
             .navigationTitle("Settings")
         }
     }
+
+    @State private var isShowingPaywall = false
 
     private var settings: AppSettings { settingsStore.settings }
 

@@ -12,6 +12,7 @@ struct WidgetSnapshotWriter {
     let settings: AppSettings
     let clock: ActiveShiftStore
     let calendar: Calendar
+    let isUnlocked: Bool
 
     func snapshot(at instant: Date = Date()) -> WidgetSnapshot {
         let today = CalendarDate.today(in: calendar, now: instant)
@@ -55,7 +56,8 @@ struct WidgetSnapshotWriter {
             monthBalanceMinutes: monthSummary.balanceMinutes,
             showsBalance: settings.features.showsBalance,
             unrecordedDayCount: gaps.count,
-            durationStyle: settings.displayDurationStyle
+            durationStyle: settings.displayDurationStyle,
+            isUnlocked: isUnlocked
         )
     }
 
@@ -76,7 +78,8 @@ extension HoursStack {
             repository: repository,
             settings: settings.settings,
             clock: clock,
-            calendar: calendar
+            calendar: calendar,
+            isUnlocked: subscriptions.allows(.widgets)
         )
     }
 

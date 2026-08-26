@@ -76,6 +76,13 @@ enum HoursStack {
         ? ActiveShiftStore.ephemeral()
         : ActiveShiftStore()
 
+    /// What has been paid for. Built once, because it holds a listener on the
+    /// App Store for the life of the app — a second one would mean two answers
+    /// to the same question.
+    static let subscriptions: SubscriptionStore = isRunningUITests
+        ? SubscriptionStore.ephemeral(Entitlement(kind: .lifetime))
+        : SubscriptionStore()
+
     static var calendar: Calendar { settings.workCalendar }
 
     /// A repository on the main context. Intents and the app share it, so a

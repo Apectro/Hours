@@ -39,6 +39,11 @@ struct AboutScreen: View {
                     title: "No location access",
                     detail: "The optional location field is a text note you type. The app never asks the system where you are."
                 )
+                PrivacyPoint(
+                    symbol: "creditcard",
+                    title: "Buying Hours Pro",
+                    detail: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into."
+                )
             }
 
             Section("Keeping your data safe") {
@@ -62,7 +67,7 @@ struct AboutScreen: View {
     /// the device" while the store is syncing is the one screen in the app it
     /// would be worst to be wrong on.
     private var headlineDetail: String {
-        let common = "The app has no accounts, no servers of ours, no analytics, no advertising and no third-party code."
+        let common = "There is no account to make, no server of ours, no analytics, no advertising and no third-party code."
         return isSyncing
             ? "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common)"
             : "Your hours are stored locally and nowhere else. \(common) It makes no network connections at all, so there is nothing for it to send even if it wanted to."

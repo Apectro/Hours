@@ -30,6 +30,7 @@ struct RootView: View {
             tabs
         }
         .task {
+            await HoursStack.subscriptions.refresh()
             await refreshReminder()
             HoursStack.refreshWidget()
         }
@@ -37,6 +38,9 @@ struct RootView: View {
             // Rewritten on every return to the app, so the body names the days
             // that are actually missing rather than going stale.
             if phase == .active {
+                // A subscription can lapse, be refunded, or be bought on
+                // another device while this one sleeps.
+                Task { await HoursStack.subscriptions.refresh() }
                 Task { await refreshReminder() }
                 // Anything that arrived from another device while the app was
                 // away is merged by now, so this is the moment to notice two

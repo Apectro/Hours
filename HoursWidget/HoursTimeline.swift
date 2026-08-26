@@ -39,7 +39,8 @@ extension HoursEntry {
                 monthBalanceMinutes: 180,
                 showsBalance: true,
                 unrecordedDayCount: 1,
-                durationStyle: .hoursAndMinutes
+                durationStyle: .hoursAndMinutes,
+                isUnlocked: true
             ),
             state: .sample
         )
@@ -88,6 +89,9 @@ struct HoursProvider: TimelineProvider {
         }
         guard let snapshot = WidgetSnapshotStore.read() else {
             return HoursEntry(date: date, snapshot: .empty, state: .waiting)
+        }
+        guard snapshot.isUnlocked else {
+            return HoursEntry(date: date, snapshot: snapshot, state: .locked)
         }
         return HoursEntry(date: date, snapshot: snapshot, state: .data)
     }
