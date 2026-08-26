@@ -214,13 +214,31 @@ final class PersistenceCodingTests: XCTestCase {
         }
     }
 
-    /// Damage in the records is damage, not an empty backup.
-    func testADamagedListOfDaysIsRefused() {
+    /// A `days` key that is not a list at all is damage to the file.
+    ///
+    /// The line between this and a damaged day inside the list is the whole
+    /// design: one bad day costs that day, while a `days` key holding
+    /// something that is not a list means the file's shape is wrong and
+    /// nothing in it can be trusted. This test used to assert that a day with
+    /// an unreadable date threw too — which was right until the partial
+    /// restore made that day recoverable, and is what caught the change.
+    func testAListOfDaysThatIsNotAListIsRefused() {
         XCTAssertThrowsError(
-            try BackupArchive.decoded(from: Data(#"{"formatVersion":1,"days":[{"date":"not a date"}]}"#.utf8))
+            try BackupArchive.decoded(from: Data(#"{"formatVersion":1,"days":"gone"}"#.utf8))
         ) { error in
             XCTAssertEqual(error as? BackupArchive.BackupError, .unreadable("list of days"))
         }
+    }
+
+    /// The other side of that line: a day whose date is unreadable costs that
+    /// day and nothing more.
+    func testADayWithAnUnreadableDateCostsOnlyThatDay() throws {
+        let archive = try BackupArchive.decoded(from: Data(#"""
+        {"formatVersion":1,"days":[{"date":"not a date"},{"date":20260804,"shifts":[]}]}
+        """#.utf8))
+
+        XCTAssertEqual(archive.days.map(\.date.day), [4])
+        XCTAssertEqual(archive.damagedDays, [.unidentified])
     }
 
     /// Truncation is the realistic form of damage: a copy that stopped early.
