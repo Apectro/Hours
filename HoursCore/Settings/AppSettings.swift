@@ -80,13 +80,48 @@ struct AppSettings: Hashable, Codable, Sendable {
         DurationFormatting(style: displayDurationStyle)
     }
 
+    /// The columns this configuration could show, whether or not they are
+    /// currently selected.
+    var allowedExportColumns: Set<ReportColumn> {
+        var allowed = Set(features.availableColumns())
+        if !tracksMultipleJobs { allowed.remove(.job) }
+        return allowed
+    }
+
     /// Export columns filtered by the enabled features, preserving the user's
     /// chosen order.
     var effectiveExportColumns: [ReportColumn] {
-        var allowed = Set(features.availableColumns())
-        if !tracksMultipleJobs { allowed.remove(.job) }
+        let allowed = allowedExportColumns
         let selected = export.columns.filter { allowed.contains($0) }
         return selected.isEmpty ? ReportColumn.defaultSelection.filter { allowed.contains($0) } : selected
+    }
+
+    /// Puts a newly switched-on field into the export as well as into the app.
+    ///
+    /// The export shows the intersection of the columns you have chosen and
+    /// the fields you have switched on, and the chosen list was written before
+    /// you switched anything on — so turning on Tags added the field to the
+    /// day editor, added it to the backup, and left it out of every timesheet
+    /// you produced afterwards. Nothing said so. The same went for Location,
+    /// and for the Job column the moment a second job existed.
+    ///
+    /// A field that has just become available is added at its natural place in
+    /// the column order. One switched off and on again does not come back if
+    /// it was removed from the columns in between — that removal is a decision
+    /// and outranks this.
+    mutating func adoptColumnsMadeAvailable(since previous: AppSettings) {
+        let appeared = allowedExportColumns.subtracting(previous.allowedExportColumns)
+        guard !appeared.isEmpty else { return }
+
+        func rank(_ column: ReportColumn) -> Int {
+            ReportColumn.allCases.firstIndex(of: column) ?? ReportColumn.allCases.count
+        }
+        var columns = export.columns
+        for column in appeared.sorted(by: { rank($0) < rank($1) }) where !columns.contains(column) {
+            let position = columns.firstIndex { rank($0) > rank(column) } ?? columns.count
+            columns.insert(column, at: position)
+        }
+        export.columns = columns
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -230,8 +230,8 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
         // Seven formats are declared and Style indexes them 0...6; a cell
         // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"16\">"))
-        XCTAssertFalse(package.contains("s=\"16\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"19\">"))
+        XCTAssertFalse(package.contains("s=\"19\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -387,6 +387,41 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("<color rgb=\"FFE2E6EF\"/>"), "no row rule is defined")
         XCTAssertTrue(package.contains("s=\"10\""), "no row uses the ruled style")
         XCTAssertTrue(package.contains("s=\"13\""), "no row uses the banded style")
+    }
+
+    /// A timesheet gets printed, and the workbook had nothing to say about
+    /// paper — so it came out portrait, in as many page-widths as it liked,
+    /// with the column titles on the first sheet only. The PDF has done this
+    /// properly all along.
+    func testTheDaysAreSetUpToPrint() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("orientation=\"landscape\""), "ten columns down a portrait page")
+        XCTAssertTrue(package.contains("fitToWidth=\"1\""), "the table will break across page widths")
+        XCTAssertTrue(package.contains("fitToHeight=\"0\""), "a year would be squeezed onto one page")
+        XCTAssertTrue(
+            package.contains("_xlnm.Print_Titles"),
+            "the column titles will not repeat on the second sheet of paper"
+        )
+        XCTAssertTrue(package.contains("orientation=\"portrait\""), "the summary is a portrait page")
+    }
+
+    /// The balance is the figure someone opened the file for, and the only one
+    /// whose sign changes what it means.
+    func testTheBalanceIsColouredBySign() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(
+            package.contains("formatCode=\"[Color10]+0.00;[Red]-0.00;0.00\""),
+            "a shortfall and a surplus look the same"
+        )
+        XCTAssertTrue(package.contains("s=\"16\""), "the balance does not use the signed format")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {

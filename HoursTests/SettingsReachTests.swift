@@ -151,6 +151,74 @@ final class SettingsReachTests: XCTestCase {
         )
     }
 
+    // MARK: - Switching a field on has to reach the export too
+
+    /// A field turned on in Settings appears in the timesheet.
+    ///
+    /// The export shows the intersection of the columns you have chosen and
+    /// the fields you have switched on — and the chosen list was written
+    /// before you switched anything on. So turning on Tags added the field to
+    /// the day editor, added it to the backup, and left it out of every
+    /// timesheet produced afterwards, silently. The same for Location, and for
+    /// the Job column the moment a second job existed.
+    func testSwitchingAFieldOnAddsItToTheExportColumns() {
+        let cases: [(String, ReportColumn, (inout AppSettings) -> Void)] = [
+            ("tags", .tags, { $0.features.trackTags = true }),
+            ("location", .location, { $0.features.trackLocation = true })
+        ]
+
+        for (name, column, change) in cases {
+            let before = Fixture.settings()
+            XCTAssertFalse(
+                before.effectiveExportColumns.contains(column),
+                "\(name) should start out of the export, or this proves nothing"
+            )
+
+            var after = before
+            change(&after)
+            after.adoptColumnsMadeAvailable(since: before)
+
+            XCTAssertTrue(
+                after.effectiveExportColumns.contains(column),
+                "switching \(name) on left it out of the timesheet"
+            )
+        }
+    }
+
+    /// A second job brings its column with it.
+    func testASecondJobAddsTheJobColumn() {
+        let before = Fixture.settings()
+        var after = before
+        after.addJob(Job(name: "Evenings"))
+        after.adoptColumnsMadeAvailable(since: before)
+
+        XCTAssertTrue(after.tracksMultipleJobs)
+        XCTAssertTrue(
+            after.effectiveExportColumns.contains(.job),
+            "two jobs and no way to tell which is which"
+        )
+    }
+
+    /// A column removed on purpose stays removed.
+    func testAColumnRemovedOnPurposeIsNotPutBack() {
+        var settings = Fixture.settings()
+        settings.features.trackTags = true
+        var withTags = settings
+        withTags.adoptColumnsMadeAvailable(since: Fixture.settings())
+        XCTAssertTrue(withTags.effectiveExportColumns.contains(.tags))
+
+        // The user takes it out again, and nothing else changes.
+        var trimmed = withTags
+        trimmed.export.columns.removeAll { $0 == .tags }
+        let same = trimmed
+        trimmed.adoptColumnsMadeAvailable(since: same)
+
+        XCTAssertFalse(
+            trimmed.effectiveExportColumns.contains(.tags),
+            "a deliberate removal was undone on the next settings change"
+        )
+    }
+
     // MARK: - The same property, for the schedule
 
     /// The weekly override was the first instance of this bug, and it lives on

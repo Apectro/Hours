@@ -68,6 +68,9 @@ final class SettingsStore {
     func update(_ transform: (inout AppSettings) -> Void) {
         var draft = settings
         transform(&draft)
+        // Switching a field on has to reach the export too, and this is the
+        // only place that can see both the before and the after.
+        draft.adoptColumnsMadeAvailable(since: settings)
         guard draft != settings else { return }
         settings = draft
         persist()
