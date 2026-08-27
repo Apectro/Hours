@@ -405,6 +405,28 @@ final class ExportTests: XCTestCase {
         XCTAssertGreaterThan(headerRow(in: package), 4, "there is no room above for a summary")
     }
 
+    /// A report of two columns still gets its figures.
+    ///
+    /// The summary label is merged and the figure sits beside it, and the
+    /// figure used to be placed three columns from the right — which on a
+    /// narrow report is off the end of the row, so every figure was dropped
+    /// and the summary printed as a list of labels with nothing against them.
+    func testTheSummaryFitsAReportOfTwoColumns() {
+        var export = ExportPreferences()
+        export.columns = [.date, .worked]
+        let table = sampleTable(settings: Fixture.settings(export: export))
+        XCTAssertEqual(table.columns.count, 2, "the fixture is not narrow, so this proves nothing")
+
+        let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+
+        XCTAssertTrue(package.contains(">Total worked<"), "the summary lost its labels")
+        // Column B, on the summary rows above the column titles.
+        let header = headerRow(in: package)
+        XCTAssertGreaterThan(header, 4)
+        let figures = (4..<header).filter { package.contains("<c r=\"B\($0)\" s=\"10\">") }
+        XCTAssertFalse(figures.isEmpty, "every summary figure was dropped off the end of the row")
+    }
+
     /// Turning the summary off pulls the table up under the title.
     func testWithoutTheSummaryTheTableFollowsTheTitle() {
         var preferences = ExportPreferences()
@@ -639,8 +661,10 @@ final class ExportTests: XCTestCase {
         let tail = Array(data.suffix(22))
         XCTAssertEqual(Array(tail.prefix(4)), [0x50, 0x4B, 0x05, 0x06], "end of central directory")
 
+        // Content types, the two relationship parts, the workbook, the styles
+        // and the one worksheet.
         let entryCount = Int(tail[10]) | (Int(tail[11]) << 8)
-        XCTAssertEqual(entryCount, 7, "seven parts: the summary sheet is one of them")
+        XCTAssertEqual(entryCount, 6, "the package is not the six parts a workbook needs")
     }
 
     func testCRC32MatchesTheStandardCheckValue() {

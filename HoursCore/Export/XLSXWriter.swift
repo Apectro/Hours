@@ -121,7 +121,13 @@ enum XLSXWriter {
 
             // Labels are merged rather than left to overflow, because the cell
             // beside them holds the figure and a blocked overflow clips.
-            let labelEnd = paired ? 2 : max(1, columns - 3)
+            //
+            // Unpaired, the figure goes in the last column and the label takes
+            // everything before it — so a report of two columns still has
+            // somewhere to put the balance. It used to stop three columns from
+            // the right, which on a narrow report was past the end of the row
+            // and the figures were dropped in silence.
+            let labelEnd = paired ? 2 : columns - 2
             let valueColumn = labelEnd + 1
             let secondLabelEnd = 7
 
@@ -131,7 +137,7 @@ enum XLSXWriter {
                 if let first {
                     merge(0, labelEnd, row: rowNumber)
                     cells[0] = .text(first.label, style: .summaryLabel)
-                    if valueColumn < columns {
+                    if valueColumn > 0 && valueColumn < columns {
                         cells[valueColumn] = figure(for: first)
                         sizing[valueColumn] = cells[valueColumn]
                     }
