@@ -204,14 +204,15 @@ final class ExportTests: XCTestCase {
                 as: UTF8.self
             )
 
-            // 8h worked on the Monday, less the half-hour break, is 8.00; the
-            // Tuesday runs to 18:00, which is 9.50.
+            // Durations are stored as a fraction of a day. The Monday works
+            // eight hours less its half-hour break, which is a third of a day;
+            // the Tuesday runs to 18:00, which is 9h 30m.
             XCTAssertTrue(
-                package.contains("<v>8.0000</v>"),
+                package.contains("<v>0.333333</v>"),
                 "\(style) wrote the worked hours as text rather than a number"
             )
             XCTAssertTrue(
-                package.contains("<v>9.5000</v>"),
+                package.contains("<v>0.395833</v>"),
                 "\(style) wrote the longer day as text rather than a number"
             )
         }
@@ -412,7 +413,12 @@ final class ExportTests: XCTestCase {
             package.contains("_xlnm.Print_Titles"),
             "the column titles will not repeat on the second sheet of paper"
         )
-        XCTAssertTrue(package.contains("orientation=\"portrait\""), "the summary is a portrait page")
+        // Both sheets print landscape. Portrait could not hold the summary's
+        // two columns and pushed the right-hand one onto a page of its own.
+        XCTAssertFalse(
+            package.contains("orientation=\"portrait\""),
+            "a portrait sheet will split its columns across pages"
+        )
     }
 
     /// A duration has to read like a duration and still add up.
