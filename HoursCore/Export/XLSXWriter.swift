@@ -286,39 +286,6 @@ enum XLSXWriter {
         return "<cols>\(entries.joined())</cols>"
     }
 
-    private enum Style: Int {
-        case normal = 0
-        case boldText = 1
-        case hours = 2
-        case boldHours = 3
-        case count = 4
-        case boldCount = 5
-        case header = 6
-        case title = 7
-        case subtitle = 8
-        case section = 9
-        /// Ruled data rows, and the same three banded, so the table reads the
-        /// way the PDF's does rather than as an undifferentiated grid.
-        case ruledText = 10
-        case ruledHours = 11
-        case ruledCount = 12
-        case bandedText = 13
-        case bandedHours = 14
-        case bandedCount = 15
-
-        /// The balance, which is the one figure worth colouring: a shortfall
-        /// in red and a surplus in green, the way the app shows it.
-        case signedHours = 16
-        case headlineSigned = 17
-        case headlineLabel = 18
-        /// The hairline that closes the title block.
-        case subtitleRule = 19
-        case rule = 20
-
-        static func text(banded: Bool) -> Style { banded ? .bandedText : .ruledText }
-        static func hours(banded: Bool) -> Style { banded ? .bandedHours : .ruledHours }
-    }
-
     private enum Cell {
         case text(String, style: Style)
         case number(Double, style: Style)
