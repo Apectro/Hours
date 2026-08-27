@@ -231,7 +231,7 @@ enum XLSXWriter {
         <dimension ref="A1:\(lastColumn)\(rowNumber - 1)"/>\
         <sheetViews><sheetView workbookViewId="0"><pane ySplit="\(headerRow)" topLeftCell="A\(headerRow + 1)" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>\
         <sheetFormatPr defaultRowHeight="15" baseColWidth="10"/>\
-        \(columnWidths(for: grid))\
+        \(columnWidths(for: grid, in: table.language))\
         <sheetData>\(rows.joined())</sheetData>\
         \(autoFilter(headerRow: headerRow, lastDataRow: lastDataRow, columns: columns))\
         \(mergeBlock)\
@@ -318,14 +318,14 @@ enum XLSXWriter {
     /// than its own heading is unreadable, and one note three hundred
     /// characters long should not push the rest of the sheet off the screen —
     /// a wrapped cell is better than a column nobody can scroll past.
-    private static func columnWidths(for grid: [[Cell]]) -> String {
+    private static func columnWidths(for grid: [[Cell]], in language: ExportLanguage) -> String {
         let columnCount = grid.map(\.count).max() ?? 0
         guard columnCount > 0 else { return "" }
 
         var widest = Array(repeating: 0, count: columnCount)
         for row in grid {
             for (index, cell) in row.enumerated() where index < columnCount {
-                widest[index] = max(widest[index], cell.width)
+                widest[index] = max(widest[index], cell.width(in: language))
             }
         }
 
@@ -352,25 +352,34 @@ enum XLSXWriter {
         case gap
 
         /// The characters this cell will try to show, for sizing the column.
-        var width: Int {
+        func width(in language: ExportLanguage) -> Int {
             switch self {
             case let .text(value, _): return value.count
-            case let .formula(_, cached, style): return Cell.number(cached, style: style).width
+            case let .formula(_, cached, style): return Cell.number(cached, style: style).width(in: language)
             case .gap: return 0
-            // "165.00" and the like: the format is fixed, so the widest a
-            // number gets is its digits plus the point and two decimals.
             case let .number(value, style):
                 switch style {
                 case .count, .summaryCount:
                     return String(Int(value.magnitude)).count
                 default:
-                    // Shown through the [h]"h" mm"m" mask, so the width is the
-                    // hours it resolves to plus "h 00m" — not the digits of the
-                    // fraction of a day actually in the cell.
+                    // A duration is shown through the mask rather than as the
+                    // fraction of a day the cell holds, so the width is the
+                    // hours it resolves to plus whatever the mask adds — and
+                    // what the mask adds is the language's, not five
+                    // characters of "h 00m". German writes "165 Std 00 Min",
+                    // and a column sized for "165h 00m" shows ### instead.
                     let hours = Int((value.magnitude * 24).rounded(.down))
-                    return String(hours).count + 5 + (value < 0 ? 1 : 0)
+                    return String(hours).count + Cell.maskWidth(in: language) + (value < 0 ? 1 : 0)
                 }
             }
+        }
+
+        /// Everything the duration mask adds after the hours: the hour unit,
+        /// a space, two digits of minutes, and the minute unit.
+        static func maskWidth(in language: ExportLanguage) -> Int {
+            language.unitSpacer.count + language.hourUnit.count
+                + 1 + 2
+                + language.unitSpacer.count + language.minuteUnit.count
         }
     }
 

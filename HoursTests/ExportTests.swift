@@ -670,6 +670,70 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(csv.contains("Zusammenfassung,"))
     }
 
+    /// A duration column is wide enough for the duration it will show, in
+    /// whichever language it shows it.
+    ///
+    /// The cell holds a fraction of a day and the mask turns it into text, so
+    /// the width has to be estimated from what the mask will produce. That
+    /// estimate had "h 00m" — five characters — written into it, and German
+    /// writes eleven. The columns came out too narrow and the workbook showed
+    /// ### where the hours should be, which is the same defect twice: sized
+    /// for English, rendered in German.
+    func testDurationColumnsAreWideEnoughInEveryLanguage() {
+        for language in [ExportLanguage.english, .german, .croatian] {
+            var export = ExportPreferences()
+            export.language = language
+            let table = sampleTable(settings: Fixture.settings(export: export))
+            let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+
+            let widths = package.components(separatedBy: "<col min=").dropFirst().map { entry -> Int in
+                guard let value = entry.range(of: "width=\"") else { return 0 }
+                return Int(entry[value.upperBound...].prefix { $0.isNumber }) ?? 0
+            }
+            XCTAssertEqual(widths.count, table.columns.count, "\(language.rawValue): a column has no width")
+
+            let duration = DurationFormatting.export(
+                style: export.durationStyle,
+                decimalSeparator: export.decimalSeparator.character,
+                language: language
+            )
+            for (index, column) in table.columns.enumerated() where column.isDuration {
+                // The longest figure this column will actually render.
+                let longest = table.rows.reduce(0) { widest, row in
+                    guard index < row.minutes.count, let minutes = row.minutes[index] else { return widest }
+                    return max(widest, duration.string(minutes).count)
+                }
+                XCTAssertGreaterThanOrEqual(
+                    widths[index], longest,
+                    "\(language.rawValue): \(column.rawValue) is narrower than the figures in it"
+                )
+            }
+        }
+    }
+
+    /// And so is the summary's figure column, which is where the widest
+    /// duration in the whole file lives — a month's total rather than a day's.
+    func testTheSummaryFigureColumnFitsAMonthsTotal() {
+        for language in [ExportLanguage.english, .german, .croatian] {
+            var export = ExportPreferences()
+            export.language = language
+            let table = sampleTable(settings: Fixture.settings(export: export))
+            let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+
+            let widths = package.components(separatedBy: "<col min=").dropFirst().map { entry -> Int in
+                guard let value = entry.range(of: "width=\"") else { return 0 }
+                return Int(entry[value.upperBound...].prefix { $0.isNumber }) ?? 0
+            }
+
+            // Paired layout puts the durations in column D and the counts in I.
+            let longest = table.totals.map(\.value.count).max() ?? 0
+            XCTAssertGreaterThanOrEqual(
+                widths[3], longest,
+                "\(language.rawValue): the summary figures will render as ###"
+            )
+        }
+    }
+
     /// And a Croatian one is Croatian.
     func testACroatianExportIsCroatian() {
         var export = ExportPreferences()
