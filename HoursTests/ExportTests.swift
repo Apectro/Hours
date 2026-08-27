@@ -437,7 +437,17 @@ final class ExportTests: XCTestCase {
             package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
             "durations are not shown as hours and minutes"
         )
-        XCTAssertTrue(package.contains(";&quot;0h&quot;"), "a zero will read 0h 00m")
+        // Three arms, and the order is what makes them work: a negative is
+        // caught before the under-an-hour arm, which would otherwise render a
+        // shortfall as a count of minutes.
+        XCTAssertTrue(package.contains("[&lt;0][h]"), "a negative balance is not handled first")
+        XCTAssertTrue(
+            package.contains("[&lt;0.0416666][m]&quot;m&quot;"),
+            "a half-hour break will read 0h 30m"
+        )
+        // Elapsed minutes in brackets. A bare m is the month, and writing it
+        // that way rendered every break in the file as 1m.
+        XCTAssertFalse(package.contains(";m&quot;m&quot;"), "a bare m means month, not minutes")
         // Eight hours as a fraction of a day.
         XCTAssertTrue(package.contains("<v>0.333333</v>"), "8h is not stored as a third of a day")
 
