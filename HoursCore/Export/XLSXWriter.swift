@@ -261,6 +261,17 @@ enum XLSXWriter {
         static func duration(rest: Bool) -> Style { rest ? .restDuration : .duration }
     }
 
+    /// Scrolling a year of days must not lose the column titles.
+    private static let frozenHeader = """
+    <sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+    """
+
+    /// Sorting and filtering the days, without touching the totals below them.
+    private static func autoFilter(lastDataRow: Int, columns: Int) -> String {
+        guard lastDataRow > 1, columns > 0 else { return "" }
+        return "<autoFilter ref=\"A1:\(columnName(columns - 1))\(lastDataRow)\"/>"
+    }
+
     /// Column widths, from the widest thing each column has to show.
     ///
     /// The unit is roughly one character of the default font, so this is the
