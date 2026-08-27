@@ -17,12 +17,13 @@ final class ExportCaptureTests: XCTestCase {
 
     /// A full month with the kinds of day that make a report interesting:
     /// overtime, a short day, a weekend, a holiday and a long note.
-    private func monthTable(days dayCount: Int = 31) -> ReportTable {
+    private func monthTable(days dayCount: Int = 31, language: ExportLanguage = .device) -> ReportTable {
         // A name, because a timesheet that reaches somebody else carries one
         // — and because the captures are the only place the title block is
         // ever looked at rather than asserted on.
         var export = ExportPreferences()
         export.ownerName = "Ada Lovelace"
+        export.language = language
         let settings = Fixture.settings(export: export)
         let start = Fixture.date(2026, 8, 1)
         let end = Fixture.date(2026, 8, dayCount)
@@ -63,7 +64,12 @@ final class ExportCaptureTests: XCTestCase {
         let days = PeriodEngine(settings: settings, calendar: calendar)
             .days(in: range, records: records, holidays: [])
         return ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
-            .makeTable(days: days, range: range, title: "Hours — August 2026", countingThrough: end)
+            .makeTable(
+                days: days,
+                range: range,
+                title: "\(language(.hours)) — \(CalendarFormatting(locale: language.locale, calendar: calendar).monthTitle(start.yearMonth))",
+                countingThrough: end
+            )
     }
 
     private func attach(_ image: UIImage, named name: String) {
@@ -164,6 +170,32 @@ final class ExportCaptureTests: XCTestCase {
 
         let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
         XCTAssertGreaterThan(document.pageCount, 0, "an empty report produced no pages at all")
+    }
+
+    /// The same month in each language the export speaks.
+    ///
+    /// A translation is the kind of thing that passes every assertion and
+    /// still comes out wrong — a column left in English, a number format that
+    /// says Std where the text beside it says h, a month name that ignored the
+    /// setting. Assertions cannot see any of that; a rendered page can.
+    func testCaptureTheExportInEveryLanguage() throws {
+        for (language, name) in [(ExportLanguage.german, "de"), (ExportLanguage.croatian, "hr")] {
+            let table = monthTable(language: language)
+            let rendered = try pages(of: PDFReportRenderer.data(for: table))
+            if let first = rendered.first {
+                attach(first, named: "11-export-pdf-\(name)")
+            }
+
+            let workbook = XCTAttachment(
+                data: XLSXWriter.data(for: table, preferences: ExportPreferences(language: language), generatedOn: Date()),
+                uniformTypeIdentifier: "org.openxmlformats.spreadsheetml.sheet"
+            )
+            workbook.name = "12-export-xlsx-\(name).xlsx"
+            workbook.lifetime = .keepAlways
+            add(workbook)
+
+            print("\(name) header          -> \(table.headerTitles().joined(separator: " | "))")
+        }
     }
 
     /// The CSV and the workbook, written exactly as the app writes them.
