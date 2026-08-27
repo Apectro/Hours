@@ -70,27 +70,27 @@ struct ReportBuilder: Sendable {
 
     private func makeRow(day: DayComputation, columns: [ReportColumn], runningBalance: Int) -> ReportRow {
         var values: [String] = []
-        var numbers: [Double?] = []
+        var minutes: [Int?] = []
         values.reserveCapacity(columns.count)
-        numbers.reserveCapacity(columns.count)
+        minutes.reserveCapacity(columns.count)
 
         for column in columns {
             let cell = value(for: column, day: day, runningBalance: runningBalance)
             values.append(cell.text)
-            numbers.append(cell.number)
+            minutes.append(cell.minutes)
         }
 
         return ReportRow(
             id: day.date.key,
             values: values,
-            numbers: numbers,
+            minutes: minutes,
             isWorkingDay: day.isScheduledWorkingDay,
             balanceMinutes: day.balanceMinutes,
             hasEntry: day.hasEntry
         )
     }
 
-    private func value(for column: ReportColumn, day: DayComputation, runningBalance: Int) -> (text: String, number: Double?) {
+    private func value(for column: ReportColumn, day: DayComputation, runningBalance: Int) -> (text: String, minutes: Int?) {
         switch column {
         case .date:
             return (settings.export.dateStyle.string(for: day.date), nil)
@@ -114,20 +114,20 @@ struct ReportBuilder: Sendable {
             return (settings.export.timeStyle.string(for: end) + suffix, nil)
         case .breakTime:
             guard day.breakMinutes > 0 else { return (emptyPlaceholder, nil) }
-            return (duration.string(day.breakMinutes), DurationFormatting.decimalHours(day.breakMinutes))
+            return (duration.string(day.breakMinutes), day.breakMinutes)
         case .worked:
-            return (duration.string(day.workedMinutes), DurationFormatting.decimalHours(day.workedMinutes))
+            return (duration.string(day.workedMinutes), day.workedMinutes)
         case .credited:
             guard day.creditedMinutes > 0 else { return (emptyPlaceholder, nil) }
-            return (duration.string(day.creditedMinutes), DurationFormatting.decimalHours(day.creditedMinutes))
+            return (duration.string(day.creditedMinutes), day.creditedMinutes)
         case .expected:
-            return (duration.string(day.expectedMinutes), DurationFormatting.decimalHours(day.expectedMinutes))
+            return (duration.string(day.expectedMinutes), day.expectedMinutes)
         case .overtime:
-            return (duration.string(day.overtimeMinutes), DurationFormatting.decimalHours(day.overtimeMinutes))
+            return (duration.string(day.overtimeMinutes), day.overtimeMinutes)
         case .balance:
-            return (duration.signedString(day.balanceMinutes), DurationFormatting.decimalHours(day.balanceMinutes))
+            return (duration.signedString(day.balanceMinutes), day.balanceMinutes)
         case .cumulativeBalance:
-            return (duration.signedString(runningBalance), DurationFormatting.decimalHours(runningBalance))
+            return (duration.signedString(runningBalance), runningBalance)
         case .holiday:
             return (day.holidayName ?? emptyPlaceholder, nil)
         case .location:
@@ -143,19 +143,21 @@ struct ReportBuilder: Sendable {
 
     private func makeTotals(summary: PeriodSummary, runningBalance: Int, openingBalance: Int) -> [ReportTotal] {
         var totals: [ReportTotal] = [
-            ReportTotal(label: "Total worked", value: duration.string(summary.workedMinutes), isEmphasised: true)
+            ReportTotal(label: "Total worked", value: duration.string(summary.workedMinutes), isEmphasised: true, minutes: summary.workedMinutes)
         ]
 
         if summary.creditedMinutes > 0 {
             totals.append(ReportTotal(
                 label: "Paid absence",
                 value: duration.string(summary.creditedMinutes),
-                isEmphasised: false
+                isEmphasised: false,
+                minutes: summary.creditedMinutes
             ))
             totals.append(ReportTotal(
                 label: "Total paid",
                 value: duration.string(summary.paidMinutes),
-                isEmphasised: false
+                isEmphasised: false,
+                minutes: summary.paidMinutes
             ))
         }
 
@@ -163,7 +165,8 @@ struct ReportBuilder: Sendable {
             totals.append(ReportTotal(
                 label: "Total expected",
                 value: duration.string(summary.expectedMinutes),
-                isEmphasised: true
+                isEmphasised: true,
+                minutes: summary.expectedMinutes
             ))
         }
 
@@ -171,19 +174,21 @@ struct ReportBuilder: Sendable {
             totals.append(ReportTotal(
                 label: "Balance",
                 value: duration.signedString(summary.balanceMinutes),
-                isEmphasised: true
+                isEmphasised: true,
+                minutes: summary.balanceMinutes
             ))
             if summary.overtimeMinutes > 0 {
-                totals.append(ReportTotal(label: "Overtime", value: duration.string(summary.overtimeMinutes), isEmphasised: false))
+                totals.append(ReportTotal(label: "Overtime", value: duration.string(summary.overtimeMinutes), isEmphasised: false, minutes: summary.overtimeMinutes))
             }
             if summary.deficitMinutes > 0 {
-                totals.append(ReportTotal(label: "Short", value: duration.string(summary.deficitMinutes), isEmphasised: false))
+                totals.append(ReportTotal(label: "Short", value: duration.string(summary.deficitMinutes), isEmphasised: false, minutes: summary.deficitMinutes))
             }
             if openingBalance != 0 {
                 totals.append(ReportTotal(
                     label: "Balance carried forward",
                     value: duration.signedString(runningBalance),
-                    isEmphasised: false
+                    isEmphasised: false,
+                    minutes: runningBalance
                 ))
             }
         }
@@ -197,28 +202,29 @@ struct ReportBuilder: Sendable {
                 totals.append(ReportTotal(
                     label: reason.title,
                     value: duration.signedString(minutes),
-                    isEmphasised: false
+                    isEmphasised: false,
+                    minutes: minutes
                 ))
             }
         }
 
-        totals.append(ReportTotal(label: "Days worked", value: "\(summary.daysWorked)", isEmphasised: false))
+        totals.append(ReportTotal(label: "Days worked", value: "\(summary.daysWorked)", isEmphasised: false, count: summary.daysWorked))
         if settings.features.trackExpectedHours {
-            totals.append(ReportTotal(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", isEmphasised: false))
+            totals.append(ReportTotal(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", isEmphasised: false, count: summary.scheduledWorkingDays))
         }
         if summary.daysOff > 0 {
-            totals.append(ReportTotal(label: "Days off", value: "\(summary.daysOff)", isEmphasised: false))
+            totals.append(ReportTotal(label: "Days off", value: "\(summary.daysOff)", isEmphasised: false, count: summary.daysOff))
         }
 
         for definition in settings.dayTypeCatalog.all where definition.expectation == .creditedAbsence {
             let count = summary.count(of: definition.id)
             if count > 0 {
-                totals.append(ReportTotal(label: definition.name, value: "\(count)", isEmphasised: false))
+                totals.append(ReportTotal(label: definition.name, value: "\(count)", isEmphasised: false, count: count))
             }
         }
 
         if settings.features.trackBreaks && summary.breakMinutes > 0 {
-            totals.append(ReportTotal(label: "Total breaks", value: duration.string(summary.breakMinutes), isEmphasised: false))
+            totals.append(ReportTotal(label: "Total breaks", value: duration.string(summary.breakMinutes), isEmphasised: false, minutes: summary.breakMinutes))
         }
 
         return totals

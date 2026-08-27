@@ -188,6 +188,64 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("t=\"inlineStr\""), "text cells are no longer declared as inline strings")
     }
 
+    /// The hours in a workbook have to be numbers.
+    ///
+    /// They were text, in every display style but one. A column of hours you
+    /// cannot total is the one thing a workbook offers over the CSV sitting
+    /// next to it, and this is a paid feature — so this asserts the property
+    /// for all three styles rather than only the one that used to work.
+    func testEveryDurationIsWrittenAsANumberInEveryDisplayStyle() {
+        for style in DurationStyle.allCases {
+            var preferences = ExportPreferences()
+            preferences.durationStyle = style
+            let settings = Fixture.settings(export: preferences)
+            let package = String(
+                decoding: XLSXWriter.data(for: sampleTable(settings: settings), preferences: preferences),
+                as: UTF8.self
+            )
+
+            // 8h worked on the Monday, less the half-hour break, is 8.00; the
+            // Tuesday runs to 18:00, which is 9.50.
+            XCTAssertTrue(
+                package.contains("<v>8.0000</v>"),
+                "\(style) wrote the worked hours as text rather than a number"
+            )
+            XCTAssertTrue(
+                package.contains("<v>9.5000</v>"),
+                "\(style) wrote the longer day as text rather than a number"
+            )
+        }
+    }
+
+    /// And they have to carry a format, or the sheet shows 8 where it means
+    /// 8.00 and 8.25 where it means a quarter past.
+    func testDurationCellsCarryTheTwoDecimalFormat() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("s=\"2\""), "no cell uses the hours format")
+        XCTAssertTrue(package.contains("numFmtId=\"164\" formatCode=\"0.00\""))
+        XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
+        // Six formats are declared and Style indexes them 0...5; a cell asking
+        // for a seventh would render with nobody's formatting.
+        XCTAssertTrue(package.contains("<cellXfs count=\"6\">"))
+        XCTAssertFalse(package.contains("s=\"6\""), "a cell points past the end of cellXfs")
+    }
+
+    /// The summary block is where someone looks first, so its figures are
+    /// numbers too — the durations as hours, the day counts as whole numbers.
+    func testTheSummaryBlockIsNumericAsWell() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("s=\"3\""), "the emphasised totals are not formatted as hours")
+        XCTAssertTrue(package.contains("s=\"4\""), "the day counts are not formatted as whole numbers")
+    }
+
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
         let table = sampleTable()
         let csv = CSVExporter.string(for: table, preferences: ExportPreferences())

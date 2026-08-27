@@ -5,9 +5,11 @@ struct ReportRow: Identifiable, Hashable, Sendable {
     var id: Int
     /// Parallel to the table's columns.
     var values: [String]
-    /// Machine-readable values for the columns that hold numbers, so a
-    /// spreadsheet gets real numbers rather than text it has to parse.
-    var numbers: [Double?]
+    /// The same columns as minutes, for the ones that hold a duration, so a
+    /// spreadsheet gets a real number rather than text it has to parse.
+    /// Minutes rather than hours because minutes are what the engine counts
+    /// in, and dividing here would round once per cell.
+    var minutes: [Int?]
     var isWorkingDay: Bool
     var balanceMinutes: Int
     var hasEntry: Bool
@@ -18,6 +20,24 @@ struct ReportTotal: Identifiable, Hashable, Sendable {
     var label: String
     var value: String
     var isEmphasised: Bool
+    /// Set when the figure is a duration; the workbook writes it as a number.
+    var minutes: Int?
+    /// Set when the figure is a count of days rather than an amount of time.
+    var count: Int?
+
+    init(
+        label: String,
+        value: String,
+        isEmphasised: Bool,
+        minutes: Int? = nil,
+        count: Int? = nil
+    ) {
+        self.label = label
+        self.value = value
+        self.isEmphasised = isEmphasised
+        self.minutes = minutes
+        self.count = count
+    }
 
     var id: String { label }
 }
