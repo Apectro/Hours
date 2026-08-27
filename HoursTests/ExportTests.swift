@@ -231,8 +231,8 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""), "no whole-number format")
         // Seven formats are declared and Style indexes them 0...6; a cell
         // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"14\">"))
-        XCTAssertFalse(package.contains("s=\"14\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"16\">"))
+        XCTAssertFalse(package.contains("s=\"16\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -462,6 +462,32 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("<oddFooter>"), "no page footer")
         XCTAssertTrue(package.contains("page &amp;P"), "the footer has no page number")
         XCTAssertTrue(package.contains("generated "), "the summary does not say when it was made")
+    }
+
+    /// A ruled total under each column of figures, as a timesheet on paper
+    /// has always had — and written as SUM rather than as the number the days
+    /// happen to add up to, so correcting a Tuesday corrects the total.
+    func testTheDaysCloseWithATotalRowThatIsAFormula() {
+        let table = sampleTable()
+        let package = String(
+            decoding: XLSXWriter.data(for: table, preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains(">Total<"), "the days do not close with a total")
+
+        // Worked is the seventh column, and the days run from row 2 to the
+        // last one before the total.
+        let lastDay = table.rows.count + 1
+        XCTAssertTrue(
+            package.contains("<f>SUM(G2:G\(lastDay))</f>"),
+            "the worked column is totalled by hand rather than by formula"
+        )
+        // A cached answer beside it, for a reader that does not calculate.
+        XCTAssertTrue(package.contains("</f><v>"), "the formula carries no cached value")
+        // Text columns take no total: a column of dates has no sum.
+        XCTAssertFalse(package.contains("<f>SUM(A2:"), "the dates are being added up")
+        XCTAssertFalse(package.contains("<f>SUM(B2:"), "the weekdays are being added up")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
