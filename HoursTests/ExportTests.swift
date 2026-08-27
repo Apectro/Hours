@@ -39,6 +39,15 @@ final class ExportTests: XCTestCase {
             )
     }
 
+    /// The row the column titles landed on.
+    ///
+    /// The summary sits above the table and is a variable number of lines, so
+    /// nothing below it is at a fixed row any more. Found the way a reader
+    /// would: the first cell in column A carrying the header style.
+    private func headerRow(in package: String) -> Int {
+        (1...80).first { package.contains("<c r=\"A\($0)\" t=\"inlineStr\" s=\"5\">") } ?? 0
+    }
+
     // MARK: - The table
 
     func testEveryDayInTheRangeGetsARow() {
@@ -245,7 +254,7 @@ final class ExportTests: XCTestCase {
 
         XCTAssertTrue(package.contains("s=\"10\""), "the summary durations are not formatted")
         XCTAssertTrue(package.contains("s=\"11\""), "the day counts are not formatted as whole numbers")
-        XCTAssertTrue(package.contains(">Total worked<"), "the summary sheet is missing its headline figure")
+        XCTAssertTrue(package.contains(">Total worked<"), "the summary is missing its headline figure")
     }
 
     /// The sheet has to be laid out, not just filled in.
@@ -263,14 +272,29 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("<cols>"), "no column widths at all")
         XCTAssertTrue(package.contains("customWidth=\"1\""))
 
-        // "Scheduled working days" is 22 characters and sits in column A, so
-        // column A cannot come out at the width of a date.
+        // A summary label is merged across the first few columns and takes no
+        // part in the sizing, so column A is the width of a date and not of
+        // "Scheduled working days" — which is what made the date column three
+        // times wider than anything in it.
         guard let range = package.range(of: "<col min=\"1\" max=\"1\" width=\"") else {
             return XCTFail("column A has no width")
         }
         let width = Int(package[range.upperBound...].prefix { $0.isNumber }) ?? 0
-        XCTAssertGreaterThanOrEqual(width, 25, "column A truncates the longest summary label")
-        XCTAssertLessThanOrEqual(width, 44, "one long note should not push the sheet off the screen")
+        XCTAssertGreaterThanOrEqual(width, 13, "column A truncates the date")
+        XCTAssertLessThanOrEqual(width, 20, "column A is being sized by a merged summary label")
+
+        // The merge is what makes that safe: the label needs the room the
+        // three columns give it together.
+        XCTAssertTrue(package.contains("<mergeCells count="), "nothing is merged, so the labels clip")
+
+        // Every width is bounded, so one long note cannot push the rest of
+        // the sheet off the screen.
+        for match in package.components(separatedBy: "<col min=").dropFirst() {
+            guard let value = match.range(of: "width=\"") else { continue }
+            let each = Int(match[value.upperBound...].prefix { $0.isNumber }) ?? 0
+            XCTAssertGreaterThanOrEqual(each, 9)
+            XCTAssertLessThanOrEqual(each, 44)
+        }
     }
 
     /// Scrolling a year of days must not lose the column titles, and the days
@@ -282,14 +306,20 @@ final class ExportTests: XCTestCase {
             as: UTF8.self
         )
 
-        XCTAssertTrue(package.contains("state=\"frozen\""), "the header scrolls away")
-        XCTAssertTrue(package.contains("ySplit=\"1\""))
+        let header = headerRow(in: package)
+        XCTAssertGreaterThan(header, 1, "the column titles are nowhere to be found")
 
-        // The filter covers the header and the days, and stops before the
-        // blank row and the summary block underneath.
-        let lastDayRow = table.rows.count + 1
+        XCTAssertTrue(package.contains("state=\"frozen\""), "the header scrolls away")
         XCTAssertTrue(
-            package.contains("<autoFilter ref=\"A1:\(XLSXWriter.columnName(table.columns.count - 1))\(lastDayRow)\"/>"),
+            package.contains("ySplit=\"\(header)\""),
+            "the freeze is at a row the header is not on"
+        )
+
+        // The filter covers the header and the days, and stops at the last
+        // one — so the total row underneath is never dragged into a sort.
+        let lastDayRow = header + table.rows.count
+        XCTAssertTrue(
+            package.contains("<autoFilter ref=\"A\(header):\(XLSXWriter.columnName(table.columns.count - 1))\(lastDayRow)\"/>"),
             "the filter range does not stop at the last day"
         )
     }
@@ -339,29 +369,44 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(cols.lowerBound < data.lowerBound)
     }
 
-    /// The workbook opens on the totals, as the PDF does.
+    /// One sheet, with the summary above the days.
     ///
-    /// Someone opening a timesheet wants one number — the balance — and only
-    /// sometimes wants to audit thirty-one rows to find it. The summary is a
-    /// sheet of its own, listed first, and the days are a tab away.
-    func testTheWorkbookOpensOnASummarySheet() {
+    /// It was two sheets for a while, on the reasoning that someone opening a
+    /// timesheet wants the balance rather than thirty-one rows. Then the days
+    /// got a totals row of their own, and the summary sheet became a page of
+    /// white space carrying a copy of it.
+    ///
+    /// Under the table it could not stay: the column titles repeat on every
+    /// sheet of paper, so a page of totals printed with Date, Day, Type over
+    /// it, and the page break fell through the middle of the block. Above the
+    /// table there is nothing to repeat over and nothing to split.
+    func testTheWorkbookIsOneSheetWithTheSummaryAboveTheDays() {
         let package = String(
             decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
             as: UTF8.self
         )
 
-        XCTAssertTrue(
-            package.contains("<sheet name=\"Summary\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Hours\" sheetId=\"2\""),
-            "the summary is not the first sheet"
-        )
-        XCTAssertTrue(package.contains("worksheets/sheet2.xml"), "there is no second sheet")
-        // Styles take the id after the sheets, or the workbook points at the
-        // wrong part and opens to a blank grid.
-        XCTAssertTrue(package.contains("Id=\"rId3\"") && package.contains("Target=\"styles.xml\""))
+        XCTAssertTrue(package.contains("<sheet name=\"Hours\" sheetId=\"1\" r:id=\"rId1\"/>"))
+        XCTAssertFalse(package.contains("worksheets/sheet2.xml"), "a second sheet nobody asked for")
+        XCTAssertFalse(package.contains("name=\"Summary\" sheetId="), "the summary is still a sheet")
+        XCTAssertTrue(package.contains("Id=\"rId2\"") && package.contains("Target=\"styles.xml\""))
+
+        // The heading, then the figures, then the column titles — in that
+        // order down the sheet.
+        guard let summary = package.range(of: ">Summary<"),
+              let worked = package.range(of: ">Total worked<"),
+              let titles = package.range(of: ">Date<") else {
+            return XCTFail("the sheet is missing its summary or its column titles")
+        }
+        XCTAssertTrue(summary.lowerBound < worked.lowerBound)
+        XCTAssertTrue(worked.lowerBound < titles.lowerBound, "the summary is under the table again")
+
+        // Which means the days cannot start at row 2.
+        XCTAssertGreaterThan(headerRow(in: package), 4, "there is no room above for a summary")
     }
 
-    /// Turning the summary off leaves one sheet, still wired up correctly.
-    func testWithoutTheSummaryTheWorkbookIsASingleSheet() {
+    /// Turning the summary off pulls the table up under the title.
+    func testWithoutTheSummaryTheTableFollowsTheTitle() {
         var preferences = ExportPreferences()
         preferences.includeSummaryRows = false
         let package = String(
@@ -369,10 +414,10 @@ final class ExportTests: XCTestCase {
             as: UTF8.self
         )
 
-        XCTAssertFalse(package.contains("worksheets/sheet2.xml"), "a second sheet nobody asked for")
-        XCTAssertFalse(package.contains("name=\"Summary\""))
-        XCTAssertTrue(package.contains("<sheet name=\"Hours\" sheetId=\"1\" r:id=\"rId1\"/>"))
-        XCTAssertTrue(package.contains("Id=\"rId2\"") && package.contains("Target=\"styles.xml\""))
+        XCTAssertFalse(package.contains(">Summary<"), "a summary nobody asked for")
+        XCTAssertFalse(package.contains(">Total worked<"))
+        // Title, subtitle, a blank line, then the days.
+        XCTAssertEqual(headerRow(in: package), 4)
     }
 
     /// Alternate rows carry a wash and every row a hairline, so the eye can
@@ -413,8 +458,8 @@ final class ExportTests: XCTestCase {
             package.contains("_xlnm.Print_Titles"),
             "the column titles will not repeat on the second sheet of paper"
         )
-        // Both sheets print landscape. Portrait could not hold the summary's
-        // two columns and pushed the right-hand one onto a page of its own.
+        // Portrait could not hold ten columns and pushed the last of them
+        // onto a sheet of paper of its own.
         XCTAssertFalse(
             package.contains("orientation=\"portrait\""),
             "a portrait sheet will split its columns across pages"
@@ -486,18 +531,19 @@ final class ExportTests: XCTestCase {
 
         XCTAssertTrue(package.contains(">Total<"), "the days do not close with a total")
 
-        // Worked is the seventh column, and the days run from row 2 to the
-        // last one before the total.
-        let lastDay = table.rows.count + 1
+        // Worked is the seventh column, and the days run from the row under
+        // the column titles to the last one before the total.
+        let header = headerRow(in: package)
+        let lastDay = header + table.rows.count
         XCTAssertTrue(
-            package.contains("<f>SUM(G2:G\(lastDay))</f>"),
+            package.contains("<f>SUM(G\(header + 1):G\(lastDay))</f>"),
             "the worked column is totalled by hand rather than by formula"
         )
         // A cached answer beside it, for a reader that does not calculate.
         XCTAssertTrue(package.contains("</f><v>"), "the formula carries no cached value")
         // Text columns take no total: a column of dates has no sum.
-        XCTAssertFalse(package.contains("<f>SUM(A2:"), "the dates are being added up")
-        XCTAssertFalse(package.contains("<f>SUM(B2:"), "the weekdays are being added up")
+        XCTAssertFalse(package.contains("<f>SUM(A\(header + 1):"), "the dates are being added up")
+        XCTAssertFalse(package.contains("<f>SUM(B\(header + 1):"), "the weekdays are being added up")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
