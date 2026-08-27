@@ -14,6 +14,10 @@ struct ExportPreferences: Hashable, Codable, Sendable {
     var includeEmptyDays: Bool
     var columns: [ReportColumn]
     var defaultRange: ExportRangeKind
+    /// The language the file is written in, which need not be the one the
+    /// app is in — the person reading a timesheet is often not the person who
+    /// recorded it.
+    var language: ExportLanguage
     /// Whose hours these are, printed on the timesheet.
     ///
     /// A timesheet that reaches a payroll department with no name on it is a
@@ -33,6 +37,7 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         includeEmptyDays: Bool = true,
         columns: [ReportColumn] = ReportColumn.defaultSelection,
         defaultRange: ExportRangeKind = .month,
+        language: ExportLanguage = .device,
         ownerName: String = ""
     ) {
         self.dateStyle = dateStyle
@@ -45,13 +50,14 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         self.includeEmptyDays = includeEmptyDays
         self.columns = columns.isEmpty ? ReportColumn.defaultSelection : columns
         self.defaultRange = defaultRange
+        self.language = language
         self.ownerName = ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private enum CodingKeys: String, CodingKey {
         case dateStyle, timeStyle, durationStyle, fieldSeparator, decimalSeparator
         case includeByteOrderMark, includeSummaryRows, includeEmptyDays, columns, defaultRange
-        case ownerName
+        case ownerName, language
     }
 
     init(from decoder: Decoder) throws {
@@ -68,6 +74,7 @@ struct ExportPreferences: Hashable, Codable, Sendable {
             includeEmptyDays: container.lenient(.includeEmptyDays, defaults.includeEmptyDays),
             columns: container.lenient(.columns, defaults.columns),
             defaultRange: container.lenient(.defaultRange, defaults.defaultRange),
+            language: container.lenient(.language, defaults.language),
             ownerName: container.lenient(.ownerName, defaults.ownerName)
         )
     }

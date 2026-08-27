@@ -17,15 +17,22 @@ struct ReportBuilder: Sendable {
         self.emptyPlaceholder = emptyPlaceholder
     }
 
+    /// The language the file is written in, and the only thing in the
+    /// builder that decides which words come out.
+    private var language: ExportLanguage { settings.export.language }
+
     private var duration: DurationFormatting {
         DurationFormatting.export(
             style: settings.export.durationStyle,
-            decimalSeparator: settings.export.decimalSeparator.character
+            decimalSeparator: settings.export.decimalSeparator.character,
+            language: language
         )
     }
 
+    /// Months and weekdays come from the export language rather than the
+    /// phone, so a German timesheet says Montag even on an English handset.
     private var formatting: CalendarFormatting {
-        CalendarFormatting(locale: .current, calendar: calendar)
+        CalendarFormatting(locale: language.locale, calendar: calendar)
     }
 
     /// - Parameter countingThrough: the last day that counts towards the
@@ -61,6 +68,7 @@ struct ReportBuilder: Sendable {
             title: title,
             subtitle: subtitle(for: range),
             ownerName: settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines),
+            language: language,
             columns: columns,
             rows: rows,
             totals: makeTotals(summary: summary, runningBalance: running, openingBalance: openingBalanceMinutes)
@@ -98,7 +106,7 @@ struct ReportBuilder: Sendable {
         case .weekday:
             return (formatting.shortWeekdaySymbol(for: day.date.weekday(in: calendar)), nil)
         case .dayType:
-            return (day.dayType.name, nil)
+            return (day.dayType.exportName(in: language), nil)
         case .job:
             let names = day.shifts
                 .map { settings.job($0.jobID).name }
@@ -144,18 +152,18 @@ struct ReportBuilder: Sendable {
 
     private func makeTotals(summary: PeriodSummary, runningBalance: Int, openingBalance: Int) -> [ReportTotal] {
         var totals: [ReportTotal] = [
-            ReportTotal(label: "Total worked", value: duration.string(summary.workedMinutes), isEmphasised: true, minutes: summary.workedMinutes)
+            ReportTotal(label: language(.totalWorked), value: duration.string(summary.workedMinutes), isEmphasised: true, minutes: summary.workedMinutes)
         ]
 
         if summary.creditedMinutes > 0 {
             totals.append(ReportTotal(
-                label: "Paid absence",
+                label: language(.paidAbsence),
                 value: duration.string(summary.creditedMinutes),
                 isEmphasised: false,
                 minutes: summary.creditedMinutes
             ))
             totals.append(ReportTotal(
-                label: "Total paid",
+                label: language(.totalPaid),
                 value: duration.string(summary.paidMinutes),
                 isEmphasised: false,
                 minutes: summary.paidMinutes
@@ -164,7 +172,7 @@ struct ReportBuilder: Sendable {
 
         if settings.features.trackExpectedHours {
             totals.append(ReportTotal(
-                label: "Total expected",
+                label: language(.totalExpected),
                 value: duration.string(summary.expectedMinutes),
                 isEmphasised: true,
                 minutes: summary.expectedMinutes
@@ -173,20 +181,20 @@ struct ReportBuilder: Sendable {
 
         if settings.features.showsBalance {
             totals.append(ReportTotal(
-                label: "Balance",
+                label: language(.balance),
                 value: duration.signedString(summary.balanceMinutes),
                 isEmphasised: true,
                 minutes: summary.balanceMinutes
             ))
             if summary.overtimeMinutes > 0 {
-                totals.append(ReportTotal(label: "Overtime", value: duration.string(summary.overtimeMinutes), isEmphasised: false, minutes: summary.overtimeMinutes))
+                totals.append(ReportTotal(label: language(.overtime), value: duration.string(summary.overtimeMinutes), isEmphasised: false, minutes: summary.overtimeMinutes))
             }
             if summary.deficitMinutes > 0 {
-                totals.append(ReportTotal(label: "Short", value: duration.string(summary.deficitMinutes), isEmphasised: false, minutes: summary.deficitMinutes))
+                totals.append(ReportTotal(label: language(.short), value: duration.string(summary.deficitMinutes), isEmphasised: false, minutes: summary.deficitMinutes))
             }
             if openingBalance != 0 {
                 totals.append(ReportTotal(
-                    label: "Balance carried forward",
+                    label: language(.carriedForward),
                     value: duration.signedString(runningBalance),
                     isEmphasised: false,
                     minutes: runningBalance
@@ -201,7 +209,7 @@ struct ReportBuilder: Sendable {
             let minutes = summary.adjustment(for: reason)
             if minutes != 0 {
                 totals.append(ReportTotal(
-                    label: reason.title,
+                    label: reason.label(in: language),
                     value: duration.signedString(minutes),
                     isEmphasised: false,
                     minutes: minutes
@@ -209,23 +217,23 @@ struct ReportBuilder: Sendable {
             }
         }
 
-        totals.append(ReportTotal(label: "Days worked", value: "\(summary.daysWorked)", isEmphasised: false, count: summary.daysWorked))
+        totals.append(ReportTotal(label: language(.daysWorked), value: "\(summary.daysWorked)", isEmphasised: false, count: summary.daysWorked))
         if settings.features.trackExpectedHours {
-            totals.append(ReportTotal(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", isEmphasised: false, count: summary.scheduledWorkingDays))
+            totals.append(ReportTotal(label: language(.scheduledDays), value: "\(summary.scheduledWorkingDays)", isEmphasised: false, count: summary.scheduledWorkingDays))
         }
         if summary.daysOff > 0 {
-            totals.append(ReportTotal(label: "Days off", value: "\(summary.daysOff)", isEmphasised: false, count: summary.daysOff))
+            totals.append(ReportTotal(label: language(.daysOff), value: "\(summary.daysOff)", isEmphasised: false, count: summary.daysOff))
         }
 
         for definition in settings.dayTypeCatalog.all where definition.expectation == .creditedAbsence {
             let count = summary.count(of: definition.id)
             if count > 0 {
-                totals.append(ReportTotal(label: definition.name, value: "\(count)", isEmphasised: false, count: count))
+                totals.append(ReportTotal(label: definition.exportName(in: language), value: "\(count)", isEmphasised: false, count: count))
             }
         }
 
         if settings.features.trackBreaks && summary.breakMinutes > 0 {
-            totals.append(ReportTotal(label: "Total breaks", value: duration.string(summary.breakMinutes), isEmphasised: false, minutes: summary.breakMinutes))
+            totals.append(ReportTotal(label: language(.totalBreaks), value: duration.string(summary.breakMinutes), isEmphasised: false, minutes: summary.breakMinutes))
         }
 
         return totals

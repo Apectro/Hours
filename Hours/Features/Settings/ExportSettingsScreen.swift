@@ -8,6 +8,18 @@ struct ExportSettingsScreen: View {
     var body: some View {
         List {
             Section {
+                Picker("Language", selection: settingsStore.binding(\.export.language)) {
+                    ForEach(ExportLanguage.allCases) { language in
+                        Text(language.title).tag(language)
+                    }
+                }
+            } header: {
+                Text("Language of the file")
+            } footer: {
+                Text("The words the app writes — column titles, day types and the summary — plus the names of months and days. Anything you typed yourself is left exactly as you wrote it.")
+            }
+
+            Section {
                 TextField("Name and surname", text: settingsStore.binding(\.export.ownerName))
                     .textContentType(.name)
                     .autocorrectionDisabled()

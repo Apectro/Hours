@@ -18,11 +18,14 @@ enum AdjustmentReason: String, Codable, CaseIterable, Hashable, Sendable, Identi
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .english) }
+
+    /// The label an exported summary gives this adjustment.
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .correction: return "Correction"
-        case .payout: return "Paid out"
-        case .timeOffInLieu: return "Time off in lieu"
+        case .correction: return language(.correction)
+        case .payout: return language(.paidOut)
+        case .timeOffInLieu: return language(.timeOffInLieu)
         }
     }
 

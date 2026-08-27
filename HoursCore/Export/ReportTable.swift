@@ -52,11 +52,15 @@ struct ReportTable: Hashable, Sendable {
     /// Whose hours these are. Empty prints nothing at all rather than a blank
     /// line where a name would be.
     var ownerName: String = ""
+    /// The language the renderers write their own words in. The rows and the
+    /// totals arrive already translated; this is for "Summary", "Total" and
+    /// the page footer, which only exist once a format is chosen.
+    var language: ExportLanguage = .device
     var columns: [ReportColumn]
     var rows: [ReportRow]
     var totals: [ReportTotal]
 
     var isEmpty: Bool { rows.isEmpty }
 
-    func headerTitles() -> [String] { columns.map(\.title) }
+    func headerTitles() -> [String] { columns.map { $0.heading(in: language) } }
 }

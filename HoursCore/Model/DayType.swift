@@ -95,6 +95,35 @@ struct DayTypeDefinition: Identifiable, Hashable, Codable, Sendable {
 }
 
 extension DayTypeDefinition {
+    /// What this type is called in an exported file.
+    ///
+    /// A type the app ships is translated; one the user made is not, and nor
+    /// is a shipped one they have renamed — "Urlaub" is a translation of
+    /// Vacation, but somebody who renamed it "Ferien" or "Site visit" meant
+    /// that word, and turning it into another is a fabrication rather than a
+    /// translation.
+    func exportName(in language: ExportLanguage) -> String {
+        guard let term = DayTypeDefinition.term(for: id),
+              let shipped = DayTypeDefinition.builtIns.first(where: { $0.id == id }),
+              shipped.name == name
+        else { return name }
+        return language(term)
+    }
+
+    private static func term(for id: DayTypeID) -> ExportTerm? {
+        switch id {
+        case .work: return .work
+        case .weekend: return .weekend
+        case .holiday: return .publicHoliday
+        case .vacation: return .vacation
+        case .sick: return .sickLeave
+        case .personal: return .personalDay
+        case .dayOff: return .dayOff
+        case .other: return .otherDayType
+        default: return nil
+        }
+    }
+
     static let builtIns: [DayTypeDefinition] = [
         DayTypeDefinition(
             id: .work, name: "Work", symbolName: "briefcase.fill", tint: .blue,

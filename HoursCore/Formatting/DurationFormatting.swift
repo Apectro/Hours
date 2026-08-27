@@ -31,19 +31,46 @@ struct DurationFormatting: Hashable, Sendable {
     var style: DurationStyle
     var decimalSeparator: String
     var minusSign: String
+    /// What "8h 30m" is called in the language the file is written in, and
+    /// whether a space comes before the unit. English writes 8h 30m, German
+    /// 8 Std 30 Min.
+    var hourUnit: String
+    var minuteUnit: String
+    var unitSpacer: String
 
-    init(style: DurationStyle = .hoursAndMinutes, decimalSeparator: String = ".", minusSign: String = "\u{2212}") {
+    init(
+        style: DurationStyle = .hoursAndMinutes,
+        decimalSeparator: String = ".",
+        minusSign: String = "\u{2212}",
+        hourUnit: String = "h",
+        minuteUnit: String = "m",
+        unitSpacer: String = ""
+    ) {
         self.style = style
         self.decimalSeparator = decimalSeparator
         self.minusSign = minusSign
+        self.hourUnit = hourUnit
+        self.minuteUnit = minuteUnit
+        self.unitSpacer = unitSpacer
     }
 
     /// For anything the user reads on screen.
     static let display = DurationFormatting()
 
     /// For files: ASCII hyphen so Excel, Numbers and Sheets parse negatives.
-    static func export(style: DurationStyle, decimalSeparator: String) -> DurationFormatting {
-        DurationFormatting(style: style, decimalSeparator: decimalSeparator, minusSign: "-")
+    static func export(
+        style: DurationStyle,
+        decimalSeparator: String,
+        language: ExportLanguage = .english
+    ) -> DurationFormatting {
+        DurationFormatting(
+            style: style,
+            decimalSeparator: decimalSeparator,
+            minusSign: "-",
+            hourUnit: language.hourUnit,
+            minuteUnit: language.minuteUnit,
+            unitSpacer: language.unitSpacer
+        )
     }
 
     func string(_ minutes: Int, showsSign: Bool = false) -> String {
@@ -51,7 +78,7 @@ struct DurationFormatting: Hashable, Sendable {
         let body: String
         switch style {
         case .hoursAndMinutes:
-            body = DurationFormatting.hoursAndMinutesString(magnitude)
+            body = hoursAndMinutesString(magnitude)
         case .clock:
             body = String(format: "%d:%02d", magnitude / 60, magnitude % 60)
         case .decimal:
@@ -67,15 +94,17 @@ struct DurationFormatting: Hashable, Sendable {
     /// The signed form used for balances and overtime.
     func signedString(_ minutes: Int) -> String { string(minutes, showsSign: true) }
 
-    private static func hoursAndMinutesString(_ magnitude: Int) -> String {
+    private func hoursAndMinutesString(_ magnitude: Int) -> String {
         let hours = magnitude / 60
         let minutes = magnitude % 60
+        func h(_ value: Int) -> String { "\(value)\(unitSpacer)\(hourUnit)" }
+        func m(_ value: Int) -> String { "\(value)\(unitSpacer)\(minuteUnit)" }
         // Zero reads as "0h", not "0m": in a column of hours the unit should
         // not change just because the value happens to be nothing.
-        if magnitude == 0 { return "0h" }
-        if hours == 0 { return "\(minutes)m" }
-        if minutes == 0 { return "\(hours)h" }
-        return "\(hours)h \(minutes)m"
+        if magnitude == 0 { return h(0) }
+        if hours == 0 { return m(minutes) }
+        if minutes == 0 { return h(hours) }
+        return "\(h(hours)) \(m(minutes))"
     }
 
     /// Decimal hours, for spreadsheet cells that should hold a real number.

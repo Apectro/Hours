@@ -65,7 +65,7 @@ enum PDFReportRenderer {
                     totalsDrawn = true
                 }
 
-                drawFooter(pageNumber: pageNumber, title: table.title)
+                drawFooter(pageNumber: pageNumber, title: table.title, language: table.language)
             } while (rowIndex < table.rows.count || !totalsDrawn) && pageNumber < maximumPages
         }
     }
@@ -117,10 +117,11 @@ enum PDFReportRenderer {
         }
 
         let formatter = DateFormatter()
+        formatter.locale = table.language.locale
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         draw(
-            "\(table.subtitle)   ·   generated \(formatter.string(from: date))",
+            "\(table.subtitle)   ·   \(table.language(.generated)) \(formatter.string(from: date))",
             in: CGRect(x: margin, y: cursor, width: pageSize.width - margin * 2, height: 16),
             font: .systemFont(ofSize: 10),
             color: .secondaryLabel,
@@ -190,7 +191,7 @@ enum PDFReportRenderer {
         var cursor = y
 
         draw(
-            "Summary",
+            table.language(.summary),
             in: CGRect(x: margin, y: cursor, width: 200, height: 16),
             font: .systemFont(ofSize: 11, weight: .semibold),
             color: .label,
@@ -228,9 +229,9 @@ enum PDFReportRenderer {
         return cursor + CGFloat(perColumn) * 15
     }
 
-    private static func drawFooter(pageNumber: Int, title: String) {
+    private static func drawFooter(pageNumber: Int, title: String, language: ExportLanguage) {
         draw(
-            "\(title)   ·   page \(pageNumber)",
+            "\(title)   ·   \(language(.page)) \(pageNumber)",
             in: CGRect(x: margin, y: pageSize.height - margin + 6, width: pageSize.width - margin * 2, height: 14),
             font: .systemFont(ofSize: 8),
             color: .tertiaryLabel,

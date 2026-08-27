@@ -634,6 +634,83 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(lines[blank + 1].hasPrefix("Summary"))
     }
 
+    // MARK: - The language of the file
+
+    /// A German timesheet is German the whole way down.
+    ///
+    /// Not only the column titles: the day types, the summary labels, the
+    /// word Summary itself, the totals row and the units on every duration.
+    /// One of those left in English is what makes a half-translated document
+    /// worse than an untranslated one.
+    func testAGermanExportIsGermanEverywhere() {
+        var export = ExportPreferences()
+        export.language = .german
+        let table = sampleTable(settings: Fixture.settings(export: export))
+
+        XCTAssertEqual(table.headerTitles().first, "Datum")
+        XCTAssertTrue(table.headerTitles().contains("Gearbeitet"))
+        XCTAssertTrue(table.totals.contains { $0.label == "Gesamt gearbeitet" })
+        XCTAssertTrue(
+            table.rows.contains { $0.values.contains("Wochenende") },
+            "the day types are still in English"
+        )
+
+        let workbook = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+        XCTAssertTrue(workbook.contains(">Zusammenfassung<"), "the workbook still says Summary")
+        XCTAssertTrue(workbook.contains(">Summe<"), "the totals row still says Total")
+        XCTAssertFalse(workbook.contains(">Summary<"))
+        XCTAssertFalse(workbook.contains(">Total<"))
+
+        // The number format spells the units out, so the cell reads the same
+        // as the text beside it rather than the two disagreeing.
+        XCTAssertTrue(workbook.contains("[h]&quot; Std&quot; mm&quot; Min&quot;"))
+
+        let csv = CSVExporter.string(for: table, preferences: export)
+        XCTAssertTrue(csv.hasPrefix("Datum,Tag,Art"), "the CSV header is still English")
+        XCTAssertTrue(csv.contains("Zusammenfassung,"))
+    }
+
+    /// And a Croatian one is Croatian.
+    func testACroatianExportIsCroatian() {
+        var export = ExportPreferences()
+        export.language = .croatian
+        let table = sampleTable(settings: Fixture.settings(export: export))
+
+        XCTAssertEqual(table.headerTitles().first, "Datum")
+        XCTAssertTrue(table.headerTitles().contains("Odrađeno"))
+        XCTAssertTrue(table.totals.contains { $0.label == "Ukupno odrađeno" })
+        XCTAssertTrue(table.rows.contains { $0.values.contains("Vikend") })
+    }
+
+    /// What the user typed is theirs, in any language.
+    ///
+    /// Translating somebody's own words would be a fabrication rather than a
+    /// translation — and a day type they renamed is their word too, even
+    /// though the app shipped that slot.
+    func testNothingTheUserTypedIsTranslated() {
+        var custom = DayTypeDefinition.builtIns.first { $0.id == .weekend }!
+        custom.name = "Site visit"
+
+        var export = ExportPreferences()
+        export.language = .german
+        let settings = Fixture.settings(customDayTypes: [custom], export: export)
+        let table = sampleTable(settings: settings, placeholder: "—")
+
+        XCTAssertTrue(
+            table.rows.contains { $0.values.contains("Site visit") },
+            "a day type the user renamed was translated out from under them"
+        )
+        XCTAssertFalse(table.rows.contains { $0.values.contains("Wochenende") })
+        // The note is the user's too.
+        XCTAssertTrue(table.rows.contains { $0.values.contains("Release, said \"finally\"") })
+    }
+
+    /// The default follows the phone, so nobody who never opens the setting
+    /// sees a change.
+    func testTheDefaultFollowsTheDevice() {
+        XCTAssertEqual(ExportPreferences().language, .device)
+    }
+
     // MARK: - Whose hours these are
 
     /// A timesheet with no name on it is one somebody has to ask about.

@@ -223,13 +223,30 @@ struct ExportScreen: View {
         return "\(count) with hours recorded"
     }
 
+    /// The language the file is written in. The preview on screen is the
+    /// file, so it follows it too — seeing an English preview and sharing a
+    /// German document would be the preview lying about its own subject.
+    private var exportLanguage: ExportLanguage { settings.export.language }
+
+    /// Months and weekdays inside the report's own title come from the export
+    /// language; everything else on this screen stays in the app's.
+    private var exportFormatting: CalendarFormatting {
+        CalendarFormatting(locale: exportLanguage.locale, calendar: calendar)
+    }
+
     private var reportTitle: String {
+        let word = exportLanguage(.hours)
         switch rangeKind {
-        case .day: return "Hours — \(formatting.mediumDate(anchor))"
-        case .week: return "Hours — week of \(formatting.mediumDate(resolvedRange.start))"
-        case .month: return "Hours — \(formatting.monthTitle(anchor.yearMonth))"
-        case .year: return "Hours — \(anchor.year)"
-        case .custom: return "Hours — \(rangeDescription)"
+        case .day: return "\(word) — \(exportFormatting.mediumDate(anchor))"
+        case .week: return "\(word) — \(exportLanguage(.weekOf)) \(exportFormatting.mediumDate(resolvedRange.start))"
+        case .month: return "\(word) — \(exportFormatting.monthTitle(anchor.yearMonth))"
+        case .year: return "\(word) — \(anchor.year)"
+        case .custom:
+            let range = resolvedRange
+            let described = range.start == range.end
+                ? exportFormatting.mediumDate(range.start)
+                : "\(exportFormatting.mediumDate(range.start)) – \(exportFormatting.mediumDate(range.end))"
+            return "\(word) — \(described)"
         }
     }
 
@@ -249,10 +266,11 @@ struct ExportScreen: View {
         }
 
         let name = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let word = exportLanguage(.hours)
         // A plain hyphen, not an em dash: the sanitiser replaces anything a
         // file name cannot hold, and the field should show the name the file
         // will actually be given.
-        return name.isEmpty ? "Hours \(period)" : "\(name) - Hours \(period)"
+        return name.isEmpty ? "\(word) \(period)" : "\(name) - \(word) \(period)"
     }
 
     /// Typing marks the name as the person's own; clearing the field hands it

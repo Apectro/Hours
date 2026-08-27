@@ -26,25 +26,33 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
 
     var id: String { rawValue }
 
-    var title: String {
+    /// What this column is called in the app, for the picker in Settings.
+    var title: String { heading(in: .english) }
+
+    /// What it is called at the top of an exported file.
+    func heading(in language: ExportLanguage) -> String {
+        language(term)
+    }
+
+    private var term: ExportTerm {
         switch self {
-        case .date: return "Date"
-        case .weekday: return "Day"
-        case .dayType: return "Type"
-        case .job: return "Job"
-        case .start: return "Start"
-        case .end: return "End"
-        case .breakTime: return "Break"
-        case .worked: return "Worked"
-        case .credited: return "Paid absence"
-        case .expected: return "Expected"
-        case .overtime: return "Overtime"
-        case .balance: return "Balance"
-        case .cumulativeBalance: return "Running balance"
-        case .holiday: return "Holiday"
-        case .location: return "Location"
-        case .tags: return "Tags"
-        case .note: return "Notes"
+        case .date: return .date
+        case .weekday: return .weekday
+        case .dayType: return .dayType
+        case .job: return .job
+        case .start: return .start
+        case .end: return .end
+        case .breakTime: return .breakTime
+        case .worked: return .worked
+        case .credited: return .paidAbsence
+        case .expected: return .expected
+        case .overtime: return .overtime
+        case .balance: return .balance
+        case .cumulativeBalance: return .runningBalance
+        case .holiday: return .holiday
+        case .location: return .location
+        case .tags: return .tags
+        case .note: return .notes
         }
     }
 
