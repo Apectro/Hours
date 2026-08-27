@@ -35,7 +35,7 @@ struct ExportPreviewTable: View {
     private var headerRow: some View {
         HStack(spacing: 0) {
             ForEach(table.columns) { column in
-                Text(column.title)
+                Text(column.heading(in: table.language))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: width(for: column), alignment: column.isNumeric ? .trailing : .leading)
@@ -65,7 +65,7 @@ struct ExportPreviewTable: View {
 
     private var totalsRow: some View {
         VStack(alignment: .leading, spacing: Metrics.tiny) {
-            Text("Summary")
+            Text(table.language(.summary))
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.top, Metrics.small)

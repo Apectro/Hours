@@ -27,6 +27,21 @@ struct CalendarFormatting: Sendable {
 
     private static let cache = FormatterCache()
 
+    /// The calendar with this formatting's locale on it.
+    ///
+    /// `Calendar.shortStandaloneWeekdaySymbols` and its siblings read the
+    /// *calendar's* locale, not the formatter's, so asking a device-locale
+    /// calendar for weekday names returned English ones however the export
+    /// language was set. The month and weekday templates above go through a
+    /// DateFormatter and were never affected, which is what made it look like
+    /// the setting was working.
+    private var localised: Calendar {
+        guard calendar.locale != locale else { return calendar }
+        var copy = calendar
+        copy.locale = locale
+        return copy
+    }
+
     /// "August 2026"
     func monthTitle(_ month: YearMonth) -> String {
         formatter("yMMMM").string(from: month.firstDay.date(in: calendar))
@@ -81,12 +96,12 @@ struct CalendarFormatting: Sendable {
 
     /// A short name for one weekday number (1 = Sunday), e.g. "Mon".
     func shortWeekdaySymbol(for weekday: Int) -> String {
-        symbol(from: calendar.shortStandaloneWeekdaySymbols, weekday: weekday)
+        symbol(from: localised.shortStandaloneWeekdaySymbols, weekday: weekday)
     }
 
     /// The full name for one weekday number (1 = Sunday), e.g. "Monday".
     func weekdayName(for weekday: Int) -> String {
-        symbol(from: calendar.standaloneWeekdaySymbols, weekday: weekday)
+        symbol(from: localised.standaloneWeekdaySymbols, weekday: weekday)
     }
 
     private func symbol(from symbols: [String], weekday: Int) -> String {

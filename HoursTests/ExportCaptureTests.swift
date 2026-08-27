@@ -198,6 +198,45 @@ final class ExportCaptureTests: XCTestCase {
         }
     }
 
+    /// What the renderer actually drew, not what the table was willing to say.
+    ///
+    /// The table's `headerTitles()` were translated and asserted on, and the
+    /// PDF came out with English column titles anyway — because it was
+    /// drawing `column.title`, the app's own name for the column, and never
+    /// asked the table. An assertion on the model cannot see that. This one
+    /// reads the text back out of the finished document.
+    func testTheRenderedGermanPDFIsGermanAndNothingIsClipped() throws {
+        let table = monthTable(language: .german)
+        let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+        let text = (0..<document.pageCount)
+            .compactMap { document.page(at: $0)?.string }
+            .joined()
+
+        for heading in ["Datum", "Art", "Gearbeitet", "Pause", "Überstunden"] {
+            XCTAssertTrue(text.contains(heading), "the PDF never drew the column title \(heading)")
+        }
+        for english in ["Worked", "Expected", "Overtime", "Break"] {
+            XCTAssertFalse(text.contains(english), "\(english) is still in English in the rendered PDF")
+        }
+
+        // Weekdays come from the calendar's own locale, which is not the one
+        // the formatter was given — so these were English long after the
+        // setting said otherwise.
+        // Absence rather than presence: a two-letter German abbreviation is a
+        // substring of half the page, but "Sat" and "Sun" appear nowhere in a
+        // German sheet that is really German.
+        XCTAssertFalse(text.contains("Sat"), "the weekdays are still English")
+        XCTAssertFalse(text.contains("Sun"), "the weekdays are still English")
+        XCTAssertTrue(text.contains("Wochenende"), "the day types are not in German")
+
+        // A truncated note is untidy. A truncated duration is a wrong number.
+        XCTAssertTrue(
+            text.contains("9 Std 45 Min"),
+            "a duration was clipped by a column sized for English units"
+        )
+        XCTAssertFalse(text.contains("Std 45…") || text.contains("Std 30…"))
+    }
+
     /// The CSV and the workbook, written exactly as the app writes them.
     func testCaptureTheDataFiles() throws {
         let table = monthTable()

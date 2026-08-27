@@ -139,7 +139,7 @@ enum PDFReportRenderer {
         for (index, column) in table.columns.enumerated() {
             let width = widths[index]
             draw(
-                column.title,
+                column.heading(in: table.language),
                 in: CGRect(x: x + cellPadding, y: y + 5, width: width - cellPadding * 2, height: headerHeight - 8),
                 font: .systemFont(ofSize: 9, weight: .semibold),
                 color: .secondaryLabel,
@@ -243,13 +243,34 @@ enum PDFReportRenderer {
 
     /// Column widths from per-column weights, normalised to the page.
     static func columnWidths(for table: ReportTable, availableWidth: CGFloat) -> [CGFloat] {
-        let weights = table.columns.map(weight(for:))
+        let weights = table.columns.indices.map { weight(forColumnAt: $0, in: table) }
         let total = weights.reduce(0, +)
         guard total > 0 else {
             let equal = availableWidth / CGFloat(max(table.columns.count, 1))
             return Array(repeating: equal, count: table.columns.count)
         }
         return weights.map { availableWidth * $0 / total }
+    }
+
+    /// The tuned weight below, raised when the column's contents will not fit
+    /// in it.
+    ///
+    /// The weights were chosen against English durations — "9h 45m", six
+    /// characters. German writes the same duration as "9 Std 45 Min", twice
+    /// the width, and the column clipped it to "9 Std 30…". A truncated note
+    /// is untidy; a truncated duration is a wrong number, so duration columns
+    /// take whatever room their widest value needs and the note gives it up.
+    private static func weight(forColumnAt index: Int, in table: ReportTable) -> CGFloat {
+        let column = table.columns[index]
+        let base = weight(for: column)
+        guard column.isDuration else { return base }
+
+        let widest = table.rows.reduce(0) { widest, row in
+            max(widest, index < row.values.count ? row.values[index].count : 0)
+        }
+        let englishReference = 6
+        guard widest > englishReference else { return base }
+        return base * CGFloat(widest) / CGFloat(englishReference)
     }
 
     private static func weight(for column: ReportColumn) -> CGFloat {
