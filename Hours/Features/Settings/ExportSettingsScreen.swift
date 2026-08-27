@@ -7,6 +7,16 @@ struct ExportSettingsScreen: View {
 
     var body: some View {
         List {
+            Section {
+                TextField("Name and surname", text: settingsStore.binding(\.export.ownerName))
+                    .textContentType(.name)
+                    .autocorrectionDisabled()
+            } header: {
+                Text("Name on the timesheet")
+            } footer: {
+                Text("Printed under the title of every timesheet, and used to name the file. Leave it empty and nothing is printed. It stays on this device like everything else.")
+            }
+
             Section("Formatting") {
                 Picker("Dates", selection: settingsStore.binding(\.export.dateStyle)) {
                     ForEach(ExportDateStyle.allCases) { style in

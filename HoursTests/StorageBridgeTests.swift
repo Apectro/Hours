@@ -88,4 +88,37 @@ final class StorageBridgeTests: XCTestCase {
         XCTAssertEqual(ExportFileFactory.sanitise("a/b:c"), "a-b-c")
         XCTAssertEqual(ExportFileFactory.sanitise("   "), "Hours")
     }
+
+    /// A name is now part of the file name, so an accented one has to survive
+    /// the trip. `CharacterSet.alphanumerics` is Unicode-wide rather than
+    /// ASCII, which is the reason it does.
+    func testAnAccentedNameSurvivesTheFilename() {
+        XCTAssertEqual(
+            ExportFileFactory.sanitise("Marijo Mikša - Hours 2026-08"),
+            "Marijo Mikša - Hours 2026-08"
+        )
+        XCTAssertEqual(ExportFileFactory.sanitise("Ana Æ Ø 王"), "Ana Æ Ø 王")
+    }
+
+    /// Renaming an export moves the file rather than rewriting it, and the
+    /// extension is not something the typed name gets to change.
+    func testRenamingAnExportKeepsItsBytesAndItsExtension() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RenameTest-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let original = directory.appendingPathComponent("Hours 2026-08").appendingPathExtension("xlsx")
+        let bytes = Data("a workbook".utf8)
+        try bytes.write(to: original)
+
+        let renamed = try ExportFileFactory.rename(original, to: "Ada Lovelace - Hours 2026-08")
+
+        XCTAssertEqual(renamed.lastPathComponent, "Ada Lovelace - Hours 2026-08.xlsx")
+        XCTAssertEqual(try Data(contentsOf: renamed), bytes, "renaming rewrote the file")
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: original.path),
+            "the old name is still there, so sharing could pick up either"
+        )
+    }
 }

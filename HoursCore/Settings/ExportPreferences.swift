@@ -14,6 +14,13 @@ struct ExportPreferences: Hashable, Codable, Sendable {
     var includeEmptyDays: Bool
     var columns: [ReportColumn]
     var defaultRange: ExportRangeKind
+    /// Whose hours these are, printed on the timesheet.
+    ///
+    /// A timesheet that reaches a payroll department with no name on it is a
+    /// timesheet somebody has to ask about. Empty by default, because the app
+    /// has no account and does not otherwise know who you are — and an empty
+    /// name prints nothing rather than a blank line.
+    var ownerName: String
 
     init(
         dateStyle: ExportDateStyle = .iso,
@@ -25,7 +32,8 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         includeSummaryRows: Bool = true,
         includeEmptyDays: Bool = true,
         columns: [ReportColumn] = ReportColumn.defaultSelection,
-        defaultRange: ExportRangeKind = .month
+        defaultRange: ExportRangeKind = .month,
+        ownerName: String = ""
     ) {
         self.dateStyle = dateStyle
         self.timeStyle = timeStyle
@@ -37,11 +45,13 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         self.includeEmptyDays = includeEmptyDays
         self.columns = columns.isEmpty ? ReportColumn.defaultSelection : columns
         self.defaultRange = defaultRange
+        self.ownerName = ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private enum CodingKeys: String, CodingKey {
         case dateStyle, timeStyle, durationStyle, fieldSeparator, decimalSeparator
         case includeByteOrderMark, includeSummaryRows, includeEmptyDays, columns, defaultRange
+        case ownerName
     }
 
     init(from decoder: Decoder) throws {
@@ -57,7 +67,8 @@ struct ExportPreferences: Hashable, Codable, Sendable {
             includeSummaryRows: container.lenient(.includeSummaryRows, defaults.includeSummaryRows),
             includeEmptyDays: container.lenient(.includeEmptyDays, defaults.includeEmptyDays),
             columns: container.lenient(.columns, defaults.columns),
-            defaultRange: container.lenient(.defaultRange, defaults.defaultRange)
+            defaultRange: container.lenient(.defaultRange, defaults.defaultRange),
+            ownerName: container.lenient(.ownerName, defaults.ownerName)
         )
     }
 }

@@ -20,6 +20,12 @@ enum CSVExporter {
         if preferences.includeSummaryRows && !table.totals.isEmpty {
             lines.append("")
             lines.append(row(["Summary", table.subtitle], separator: separator))
+            // The name goes here rather than above the header row: the data
+            // block is strictly tabular on purpose, so that an importer
+            // reading line one as the column titles gets clean columns.
+            if !table.ownerName.isEmpty {
+                lines.append(row(["Name", table.ownerName], separator: separator))
+            }
             for total in table.totals {
                 lines.append(row([total.label, total.value], separator: separator))
             }

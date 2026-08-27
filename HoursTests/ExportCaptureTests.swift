@@ -18,7 +18,12 @@ final class ExportCaptureTests: XCTestCase {
     /// A full month with the kinds of day that make a report interesting:
     /// overtime, a short day, a weekend, a holiday and a long note.
     private func monthTable(days dayCount: Int = 31) -> ReportTable {
-        let settings = Fixture.settings()
+        // A name, because a timesheet that reaches somebody else carries one
+        // — and because the captures are the only place the title block is
+        // ever looked at rather than asserted on.
+        var export = ExportPreferences()
+        export.ownerName = "Ada Lovelace"
+        let settings = Fixture.settings(export: export)
         let start = Fixture.date(2026, 8, 1)
         let end = Fixture.date(2026, 8, dayCount)
         let range = CalendarDateRange(start: start, end: end)

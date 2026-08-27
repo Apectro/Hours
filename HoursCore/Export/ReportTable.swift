@@ -49,6 +49,9 @@ struct ReportTotal: Identifiable, Hashable, Sendable {
 struct ReportTable: Hashable, Sendable {
     var title: String
     var subtitle: String
+    /// Whose hours these are. Empty prints nothing at all rather than a blank
+    /// line where a name would be.
+    var ownerName: String = ""
     var columns: [ReportColumn]
     var rows: [ReportRow]
     var totals: [ReportTotal]

@@ -634,6 +634,74 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(lines[blank + 1].hasPrefix("Summary"))
     }
 
+    // MARK: - Whose hours these are
+
+    /// A timesheet with no name on it is one somebody has to ask about.
+    func testTheNameReachesEveryFormat() {
+        var export = ExportPreferences()
+        export.ownerName = "Ada Lovelace"
+        let table = sampleTable(settings: Fixture.settings(export: export))
+
+        XCTAssertEqual(table.ownerName, "Ada Lovelace", "the name never left the settings")
+
+        let workbook = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+        XCTAssertTrue(workbook.contains(">Ada Lovelace<"), "the workbook does not say whose hours these are")
+
+        let csv = CSVExporter.string(for: table, preferences: export)
+        XCTAssertTrue(csv.contains("Name,Ada Lovelace"), "the CSV does not say whose hours these are")
+    }
+
+    /// The name is above the days and below the title, and the days are
+    /// pushed down by exactly the one row it takes.
+    func testTheNameSitsInTheTitleBlockAndNotInTheTable() {
+        var named = ExportPreferences()
+        named.ownerName = "Ada Lovelace"
+        let withName = String(
+            decoding: XLSXWriter.data(for: sampleTable(settings: Fixture.settings(export: named)), preferences: named),
+            as: UTF8.self
+        )
+        let anonymous = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        guard let title = withName.range(of: ">Hours — August 2026<"),
+              let owner = withName.range(of: ">Ada Lovelace<"),
+              let columns = withName.range(of: ">Date<") else {
+            return XCTFail("the title block is missing one of its lines")
+        }
+        XCTAssertTrue(title.lowerBound < owner.lowerBound, "the name is above the report's own title")
+        XCTAssertTrue(owner.lowerBound < columns.lowerBound, "the name is down among the days")
+
+        XCTAssertEqual(
+            headerRow(in: withName),
+            headerRow(in: anonymous) + 1,
+            "the name should take one row, no more and no fewer"
+        )
+    }
+
+    /// No name means no blank line where a name would be.
+    func testNoNameLeavesNoGap() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+        // Row 2 is the subtitle, directly under the title — nothing between.
+        XCTAssertTrue(
+            package.contains("<c r=\"A2\" t=\"inlineStr\" s=\"7\">"),
+            "an empty name has left a row behind it"
+        )
+        XCTAssertFalse(CSVExporter.string(for: sampleTable(), preferences: ExportPreferences()).contains("Name,"))
+    }
+
+    /// Typed with a stray space, printed without one.
+    func testTheNameIsTrimmedBeforeItIsPrinted() {
+        var export = ExportPreferences()
+        export.ownerName = "  Ada Lovelace \n"
+        let table = sampleTable(settings: Fixture.settings(export: export))
+        XCTAssertEqual(table.ownerName, "Ada Lovelace")
+    }
+
     // MARK: - XLSX
 
     func testSpreadsheetColumnNames() {

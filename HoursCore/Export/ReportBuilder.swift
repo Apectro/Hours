@@ -60,6 +60,7 @@ struct ReportBuilder: Sendable {
         return ReportTable(
             title: title,
             subtitle: subtitle(for: range),
+            ownerName: settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines),
             columns: columns,
             rows: rows,
             totals: makeTotals(summary: summary, runningBalance: running, openingBalance: openingBalanceMinutes)

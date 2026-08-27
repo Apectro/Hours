@@ -102,6 +102,20 @@ enum PDFReportRenderer {
         )
         cursor += 24
 
+        // Whose hours these are, between the report's name and its dates —
+        // the line a payroll department reads first, and the one a timesheet
+        // is useless without.
+        if !table.ownerName.isEmpty {
+            draw(
+                table.ownerName,
+                in: CGRect(x: margin, y: cursor, width: pageSize.width - margin * 2, height: 18),
+                font: .systemFont(ofSize: 12, weight: .medium),
+                color: .label,
+                alignment: .left
+            )
+            cursor += 17
+        }
+
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short

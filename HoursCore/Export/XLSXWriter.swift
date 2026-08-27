@@ -77,6 +77,10 @@ enum XLSXWriter {
         // The title block, as the PDF opens.
         merge(0, columns - 1, row: rowNumber)
         emit([Cell.text(table.title, style: .title)], sizing: [], height: 26)
+        if !table.ownerName.isEmpty {
+            merge(0, columns - 1, row: rowNumber)
+            emit([Cell.text(table.ownerName, style: .bold)], sizing: [])
+        }
         merge(0, columns - 1, row: rowNumber)
         emit([Cell.text(subtitleLine(for: table, generatedOn: generatedOn), style: .subtitle)], sizing: [])
         blank()

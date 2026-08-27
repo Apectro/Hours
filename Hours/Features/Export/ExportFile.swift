@@ -72,6 +72,23 @@ enum ExportFileFactory {
         return url
     }
 
+    /// Gives an already-written export a new name.
+    ///
+    /// Renaming beats rewriting: the bytes do not change when the file is
+    /// called something else, and re-rendering a year of PDF on every
+    /// keystroke would be a lot of work to arrive back at the same document.
+    static func rename(_ url: URL, to baseName: String) throws -> URL {
+        let destination = url
+            .deletingLastPathComponent()
+            .appendingPathComponent(sanitise(baseName))
+            .appendingPathExtension(url.pathExtension)
+        guard destination != url else { return url }
+
+        try? FileManager.default.removeItem(at: destination)
+        try FileManager.default.moveItem(at: url, to: destination)
+        return destination
+    }
+
     /// Removes files left behind by earlier exports in this session.
     static func clearPreviousExports() {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Exports", isDirectory: true)

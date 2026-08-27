@@ -19,6 +19,14 @@ struct ExportScreen: View {
     @State private var customEnd: CalendarDate
     @State private var format: ExportFormat = .csv
 
+    /// What the file will be called, without its extension.
+    ///
+    /// Follows the range until somebody types over it, and stops following
+    /// the moment they do — changing the month after naming a file should not
+    /// silently rename it back.
+    @State private var fileName: String = ""
+    @State private var fileNameEdited = false
+
     @State private var previewTable: ReportTable?
     @State private var fileURL: URL?
     @State private var failureMessage: String?
@@ -54,6 +62,13 @@ struct ExportScreen: View {
                 regenerate()
             }
             .onChange(of: regenerationKey) { _, _ in regenerate() }
+            // A new name is a rename, not a re-export: the file already on
+            // disk is the right one, and rebuilding it per keystroke is work
+            // that arrives back where it started.
+            .onChange(of: fileBaseName) { _, newName in
+                guard let url = fileURL else { return }
+                fileURL = (try? ExportFileFactory.rename(url, to: newName)) ?? url
+            }
             .paywall(for: $paywallReason)
         }
     }
@@ -126,6 +141,17 @@ struct ExportScreen: View {
     @ViewBuilder
     private var shareSection: some View {
         Section {
+            HStack {
+                TextField(suggestedFileName, text: fileNameBinding)
+                    .autocorrectionDisabled()
+                    .submitLabel(.done)
+                Text(".\(format.fileExtension)")
+                    .foregroundStyle(.secondary)
+                    .monospaced()
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("File name")
+
             if !subscriptions.allows(.fileExport) {
                 // Stopped at the file, not at the door. Everything above —
                 // the range, the columns, the preview — is what the person
@@ -207,14 +233,46 @@ struct ExportScreen: View {
         }
     }
 
-    private var fileBaseName: String {
+    /// What the file is called when nobody has said otherwise.
+    ///
+    /// Led by the person's name when they have given one, because a folder of
+    /// timesheets from several people sorts by whose they are before it sorts
+    /// by when.
+    private var suggestedFileName: String {
         let range = resolvedRange
+        let period: String
         switch rangeKind {
-        case .day: return "Hours \(range.start)"
-        case .month: return "Hours \(String(format: "%04d-%02d", range.start.year, range.start.month))"
-        case .year: return "Hours \(range.start.year)"
-        default: return "Hours \(range.start) to \(range.end)"
+        case .day: period = "\(range.start)"
+        case .month: period = String(format: "%04d-%02d", range.start.year, range.start.month)
+        case .year: period = "\(range.start.year)"
+        default: period = "\(range.start) to \(range.end)"
         }
+
+        let name = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A plain hyphen, not an em dash: the sanitiser replaces anything a
+        // file name cannot hold, and the field should show the name the file
+        // will actually be given.
+        return name.isEmpty ? "Hours \(period)" : "\(name) - Hours \(period)"
+    }
+
+    /// Typing marks the name as the person's own; clearing the field hands it
+    /// back to the range, so there is always a way to undo an edit.
+    private var fileNameBinding: Binding<String> {
+        Binding(
+            get: { fileName },
+            set: { typed in
+                fileName = typed
+                // Emptying the field hands the name back to the range rather
+                // than snapping the suggestion in under the cursor — which
+                // would make deleting the last character impossible.
+                fileNameEdited = !typed.trimmingCharacters(in: .whitespaces).isEmpty
+            }
+        )
+    }
+
+    private var fileBaseName: String {
+        let typed = fileName.trimmingCharacters(in: .whitespaces)
+        return typed.isEmpty ? suggestedFileName : typed
     }
 
     /// Everything that changes what the file contains.
@@ -232,6 +290,8 @@ struct ExportScreen: View {
     // MARK: - Generation
 
     private func regenerate() {
+        if !fileNameEdited { fileName = suggestedFileName }
+
         let repository = WorkdayRepository(context: modelContext)
         let range = resolvedRange
         let holidays = repository.holidayRules()
