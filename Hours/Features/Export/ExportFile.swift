@@ -35,7 +35,7 @@ enum ExportFormat: String, CaseIterable, Identifiable, Hashable {
     var explanation: String {
         switch self {
         case .csv: return "Opens in Excel, Numbers, Google Sheets and LibreOffice."
-        case .xlsx: return "A workbook with a bold header row. Decimal durations are written as real numbers."
+        case .xlsx: return "A summary, then the days, then their totals. Hours read as 8h 00m and still add up."
         case .pdf: return "A ruled table with a summary, ready to print or send on."
         }
     }

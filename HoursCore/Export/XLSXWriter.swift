@@ -95,14 +95,29 @@ enum XLSXWriter {
             merge(0, columns - 1, row: rowNumber)
             emit([Cell.text("Summary", style: .section)], sizing: [], height: 20)
 
+            // Durations down the left, day counts down the right, as the PDF
+            // pairs them — but only where there are columns enough to hold two
+            // pairs without them running together.
+            //
+            // Written out rather than as a ternary over two maps, which the
+            // type checker gave up on: an optional tuple inside a conditional
+            // inside a map is more inference than one expression is worth.
             let paired = columns >= 9
             let left = table.totals.filter { $0.minutes != nil }
             let right = table.totals.filter { $0.minutes == nil }
-            let entries: [(ReportTotal?, ReportTotal?)] = paired
-                ? (0..<max(left.count, right.count)).map {
-                    ($0 < left.count ? left[$0] : nil, $0 < right.count ? right[$0] : nil)
+
+            var entries: [(first: ReportTotal?, second: ReportTotal?)] = []
+            if paired {
+                for index in 0..<max(left.count, right.count) {
+                    let first: ReportTotal? = index < left.count ? left[index] : nil
+                    let second: ReportTotal? = index < right.count ? right[index] : nil
+                    entries.append((first, second))
                 }
-                : table.totals.map { ($0, nil) }
+            } else {
+                for total in table.totals {
+                    entries.append((total, nil))
+                }
+            }
 
             // Labels are merged rather than left to overflow, because the cell
             // beside them holds the figure and a blocked overflow clips.
