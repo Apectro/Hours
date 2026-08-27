@@ -228,10 +228,10 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("s=\"2\""), "no cell uses the hours format")
         XCTAssertTrue(package.contains("numFmtId=\"164\" formatCode=\"0.00\""))
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
-        // Six formats are declared and Style indexes them 0...5; a cell asking
-        // for a seventh would render with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"6\">"))
-        XCTAssertFalse(package.contains("s=\"6\""), "a cell points past the end of cellXfs")
+        // Seven formats are declared and Style indexes them 0...6; a cell
+        // asking for an eighth renders with nobody's formatting.
+        XCTAssertTrue(package.contains("<cellXfs count=\"7\">"))
+        XCTAssertFalse(package.contains("s=\"7\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -244,6 +244,66 @@ final class ExportTests: XCTestCase {
 
         XCTAssertTrue(package.contains("s=\"3\""), "the emphasised totals are not formatted as hours")
         XCTAssertTrue(package.contains("s=\"4\""), "the day counts are not formatted as whole numbers")
+    }
+
+    /// The sheet has to be laid out, not just filled in.
+    ///
+    /// Opened on a phone, the first export read "2026-08-0" down the date
+    /// column and "Total worl" and "Days work" in the summary, because no
+    /// column had ever been given a width. Every column now takes its width
+    /// from the widest thing in it, so nothing is truncated.
+    func testColumnsAreWideEnoughForWhatIsInThem() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("<cols>"), "no column widths at all")
+        XCTAssertTrue(package.contains("customWidth=\"1\""))
+
+        // "Scheduled working days" is 22 characters and sits in column A, so
+        // column A cannot come out at the width of a date.
+        guard let range = package.range(of: "<col min=\"1\" max=\"1\" width=\"") else {
+            return XCTFail("column A has no width")
+        }
+        let width = Int(package[range.upperBound...].prefix { $0.isNumber }) ?? 0
+        XCTAssertGreaterThanOrEqual(width, 25, "column A truncates the longest summary label")
+        XCTAssertLessThanOrEqual(width, 44, "one long note should not push the sheet off the screen")
+    }
+
+    /// Scrolling a year of days must not lose the column titles, and the days
+    /// should be sortable without the totals being dragged into the sort.
+    func testTheHeaderIsFrozenAndFiltersOnlyTheDays() {
+        let table = sampleTable()
+        let package = String(
+            decoding: XLSXWriter.data(for: table, preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("state=\"frozen\""), "the header scrolls away")
+        XCTAssertTrue(package.contains("ySplit=\"1\""))
+
+        // The filter covers the header and the days, and stops before the
+        // blank row and the summary block underneath.
+        let lastDayRow = table.rows.count + 1
+        XCTAssertTrue(
+            package.contains("<autoFilter ref=\"A1:\(XLSXWriter.columnName(table.columns.count - 1))\(lastDayRow)\"/>"),
+            "the filter range does not stop at the last day"
+        )
+    }
+
+    /// The header is the one part of the sheet that has to read as a heading
+    /// on paper, where bold alone does not carry.
+    func testTheHeaderRowIsStyledRatherThanMerelyBold() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("s=\"6\""), "the header row uses no header style")
+        XCTAssertTrue(package.contains("<fgColor rgb=\"FF2B4A93\"/>"), "the header has no fill")
+        XCTAssertTrue(package.contains("<color rgb=\"FFFFFFFF\"/>"), "the header text is not reversed out")
+        XCTAssertTrue(package.contains("<bottom style=\"thin\">"), "no rule under the header")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {

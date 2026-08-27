@@ -22,10 +22,20 @@ enum XLSXWriter {
 
     private static func sheet(for table: ReportTable, preferences: ExportPreferences) -> String {
         var rows: [String] = []
+        // Every cell, kept alongside the XML so the columns can be sized from
+        // what is actually in them. A timesheet whose first column reads
+        // "2026-08-0" and whose summary reads "Total worl" is not a document
+        // anyone would hand to a payroll office.
+        var grid: [[Cell]] = []
         var rowNumber = 1
 
-        rows.append(row(number: rowNumber, cells: table.headerTitles().map { Cell.text($0, bold: true) }))
-        rowNumber += 1
+        func emit(_ cells: [Cell]) {
+            rows.append(row(number: rowNumber, cells: cells))
+            grid.append(cells)
+            rowNumber += 1
+        }
+
+        emit(table.headerTitles().map { Cell.text($0, style: .header) })
 
         // Every duration is written as a number, whatever the display style.
         //
@@ -46,16 +56,16 @@ enum XLSXWriter {
                 if index < reportRow.minutes.count, let minutes = reportRow.minutes[index] {
                     return Cell.number(DurationFormatting.decimalHours(minutes), style: .hours)
                 }
-                return Cell.text(value, bold: false)
+                return Cell.text(value, style: .normal)
             }
-            rows.append(row(number: rowNumber, cells: cells))
-            rowNumber += 1
+            emit(cells)
         }
+        let lastDataRow = rowNumber - 1
 
         if preferences.includeSummaryRows && !table.totals.isEmpty {
+            // One blank row between the days and their totals.
             rowNumber += 1
-            rows.append(row(number: rowNumber, cells: [Cell.text("Summary", bold: true), Cell.text(table.subtitle, bold: false)]))
-            rowNumber += 1
+            emit([Cell.text("Summary", style: .boldText), Cell.text(table.subtitle, style: .normal)])
             for total in table.totals {
                 let figure: Cell
                 if let minutes = total.minutes {
@@ -63,25 +73,69 @@ enum XLSXWriter {
                 } else if let count = total.count {
                     figure = .number(Double(count), style: total.isEmphasised ? .boldCount : .count)
                 } else {
-                    figure = .text(total.value, bold: total.isEmphasised)
+                    figure = .text(total.value, style: total.isEmphasised ? .boldText : .normal)
                 }
-                rows.append(row(number: rowNumber, cells: [
-                    Cell.text(total.label, bold: total.isEmphasised),
+                emit([
+                    Cell.text(total.label, style: total.isEmphasised ? .boldText : .normal),
                     figure
-                ]))
-                rowNumber += 1
+                ])
             }
         }
 
+        // The order of these elements is fixed by the file format — views,
+        // then columns, then the data, then the filter. Out of order, the
+        // whole workbook is refused rather than degraded.
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>\(rows.joined())</sheetData></worksheet>
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\
+        \(frozenHeader)\
+        \(columnWidths(for: grid))\
+        <sheetData>\(rows.joined())</sheetData>\
+        \(autoFilter(lastDataRow: lastDataRow, columns: table.columns.count))\
+        </worksheet>
         """
     }
 
     /// Indexes into `cellXfs` in `styles`, in the order they are declared
     /// there. A wrong index here is not an error the file reports — the cell
     /// simply renders with somebody else's formatting.
+
+    /// Scrolling a year of days must not lose the column titles.
+    private static let frozenHeader = """
+    <sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+    """
+
+    /// Sorting and filtering the days, without touching the totals below them.
+    private static func autoFilter(lastDataRow: Int, columns: Int) -> String {
+        guard lastDataRow > 1, columns > 0 else { return "" }
+        return "<autoFilter ref=\"A1:\(columnName(columns - 1))\(lastDataRow)\"/>"
+    }
+
+    /// Column widths, from the widest thing each column has to show.
+    ///
+    /// The unit is roughly one character of the default font, so this is the
+    /// longest value plus a little air. Bounded at both ends: a column narrower
+    /// than its own heading is unreadable, and one note three hundred
+    /// characters long should not push the rest of the sheet off the screen —
+    /// a wrapped cell is better than a column nobody can scroll past.
+    private static func columnWidths(for grid: [[Cell]]) -> String {
+        let columnCount = grid.map(\.count).max() ?? 0
+        guard columnCount > 0 else { return "" }
+
+        var widest = Array(repeating: 0, count: columnCount)
+        for row in grid {
+            for (index, cell) in row.enumerated() where index < columnCount {
+                widest[index] = max(widest[index], cell.width)
+            }
+        }
+
+        let entries = widest.enumerated().map { index, characters -> String in
+            let width = min(max(characters + 3, 9), 44)
+            return "<col min=\"\(index + 1)\" max=\"\(index + 1)\" width=\"\(width)\" customWidth=\"1\"/>"
+        }
+        return "<cols>\(entries.joined())</cols>"
+    }
+
     private enum Style: Int {
         case normal = 0
         case boldText = 1
@@ -89,11 +143,24 @@ enum XLSXWriter {
         case boldHours = 3
         case count = 4
         case boldCount = 5
+        case header = 6
     }
 
     private enum Cell {
-        case text(String, bold: Bool)
+        case text(String, style: Style)
         case number(Double, style: Style)
+
+        /// The characters this cell will try to show, for sizing the column.
+        var width: Int {
+            switch self {
+            case let .text(value, _): return value.count
+            // "165.00" and the like: the format is fixed, so the widest a
+            // number gets is its digits plus the point and two decimals.
+            case let .number(value, style):
+                let whole = String(Int(value.magnitude)).count + (value < 0 ? 1 : 0)
+                return style == .count || style == .boldCount ? whole : whole + 3
+            }
+        }
     }
 
     private static func row(number: Int, cells: [Cell]) -> String {
@@ -101,9 +168,8 @@ enum XLSXWriter {
         for (index, cell) in cells.enumerated() {
             let reference = "\(columnName(index))\(number)"
             switch cell {
-            case let .text(value, bold):
-                let style = bold ? " s=\"\(Style.boldText.rawValue)\"" : ""
-                xml += "<c r=\"\(reference)\" t=\"inlineStr\"\(style)><is><t xml:space=\"preserve\">\(escape(value))</t></is></c>"
+            case let .text(value, style):
+                xml += "<c r=\"\(reference)\" t=\"inlineStr\" s=\"\(style.rawValue)\"><is><t xml:space=\"preserve\">\(escape(value))</t></is></c>"
             case let .number(value, style):
                 xml += "<c r=\"\(reference)\" s=\"\(style.rawValue)\"><v>\(format(value))</v></c>"
             }
@@ -176,14 +242,18 @@ enum XLSXWriter {
         """
     }
 
-    /// Six cell formats, in the order `Style` indexes them.
+    /// Seven cell formats, in the order `Style` indexes them.
     ///
     /// `numFmtId` 164 is the first id the format reserves for custom entries;
-    /// anything below 164 is one of the built-ins and cannot be redefined.
-    /// `0.00` for hours so a quarter of an hour reads 0.25 rather than 0.3,
-    /// and `0` for day counts so twenty-one days is not written 21.00.
+    /// anything below 164 is a built-in and cannot be redefined. `0.00` for
+    /// hours so a quarter of an hour reads 0.25 rather than 0.3, and `0` for
+    /// day counts so twenty-one days is not written 21.00.
+    ///
+    /// The header is white on the same blue the app uses, with a rule beneath
+    /// it. Bold alone was doing the work of telling a reader where the data
+    /// starts, which on a printed page it does not do.
     private static let styles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="0.00"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="6"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="0.00"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B4A93"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FF1E3568"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """
 }
