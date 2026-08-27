@@ -29,9 +29,17 @@ enum XLSXWriter {
         var grid: [[Cell]] = []
         var rowNumber = 1
 
-        func emit(_ cells: [Cell]) {
+        /// `sizing` is how many of the row's cells get a say in how wide their
+        /// columns are. The summary block passes 1: its labels sit in the
+        /// first column and must fit, but its second column holds the date
+        /// range of the report, and sizing the *weekday* column to
+        /// "2026-08-01 – 2026-08-31" made a column of "Mon" and "Tue" three
+        /// times wider than the table needs. Text with empty cells to its
+        /// right overflows into them on screen and on paper, so that heading
+        /// is readable either way.
+        func emit(_ cells: [Cell], sizing: Int? = nil) {
             rows.append(row(number: rowNumber, cells: cells))
-            grid.append(cells)
+            grid.append(Array(cells.prefix(sizing ?? cells.count)))
             rowNumber += 1
         }
 
@@ -65,7 +73,7 @@ enum XLSXWriter {
         if preferences.includeSummaryRows && !table.totals.isEmpty {
             // One blank row between the days and their totals.
             rowNumber += 1
-            emit([Cell.text("Summary", style: .boldText), Cell.text(table.subtitle, style: .normal)])
+            emit([Cell.text("Summary", style: .boldText), Cell.text(table.subtitle, style: .normal)], sizing: 1)
             for total in table.totals {
                 let figure: Cell
                 if let minutes = total.minutes {
@@ -78,7 +86,7 @@ enum XLSXWriter {
                 emit([
                     Cell.text(total.label, style: total.isEmphasised ? .boldText : .normal),
                     figure
-                ])
+                ], sizing: 2)
             }
         }
 
