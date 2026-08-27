@@ -225,13 +225,13 @@ final class ExportTests: XCTestCase {
             as: UTF8.self
         )
 
-        XCTAssertTrue(package.contains("s=\"2\""), "no cell uses the hours format")
-        XCTAssertTrue(package.contains("numFmtId=\"164\" formatCode=\"0.00\""))
-        XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
+        XCTAssertTrue(package.contains("s=\"1\""), "no cell uses the duration format")
+        XCTAssertTrue(package.contains("numFmtId=\"164\""), "no duration format is declared")
+        XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""), "no whole-number format")
         // Seven formats are declared and Style indexes them 0...6; a cell
         // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"21\">"))
-        XCTAssertFalse(package.contains("s=\"21\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"14\">"))
+        XCTAssertFalse(package.contains("s=\"14\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -242,8 +242,8 @@ final class ExportTests: XCTestCase {
             as: UTF8.self
         )
 
-        XCTAssertTrue(package.contains("s=\"3\""), "the emphasised totals are not formatted as hours")
-        XCTAssertTrue(package.contains("s=\"4\""), "the day counts are not formatted as whole numbers")
+        XCTAssertTrue(package.contains("s=\"10\""), "the summary durations are not formatted")
+        XCTAssertTrue(package.contains("s=\"11\""), "the day counts are not formatted as whole numbers")
         XCTAssertTrue(package.contains(">Total worked<"), "the summary sheet is missing its headline figure")
     }
 
@@ -301,10 +301,10 @@ final class ExportTests: XCTestCase {
             as: UTF8.self
         )
 
-        XCTAssertTrue(package.contains("s=\"6\""), "the header row uses no header style")
-        XCTAssertTrue(package.contains("<fgColor rgb=\"FF2B4A93\"/>"), "the header has no fill")
-        XCTAssertTrue(package.contains("<color rgb=\"FFFFFFFF\"/>"), "the header text is not reversed out")
-        XCTAssertTrue(package.contains("<bottom style=\"thin\">"), "no rule under the header")
+        XCTAssertTrue(package.contains("s=\"5\""), "the header row uses no header style")
+        XCTAssertTrue(package.contains("<fgColor rgb=\"FFF2F2F5\"/>"), "the header has no fill")
+        XCTAssertTrue(package.contains("<color rgb=\"FF5A5A64\"/>"), "the header type is not set apart")
+        XCTAssertTrue(package.contains("<color rgb=\"FFD8D8DE\"/>"), "no rule under the header")
     }
 
     /// Two elements the spec calls optional and a phone does not.
@@ -377,16 +377,16 @@ final class ExportTests: XCTestCase {
     /// Alternate rows carry a wash and every row a hairline, so the eye can
     /// cross ten columns without losing the line — which is the whole reason
     /// the PDF's table is ruled.
-    func testTheDaysAreRuledAndBanded() {
+    func testWorkingDaysAndRestDaysLookDifferent() {
         let package = String(
             decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
             as: UTF8.self
         )
 
-        XCTAssertTrue(package.contains("<fgColor rgb=\"FFF4F6FA\"/>"), "no banding colour is defined")
-        XCTAssertTrue(package.contains("<color rgb=\"FFE2E6EF\"/>"), "no row rule is defined")
-        XCTAssertTrue(package.contains("s=\"10\""), "no row uses the ruled style")
-        XCTAssertTrue(package.contains("s=\"13\""), "no row uses the banded style")
+        XCTAssertTrue(package.contains("<fgColor rgb=\"FFFAFAFB\"/>"), "rest days are not set apart")
+        XCTAssertTrue(package.contains("<color rgb=\"FFEDEDF1\"/>"), "no row rule is defined")
+        XCTAssertTrue(package.contains("s=\"0\""), "no working day uses the plain row style")
+        XCTAssertTrue(package.contains("s=\"3\""), "no rest day is greyed")
     }
 
     /// A timesheet gets printed, and the workbook had nothing to say about
@@ -415,19 +415,47 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("orientation=\"portrait\""), "the summary is a portrait page")
     }
 
-    /// The balance is the figure someone opened the file for, and the only one
-    /// whose sign changes what it means.
-    func testTheBalanceIsColouredBySign() {
+    /// A duration has to read like a duration and still add up.
+    ///
+    /// Decimal hours summed perfectly and looked like a database export. The
+    /// value is now a fraction of a day behind an `[h]"h" mm"m"` mask, so the
+    /// cell shows 9h 45m and SUM still works — and the zero section keeps a
+    /// weekend reading "0h" rather than "0h 00m" down thirty-one rows.
+    func testDurationsAreTimeValuesBehindAnHoursAndMinutesMask() {
         let package = String(
             decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
             as: UTF8.self
         )
 
         XCTAssertTrue(
-            package.contains("formatCode=\"[Color10]+0.00;[Red]-0.00;0.00\""),
-            "a shortfall and a surplus look the same"
+            package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
+            "durations are not shown as hours and minutes"
         )
-        XCTAssertTrue(package.contains("s=\"17\""), "the balance is not the headline figure")
+        XCTAssertTrue(package.contains(";&quot;0h&quot;"), "a zero will read 0h 00m")
+        // Eight hours as a fraction of a day.
+        XCTAssertTrue(package.contains("<v>0.333333</v>"), "8h is not stored as a third of a day")
+
+        // Negative durations are only displayable in the 1904 date base; in
+        // the other one a shortfall renders as a row of hashes.
+        XCTAssertTrue(package.contains("<workbookPr date1904=\"1\"/>"))
+    }
+
+    /// The page footer the PDF prints, and the line under the title that says
+    /// when the file was made.
+    func testTheSheetsCarryAFooterAndTheSummarySaysWhenItWasMade() {
+        let made = Date(timeIntervalSince1970: 1_787_000_000)
+        let package = String(
+            decoding: XLSXWriter.data(
+                for: sampleTable(),
+                preferences: ExportPreferences(),
+                generatedOn: made
+            ),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("<oddFooter>"), "no page footer")
+        XCTAssertTrue(package.contains("page &amp;P"), "the footer has no page number")
+        XCTAssertTrue(package.contains("generated "), "the summary does not say when it was made")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {

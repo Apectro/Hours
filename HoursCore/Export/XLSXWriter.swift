@@ -13,7 +13,12 @@ enum XLSXWriter {
     /// and only sometimes by someone who wants to audit thirty-one rows to
     /// find it. The PDF puts its totals on a page of their own for that
     /// reason; the workbook now opens on them, and the days are a tab away.
-    static func data(for table: ReportTable, preferences: ExportPreferences, sheetName: String = "Hours") -> Data {
+    static func data(
+        for table: ReportTable,
+        preferences: ExportPreferences,
+        sheetName: String = "Hours",
+        generatedOn: Date? = nil
+    ) -> Data {
         let showsSummary = preferences.includeSummaryRows && !table.totals.isEmpty
         var archive = ZIPArchive()
         archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes(includesSummary: showsSummary).utf8))
@@ -23,7 +28,7 @@ enum XLSXWriter {
         archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
 
         if showsSummary {
-            archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(summarySheet(for: table).utf8))
+            archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(summarySheet(for: table, generatedOn: generatedOn).utf8))
             archive.addFile(name: "xl/worksheets/sheet2.xml", contents: Data(daysSheet(for: table).utf8))
         } else {
             archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(daysSheet(for: table).utf8))
@@ -39,7 +44,7 @@ enum XLSXWriter {
     /// range it covers, then the figures in two labelled groups — the amounts
     /// of time, and the counts of days. Two columns wide, so nothing needs a
     /// horizontal scroll on a phone, which is where these get looked at first.
-    private static func summarySheet(for table: ReportTable) -> String {
+    private static func summarySheet(for table: ReportTable, generatedOn: Date?) -> String {
         var rows: [String] = []
         var grid: [[Cell]] = []
         var rowNumber = 1
@@ -49,70 +54,69 @@ enum XLSXWriter {
             grid.append(cells)
             rowNumber += 1
         }
-        func blank() { rowNumber += 1 }
 
-        emit([Cell.text(table.title, style: .title)], height: 28)
-        // The rule under the title block is drawn by the subtitle row's
-        // bottom border, which needs a cell in the second column to reach
-        // across even though there is nothing to say in it.
-        emit([
-            Cell.text(table.subtitle, style: .subtitleRule),
-            Cell.text("", style: .rule)
-        ])
-        blank()
+        emit([Cell.text(table.title, style: .title)], height: 26)
+        emit([Cell.text(subtitleLine(for: table, generatedOn: generatedOn), style: .subtitle)])
+        rowNumber += 1
+        emit([Cell.text("Summary", style: .section)], height: 20)
 
-        // The balance, given the size it deserves. It is the figure the file
-        // is opened for, and it was previously the fourth line of a list of
-        // nine, in the same weight as the total number of breaks.
-        if let balance = table.totals.first(where: { $0.label == "Balance" }), let minutes = balance.minutes {
-            emit([Cell.text("Balance", style: .headlineLabel)])
-            emit([Cell.number(DurationFormatting.decimalHours(minutes), style: .headlineSigned)], height: 30)
-            blank()
-        }
+        // Two columns, as the PDF sets them: the amounts of time on the left
+        // and the counts of days on the right, rather than one list of nine
+        // that runs down the page and says nothing about which is which.
+        let durations = table.totals.filter { $0.minutes != nil }
+        let counts = table.totals.filter { $0.minutes == nil }
 
-        let isHeadlined: (ReportTotal) -> Bool = { $0.label == "Balance" }
-        let durations = table.totals.filter { $0.minutes != nil && !isHeadlined($0) }
-        let counts = table.totals.filter { $0.count != nil }
-        let other = table.totals.filter { $0.minutes == nil && $0.count == nil }
-
-        func group(_ heading: String, _ totals: [ReportTotal]) {
-            guard !totals.isEmpty else { return }
-            emit([Cell.text(heading, style: .section)], height: 20)
-            for total in totals {
-                let figure: Cell
-                if let minutes = total.minutes {
-                    figure = .number(
-                        DurationFormatting.decimalHours(minutes),
-                        style: total.isEmphasised ? .boldHours : .hours
-                    )
-                } else if let count = total.count {
-                    figure = .number(Double(count), style: total.isEmphasised ? .boldCount : .count)
-                } else {
-                    figure = .text(total.value, style: total.isEmphasised ? .boldText : .normal)
-                }
-                emit([
-                    Cell.text(total.label, style: total.isEmphasised ? .boldText : .normal),
-                    figure
-                ])
+        func figure(_ total: ReportTotal) -> Cell {
+            if let minutes = total.minutes {
+                return .number(dayFraction(minutes: minutes), style: .summaryValue)
             }
-            blank()
+            if let count = total.count {
+                return .number(Double(count), style: .summaryCount)
+            }
+            return .text(total.value, style: .bold)
         }
 
-        group("Hours", durations)
-        group("Days", counts)
-        group("Other", other)
+        for index in 0..<max(durations.count, counts.count) {
+            var cells: [Cell] = []
+            if index < durations.count {
+                cells.append(Cell.text(durations[index].label, style: .summaryLabel))
+                cells.append(figure(durations[index]))
+            } else {
+                cells.append(Cell.text("", style: .plain))
+                cells.append(Cell.text("", style: .plain))
+            }
+            cells.append(Cell.text("", style: .plain))
+            if index < counts.count {
+                cells.append(Cell.text(counts[index].label, style: .summaryLabel))
+                cells.append(figure(counts[index]))
+            }
+            emit(cells)
+        }
 
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\
-        <dimension ref="A1:B\(max(1, rowNumber - 1))"/>\
+        <sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>\
+        <dimension ref="A1:E\(max(1, rowNumber - 1))"/>\
         <sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews>\
         <sheetFormatPr defaultRowHeight="15" baseColWidth="10"/>\
         \(columnWidths(for: grid))\
         <sheetData>\(rows.joined())</sheetData>\
         \(summaryPrintSetup)\
+        \(footer(title: table.title))\
         </worksheet>
         """
+    }
+
+    /// "2026-08-01 – 2026-08-31   ·   generated Aug 26, 2026 at 11:43" — the
+    /// PDF's second line. The timestamp is optional so a test can produce a
+    /// file that is the same every time it runs.
+    private static func subtitleLine(for table: ReportTable, generatedOn: Date?) -> String {
+        guard let generatedOn else { return table.subtitle }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return "\(table.subtitle)   ·   generated \(formatter.string(from: generatedOn))"
     }
 
     // MARK: - Worksheet
@@ -156,16 +160,17 @@ enum XLSXWriter {
         // pretty [h]"h" mm"m" format reads better, but a negative one renders
         // as ######## in the 1900 date system, and a balance is negative
         // exactly when someone most wants to look at it.
-        for (position, reportRow) in table.rows.enumerated() {
-            // Alternate rows carry a wash, as the PDF's do. Reading across ten
-            // columns of a thirty-one row table without one is how a Tuesday
-            // gets mistaken for a Wednesday.
-            let banded = !position.isMultiple(of: 2)
+        for reportRow in table.rows {
+            // The PDF greys a day the schedule expects nothing of, and that
+            // carries more than a wash on every other row did: a weekend and a
+            // Wednesday stop looking alike, which is the mistake the banding
+            // was there to prevent in the first place.
+            let rest = !reportRow.isWorkingDay
             let cells = reportRow.values.enumerated().map { index, value -> Cell in
                 if index < reportRow.minutes.count, let minutes = reportRow.minutes[index] {
-                    return Cell.number(DurationFormatting.decimalHours(minutes), style: .hours(banded: banded))
+                    return Cell.number(dayFraction(minutes: minutes), style: .duration(rest: rest))
                 }
-                return Cell.text(value, style: .text(banded: banded))
+                return Cell.text(value, style: .text(rest: rest))
             }
             emit(cells)
         }
@@ -193,14 +198,10 @@ enum XLSXWriter {
         <sheetData>\(rows.joined())</sheetData>\
         \(autoFilter(lastDataRow: lastDataRow, columns: table.columns.count))\
         \(printSetup)\
+        \(footer(title: table.title))\
         </worksheet>
         """
     }
-
-    /// Indexes into `cellXfs` in `styles`, in the order they are declared
-    /// there. A wrong index here is not an error the file reports — the cell
-    /// simply renders with somebody else's formatting.
-
 
     /// What a printed timesheet needs, which is most of what the PDF does for
     /// free: landscape, squeezed to one page wide, and the column titles
@@ -214,22 +215,50 @@ enum XLSXWriter {
     /// The repeat is a workbook-level defined name rather than a worksheet
     /// setting, which is why it lives in `workbook` and not here.
     private static let printSetup = """
-    <printOptions horizontalCentered="0"/><pageMargins left="0.4" right="0.4" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
+    <printOptions horizontalCentered="0"/><pageMargins left="0.4" right="0.4" top="0.6" bottom="0.6" header="0.3" footer="0.4"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
     """
 
+    /// Landscape, like the days and like the PDF. Portrait could not hold the
+    /// two columns of totals and pushed the right-hand one onto a second sheet
+    /// of paper, which is the same failure the Notes column had.
     private static let summaryPrintSetup = """
-    <pageMargins left="0.7" right="0.7" top="0.8" bottom="0.8" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="portrait"/>
+    <pageMargins left="0.5" right="0.5" top="0.7" bottom="0.7" header="0.3" footer="0.4"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
     """
 
-    /// Scrolling a year of days must not lose the column titles.
-    private static let frozenHeader = """
-    <sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
-    """
+    /// "Hours — August 2026   ·   page 3", centred and small, as the PDF
+    /// prints it.
+    ///
+    /// The codes are the format's own: `&C` centres, `&8` sets eight point,
+    /// `&K` takes a colour, `&P` is the page number. They travel as literal
+    /// ampersands in the XML, so they are written escaped and the title —
+    /// which is the user's — is escaped separately.
+    private static func footer(title: String) -> String {
+        "<headerFooter><oddFooter>&amp;C&amp;8&amp;K8E8E96\(escape(title))   ·   page &amp;P</oddFooter></headerFooter>"
+    }
 
-    /// Sorting and filtering the days, without touching the totals below them.
-    private static func autoFilter(lastDataRow: Int, columns: Int) -> String {
-        guard lastDataRow > 1, columns > 0 else { return "" }
-        return "<autoFilter ref=\"A1:\(columnName(columns - 1))\(lastDataRow)\"/>"
+    /// Indexes into `cellXfs` in `styles`, in the order they are declared
+    /// there. A wrong index here is not an error the file reports — the cell
+    /// simply renders with somebody else's formatting.
+    private enum Style: Int {
+        case normal = 0
+        case duration = 1
+        case count = 2
+        /// A day the schedule expects nothing of, greyed the way the PDF greys
+        /// it: the row is there to be counted, not to be read.
+        case restText = 3
+        case restDuration = 4
+        case header = 5
+        case title = 6
+        case subtitle = 7
+        case section = 8
+        case summaryLabel = 9
+        case summaryValue = 10
+        case summaryCount = 11
+        case bold = 12
+        case plain = 13
+
+        static func text(rest: Bool) -> Style { rest ? .restText : .normal }
+        static func duration(rest: Bool) -> Style { rest ? .restDuration : .duration }
     }
 
     /// Column widths, from the widest thing each column has to show.
@@ -301,8 +330,16 @@ enum XLSXWriter {
             // "165.00" and the like: the format is fixed, so the widest a
             // number gets is its digits plus the point and two decimals.
             case let .number(value, style):
-                let whole = String(Int(value.magnitude)).count + (value < 0 ? 1 : 0)
-                return style == .count || style == .boldCount ? whole : whole + 3
+                switch style {
+                case .count, .summaryCount:
+                    return String(Int(value.magnitude)).count
+                default:
+                    // Shown through the [h]"h" mm"m" mask, so the width is the
+                    // hours it resolves to plus "h 00m" — not the digits of the
+                    // fraction of a day actually in the cell.
+                    let hours = Int((value.magnitude * 24).rounded(.down))
+                    return String(hours).count + 5 + (value < 0 ? 1 : 0)
+                }
             }
         }
     }
@@ -338,10 +375,17 @@ enum XLSXWriter {
         return name
     }
 
+    /// A duration as the workbook stores it: a fraction of a day, which is
+    /// what the `[h]"h" mm"m"` mask expects. Four decimal places is a third of
+    /// a second, so nothing a timesheet records is lost.
+    static func dayFraction(minutes: Int) -> Double {
+        Double(minutes) / 1440.0
+    }
+
     /// Always a point as the decimal mark: the file format demands it,
     /// regardless of what the user chose for CSV.
     private static func format(_ value: Double) -> String {
-        String(format: "%.4f", value)
+        String(format: "%.6f", value)
     }
 
     static func escape(_ value: String) -> String {
@@ -405,25 +449,27 @@ enum XLSXWriter {
             : "<sheet name=\"\(name)\" sheetId=\"1\" r:id=\"rId1\"/>"
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>\(sheets)</sheets><definedNames><definedName name="_xlnm.Print_Titles" localSheetId="\(includesSummary ? 1 : 0)">\'\(name)\'!$1:$1</definedName></definedNames></workbook>
+        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr date1904="1"/><sheets>\(sheets)</sheets><definedNames><definedName name="_xlnm.Print_Titles" localSheetId="\(includesSummary ? 1 : 0)">\'\(name)\'!$1:$1</definedName></definedNames></workbook>
         """
     }
 
-    /// Twenty-one cell formats, in the order `Style` indexes them.
+    /// Fourteen cell formats, in the order `Style` indexes them.
     ///
-    /// `numFmtId` 164 is the first id the format reserves for custom entries;
-    /// anything below 164 is a built-in and cannot be redefined. `0.00` for
-    /// hours so a quarter of an hour reads 0.25 rather than 0.3, `0` for day
-    /// counts so twenty-one days is not written 21.00, and a three-part format
-    /// for the balance so a shortfall is red and a surplus green — the same
-    /// two colours the app uses, and the only figure in the file whose sign
-    /// changes what it means.
+    /// Durations are stored as a fraction of a day and shown by `[h]"h" mm"m"`,
+    /// which is the only way a cell can read "9h 45m" and still be added up:
+    /// the value is a number, the hours-and-minutes is a mask over it. Decimal
+    /// hours summed just as well and looked like a database export, which is
+    /// what the PDF beside it does not look like.
     ///
-    /// The rest follows the PDF: a heading in the app's blue reversed out
-    /// white, a hairline under every row, a wash on alternate rows so the eye
-    /// can carry across ten columns, and a rule closing the title block.
+    /// `[h]` — square brackets — counts hours past twenty-four instead of
+    /// wrapping, so a hundred and sixty-five hours is not shown as twenty-one.
+    ///
+    /// The look follows the PDF rather than inventing a second one: a header
+    /// in light grey with dark grey type, a hairline under every row, and days
+    /// the schedule expects nothing of greyed out entirely — which carries
+    /// more than banding every other row did, because it means something.
     private static let styles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="3"><numFmt numFmtId="164" formatCode="0.00"/><numFmt numFmtId="165" formatCode="0"/><numFmt numFmtId="166" formatCode="[Color10]+0.00;[Red]-0.00;0.00"/></numFmts><fonts count="8"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF141A2E"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF6B7280"/><name val="Calibri"/></font><font><b/><sz val="12"/><color rgb="FF2B4A93"/><name val="Calibri"/></font><font><b/><sz val="24"/><color rgb="FF141A2E"/><name val="Calibri"/></font><font><sz val="9"/><color rgb="FF6B7280"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B4A93"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="4"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FF1E3568"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFE2E6EF"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="medium"><color rgb="FF2B4A93"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="21"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="5" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="2" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="164" fontId="0" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1"/><xf numFmtId="165" fontId="0" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1"/><xf numFmtId="166" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="166" fontId="6" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="3" xfId="0" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="[h]&quot;h&quot; mm&quot;m&quot;;-[h]&quot;h&quot; mm&quot;m&quot;;&quot;0h&quot;"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="8"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="3"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="14"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """
 }

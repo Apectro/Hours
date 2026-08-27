@@ -63,7 +63,7 @@ enum ExportFileFactory {
         case .csv:
             data = CSVExporter.data(for: table, preferences: preferences)
         case .xlsx:
-            data = XLSXWriter.data(for: table, preferences: preferences)
+            data = XLSXWriter.data(for: table, preferences: preferences, generatedOn: Date())
         case .pdf:
             data = PDFReportRenderer.data(for: table)
         }
