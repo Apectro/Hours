@@ -230,8 +230,8 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
         // Seven formats are declared and Style indexes them 0...6; a cell
         // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"19\">"))
-        XCTAssertFalse(package.contains("s=\"19\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"21\">"))
+        XCTAssertFalse(package.contains("s=\"21\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -401,6 +401,12 @@ final class ExportTests: XCTestCase {
 
         XCTAssertTrue(package.contains("orientation=\"landscape\""), "ten columns down a portrait page")
         XCTAssertTrue(package.contains("fitToWidth=\"1\""), "the table will break across page widths")
+        // fitToWidth is inert on its own. Without this the Notes column
+        // printed on a third sheet of paper by itself.
+        XCTAssertTrue(
+            package.contains("<sheetPr><pageSetUpPr fitToPage=\"1\"/></sheetPr>"),
+            "fitToWidth is declared but not switched on"
+        )
         XCTAssertTrue(package.contains("fitToHeight=\"0\""), "a year would be squeezed onto one page")
         XCTAssertTrue(
             package.contains("_xlnm.Print_Titles"),
@@ -421,7 +427,7 @@ final class ExportTests: XCTestCase {
             package.contains("formatCode=\"[Color10]+0.00;[Red]-0.00;0.00\""),
             "a shortfall and a surplus look the same"
         )
-        XCTAssertTrue(package.contains("s=\"16\""), "the balance does not use the signed format")
+        XCTAssertTrue(package.contains("s=\"17\""), "the balance is not the headline figure")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
