@@ -230,8 +230,8 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""))
         // Seven formats are declared and Style indexes them 0...6; a cell
         // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"7\">"))
-        XCTAssertFalse(package.contains("s=\"7\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"16\">"))
+        XCTAssertFalse(package.contains("s=\"16\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -244,6 +244,7 @@ final class ExportTests: XCTestCase {
 
         XCTAssertTrue(package.contains("s=\"3\""), "the emphasised totals are not formatted as hours")
         XCTAssertTrue(package.contains("s=\"4\""), "the day counts are not formatted as whole numbers")
+        XCTAssertTrue(package.contains(">Total worked<"), "the summary sheet is missing its headline figure")
     }
 
     /// The sheet has to be laid out, not just filled in.
@@ -335,6 +336,57 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(views.lowerBound < format.lowerBound)
         XCTAssertTrue(format.lowerBound < cols.lowerBound)
         XCTAssertTrue(cols.lowerBound < data.lowerBound)
+    }
+
+    /// The workbook opens on the totals, as the PDF does.
+    ///
+    /// Someone opening a timesheet wants one number — the balance — and only
+    /// sometimes wants to audit thirty-one rows to find it. The summary is a
+    /// sheet of its own, listed first, and the days are a tab away.
+    func testTheWorkbookOpensOnASummarySheet() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(
+            package.contains("<sheet name=\"Summary\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Hours\" sheetId=\"2\""),
+            "the summary is not the first sheet"
+        )
+        XCTAssertTrue(package.contains("worksheets/sheet2.xml"), "there is no second sheet")
+        // Styles take the id after the sheets, or the workbook points at the
+        // wrong part and opens to a blank grid.
+        XCTAssertTrue(package.contains("Id=\"rId3\"") && package.contains("Target=\"styles.xml\""))
+    }
+
+    /// Turning the summary off leaves one sheet, still wired up correctly.
+    func testWithoutTheSummaryTheWorkbookIsASingleSheet() {
+        var preferences = ExportPreferences()
+        preferences.includeSummaryRows = false
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: preferences),
+            as: UTF8.self
+        )
+
+        XCTAssertFalse(package.contains("worksheets/sheet2.xml"), "a second sheet nobody asked for")
+        XCTAssertFalse(package.contains("name=\"Summary\""))
+        XCTAssertTrue(package.contains("<sheet name=\"Hours\" sheetId=\"1\" r:id=\"rId1\"/>"))
+        XCTAssertTrue(package.contains("Id=\"rId2\"") && package.contains("Target=\"styles.xml\""))
+    }
+
+    /// Alternate rows carry a wash and every row a hairline, so the eye can
+    /// cross ten columns without losing the line — which is the whole reason
+    /// the PDF's table is ruled.
+    func testTheDaysAreRuledAndBanded() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("<fgColor rgb=\"FFF4F6FA\"/>"), "no banding colour is defined")
+        XCTAssertTrue(package.contains("<color rgb=\"FFE2E6EF\"/>"), "no row rule is defined")
+        XCTAssertTrue(package.contains("s=\"10\""), "no row uses the ruled style")
+        XCTAssertTrue(package.contains("s=\"13\""), "no row uses the banded style")
     }
 
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
@@ -431,7 +483,7 @@ final class ExportTests: XCTestCase {
         XCTAssertEqual(Array(tail.prefix(4)), [0x50, 0x4B, 0x05, 0x06], "end of central directory")
 
         let entryCount = Int(tail[10]) | (Int(tail[11]) << 8)
-        XCTAssertEqual(entryCount, 6, "six parts make up the package")
+        XCTAssertEqual(entryCount, 7, "seven parts: the summary sheet is one of them")
     }
 
     func testCRC32MatchesTheStandardCheckValue() {

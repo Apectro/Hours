@@ -7,20 +7,100 @@ import Foundation
 /// hours are written as genuine numbers so a spreadsheet can total them without
 /// anyone having to re-type a column.
 enum XLSXWriter {
+    /// Two sheets, summary first.
+    ///
+    /// A timesheet is opened by someone who wants one number — the balance —
+    /// and only sometimes by someone who wants to audit thirty-one rows to
+    /// find it. The PDF puts its totals on a page of their own for that
+    /// reason; the workbook now opens on them, and the days are a tab away.
     static func data(for table: ReportTable, preferences: ExportPreferences, sheetName: String = "Hours") -> Data {
+        let showsSummary = preferences.includeSummaryRows && !table.totals.isEmpty
         var archive = ZIPArchive()
-        archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes.utf8))
+        archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes(includesSummary: showsSummary).utf8))
         archive.addFile(name: "_rels/.rels", contents: Data(rootRelationships.utf8))
-        archive.addFile(name: "xl/workbook.xml", contents: Data(workbook(sheetName: sheetName).utf8))
-        archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships.utf8))
+        archive.addFile(name: "xl/workbook.xml", contents: Data(workbook(sheetName: sheetName, includesSummary: showsSummary).utf8))
+        archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships(includesSummary: showsSummary).utf8))
         archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
-        archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(sheet(for: table, preferences: preferences).utf8))
+
+        if showsSummary {
+            archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(summarySheet(for: table).utf8))
+            archive.addFile(name: "xl/worksheets/sheet2.xml", contents: Data(daysSheet(for: table).utf8))
+        } else {
+            archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(daysSheet(for: table).utf8))
+        }
         return archive.finalized()
+    }
+
+    // MARK: - The summary sheet
+
+    /// The page the workbook opens on.
+    ///
+    /// Built like the PDF's title block and totals: the report's name, the
+    /// range it covers, then the figures in two labelled groups — the amounts
+    /// of time, and the counts of days. Two columns wide, so nothing needs a
+    /// horizontal scroll on a phone, which is where these get looked at first.
+    private static func summarySheet(for table: ReportTable) -> String {
+        var rows: [String] = []
+        var grid: [[Cell]] = []
+        var rowNumber = 1
+
+        func emit(_ cells: [Cell], height: Double? = nil) {
+            rows.append(row(number: rowNumber, cells: cells, height: height))
+            grid.append(cells)
+            rowNumber += 1
+        }
+        func blank() { rowNumber += 1 }
+
+        emit([Cell.text(table.title, style: .title)], height: 28)
+        emit([Cell.text(table.subtitle, style: .subtitle)])
+        blank()
+
+        let durations = table.totals.filter { $0.minutes != nil }
+        let counts = table.totals.filter { $0.count != nil }
+        let other = table.totals.filter { $0.minutes == nil && $0.count == nil }
+
+        func group(_ heading: String, _ totals: [ReportTotal]) {
+            guard !totals.isEmpty else { return }
+            emit([Cell.text(heading, style: .section)], height: 20)
+            for total in totals {
+                let figure: Cell
+                if let minutes = total.minutes {
+                    figure = .number(
+                        DurationFormatting.decimalHours(minutes),
+                        style: total.isEmphasised ? .boldHours : .hours
+                    )
+                } else if let count = total.count {
+                    figure = .number(Double(count), style: total.isEmphasised ? .boldCount : .count)
+                } else {
+                    figure = .text(total.value, style: total.isEmphasised ? .boldText : .normal)
+                }
+                emit([
+                    Cell.text(total.label, style: total.isEmphasised ? .boldText : .normal),
+                    figure
+                ])
+            }
+            blank()
+        }
+
+        group("Hours", durations)
+        group("Days", counts)
+        group("Other", other)
+
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\
+        <dimension ref="A1:B\(max(1, rowNumber - 1))"/>\
+        <sheetViews><sheetView tabSelected="1" workbookViewId="0"/></sheetViews>\
+        <sheetFormatPr defaultRowHeight="15" baseColWidth="10"/>\
+        \(columnWidths(for: grid))\
+        <sheetData>\(rows.joined())</sheetData>\
+        </worksheet>
+        """
     }
 
     // MARK: - Worksheet
 
-    private static func sheet(for table: ReportTable, preferences: ExportPreferences) -> String {
+    private static func daysSheet(for table: ReportTable) -> String {
         var rows: [String] = []
         // Every cell, kept alongside the XML so the columns can be sized from
         // what is actually in them. A timesheet whose first column reads
@@ -59,36 +139,21 @@ enum XLSXWriter {
         // pretty [h]"h" mm"m" format reads better, but a negative one renders
         // as ######## in the 1900 date system, and a balance is negative
         // exactly when someone most wants to look at it.
-        for reportRow in table.rows {
+        for (position, reportRow) in table.rows.enumerated() {
+            // Alternate rows carry a wash, as the PDF's do. Reading across ten
+            // columns of a thirty-one row table without one is how a Tuesday
+            // gets mistaken for a Wednesday.
+            let banded = !position.isMultiple(of: 2)
             let cells = reportRow.values.enumerated().map { index, value -> Cell in
                 if index < reportRow.minutes.count, let minutes = reportRow.minutes[index] {
-                    return Cell.number(DurationFormatting.decimalHours(minutes), style: .hours)
+                    return Cell.number(DurationFormatting.decimalHours(minutes), style: .hours(banded: banded))
                 }
-                return Cell.text(value, style: .normal)
+                return Cell.text(value, style: .text(banded: banded))
             }
             emit(cells)
         }
         let lastDataRow = rowNumber - 1
 
-        if preferences.includeSummaryRows && !table.totals.isEmpty {
-            // One blank row between the days and their totals.
-            rowNumber += 1
-            emit([Cell.text("Summary", style: .boldText), Cell.text(table.subtitle, style: .normal)], sizing: 1)
-            for total in table.totals {
-                let figure: Cell
-                if let minutes = total.minutes {
-                    figure = .number(DurationFormatting.decimalHours(minutes), style: total.isEmphasised ? .boldHours : .hours)
-                } else if let count = total.count {
-                    figure = .number(Double(count), style: total.isEmphasised ? .boldCount : .count)
-                } else {
-                    figure = .text(total.value, style: total.isEmphasised ? .boldText : .normal)
-                }
-                emit([
-                    Cell.text(total.label, style: total.isEmphasised ? .boldText : .normal),
-                    figure
-                ], sizing: 2)
-            }
-        }
 
         // The order of these elements is fixed by the file format — extent,
         // views, formatting defaults, columns, the data, then the filter — and
@@ -161,6 +226,20 @@ enum XLSXWriter {
         case count = 4
         case boldCount = 5
         case header = 6
+        case title = 7
+        case subtitle = 8
+        case section = 9
+        /// Ruled data rows, and the same three banded, so the table reads the
+        /// way the PDF's does rather than as an undifferentiated grid.
+        case ruledText = 10
+        case ruledHours = 11
+        case ruledCount = 12
+        case bandedText = 13
+        case bandedHours = 14
+        case bandedCount = 15
+
+        static func text(banded: Bool) -> Style { banded ? .bandedText : .ruledText }
+        static func hours(banded: Bool) -> Style { banded ? .bandedHours : .ruledHours }
     }
 
     private enum Cell {
@@ -241,40 +320,59 @@ enum XLSXWriter {
 
     // MARK: - Fixed parts
 
-    private static let contentTypes = """
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>
-    """
+    private static func contentTypes(includesSummary: Bool) -> String {
+        let second = includesSummary
+            ? "<Override PartName=\"/xl/worksheets/sheet2.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+            : ""
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>\(second)<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>
+        """
+    }
 
     private static let rootRelationships = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>
     """
 
-    private static let workbookRelationships = """
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>
-    """
-
-    private static func workbook(sheetName: String) -> String {
-        """
+    private static func workbookRelationships(includesSummary: Bool) -> String {
+        // Styles take the last id, so the sheets keep rId1 and rId2 in the
+        // order the workbook lists them.
+        let sheets = includesSummary
+            ? "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet2.xml\"/>"
+            : "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>"
+        let styles = includesSummary
+            ? "<Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
+            : "<Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
+        return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="\(escape(String(sheetName.prefix(31))))" sheetId="1" r:id="rId1"/></sheets></workbook>
+        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\(sheets)\(styles)</Relationships>
         """
     }
 
-    /// Seven cell formats, in the order `Style` indexes them.
+    private static func workbook(sheetName: String, includesSummary: Bool) -> String {
+        let name = escape(String(sheetName.prefix(31)))
+        let sheets = includesSummary
+            ? "<sheet name=\"Summary\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"\(name)\" sheetId=\"2\" r:id=\"rId2\"/>"
+            : "<sheet name=\"\(name)\" sheetId=\"1\" r:id=\"rId1\"/>"
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>\(sheets)</sheets></workbook>
+        """
+    }
+
+    /// Sixteen cell formats, in the order `Style` indexes them.
     ///
     /// `numFmtId` 164 is the first id the format reserves for custom entries;
     /// anything below 164 is a built-in and cannot be redefined. `0.00` for
     /// hours so a quarter of an hour reads 0.25 rather than 0.3, and `0` for
     /// day counts so twenty-one days is not written 21.00.
     ///
-    /// The header is white on the same blue the app uses, with a rule beneath
-    /// it. Bold alone was doing the work of telling a reader where the data
-    /// starts, which on a printed page it does not do.
+    /// The look follows the PDF: a heading in the app's blue reversed out
+    /// white, a hairline under every row, and a wash on alternate rows so the
+    /// eye can carry across ten columns without losing the line.
     private static let styles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="0.00"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B4A93"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FF1E3568"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="0.00"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="6"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF141A2E"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF6B7280"/><name val="Calibri"/></font><font><b/><sz val="12"/><color rgb="FF2B4A93"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B4A93"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF4F6FA"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="3"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FF1E3568"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFE2E6EF"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="16"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="5" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="2" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="164" fontId="0" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1"/><xf numFmtId="165" fontId="0" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """
 }
