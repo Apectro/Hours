@@ -306,6 +306,37 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("<bottom style=\"thin\">"), "no rule under the header")
     }
 
+    /// Two elements the spec calls optional and a phone does not.
+    ///
+    /// Without `sheetFormatPr` and `dimension`, Excel and openpyxl honoured
+    /// the column widths and the previewer on iOS discarded the whole `cols`
+    /// block — so the file was correct everywhere except where someone opens
+    /// it before sending it on. Optional in the format is not optional in
+    /// practice.
+    func testTheSheetDeclaresItsExtentAndItsFormattingDefaults() {
+        let package = String(
+            decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
+            as: UTF8.self
+        )
+
+        XCTAssertTrue(package.contains("<dimension ref=\"A1:"), "the sheet does not declare its extent")
+        XCTAssertTrue(package.contains("<sheetFormatPr"), "no formatting defaults, so cols may be ignored")
+
+        // Order is fixed by the format, and a reader that finds them out of
+        // order refuses the file rather than skipping the element.
+        guard let dimension = package.range(of: "<dimension"),
+              let views = package.range(of: "<sheetViews>"),
+              let format = package.range(of: "<sheetFormatPr"),
+              let cols = package.range(of: "<cols>"),
+              let data = package.range(of: "<sheetData>") else {
+            return XCTFail("the worksheet is missing one of its structural elements")
+        }
+        XCTAssertTrue(dimension.lowerBound < views.lowerBound)
+        XCTAssertTrue(views.lowerBound < format.lowerBound)
+        XCTAssertTrue(format.lowerBound < cols.lowerBound)
+        XCTAssertTrue(cols.lowerBound < data.lowerBound)
+    }
+
     func testCSVUsesCarriageReturnLineFeedAndStartsWithTheHeader() {
         let table = sampleTable()
         let csv = CSVExporter.string(for: table, preferences: ExportPreferences())

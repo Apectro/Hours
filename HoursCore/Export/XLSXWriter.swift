@@ -37,13 +37,13 @@ enum XLSXWriter {
         /// times wider than the table needs. Text with empty cells to its
         /// right overflows into them on screen and on paper, so that heading
         /// is readable either way.
-        func emit(_ cells: [Cell], sizing: Int? = nil) {
-            rows.append(row(number: rowNumber, cells: cells))
+        func emit(_ cells: [Cell], sizing: Int? = nil, height: Double? = nil) {
+            rows.append(row(number: rowNumber, cells: cells, height: height))
             grid.append(Array(cells.prefix(sizing ?? cells.count)))
             rowNumber += 1
         }
 
-        emit(table.headerTitles().map { Cell.text($0, style: .header) })
+        emit(table.headerTitles().map { Cell.text($0, style: .header) }, height: 22)
 
         // Every duration is written as a number, whatever the display style.
         //
@@ -90,13 +90,22 @@ enum XLSXWriter {
             }
         }
 
-        // The order of these elements is fixed by the file format — views,
-        // then columns, then the data, then the filter. Out of order, the
-        // whole workbook is refused rather than degraded.
+        // The order of these elements is fixed by the file format — extent,
+        // views, formatting defaults, columns, the data, then the filter — and
+        // out of order the workbook is refused rather than degraded.
+        //
+        // `dimension` and `sheetFormatPr` are both optional by the letter of
+        // the spec and both were left out, which cost an afternoon: Excel and
+        // openpyxl honoured the column widths without them and the previewer
+        // on a phone quietly discarded the whole <cols> block, so the file was
+        // correct everywhere except the place someone actually opens it.
+        let lastColumn = columnName(max(0, (grid.map(\.count).max() ?? 1) - 1))
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\
+        <dimension ref="A1:\(lastColumn)\(rowNumber - 1)"/>\
         \(frozenHeader)\
+        <sheetFormatPr defaultRowHeight="15" baseColWidth="10"/>\
         \(columnWidths(for: grid))\
         <sheetData>\(rows.joined())</sheetData>\
         \(autoFilter(lastDataRow: lastDataRow, columns: table.columns.count))\
@@ -139,7 +148,7 @@ enum XLSXWriter {
 
         let entries = widest.enumerated().map { index, characters -> String in
             let width = min(max(characters + 3, 9), 44)
-            return "<col min=\"\(index + 1)\" max=\"\(index + 1)\" width=\"\(width)\" customWidth=\"1\"/>"
+            return "<col min=\"\(index + 1)\" max=\"\(index + 1)\" width=\"\(width).0\" customWidth=\"1\" bestFit=\"1\"/>"
         }
         return "<cols>\(entries.joined())</cols>"
     }
@@ -171,8 +180,12 @@ enum XLSXWriter {
         }
     }
 
-    private static func row(number: Int, cells: [Cell]) -> String {
-        var xml = "<row r=\"\(number)\">"
+    private static func row(number: Int, cells: [Cell], height: Double? = nil) -> String {
+        // A taller header reads as a heading even where a renderer drops the
+        // fill — Quick Look on a phone being the one that matters, since that
+        // is where a timesheet gets looked at before it gets sent on.
+        let heightAttribute = height.map { " ht=\"\($0)\" customHeight=\"1\"" } ?? ""
+        var xml = "<row r=\"\(number)\"\(heightAttribute)>"
         for (index, cell) in cells.enumerated() {
             let reference = "\(columnName(index))\(number)"
             switch cell {
