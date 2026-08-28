@@ -258,8 +258,10 @@ struct CalendarScreen: View {
                     activeSheet = .export(summaryRange)
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
-                        .accessibilityIdentifier("calendar-export")
                 }
+                // On the control, not on its label: the accessibility element
+                // a UI test can tap is the button.
+                .accessibilityIdentifier("calendar-export")
             } label: {
                 Image(systemName: "ellipsis.circle")
             }

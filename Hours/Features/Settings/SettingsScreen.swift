@@ -144,8 +144,8 @@ struct SettingsScreen: View {
                         AboutScreen()
                     } label: {
                         SettingsRow(title: "Privacy", value: nil, systemImage: "hand.raised")
-                            .accessibilityIdentifier("settings-privacy")
                     }
+                    .accessibilityIdentifier("settings-privacy")
                 }
             }
             .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }

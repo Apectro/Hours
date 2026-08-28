@@ -98,17 +98,14 @@ struct RootView: View {
     private var tabs: some View {
         TabView(selection: $selection) {
             CalendarScreen()
-                .accessibilityIdentifier("tab-calendar")
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Destination.calendar)
 
             StatisticsScreen()
-                .accessibilityIdentifier("tab-insights")
                 .tabItem { Label("Insights", systemImage: "chart.bar.xaxis") }
                 .tag(Destination.insights)
 
             SettingsScreen()
-                .accessibilityIdentifier("tab-settings")
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(Destination.settings)
         }

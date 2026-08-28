@@ -466,6 +466,15 @@ jobs:
           # sets never collide on identical filenames.
           harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
 
+          # The German run is continue-on-error, which reports success even
+          # when it fails — that is how an empty German folder went unnoticed
+          # once already. Count the files rather than trust the step.
+          GERMAN=$(find "$OUT" -path '*-de/*' -name '*.png' | wc -l | tr -d ' ')
+          echo "german screenshots: $GERMAN"
+          if [ "$GERMAN" -lt 6 ]; then
+            echo "::warning::the German capture produced $GERMAN screenshots, expected at least 6 — see the \"Screenshots in German\" step"
+          fi
+
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
           FILES=$(find "$OUT" -type f ! -name '*.png' | wc -l | tr -d ' ')
           echo "screenshots: $SHOTS   export artifacts: $FILES"

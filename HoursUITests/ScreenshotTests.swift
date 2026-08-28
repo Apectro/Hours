@@ -10,10 +10,16 @@ import XCTest
 ///
 /// CI exports the attachments; see the "App Store screenshots" step.
 ///
-/// Everything here is found by accessibility identifier rather than by its
-/// label, because this suite is run twice: once in English and once in German,
-/// to produce a set of screenshots per language. A test that waits for
-/// `buttons["Calendar"]` passes in one language and hangs in the other.
+/// Nothing here is found by its label, because this suite is run twice: once
+/// in English and once in German, to produce a set of screenshots per
+/// language. A test that waits for `buttons["Calendar"]` passes in one
+/// language and hangs in the other.
+///
+/// The tabs are reached by position rather than by identifier. An
+/// `accessibilityIdentifier` on a tab applies to that tab's content view, not
+/// to its button in the tab bar, so the identifier is simply never there to
+/// find — which is what the first attempt at this discovered, in CI, after a
+/// fifteen-second wait and a red run.
 final class ScreenshotTests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -26,7 +32,7 @@ final class ScreenshotTests: XCTestCase {
         let app = XCUIApplication.hours(pro: true)
         app.launchArguments += ["-hours-sample-data"]
         app.launch()
-        XCTAssertTrue(app.buttons["tab-calendar"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 15))
         return app
     }
 
@@ -69,12 +75,12 @@ final class ScreenshotTests: XCTestCase {
         app.buttons["day-editor-cancel"].tap()
 
         // 3 — the month's figures.
-        app.buttons["tab-insights"].tap()
+        app.tab(.insights).tap()
         XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 10))
         capture("03-insights", app)
 
         // 4 — settings, which is where the configurability shows.
-        app.buttons["tab-settings"].tap()
+        app.tab(.settings).tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
         capture("04-settings", app)
 
@@ -86,8 +92,8 @@ final class ScreenshotTests: XCTestCase {
         capture("05-privacy", app)
 
         // 6 — the export screen, reached from the calendar's overflow menu.
-        app.buttons["tab-calendar"].tap()
-        XCTAssertTrue(app.buttons["tab-calendar"].waitForExistence(timeout: 10))
+        app.tab(.calendar).tap()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
         app.buttons["calendar-more"].tap()
         let exportItem = app.buttons["calendar-export"]
         XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "the overflow menu has no Export item")
