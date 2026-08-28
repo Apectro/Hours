@@ -1,0 +1,655 @@
+/*
+  The palette is the app's own, read out of its asset catalogue rather than
+  invented: the accent is the blue the calendar marks today with, and the
+  over/under pair is green and orange because the app deliberately does not
+  use red — being under your hours is a state to notice, not an error.
+
+  Every colour is declared on bare :root and only redefined by token, so the
+  page holds together in all three of the viewer's states: an explicit light
+  choice, an explicit dark one, and the system default that stamps nothing.
+*/
+:root {
+  --ink: #12161c;
+  --ink-soft: #4c5765;
+  --ink-faint: #7b8797;
+  --paper: #ffffff;
+  --canvas: #f3f6f9;
+  --rule: #dde3ea;
+  --accent: #276099;
+  --accent-soft: #eaf1f8;
+  --over: #2f7d4f;
+  --under: #b4661d;
+
+  --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --measure: 62ch;
+  --gutter: clamp(20px, 5vw, 40px);
+  --shell: 1080px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e7ecf2;
+    --ink-soft: #a3aebc;
+    --ink-faint: #79838f;
+    --paper: #171b21;
+    --canvas: #0f1216;
+    --rule: #2a313a;
+    --accent: #6ba3dc;
+    --accent-soft: #182432;
+    --over: #6cc08d;
+    --under: #dd9a54;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ink: #e7ecf2;
+  --ink-soft: #a3aebc;
+  --ink-faint: #79838f;
+  --paper: #171b21;
+  --canvas: #0f1216;
+  --rule: #2a313a;
+  --accent: #6ba3dc;
+  --accent-soft: #182432;
+  --over: #6cc08d;
+  --under: #dd9a54;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+:where(a, button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.shell {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 16px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(36px, 5vw, 54px);
+  line-height: 1.06;
+}
+
+h2 {
+  font-size: clamp(28px, 3.6vw, 40px);
+  line-height: 1.12;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+  max-width: var(--measure);
+}
+
+/* ---------------------------------------------------------------- masthead */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--canvas) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 14px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.masthead nav {
+  display: flex;
+  gap: 22px;
+  font-size: 15px;
+}
+
+.masthead nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.masthead nav a:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .masthead nav {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------- hero */
+
+.hero {
+  padding-block: clamp(56px, 9vw, 104px) clamp(40px, 6vw, 72px);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero p.lede {
+  font-size: clamp(18px, 2vw, 21px);
+  color: var(--ink-soft);
+  margin-top: 20px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--body);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 12px 22px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: inline-block;
+}
+
+.button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.button.secondary {
+  border-color: var(--rule);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.hero-note {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-top: 14px;
+}
+
+/*
+ * The balance line, which is the whole app in one row of type — so it is
+ * given the full page width rather than a hero column, where it wrapped and
+ * made a liar of its own label. The line sizes off the viewport so that it
+ * stays on one row down to the point the band stacks.
+ */
+.equation {
+  margin-top: clamp(36px, 5vw, 60px);
+  padding: clamp(24px, 3vw, 32px);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+
+.equation-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+}
+
+.equation-line {
+  font-family: var(--mono);
+  font-size: clamp(14px, 2.1vw, 26px);
+  line-height: 1.45;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5ch;
+  align-items: baseline;
+}
+
+.equation-line .op {
+  color: var(--ink-faint);
+}
+
+.equation-line .term {
+  color: var(--ink);
+}
+
+.equation-line .result {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* The rule spans the whole band; only the prose keeps a readable measure. */
+.equation-foot {
+  margin-top: clamp(20px, 2.5vw, 26px);
+  padding-top: clamp(18px, 2.5vw, 24px);
+  border-top: 1px solid var(--rule);
+}
+
+.equation-foot p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+
+.hero-shot {
+  justify-self: center;
+  max-width: 320px;
+  border-radius: 30px;
+  border: 1px solid var(--rule);
+  box-shadow: 0 24px 60px -30px rgba(18, 22, 28, 0.45);
+  overflow: hidden;
+  background: var(--paper);
+}
+
+/* ---------------------------------------------------------------- sections */
+
+section {
+  padding-block: clamp(48px, 7vw, 88px);
+}
+
+section.tinted {
+  background: var(--paper);
+  border-block: 1px solid var(--rule);
+}
+
+.section-head {
+  max-width: var(--measure);
+  margin-bottom: clamp(28px, 4vw, 44px);
+}
+
+.section-head p {
+  margin-top: 14px;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- the table */
+
+.cases {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.cases caption {
+  text-align: left;
+  color: var(--ink-faint);
+  font-size: 14px;
+  padding-bottom: 12px;
+}
+
+.cases th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 400;
+  padding: 0 12px 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.cases td {
+  padding: 13px 12px 13px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.cases td.figure {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cases td.figure.zero {
+  color: var(--ink-soft);
+}
+
+.cases td.figure.plus {
+  color: var(--over);
+}
+
+.cases td.figure.minus {
+  color: var(--under);
+}
+
+.cases td.why {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------- cards */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 22px 22px 24px;
+}
+
+section.tinted .card {
+  background: var(--canvas);
+}
+
+.card h3 {
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+
+.card .tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* ------------------------------------------------------------- screenshots */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: clamp(18px, 3vw, 34px);
+}
+
+.gallery figure {
+  margin: 0;
+}
+
+.gallery img {
+  border-radius: 22px;
+  border: 1px solid var(--rule);
+  box-shadow: 0 18px 40px -26px rgba(18, 22, 28, 0.4);
+}
+
+.gallery figcaption {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.gallery figcaption strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- language */
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.languages li {
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  background: var(--paper);
+}
+
+section.tinted .languages li {
+  background: var(--canvas);
+}
+
+.languages {
+  padding: 0;
+}
+
+/* ----------------------------------------------------------------- privacy */
+
+.claims {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--rule);
+}
+
+.claim {
+  background: var(--paper);
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: 16px;
+  align-items: baseline;
+}
+
+section.tinted .claim {
+  background: var(--canvas);
+}
+
+@media (max-width: 640px) {
+  .claim {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.claim dt {
+  font-weight: 600;
+}
+
+.claim dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-family: var(--mono);
+  line-height: 1.5;
+}
+
+/* ----------------------------------------------------------------- pricing */
+
+.pricing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.plan {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 24px;
+  background: var(--paper);
+}
+
+section.tinted .plan {
+  background: var(--canvas);
+}
+
+.plan.highlight {
+  border-color: var(--accent);
+}
+
+.plan h3 {
+  margin-bottom: 6px;
+}
+
+.plan .price {
+  font-family: var(--mono);
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.plan ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+.plan li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.plan li::before {
+  content: "—";
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------ footer */
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding-block: 44px 60px;
+  background: var(--paper);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+footer p {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 15px;
+}

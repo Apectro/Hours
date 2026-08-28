@@ -1,11 +1,25 @@
 # docs
 
-Things the App Store needs that are writing rather than code.
+What GitHub Pages serves, which is two things: the marketing site and the
+pages the App Store needs.
 
 | | |
 |---|---|
-| `privacy/index.html` | The privacy policy. Apple requires a reachable URL for one. |
+| `index.html`, `assets/`, `shots/`, `icon.svg` | **Built output. Do not edit.** The site is written in `web/` and copied here by `npm run publish`. |
+| `privacy/index.html` | The privacy policy, written by hand. Apple requires a reachable URL for one. |
 | `app-store-listing.md` | Draft copy for every field App Store Connect asks for. |
+
+## Why the built site lives in a committed folder
+
+Pages serves `main:/docs`, and `https://apectro.github.io/Hours/privacy/` is
+the URL App Store Connect already holds. Moving Pages to an Actions workflow
+would take that URL down for as long as it took somebody to notice the source
+setting had to be flipped by hand. Copying the build into `docs/` keeps the
+existing setting, so the privacy URL cannot break.
+
+`web/scripts/publish.mjs` deletes only the names the build produces before
+copying, so a stale asset cannot survive a rebuild and nothing written by hand
+can be removed by one.
 
 ## Turning the privacy policy into a URL
 
@@ -23,7 +37,8 @@ The policy is then at:
 https://apectro.github.io/Hours/privacy/
 ```
 
-That is the URL to paste into App Store Connect.
+That is the URL to paste into App Store Connect, and the site itself is then
+at `https://apectro.github.io/Hours/`.
 
 **Two things to change before you publish it.** The contact address currently
 reads `REPLACE-WITH-YOUR-CONTACT-EMAIL`, and the date at the top says
