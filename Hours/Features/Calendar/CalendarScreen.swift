@@ -258,11 +258,13 @@ struct CalendarScreen: View {
                     activeSheet = .export(summaryRange)
                 } label: {
                     Label("Export…", systemImage: "square.and.arrow.up")
+                        .accessibilityIdentifier("calendar-export")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
             .accessibilityLabel("More")
+            .accessibilityIdentifier("calendar-more")
         }
     }
 }

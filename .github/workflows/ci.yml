@@ -399,6 +399,32 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test-second.log"
 
+      # The same screens in German. The site publishes a page per language and
+      # showing an English app on the German one undoes the point of it; the
+      # App Store also takes screenshots per localisation.
+      #
+      # -testLanguage launches the app in that language, which is exactly what
+      # the ten localisations are for. It only works because ScreenshotTests
+      # finds everything by accessibility identifier — a suite that waits for
+      # buttons["Calendar"] passes in English and hangs here.
+      - name: Screenshots in German
+        if: always()
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          rm -rf "$RUNNER_TEMP/HoursGerman.xcresult"
+          xcodebuild test \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -only-testing:HoursUITests/ScreenshotTests \
+            -testLanguage de \
+            -testRegion DE \
+            -resultBundlePath "$RUNNER_TEMP/HoursGerman.xcresult" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/test-german.log"
+
       # The screenshots for the App Store listing, taken by ScreenshotTests and
       # pulled out of the result bundles. xcresulttool names every exported file
       # after its UUID, so Scripts/name-screenshots.py puts the names the test
@@ -436,6 +462,9 @@ jobs:
           if [ -n "$SECOND_NAME" ]; then
             harvest "$RUNNER_TEMP/HoursSecond.xcresult" "$(slug "$SECOND_NAME")"
           fi
+          # German goes in its own folder beside the device folders, so the two
+          # sets never collide on identical filenames.
+          harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
 
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
           FILES=$(find "$OUT" -type f ! -name '*.png' | wc -l | tr -d ' ')

@@ -1,6 +1,17 @@
 import { useRef, useState } from "react";
 import { appStore, languages, shotSize, timesheetProof } from "./content";
 import { copy, language, otherLanguageHref } from "./copy";
+import { hasGermanShots } from "./content";
+
+/**
+ * Which set of screenshots this page shows.
+ *
+ * The German page should show a German app. Its captures come from the same
+ * test suite run with -testLanguage de, and land under shots/de/ with the same
+ * base names — so until CI has produced a set, this falls back to the English
+ * ones and the page is merely imperfect rather than broken.
+ */
+const SHOTS = language === "de" && hasGermanShots ? "/shots/de" : "/shots";
 
 const REPO = "https://github.com/Apectro/Hours";
 // Absolute: the German page sits at /de/, and one privacy policy serves both.
@@ -27,10 +38,10 @@ function Shot({
       <source
         type="image/webp"
         sizes={sizes}
-        srcSet={`/shots/${shot}.480.webp 480w, /shots/${shot}.960.webp 960w`}
+        srcSet={`${SHOTS}/${shot}.480.webp 480w, ${SHOTS}/${shot}.960.webp 960w`}
       />
       <img
-        src={`/shots/${shot}.640.png`}
+        src={`${SHOTS}/${shot}.640.png`}
         alt={alt}
         width={shotSize.width}
         height={shotSize.height}

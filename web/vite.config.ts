@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { en } from "./src/copy/en";
 import { de } from "./src/copy/de";
+import { existsSync } from "node:fs";
 
 /**
  * One config, built twice: English at the root, German at /de/.
@@ -50,6 +51,10 @@ function localiseHtml() {
     },
   };
 }
+
+/* Asked of the filesystem rather than declared, so the flag cannot get ahead
+   of the images. */
+process.env.VITE_GERMAN_SHOTS = existsSync("shots-src/de") ? "1" : "0";
 
 export default defineConfig({
   plugins: [react(), localiseHtml()],

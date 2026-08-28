@@ -144,6 +144,7 @@ struct SettingsScreen: View {
                         AboutScreen()
                     } label: {
                         SettingsRow(title: "Privacy", value: nil, systemImage: "hand.raised")
+                            .accessibilityIdentifier("settings-privacy")
                     }
                 }
             }

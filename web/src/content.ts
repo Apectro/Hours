@@ -76,3 +76,11 @@ export const timesheetProof = {
  * Changing this line is the whole launch.
  */
 export const appStore: string | null = null;
+
+/**
+ * Whether a German set of screenshots has been captured yet.
+ *
+ * Set by the build from whether web/shots-src/de/ exists, so the flag cannot
+ * claim images the site does not have — see vite.config.ts.
+ */
+export const hasGermanShots = import.meta.env.VITE_GERMAN_SHOTS === "1";

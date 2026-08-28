@@ -12,12 +12,15 @@
  * exactly the same files.
  */
 import sharp from "sharp";
-import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { dirname, join, parse } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const source = join(web, "shots-src");
+/* German captures, when CI has produced a set. Optional on purpose: the site
+   builds and looks right before they exist, and picks them up once they do. */
+const germanSource = join(web, "shots-src", "de");
 const target = join(web, "public", "shots");
 
 /** Widths to emit, covering the largest render (318px) at 3× device pixels. */
@@ -61,6 +64,18 @@ for (const file of files) {
   const path = join(source, file);
   before += statSync(path).size;
   smallest += await emit(path, parse(file).name, WIDTHS, FALLBACK_WIDTH);
+}
+
+/* A German screen keeps the same base name under shots/de/, so the markup can
+   ask for one path or the other without a second naming scheme. */
+if (existsSync(germanSource)) {
+  const germanTarget = join(target, "de");
+  mkdirSync(germanTarget, { recursive: true });
+  for (const file of readdirSync(germanSource).filter((f) => f.endsWith(".png"))) {
+    const path = join(germanSource, file);
+    before += statSync(path).size;
+    smallest += await emit(path, `de/${parse(file).name}`, WIDTHS, FALLBACK_WIDTH);
+  }
 }
 
 const exportDir = join(source, "exports");
