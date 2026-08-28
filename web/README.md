@@ -3,12 +3,28 @@
 The marketing site at <https://apectro.github.io/Hours/>. React 18, TypeScript,
 Vite; no UI framework and no analytics, for the same reason the app has none.
 
+The page is laid out as a ledger, because that is what a timesheet is: a label
+column, an entry column, and rules between. One device — see `.row` in
+`styles.css` — does the work that an uppercase eyebrow over every section and
+three grids of rounded cards were doing before. If you add a section, add rows
+to it rather than a new kind of box.
+
+`docs/privacy/index.html` is hand-written and carries its own copy of the
+palette so it keeps resolving even if this app is rebuilt or replaced. If the
+tokens here move, move those with them.
+
 ```
 npm install
 npm run dev        # localhost:5173, served at /Hours/
 npm run publish    # build, and copy the result into ../docs/
+npm run verify     # fail if ../docs/ is not what this builds
 npm run og         # redraw the social card (rarely)
 ```
+
+CI runs `verify` on every push. Committing build output buys a privacy-policy
+URL that cannot break, and costs one failure mode: editing `src/` without
+running `publish` leaves the live site quietly serving the previous build. That
+job is the price of the trade.
 
 `npm run publish` is the whole deployment. Pages serves `main:/docs`, so the
 site goes live when the commit lands on `main` — see `docs/README.md` for why

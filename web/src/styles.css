@@ -1,60 +1,87 @@
 /*
-  The palette is the app's own, read out of its asset catalogue rather than
-  invented: the accent is the blue the calendar marks today with, and the
-  over/under pair is green and orange because the app deliberately does not
-  use red — being under your hours is a state to notice, not an error.
+  The page is a ledger.
 
-  Every colour is declared on bare :root and only redefined by token, so the
-  page holds together in all three of the viewer's states: an explicit light
-  choice, an explicit dark one, and the system default that stamps nothing.
+  That is not decoration. A timesheet is a ruled sheet with a label column and
+  an entry column, and a timesheet is what this app exists to produce. So the
+  site is built out of one device — the ledger row — rather than a stack of
+  tinted bands full of rounded cards. A label here names a row. It is not an
+  eyebrow, and there is not one over every section.
+
+  The colours are the app's own wherever the app has an opinion. The accent is
+  the blue the calendar marks today with. Over and under stay green and orange,
+  because the app refuses red for being under your hours on purpose. The paper
+  around them is the pale grey-green account books are printed on. A ledger
+  would put red on a figure in deficit; this one does not, because the app
+  does not, and the page says as much in words a few pixels away.
+
+  Every colour is declared on bare :root and only ever redefined by token, so
+  the page holds in all three of the viewer's states — an explicit light
+  choice, an explicit dark one, and the system default, which stamps nothing.
 */
+
 :root {
-  --ink: #12161c;
-  --ink-soft: #4c5765;
-  --ink-faint: #7b8797;
-  --paper: #ffffff;
-  --canvas: #f3f6f9;
-  --rule: #dde3ea;
-  --accent: #276099;
-  --accent-soft: #eaf1f8;
-  --over: #2f7d4f;
-  --under: #b4661d;
+  --ink: #191c19;
+  --ink-soft: #474e48;
+  --ink-faint: #5f665f;
+  --paper: #fbfaf7;
+  --ground: #e9ece4;
+  --rule: #c6ccc0;
+  --rule-faint: #dbdfd5;
+  --accent: #1b5b8e;
+  --accent-wash: #e3ebf2;
+  --over: #2f6b45;
+  --under: #8c4d18;
 
-  --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Light's accent is dark enough to carry white. Dark's is not — see below. */
+  --on-accent: #ffffff;
+
+  /* Bricolage is variable on an optical-size axis; headings set it by size. */
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
   --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --type: "Courier Prime", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  --measure: 62ch;
-  --gutter: clamp(20px, 5vw, 40px);
-  --shell: 1080px;
+  --measure: 64ch;
+  --gutter: clamp(20px, 5vw, 44px);
+  --shell: 1120px;
+  --label: 176px;
 }
 
+/*
+  Dark is a different sheet rather than an inverted one: pressed ink instead of
+  paper under a lamp. The accent lightens, and anything sitting on top of it
+  switches to dark ink — white on a pale blue is the contrast failure nearly
+  every dark theme ships with, and this one measured 2.66:1 before.
+*/
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ink: #e7ecf2;
-    --ink-soft: #a3aebc;
-    --ink-faint: #79838f;
-    --paper: #171b21;
-    --canvas: #0f1216;
-    --rule: #2a313a;
-    --accent: #6ba3dc;
-    --accent-soft: #182432;
-    --over: #6cc08d;
-    --under: #dd9a54;
+    --ink: #e8eae4;
+    --ink-soft: #adb4ac;
+    --ink-faint: #98a097;
+    --paper: #1b1e1c;
+    --ground: #121412;
+    --rule: #343a35;
+    --rule-faint: #262a27;
+    --accent: #8fbde8;
+    --accent-wash: #1c2731;
+    --over: #7cc294;
+    --under: #dda264;
+    --on-accent: #10161b;
   }
 }
 
 :root[data-theme="dark"] {
-  --ink: #e7ecf2;
-  --ink-soft: #a3aebc;
-  --ink-faint: #79838f;
-  --paper: #171b21;
-  --canvas: #0f1216;
-  --rule: #2a313a;
-  --accent: #6ba3dc;
-  --accent-soft: #182432;
-  --over: #6cc08d;
-  --under: #dd9a54;
+  --ink: #e8eae4;
+  --ink-soft: #adb4ac;
+  --ink-faint: #98a097;
+  --paper: #1b1e1c;
+  --ground: #121412;
+  --rule: #343a35;
+  --rule-faint: #262a27;
+  --accent: #8fbde8;
+  --accent-wash: #1c2731;
+  --over: #7cc294;
+  --under: #dda264;
+  --on-accent: #10161b;
 }
 
 *,
@@ -69,11 +96,11 @@ html {
 
 body {
   margin: 0;
-  background: var(--canvas);
+  background: var(--ground);
   color: var(--ink);
   font-family: var(--body);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 17.5px;
+  line-height: 1.62;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -106,10 +133,28 @@ img {
   display: block;
 }
 
-/* <picture> is inline by default, which would leave a text baseline gap
-   between the screenshot and the rounded frame clipping it. */
+/* <picture> is inline by default, which leaves a baseline gap between the
+   screenshot and whatever frame is clipping it. */
 picture {
   display: block;
+}
+
+/* The first thing a keyboard reaches, and invisible until it does. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 12px 18px;
+  z-index: 20;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
 }
 
 .shell {
@@ -118,54 +163,47 @@ picture {
   padding-inline: var(--gutter);
 }
 
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0 0 16px;
-}
+/* ---------------------------------------------------------------- headings */
 
 h1,
 h2,
 h3 {
   font-family: var(--display);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.08;
   letter-spacing: -0.02em;
   text-wrap: balance;
   margin: 0;
 }
 
 h1 {
-  font-size: clamp(36px, 5vw, 54px);
-  line-height: 1.06;
+  font-size: clamp(38px, 5.4vw, 58px);
+  font-variation-settings: "opsz" 72;
+  letter-spacing: -0.028em;
 }
 
 h2 {
-  font-size: clamp(28px, 3.6vw, 40px);
-  line-height: 1.12;
+  font-size: clamp(27px, 3.1vw, 36px);
+  font-variation-settings: "opsz" 40;
 }
 
 h3 {
-  font-size: 20px;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  font-size: 19px;
+  font-variation-settings: "opsz" 20;
+  letter-spacing: -0.012em;
 }
 
 p {
   margin: 0;
-  max-width: var(--measure);
 }
 
-/* ---------------------------------------------------------------- masthead */
+/* ------------------------------------------------------------ the masthead */
 
 .masthead {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background: color-mix(in srgb, var(--canvas) 88%, transparent);
-  backdrop-filter: blur(8px);
+  z-index: 10;
+  background: var(--paper);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -173,38 +211,37 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-block: 14px;
+  gap: 24px;
+  padding-block: 13px;
 }
 
 .wordmark {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 19px;
+  font-weight: 800;
+  font-variation-settings: "opsz" 24;
+  font-size: 21px;
   letter-spacing: -0.02em;
   color: var(--ink);
   text-decoration: none;
 }
 
 .mark {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: var(--accent);
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 5px;
+  font-size: 17px;
 }
 
 .masthead nav {
   display: flex;
-  gap: 22px;
+  gap: clamp(12px, 2vw, 26px);
   font-size: 15px;
 }
 
@@ -215,24 +252,101 @@ p {
 
 .masthead nav a:hover {
   color: var(--ink);
+  text-decoration: underline;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 700px) {
   .masthead nav {
     display: none;
   }
 }
 
-/* -------------------------------------------------------------------- hero */
+/* -------------------------------------------------------------------- sheets */
+
+/*
+  A section is a sheet: paper, ruled off from the one below it. No alternating
+  tint, because alternating band colours is what a page does when it has run
+  out of ideas about hierarchy.
+*/
+.sheet {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding-block: clamp(46px, 6.5vw, 84px);
+}
+
+.sheet.sunk {
+  background: var(--ground);
+}
+
+.lede {
+  font-size: clamp(17.5px, 1.9vw, 20px);
+  color: var(--ink-soft);
+  max-width: var(--measure);
+  margin-top: 18px;
+}
+
+/* ----------------------------------------------------------- the ledger row */
+
+/*
+  The one structural device on the page. Left column is the label, set in the
+  typewriter face; right column is the entry. It stands in for the eyebrow, the
+  card grid and the pricing box all at once, so a label ends up naming a row
+  instead of decorating a section.
+*/
+.ledger {
+  border-top: 1px solid var(--rule);
+  margin-top: 34px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--label) minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 40px);
+  padding-block: clamp(22px, 2.6vw, 30px);
+  border-bottom: 1px solid var(--rule-faint);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row-label {
+  font-family: var(--type);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  padding-top: 4px;
+}
+
+.row-body > * + * {
+  margin-top: 9px;
+}
+
+.row-body p {
+  color: var(--ink-soft);
+  max-width: var(--measure);
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .row-label {
+    padding-top: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------- hero */
 
 .hero {
-  padding-block: clamp(56px, 9vw, 104px) clamp(40px, 6vw, 72px);
+  padding-block: clamp(44px, 6vw, 76px) clamp(38px, 5vw, 62px);
 }
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(32px, 5vw, 64px);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(30px, 5vw, 64px);
   align-items: center;
 }
 
@@ -242,17 +356,11 @@ p {
   }
 }
 
-.hero p.lede {
-  font-size: clamp(18px, 2vw, 21px);
-  color: var(--ink-soft);
-  margin-top: 20px;
-}
-
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
+  gap: 11px;
+  margin-top: 30px;
   align-items: center;
 }
 
@@ -262,55 +370,67 @@ p {
   font-weight: 600;
   text-decoration: none;
   padding: 12px 22px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid transparent;
   display: inline-block;
 }
 
 .button.primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .button.secondary {
   border-color: var(--rule);
   color: var(--ink);
-  background: var(--paper);
+  background: transparent;
+}
+
+.button.secondary:hover {
+  border-color: var(--ink-faint);
 }
 
 .hero-note {
-  font-size: 14px;
-  color: var(--ink-faint);
-  margin-top: 14px;
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-top: 15px;
+  max-width: 46ch;
 }
 
-/*
- * The balance line, which is the whole app in one row of type — so it is
- * given the full page width rather than a hero column, where it wrapped and
- * made a liar of its own label. The line sizes off the viewport so that it
- * stays on one row down to the point the band stacks.
- */
-.equation {
-  margin-top: clamp(36px, 5vw, 60px);
-  padding: clamp(24px, 3vw, 32px);
-  background: var(--paper);
+.hero-shot {
+  justify-self: center;
+  max-width: 316px;
+  border-radius: 28px;
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+/* ------------------------------------------------------------- the equation */
+
+/*
+  One row of type that the whole app reduces to, so it gets the full width of
+  the sheet. It wrapped onto two lines under a label reading "one line" when it
+  lived in a hero column; the check that catches that lives in the screenshot
+  script, and counts the baselines the flex row actually laid out.
+*/
+.equation {
+  margin-top: clamp(34px, 4.5vw, 56px);
+  padding-top: clamp(22px, 3vw, 30px);
+  border-top: 2px solid var(--ink);
 }
 
 .equation-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--type);
+  font-size: 13px;
   color: var(--ink-faint);
-  margin-bottom: 14px;
+  margin-bottom: 13px;
 }
 
 .equation-line {
-  font-family: var(--mono);
-  font-size: clamp(14px, 2.1vw, 26px);
-  line-height: 1.45;
+  font-family: var(--type);
+  font-size: clamp(15px, 2.15vw, 27px);
+  line-height: 1.4;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5ch;
@@ -327,157 +447,100 @@ p {
 
 .equation-line .result {
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 700;
 }
 
-/* The rule spans the whole band; only the prose keeps a readable measure. */
 .equation-foot {
-  margin-top: clamp(20px, 2.5vw, 26px);
-  padding-top: clamp(18px, 2.5vw, 24px);
-  border-top: 1px solid var(--rule);
+  margin-top: clamp(18px, 2.4vw, 24px);
+  padding-top: clamp(16px, 2.2vw, 22px);
+  border-top: 1px solid var(--rule-faint);
 }
 
 .equation-foot p {
-  font-size: 15px;
+  font-size: 15.5px;
   color: var(--ink-soft);
   max-width: 68ch;
 }
 
-.hero-shot {
-  justify-self: center;
-  max-width: 320px;
-  border-radius: 30px;
-  border: 1px solid var(--rule);
-  box-shadow: 0 24px 60px -30px rgba(18, 22, 28, 0.45);
-  overflow: hidden;
-  background: var(--paper);
-}
-
-/* ---------------------------------------------------------------- sections */
-
-section {
-  padding-block: clamp(48px, 7vw, 88px);
-}
-
-section.tinted {
-  background: var(--paper);
-  border-block: 1px solid var(--rule);
-}
-
-.section-head {
-  max-width: var(--measure);
-  margin-bottom: clamp(28px, 4vw, 44px);
-}
-
-.section-head p {
-  margin-top: 14px;
-  color: var(--ink-soft);
-}
-
-/* --------------------------------------------------------------- the table */
-
-.cases {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 16px;
-}
-
-.cases caption {
-  text-align: left;
-  color: var(--ink-faint);
-  font-size: 14px;
-  padding-bottom: 12px;
-}
-
-.cases th {
-  text-align: left;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 400;
-  padding: 0 12px 10px 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-.cases td {
-  padding: 13px 12px 13px 0;
-  border-bottom: 1px solid var(--rule);
-  vertical-align: top;
-}
-
-.cases td.figure {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.cases td.figure.zero {
-  color: var(--ink-soft);
-}
-
-.cases td.figure.plus {
-  color: var(--over);
-}
-
-.cases td.figure.minus {
-  color: var(--under);
-}
-
-.cases td.why {
-  color: var(--ink-soft);
-  font-size: 15px;
-}
+/* -------------------------------------------------------------- the six days */
 
 .table-scroll {
   overflow-x: auto;
+  margin-top: 30px;
 }
 
-/* ------------------------------------------------------------------- cards */
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+table.cases {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15.5px;
+  min-width: 620px;
 }
 
-.card {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 10px;
-  padding: 22px 22px 24px;
-}
-
-section.tinted .card {
-  background: var(--canvas);
-}
-
-.card h3 {
-  margin-bottom: 8px;
-}
-
-.card p {
-  color: var(--ink-soft);
-  font-size: 16px;
-}
-
-.card .tag {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+table.cases caption {
+  text-align: left;
   color: var(--ink-faint);
-  display: block;
-  margin-bottom: 10px;
+  font-family: var(--type);
+  font-size: 13px;
+  padding-bottom: 12px;
 }
 
-/* ------------------------------------------------------------- screenshots */
+table.cases th {
+  text-align: left;
+  font-family: var(--type);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 14px 9px 0;
+}
+
+table.cases td {
+  padding: 13px 14px 13px 0;
+  border-bottom: 1px solid var(--rule-faint);
+  vertical-align: top;
+  color: var(--ink);
+}
+
+table.cases td.why {
+  color: var(--ink-soft);
+}
+
+table.cases tr:last-child td {
+  border-bottom: 0;
+}
+
+.figure {
+  font-family: var(--type);
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure.zero {
+  color: var(--ink-faint);
+}
+
+.figure.plus {
+  color: var(--over);
+}
+
+/*
+  Orange, not red — and not because a ledger would use red here, which it
+  would. The app refuses red for being under your hours on purpose, and the
+  row right beside this one says so out loud. A palette that contradicts the
+  sentence next to it is worse than a palette with one less colour in it.
+*/
+.figure.minus {
+  color: var(--under);
+}
+
+/* -------------------------------------------------------------- screenshots */
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: clamp(18px, 3vw, 34px);
+  grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
+  gap: clamp(20px, 3vw, 34px);
+  margin-top: 34px;
 }
 
 .gallery figure {
@@ -485,187 +548,64 @@ section.tinted .card {
 }
 
 .gallery img {
-  border-radius: 22px;
+  border-radius: 20px;
   border: 1px solid var(--rule);
-  box-shadow: 0 18px 40px -26px rgba(18, 22, 28, 0.4);
 }
 
 .gallery figcaption {
-  margin-top: 14px;
-  font-size: 15px;
+  margin-top: 13px;
+  font-size: 14.5px;
   color: var(--ink-soft);
 }
 
 .gallery figcaption strong {
   display: block;
   color: var(--ink);
-  font-weight: 600;
-}
-
-/* ---------------------------------------------------------------- language */
-
-.languages {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-/* Flat and borderless, so they do not read as the pill buttons above them:
-   these ten are a list, and those four are controls. */
-.languages li {
-  list-style: none;
-  font-family: var(--mono);
+  font-family: var(--type);
+  font-weight: 700;
   font-size: 13px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--ink-soft);
-  background: var(--canvas);
+  margin-bottom: 4px;
 }
 
-section.tinted .languages li {
-  background: var(--ground-sink, rgba(127, 140, 160, 0.12));
-}
+/* --------------------------------------------------------- the timesheet proof */
 
-.languages {
-  padding: 0;
-}
-
-/* ----------------------------------------------------------------- privacy */
-
-.claims {
-  display: grid;
-  gap: 2px;
-  margin-top: 8px;
-  border: 1px solid var(--rule);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--rule);
-}
-
-.claim {
-  background: var(--paper);
-  padding: 16px 18px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-  gap: 16px;
-  align-items: baseline;
-}
-
-section.tinted .claim {
-  background: var(--canvas);
-}
-
-@media (max-width: 640px) {
-  .claim {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
-}
-
-.claim dt {
-  font-weight: 600;
-}
-
-.claim dd {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 15px;
-  font-family: var(--mono);
-  line-height: 1.5;
-}
-
-/* ----------------------------------------------------------------- pricing */
-
-.pricing {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.plan {
-  border: 1px solid var(--rule);
-  border-radius: 10px;
-  padding: 24px;
-  background: var(--paper);
-}
-
-section.tinted .plan {
-  background: var(--canvas);
-}
-
-.plan.highlight {
-  border-color: var(--accent);
-}
-
-.plan h3 {
-  margin-bottom: 6px;
-}
-
-.plan .price {
-  font-family: var(--mono);
-  color: var(--ink-faint);
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.plan ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 9px;
-  font-size: 16px;
-  color: var(--ink-soft);
-}
-
-.plan li {
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 8px;
-  align-items: baseline;
-}
-
-.plan li::before {
-  content: "—";
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 13px;
-}
-
-/* ------------------------------------------------------------------ footer */
-
-footer {
-  border-top: 1px solid var(--rule);
-  padding-block: 44px 60px;
-  background: var(--paper);
-}
-
-.footer-inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-footer p {
-  font-size: 15px;
-  color: var(--ink-soft);
-}
-
-footer nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  font-size: 15px;
-}
-
-/* The timesheet the language section points at. It is wide and full of small
-   type, so it gets the band width and scrolls rather than shrinking on a
-   phone, where squeezing it to 350px would make it unreadable. */
 .proof {
-  margin: 0 0 clamp(28px, 4vw, 40px);
+  margin: 30px 0 0;
+}
+
+/*
+  Tabs are tabs: a row of labels with the live one underlined, the way a
+  ledger's active column is ruled. Pills would read as the same object as the
+  list of ten languages further down, which is not interactive.
+*/
+.proof-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.proof-tabs button {
+  font-family: var(--type);
+  font-size: 14px;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px 9px;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.proof-tabs button:hover {
+  color: var(--ink);
+}
+
+.proof-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--accent);
 }
 
 .proof-frame {
@@ -675,49 +615,150 @@ footer nav {
 .proof picture {
   min-width: 560px;
   border: 1px solid var(--rule);
-  border-radius: 10px;
-  overflow: hidden;
-  /* The export is a white page, and stays one in either theme: it is a
-     photograph of a document, not part of the page's own surface. */
+  /* The export is a white page and stays one in either theme: it is a
+     photograph of a document, not part of this page's surface. */
   background: #fff;
-}
-
-.proof-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.proof-tabs button {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--ink-soft);
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  padding: 7px 15px;
-  cursor: pointer;
-}
-
-.proof-tabs button:hover {
-  color: var(--ink);
-  border-color: var(--ink-faint);
-}
-
-.proof-tabs button[aria-selected="true"] {
-  color: #fff;
-  background: var(--accent);
-  border-color: var(--accent);
 }
 
 .proof figcaption {
   margin-top: 14px;
-  font-size: 15px;
+  font-size: 15.5px;
   color: var(--ink-soft);
-  max-width: 70ch;
+  max-width: 72ch;
 }
 
 .proof figcaption strong {
   color: var(--ink);
+}
+
+/* The ten the file can be written in — a plain list, set in the typewriter
+   face and separated by points, so it cannot be mistaken for the tabs. */
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  padding: 0;
+  margin: 12px 0 0;
+  font-family: var(--type);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.languages li {
+  list-style: none;
+}
+
+.languages li + li::before {
+  content: "·";
+  color: var(--rule);
+  margin-right: 14px;
+}
+
+/* ------------------------------------------------------------------ privacy */
+
+.claims {
+  margin: 30px 0 0;
+  border-top: 1px solid var(--rule);
+}
+
+.claim {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(16px, 3vw, 36px);
+  padding-block: 15px;
+  border-bottom: 1px solid var(--rule-faint);
+}
+
+.claim:last-child {
+  border-bottom: 0;
+}
+
+.claim dt {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.claim dd {
+  margin: 0;
+  font-family: var(--type);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 720px) {
+  .claim {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+/* ------------------------------------------------------------------ pricing */
+
+.pricing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: clamp(24px, 4vw, 52px);
+  margin-top: 32px;
+}
+
+.plan h3 {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.plan.highlight h3 {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.plan .price {
+  font-family: var(--type);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-top: 11px;
+}
+
+.plan ul {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  font-size: 16px;
+}
+
+.plan li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-faint);
+  color: var(--ink-soft);
+}
+
+.plan li:last-child {
+  border-bottom: 0;
+}
+
+/* ------------------------------------------------------------------- footer */
+
+footer {
+  background: var(--ground);
+  padding-block: 34px 44px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+footer p {
+  max-width: 52ch;
+}
+
+footer nav {
+  display: flex;
+  gap: 20px;
+  font-family: var(--type);
+  font-size: 14px;
 }

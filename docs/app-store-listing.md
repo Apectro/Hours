@@ -174,12 +174,20 @@ That is 94 characters. Swap in whatever matches your market — `flexitime` and
 https://github.com/Apectro/Hours
 ```
 
-If the repository goes private, this needs to become something else — a
-GitHub Pages page, or a mailto: address on a page of its own.
+If the repository goes private this has to become something else, and Pages
+would stop serving on a free plan at the same moment, so the privacy policy
+would need rehoming too. Plan for both together or keep the repository public.
 
 ## Marketing URL
 
-*Optional. Leave blank rather than pointing it at something thin.*
+*Optional, and worth filling in now that there is a page behind it.*
+
+```
+https://apectro.github.io/Hours/
+```
+
+Written in `web/`, published into `docs/` by `npm run publish`, served by the
+same Pages setting as the privacy policy.
 
 ## Privacy Policy URL
 

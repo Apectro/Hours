@@ -16,6 +16,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The site is deployed by committing its build output into docs/, which buys
+  # a privacy-policy URL that cannot break and costs exactly one failure mode:
+  # somebody edits web/src, forgets `npm run publish`, and the live site quietly
+  # keeps serving the previous build. This job is the price of that trade.
+  # Linux, seconds, every push.
+  site:
+    name: Site (docs/ is current)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        working-directory: web
+        run: npm ci
+
+      - name: docs/ matches web/
+        working-directory: web
+        run: npm run verify
+
   # The calculation engine imports nothing but Foundation, on purpose: it is the
   # part worth testing exhaustively, and Apple frameworks in it would make that
   # slow and awkward. Until now that rule was upheld by review. This job upholds
