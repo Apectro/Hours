@@ -1,0 +1,3559 @@
+{
+ "//": [
+  "Every translation of the app's interface. Read by Scripts/build-catalog.py,",
+  "which writes the .xcstrings catalogues from it.",
+  "",
+  "The translations live here rather than in the catalogues because that",
+  "generator rewrites those from scratch: anything not represented here would",
+  "be erased the next time somebody ran it, silently.",
+  "",
+  "Terminology follows HoursCore/Export/ExportLanguage.swift wherever the two",
+  "overlap — the app and the timesheet it produces should not use two different",
+  "words for the same thing. Balance is Saldo (Solde in French), Expected is",
+  "Soll in German, Break is Pause.",
+  "",
+  "Register is impersonal or imperative wherever that reads naturally, which",
+  "avoids choosing between du/Sie, tu/vous and ty/pan in nine languages at once.",
+  "Where a pronoun is unavoidable it is the informal one, except in French.",
+  "",
+  "These are careful translations, not reviewed ones. A native speaker should",
+  "read at least German and Croatian before the app ships in them: the long",
+  "lines in Settings have a voice, and a voice is the first thing translation",
+  "loses.",
+  "",
+  "widgetInterface names the subset the widget extension uses. The widget",
+  "ships its own catalogue, and giving it all 280 app strings would bloat an",
+  "extension that needs a dozen."
+ ],
+ "languages": [
+  "de",
+  "hr",
+  "sl",
+  "it",
+  "fr",
+  "es",
+  "pt",
+  "nl",
+  "pl"
+ ],
+ "pluralCategories": {
+  "de": [
+   "one",
+   "other"
+  ],
+  "hr": [
+   "one",
+   "few",
+   "other"
+  ],
+  "sl": [
+   "one",
+   "two",
+   "few",
+   "other"
+  ],
+  "it": [
+   "one",
+   "other"
+  ],
+  "fr": [
+   "one",
+   "other"
+  ],
+  "es": [
+   "one",
+   "other"
+  ],
+  "pt": [
+   "one",
+   "other"
+  ],
+  "nl": [
+   "one",
+   "other"
+  ],
+  "pl": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ]
+ },
+ "countedNouns": {
+  "days": {
+   "de": {
+    "one": "%lld Tag",
+    "other": "%lld Tage"
+   },
+   "hr": {
+    "one": "%lld dan",
+    "few": "%lld dana",
+    "other": "%lld dana"
+   },
+   "sl": {
+    "one": "%lld dan",
+    "two": "%lld dneva",
+    "few": "%lld dnevi",
+    "other": "%lld dni"
+   },
+   "it": {
+    "one": "%lld giorno",
+    "other": "%lld giorni"
+   },
+   "fr": {
+    "one": "%lld jour",
+    "other": "%lld jours"
+   },
+   "es": {
+    "one": "%lld día",
+    "other": "%lld días"
+   },
+   "pt": {
+    "one": "%lld dia",
+    "other": "%lld dias"
+   },
+   "nl": {
+    "one": "%lld dag",
+    "other": "%lld dagen"
+   },
+   "pl": {
+    "one": "%lld dzień",
+    "few": "%lld dni",
+    "many": "%lld dni",
+    "other": "%lld dnia"
+   }
+  },
+  "holidays": {
+   "de": {
+    "one": "%lld Feiertag",
+    "other": "%lld Feiertage"
+   },
+   "hr": {
+    "one": "%lld praznik",
+    "few": "%lld praznika",
+    "other": "%lld praznika"
+   },
+   "sl": {
+    "one": "%lld praznik",
+    "two": "%lld praznika",
+    "few": "%lld prazniki",
+    "other": "%lld praznikov"
+   },
+   "it": {
+    "one": "%lld festività",
+    "other": "%lld festività"
+   },
+   "fr": {
+    "one": "%lld jour férié",
+    "other": "%lld jours fériés"
+   },
+   "es": {
+    "one": "%lld festivo",
+    "other": "%lld festivos"
+   },
+   "pt": {
+    "one": "%lld feriado",
+    "other": "%lld feriados"
+   },
+   "nl": {
+    "one": "%lld feestdag",
+    "other": "%lld feestdagen"
+   },
+   "pl": {
+    "one": "%lld święto",
+    "few": "%lld święta",
+    "many": "%lld świąt",
+    "other": "%lld święta"
+   }
+  },
+  "hours": {
+   "de": {
+    "one": "%lld Stunde",
+    "other": "%lld Stunden"
+   },
+   "hr": {
+    "one": "%lld sat",
+    "few": "%lld sata",
+    "other": "%lld sati"
+   },
+   "sl": {
+    "one": "%lld ura",
+    "two": "%lld uri",
+    "few": "%lld ure",
+    "other": "%lld ur"
+   },
+   "it": {
+    "one": "%lld ora",
+    "other": "%lld ore"
+   },
+   "fr": {
+    "one": "%lld heure",
+    "other": "%lld heures"
+   },
+   "es": {
+    "one": "%lld hora",
+    "other": "%lld horas"
+   },
+   "pt": {
+    "one": "%lld hora",
+    "other": "%lld horas"
+   },
+   "nl": {
+    "one": "%lld uur",
+    "other": "%lld uur"
+   },
+   "pl": {
+    "one": "%lld godzina",
+    "few": "%lld godziny",
+    "many": "%lld godzin",
+    "other": "%lld godziny"
+   }
+  },
+  "minutes": {
+   "de": {
+    "one": "%lld Minute",
+    "other": "%lld Minuten"
+   },
+   "hr": {
+    "one": "%lld minuta",
+    "few": "%lld minute",
+    "other": "%lld minuta"
+   },
+   "sl": {
+    "one": "%lld minuta",
+    "two": "%lld minuti",
+    "few": "%lld minute",
+    "other": "%lld minut"
+   },
+   "it": {
+    "one": "%lld minuto",
+    "other": "%lld minuti"
+   },
+   "fr": {
+    "one": "%lld minute",
+    "other": "%lld minutes"
+   },
+   "es": {
+    "one": "%lld minuto",
+    "other": "%lld minutos"
+   },
+   "pt": {
+    "one": "%lld minuto",
+    "other": "%lld minutos"
+   },
+   "nl": {
+    "one": "%lld minuut",
+    "other": "%lld minuten"
+   },
+   "pl": {
+    "one": "%lld minuta",
+    "few": "%lld minuty",
+    "many": "%lld minut",
+    "other": "%lld minuty"
+   }
+  }
+ },
+ "countedSentences": {
+  "%@ over ^[%lld day](inflect: true)": {
+   "de": "%@ über %#@days@",
+   "hr": "%@ kroz %#@days@",
+   "sl": "%@ čez %#@days@",
+   "it": "%@ su %#@days@",
+   "fr": "%@ sur %#@days@",
+   "es": "%@ en %#@days@",
+   "pt": "%@ em %#@days@",
+   "nl": "%@ over %#@days@",
+   "pl": "%@ przez %#@days@"
+  },
+  "Apply to ^[%lld day](inflect: true)": {
+   "de": "Auf %#@days@ anwenden",
+   "hr": "Primijeni na %#@days@",
+   "sl": "Uporabi za %#@days@",
+   "it": "Applica a %#@days@",
+   "fr": "Appliquer à %#@days@",
+   "es": "Aplicar a %#@days@",
+   "pt": "Aplicar a %#@days@",
+   "nl": "Toepassen op %#@days@",
+   "pl": "Zastosuj do %#@days@"
+  },
+  "Backup ready: ^[%lld day](inflect: true).": {
+   "de": "Sicherung bereit: %#@days@.",
+   "hr": "Sigurnosna kopija spremna: %#@days@.",
+   "sl": "Varnostna kopija pripravljena: %#@days@.",
+   "it": "Backup pronto: %#@days@.",
+   "fr": "Sauvegarde prête : %#@days@.",
+   "es": "Copia de seguridad lista: %#@days@.",
+   "pt": "Cópia de segurança pronta: %#@days@.",
+   "nl": "Back-up gereed: %#@days@.",
+   "pl": "Kopia zapasowa gotowa: %#@days@."
+  },
+  "Clear ^[%lld day](inflect: true)": {
+   "de": "%#@days@ leeren",
+   "hr": "Isprazni %#@days@",
+   "sl": "Počisti %#@days@",
+   "it": "Svuota %#@days@",
+   "fr": "Effacer %#@days@",
+   "es": "Vaciar %#@days@",
+   "pt": "Limpar %#@days@",
+   "nl": "%#@days@ wissen",
+   "pl": "Wyczyść %#@days@"
+  },
+  "Clear ^[%lld day](inflect: true)?": {
+   "de": "%#@days@ leeren?",
+   "hr": "Isprazniti %#@days@?",
+   "sl": "Počistim %#@days@?",
+   "it": "Svuotare %#@days@?",
+   "fr": "Effacer %#@days@ ?",
+   "es": "¿Vaciar %#@days@?",
+   "pt": "Limpar %#@days@?",
+   "nl": "%#@days@ wissen?",
+   "pl": "Wyczyścić %#@days@?"
+  },
+  "Nothing was restored: all ^[%lld day](inflect: true) in that file are damaged. Your existing hours have not been touched.": {
+   "de": "Nichts wiederhergestellt: alle %#@days@ in dieser Datei sind beschädigt. Die vorhandenen Stunden wurden nicht verändert.",
+   "hr": "Ništa nije vraćeno: svi %#@days@ u toj datoteci su oštećeni. Postojeći sati nisu dirani.",
+   "sl": "Nič ni bilo obnovljeno: vsi %#@days@ v tej datoteki so poškodovani. Obstoječe ure ostajajo nedotaknjene.",
+   "it": "Non è stato ripristinato nulla: tutti i %#@days@ nel file sono danneggiati. Le ore esistenti non sono state toccate.",
+   "fr": "Rien n’a été restauré : tous les %#@days@ de ce fichier sont endommagés. Vos heures existantes n’ont pas été modifiées.",
+   "es": "No se restauró nada: todos los %#@days@ del archivo están dañados. Las horas existentes no se han tocado.",
+   "pt": "Não foi restaurado nada: todos os %#@days@ do ficheiro estão danificados. As horas existentes não foram alteradas.",
+   "nl": "Er is niets hersteld: alle %#@days@ in dat bestand zijn beschadigd. De bestaande uren zijn niet gewijzigd.",
+   "pl": "Nic nie zostało przywrócone: wszystkie %#@days@ w tym pliku są uszkodzone. Istniejące godziny pozostały nietknięte."
+  },
+  "Replace what is on ^[%lld day](inflect: true)?": {
+   "de": "Inhalt von %#@days@ ersetzen?",
+   "hr": "Zamijeniti sadržaj za %#@days@?",
+   "sl": "Zamenjam vsebino za %#@days@?",
+   "it": "Sostituire il contenuto di %#@days@?",
+   "fr": "Remplacer le contenu de %#@days@ ?",
+   "es": "¿Sustituir lo que hay en %#@days@?",
+   "pt": "Substituir o que está em %#@days@?",
+   "nl": "Vervangen wat op %#@days@ staat?",
+   "pl": "Zastąpić zawartość dla %#@days@?"
+  },
+  "Restored ^[%lld day](inflect: true) and ^[%lld holiday](inflect: true).": {
+   "de": "%#@days@ und %#@holidays@ wiederhergestellt.",
+   "hr": "Vraćeno: %#@days@ i %#@holidays@.",
+   "sl": "Obnovljeno: %#@days@ in %#@holidays@.",
+   "it": "Ripristinati %#@days@ e %#@holidays@.",
+   "fr": "%#@days@ et %#@holidays@ restaurés.",
+   "es": "Se han restaurado %#@days@ y %#@holidays@.",
+   "pt": "Restaurados %#@days@ e %#@holidays@.",
+   "nl": "%#@days@ en %#@holidays@ hersteld.",
+   "pl": "Przywrócono %#@days@ i %#@holidays@."
+  },
+  "The backup holds ^[%lld day](inflect: true) and ^[%lld holiday](inflect: true).%@ Everything currently stored will be removed.": {
+   "de": "Die Sicherung enthält %#@days@ und %#@holidays@.%@ Alles derzeit Gespeicherte wird entfernt.",
+   "hr": "Sigurnosna kopija sadrži %#@days@ i %#@holidays@.%@ Sve što je trenutno spremljeno bit će uklonjeno.",
+   "sl": "Varnostna kopija vsebuje %#@days@ in %#@holidays@.%@ Vse trenutno shranjeno bo odstranjeno.",
+   "it": "Il backup contiene %#@days@ e %#@holidays@.%@ Tutto ciò che è archiviato ora verrà rimosso.",
+   "fr": "La sauvegarde contient %#@days@ et %#@holidays@.%@ Tout ce qui est enregistré actuellement sera supprimé.",
+   "es": "La copia contiene %#@days@ y %#@holidays@.%@ Se eliminará todo lo almacenado actualmente.",
+   "pt": "A cópia contém %#@days@ e %#@holidays@.%@ Tudo o que está guardado será removido.",
+   "nl": "De back-up bevat %#@days@ en %#@holidays@.%@ Alles wat nu is opgeslagen wordt verwijderd.",
+   "pl": "Kopia zawiera %#@days@ i %#@holidays@.%@ Wszystko, co jest teraz zapisane, zostanie usunięte."
+  },
+  "^[%lld day](inflect: true)": {
+   "de": "%#@days@",
+   "hr": "%#@days@",
+   "sl": "%#@days@",
+   "it": "%#@days@",
+   "fr": "%#@days@",
+   "es": "%#@days@",
+   "pt": "%#@days@",
+   "nl": "%#@days@",
+   "pl": "%#@days@"
+  },
+  "^[%lld day](inflect: true) could not be read and was not restored: %@.": {
+   "de": "%#@days@ konnten nicht gelesen und nicht wiederhergestellt werden: %@.",
+   "hr": "%#@days@ nije bilo moguće pročitati i nisu vraćeni: %@.",
+   "sl": "%#@days@ ni bilo mogoče prebrati in niso bili obnovljeni: %@.",
+   "it": "%#@days@ non è stato possibile leggerli e non sono stati ripristinati: %@.",
+   "fr": "%#@days@ n’ont pas pu être lus et n’ont pas été restaurés : %@.",
+   "es": "%#@days@ no se pudieron leer y no se restauraron: %@.",
+   "pt": "%#@days@ não puderam ser lidos e não foram restaurados: %@.",
+   "nl": "%#@days@ konden niet worden gelezen en zijn niet hersteld: %@.",
+   "pl": "%#@days@ nie udało się odczytać i nie zostały przywrócone: %@."
+  },
+  "^[%lld day](inflect: true) in the file is damaged and will not be restored.": {
+   "de": "%#@days@ in der Datei sind beschädigt und werden nicht wiederhergestellt.",
+   "hr": "%#@days@ u datoteci su oštećeni i neće biti vraćeni.",
+   "sl": "%#@days@ v datoteki so poškodovani in ne bodo obnovljeni.",
+   "it": "%#@days@ nel file sono danneggiati e non verranno ripristinati.",
+   "fr": "%#@days@ du fichier sont endommagés et ne seront pas restaurés.",
+   "es": "%#@days@ del archivo están dañados y no se restaurarán.",
+   "pt": "%#@days@ no ficheiro estão danificados e não serão restaurados.",
+   "nl": "%#@days@ in het bestand zijn beschadigd en worden niet hersteld.",
+   "pl": "%#@days@ w pliku są uszkodzone i nie zostaną przywrócone."
+  },
+  "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown and stop counting towards your balance. The hours recorded on them are kept.": {
+   "de": "%#@days@ verwenden weiterhin „%@“. Diese Tage erscheinen als Unbekannt und zählen nicht mehr zum Saldo. Die dort erfassten Stunden bleiben erhalten.",
+   "hr": "%#@days@ još uvijek koriste „%@”. Ti dani prikazivat će se kao Nepoznato i više se neće računati u saldo. Sati zabilježeni na njima ostaju.",
+   "sl": "%#@days@ še vedno uporabljajo »%@«. Ti dnevi bodo prikazani kot Neznano in ne bodo več šteti v saldo. Ure, zabeležene na njih, ostanejo.",
+   "it": "%#@days@ usano ancora «%@». Quei giorni appariranno come Sconosciuto e smetteranno di contare nel saldo. Le ore registrate restano.",
+   "fr": "%#@days@ utilisent encore « %@ ». Ces jours apparaîtront comme Inconnu et ne compteront plus dans le solde. Les heures enregistrées sont conservées.",
+   "es": "%#@days@ siguen usando «%@». Esos días aparecerán como Desconocido y dejarán de contar en el saldo. Las horas registradas se conservan.",
+   "pt": "%#@days@ ainda usam «%@». Esses dias aparecerão como Desconhecido e deixarão de contar no saldo. As horas registadas são mantidas.",
+   "nl": "%#@days@ gebruiken nog steeds ‘%@’. Die dagen verschijnen als Onbekend en tellen niet meer mee in het saldo. De geregistreerde uren blijven bewaard.",
+   "pl": "%#@days@ nadal używa „%@”. Te dni będą pokazywane jako Nieznane i przestaną liczyć się do salda. Zapisane na nich godziny pozostają."
+  },
+  "^[%lld day](inflect: true) with no readable date": {
+   "de": "%#@days@ ohne lesbares Datum",
+   "hr": "%#@days@ bez čitljivog datuma",
+   "sl": "%#@days@ brez berljivega datuma",
+   "it": "%#@days@ senza data leggibile",
+   "fr": "%#@days@ sans date lisible",
+   "es": "%#@days@ sin fecha legible",
+   "pt": "%#@days@ sem data legível",
+   "nl": "%#@days@ zonder leesbare datum",
+   "pl": "%#@days@ bez czytelnej daty"
+  },
+  "^[%lld day](inflect: true) worked": {
+   "de": "%#@days@ gearbeitet",
+   "hr": "%#@days@ odrađeno",
+   "sl": "%#@days@ oddelano",
+   "it": "%#@days@ lavorati",
+   "fr": "%#@days@ travaillés",
+   "es": "%#@days@ trabajados",
+   "pt": "%#@days@ trabalhados",
+   "nl": "%#@days@ gewerkt",
+   "pl": "%#@days@ przepracowane"
+  },
+  "^[%lld hour](inflect: true)": {
+   "de": "%#@hours@",
+   "hr": "%#@hours@",
+   "sl": "%#@hours@",
+   "it": "%#@hours@",
+   "fr": "%#@hours@",
+   "es": "%#@hours@",
+   "pt": "%#@hours@",
+   "nl": "%#@hours@",
+   "pl": "%#@hours@"
+  },
+  "^[%lld hour](inflect: true) ^[%lld minute](inflect: true)": {
+   "de": "%#@hours@ %#@minutes@",
+   "hr": "%#@hours@ %#@minutes@",
+   "sl": "%#@hours@ %#@minutes@",
+   "it": "%#@hours@ %#@minutes@",
+   "fr": "%#@hours@ %#@minutes@",
+   "es": "%#@hours@ %#@minutes@",
+   "pt": "%#@hours@ %#@minutes@",
+   "nl": "%#@hours@ %#@minutes@",
+   "pl": "%#@hours@ %#@minutes@"
+  },
+  "^[%lld minute](inflect: true)": {
+   "de": "%#@minutes@",
+   "hr": "%#@minutes@",
+   "sl": "%#@minutes@",
+   "it": "%#@minutes@",
+   "fr": "%#@minutes@",
+   "es": "%#@minutes@",
+   "pt": "%#@minutes@",
+   "nl": "%#@minutes@",
+   "pl": "%#@minutes@"
+  }
+ },
+ "interface": {
+  "Calendar": [
+   "Kalender",
+   "Kalendar",
+   "Koledar",
+   "Calendario",
+   "Calendrier",
+   "Calendario",
+   "Calendário",
+   "Agenda",
+   "Kalendarz"
+  ],
+  "Insights": [
+   "Auswertung",
+   "Pregled",
+   "Pregled",
+   "Statistiche",
+   "Analyse",
+   "Resumen",
+   "Análise",
+   "Inzicht",
+   "Podsumowanie"
+  ],
+  "Settings": [
+   "Einstellungen",
+   "Postavke",
+   "Nastavitve",
+   "Impostazioni",
+   "Réglages",
+   "Ajustes",
+   "Definições",
+   "Instellingen",
+   "Ustawienia"
+  ],
+  "Hours": [
+   "Stunden",
+   "Sati",
+   "Ure",
+   "Ore",
+   "Heures",
+   "Horas",
+   "Horas",
+   "Uren",
+   "Godziny"
+  ],
+  "Hours Pro": [
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro",
+   "Hours Pro"
+  ],
+  "Cancel": [
+   "Abbrechen",
+   "Odustani",
+   "Prekliči",
+   "Annulla",
+   "Annuler",
+   "Cancelar",
+   "Cancelar",
+   "Annuleer",
+   "Anuluj"
+  ],
+  "Save": [
+   "Sichern",
+   "Spremi",
+   "Shrani",
+   "Salva",
+   "Enregistrer",
+   "Guardar",
+   "Guardar",
+   "Bewaar",
+   "Zapisz"
+  ],
+  "Done": [
+   "Fertig",
+   "Gotovo",
+   "Končano",
+   "Fine",
+   "OK",
+   "Listo",
+   "Concluído",
+   "Gereed",
+   "Gotowe"
+  ],
+  "OK": [
+   "OK",
+   "U redu",
+   "V redu",
+   "OK",
+   "OK",
+   "Aceptar",
+   "OK",
+   "OK",
+   "OK"
+  ],
+  "Clear": [
+   "Leeren",
+   "Isprazni",
+   "Počisti",
+   "Svuota",
+   "Effacer",
+   "Vaciar",
+   "Limpar",
+   "Wissen",
+   "Wyczyść"
+  ],
+  "Change": [
+   "Ändern",
+   "Promijeni",
+   "Spremeni",
+   "Modifica",
+   "Modifier",
+   "Cambiar",
+   "Alterar",
+   "Wijzig",
+   "Zmień"
+  ],
+  "Set": [
+   "Setzen",
+   "Postavi",
+   "Nastavi",
+   "Imposta",
+   "Définir",
+   "Establecer",
+   "Definir",
+   "Instellen",
+   "Ustaw"
+  ],
+  "Set up": [
+   "Einrichten",
+   "Postavi",
+   "Nastavi",
+   "Configura",
+   "Configurer",
+   "Configurar",
+   "Configurar",
+   "Instellen",
+   "Skonfiguruj"
+  ],
+  "Discard": [
+   "Verwerfen",
+   "Odbaci",
+   "Zavrzi",
+   "Ignora",
+   "Ignorer",
+   "Descartar",
+   "Descartar",
+   "Verwijder",
+   "Odrzuć"
+  ],
+  "Dismiss": [
+   "Schließen",
+   "Zatvori",
+   "Zapri",
+   "Chiudi",
+   "Fermer",
+   "Cerrar",
+   "Fechar",
+   "Sluit",
+   "Zamknij"
+  ],
+  "Restore": [
+   "Wiederherstellen",
+   "Vrati",
+   "Obnovi",
+   "Ripristina",
+   "Restaurer",
+   "Restaurar",
+   "Restaurar",
+   "Herstel",
+   "Przywróć"
+  ],
+  "Not now": [
+   "Jetzt nicht",
+   "Ne sada",
+   "Ne zdaj",
+   "Non ora",
+   "Pas maintenant",
+   "Ahora no",
+   "Agora não",
+   "Niet nu",
+   "Nie teraz"
+  ],
+  "More": [
+   "Mehr",
+   "Više",
+   "Več",
+   "Altro",
+   "Plus",
+   "Más",
+   "Mais",
+   "Meer",
+   "Więcej"
+  ],
+  "View": [
+   "Ansicht",
+   "Prikaz",
+   "Pogled",
+   "Vista",
+   "Affichage",
+   "Vista",
+   "Vista",
+   "Weergave",
+   "Widok"
+  ],
+  "Details": [
+   "Details",
+   "Detalji",
+   "Podrobnosti",
+   "Dettagli",
+   "Détails",
+   "Detalles",
+   "Detalhes",
+   "Details",
+   "Szczegóły"
+  ],
+  "Preview": [
+   "Vorschau",
+   "Pregled",
+   "Predogled",
+   "Anteprima",
+   "Aperçu",
+   "Vista previa",
+   "Pré-visualização",
+   "Voorbeeld",
+   "Podgląd"
+  ],
+  "Balance": [
+   "Saldo",
+   "Saldo",
+   "Saldo",
+   "Saldo",
+   "Solde",
+   "Saldo",
+   "Saldo",
+   "Saldo",
+   "Saldo"
+  ],
+  "Worked": [
+   "Gearbeitet",
+   "Odrađeno",
+   "Opravljeno",
+   "Ore lavorate",
+   "Heures travaillées",
+   "Horas trabajadas",
+   "Horas trabalhadas",
+   "Gewerkte uren",
+   "Przepracowane"
+  ],
+  "Expected": [
+   "Soll",
+   "Planirano",
+   "Predvideno",
+   "Ore previste",
+   "Heures prévues",
+   "Horas previstas",
+   "Horas previstas",
+   "Verwachte uren",
+   "Wymagane"
+  ],
+  "Overtime": [
+   "Überstunden",
+   "Prekovremeni",
+   "Nadure",
+   "Straordinari",
+   "Heures supp.",
+   "Horas extra",
+   "Horas extra",
+   "Overuren",
+   "Nadgodziny"
+  ],
+  "Break": [
+   "Pause",
+   "Pauza",
+   "Odmor",
+   "Pausa",
+   "Pause",
+   "Descanso",
+   "Pausa",
+   "Pauze",
+   "Przerwa"
+  ],
+  "Notes": [
+   "Notizen",
+   "Bilješke",
+   "Opombe",
+   "Note",
+   "Notes",
+   "Notas",
+   "Notas",
+   "Notities",
+   "Notatki"
+  ],
+  "Location": [
+   "Ort",
+   "Mjesto",
+   "Kraj",
+   "Luogo",
+   "Lieu",
+   "Lugar",
+   "Local",
+   "Locatie",
+   "Miejsce"
+  ],
+  "Job": [
+   "Tätigkeit",
+   "Posao",
+   "Delo",
+   "Lavoro",
+   "Poste",
+   "Trabajo",
+   "Trabalho",
+   "Functie",
+   "Praca"
+  ],
+  "Holiday": [
+   "Feiertag",
+   "Praznik",
+   "Praznik",
+   "Festività",
+   "Jour férié",
+   "Festivo",
+   "Feriado",
+   "Feestdag",
+   "Święto"
+  ],
+  "Work": [
+   "Arbeit",
+   "Rad",
+   "Delo",
+   "Lavoro",
+   "Travail",
+   "Trabajo",
+   "Trabalho",
+   "Werk",
+   "Praca"
+  ],
+  "Day": [
+   "Tag",
+   "Dan",
+   "Dan",
+   "Giorno",
+   "Jour",
+   "Día",
+   "Dia",
+   "Dag",
+   "Dzień"
+  ],
+  "Days": [
+   "Tage",
+   "Dani",
+   "Dnevi",
+   "Giorni",
+   "Jours",
+   "Días",
+   "Dias",
+   "Dagen",
+   "Dni"
+  ],
+  "Day type": [
+   "Tagesart",
+   "Vrsta dana",
+   "Vrsta dneva",
+   "Tipo di giorno",
+   "Type de jour",
+   "Tipo de día",
+   "Tipo de dia",
+   "Dagtype",
+   "Typ dnia"
+  ],
+  "Type": [
+   "Art",
+   "Vrsta",
+   "Vrsta",
+   "Tipo",
+   "Type",
+   "Tipo",
+   "Tipo",
+   "Type",
+   "Typ"
+  ],
+  "Start": [
+   "Beginn",
+   "Početak",
+   "Začetek",
+   "Inizio",
+   "Début",
+   "Inicio",
+   "Início",
+   "Begin",
+   "Początek"
+  ],
+  "End": [
+   "Ende",
+   "Kraj",
+   "Konec",
+   "Fine",
+   "Fin",
+   "Fin",
+   "Fim",
+   "Einde",
+   "Koniec"
+  ],
+  "Times": [
+   "Zeiten",
+   "Vremena",
+   "Časi",
+   "Orari",
+   "Horaires",
+   "Horarios",
+   "Horários",
+   "Tijden",
+   "Godziny"
+  ],
+  "Length": [
+   "Dauer",
+   "Trajanje",
+   "Trajanje",
+   "Durata",
+   "Durée",
+   "Duración",
+   "Duração",
+   "Duur",
+   "Czas trwania"
+  ],
+  "Adjustment": [
+   "Korrektur",
+   "Ispravak",
+   "Popravek",
+   "Rettifica",
+   "Ajustement",
+   "Ajuste",
+   "Ajuste",
+   "Correctie",
+   "Korekta"
+  ],
+  "Corrections": [
+   "Korrekturen",
+   "Ispravci",
+   "Popravki",
+   "Rettifiche",
+   "Ajustements",
+   "Ajustes",
+   "Ajustes",
+   "Correcties",
+   "Korekty"
+  ],
+  "Paid absence": [
+   "Bezahlte Abwesenheit",
+   "Plaćeni izostanak",
+   "Plačana odsotnost",
+   "Assenza retribuita",
+   "Absence payée",
+   "Ausencia retribuida",
+   "Ausência paga",
+   "Betaald verlof",
+   "Płatna nieobecność"
+  ],
+  "Reason": [
+   "Grund",
+   "Razlog",
+   "Razlog",
+   "Motivo",
+   "Motif",
+   "Motivo",
+   "Motivo",
+   "Reden",
+   "Powód"
+  ],
+  "Result": [
+   "Ergebnis",
+   "Rezultat",
+   "Rezultat",
+   "Risultato",
+   "Résultat",
+   "Resultado",
+   "Resultado",
+   "Resultaat",
+   "Wynik"
+  ],
+  "Period": [
+   "Zeitraum",
+   "Razdoblje",
+   "Obdobje",
+   "Periodo",
+   "Période",
+   "Periodo",
+   "Período",
+   "Periode",
+   "Okres"
+  ],
+  "Range": [
+   "Bereich",
+   "Raspon",
+   "Obseg",
+   "Intervallo",
+   "Plage",
+   "Intervalo",
+   "Intervalo",
+   "Bereik",
+   "Zakres"
+  ],
+  "From": [
+   "Von",
+   "Od",
+   "Od",
+   "Da",
+   "Du",
+   "Desde",
+   "De",
+   "Van",
+   "Od"
+  ],
+  "To": [
+   "Bis",
+   "Do",
+   "Do",
+   "A",
+   "Au",
+   "Hasta",
+   "Até",
+   "Tot",
+   "Do"
+  ],
+  "Format": [
+   "Format",
+   "Format",
+   "Oblika",
+   "Formato",
+   "Format",
+   "Formato",
+   "Formato",
+   "Formaat",
+   "Format"
+  ],
+  "File name": [
+   "Dateiname",
+   "Naziv datoteke",
+   "Ime datoteke",
+   "Nome file",
+   "Nom du fichier",
+   "Nombre del archivo",
+   "Nome do ficheiro",
+   "Bestandsnaam",
+   "Nazwa pliku"
+  ],
+  "Export": [
+   "Exportieren",
+   "Izvoz",
+   "Izvoz",
+   "Esporta",
+   "Exporter",
+   "Exportar",
+   "Exportar",
+   "Exporteer",
+   "Eksportuj"
+  ],
+  "Export…": [
+   "Exportieren …",
+   "Izvoz…",
+   "Izvoz …",
+   "Esporta…",
+   "Exporter…",
+   "Exportar…",
+   "Exportar…",
+   "Exporteer…",
+   "Eksportuj…"
+  ],
+  "Export options": [
+   "Exportoptionen",
+   "Postavke izvoza",
+   "Možnosti izvoza",
+   "Opzioni di esportazione",
+   "Options d’export",
+   "Opciones de exportación",
+   "Opções de exportação",
+   "Exportopties",
+   "Opcje eksportu"
+  ],
+  "Share timesheet": [
+   "Stundenzettel teilen",
+   "Podijeli evidenciju",
+   "Deli evidenco",
+   "Condividi il foglio ore",
+   "Partager la feuille d’heures",
+   "Compartir la hoja de horas",
+   "Partilhar a folha de horas",
+   "Urenstaat delen",
+   "Udostępnij ewidencję"
+  ],
+  "Today": [
+   "Heute",
+   "Danas",
+   "Danes",
+   "Oggi",
+   "Aujourd’hui",
+   "Hoy",
+   "Hoje",
+   "Vandaag",
+   "Dziś"
+  ],
+  "Week": [
+   "Woche",
+   "Tjedan",
+   "Teden",
+   "Settimana",
+   "Semaine",
+   "Semana",
+   "Semana",
+   "Week",
+   "Tydzień"
+  ],
+  "Month": [
+   "Monat",
+   "Mjesec",
+   "Mesec",
+   "Mese",
+   "Mois",
+   "Mes",
+   "Mês",
+   "Maand",
+   "Miesiąc"
+  ],
+  "Year": [
+   "Jahr",
+   "Godina",
+   "Leto",
+   "Anno",
+   "Année",
+   "Año",
+   "Ano",
+   "Jaar",
+   "Rok"
+  ],
+  "This month": [
+   "Dieser Monat",
+   "Ovaj mjesec",
+   "Ta mesec",
+   "Questo mese",
+   "Ce mois-ci",
+   "Este mes",
+   "Este mês",
+   "Deze maand",
+   "Ten miesiąc"
+  ],
+  "TODAY": [
+   "HEUTE",
+   "DANAS",
+   "DANES",
+   "OGGI",
+   "AUJOURD’HUI",
+   "HOY",
+   "HOJE",
+   "VANDAAG",
+   "DZIŚ"
+  ],
+  "THIS MONTH": [
+   "DIESER MONAT",
+   "OVAJ MJESEC",
+   "TA MESEC",
+   "QUESTO MESE",
+   "CE MOIS-CI",
+   "ESTE MES",
+   "ESTE MÊS",
+   "DEZE MAAND",
+   "TEN MIESIĄC"
+  ],
+  "Average": [
+   "Durchschnitt",
+   "Prosjek",
+   "Povprečje",
+   "Media",
+   "Moyenne",
+   "Media",
+   "Média",
+   "Gemiddelde",
+   "Średnia"
+  ],
+  "Average per day worked": [
+   "Durchschnitt pro Arbeitstag",
+   "Prosjek po odrađenom danu",
+   "Povprečje na oddelan dan",
+   "Media per giorno lavorato",
+   "Moyenne par jour travaillé",
+   "Media por día trabajado",
+   "Média por dia trabalhado",
+   "Gemiddelde per gewerkte dag",
+   "Średnia na przepracowany dzień"
+  ],
+  "per day worked": [
+   "pro Arbeitstag",
+   "po odrađenom danu",
+   "na oddelan dan",
+   "per giorno lavorato",
+   "par jour travaillé",
+   "por día trabajado",
+   "por dia trabalhado",
+   "per gewerkte dag",
+   "na przepracowany dzień"
+  ],
+  "Worked today": [
+   "Heute gearbeitet",
+   "Danas odrađeno",
+   "Danes opravljeno",
+   "Lavorato oggi",
+   "Travaillé aujourd’hui",
+   "Trabajado hoy",
+   "Trabalhado hoje",
+   "Vandaag gewerkt",
+   "Przepracowane dziś"
+  ],
+  "Balance by month": [
+   "Saldo nach Monat",
+   "Saldo po mjesecima",
+   "Saldo po mesecih",
+   "Saldo per mese",
+   "Solde par mois",
+   "Saldo por mes",
+   "Saldo por mês",
+   "Saldo per maand",
+   "Saldo według miesięcy"
+  ],
+  "Month by month": [
+   "Monat für Monat",
+   "Mjesec po mjesec",
+   "Mesec za mesecem",
+   "Mese per mese",
+   "Mois par mois",
+   "Mes a mes",
+   "Mês a mês",
+   "Maand na maand",
+   "Miesiąc po miesiącu"
+  ],
+  "Running balance": [
+   "Laufender Saldo",
+   "Tekući saldo",
+   "Tekoči saldo",
+   "Saldo progressivo",
+   "Solde cumulé",
+   "Saldo acumulado",
+   "Saldo acumulado",
+   "Doorlopend saldo",
+   "Saldo narastająco"
+  ],
+  "Hours per day": [
+   "Stunden pro Tag",
+   "Sati po danu",
+   "Ure na dan",
+   "Ore al giorno",
+   "Heures par jour",
+   "Horas por día",
+   "Horas por dia",
+   "Uren per dag",
+   "Godziny dziennie"
+  ],
+  "Hours worked per day": [
+   "Gearbeitete Stunden pro Tag",
+   "Odrađeni sati po danu",
+   "Opravljene ure na dan",
+   "Ore lavorate al giorno",
+   "Heures travaillées par jour",
+   "Horas trabajadas por día",
+   "Horas trabalhadas por dia",
+   "Gewerkte uren per dag",
+   "Przepracowane godziny dziennie"
+  ],
+  "By job": [
+   "Nach Tätigkeit",
+   "Po poslu",
+   "Po delu",
+   "Per lavoro",
+   "Par poste",
+   "Por trabajo",
+   "Por trabalho",
+   "Per functie",
+   "Według pracy"
+  ],
+  "Expected hours": [
+   "Sollstunden",
+   "Planirani sati",
+   "Predvidene ure",
+   "Ore previste",
+   "Heures prévues",
+   "Horas previstas",
+   "Horas previstas",
+   "Verwachte uren",
+   "Wymagane godziny"
+  ],
+  "Custom expected hours": [
+   "Abweichende Sollstunden",
+   "Prilagođeni planirani sati",
+   "Prilagojene predvidene ure",
+   "Ore previste personalizzate",
+   "Heures prévues personnalisées",
+   "Horas previstas personalizadas",
+   "Horas previstas personalizadas",
+   "Aangepaste verwachte uren",
+   "Własne wymagane godziny"
+  ],
+  "Not working days": [
+   "Keine Arbeitstage",
+   "Neradni dani",
+   "Nedelovni dnevi",
+   "Giorni non lavorativi",
+   "Jours non travaillés",
+   "Días no laborables",
+   "Dias não úteis",
+   "Geen werkdagen",
+   "Dni wolne"
+  ],
+  "Skip non-working days": [
+   "Freie Tage überspringen",
+   "Preskoči neradne dane",
+   "Preskoči nedelovne dneve",
+   "Salta i giorni non lavorativi",
+   "Ignorer les jours non travaillés",
+   "Omitir los días no laborables",
+   "Ignorar os dias não úteis",
+   "Sla niet-werkdagen over",
+   "Pomiń dni wolne"
+  ],
+  "Days changed": [
+   "Geänderte Tage",
+   "Promijenjeni dani",
+   "Spremenjeni dnevi",
+   "Giorni modificati",
+   "Jours modifiés",
+   "Días modificados",
+   "Dias alterados",
+   "Gewijzigde dagen",
+   "Zmienione dni"
+  ],
+  "Include in totals": [
+   "In Summen einrechnen",
+   "Uključi u zbrojeve",
+   "Vključi v seštevke",
+   "Includi nei totali",
+   "Inclure dans les totaux",
+   "Incluir en los totales",
+   "Incluir nos totais",
+   "Meetellen in totalen",
+   "Wliczaj do sum"
+  ],
+  "Already recorded": [
+   "Bereits erfasst",
+   "Već zabilježeno",
+   "Že zabeleženo",
+   "Già registrato",
+   "Déjà enregistré",
+   "Ya registrado",
+   "Já registado",
+   "Al geregistreerd",
+   "Już zapisane"
+  ],
+  "Automatic": [
+   "Automatisch",
+   "Automatski",
+   "Samodejno",
+   "Automatico",
+   "Automatique",
+   "Automático",
+   "Automático",
+   "Automatisch",
+   "Automatycznie"
+  ],
+  "Short": [
+   "Kurz",
+   "Kratko",
+   "Kratko",
+   "Breve",
+   "Court",
+   "Corto",
+   "Curto",
+   "Kort",
+   "Krótko"
+  ],
+  "Break style": [
+   "Pausenart",
+   "Način pauze",
+   "Način odmora",
+   "Tipo di pausa",
+   "Type de pause",
+   "Tipo de descanso",
+   "Tipo de pausa",
+   "Pauzestijl",
+   "Rodzaj przerwy"
+  ],
+  "Tags, separated by commas": [
+   "Schlagwörter, durch Komma getrennt",
+   "Oznake, odvojene zarezom",
+   "Oznake, ločene z vejico",
+   "Etichette, separate da virgole",
+   "Étiquettes, séparées par des virgules",
+   "Etiquetas, separadas por comas",
+   "Etiquetas, separadas por vírgulas",
+   "Labels, gescheiden door komma’s",
+   "Etykiety oddzielone przecinkami"
+  ],
+  "Clock in": [
+   "Einstempeln",
+   "Prijavi se",
+   "Prijavi prihod",
+   "Timbra l’entrata",
+   "Pointer l’arrivée",
+   "Fichar entrada",
+   "Registar entrada",
+   "Inklokken",
+   "Rozpocznij"
+  ],
+  "Clock out": [
+   "Ausstempeln",
+   "Odjavi se",
+   "Prijavi odhod",
+   "Timbra l’uscita",
+   "Pointer le départ",
+   "Fichar salida",
+   "Registar saída",
+   "Uitklokken",
+   "Zakończ"
+  ],
+  "Clock running": [
+   "Uhr läuft",
+   "Sat radi",
+   "Ura teče",
+   "Timbratura in corso",
+   "Pointage en cours",
+   "Fichaje en curso",
+   "Registo em curso",
+   "Klok loopt",
+   "Zegar działa"
+  ],
+  "Clocked in": [
+   "Eingestempelt",
+   "Prijavljen",
+   "Prijavljen prihod",
+   "Entrata timbrata",
+   "Arrivée pointée",
+   "Entrada fichada",
+   "Entrada registada",
+   "Ingeklokt",
+   "Rozpoczęto"
+  ],
+  "Still clocked in": [
+   "Noch eingestempelt",
+   "Još uvijek prijavljen",
+   "Še vedno prijavljen",
+   "Ancora timbrato",
+   "Toujours pointé",
+   "Aún fichado",
+   "Ainda registado",
+   "Nog ingeklokt",
+   "Wciąż w trakcie"
+  ],
+  "Keep running": [
+   "Weiterlaufen lassen",
+   "Nastavi",
+   "Pusti teči",
+   "Continua",
+   "Continuer",
+   "Seguir",
+   "Continuar",
+   "Laat lopen",
+   "Kontynuuj"
+  ],
+  "Discard this shift": [
+   "Diese Schicht verwerfen",
+   "Odbaci ovu smjenu",
+   "Zavrzi to izmeno",
+   "Ignora questo turno",
+   "Ignorer ce poste",
+   "Descartar este turno",
+   "Descartar este turno",
+   "Deze dienst verwijderen",
+   "Odrzuć tę zmianę"
+  ],
+  "Discard the running shift?": [
+   "Laufende Schicht verwerfen?",
+   "Odbaciti smjenu u tijeku?",
+   "Zavržem izmeno v teku?",
+   "Ignorare il turno in corso?",
+   "Ignorer le poste en cours ?",
+   "¿Descartar el turno en curso?",
+   "Descartar o turno em curso?",
+   "De lopende dienst verwijderen?",
+   "Odrzucić trwającą zmianę?"
+  ],
+  "Nothing is recorded and the clock stops.": [
+   "Es wird nichts erfasst und die Uhr stoppt.",
+   "Ništa se ne bilježi i sat se zaustavlja.",
+   "Nič se ne zabeleži in ura se ustavi.",
+   "Non viene registrato nulla e la timbratura si ferma.",
+   "Rien n’est enregistré et le pointage s’arrête.",
+   "No se registra nada y el fichaje se detiene.",
+   "Não é registado nada e o registo para.",
+   "Er wordt niets vastgelegd en de klok stopt.",
+   "Nic nie zostanie zapisane, a zegar się zatrzyma."
+  ],
+  "This clock has been running for over a day. Stopping it now records a full day at most — check the times afterwards.": [
+   "Diese Uhr läuft seit über einem Tag. Wenn du sie jetzt stoppst, wird höchstens ein voller Tag erfasst – prüfe die Zeiten danach.",
+   "Ovaj sat radi više od jednog dana. Ako ga sada zaustaviš, bilježi se najviše jedan puni dan – provjeri vremena poslije.",
+   "Ta ura teče že več kot dan. Če jo zdaj ustaviš, se zabeleži največ en poln dan – čase pozneje preveri.",
+   "Questa timbratura è aperta da più di un giorno. Fermandola ora viene registrato al massimo un giorno intero: controlla poi gli orari.",
+   "Ce pointage est ouvert depuis plus d’un jour. L’arrêter maintenant enregistre au maximum une journée complète : vérifiez ensuite les horaires.",
+   "Este fichaje lleva abierto más de un día. Al detenerlo ahora se registra como mucho un día completo: revisa después los horarios.",
+   "Este registo está aberto há mais de um dia. Ao pará-lo agora regista-se no máximo um dia inteiro — verifica depois os horários.",
+   "Deze klok loopt al meer dan een dag. Nu stoppen legt hooguit één volle dag vast — controleer daarna de tijden.",
+   "Ten zegar działa ponad dobę. Zatrzymanie go teraz zapisze najwyżej jeden pełny dzień – sprawdź potem godziny."
+  ],
+  "Add break": [
+   "Pause hinzufügen",
+   "Dodaj pauzu",
+   "Dodaj odmor",
+   "Aggiungi pausa",
+   "Ajouter une pause",
+   "Añadir descanso",
+   "Adicionar pausa",
+   "Pauze toevoegen",
+   "Dodaj przerwę"
+  ],
+  "Add another block": [
+   "Weiteren Block hinzufügen",
+   "Dodaj još jedan blok",
+   "Dodaj še en blok",
+   "Aggiungi un altro blocco",
+   "Ajouter un autre bloc",
+   "Añadir otro bloque",
+   "Adicionar outro bloco",
+   "Nog een blok toevoegen",
+   "Dodaj kolejny blok"
+  ],
+  "Remove this block": [
+   "Diesen Block entfernen",
+   "Ukloni ovaj blok",
+   "Odstrani ta blok",
+   "Rimuovi questo blocco",
+   "Supprimer ce bloc",
+   "Quitar este bloque",
+   "Remover este bloco",
+   "Dit blok verwijderen",
+   "Usuń ten blok"
+  ],
+  "A second block records a split shift — the time between blocks is neither worked nor a break.": [
+   "Ein zweiter Block erfasst eine geteilte Schicht – die Zeit dazwischen ist weder Arbeitszeit noch Pause.",
+   "Drugi blok bilježi podijeljenu smjenu – vrijeme između blokova nije ni rad ni pauza.",
+   "Drugi blok zabeleži deljeno izmeno – čas med blokoma ni ne delo ne odmor.",
+   "Un secondo blocco registra un turno spezzato: il tempo tra i blocchi non è né lavoro né pausa.",
+   "Un second bloc enregistre un poste fractionné : le temps entre les blocs n’est ni travaillé ni une pause.",
+   "Un segundo bloque registra un turno partido: el tiempo entre bloques no es trabajo ni descanso.",
+   "Um segundo bloco regista um turno repartido: o tempo entre blocos não é trabalho nem pausa.",
+   "Een tweede blok legt een gebroken dienst vast — de tijd ertussen is geen werk en geen pauze.",
+   "Drugi blok zapisuje zmianę dzieloną – czas między blokami to ani praca, ani przerwa."
+  ],
+  "An end time earlier than the start is treated as an overnight shift.": [
+   "Ein Ende vor dem Beginn gilt als Nachtschicht.",
+   "Kraj raniji od početka tretira se kao noćna smjena.",
+   "Konec pred začetkom se šteje za nočno izmeno.",
+   "Una fine precedente all’inizio viene trattata come turno notturno.",
+   "Une fin antérieure au début est traitée comme un poste de nuit.",
+   "Un fin anterior al inicio se trata como turno de noche.",
+   "Um fim anterior ao início é tratado como turno noturno.",
+   "Een einde vóór de start geldt als nachtdienst.",
+   "Koniec wcześniejszy niż początek traktowany jest jako zmiana nocna."
+  ],
+  "Working a day off or a public holiday is a real thing, so times can be added to any day.": [
+   "An einem freien Tag oder Feiertag zu arbeiten kommt vor, also lassen sich Zeiten an jedem Tag eintragen.",
+   "Rad na slobodan dan ili praznik se događa, pa se vremena mogu unijeti na bilo koji dan.",
+   "Delo na prostem dnevu ali praznik se dogaja, zato je čase mogoče vnesti na kateri koli dan.",
+   "Lavorare in un giorno libero o festivo capita, quindi gli orari si possono aggiungere a qualsiasi giorno.",
+   "Travailler un jour de repos ou un jour férié arrive, les horaires peuvent donc être ajoutés à n’importe quel jour.",
+   "Trabajar en un día libre o festivo pasa, así que se pueden añadir horarios a cualquier día.",
+   "Trabalhar num dia de folga ou feriado acontece, por isso os horários podem ser adicionados a qualquer dia.",
+   "Werken op een vrije dag of feestdag komt voor, dus tijden kunnen op elke dag worden toegevoegd.",
+   "Praca w dzień wolny lub święto się zdarza, więc godziny można dodać do dowolnego dnia."
+  ],
+  "Turn this off to keep a day's details without counting it towards any total.": [
+   "Schalte das aus, um die Angaben eines Tages zu behalten, ohne ihn in Summen einzurechnen.",
+   "Isključi ovo da zadržiš podatke o danu, a da se ne računa ni u jedan zbroj.",
+   "Izklopi to, če želiš obdržati podatke o dnevu, ne da bi se štel v seštevke.",
+   "Disattivalo per conservare i dettagli di un giorno senza includerlo nei totali.",
+   "Désactivez ceci pour conserver les détails d’un jour sans le compter dans les totaux.",
+   "Desactívalo para conservar los detalles de un día sin incluirlo en los totales.",
+   "Desativa isto para manter os detalhes de um dia sem o incluir nos totais.",
+   "Zet dit uit om de gegevens van een dag te bewaren zonder mee te tellen in totalen.",
+   "Wyłącz to, aby zachować szczegóły dnia bez wliczania go do sum."
+  ],
+  "Not a working day.": [
+   "Kein Arbeitstag.",
+   "Nije radni dan.",
+   "Ni delovni dan.",
+   "Non è un giorno lavorativo.",
+   "Jour non travaillé.",
+   "No es un día laborable.",
+   "Não é um dia útil.",
+   "Geen werkdag.",
+   "To nie jest dzień roboczy."
+  ],
+  "Delete day": [
+   "Tag löschen",
+   "Obriši dan",
+   "Izbriši dan",
+   "Elimina il giorno",
+   "Supprimer le jour",
+   "Eliminar el día",
+   "Eliminar o dia",
+   "Dag verwijderen",
+   "Usuń dzień"
+  ],
+  "Delete everything recorded for this day?": [
+   "Alles für diesen Tag Erfasste löschen?",
+   "Obrisati sve zabilježeno za ovaj dan?",
+   "Izbrišem vse zabeleženo za ta dan?",
+   "Eliminare tutto ciò che è registrato per questo giorno?",
+   "Supprimer tout ce qui est enregistré pour ce jour ?",
+   "¿Eliminar todo lo registrado para este día?",
+   "Eliminar tudo o que está registado neste dia?",
+   "Alles wissen wat op deze dag is vastgelegd?",
+   "Usunąć wszystko zapisane w tym dniu?"
+  ],
+  "This cannot be undone.": [
+   "Das lässt sich nicht rückgängig machen.",
+   "To se ne može poništiti.",
+   "Tega ni mogoče razveljaviti.",
+   "Non si può annullare.",
+   "Cette action est irréversible.",
+   "Esto no se puede deshacer.",
+   "Isto não pode ser anulado.",
+   "Dit kan niet ongedaan worden gemaakt.",
+   "Tej operacji nie można cofnąć."
+  ],
+  "Set type": [
+   "Art setzen",
+   "Postavi vrstu",
+   "Nastavi vrsto",
+   "Imposta il tipo",
+   "Définir le type",
+   "Establecer el tipo",
+   "Definir o tipo",
+   "Type instellen",
+   "Ustaw typ"
+  ],
+  "Set balance manually": [
+   "Saldo manuell setzen",
+   "Ručno postavi saldo",
+   "Ročno nastavi saldo",
+   "Imposta il saldo manualmente",
+   "Définir le solde manuellement",
+   "Establecer el saldo manualmente",
+   "Definir o saldo manualmente",
+   "Saldo handmatig instellen",
+   "Ustaw saldo ręcznie"
+  ],
+  "Edit a range": [
+   "Zeitraum bearbeiten",
+   "Uredi raspon",
+   "Uredi obseg",
+   "Modifica un intervallo",
+   "Modifier une plage",
+   "Editar un intervalo",
+   "Editar um intervalo",
+   "Bereik bewerken",
+   "Edytuj zakres"
+  ],
+  "Edit a range…": [
+   "Zeitraum bearbeiten …",
+   "Uredi raspon…",
+   "Uredi obseg …",
+   "Modifica un intervallo…",
+   "Modifier une plage…",
+   "Editar un intervalo…",
+   "Editar um intervalo…",
+   "Bereik bewerken…",
+   "Edytuj zakres…"
+  ],
+  "What to do": [
+   "Was geschehen soll",
+   "Što učiniti",
+   "Kaj naj se zgodi",
+   "Cosa fare",
+   "Que faire",
+   "Qué hacer",
+   "O que fazer",
+   "Wat te doen",
+   "Co zrobić"
+  ],
+  "Fill hours": [
+   "Stunden füllen",
+   "Popuni sate",
+   "Zapolni ure",
+   "Compila le ore",
+   "Remplir les heures",
+   "Rellenar las horas",
+   "Preencher as horas",
+   "Uren invullen",
+   "Wypełnij godziny"
+  ],
+  "Fills each day with your usual start, end and break. Public holidays in the range are left alone.": [
+   "Füllt jeden Tag mit deinem üblichen Beginn, Ende und deiner Pause. Feiertage im Zeitraum bleiben unberührt.",
+   "Popunjava svaki dan tvojim uobičajenim početkom, krajem i pauzom. Praznici u rasponu ostaju netaknuti.",
+   "Vsak dan zapolni s tvojim običajnim začetkom, koncem in odmorom. Prazniki v obsegu ostanejo nedotaknjeni.",
+   "Compila ogni giorno con inizio, fine e pausa abituali. Le festività nell’intervallo restano intatte.",
+   "Remplit chaque jour avec vos début, fin et pause habituels. Les jours fériés de la plage ne sont pas touchés.",
+   "Rellena cada día con tu inicio, fin y descanso habituales. Los festivos del intervalo no se tocan.",
+   "Preenche cada dia com o teu início, fim e pausa habituais. Os feriados no intervalo não são alterados.",
+   "Vult elke dag met je gebruikelijke begin, einde en pauze. Feestdagen in het bereik blijven ongemoeid.",
+   "Wypełnia każdy dzień twoim zwykłym początkiem, końcem i przerwą. Święta w zakresie pozostają nietknięte."
+  ],
+  "Removes everything recorded on those days.": [
+   "Entfernt alles, was an diesen Tagen erfasst ist.",
+   "Uklanja sve zabilježeno na tim danima.",
+   "Odstrani vse, kar je zabeleženo na te dni.",
+   "Rimuove tutto ciò che è registrato in quei giorni.",
+   "Supprime tout ce qui est enregistré ces jours-là.",
+   "Elimina todo lo registrado en esos días.",
+   "Remove tudo o que está registado nesses dias.",
+   "Verwijdert alles wat op die dagen is vastgelegd.",
+   "Usuwa wszystko zapisane w tych dniach."
+  ],
+  "Replace days that already have hours": [
+   "Tage mit vorhandenen Stunden ersetzen",
+   "Zamijeni dane koji već imaju sate",
+   "Zamenjaj dneve, ki že imajo ure",
+   "Sostituisci i giorni che hanno già ore",
+   "Remplacer les jours qui ont déjà des heures",
+   "Sustituir los días que ya tienen horas",
+   "Substituir os dias que já têm horas",
+   "Dagen met bestaande uren vervangen",
+   "Zastąp dni, w których są już godziny"
+  ],
+  "Days you have already recorded are left alone unless you turn the second one on.": [
+   "Bereits erfasste Tage bleiben unberührt, sofern du die zweite Option nicht einschaltest.",
+   "Već zabilježeni dani ostaju netaknuti osim ako ne uključiš drugu opciju.",
+   "Že zabeleženi dnevi ostanejo nedotaknjeni, razen če vklopiš drugo možnost.",
+   "I giorni già registrati restano intatti, a meno che non attivi la seconda opzione.",
+   "Les jours déjà enregistrés ne sont pas touchés, sauf si vous activez la seconde option.",
+   "Los días ya registrados no se tocan, salvo que actives la segunda opción.",
+   "Os dias já registados não são alterados, a não ser que ligues a segunda opção.",
+   "Al vastgelegde dagen blijven ongemoeid, tenzij je de tweede optie aanzet.",
+   "Już zapisane dni pozostają nietknięte, chyba że włączysz drugą opcję."
+  ],
+  "Nothing to change": [
+   "Nichts zu ändern",
+   "Nema što promijeniti",
+   "Ni kaj spremeniti",
+   "Niente da modificare",
+   "Rien à modifier",
+   "Nada que cambiar",
+   "Nada a alterar",
+   "Niets te wijzigen",
+   "Nie ma czego zmieniać"
+  ],
+  "Nothing to clear": [
+   "Nichts zu leeren",
+   "Nema što isprazniti",
+   "Ni kaj počistiti",
+   "Niente da svuotare",
+   "Rien à effacer",
+   "Nada que vaciar",
+   "Nada a limpar",
+   "Niets te wissen",
+   "Nie ma czego czyścić"
+  ],
+  "Nothing recorded yet.": [
+   "Noch nichts erfasst.",
+   "Još ništa nije zabilježeno.",
+   "Še nič ni zabeleženo.",
+   "Ancora nulla di registrato.",
+   "Rien d’enregistré pour l’instant.",
+   "Todavía no hay nada registrado.",
+   "Ainda não há nada registado.",
+   "Nog niets vastgelegd.",
+   "Nic jeszcze nie zapisano."
+  ],
+  "Hours you enter in the calendar appear here.": [
+   "Stunden, die du im Kalender einträgst, erscheinen hier.",
+   "Sati koje uneseš u kalendar pojavljuju se ovdje.",
+   "Ure, ki jih vneseš v koledar, se pojavijo tukaj.",
+   "Le ore inserite nel calendario compaiono qui.",
+   "Les heures saisies dans le calendrier apparaissent ici.",
+   "Las horas que introduces en el calendario aparecen aquí.",
+   "As horas que introduzes no calendário aparecem aqui.",
+   "Uren die je in de agenda invoert, verschijnen hier.",
+   "Godziny wprowadzone w kalendarzu pojawią się tutaj."
+  ],
+  "No expected hours set for this period": [
+   "Für diesen Zeitraum sind keine Sollstunden festgelegt",
+   "Za ovo razdoblje nisu postavljeni planirani sati",
+   "Za to obdobje ni določenih predvidenih ur",
+   "Nessuna ora prevista per questo periodo",
+   "Aucune heure prévue pour cette période",
+   "No hay horas previstas para este periodo",
+   "Não há horas previstas para este período",
+   "Geen verwachte uren voor deze periode",
+   "Brak wymaganych godzin dla tego okresu"
+  ],
+  "no time at all": [
+   "gar keine Zeit",
+   "nimalo vremena",
+   "brez časa",
+   "nessun tempo",
+   "aucune durée",
+   "ningún tiempo",
+   "nenhum tempo",
+   "helemaal geen tijd",
+   "brak czasu"
+  ],
+  "Pick a different range, or switch on “Include days with no entry” in export options.": [
+   "Wähle einen anderen Zeitraum oder aktiviere „Tage ohne Eintrag einbeziehen“ in den Exportoptionen.",
+   "Odaberi drugi raspon ili uključi „Uključi dane bez unosa” u postavkama izvoza.",
+   "Izberi drug obseg ali vklopi »Vključi dneve brez vnosa« v možnostih izvoza.",
+   "Scegli un intervallo diverso o attiva «Includi i giorni senza voci» nelle opzioni di esportazione.",
+   "Choisissez une autre plage, ou activez « Inclure les jours sans saisie » dans les options d’export.",
+   "Elige otro intervalo o activa «Incluir días sin registro» en las opciones de exportación.",
+   "Escolhe outro intervalo ou liga «Incluir dias sem registo» nas opções de exportação.",
+   "Kies een ander bereik, of zet ‘Dagen zonder invoer meenemen’ aan bij de exportopties.",
+   "Wybierz inny zakres albo włącz „Uwzględnij dni bez wpisu” w opcjach eksportu."
+  ],
+  "Check that this week's hours are recorded.": [
+   "Prüfe, ob die Stunden dieser Woche erfasst sind.",
+   "Provjeri jesu li sati ovog tjedna zabilježeni.",
+   "Preveri, ali so ure tega tedna zabeležene.",
+   "Controlla che le ore di questa settimana siano registrate.",
+   "Vérifiez que les heures de cette semaine sont enregistrées.",
+   "Comprueba que las horas de esta semana estén registradas.",
+   "Verifica se as horas desta semana estão registadas.",
+   "Controleer of de uren van deze week zijn vastgelegd.",
+   "Sprawdź, czy godziny z tego tygodnia są zapisane."
+  ],
+  "Open Hours": [
+   "Hours öffnen",
+   "Otvori Hours",
+   "Odpri Hours",
+   "Apri Hours",
+   "Ouvrir Hours",
+   "Abrir Hours",
+   "Abrir Hours",
+   "Hours openen",
+   "Otwórz Hours"
+  ],
+  "Open Hours once to fill this in": [
+   "Hours einmal öffnen, um dies zu füllen",
+   "Otvori Hours jednom da se ovo popuni",
+   "Enkrat odpri Hours, da se to izpolni",
+   "Apri Hours una volta per compilarlo",
+   "Ouvrez Hours une fois pour le remplir",
+   "Abre Hours una vez para rellenarlo",
+   "Abre o Hours uma vez para preencher isto",
+   "Open Hours één keer om dit te vullen",
+   "Otwórz Hours raz, aby to uzupełnić"
+  ],
+  "Turn on App Groups to use the widget": [
+   "App-Gruppen aktivieren, um das Widget zu nutzen",
+   "Uključi App Groups za korištenje widgeta",
+   "Vklopi App Groups za uporabo pripomočka",
+   "Attiva App Groups per usare il widget",
+   "Activez App Groups pour utiliser le widget",
+   "Activa App Groups para usar el widget",
+   "Ativa App Groups para usar o widget",
+   "Zet App Groups aan om de widget te gebruiken",
+   "Włącz App Groups, aby używać widżetu"
+  ],
+  "Widgets are part of Hours Pro": [
+   "Widgets gehören zu Hours Pro",
+   "Widgeti su dio Hours Pro",
+   "Pripomočki so del Hours Pro",
+   "I widget fanno parte di Hours Pro",
+   "Les widgets font partie de Hours Pro",
+   "Los widgets forman parte de Hours Pro",
+   "Os widgets fazem parte do Hours Pro",
+   "Widgets horen bij Hours Pro",
+   "Widżety są częścią Hours Pro"
+  ],
+  "Free, whatever you decide": [
+   "Kostenlos, wie du dich auch entscheidest",
+   "Besplatno, što god odlučiš",
+   "Brezplačno, ne glede na odločitev",
+   "Gratis, qualunque cosa decidi",
+   "Gratuit, quoi que vous décidiez",
+   "Gratis, decidas lo que decidas",
+   "Grátis, decidas o que decidires",
+   "Gratis, wat je ook kiest",
+   "Bezpłatnie, cokolwiek zdecydujesz"
+  ],
+  "Timesheets are part of Hours Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.": [
+   "Stundenzettel gehören zu Hours Pro. Einstellungen › Sicherung und Daten schreibt eine Datei mit jedem je erfassten Tag – kostenlos, heute und künftig.",
+   "Evidencije su dio Hours Pro. Postavke › Sigurnosna kopija i podaci zapisuje datoteku sa svakim danom koji si ikad zabilježio – besplatno, sada i uvijek.",
+   "Evidence so del Hours Pro. Nastavitve › Varnostna kopija in podatki zapiše datoteko z vsakim zabeleženim dnem – brezplačno, zdaj in vedno.",
+   "I fogli ore fanno parte di Hours Pro. Impostazioni › Backup e dati scrive un file con ogni giorno mai registrato: gratis, ora e sempre.",
+   "Les feuilles d’heures font partie de Hours Pro. Réglages › Sauvegarde et données écrit un fichier contenant chaque jour enregistré : gratuitement, aujourd’hui et toujours.",
+   "Las hojas de horas forman parte de Hours Pro. Ajustes › Copia de seguridad y datos escribe un archivo con cada día registrado: gratis, ahora y siempre.",
+   "As folhas de horas fazem parte do Hours Pro. Definições › Cópia de segurança e dados escreve um ficheiro com todos os dias registados: grátis, agora e sempre.",
+   "Urenstaten horen bij Hours Pro. Instellingen › Back-up en gegevens schrijft een bestand met elke dag die je ooit hebt vastgelegd — gratis, nu en altijd.",
+   "Ewidencje są częścią Hours Pro. Ustawienia › Kopia zapasowa i dane zapisują plik z każdym kiedykolwiek zapisanym dniem – bezpłatnie, teraz i zawsze."
+  ],
+  "A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Hours outright is a single payment and never renews.": [
+   "Ein Abo verlängert sich, bis du es kündigst, unter Einstellungen › dein Name › Abos. Hours einmalig zu kaufen ist eine einzige Zahlung und verlängert sich nie.",
+   "Pretplata se obnavlja dok je ne otkažeš, u Postavke › tvoje ime › Pretplate. Kupnja Hours odjednom je jednokratno plaćanje i nikad se ne obnavlja.",
+   "Naročnina se obnavlja, dokler je ne prekličeš, v Nastavitve › tvoje ime › Naročnine. Enkraten nakup Hours je eno plačilo in se nikoli ne obnovi.",
+   "Un abbonamento si rinnova finché non lo annulli, in Impostazioni › il tuo nome › Abbonamenti. Acquistare Hours una volta è un pagamento unico e non si rinnova mai.",
+   "Un abonnement se renouvelle jusqu’à son annulation, dans Réglages › votre nom › Abonnements. Acheter Hours définitivement est un paiement unique, sans renouvellement.",
+   "Una suscripción se renueva hasta que la canceles, en Ajustes › tu nombre › Suscripciones. Comprar Hours de una vez es un pago único y nunca se renueva.",
+   "Uma subscrição renova-se até a cancelares, em Definições › o teu nome › Subscrições. Comprar o Hours de uma vez é um pagamento único e nunca se renova.",
+   "Een abonnement wordt verlengd tot je het opzegt, via Instellingen › je naam › Abonnementen. Hours in één keer kopen is een eenmalige betaling en wordt nooit verlengd.",
+   "Subskrypcja odnawia się, dopóki jej nie anulujesz, w Ustawienia › twoje imię › Subskrypcje. Jednorazowy zakup Hours to pojedyncza płatność, która nigdy się nie odnawia."
+  ],
+  "There is no account to make. A purchase belongs to your Apple ID, so it is already on your other devices — you should not need Restore, and it is there in case you do.": [
+   "Es gibt kein Konto anzulegen. Ein Kauf gehört zu deiner Apple-ID und ist damit schon auf deinen anderen Geräten – „Wiederherstellen“ solltest du nicht brauchen, es ist für den Fall der Fälle da.",
+   "Nema računa koji treba otvoriti. Kupnja pripada tvom Apple ID-u pa je već na tvojim drugim uređajima – „Vrati” ti ne bi trebao trebati, tu je za svaki slučaj.",
+   "Računa ni treba ustvarjati. Nakup pripada tvojemu Apple ID-ju in je že na drugih napravah – »Obnovi« ne bi smel biti potreben, je pa na voljo za vsak primer.",
+   "Non c’è nessun account da creare. Un acquisto appartiene al tuo Apple ID, quindi è già sugli altri dispositivi: «Ripristina» non dovrebbe servire, ma c’è nel caso.",
+   "Il n’y a aucun compte à créer. Un achat est lié à votre identifiant Apple, il est donc déjà sur vos autres appareils : « Restaurer » ne devrait pas être nécessaire, il est là au cas où.",
+   "No hay ninguna cuenta que crear. Una compra pertenece a tu Apple ID, así que ya está en tus otros dispositivos: «Restaurar» no debería hacer falta, está por si acaso.",
+   "Não há conta nenhuma a criar. Uma compra pertence ao teu Apple ID, por isso já está nos teus outros dispositivos — «Restaurar» não deve ser preciso, está aí para o caso de ser.",
+   "Er is geen account aan te maken. Een aankoop hoort bij je Apple ID en staat dus al op je andere apparaten — ‘Herstel’ zou niet nodig moeten zijn, het staat er voor het geval dat.",
+   "Nie ma konta do założenia. Zakup należy do twojego Apple ID, więc jest już na innych urządzeniach – „Przywróć” nie powinno być potrzebne, jest na wszelki wypadek."
+  ],
+  "Appearance": [
+   "Darstellung",
+   "Izgled",
+   "Videz",
+   "Aspetto",
+   "Apparence",
+   "Apariencia",
+   "Aspeto",
+   "Weergave",
+   "Wygląd"
+  ],
+  "Theme": [
+   "Erscheinungsbild",
+   "Tema",
+   "Tema",
+   "Tema",
+   "Thème",
+   "Tema",
+   "Tema",
+   "Thema",
+   "Motyw"
+  ],
+  "Colour": [
+   "Farbe",
+   "Boja",
+   "Barva",
+   "Colore",
+   "Couleur",
+   "Color",
+   "Cor",
+   "Kleur",
+   "Kolor"
+  ],
+  "Language": [
+   "Sprache",
+   "Jezik",
+   "Jezik",
+   "Lingua",
+   "Langue",
+   "Idioma",
+   "Idioma",
+   "Taal",
+   "Język"
+  ],
+  "Language of the file": [
+   "Sprache der Datei",
+   "Jezik datoteke",
+   "Jezik datoteke",
+   "Lingua del file",
+   "Langue du fichier",
+   "Idioma del archivo",
+   "Idioma do ficheiro",
+   "Taal van het bestand",
+   "Język pliku"
+  ],
+  "Tracking": [
+   "Erfassung",
+   "Praćenje",
+   "Beleženje",
+   "Rilevamento",
+   "Suivi",
+   "Registro",
+   "Registo",
+   "Registratie",
+   "Rejestrowanie"
+  ],
+  "Recording": [
+   "Erfassen",
+   "Bilježenje",
+   "Beleženje",
+   "Registrazione",
+   "Enregistrement",
+   "Registro",
+   "Registo",
+   "Vastleggen",
+   "Zapisywanie"
+  ],
+  "Calculation": [
+   "Berechnung",
+   "Izračun",
+   "Izračun",
+   "Calcolo",
+   "Calcul",
+   "Cálculo",
+   "Cálculo",
+   "Berekening",
+   "Obliczenia"
+  ],
+  "Formatting": [
+   "Formatierung",
+   "Oblikovanje",
+   "Oblikovanje",
+   "Formattazione",
+   "Mise en forme",
+   "Formato",
+   "Formatação",
+   "Opmaak",
+   "Formatowanie"
+  ],
+  "Fields": [
+   "Felder",
+   "Polja",
+   "Polja",
+   "Campi",
+   "Champs",
+   "Campos",
+   "Campos",
+   "Velden",
+   "Pola"
+  ],
+  "Extra fields": [
+   "Zusatzfelder",
+   "Dodatna polja",
+   "Dodatna polja",
+   "Campi aggiuntivi",
+   "Champs supplémentaires",
+   "Campos adicionales",
+   "Campos adicionais",
+   "Extra velden",
+   "Dodatkowe pola"
+  ],
+  "Columns": [
+   "Spalten",
+   "Stupci",
+   "Stolpci",
+   "Colonne",
+   "Colonnes",
+   "Columnas",
+   "Colunas",
+   "Kolommen",
+   "Kolumny"
+  ],
+  "Add a column": [
+   "Spalte hinzufügen",
+   "Dodaj stupac",
+   "Dodaj stolpec",
+   "Aggiungi una colonna",
+   "Ajouter une colonne",
+   "Añadir una columna",
+   "Adicionar uma coluna",
+   "Kolom toevoegen",
+   "Dodaj kolumnę"
+  ],
+  "Contents": [
+   "Inhalt",
+   "Sadržaj",
+   "Vsebina",
+   "Contenuto",
+   "Contenu",
+   "Contenido",
+   "Conteúdo",
+   "Inhoud",
+   "Zawartość"
+  ],
+  "Data": [
+   "Daten",
+   "Podaci",
+   "Podatki",
+   "Dati",
+   "Données",
+   "Datos",
+   "Dados",
+   "Gegevens",
+   "Dane"
+  ],
+  "Backup": [
+   "Sicherung",
+   "Sigurnosna kopija",
+   "Varnostna kopija",
+   "Backup",
+   "Sauvegarde",
+   "Copia de seguridad",
+   "Cópia de segurança",
+   "Back-up",
+   "Kopia zapasowa"
+  ],
+  "Backup and data": [
+   "Sicherung und Daten",
+   "Sigurnosna kopija i podaci",
+   "Varnostna kopija in podatki",
+   "Backup e dati",
+   "Sauvegarde et données",
+   "Copia de seguridad y datos",
+   "Cópia de segurança e dados",
+   "Back-up en gegevens",
+   "Kopia zapasowa i dane"
+  ],
+  "Make a backup": [
+   "Sicherung erstellen",
+   "Napravi sigurnosnu kopiju",
+   "Ustvari varnostno kopijo",
+   "Crea un backup",
+   "Créer une sauvegarde",
+   "Crear una copia",
+   "Criar uma cópia",
+   "Back-up maken",
+   "Utwórz kopię zapasową"
+  ],
+  "Share backup": [
+   "Sicherung teilen",
+   "Podijeli kopiju",
+   "Deli varnostno kopijo",
+   "Condividi il backup",
+   "Partager la sauvegarde",
+   "Compartir la copia",
+   "Partilhar a cópia",
+   "Back-up delen",
+   "Udostępnij kopię"
+  ],
+  "Restore from a backup": [
+   "Aus Sicherung wiederherstellen",
+   "Vrati iz sigurnosne kopije",
+   "Obnovi iz varnostne kopije",
+   "Ripristina da un backup",
+   "Restaurer depuis une sauvegarde",
+   "Restaurar desde una copia",
+   "Restaurar a partir de uma cópia",
+   "Herstellen uit een back-up",
+   "Przywróć z kopii zapasowej"
+  ],
+  "Delete all data": [
+   "Alle Daten löschen",
+   "Obriši sve podatke",
+   "Izbriši vse podatke",
+   "Elimina tutti i dati",
+   "Supprimer toutes les données",
+   "Eliminar todos los datos",
+   "Eliminar todos os dados",
+   "Alle gegevens wissen",
+   "Usuń wszystkie dane"
+  ],
+  "Delete everything": [
+   "Alles löschen",
+   "Obriši sve",
+   "Izbriši vse",
+   "Elimina tutto",
+   "Tout supprimer",
+   "Eliminar todo",
+   "Eliminar tudo",
+   "Alles wissen",
+   "Usuń wszystko"
+  ],
+  "Delete anyway": [
+   "Trotzdem löschen",
+   "Ipak obriši",
+   "Vseeno izbriši",
+   "Elimina comunque",
+   "Supprimer quand même",
+   "Eliminar de todos modos",
+   "Eliminar mesmo assim",
+   "Toch wissen",
+   "Usuń mimo to"
+  ],
+  "Delete job": [
+   "Tätigkeit löschen",
+   "Obriši posao",
+   "Izbriši delo",
+   "Elimina il lavoro",
+   "Supprimer le poste",
+   "Eliminar el trabajo",
+   "Eliminar o trabalho",
+   "Functie verwijderen",
+   "Usuń pracę"
+  ],
+  "Replace": [
+   "Ersetzen",
+   "Zamijeni",
+   "Zamenjaj",
+   "Sostituisci",
+   "Remplacer",
+   "Sustituir",
+   "Substituir",
+   "Vervang",
+   "Zastąp"
+  ],
+  "Reset to default": [
+   "Auf Standard zurücksetzen",
+   "Vrati na zadano",
+   "Ponastavi na privzeto",
+   "Ripristina i valori predefiniti",
+   "Rétablir les valeurs par défaut",
+   "Restablecer valores por omisión",
+   "Repor os valores predefinidos",
+   "Terugzetten naar standaard",
+   "Przywróć domyślne"
+  ],
+  "Delete every recorded day and holiday?": [
+   "Alle erfassten Tage und Feiertage löschen?",
+   "Obrisati sve zabilježene dane i praznike?",
+   "Izbrišem vse zabeležene dneve in praznike?",
+   "Eliminare tutti i giorni e le festività registrati?",
+   "Supprimer tous les jours et jours fériés enregistrés ?",
+   "¿Eliminar todos los días y festivos registrados?",
+   "Eliminar todos os dias e feriados registados?",
+   "Alle vastgelegde dagen en feestdagen wissen?",
+   "Usunąć wszystkie zapisane dni i święta?"
+  ],
+  "All recorded days and holidays were removed.": [
+   "Alle erfassten Tage und Feiertage wurden entfernt.",
+   "Svi zabilježeni dani i praznici su uklonjeni.",
+   "Vsi zabeleženi dnevi in prazniki so bili odstranjeni.",
+   "Tutti i giorni e le festività registrati sono stati rimossi.",
+   "Tous les jours et jours fériés enregistrés ont été supprimés.",
+   "Se han eliminado todos los días y festivos registrados.",
+   "Todos os dias e feriados registados foram removidos.",
+   "Alle vastgelegde dagen en feestdagen zijn verwijderd.",
+   "Wszystkie zapisane dni i święta zostały usunięte."
+  ],
+  "Removes every recorded day and holiday from this device. Settings are kept.": [
+   "Entfernt jeden erfassten Tag und Feiertag von diesem Gerät. Einstellungen bleiben erhalten.",
+   "Uklanja svaki zabilježeni dan i praznik s ovog uređaja. Postavke ostaju.",
+   "Odstrani vsak zabeležen dan in praznik iz te naprave. Nastavitve ostanejo.",
+   "Rimuove ogni giorno e festività registrati da questo dispositivo. Le impostazioni restano.",
+   "Supprime chaque jour et jour férié enregistré de cet appareil. Les réglages sont conservés.",
+   "Elimina de este dispositivo cada día y festivo registrado. Los ajustes se conservan.",
+   "Remove deste dispositivo todos os dias e feriados registados. As definições são mantidas.",
+   "Verwijdert elke vastgelegde dag en feestdag van dit apparaat. Instellingen blijven behouden.",
+   "Usuwa z tego urządzenia każdy zapisany dzień i święto. Ustawienia pozostają."
+  ],
+  "This cannot be undone. Create a backup first if you are not sure.": [
+   "Das lässt sich nicht rückgängig machen. Erstelle vorher eine Sicherung, wenn du unsicher bist.",
+   "To se ne može poništiti. Napravi prvo kopiju ako nisi siguran.",
+   "Tega ni mogoče razveljaviti. Če nisi prepričan, najprej ustvari varnostno kopijo.",
+   "Non si può annullare. Se hai dubbi, crea prima un backup.",
+   "Cette action est irréversible. Créez d’abord une sauvegarde en cas de doute.",
+   "Esto no se puede deshacer. Crea antes una copia si no estás seguro.",
+   "Isto não pode ser anulado. Cria primeiro uma cópia se não tiveres a certeza.",
+   "Dit kan niet ongedaan worden gemaakt. Maak eerst een back-up als je twijfelt.",
+   "Tej operacji nie można cofnąć. Najpierw utwórz kopię, jeśli nie masz pewności."
+  ],
+  "Replace everything on this device with the backup?": [
+   "Alles auf diesem Gerät durch die Sicherung ersetzen?",
+   "Zamijeniti sve na ovom uređaju sadržajem kopije?",
+   "Zamenjam vse v tej napravi z varnostno kopijo?",
+   "Sostituire tutto su questo dispositivo con il backup?",
+   "Remplacer tout le contenu de cet appareil par la sauvegarde ?",
+   "¿Sustituir todo lo de este dispositivo por la copia?",
+   "Substituir tudo neste dispositivo pela cópia?",
+   "Alles op dit apparaat vervangen door de back-up?",
+   "Zastąpić wszystko na tym urządzeniu kopią zapasową?"
+  ],
+  "A backup is a JSON file containing every day, every holiday and all your settings. Nothing is uploaded — you choose where the file goes.": [
+   "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht.",
+   "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide.",
+   "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka.",
+   "Un backup è un file JSON con ogni giorno, ogni festività e tutte le impostazioni. Non viene caricato nulla: scegli tu dove va il file.",
+   "Une sauvegarde est un fichier JSON contenant chaque jour, chaque jour férié et tous vos réglages. Rien n’est envoyé : vous choisissez où va le fichier.",
+   "Una copia es un archivo JSON con cada día, cada festivo y todos tus ajustes. No se sube nada: tú eliges dónde va el archivo.",
+   "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro.",
+   "Een back-up is een JSON-bestand met elke dag, elke feestdag en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat.",
+   "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
+  ],
+  "Keeping your data safe": [
+   "Deine Daten sichern",
+   "Čuvanje tvojih podataka",
+   "Varovanje tvojih podatkov",
+   "Mettere al sicuro i dati",
+   "Protéger vos données",
+   "Mantener tus datos a salvo",
+   "Manter os teus dados seguros",
+   "Je gegevens veilig houden",
+   "Bezpieczeństwo twoich danych"
+  ],
+  "Days recorded": [
+   "Erfasste Tage",
+   "Zabilježeni dani",
+   "Zabeleženi dnevi",
+   "Giorni registrati",
+   "Jours enregistrés",
+   "Días registrados",
+   "Dias registados",
+   "Vastgelegde dagen",
+   "Zapisane dni"
+  ],
+  "Stored on this device": [
+   "Auf diesem Gerät gespeichert",
+   "Spremljeno na ovom uređaju",
+   "Shranjeno v tej napravi",
+   "Archiviato su questo dispositivo",
+   "Stocké sur cet appareil",
+   "Almacenado en este dispositivo",
+   "Guardado neste dispositivo",
+   "Opgeslagen op dit apparaat",
+   "Przechowywane na tym urządzeniu"
+  ],
+  "Privacy": [
+   "Datenschutz",
+   "Privatnost",
+   "Zasebnost",
+   "Privacy",
+   "Confidentialité",
+   "Privacidad",
+   "Privacidade",
+   "Privacy",
+   "Prywatność"
+  ],
+  "What leaves the device": [
+   "Was das Gerät verlässt",
+   "Što napušta uređaj",
+   "Kaj zapusti napravo",
+   "Cosa esce dal dispositivo",
+   "Ce qui quitte l’appareil",
+   "Qué sale del dispositivo",
+   "O que sai do dispositivo",
+   "Wat het apparaat verlaat",
+   "Co opuszcza urządzenie"
+  ],
+  "Only what you export": [
+   "Nur, was du exportierst",
+   "Samo ono što izvezeš",
+   "Samo tisto, kar izvoziš",
+   "Solo ciò che esporti",
+   "Uniquement ce que vous exportez",
+   "Solo lo que exportas",
+   "Apenas o que exportares",
+   "Alleen wat je exporteert",
+   "Tylko to, co wyeksportujesz"
+  ],
+  "No location access": [
+   "Kein Zugriff auf den Standort",
+   "Nema pristupa lokaciji",
+   "Ni dostopa do lokacije",
+   "Nessun accesso alla posizione",
+   "Aucun accès à la localisation",
+   "Sin acceso a la ubicación",
+   "Sem acesso à localização",
+   "Geen locatietoegang",
+   "Brak dostępu do lokalizacji"
+  ],
+  "Files you create in Export go through the system share sheet, and you choose where they go.": [
+   "Dateien aus dem Export laufen über das Teilen-Menü des Systems, und du wählst, wohin sie gehen.",
+   "Datoteke iz izvoza idu kroz sustavni izbornik za dijeljenje, a ti biraš kamo.",
+   "Datoteke iz izvoza gredo skozi sistemsko okno za deljenje, sam pa izbereš, kam.",
+   "I file creati in Esporta passano dal pannello di condivisione di sistema e scegli tu dove vanno.",
+   "Les fichiers créés dans Exporter passent par la feuille de partage du système, et vous choisissez leur destination.",
+   "Los archivos creados en Exportar pasan por el panel de compartir del sistema y tú eliges su destino.",
+   "Os ficheiros criados em Exportar passam pelo painel de partilha do sistema e escolhes tu para onde vão.",
+   "Bestanden uit Exporteer gaan via het deelvenster van het systeem, en jij kiest waar ze heen gaan.",
+   "Pliki utworzone w Eksporcie przechodzą przez systemowe okno udostępniania, a ty wybierasz, dokąd trafiają."
+  ],
+  "The optional location field is a text note you type. The app never asks the system where you are.": [
+   "Das optionale Ortsfeld ist eine Textnotiz, die du eintippst. Die App fragt das System nie nach deinem Standort.",
+   "Neobavezno polje mjesta je tekstualna bilješka koju upišeš. Aplikacija nikad ne pita sustav gdje si.",
+   "Neobvezno polje kraja je besedilna opomba, ki jo vpišeš. Aplikacija sistema nikoli ne vpraša, kje si.",
+   "Il campo facoltativo del luogo è una nota di testo che scrivi tu. L’app non chiede mai al sistema dove ti trovi.",
+   "Le champ lieu, facultatif, est une note que vous saisissez. L’app ne demande jamais au système où vous êtes.",
+   "El campo opcional de lugar es una nota de texto que escribes tú. La app nunca pregunta al sistema dónde estás.",
+   "O campo opcional de local é uma nota de texto que escreves. A app nunca pergunta ao sistema onde estás.",
+   "Het optionele locatieveld is een tekstnotitie die je zelf typt. De app vraagt het systeem nooit waar je bent.",
+   "Opcjonalne pole miejsca to notatka tekstowa, którą wpisujesz. Aplikacja nigdy nie pyta systemu, gdzie jesteś."
+  ],
+  "iCloud": [
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud",
+   "iCloud"
+  ],
+  "Sync with iCloud": [
+   "Mit iCloud synchronisieren",
+   "Sinkroniziraj s iCloudom",
+   "Sinhroniziraj z iCloudom",
+   "Sincronizza con iCloud",
+   "Synchroniser avec iCloud",
+   "Sincronizar con iCloud",
+   "Sincronizar com o iCloud",
+   "Synchroniseer met iCloud",
+   "Synchronizuj z iCloud"
+  ],
+  "No sync": [
+   "Keine Synchronisierung",
+   "Bez sinkronizacije",
+   "Brez sinhronizacije",
+   "Nessuna sincronizzazione",
+   "Aucune synchronisation",
+   "Sin sincronización",
+   "Sem sincronização",
+   "Geen synchronisatie",
+   "Bez synchronizacji"
+  ],
+  "Your own iCloud": [
+   "Dein eigenes iCloud",
+   "Tvoj vlastiti iCloud",
+   "Tvoj lastni iCloud",
+   "Il tuo iCloud",
+   "Votre propre iCloud",
+   "Tu propio iCloud",
+   "O teu próprio iCloud",
+   "Je eigen iCloud",
+   "Twój własny iCloud"
+  ],
+  "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.": [
+   "Du hast die Synchronisierung eingeschaltet, also liegen deine Tage, Feiertage und Einstellungen in deinem privaten iCloud-Speicher. Nur deine Geräte, mit deinem Konto angemeldet, können sie lesen. Ausschalten unter Einstellungen › iCloud.",
+   "Uključio si sinkronizaciju pa se tvoji dani, praznici i postavke čuvaju u tvom privatnom iCloud prostoru. Čitati ih mogu samo tvoji uređaji prijavljeni kao ti. Isključi u Postavke › iCloud.",
+   "Vklopil si sinhronizacijo, zato so tvoji dnevi, prazniki in nastavitve v tvojem zasebnem prostoru iCloud. Berejo jih lahko samo tvoje naprave, prijavljene kot ti. Izklopi v Nastavitve › iCloud.",
+   "Hai attivato la sincronizzazione, quindi giorni, festività e impostazioni sono nel tuo spazio iCloud privato. Solo i tuoi dispositivi, con il tuo account, possono leggerli. Disattivala in Impostazioni › iCloud.",
+   "Vous avez activé la synchronisation : vos jours, jours fériés et réglages sont conservés dans votre espace iCloud privé. Seuls vos appareils, connectés avec votre compte, peuvent les lire. Désactivez-la dans Réglages › iCloud.",
+   "Has activado la sincronización, así que tus días, festivos y ajustes se guardan en tu almacenamiento privado de iCloud. Solo tus dispositivos, con tu sesión iniciada, pueden leerlos. Desactívala en Ajustes › iCloud.",
+   "Ligaste a sincronização, por isso os teus dias, feriados e definições ficam no teu armazenamento privado do iCloud. Só os teus dispositivos, com a tua sessão iniciada, os podem ler. Desliga em Definições › iCloud.",
+   "Je hebt synchronisatie aangezet, dus je dagen, feestdagen en instellingen staan in je eigen iCloud-opslag. Alleen je eigen apparaten, ingelogd als jij, kunnen ze lezen. Zet het uit bij Instellingen › iCloud.",
+   "Włączyłeś synchronizację, więc twoje dni, święta i ustawienia są w twoim prywatnym magazynie iCloud. Odczytać je mogą tylko twoje urządzenia zalogowane jako ty. Wyłącz w Ustawienia › iCloud."
+  ],
+  "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud.": [
+   "Die iCloud-Synchronisierung ist aus. Deine Daten liegen im eigenen Speicher dieser App und sind in einer verschlüsselten Gerätesicherung enthalten, falls du eine anlegst. Einschalten unter Einstellungen › iCloud.",
+   "Sinkronizacija s iCloudom je isključena. Tvoji podaci su u vlastitom spremniku ove aplikacije i uključeni su u šifriranu kopiju uređaja ako je napraviš. Uključi u Postavke › iCloud.",
+   "Sinhronizacija z iCloudom je izklopljena. Tvoji podatki so v lastnem prostoru te aplikacije in so vključeni v šifrirano varnostno kopijo naprave, če jo ustvariš. Vklopi v Nastavitve › iCloud.",
+   "La sincronizzazione iCloud è disattivata. I dati stanno nell’archivio dell’app e sono inclusi in un backup cifrato del dispositivo, se lo fai. Attivala in Impostazioni › iCloud.",
+   "La synchronisation iCloud est désactivée. Vos données se trouvent dans l’espace de l’app et sont incluses dans une sauvegarde chiffrée de l’appareil, si vous en faites une. Activez-la dans Réglages › iCloud.",
+   "La sincronización con iCloud está desactivada. Tus datos están en el almacenamiento de la app y se incluyen en una copia cifrada del dispositivo, si la haces. Actívala en Ajustes › iCloud.",
+   "A sincronização com o iCloud está desligada. Os teus dados estão no armazenamento da app e são incluídos numa cópia encriptada do dispositivo, se fizeres uma. Liga em Definições › iCloud.",
+   "iCloud-synchronisatie staat uit. Je gegevens staan in de opslag van deze app en zitten in een versleutelde apparaatback-up als je die maakt. Zet het aan bij Instellingen › iCloud.",
+   "Synchronizacja z iCloud jest wyłączona. Twoje dane są we własnym magazynie tej aplikacji i trafiają do zaszyfrowanej kopii urządzenia, jeśli ją utworzysz. Włącz w Ustawienia › iCloud."
+  ],
+  "Working schedule": [
+   "Arbeitszeiten",
+   "Radni raspored",
+   "Delovni urnik",
+   "Orario di lavoro",
+   "Horaires de travail",
+   "Horario laboral",
+   "Horário de trabalho",
+   "Werkrooster",
+   "Harmonogram pracy"
+  ],
+  "Contracted hours": [
+   "Vertragliche Stunden",
+   "Ugovoreni sati",
+   "Pogodbene ure",
+   "Ore contrattuali",
+   "Heures contractuelles",
+   "Horas contratadas",
+   "Horas contratadas",
+   "Contracturen",
+   "Godziny umowne"
+  ],
+  "Weekly target": [
+   "Wochensoll",
+   "Tjedni cilj",
+   "Tedenski cilj",
+   "Obiettivo settimanale",
+   "Objectif hebdomadaire",
+   "Objetivo semanal",
+   "Objetivo semanal",
+   "Weekdoel",
+   "Cel tygodniowy"
+  ],
+  "Different weekly target": [
+   "Abweichendes Wochensoll",
+   "Drugačiji tjedni cilj",
+   "Drugačen tedenski cilj",
+   "Obiettivo settimanale diverso",
+   "Objectif hebdomadaire différent",
+   "Objetivo semanal distinto",
+   "Objetivo semanal diferente",
+   "Afwijkend weekdoel",
+   "Inny cel tygodniowy"
+  ],
+  "Sum of the week": [
+   "Summe der Woche",
+   "Zbroj tjedna",
+   "Vsota tedna",
+   "Somma della settimana",
+   "Somme de la semaine",
+   "Suma de la semana",
+   "Soma da semana",
+   "Som van de week",
+   "Suma tygodnia"
+  ],
+  "Per-day expected hours": [
+   "Sollstunden pro Tag",
+   "Planirani sati po danu",
+   "Predvidene ure na dan",
+   "Ore previste per giorno",
+   "Heures prévues par jour",
+   "Horas previstas por día",
+   "Horas previstas por dia",
+   "Verwachte uren per dag",
+   "Wymagane godziny na dzień"
+  ],
+  "Use this when a contract states a weekly figure that does not divide evenly across the days.": [
+   "Nimm das, wenn ein Vertrag eine Wochenzahl nennt, die sich nicht gleichmäßig auf die Tage aufteilen lässt.",
+   "Koristi ovo kad ugovor navodi tjedni broj koji se ne dijeli ravnomjerno po danima.",
+   "Uporabi to, kadar pogodba navaja tedensko številko, ki se ne deli enakomerno po dnevih.",
+   "Usalo quando un contratto indica un monte ore settimanale che non si divide equamente sui giorni.",
+   "Utilisez ceci lorsqu’un contrat indique un total hebdomadaire qui ne se répartit pas également sur les jours.",
+   "Usa esto cuando un contrato indica una cifra semanal que no se reparte por igual entre los días.",
+   "Usa isto quando um contrato indica um total semanal que não se divide igualmente pelos dias.",
+   "Gebruik dit als een contract een weektotaal noemt dat niet gelijk over de dagen te verdelen is.",
+   "Użyj tego, gdy umowa podaje tygodniową liczbę, której nie da się równo rozdzielić na dni."
+  ],
+  "Weekday": [
+   "Wochentag",
+   "Dan u tjednu",
+   "Dan v tednu",
+   "Giorno della settimana",
+   "Jour de la semaine",
+   "Día de la semana",
+   "Dia da semana",
+   "Weekdag",
+   "Dzień tygodnia"
+  ],
+  "Week starts on": [
+   "Woche beginnt am",
+   "Tjedan počinje",
+   "Teden se začne",
+   "La settimana inizia di",
+   "La semaine commence le",
+   "La semana empieza el",
+   "A semana começa em",
+   "Week begint op",
+   "Tydzień zaczyna się od"
+  ],
+  "A working day": [
+   "Ein Arbeitstag",
+   "Radni dan",
+   "Delovni dan",
+   "Un giorno lavorativo",
+   "Un jour travaillé",
+   "Un día laborable",
+   "Um dia útil",
+   "Een werkdag",
+   "Dzień roboczy"
+  ],
+  "Not a working day": [
+   "Kein Arbeitstag",
+   "Neradni dan",
+   "Nedelovni dan",
+   "Non è un giorno lavorativo",
+   "Jour non travaillé",
+   "No es un día laborable",
+   "Não é um dia útil",
+   "Geen werkdag",
+   "Dzień wolny"
+  ],
+  "Jobs": [
+   "Tätigkeiten",
+   "Poslovi",
+   "Dela",
+   "Lavori",
+   "Postes",
+   "Trabajos",
+   "Trabalhos",
+   "Functies",
+   "Prace"
+  ],
+  "Add a job": [
+   "Tätigkeit hinzufügen",
+   "Dodaj posao",
+   "Dodaj delo",
+   "Aggiungi un lavoro",
+   "Ajouter un poste",
+   "Añadir un trabajo",
+   "Adicionar um trabalho",
+   "Functie toevoegen",
+   "Dodaj pracę"
+  ],
+  "Archived": [
+   "Archiviert",
+   "Arhivirano",
+   "Arhivirano",
+   "Archiviato",
+   "Archivé",
+   "Archivado",
+   "Arquivado",
+   "Gearchiveerd",
+   "Zarchiwizowane"
+  ],
+  "An archived job keeps everything already recorded against it but stops expecting hours and stops being offered for new work.": [
+   "Eine archivierte Tätigkeit behält alles bisher Erfasste, erwartet aber keine Stunden mehr und wird für neue Arbeit nicht mehr angeboten.",
+   "Arhivirani posao zadržava sve što je već zabilježeno, ali više ne očekuje sate niti se nudi za novi rad.",
+   "Arhivirano delo obdrži vse že zabeleženo, a ne pričakuje več ur in se ne ponuja za novo delo.",
+   "Un lavoro archiviato conserva tutto ciò che è già registrato, ma smette di prevedere ore e non viene più proposto.",
+   "Un poste archivé conserve tout ce qui y a déjà été enregistré, mais cesse d’attendre des heures et n’est plus proposé.",
+   "Un trabajo archivado conserva todo lo ya registrado, pero deja de prever horas y de ofrecerse para trabajo nuevo.",
+   "Um trabalho arquivado mantém tudo o que já foi registado, mas deixa de prever horas e de ser oferecido para trabalho novo.",
+   "Een gearchiveerde functie behoudt alles wat er al is vastgelegd, maar verwacht geen uren meer en wordt niet meer aangeboden.",
+   "Zarchiwizowana praca zachowuje wszystko, co już zapisano, ale przestaje oczekiwać godzin i nie jest proponowana do nowej pracy."
+  ],
+  "Each job keeps its own contracted week, so two jobs with different hours each get their own balance rather than sharing one.": [
+   "Jede Tätigkeit hat ihre eigene Vertragswoche, damit zwei Tätigkeiten mit unterschiedlichen Stunden je einen eigenen Saldo haben statt eines gemeinsamen.",
+   "Svaki posao ima svoj ugovoreni tjedan pa dva posla s različitim satima imaju svaki svoj saldo umjesto zajedničkog.",
+   "Vsako delo ima svoj pogodbeni teden, zato imata dve deli z različnimi urami vsako svoj saldo namesto skupnega.",
+   "Ogni lavoro ha la propria settimana contrattuale, così due lavori con ore diverse hanno ciascuno il proprio saldo invece di condividerne uno.",
+   "Chaque poste a sa propre semaine contractuelle : deux postes aux heures différentes ont donc chacun leur solde plutôt qu’un solde commun.",
+   "Cada trabajo tiene su propia semana contratada, así que dos trabajos con horas distintas tienen cada uno su saldo en vez de compartirlo.",
+   "Cada trabalho tem a sua própria semana contratada, por isso dois trabalhos com horas diferentes têm cada um o seu saldo em vez de partilharem um.",
+   "Elke functie heeft zijn eigen contractweek, dus twee functies met verschillende uren krijgen elk hun eigen saldo in plaats van één gedeeld saldo.",
+   "Każda praca ma własny tydzień umowny, więc dwie prace o różnych godzinach mają osobne salda zamiast wspólnego."
+  ],
+  "A second job is part of Hours Pro. The job you have keeps working either way.": [
+   "Eine zweite Tätigkeit gehört zu Hours Pro. Die vorhandene funktioniert so oder so weiter.",
+   "Drugi posao je dio Hours Pro. Postojeći posao radi u svakom slučaju.",
+   "Drugo delo je del Hours Pro. Obstoječe delo deluje tako ali tako.",
+   "Un secondo lavoro fa parte di Hours Pro. Quello che hai continua a funzionare comunque.",
+   "Un second poste fait partie de Hours Pro. Celui que vous avez continue de fonctionner dans tous les cas.",
+   "Un segundo trabajo forma parte de Hours Pro. El que ya tienes sigue funcionando igual.",
+   "Um segundo trabalho faz parte do Hours Pro. O que já tens continua a funcionar na mesma.",
+   "Een tweede functie hoort bij Hours Pro. De functie die je hebt blijft hoe dan ook werken.",
+   "Druga praca jest częścią Hours Pro. Ta, którą masz, działa tak czy inaczej."
+  ],
+  "Name": [
+   "Name",
+   "Naziv",
+   "Ime",
+   "Nome",
+   "Nom",
+   "Nombre",
+   "Nome",
+   "Naam",
+   "Nazwa"
+  ],
+  "Enabled": [
+   "Aktiviert",
+   "Uključeno",
+   "Omogočeno",
+   "Attivo",
+   "Activé",
+   "Activado",
+   "Ativado",
+   "Ingeschakeld",
+   "Włączone"
+  ],
+  "None": [
+   "Keine",
+   "Ništa",
+   "Brez",
+   "Nessuno",
+   "Aucun",
+   "Ninguno",
+   "Nenhum",
+   "Geen",
+   "Brak"
+  ],
+  "First": [
+   "Erster",
+   "Prvi",
+   "Prvi",
+   "Primo",
+   "Premier",
+   "Primero",
+   "Primeiro",
+   "Eerste",
+   "Pierwszy"
+  ],
+  "Second": [
+   "Zweiter",
+   "Drugi",
+   "Drugi",
+   "Secondo",
+   "Deuxième",
+   "Segundo",
+   "Segundo",
+   "Tweede",
+   "Drugi"
+  ],
+  "Third": [
+   "Dritter",
+   "Treći",
+   "Tretji",
+   "Terzo",
+   "Troisième",
+   "Tercero",
+   "Terceiro",
+   "Derde",
+   "Trzeci"
+  ],
+  "Fourth": [
+   "Vierter",
+   "Četvrti",
+   "Četrti",
+   "Quarto",
+   "Quatrième",
+   "Cuarto",
+   "Quarto",
+   "Vierde",
+   "Czwarty"
+  ],
+  "Last": [
+   "Letzter",
+   "Zadnji",
+   "Zadnji",
+   "Ultimo",
+   "Dernier",
+   "Último",
+   "Último",
+   "Laatste",
+   "Ostatni"
+  ],
+  "When": [
+   "Wann",
+   "Kada",
+   "Kdaj",
+   "Quando",
+   "Quand",
+   "Cuándo",
+   "Quando",
+   "Wanneer",
+   "Kiedy"
+  ],
+  "Which": [
+   "Welcher",
+   "Koji",
+   "Kateri",
+   "Quale",
+   "Lequel",
+   "Cuál",
+   "Qual",
+   "Welke",
+   "Który"
+  ],
+  "Covering": [
+   "Zeitraum",
+   "Obuhvaća",
+   "Zajema",
+   "Copre",
+   "Couvre",
+   "Cubre",
+   "Abrange",
+   "Bestrijkt",
+   "Obejmuje"
+  ],
+  "Right now": [
+   "Gerade jetzt",
+   "Upravo sada",
+   "Prav zdaj",
+   "Adesso",
+   "À l’instant",
+   "Ahora mismo",
+   "Agora mesmo",
+   "Nu meteen",
+   "W tej chwili"
+  ],
+  "Repeats": [
+   "Wiederholt sich",
+   "Ponavlja se",
+   "Ponavlja se",
+   "Si ripete",
+   "Se répète",
+   "Se repite",
+   "Repete-se",
+   "Herhaalt",
+   "Powtarza się"
+  ],
+  "Only for certain years": [
+   "Nur für bestimmte Jahre",
+   "Samo za određene godine",
+   "Samo za določena leta",
+   "Solo per certi anni",
+   "Uniquement pour certaines années",
+   "Solo para ciertos años",
+   "Apenas para certos anos",
+   "Alleen voor bepaalde jaren",
+   "Tylko dla wybranych lat"
+  ],
+  "Next dates": [
+   "Nächste Termine",
+   "Sljedeći datumi",
+   "Naslednji datumi",
+   "Prossime date",
+   "Prochaines dates",
+   "Próximas fechas",
+   "Próximas datas",
+   "Volgende data",
+   "Najbliższe daty"
+  ],
+  "Start date": [
+   "Startdatum",
+   "Datum početka",
+   "Datum začetka",
+   "Data di inizio",
+   "Date de début",
+   "Fecha de inicio",
+   "Data de início",
+   "Startdatum",
+   "Data początkowa"
+  ],
+  "Count from a start date": [
+   "Ab einem Startdatum zählen",
+   "Broji od datuma početka",
+   "Štej od datuma začetka",
+   "Conta da una data di inizio",
+   "Compter à partir d’une date",
+   "Contar desde una fecha de inicio",
+   "Contar a partir de uma data",
+   "Tellen vanaf een startdatum",
+   "Licz od daty początkowej"
+  ],
+  "Opening balance": [
+   "Anfangssaldo",
+   "Početni saldo",
+   "Začetni saldo",
+   "Saldo iniziale",
+   "Solde initial",
+   "Saldo inicial",
+   "Saldo inicial",
+   "Beginsaldo",
+   "Saldo początkowe"
+  ],
+  "The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.": [
+   "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Tage vor dem Startdatum bleiben im laufenden Saldo unberücksichtigt.",
+   "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Dani prije datuma početka ne ulaze u tekući saldo.",
+   "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Dnevi pred datumom začetka niso vključeni v tekoči saldo.",
+   "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. I giorni precedenti alla data di inizio restano fuori dal saldo progressivo.",
+   "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Les jours antérieurs à la date de début sont exclus du solde cumulé.",
+   "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Los días anteriores a la fecha de inicio quedan fuera del saldo acumulado.",
+   "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Os dias anteriores à data de início ficam de fora do saldo acumulado.",
+   "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Dagen vóór de startdatum tellen niet mee in het doorlopende saldo.",
+   "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Dni sprzed daty początkowej nie wchodzą do salda narastającego."
+  ],
+  "Date": [
+   "Datum",
+   "Datum",
+   "Datum",
+   "Data",
+   "Date",
+   "Fecha",
+   "Data",
+   "Datum",
+   "Data"
+  ],
+  "Dates": [
+   "Daten",
+   "Datumi",
+   "Datumi",
+   "Date",
+   "Dates",
+   "Fechas",
+   "Datas",
+   "Data",
+   "Daty"
+  ],
+  "Time": [
+   "Zeit",
+   "Vrijeme",
+   "Čas",
+   "Ora",
+   "Heure",
+   "Hora",
+   "Hora",
+   "Tijd",
+   "Godzina"
+  ],
+  "Durations": [
+   "Dauern",
+   "Trajanja",
+   "Trajanja",
+   "Durate",
+   "Durées",
+   "Duraciones",
+   "Durações",
+   "Duur",
+   "Czasy trwania"
+  ],
+  "Symbol": [
+   "Symbol",
+   "Simbol",
+   "Simbol",
+   "Simbolo",
+   "Symbole",
+   "Símbolo",
+   "Símbolo",
+   "Symbool",
+   "Symbol"
+  ],
+  "Tags": [
+   "Schlagwörter",
+   "Oznake",
+   "Oznake",
+   "Etichette",
+   "Étiquettes",
+   "Etiquetas",
+   "Etiquetas",
+   "Labels",
+   "Etykiety"
+  ],
+  "Breaks": [
+   "Pausen",
+   "Pauze",
+   "Odmori",
+   "Pause",
+   "Pauses",
+   "Descansos",
+   "Pausas",
+   "Pauzes",
+   "Przerwy"
+  ],
+  "Holidays": [
+   "Feiertage",
+   "Praznici",
+   "Prazniki",
+   "Festività",
+   "Jours fériés",
+   "Festivos",
+   "Feriados",
+   "Feestdagen",
+   "Święta"
+  ],
+  "Day types": [
+   "Tagesarten",
+   "Vrste dana",
+   "Vrste dneva",
+   "Tipi di giorno",
+   "Types de jour",
+   "Tipos de día",
+   "Tipos de dia",
+   "Dagtypes",
+   "Typy dni"
+  ],
+  "Day cells": [
+   "Tagesfelder",
+   "Ćelije dana",
+   "Celice dneva",
+   "Celle dei giorni",
+   "Cellules des jours",
+   "Celdas de día",
+   "Células dos dias",
+   "Dagvakjes",
+   "Komórki dni"
+  ],
+  "Reminders": [
+   "Erinnerungen",
+   "Podsjetnici",
+   "Opomniki",
+   "Promemoria",
+   "Rappels",
+   "Recordatorios",
+   "Lembretes",
+   "Herinneringen",
+   "Przypomnienia"
+  ],
+  "CSV": [
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV",
+   "CSV"
+  ],
+  "Rounding": [
+   "Rundung",
+   "Zaokruživanje",
+   "Zaokroževanje",
+   "Arrotondamento",
+   "Arrondi",
+   "Redondeo",
+   "Arredondamento",
+   "Afronding",
+   "Zaokrąglanie"
+  ],
+  "Counts as": [
+   "Zählt als",
+   "Računa se kao",
+   "Šteje kot",
+   "Conta come",
+   "Compte comme",
+   "Cuenta como",
+   "Conta como",
+   "Telt als",
+   "Liczy się jako"
+  ],
+  "Edited": [
+   "Bearbeitet",
+   "Uređeno",
+   "Urejeno",
+   "Modificato",
+   "Modifié",
+   "Editado",
+   "Editado",
+   "Bewerkt",
+   "Edytowane"
+  ],
+  "those types": [
+   "diese Arten",
+   "te vrste",
+   "te vrste",
+   "quei tipi",
+   "ces types",
+   "esos tipos",
+   "esses tipos",
+   "die types",
+   "tych typów"
+  ],
+  "Add a day type": [
+   "Tagesart hinzufügen",
+   "Dodaj vrstu dana",
+   "Dodaj vrsto dneva",
+   "Aggiungi un tipo di giorno",
+   "Ajouter un type de jour",
+   "Añadir un tipo de día",
+   "Adicionar um tipo de dia",
+   "Dagtype toevoegen",
+   "Dodaj typ dnia"
+  ],
+  "Add a holiday": [
+   "Feiertag hinzufügen",
+   "Dodaj praznik",
+   "Dodaj praznik",
+   "Aggiungi una festività",
+   "Ajouter un jour férié",
+   "Añadir un festivo",
+   "Adicionar um feriado",
+   "Feestdag toevoegen",
+   "Dodaj święto"
+  ],
+  "No holidays yet": [
+   "Noch keine Feiertage",
+   "Još nema praznika",
+   "Še ni praznikov",
+   "Nessuna festività",
+   "Aucun jour férié",
+   "Aún no hay festivos",
+   "Ainda não há feriados",
+   "Nog geen feestdagen",
+   "Brak świąt"
+  ],
+  "Mark holidays": [
+   "Feiertage markieren",
+   "Označi praznike",
+   "Označi praznike",
+   "Segna le festività",
+   "Marquer les jours fériés",
+   "Marcar los festivos",
+   "Marcar os feriados",
+   "Feestdagen markeren",
+   "Oznacz święta"
+  ],
+  "This day type is still in use": [
+   "Diese Tagesart wird noch verwendet",
+   "Ova vrsta dana je još u upotrebi",
+   "Ta vrsta dneva je še v uporabi",
+   "Questo tipo di giorno è ancora in uso",
+   "Ce type de jour est encore utilisé",
+   "Este tipo de día aún se usa",
+   "Este tipo de dia ainda está em uso",
+   "Dit dagtype is nog in gebruik",
+   "Ten typ dnia jest wciąż używany"
+  ],
+  "Worked as a normal day": [
+   "Wie ein normaler Tag gearbeitet",
+   "Odrađeno kao običan dan",
+   "Opravljeno kot običajen dan",
+   "Lavorato come un giorno normale",
+   "Travaillé comme un jour normal",
+   "Trabajado como un día normal",
+   "Trabalhado como um dia normal",
+   "Gewerkt als een normale dag",
+   "Przepracowane jak zwykły dzień"
+  ],
+  "Add the days that apply where you work. A recurring holiday only has to be entered once.": [
+   "Trage die Tage ein, die an deinem Arbeitsort gelten. Ein wiederkehrender Feiertag muss nur einmal erfasst werden.",
+   "Dodaj dane koji vrijede tamo gdje radiš. Praznik koji se ponavlja unosi se samo jednom.",
+   "Dodaj dneve, ki veljajo tam, kjer delaš. Praznik, ki se ponavlja, je treba vnesti samo enkrat.",
+   "Aggiungi i giorni validi dove lavori. Una festività ricorrente va inserita una volta sola.",
+   "Ajoutez les jours applicables là où vous travaillez. Un jour férié récurrent ne se saisit qu’une fois.",
+   "Añade los días que se aplican donde trabajas. Un festivo recurrente solo hay que introducirlo una vez.",
+   "Adiciona os dias que se aplicam onde trabalhas. Um feriado recorrente só tem de ser introduzido uma vez.",
+   "Voeg de dagen toe die gelden waar jij werkt. Een terugkerende feestdag hoef je maar één keer in te voeren.",
+   "Dodaj dni obowiązujące tam, gdzie pracujesz. Powtarzające się święto wystarczy wprowadzić raz."
+  ],
+  "How a type counts is what makes the balance right: paid absence credits your contracted hours, so a day of leave leaves the balance unchanged.": [
+   "Wie eine Art zählt, macht den Saldo richtig: Bezahlte Abwesenheit schreibt deine Vertragsstunden gut, ein Urlaubstag lässt den Saldo also unverändert.",
+   "Način na koji se vrsta računa čini saldo ispravnim: plaćeni izostanak priznaje ugovorene sate, pa dan godišnjeg ne mijenja saldo.",
+   "Način štetja vrste je tisto, kar naredi saldo pravilen: plačana odsotnost prizna pogodbene ure, zato dan dopusta pusti saldo nespremenjen.",
+   "Il modo in cui un tipo conta è ciò che rende corretto il saldo: l’assenza retribuita accredita le ore contrattuali, quindi un giorno di ferie lascia il saldo invariato.",
+   "La façon dont un type compte est ce qui rend le solde juste : une absence payée crédite vos heures contractuelles, un jour de congé laisse donc le solde inchangé.",
+   "Cómo cuenta un tipo es lo que hace que el saldo sea correcto: la ausencia retribuida acredita tus horas contratadas, así que un día de vacaciones deja el saldo igual.",
+   "A forma como um tipo conta é o que torna o saldo correto: a ausência paga credita as horas contratadas, por isso um dia de férias deixa o saldo inalterado.",
+   "Hoe een type telt, is wat het saldo kloppend maakt: betaald verlof schrijft je contracturen bij, dus een verlofdag laat het saldo ongewijzigd.",
+   "To, jak liczy się dany typ, decyduje o poprawności salda: płatna nieobecność zalicza godziny umowne, więc dzień urlopu nie zmienia salda."
+  ],
+  "Times can always be added to any day — working a public holiday should never be impossible to record.": [
+   "Zeiten lassen sich immer an jedem Tag eintragen – an einem Feiertag zu arbeiten darf nie unmöglich zu erfassen sein.",
+   "Vremena se uvijek mogu dodati na bilo koji dan – rad na praznik nikad ne smije biti nemoguće zabilježiti.",
+   "Čase je vedno mogoče dodati kateremu koli dnevu – dela na praznik nikoli ne sme biti nemogoče zabeležiti.",
+   "Gli orari si possono sempre aggiungere a qualsiasi giorno: lavorare in una festività non deve mai essere impossibile da registrare.",
+   "Des horaires peuvent toujours être ajoutés à n’importe quel jour : travailler un jour férié ne doit jamais être impossible à enregistrer.",
+   "Siempre se pueden añadir horarios a cualquier día: trabajar en festivo nunca debe ser imposible de registrar.",
+   "Os horários podem sempre ser adicionados a qualquer dia — trabalhar num feriado nunca deve ser impossível de registar.",
+   "Tijden kunnen altijd aan elke dag worden toegevoegd — werken op een feestdag mag nooit onmogelijk vast te leggen zijn.",
+   "Godziny zawsze można dodać do dowolnego dnia – praca w święto nigdy nie może być niemożliwa do zapisania."
+  ],
+  "Clock in and out": [
+   "Ein- und ausstempeln",
+   "Prijava i odjava",
+   "Prijava prihoda in odhoda",
+   "Timbratura entrata e uscita",
+   "Pointage arrivée et départ",
+   "Fichar entrada y salida",
+   "Registar entrada e saída",
+   "In- en uitklokken",
+   "Rozpoczynanie i kończenie"
+  ],
+  "Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.": [
+   "Fügt bei „Heute“ eine Taste hinzu, die eine Uhr startet und stoppt. Schalte es aus, wenn du Stunden lieber nachträglich einträgst.",
+   "Dodaje gumb na današnji dan koji pokreće i zaustavlja sat. Isključi ako radije unosiš sate naknadno.",
+   "Doda gumb na današnji dan, ki zažene in ustavi uro. Izklopi, če raje vnašaš ure naknadno.",
+   "Aggiunge un pulsante su oggi che avvia e ferma una timbratura. Disattivalo se preferisci inserire le ore dopo.",
+   "Ajoute un bouton sur aujourd’hui qui démarre et arrête un pointage. Désactivez-le si vous préférez saisir les heures après coup.",
+   "Añade un botón en hoy que inicia y detiene un fichaje. Desactívalo si prefieres introducir las horas después.",
+   "Adiciona um botão em hoje que inicia e para um registo. Desliga se preferires introduzir as horas depois.",
+   "Voegt een knop toe op vandaag die een klok start en stopt. Zet het uit als je de uren liever achteraf invoert.",
+   "Dodaje przycisk na dziś, który uruchamia i zatrzymuje zegar. Wyłącz, jeśli wolisz wpisywać godziny później."
+  ],
+  "Several breaks a day": [
+   "Mehrere Pausen am Tag",
+   "Više pauza dnevno",
+   "Več odmorov na dan",
+   "Più pause al giorno",
+   "Plusieurs pauses par jour",
+   "Varios descansos al día",
+   "Várias pausas por dia",
+   "Meerdere pauzes per dag",
+   "Kilka przerw dziennie"
+  ],
+  "With several breaks switched on, each can be a length or a pair of times.": [
+   "Mit mehreren Pausen kann jede eine Dauer oder ein Zeitpaar sein.",
+   "Uz uključene višestruke pauze, svaka može biti trajanje ili par vremena.",
+   "Ko je vklopljenih več odmorov, je lahko vsak trajanje ali par časov.",
+   "Con più pause attive, ciascuna può essere una durata o una coppia di orari.",
+   "Avec plusieurs pauses activées, chacune peut être une durée ou un couple d’horaires.",
+   "Con varios descansos activados, cada uno puede ser una duración o un par de horarios.",
+   "Com várias pausas ativas, cada uma pode ser uma duração ou um par de horários.",
+   "Met meerdere pauzes aan kan elke pauze een duur of een paar tijden zijn.",
+   "Przy włączonych wielu przerwach każda może być czasem trwania lub parą godzin."
+  ],
+  "Defaults for a new day": [
+   "Vorgaben für einen neuen Tag",
+   "Zadane vrijednosti za novi dan",
+   "Privzete vrednosti za nov dan",
+   "Valori predefiniti per un nuovo giorno",
+   "Valeurs par défaut d’un nouveau jour",
+   "Valores por omisión para un día nuevo",
+   "Valores predefinidos para um dia novo",
+   "Standaardwaarden voor een nieuwe dag",
+   "Domyślne wartości nowego dnia"
+  ],
+  "Inside each day": [
+   "Innerhalb jedes Tages",
+   "Unutar svakog dana",
+   "Znotraj vsakega dneva",
+   "Dentro ogni giorno",
+   "Dans chaque jour",
+   "Dentro de cada día",
+   "Dentro de cada dia",
+   "Binnen elke dag",
+   "Wewnątrz każdego dnia"
+  ],
+  "Show times by default": [
+   "Zeiten standardmäßig anzeigen",
+   "Prikaži vremena po zadanom",
+   "Privzeto prikaži čase",
+   "Mostra gli orari per impostazione predefinita",
+   "Afficher les horaires par défaut",
+   "Mostrar los horarios por omisión",
+   "Mostrar os horários por predefinição",
+   "Tijden standaard tonen",
+   "Domyślnie pokazuj godziny"
+  ],
+  "Show totals": [
+   "Summen anzeigen",
+   "Prikaži zbrojeve",
+   "Prikaži seštevke",
+   "Mostra i totali",
+   "Afficher les totaux",
+   "Mostrar los totales",
+   "Mostrar os totais",
+   "Totalen tonen",
+   "Pokazuj sumy"
+  ],
+  "Show weekends": [
+   "Wochenenden anzeigen",
+   "Prikaži vikende",
+   "Prikaži vikende",
+   "Mostra i fine settimana",
+   "Afficher les week-ends",
+   "Mostrar los fines de semana",
+   "Mostrar os fins de semana",
+   "Weekenden tonen",
+   "Pokazuj weekendy"
+  ],
+  "Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.": [
+   "Wochenenden auszublenden entfernt die Spalten Samstag und Sonntag aus dem Raster. Die Tage werden weiterhin erfasst und gezählt.",
+   "Skrivanje vikenda uklanja stupce subote i nedjelje iz mreže. Sami dani se i dalje bilježe i računaju.",
+   "Skrivanje vikendov odstrani stolpca sobote in nedelje iz mreže. Dnevi se še naprej beležijo in štejejo.",
+   "Nascondere i fine settimana rimuove le colonne di sabato e domenica dalla griglia. I giorni continuano a essere registrati e conteggiati.",
+   "Masquer les week-ends retire les colonnes samedi et dimanche de la grille. Les jours restent enregistrés et comptabilisés.",
+   "Ocultar los fines de semana quita las columnas de sábado y domingo de la cuadrícula. Los días se siguen registrando y contando.",
+   "Ocultar os fins de semana remove as colunas de sábado e domingo da grelha. Os dias continuam a ser registados e contados.",
+   "Weekenden verbergen haalt de kolommen zaterdag en zondag uit het raster. De dagen worden nog steeds vastgelegd en meegeteld.",
+   "Ukrycie weekendów usuwa kolumny soboty i niedzieli z siatki. Same dni są nadal zapisywane i liczone."
+  ],
+  "One figure at most. A calendar that shows everything shows nothing.": [
+   "Höchstens eine Zahl. Ein Kalender, der alles zeigt, zeigt nichts.",
+   "Najviše jedan broj. Kalendar koji prikazuje sve ne prikazuje ništa.",
+   "Največ ena številka. Koledar, ki pokaže vse, ne pokaže ničesar.",
+   "Al massimo un numero. Un calendario che mostra tutto non mostra nulla.",
+   "Un chiffre au maximum. Un calendrier qui montre tout ne montre rien.",
+   "Como mucho una cifra. Un calendario que lo enseña todo no enseña nada.",
+   "No máximo um número. Um calendário que mostra tudo não mostra nada.",
+   "Hooguit één getal. Een agenda die alles toont, toont niets.",
+   "Najwyżej jedna liczba. Kalendarz, który pokazuje wszystko, nie pokazuje nic."
+  ],
+  "Open on": [
+   "Öffnen mit",
+   "Otvori na",
+   "Odpri na",
+   "Apri su",
+   "Ouvrir sur",
+   "Abrir en",
+   "Abrir em",
+   "Openen op",
+   "Otwieraj na"
+  ],
+  "Default view": [
+   "Standardansicht",
+   "Zadani prikaz",
+   "Privzeti pogled",
+   "Vista predefinita",
+   "Vue par défaut",
+   "Vista por omisión",
+   "Vista predefinida",
+   "Standaardweergave",
+   "Domyślny widok"
+  ],
+  "Default range": [
+   "Standardzeitraum",
+   "Zadani raspon",
+   "Privzeti obseg",
+   "Intervallo predefinito",
+   "Plage par défaut",
+   "Intervalo por omisión",
+   "Intervalo predefinido",
+   "Standaardbereik",
+   "Domyślny zakres"
+  ],
+  "Calculate worked hours": [
+   "Gearbeitete Stunden berechnen",
+   "Izračunaj odrađene sate",
+   "Izračunaj opravljene ure",
+   "Calcola le ore lavorate",
+   "Calculer les heures travaillées",
+   "Calcular las horas trabajadas",
+   "Calcular as horas trabalhadas",
+   "Gewerkte uren berekenen",
+   "Obliczaj przepracowane godziny"
+  ],
+  "Calculate overtime": [
+   "Überstunden berechnen",
+   "Izračunaj prekovremene",
+   "Izračunaj nadure",
+   "Calcola gli straordinari",
+   "Calculer les heures supplémentaires",
+   "Calcular las horas extra",
+   "Calcular as horas extra",
+   "Overuren berekenen",
+   "Obliczaj nadgodziny"
+  ],
+  "Switch these off to enter worked hours, or the balance, by hand on each day.": [
+   "Schalte das aus, um gearbeitete Stunden oder den Saldo an jedem Tag von Hand einzutragen.",
+   "Isključi ovo da ručno unosiš odrađene sate ili saldo za svaki dan.",
+   "Izklopi to, če želiš opravljene ure ali saldo vnašati ročno za vsak dan.",
+   "Disattivali per inserire a mano le ore lavorate, o il saldo, su ogni giorno.",
+   "Désactivez ceci pour saisir à la main les heures travaillées, ou le solde, sur chaque jour.",
+   "Desactívalos para introducir a mano las horas trabajadas, o el saldo, en cada día.",
+   "Desliga isto para introduzires à mão as horas trabalhadas, ou o saldo, em cada dia.",
+   "Zet dit uit om gewerkte uren, of het saldo, per dag met de hand in te voeren.",
+   "Wyłącz to, aby ręcznie wpisywać przepracowane godziny lub saldo w każdym dniu."
+  ],
+  "Overtime needs expected hours to measure against, so it follows that setting.": [
+   "Überstunden brauchen Sollstunden als Maßstab, also folgen sie dieser Einstellung.",
+   "Prekovremeni trebaju planirane sate kao mjerilo pa slijede tu postavku.",
+   "Nadure potrebujejo predvidene ure kot merilo, zato sledijo tej nastavitvi.",
+   "Gli straordinari hanno bisogno di ore previste come riferimento, quindi seguono quell’impostazione.",
+   "Les heures supplémentaires ont besoin d’heures prévues comme référence : elles suivent donc ce réglage.",
+   "Las horas extra necesitan horas previstas con las que medirse, así que siguen ese ajuste.",
+   "As horas extra precisam de horas previstas como referência, por isso seguem essa definição.",
+   "Overuren hebben verwachte uren nodig als maatstaf, dus ze volgen die instelling.",
+   "Nadgodziny potrzebują wymaganych godzin jako punktu odniesienia, więc podążają za tym ustawieniem."
+  ],
+  "Manual adjustments": [
+   "Manuelle Korrekturen",
+   "Ručni ispravci",
+   "Ročni popravki",
+   "Rettifiche manuali",
+   "Ajustements manuels",
+   "Ajustes manuales",
+   "Ajustes manuais",
+   "Handmatige correcties",
+   "Ręczne korekty"
+  ],
+  "Hours and balance": [
+   "Stunden und Saldo",
+   "Sati i saldo",
+   "Ure in saldo",
+   "Ore e saldo",
+   "Heures et solde",
+   "Horas y saldo",
+   "Horas e saldo",
+   "Uren en saldo",
+   "Godziny i saldo"
+  ],
+  "Overtime and balance": [
+   "Überstunden und Saldo",
+   "Prekovremeni i saldo",
+   "Nadure in saldo",
+   "Straordinari e saldo",
+   "Heures supplémentaires et solde",
+   "Horas extra y saldo",
+   "Horas extra e saldo",
+   "Overuren en saldo",
+   "Nadgodziny i saldo"
+  ],
+  "Applied to the worked total of each day, not to the times you enter.": [
+   "Wird auf die Tagessumme der Arbeitszeit angewendet, nicht auf die eingetragenen Zeiten.",
+   "Primjenjuje se na dnevni zbroj odrađenog, ne na vremena koja unosiš.",
+   "Uporabi se za dnevno vsoto opravljenega, ne za vnesene čase.",
+   "Si applica al totale lavorato di ogni giorno, non agli orari che inserisci.",
+   "S’applique au total travaillé de chaque jour, pas aux horaires que vous saisissez.",
+   "Se aplica al total trabajado de cada día, no a los horarios que introduces.",
+   "Aplica-se ao total trabalhado de cada dia, não aos horários que introduzes.",
+   "Wordt toegepast op het gewerkte dagtotaal, niet op de tijden die je invoert.",
+   "Stosowane do dziennej sumy przepracowanego czasu, nie do wpisywanych godzin."
+  ],
+  "Clock changes": [
+   "Zeitumstellung",
+   "Promjena vremena",
+   "Premik ure",
+   "Cambio dell’ora",
+   "Changement d’heure",
+   "Cambio de hora",
+   "Mudança da hora",
+   "Klokwisseling",
+   "Zmiana czasu"
+  ],
+  "Daylight saving": [
+   "Sommerzeit",
+   "Ljetno vrijeme",
+   "Poletni čas",
+   "Ora legale",
+   "Heure d’été",
+   "Horario de verano",
+   "Hora de verão",
+   "Zomertijd",
+   "Czas letni"
+  ],
+  "How hours are written throughout the app. Exports have their own setting.": [
+   "Wie Stunden in der gesamten App geschrieben werden. Exporte haben eine eigene Einstellung.",
+   "Kako se sati pišu kroz cijelu aplikaciju. Izvozi imaju vlastitu postavku.",
+   "Kako so ure zapisane po vsej aplikaciji. Izvozi imajo svojo nastavitev.",
+   "Come sono scritte le ore in tutta l’app. Le esportazioni hanno un’impostazione propria.",
+   "La façon dont les heures s’écrivent dans toute l’app. Les exports ont leur propre réglage.",
+   "Cómo se escriben las horas en toda la app. Las exportaciones tienen su propio ajuste.",
+   "Como as horas são escritas em toda a app. As exportações têm a sua própria definição.",
+   "Hoe uren in de hele app worden geschreven. Exports hebben hun eigen instelling.",
+   "Jak godziny są zapisywane w całej aplikacji. Eksporty mają własne ustawienie."
+  ],
+  "Automatic follows your region.": [
+   "Automatisch folgt deiner Region.",
+   "Automatski slijedi tvoju regiju.",
+   "Samodejno sledi tvoji regiji.",
+   "Automatico segue la tua regione.",
+   "Automatique suit votre région.",
+   "Automático sigue tu región.",
+   "Automático segue a tua região.",
+   "Automatisch volgt je regio.",
+   "Automatycznie podąża za twoim regionem."
+  ],
+  "Remind me about gaps": [
+   "An Lücken erinnern",
+   "Podsjeti me na praznine",
+   "Opomni me na vrzeli",
+   "Ricordami i giorni mancanti",
+   "Me rappeler les oublis",
+   "Recordarme los huecos",
+   "Lembrar-me das falhas",
+   "Herinner me aan gaten",
+   "Przypominaj o lukach"
+  ],
+  "How far back to check. Days you have marked as excluded, and days that are not working days, are never counted as missing.": [
+   "Wie weit zurück geprüft wird. Als ausgenommen markierte Tage und Tage, die keine Arbeitstage sind, gelten nie als fehlend.",
+   "Koliko unatrag provjeravati. Dani označeni kao isključeni i dani koji nisu radni nikad se ne broje kao nedostajući.",
+   "Kako daleč nazaj se preverja. Dnevi, označeni kot izključeni, in dnevi, ki niso delovni, nikoli ne štejejo kot manjkajoči.",
+   "Quanto indietro controllare. I giorni contrassegnati come esclusi e i giorni non lavorativi non contano mai come mancanti.",
+   "Jusqu’où remonter. Les jours marqués comme exclus et les jours non travaillés ne comptent jamais comme manquants.",
+   "Hasta cuándo mirar atrás. Los días marcados como excluidos y los que no son laborables nunca cuentan como ausentes.",
+   "Até quando verificar. Os dias marcados como excluídos e os dias não úteis nunca contam como em falta.",
+   "Hoe ver terug er wordt gekeken. Dagen die je hebt uitgesloten en niet-werkdagen tellen nooit als ontbrekend.",
+   "Jak daleko wstecz sprawdzać. Dni oznaczone jako wykluczone i dni niebędące roboczymi nigdy nie liczą się jako brakujące."
+  ],
+  "Field separator": [
+   "Feldtrenner",
+   "Razdjelnik polja",
+   "Ločilo polj",
+   "Separatore di campo",
+   "Séparateur de champs",
+   "Separador de campos",
+   "Separador de campos",
+   "Veldscheidingsteken",
+   "Separator pól"
+  ],
+  "Decimal separator": [
+   "Dezimaltrennzeichen",
+   "Decimalni razdjelnik",
+   "Decimalno ločilo",
+   "Separatore decimale",
+   "Séparateur décimal",
+   "Separador decimal",
+   "Separador decimal",
+   "Decimaalteken",
+   "Separator dziesiętny"
+  ],
+  "Byte-order mark": [
+   "Byte-Order-Mark",
+   "Oznaka redoslijeda bajtova",
+   "Oznaka vrstnega reda bajtov",
+   "Byte order mark",
+   "Indicateur d’ordre des octets",
+   "Marca de orden de bytes",
+   "Marca de ordem de bytes",
+   "Byte-order mark",
+   "Znacznik kolejności bajtów"
+  ],
+  "Excel on Windows needs the byte-order mark to read accented characters correctly. Numbers, Google Sheets and LibreOffice are happy either way.": [
+   "Excel unter Windows braucht die Byte-Order-Mark, um Zeichen mit Akzenten richtig zu lesen. Numbers, Google Sheets und LibreOffice kommen mit beidem zurecht.",
+   "Excel na Windowsu treba oznaku redoslijeda bajtova da ispravno čita znakove s dijakritikom. Numbers, Google Sheets i LibreOffice rade i ovako i onako.",
+   "Excel v Windowsu potrebuje oznako vrstnega reda bajtov, da pravilno prebere znake z diakritiko. Numbers, Google Preglednice in LibreOffice delujejo tako ali tako.",
+   "Excel su Windows ha bisogno del byte order mark per leggere correttamente i caratteri accentati. Numbers, Google Fogli e LibreOffice funzionano comunque.",
+   "Excel sous Windows a besoin de l’indicateur d’ordre des octets pour lire correctement les caractères accentués. Numbers, Google Sheets et LibreOffice s’accommodent des deux.",
+   "Excel en Windows necesita la marca de orden de bytes para leer bien los caracteres acentuados. Numbers, Google Sheets y LibreOffice funcionan igual con o sin ella.",
+   "O Excel no Windows precisa da marca de ordem de bytes para ler corretamente os caracteres acentuados. O Numbers, o Google Sheets e o LibreOffice funcionam de qualquer forma.",
+   "Excel op Windows heeft de byte-order mark nodig om letters met accenten goed te lezen. Numbers, Google Sheets en LibreOffice werken hoe dan ook.",
+   "Excel w Windowsie potrzebuje znacznika kolejności bajtów, aby poprawnie odczytać znaki diakrytyczne. Numbers, Arkusze Google i LibreOffice działają tak czy inaczej."
+  ],
+  "Include a summary": [
+   "Zusammenfassung einschließen",
+   "Uključi sažetak",
+   "Vključi povzetek",
+   "Includi un riepilogo",
+   "Inclure un récapitulatif",
+   "Incluir un resumen",
+   "Incluir um resumo",
+   "Samenvatting opnemen",
+   "Dołącz podsumowanie"
+  ],
+  "Include days with no entry": [
+   "Tage ohne Eintrag einbeziehen",
+   "Uključi dane bez unosa",
+   "Vključi dneve brez vnosa",
+   "Includi i giorni senza voci",
+   "Inclure les jours sans saisie",
+   "Incluir días sin registro",
+   "Incluir dias sem registo",
+   "Dagen zonder invoer meenemen",
+   "Uwzględnij dni bez wpisu"
+  ],
+  "Including empty days keeps every date in the range on its own row, which is what most timesheets expect.": [
+   "Leere Tage einzubeziehen hält jedes Datum im Zeitraum in einer eigenen Zeile, was die meisten Stundenzettel erwarten.",
+   "Uključivanje praznih dana zadržava svaki datum u rasponu u vlastitom retku, što većina evidencija očekuje.",
+   "Vključitev praznih dni ohrani vsak datum v obsegu v svoji vrstici, kar večina evidenc pričakuje.",
+   "Includere i giorni vuoti mantiene ogni data dell’intervallo su una riga propria, come si aspettano quasi tutti i fogli ore.",
+   "Inclure les jours vides conserve chaque date de la plage sur sa propre ligne, ce qu’attendent la plupart des feuilles d’heures.",
+   "Incluir los días vacíos mantiene cada fecha del intervalo en su propia fila, que es lo que esperan casi todas las hojas de horas.",
+   "Incluir os dias vazios mantém cada data do intervalo na sua própria linha, que é o que a maioria das folhas de horas espera.",
+   "Lege dagen meenemen houdt elke datum in het bereik op een eigen rij, wat de meeste urenstaten verwachten.",
+   "Uwzględnienie pustych dni zostawia każdą datę z zakresu we własnym wierszu, czego oczekuje większość ewidencji."
+  ],
+  "Drag to reorder. Columns for fields you have switched off are never offered.": [
+   "Zum Umsortieren ziehen. Spalten für ausgeschaltete Felder werden nie angeboten.",
+   "Povuci za promjenu redoslijeda. Stupci za isključena polja se nikad ne nude.",
+   "Povleci za spremembo vrstnega reda. Stolpci za izklopljena polja se nikoli ne ponudijo.",
+   "Trascina per riordinare. Le colonne dei campi disattivati non vengono mai proposte.",
+   "Faites glisser pour réordonner. Les colonnes des champs désactivés ne sont jamais proposées.",
+   "Arrastra para reordenar. Las columnas de los campos desactivados nunca se ofrecen.",
+   "Arrasta para reordenar. As colunas dos campos desligados nunca são oferecidas.",
+   "Sleep om te herordenen. Kolommen voor uitgeschakelde velden worden nooit aangeboden.",
+   "Przeciągnij, aby zmienić kolejność. Kolumny wyłączonych pól nigdy nie są proponowane."
+  ],
+  "Name and surname": [
+   "Vor- und Nachname",
+   "Ime i prezime",
+   "Ime in priimek",
+   "Nome e cognome",
+   "Nom et prénom",
+   "Nombre y apellidos",
+   "Nome e apelido",
+   "Voor- en achternaam",
+   "Imię i nazwisko"
+  ],
+  "Name on the timesheet": [
+   "Name auf dem Stundenzettel",
+   "Ime na evidenciji",
+   "Ime na evidenci",
+   "Nome sul foglio ore",
+   "Nom sur la feuille d’heures",
+   "Nombre en la hoja de horas",
+   "Nome na folha de horas",
+   "Naam op de urenstaat",
+   "Imię i nazwisko na ewidencji"
+  ],
+  "Printed under the title of every timesheet, and used to name the file. Leave it empty and nothing is printed. It stays on this device like everything else.": [
+   "Wird unter dem Titel jedes Stundenzettels gedruckt und benennt die Datei. Lass es leer, dann wird nichts gedruckt. Es bleibt wie alles andere auf diesem Gerät.",
+   "Ispisuje se ispod naslova svake evidencije i koristi za naziv datoteke. Ostavi prazno i ništa se ne ispisuje. Ostaje na ovom uređaju kao i sve ostalo.",
+   "Natisne se pod naslovom vsake evidence in se uporabi za ime datoteke. Pusti prazno in nič se ne natisne. Ostane v tej napravi kot vse drugo.",
+   "Viene stampato sotto il titolo di ogni foglio ore e usato per il nome del file. Lascialo vuoto e non viene stampato nulla. Resta su questo dispositivo come tutto il resto.",
+   "Imprimé sous le titre de chaque feuille d’heures et utilisé pour nommer le fichier. Laissez-le vide et rien n’est imprimé. Il reste sur cet appareil comme le reste.",
+   "Se imprime bajo el título de cada hoja de horas y se usa para nombrar el archivo. Déjalo vacío y no se imprime nada. Se queda en este dispositivo como todo lo demás.",
+   "É impresso sob o título de cada folha de horas e usado para nomear o ficheiro. Deixa vazio e não é impresso nada. Fica neste dispositivo como tudo o resto.",
+   "Wordt onder de titel van elke urenstaat afgedrukt en gebruikt om het bestand te noemen. Laat het leeg en er wordt niets afgedrukt. Het blijft op dit apparaat, net als al het andere.",
+   "Drukowane pod tytułem każdej ewidencji i używane do nazwania pliku. Zostaw puste, a nic nie zostanie wydrukowane. Zostaje na tym urządzeniu, jak wszystko inne."
+  ],
+  "The words the app writes — column titles, day types and the summary — plus the names of months and days. Anything you typed yourself is left exactly as you wrote it.": [
+   "Die Wörter, die die App schreibt – Spaltentitel, Tagesarten und die Zusammenfassung – sowie Monats- und Tagesnamen. Alles, was du selbst getippt hast, bleibt genau so stehen.",
+   "Riječi koje aplikacija piše – naslovi stupaca, vrste dana i sažetak – te nazivi mjeseci i dana. Sve što si sam upisao ostaje točno kako si napisao.",
+   "Besede, ki jih zapiše aplikacija – naslovi stolpcev, vrste dneva in povzetek – ter imena mesecev in dni. Vse, kar si vpisal sam, ostane natanko tako, kot si napisal.",
+   "Le parole scritte dall’app — titoli delle colonne, tipi di giorno e riepilogo — più i nomi di mesi e giorni. Tutto ciò che hai scritto tu resta esattamente com’è.",
+   "Les mots écrits par l’app — titres de colonnes, types de jour et récapitulatif — ainsi que les noms des mois et des jours. Tout ce que vous avez saisi reste exactement tel quel.",
+   "Las palabras que escribe la app —títulos de columna, tipos de día y el resumen— además de los nombres de meses y días. Todo lo que hayas escrito tú se queda exactamente igual.",
+   "As palavras que a app escreve — títulos das colunas, tipos de dia e o resumo — mais os nomes dos meses e dos dias. Tudo o que escreveste fica exatamente como estava.",
+   "De woorden die de app schrijft — kolomtitels, dagtypes en de samenvatting — plus de namen van maanden en dagen. Alles wat je zelf hebt getypt blijft precies zoals je het schreef.",
+   "Słowa, które pisze aplikacja – tytuły kolumn, typy dni i podsumowanie – oraz nazwy miesięcy i dni. Wszystko, co wpisałeś sam, zostaje dokładnie tak, jak napisałeś."
+  ],
+  "Buying Hours Pro": [
+   "Hours Pro kaufen",
+   "Kupnja Hours Pro",
+   "Nakup Hours Pro",
+   "Acquistare Hours Pro",
+   "Acheter Hours Pro",
+   "Comprar Hours Pro",
+   "Comprar o Hours Pro",
+   "Hours Pro kopen",
+   "Zakup Hours Pro"
+  ],
+  "Timesheets, widgets, a second job, range editing and iCloud sync. Recording your hours is free and stays free.": [
+   "Stundenzettel, Widgets, eine zweite Tätigkeit, Zeitraum-Bearbeitung und iCloud-Sync. Das Erfassen deiner Stunden ist kostenlos und bleibt es.",
+   "Evidencije, widgeti, drugi posao, uređivanje raspona i iCloud sinkronizacija. Bilježenje sati je besplatno i ostaje besplatno.",
+   "Evidence, pripomočki, drugo delo, urejanje obsega in sinhronizacija iCloud. Beleženje ur je brezplačno in ostane brezplačno.",
+   "Fogli ore, widget, un secondo lavoro, modifica per intervalli e sincronizzazione iCloud. Registrare le ore è gratis e resta gratis.",
+   "Feuilles d’heures, widgets, un second poste, modification par plage et synchronisation iCloud. Enregistrer vos heures est gratuit et le reste.",
+   "Hojas de horas, widgets, un segundo trabajo, edición por intervalos y sincronización con iCloud. Registrar tus horas es gratis y seguirá siéndolo.",
+   "Folhas de horas, widgets, um segundo trabalho, edição por intervalos e sincronização com o iCloud. Registar as tuas horas é grátis e continua grátis.",
+   "Urenstaten, widgets, een tweede functie, bereikbewerking en iCloud-synchronisatie. Je uren vastleggen is gratis en blijft gratis.",
+   "Ewidencje, widżety, druga praca, edycja zakresu i synchronizacja z iCloud. Zapisywanie godzin jest bezpłatne i takie zostanie."
+  ],
+  "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.": [
+   "Die Zahlung wickelt der App Store vollständig ab, wie jeden Kauf auf deinem Telefon. Hours erfährt im Gegenzug genau eines – ob es bezahlt wurde – und sieht nie deinen Namen, deine E-Mail-Adresse oder deine Karte. Es gibt weiterhin nichts, wo man sich anmelden müsste.",
+   "Plaćanje u cijelosti obavlja App Store, kao i svaku kupnju na tvom telefonu. Hours zauzvrat saznaje jedno – je li plaćen – i nikad ne vidi tvoje ime, e-poštu ni karticu. I dalje se nema kamo prijaviti.",
+   "Plačilo v celoti izvede App Store, tako kot vsak nakup na tvojem telefonu. Hours v zameno izve eno stvar – ali je plačan – in nikoli ne vidi tvojega imena, e-pošte ali kartice. Še vedno se ni kam prijaviti.",
+   "Il pagamento è gestito interamente dall’App Store, come ogni acquisto sul telefono. Hours riceve in cambio una sola informazione — se è stato pagato — e non vede mai il tuo nome, la tua email o la tua carta. Non c’è comunque nulla in cui accedere.",
+   "Le paiement est entièrement géré par l’App Store, comme tout achat sur votre téléphone. Hours n’apprend qu’une chose en retour — s’il a été payé — et ne voit jamais votre nom, votre e-mail ni votre carte. Il n’y a toujours aucun compte auquel se connecter.",
+   "El pago lo gestiona por completo el App Store, igual que cualquier compra en tu teléfono. Hours recibe a cambio una sola cosa —si se ha pagado— y nunca ve tu nombre, tu correo ni tu tarjeta. Sigue sin haber nada a lo que iniciar sesión.",
+   "O pagamento é tratado inteiramente pela App Store, como qualquer compra no teu telemóvel. O Hours fica a saber uma coisa em troca — se foi pago — e nunca vê o teu nome, o teu email ou o teu cartão. Continua a não haver nada onde iniciar sessão.",
+   "De betaling wordt volledig door de App Store afgehandeld, zoals elke aankoop op je telefoon. Hours hoort er één ding voor terug — of er betaald is — en ziet nooit je naam, je e-mail of je kaart. Er is nog steeds nergens op in te loggen.",
+   "Płatność w całości obsługuje App Store, tak jak każdy zakup na twoim telefonie. Hours dowiaduje się w zamian jednej rzeczy – czy został opłacony – i nigdy nie widzi twojego imienia, e-maila ani karty. Nadal nie ma się gdzie logować."
+  ]
+ },
+ "sameAsEnglishOnPurpose": [
+  {
+   "key": "Byte-order mark",
+   "language": "nl",
+   "why": "Dutch technical writing leaves this term in English."
+  }
+ ],
+ "widgetInterface": [
+  "Clock running",
+  "Hours Pro",
+  "Not a working day",
+  "Open Hours",
+  "Open Hours once to fill this in",
+  "Set up",
+  "THIS MONTH",
+  "TODAY",
+  "This month",
+  "Turn on App Groups to use the widget",
+  "Widgets are part of Hours Pro",
+  "Worked today"
+ ]
+}

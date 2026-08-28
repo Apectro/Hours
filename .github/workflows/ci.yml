@@ -43,6 +43,34 @@ jobs:
         working-directory: web
         run: npm run verify
 
+  # 2,682 translations across nine languages, and the way they break is quiet:
+  # a %@ dropped from a German sentence hands the format call the wrong
+  # argument, and nothing complains until somebody sees a wrong number. This
+  # checks every placeholder survives every translation, and that running the
+  # generator is a no-op — the generator rewrites the catalogues from scratch,
+  # so a translation living only in the .xcstrings would be erased by the next
+  # person who ran it.
+  translations:
+    name: Translations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Placeholders survive, nothing missing
+        run: python3 Scripts/check-localizations.py
+
+      - name: The catalogues are what the generator writes
+        run: |
+          python3 Scripts/build-catalog.py
+          if ! git diff --quiet -- '*.xcstrings'; then
+            echo "::error::The string catalogues are not what Scripts/build-catalog.py writes."
+            echo "Translations belong in Scripts/translations.json. Run the generator and commit."
+            git diff --stat -- '*.xcstrings'
+            exit 1
+          fi
+
   # The calculation engine imports nothing but Foundation, on purpose: it is the
   # part worth testing exhaustively, and Apple frameworks in it would make that
   # slow and awkward. Until now that rule was upheld by review. This job upholds

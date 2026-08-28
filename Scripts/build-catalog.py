@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the String Catalog entries for the app's inflected strings.
+"""Generate the String Catalogs: the inflected English strings, and every language.
 
 Every string using `^[n noun](inflect: true)` needs an entry, because
 automatic grammar agreement is resolved during the bundle lookup and a key
@@ -21,6 +21,7 @@ Run: python3 Scripts/build-catalog.py
 
 import json
 import os
+import re
 
 APP = "Hours/Resources/Localizable.xcstrings"
 WIDGET = "HoursWidget/Localizable.xcstrings"
@@ -122,6 +123,71 @@ WIDGET_STRINGS = {
 }
 
 
+def load_translations():
+    """The nine other languages, from Scripts/translations.json.
+
+    They are kept out of the catalogues because this script rewrites those
+    from scratch, so anything living only there would be erased the next time
+    somebody ran it — silently, which is the failure mode this whole file was
+    written to avoid in the first place.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "translations.json")) as handle:
+        return json.load(handle)
+
+
+def unit(value):
+    return {"stringUnit": {"state": "translated", "value": value}}
+
+
+def translate(strings, data, interface_keys=None):
+    """Add every language beside the English already in `strings`.
+
+    `interface_keys` limits which plain strings are added, so the widget
+    extension gets the dozen it uses rather than all 280 the app has.
+    """
+    langs = data["languages"]
+    nouns = data["countedNouns"]
+
+    for key, per_lang in data["countedSentences"].items():
+        if key not in strings:
+            continue
+        english = strings[key]["localizations"]["en"]
+        english_subs = english.get("substitutions", {})
+        for lang, sentence in per_lang.items():
+            localization = unit(sentence)
+            used = set(re.findall(r"%#@(\w+)@", sentence))
+            if used != set(english_subs):
+                raise SystemExit(f"{key!r} [{lang}]: uses {used}, English uses {set(english_subs)}")
+            if used:
+                localization["substitutions"] = {
+                    name: {
+                        "argNum": english_subs[name]["argNum"],
+                        "formatSpecifier": english_subs[name]["formatSpecifier"],
+                        "variations": {
+                            "plural": {
+                                category: unit(form)
+                                for category, form in nouns[name][lang].items()
+                            }
+                        },
+                    }
+                    for name in used
+                }
+            strings[key]["localizations"][lang] = localization
+
+    # Plain strings are not inflected, so the key is the English and only the
+    # other languages need an entry.
+    wanted = data["interface"] if interface_keys is None else {
+        key: data["interface"][key] for key in interface_keys
+    }
+    for key, values in wanted.items():
+        entry = strings.setdefault(key, {"extractionState": "manual", "localizations": {}})
+        for lang, value in zip(langs, values):
+            entry["localizations"][lang] = unit(value)
+
+    return strings
+
+
 def write(path, strings):
     catalog = {"sourceLanguage": "en", "strings": strings, "version": "1.0"}
     with open(path, "w") as handle:
@@ -132,5 +198,6 @@ def write(path, strings):
 
 if __name__ == "__main__":
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    write(os.path.join(root, APP), APP_STRINGS)
-    write(os.path.join(root, WIDGET), WIDGET_STRINGS)
+    data = load_translations()
+    write(os.path.join(root, APP), translate(APP_STRINGS, data))
+    write(os.path.join(root, WIDGET), translate(WIDGET_STRINGS, data, data["widgetInterface"]))
