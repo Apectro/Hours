@@ -677,11 +677,8 @@ final class ExportTests: XCTestCase {
 
     /// The tab in a German workbook is not the one English word in it.
     func testTheSheetTabFollowsTheLanguage() {
-        for (language, expected) in [
-            (ExportLanguage.english, "Hours"),
-            (.german, "Stunden"),
-            (.croatian, "Sati")
-        ] {
+        for language in ExportLanguage.allCases where language != .device {
+            let expected = language(.hours)
             var export = ExportPreferences()
             export.language = language
             let table = sampleTable(settings: Fixture.settings(export: export))
@@ -697,6 +694,12 @@ final class ExportTests: XCTestCase {
                 package.contains("\'\(expected)\'!$"),
                 "\(language.rawValue): the print titles name a different sheet than the tab"
             )
+            if language != .english {
+                XCTAssertFalse(
+                    package.contains("<sheet name=\"Hours\""),
+                    "\(language.rawValue): the tab is still the English word"
+                )
+            }
         }
     }
 
@@ -740,7 +743,7 @@ final class ExportTests: XCTestCase {
     /// ### where the hours should be, which is the same defect twice: sized
     /// for English, rendered in German.
     func testDurationColumnsAreWideEnoughInEveryLanguage() {
-        for language in [ExportLanguage.english, .german, .croatian] {
+        for language in ExportLanguage.allCases where language != .device {
             var export = ExportPreferences()
             export.language = language
             let table = sampleTable(settings: Fixture.settings(export: export))
@@ -773,7 +776,7 @@ final class ExportTests: XCTestCase {
     /// And so is the summary's figure column, which is where the widest
     /// duration in the whole file lives — a month's total rather than a day's.
     func testTheSummaryFigureColumnFitsAMonthsTotal() {
-        for language in [ExportLanguage.english, .german, .croatian] {
+        for language in ExportLanguage.allCases where language != .device {
             var export = ExportPreferences()
             export.language = language
             let table = sampleTable(settings: Fixture.settings(export: export))

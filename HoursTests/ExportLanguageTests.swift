@@ -8,110 +8,139 @@ import XCTest
 /// translation is complete — a sheet that says *Zusammenfassung* over a column
 /// headed *Worked* is worse than one that never claimed to be German.
 final class ExportLanguageTests: XCTestCase {
-    private let languages: [ExportLanguage] = [.english, .german, .croatian]
+    /// Every language the export speaks. Derived rather than listed, so a
+    /// language added to the enum is tested without anybody remembering to
+    /// add it here.
+    private let languages = ExportLanguage.allCases.filter { $0 != .device }
 
     // MARK: - Nothing is left in English by accident
 
-    /// Every term is translated into every language, and no two languages
-    /// were given the same word by copy-and-paste.
-    ///
-    /// The switch in `ExportLanguage` is exhaustive, so a term added without
-    /// translations does not compile. What that cannot catch is a term added
-    /// with the English text pasted into all three arms, which is this.
+    /// Every term has something to say in every language.
     func testEveryTermIsTranslatedIntoEveryLanguage() {
+        XCTAssertGreaterThan(languages.count, 1, "the export speaks only one language")
+
         for term in ExportTerm.allCases {
             for language in languages {
-                let word = language(term)
                 XCTAssertFalse(
-                    word.trimmingCharacters(in: .whitespaces).isEmpty,
+                    language(term).trimmingCharacters(in: .whitespaces).isEmpty,
                     "\(language.rawValue) has nothing to say for \(term.rawValue)"
                 )
             }
         }
+    }
 
-        // The tripwire. A term added with the English text pasted into all
-        // three arms is a term that looks translated and is not, and the
-        // switch being exhaustive cannot catch it. German shares exactly one
-        // word with English and Croatian shares none, so anything else that
-        // matches is a translation nobody did.
-        let german = ExportLanguage.german
-        let croatian = ExportLanguage.croatian
+    /// Words that legitimately match English, listed language by language.
+    ///
+    /// The switch is exhaustive, so a term added without translations does
+    /// not compile. What that cannot catch is a term added with the English
+    /// pasted into every arm — it looks translated and is not. Genuine
+    /// coincidences are real and common enough that "differs from English"
+    /// would be a false alarm: French really does write Date, Type, Notes,
+    /// Correction, Total and page. So they are enumerated, and anything else
+    /// that matches is a translation nobody did.
+    private static let sharedWithEnglish: [ExportLanguage: Set<ExportTerm>] = [
+        .german: [.name],
+        .croatian: [],
+        .slovenian: [],
+        .italian: [],
+        .french: [.date, .dayType, .notes, .correction, .total, .page],
+        .spanish: [.total],
+        .portuguese: [.total],
+        .dutch: [.dayType, .weekend],
+        .polish: [.weekend]
+    ]
+
+    func testNoLanguageQuietlyKeptTheEnglish() {
         let english = ExportLanguage.english
 
-        let germanMatches = ExportTerm.allCases.filter { german($0) == english($0) }
-        XCTAssertEqual(
-            Set(germanMatches), [.name],
-            "German shares a word with English that it probably should not"
-        )
+        for language in languages where language != english {
+            guard let expected = ExportLanguageTests.sharedWithEnglish[language] else {
+                return XCTFail("\(language.rawValue) was added without saying which words it shares with English")
+            }
+            let matches = Set(ExportTerm.allCases.filter { language($0) == english($0) })
+            XCTAssertEqual(
+                matches, expected,
+                """
+                \(language.rawValue) matches English on words this test does not \
+                expect it to. Either the translation was left as English, or the \
+                coincidence is real and belongs in sharedWithEnglish.
+                """
+            )
+        }
 
-        let croatianMatches = ExportTerm.allCases.filter { croatian($0) == english($0) }
         XCTAssertEqual(
-            Set(croatianMatches), [],
-            "Croatian shares a word with English that it probably should not"
+            Set(ExportLanguageTests.sharedWithEnglish.keys).subtracting(languages),
+            [],
+            "a language named here is no longer one the export speaks"
         )
     }
 
-    /// A German timesheet says German things.
-    func testTheGermanTimesheetIsGerman() {
-        let german = ExportLanguage.german
-        XCTAssertEqual(german(.worked), "Gearbeitet")
-        XCTAssertEqual(german(.summary), "Zusammenfassung")
-        XCTAssertEqual(german(.vacation), "Urlaub")
-        XCTAssertEqual(german(.totalWorked), "Gesamt gearbeitet")
+    /// The picker names each language in that language, and no two share a
+    /// name or a code — either would make one of them unreachable.
+    func testEveryLanguageIsNamedAndDistinct() {
+        let named = languages.map(\.title)
+        XCTAssertEqual(Set(named).count, named.count, "two languages answer to the same name")
+        XCTAssertFalse(named.contains { $0.isEmpty })
+
+        let locales = languages.map(\.locale.identifier)
+        XCTAssertEqual(Set(locales).count, locales.count, "two languages share a locale")
     }
 
-    /// And a Croatian one Croatian things.
-    func testTheCroatianTimesheetIsCroatian() {
-        let croatian = ExportLanguage.croatian
-        XCTAssertEqual(croatian(.worked), "Odrađeno")
-        XCTAssertEqual(croatian(.summary), "Sažetak")
-        XCTAssertEqual(croatian(.vacation), "Godišnji odmor")
-        XCTAssertEqual(croatian(.totalWorked), "Ukupno odrađeno")
+    /// A spot check that the words are the language they claim to be, in the
+    /// three the app was built for and the ones added since.
+    func testTheWordsAreTheLanguageTheyClaim() {
+        let cases: [(ExportLanguage, ExportTerm, String)] = [
+            (.german, .summary, "Zusammenfassung"),
+            (.german, .vacation, "Urlaub"),
+            (.croatian, .summary, "Sažetak"),
+            (.croatian, .totalWorked, "Ukupno odrađeno"),
+            (.slovenian, .summary, "Povzetek"),
+            (.italian, .summary, "Riepilogo"),
+            (.french, .summary, "Récapitulatif"),
+            (.spanish, .summary, "Resumen"),
+            (.portuguese, .summary, "Resumo"),
+            (.dutch, .summary, "Samenvatting"),
+            (.polish, .summary, "Podsumowanie")
+        ]
+        for (language, term, expected) in cases {
+            XCTAssertEqual(language(term), expected, "\(language.rawValue) \(term.rawValue)")
+        }
     }
 
     /// A language the export does not speak gets English rather than nothing.
     func testAnUnknownDeviceLanguageLandsOnEnglish() {
         // `.device` resolves against whatever the test host is set to, which
         // is not something a test should depend on — but it must always be
-        // one of the three the app actually has words for.
+        // one of the languages the app actually has words for.
         XCTAssertTrue(
             languages.contains(ExportLanguage.device.resolved),
             "following the phone resolved to a language with no vocabulary"
         )
         XCTAssertEqual(ExportLanguage.english.resolved, .english)
+        XCTAssertEqual(ExportLanguage.polish.resolved, .polish)
     }
 
     /// Following the phone must not produce half a translation.
     ///
-    /// `device` resolves its words by looking at the phone and falls back to
-    /// English for a language the export has no words for. The locale that
-    /// names months and weekdays was following the phone regardless, so a
-    /// French handset produced English column titles over "août" and "lun" —
-    /// worse than either language alone, because a reader cannot tell which
-    /// parts were meant.
+    /// The words resolve against the phone and fall back to English for a
+    /// language the export has none for. The locale that names months and
+    /// weekdays was following the phone regardless, so a French handset
+    /// produced English column titles over "août" and "lun" — worse than
+    /// either language alone, because a reader cannot tell which parts were
+    /// meant.
     func testFollowingThePhoneNeverMixesTwoLanguages() {
-        // Whatever the host is set to, the words and the month names have to
-        // come from the same place.
         let device = ExportLanguage.device
         XCTAssertEqual(
             String(device.locale.identifier.prefix(2)),
-            expectedCode(for: device.resolved),
+            String(device.resolved.locale.identifier.prefix(2)),
             "the month names and the column titles are in different languages"
         )
 
-        // The named languages pin their own locale and are unaffected by the
-        // host, which is the point of naming them.
+        // A named language pins its own locale and is unaffected by the host,
+        // which is the point of naming it.
         XCTAssertEqual(ExportLanguage.german.locale.identifier, "de_DE")
-        XCTAssertEqual(ExportLanguage.croatian.locale.identifier, "hr_HR")
+        XCTAssertEqual(ExportLanguage.polish.locale.identifier, "pl_PL")
         XCTAssertEqual(ExportLanguage.english.locale.identifier, "en_GB")
-    }
-
-    private func expectedCode(for language: ExportLanguage) -> String {
-        switch language {
-        case .german: return "de"
-        case .croatian: return "hr"
-        default: return "en"
-        }
     }
 
     // MARK: - Durations

@@ -252,31 +252,37 @@ enum PDFReportRenderer {
         return weights.map { availableWidth * $0 / total }
     }
 
-    /// The tuned weight below, raised when the column's contents will not fit
-    /// in it.
+    /// The tuned weight below, raised when the column's heading or its figures
+    /// will not fit in it.
     ///
-    /// The weights were chosen against "9h 45m", six characters, and held
-    /// only while nothing was longer — a three-figure total or a negative
-    /// running balance is eight, and a column tuned for six clips it. A
-    /// truncated note is untidy; a truncated duration is a wrong number, so
-    /// duration columns take whatever room their widest value needs and the
-    /// note gives it up.
+    /// The weights were chosen against English words and "9h 45m", and hold
+    /// only while nothing is longer. Two things routinely are. A three-figure
+    /// total or a negative running balance is eight characters where the
+    /// duration weights assumed six. And "Worked" is a heading of six letters
+    /// that reads "Heures travaillées" in French and "Nieobecność płatna" in
+    /// Polish — three times the width, in a column that had no idea.
     ///
-    /// It was a translated unit that exposed this — "9 Std 45 Min" in a
-    /// column built for "9h 45m" — and the units are no longer translated,
-    /// but the measurement stays: the constant was wrong before any language
-    /// touched it.
+    /// A truncated note is untidy; a truncated heading or a truncated figure
+    /// is a document that misinforms, so both take the room they need and the
+    /// note gives it up. Proportions elsewhere are unchanged, because a
+    /// column already wide enough for its contents asks for nothing.
     private static func weight(forColumnAt index: Int, in table: ReportTable) -> CGFloat {
         let column = table.columns[index]
         let base = weight(for: column)
-        guard column.isDuration else { return base }
 
-        let widest = table.rows.reduce(0) { widest, row in
-            max(widest, index < row.values.count ? row.values[index].count : 0)
-        }
-        let englishReference = 6
-        guard widest > englishReference else { return base }
-        return base * CGFloat(widest) / CGFloat(englishReference)
+        // Characters the tuned weight can hold, judged from the widest
+        // English case each was drawn for.
+        let heading = column.heading(in: table.language).count
+        let figures = column.isDuration
+            ? table.rows.reduce(0) { widest, row in
+                max(widest, index < row.values.count ? row.values[index].count : 0)
+            }
+            : 0
+        let needed = max(heading, figures)
+        let affordable = column.isDuration ? 8 : max(column.title.count, 8)
+
+        guard needed > affordable else { return base }
+        return base * CGFloat(needed) / CGFloat(affordable)
     }
 
     private static func weight(for column: ReportColumn) -> CGFloat {
