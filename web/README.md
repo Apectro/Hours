@@ -1,6 +1,6 @@
 # web
 
-The marketing site at <https://zeitkonto.app/>. React 18, TypeScript,
+The marketing site at <https://zeitkonto.app/>, in English and German. React 18, TypeScript,
 Vite; no UI framework and no analytics, for the same reason the app has none.
 
 The page is laid out as a ledger, because that is what a timesheet is: a label
@@ -30,9 +30,29 @@ job is the price of the trade.
 site goes live when the commit lands on `main` — see `docs/README.md` for why
 it is arranged that way rather than as an Actions workflow.
 
+## Two languages
+
+English at `/`, German at `/de/`. The site is built twice — `npm run build`
+runs vite once per language — rather than switched in the browser, so each page
+carries the right `lang` attribute, the right title and description for search
+and link previews, and no flash of the wrong language while the bundle loads.
+Each language is a real URL that can be shared, which a runtime toggle is not.
+
+German takes `base: "/de/"` so its own JS and CSS resolve, but images are
+referenced absolutely and its `publicDir` is off: the screenshots say the same
+thing in both languages and 145KB is not worth duplicating to prove it.
+
+`src/copy/en.ts` is the source of the shape. `de.ts` is typed as `Copy`, so a
+section added to one and forgotten in the other is a compile error rather than
+a paragraph that quietly comes out in English. `vite.config.ts` rewrites the
+head per language and emits the `hreflang` pair.
+
+The German copy is careful, not reviewed. Worth a native pass before it does
+any real selling.
+
 ## Where the words come from
 
-`src/content.ts` holds everything the page says, so the copy can be read and
+`src/copy/` holds everything each page says, so the copy can be read and
 corrected without going through JSX. It is drawn from
 `docs/app-store-listing.md`, which was written from what the app actually does.
 Where the two disagree the listing wins, because that is the one Apple reads.

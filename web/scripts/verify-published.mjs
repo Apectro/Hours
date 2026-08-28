@@ -18,9 +18,9 @@
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, parse } from "node:path";
+import { basename, dirname, join, parse } from "node:path";
 import { fileURLToPath } from "node:url";
-import { cardInputs } from "./brand.mjs";
+import { CARD_LANGUAGES, cardInputs } from "./brand.mjs";
 
 const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
@@ -30,18 +30,24 @@ execFileSync("npm", ["run", "build"], { cwd: web, stdio: "inherit" });
 
 const problems = [];
 
-const fresh = readFileSync(join(dist, "index.html"), "utf8");
-const published = existsSync(join(docs, "index.html"))
-  ? readFileSync(join(docs, "index.html"), "utf8")
-  : null;
+/* Both languages, each with its own page and its own hashed bundle. */
+const PAGES = [
+  { name: "index.html", built: join(dist, "index.html"), published: join(docs, "index.html") },
+  { name: "de/index.html", built: join(dist, "de", "index.html"), published: join(docs, "de", "index.html") },
+];
 
-if (published === null) {
-  problems.push("docs/index.html is missing entirely");
-} else if (fresh !== published) {
-  problems.push(
-    "docs/index.html is not what web/ builds today.\n" +
-      "    Someone changed the site and did not run `npm run publish`.",
-  );
+let fresh = "";
+for (const page of PAGES) {
+  const built = readFileSync(page.built, "utf8");
+  fresh += built;
+  if (!existsSync(page.published)) {
+    problems.push(`docs/${page.name} is missing entirely`);
+  } else if (built !== readFileSync(page.published, "utf8")) {
+    problems.push(
+      `docs/${page.name} is not what web/ builds today.\n` +
+        "    Someone changed the site and did not run `npm run publish`.",
+    );
+  }
 }
 
 /*
@@ -50,7 +56,7 @@ if (published === null) {
  * carry the /Hours/ prefix, and a stale copy of it would have matched nothing
  * and quietly checked nothing at all.
  */
-const referenced = [...fresh.matchAll(/(?:src|href)="\/(assets\/[^"]+)"/g)].map((m) => m[1]);
+const referenced = [...fresh.matchAll(/(?:src|href)="\/((?:de\/)?assets\/[^"]+)"/g)].map((m) => m[1]);
 if (referenced.length === 0) problems.push("no assets referenced by index.html — the check is not looking at anything");
 for (const asset of referenced) {
   if (!existsSync(join(docs, asset))) problems.push(`docs/${asset} is referenced but missing`);
@@ -74,7 +80,9 @@ const check = (dir, suffixes) => {
 check(join(web, "shots-src"), widths);
 check(join(web, "shots-src", "exports"), exportWidths);
 
-if (!existsSync(join(docs, "og.png"))) problems.push("docs/og.png is missing");
+for (const card of ["og.png", "og-de.png"]) {
+  if (!existsSync(join(docs, card))) problems.push(`docs/${card} is missing`);
+}
 
 /*
  * The social card is committed rather than built, so it can go stale on its
@@ -83,16 +91,16 @@ if (!existsSync(join(docs, "og.png"))) problems.push("docs/og.png is missing");
  * be compared — sharp's output depends on whichever libvips the machine has —
  * but the inputs it was made from are written beside it and compare exactly.
  */
-const inputsPath = join(web, "og.inputs.json");
-if (!existsSync(inputsPath)) {
-  problems.push("web/og.inputs.json is missing — run `npm run og`");
-} else {
-  const recorded = readFileSync(inputsPath, "utf8").trim();
-  const current = JSON.stringify(cardInputs(), null, 2);
-  if (recorded !== current) {
+for (const lang of CARD_LANGUAGES) {
+  const inputsPath = join(web, `og.inputs${lang === "en" ? "" : `-${lang}`}.json`);
+  if (!existsSync(inputsPath)) {
+    problems.push(`web/${basename(inputsPath)} is missing — run \`npm run og\``);
+    continue;
+  }
+  if (readFileSync(inputsPath, "utf8").trim() !== JSON.stringify(cardInputs(lang), null, 2)) {
     problems.push(
-      "the social card was made from a headline, palette or typeface the site\n" +
-        "    no longer uses. Run `npm run og` and commit the result.",
+      `the ${lang} social card was made from a headline, palette or typeface the\n` +
+        "    site no longer uses. Run `npm run og` and commit the result.",
     );
   }
 }

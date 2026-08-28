@@ -1,15 +1,26 @@
 {
-  "headline": "Your hours never leave your phone.",
-  "headlineLines": ["Your hours never", "leave your phone."],
-  "equation": [
-    ["worked", "term"],
-    ["+", "op"],
-    ["credited", "term"],
-    ["−", "op"],
-    ["expected", "term"],
-    ["+", "op"],
-    ["adjustment", "term"],
-    ["=", "op"],
-    ["balance", "result"]
-  ]
+  "//": [
+    "The headline and the balance line, per language.",
+    "Both the page and the social card read this, so a card cannot end up",
+    "advertising a headline the page has stopped using — which is exactly what",
+    "happened once."
+  ],
+  "en": {
+    "headline": "Your hours never leave your phone.",
+    "headlineLines": ["Your hours never", "leave your phone."],
+    "equation": [
+      ["worked", "term"], ["+", "op"], ["credited", "term"], ["−", "op"],
+      ["expected", "term"], ["+", "op"], ["adjustment", "term"], ["=", "op"],
+      ["balance", "result"]
+    ]
+  },
+  "de": {
+    "headline": "Deine Stunden verlassen dein Telefon nicht.",
+    "headlineLines": ["Deine Stunden verlassen", "dein Telefon nicht."],
+    "equation": [
+      ["gearbeitet", "term"], ["+", "op"], ["gutgeschrieben", "term"], ["−", "op"],
+      ["Soll", "term"], ["+", "op"], ["Korrektur", "term"], ["=", "op"],
+      ["Saldo", "result"]
+    ]
+  }
 }

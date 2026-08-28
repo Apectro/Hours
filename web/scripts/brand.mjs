@@ -16,8 +16,10 @@ import { fileURLToPath } from "node:url";
 
 const web = dirname(dirname(fileURLToPath(import.meta.url)));
 
-export function readBrand() {
-  const brand = JSON.parse(readFileSync(join(web, "src", "brand.json"), "utf8"));
+export function readBrand(lang = "en") {
+  const all = JSON.parse(readFileSync(join(web, "src", "brand.json"), "utf8"));
+  const brand = all[lang];
+  if (!brand) throw new Error(`brand.json has no ${lang}`);
   const css = readFileSync(join(web, "src", "styles.css"), "utf8");
 
   // The first :root block is the light palette. The card is a light one; an
@@ -52,7 +54,10 @@ export function readBrand() {
 }
 
 /** Exactly what gets written beside the card, and compared against later. */
-export function cardInputs() {
-  const { brand, palette, fonts } = readBrand();
-  return { headlineLines: brand.headlineLines, equation: brand.equation, palette, fonts };
+export function cardInputs(lang = "en") {
+  const { brand, palette, fonts } = readBrand(lang);
+  return { lang, headlineLines: brand.headlineLines, equation: brand.equation, palette, fonts };
 }
+
+/** One card per language the site is published in. */
+export const CARD_LANGUAGES = ["en", "de"];

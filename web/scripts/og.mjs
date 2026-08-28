@@ -18,14 +18,14 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { cardInputs, readBrand } from "./brand.mjs";
+import { CARD_LANGUAGES, cardInputs, readBrand } from "./brand.mjs";
 
 const scripts = dirname(fileURLToPath(import.meta.url));
 const web = dirname(scripts);
 
 /* -------------------------------------------------------- the single source */
 
-const { brand, palette, fonts: faces } = readBrand();
+const { palette, fonts: faces } = readBrand();
 
 const { INK, SOFT, ACCENT, GROUND, RULE, ON_ACCENT } = palette;
 const DISPLAY = faces.display;
@@ -97,6 +97,37 @@ await assertFontIsUsed(TYPE);
 
 /* ----------------------------------------------------------------- the card */
 
+/* The phone is the same capture the hero uses, rounded to match the page. It
+   does not change with the language, so it is prepared once. */
+const PHONE = { width: 264, x: 860, y: 74 };
+const phoneSource = await sharp(join(web, "shots-src", "01-calendar.png"))
+  .resize({ width: PHONE.width })
+  .toBuffer();
+const { height: phoneHeight } = await sharp(phoneSource).metadata();
+const phone = await sharp(phoneSource)
+  .composite([
+    {
+      input: Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${PHONE.width}" height="${phoneHeight}">` +
+          `<rect width="${PHONE.width}" height="${phoneHeight}" rx="26" fill="#fff"/></svg>`,
+      ),
+      blend: "dest-in",
+    },
+  ])
+  .png()
+  .toBuffer();
+
+for (const lang of CARD_LANGUAGES) {
+  const { brand } = readBrand(lang);
+  await drawCard(lang, brand, phone);
+  writeFileSync(
+    join(web, `og.inputs${lang === "en" ? "" : `-${lang}`}.json`),
+    `${JSON.stringify(cardInputs(lang), null, 2)}\n`,
+  );
+}
+
+async function drawCard(lang, brand, phoneImage) {
+
 const W = 1200;
 const H = 630;
 
@@ -118,7 +149,6 @@ function equationSpans(x, y) {
     .join("");
 }
 
-/* Two long lines rather than the page's two, so the card is not mostly type. */
 const lines = brand.headlineLines;
 const headTop = 300 - (lines.length - 1) * 34;
 
@@ -130,7 +160,7 @@ const card = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"
   ${lines
     .map(
       (line, index) =>
-        `<text x="76" y="${headTop + index * 68}" font-family="${DISPLAY}" font-weight="700" font-size="62" fill="${INK}" letter-spacing="-1.7">${line}</text>`,
+        `<text x="76" y="${headTop + index * 68}" font-family="${DISPLAY}" font-weight="700" font-size="${lines[0].length > 20 ? 52 : 62}" fill="${INK}" letter-spacing="-1.7">${line}</text>`,
     )
     .join("")}
   <rect x="76" y="498" width="714" height="2" fill="${INK}"/>
@@ -138,39 +168,11 @@ const card = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"
   <rect x="0" y="${H - 1}" width="${W}" height="1" fill="${RULE}"/>
 </svg>`;
 
-/* The phone is the same capture the hero uses, rounded to match the page. */
-const PHONE = { width: 264, x: 860, y: 74 };
-const phone = await sharp(join(web, "shots-src", "01-calendar.png"))
-  .resize({ width: PHONE.width })
-  .toBuffer();
-const { height: phoneHeight } = await sharp(phone).metadata();
-
-const rounded = await sharp(phone)
-  .composite([
-    {
-      input: Buffer.from(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${PHONE.width}" height="${phoneHeight}">` +
-          `<rect width="${PHONE.width}" height="${phoneHeight}" rx="26" fill="#fff"/></svg>`,
-      ),
-      blend: "dest-in",
-    },
-  ])
-  .png()
-  .toBuffer();
-
-const out = join(web, "public", "og.png");
+const out = join(web, "public", `og${lang === "en" ? "" : `-${lang}`}.png`);
 await sharp(Buffer.from(card))
-  .composite([{ input: rounded, top: PHONE.y, left: PHONE.x }])
+  .composite([{ input: phoneImage, top: PHONE.y, left: PHONE.x }])
   .png({ compressionLevel: 9 })
   .toFile(out);
 
-/*
- * What the card was made from, so CI can tell whether it still matches the
- * site. Comparing the PNG's bytes would not work, because sharp's output
- * depends on whichever libvips the machine has, but its inputs compare
- * exactly. It sits beside package.json rather than in public/, because it is a
- * record for this repository and not a file the site needs to serve.
- */
-writeFileSync(join(web, "og.inputs.json"), `${JSON.stringify(cardInputs(), null, 2)}\n`);
-
 console.log(`Wrote ${out} — ${DISPLAY} and ${TYPE}, accent ${ACCENT}`);
+}

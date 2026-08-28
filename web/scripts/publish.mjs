@@ -27,7 +27,13 @@ const docs = join(web, "..", "docs");
 /** Hand-written, and never touched by a publish. Everything else is output. */
 const KEEP = new Set(["privacy", "README.md", "app-store-listing.md"]);
 
+// Both languages: English at the root, German into dist/de.
 execFileSync("npx", ["vite", "build"], { cwd: web, stdio: "inherit" });
+execFileSync("npx", ["vite", "build"], {
+  cwd: web,
+  stdio: "inherit",
+  env: { ...process.env, VITE_LANG: "de" },
+});
 
 mkdirSync(docs, { recursive: true });
 const removed = [];

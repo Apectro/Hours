@@ -1,20 +1,10 @@
 import { useRef, useState } from "react";
-import {
-  appStore,
-  balance,
-  cases,
-  headlineLines,
-  howItWorks,
-  languages,
-  plans,
-  privacyClaims,
-  shotSize,
-  shots,
-  timesheetProof,
-} from "./content";
+import { appStore, languages, shotSize, timesheetProof } from "./content";
+import { copy, language, otherLanguageHref } from "./copy";
 
 const REPO = "https://github.com/Apectro/Hours";
-const PRIVACY = "privacy/";
+// Absolute: the German page sits at /de/, and one privacy policy serves both.
+const PRIVACY = "/privacy/";
 
 /**
  * One screenshot, at the several widths scripts/images.mjs writes. `sizes` has
@@ -37,10 +27,10 @@ function Shot({
       <source
         type="image/webp"
         sizes={sizes}
-        srcSet={`shots/${shot}.480.webp 480w, shots/${shot}.960.webp 960w`}
+        srcSet={`/shots/${shot}.480.webp 480w, /shots/${shot}.960.webp 960w`}
       />
       <img
-        src={`shots/${shot}.640.png`}
+        src={`/shots/${shot}.640.png`}
         alt={alt}
         width={shotSize.width}
         height={shotSize.height}
@@ -77,10 +67,10 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
  * difference between following the system and guessing at it once.
  */
 const THEMES = [
-  { value: "", label: "Auto" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-] as const;
+  { value: "", label: copy.theme.auto },
+  { value: "light", label: copy.theme.light },
+  { value: "dark", label: copy.theme.dark },
+];
 
 function ThemeChoice() {
   const [theme, setTheme] = useState(() => {
@@ -121,7 +111,7 @@ function ThemeChoice() {
   };
 
   return (
-    <div className="theme" role="radiogroup" aria-label="Colour theme">
+    <div className="theme" role="radiogroup" aria-label={copy.nav.theme}>
       {THEMES.map((option, position) => (
         <button
           key={option.label}
@@ -153,13 +143,16 @@ function Masthead() {
           Hours
         </a>
         <div className="masthead-end">
-          <nav aria-label="Sections">
-            <a href="#balance">The balance</a>
-            <a href="#app">The app</a>
-            <a href="#timesheets">Timesheets</a>
-            <a href="#privacy">Privacy</a>
-            <a href="#pricing">Pricing</a>
+          <nav aria-label={copy.nav.sections}>
+            <a href="#balance">{copy.nav.balance}</a>
+            <a href="#app">{copy.nav.app}</a>
+            <a href="#timesheets">{copy.nav.timesheets}</a>
+            <a href="#privacy">{copy.nav.privacy}</a>
+            <a href="#pricing">{copy.nav.pricing}</a>
           </nav>
+          <a className="lang-switch" href={otherLanguageHref} hrefLang={language === "de" ? "en" : "de"}>
+            {copy.otherLanguage}
+          </a>
           <ThemeChoice />
         </div>
       </div>
@@ -174,65 +167,54 @@ function Hero() {
         <div className="hero-grid">
           <div>
             <h1>
-              {headlineLines.map((line, index) => (
+              {copy.hero.headlineLines.map((line, index) => (
                 <span key={line}>
                   {index > 0 ? " " : null}
                   {line}
                 </span>
               ))}
             </h1>
-            <p className="lede">
-              Tap a day, put your hours in, and the month adds itself up. When
-              payroll wants a timesheet you export one, in whatever language
-              they read. There's no account to make and nowhere for any of it
-              to go.
-            </p>
+            <p className="lede">{copy.hero.lede}</p>
 
             <div className="hero-actions">
               {appStore ? (
                 <a className="button primary" href={appStore}>
-                  Get it on the App Store
+                  {copy.hero.appStoreAction}
                 </a>
               ) : null}
               <a className={`button ${appStore ? "secondary" : "primary"}`} href="#pricing">
-                What it costs
+                {copy.hero.costAction}
               </a>
               <a className="button secondary" href={REPO}>
-                Read the source
+                {copy.hero.sourceAction}
               </a>
             </div>
             <p className="hero-note">
-              {appStore ? null : "It isn't on the App Store yet. "}
-              Recording your hours is free and stays free. Needs iOS 17.
+              {appStore ? null : copy.hero.notYet}
+              {copy.hero.note}
             </p>
           </div>
 
           <div className="hero-shot">
             <Shot
               shot="01-calendar"
-              alt="Hours on an iPhone, showing a month of days coloured by type with totals beneath"
+              alt={copy.hero.shotAlt}
               sizes="320px"
             />
           </div>
         </div>
 
-        <div className="equation" role="figure" aria-label="How the balance is calculated">
-          <p className="equation-label">It all comes down to one line</p>
+        <div className="equation" role="figure" aria-label={copy.equation.figureLabel}>
+          <p className="equation-label">{copy.equation.label}</p>
           <p className="equation-line">
-            {balance.map((part, index) => (
-              <span key={index} className={part.kind}>
-                {part.text}
+            {copy.equation.parts.map(([text, kind], index) => (
+              <span key={index} className={kind}>
+                {text}
               </span>
             ))}
           </p>
           <div className="equation-foot">
-            <p>
-              Each day type carries a policy saying how it counts, which is why
-              the same line works whether you were at work, on leave or off
-              sick. Worked time and paid absence are always reported
-              separately. Adding them together is how you end up with a figure
-              nobody can explain.
-            </p>
+            <p>{copy.equation.foot}</p>
           </div>
         </div>
       </div>
@@ -244,24 +226,20 @@ function Balance() {
   return (
     <section className="sheet sunk" id="balance">
       <div className="shell">
-        <h2>Six days a timesheet has to get right</h2>
-        <p className="lede">
-          Adding up hours is the easy part. What's hard is the days that aren't
-          simply worked or not worked, and there are more of those than you'd
-          think. Get one of them wrong and somebody is short a day.
-        </p>
+        <h2>{copy.balance.heading}</h2>
+        <p className="lede">{copy.balance.lede}</p>
         <div className="table-scroll">
           <table className="cases">
-            <caption>An eight-hour contracted day, Monday to Friday.</caption>
+            <caption>{copy.balance.caption}</caption>
             <thead>
               <tr>
-                <th scope="col">The day</th>
-                <th scope="col">Balance</th>
-                <th scope="col">Why</th>
+                <th scope="col">{copy.balance.columns.day}</th>
+                <th scope="col">{copy.balance.columns.balance}</th>
+                <th scope="col">{copy.balance.columns.why}</th>
               </tr>
             </thead>
             <tbody>
-              {cases.map((row) => (
+              {copy.balance.cases.map((row) => (
                 <tr key={row.day}>
                   <td>{row.day}</td>
                   <td className={`figure ${row.sign}`}>{row.result}</td>
@@ -280,15 +258,10 @@ function HowItWorks() {
   return (
     <section className="sheet" id="app">
       <div className="shell">
-        <h2>A calendar first, and configurable to the bone</h2>
-        <p className="lede">
-          Every field sits behind a switch, and anything you switch off
-          disappears instead of sitting there greyed out. An app for recording
-          eight hours a day shouldn't make you scroll past nine fields you
-          never use.
-        </p>
+        <h2>{copy.app.heading}</h2>
+        <p className="lede">{copy.app.lede}</p>
         <div className="ledger">
-          {howItWorks.map((item) => (
+          {copy.app.rows.map((item) => (
             <Row key={item.title} label={item.label}>
               <h3>{item.title}</h3>
               <p>{item.body}</p>
@@ -304,13 +277,10 @@ function Gallery() {
   return (
     <section className="sheet sunk">
       <div className="shell">
-        <h2>What it actually looks like</h2>
-        <p className="lede">
-          Every one of these comes out of the app's own test suite on each
-          build, so they can't quietly drift from the thing you'd install.
-        </p>
+        <h2>{copy.gallery.heading}</h2>
+        <p className="lede">{copy.gallery.lede}</p>
         <div className="gallery">
-          {shots.map((shot) => (
+          {copy.gallery.shots.map((shot) => (
             <figure key={shot.shot}>
               <Shot shot={shot.shot} alt={shot.alt} sizes="200px" loading="lazy" />
               <figcaption>
@@ -329,7 +299,7 @@ function Gallery() {
 const PROOF_SIZES = "(max-width: 1160px) 92vw, 1040px";
 
 const proofSrcSet = (code: string) =>
-  `shots/timesheet-${code}.800.webp 800w, shots/timesheet-${code}.1570.webp 1570w`;
+  `/shots/timesheet-${code}.800.webp 800w, /shots/timesheet-${code}.1570.webp 1570w`;
 
 /**
  * The same export in four languages, as tabs.
@@ -369,7 +339,7 @@ function TimesheetProof() {
 
   return (
     <figure className="proof">
-      <div className="proof-tabs" role="tablist" aria-label="Timesheet language">
+      <div className="proof-tabs" role="tablist" aria-label={copy.timesheets.tablistLabel}>
         {proofLanguages.map((language, index) => (
           <button
             key={language.code}
@@ -401,7 +371,7 @@ function TimesheetProof() {
         <picture key={current.code}>
           <source type="image/webp" sizes={PROOF_SIZES} srcSet={proofSrcSet(current.code)} />
           <img
-            src={`shots/timesheet-${current.code}.800.png`}
+            src={`/shots/timesheet-${current.code}.800.png`}
             alt={current.alt}
             width={width}
             height={height}
@@ -411,10 +381,10 @@ function TimesheetProof() {
       </div>
 
       <figcaption>
-        <strong>A real export, in {current.english}.</strong> Every heading,
-        weekday, day type and date format is translated. The note isn't,
-        because those are words you typed. These four get rendered on every
-        build; the other six are covered by tests.
+        <strong>
+          {copy.timesheets.proofLead(copy.timesheets.proofLanguages[current.code])}
+        </strong>
+        {copy.timesheets.proofRest}
       </figcaption>
     </figure>
   );
@@ -424,25 +394,18 @@ function Timesheets() {
   return (
     <section className="sheet" id="timesheets">
       <div className="shell">
-        <h2>A timesheet in the language of whoever reads it</h2>
-        <p className="lede">
-          Pick any range you like, a week or a month or the 3rd to the 19th,
-          and export it as CSV, Excel or PDF. You choose the columns and their
-          order, your name goes at the top, and you name the file. The Excel
-          version keeps real durations behind the hours-and-minutes formatting,
-          so the column still adds up.
-        </p>
+        <h2>{copy.timesheets.heading}</h2>
+        <p className="lede">{copy.timesheets.lede}</p>
 
         <TimesheetProof />
 
         <div className="ledger">
-          <Row label="Set separately">
-            <h3>Ten languages</h3>
+          <Row label={copy.timesheets.rows.settable.label}>
+            <h3>{copy.timesheets.rows.settable.title}</h3>
             <p>
-              The file's language is its own setting, because the person
-              reading a timesheet usually isn't the person who filled it in.
-              Keep your phone in English and hand payroll a sheet that says{" "}
-              <em>Gesamt gearbeitet</em>.
+              {copy.timesheets.rows.settable.bodyBefore}
+              <em>{copy.timesheets.rows.settable.bodyEm}</em>
+              {copy.timesheets.rows.settable.bodyAfter}
             </p>
             <ul className="languages">
               {languages.map((language) => (
@@ -450,14 +413,9 @@ function Timesheets() {
               ))}
             </ul>
           </Row>
-          <Row label="Left alone">
-            <h3>Only the app's own words</h3>
-            <p>
-              Column titles, the day types it ships with and the summary labels
-              all get translated. A note you typed, a job you named, a day type
-              you invented: those come out exactly as you wrote them.
-              Translating somebody's own words would be making things up.
-            </p>
+          <Row label={copy.timesheets.rows.untouched.label}>
+            <h3>{copy.timesheets.rows.untouched.title}</h3>
+            <p>{copy.timesheets.rows.untouched.body}</p>
           </Row>
         </div>
       </div>
@@ -469,14 +427,10 @@ function Privacy() {
   return (
     <section className="sheet sunk" id="privacy">
       <div className="shell">
-        <h2>Every promise here, and where to check it</h2>
-        <p className="lede">
-          The app is a file on your phone. There's no account to make and no
-          server to send anything to, and the source is public, so you don't
-          have to take any of this on trust.
-        </p>
+        <h2>{copy.privacy.heading}</h2>
+        <p className="lede">{copy.privacy.lede}</p>
         <dl className="claims">
-          {privacyClaims.map((item) => (
+          {copy.privacy.claims.map((item) => (
             <div className="claim" key={item.claim}>
               <dt>{item.claim}</dt>
               <dd>{item.evidence}</dd>
@@ -492,14 +446,10 @@ function Pricing() {
   return (
     <section className="sheet" id="pricing">
       <div className="shell">
-        <h2>Recording is free. You pay to make documents.</h2>
-        <p className="lede">
-          Nothing you've recorded ever gets locked up. If a subscription lapses
-          every figure is still there and the backup still writes. What you're
-          paying for is turning it into a file somebody else can read.
-        </p>
+        <h2>{copy.pricing.heading}</h2>
+        <p className="lede">{copy.pricing.lede}</p>
         <div className="pricing">
-          {plans.map((plan) => (
+          {copy.pricing.plans.map((plan) => (
             <article className={`plan${plan.highlight ? " highlight" : ""}`} key={plan.name}>
               <h3>{plan.name}</h3>
               <p className="price">{plan.price}</p>
@@ -520,14 +470,11 @@ function Footer() {
   return (
     <footer>
       <div className="shell footer-inner">
-        <p>
-          Hours is made by one person. No company behind it, and nothing in it
-          that phones home.
-        </p>
-        <nav aria-label="Elsewhere">
-          <a href={PRIVACY}>Privacy</a>
-          <a href={REPO}>Source</a>
-          <a href={`${REPO}/issues`}>Support</a>
+        <p>{copy.footer.line}</p>
+        <nav aria-label={copy.nav.elsewhere}>
+          <a href={PRIVACY}>{copy.footer.privacy}</a>
+          <a href={REPO}>{copy.footer.source}</a>
+          <a href={`${REPO}/issues`}>{copy.footer.support}</a>
         </nav>
       </div>
     </footer>
@@ -538,7 +485,7 @@ export default function App() {
   return (
     <>
       <a className="skip" href="#main">
-        Skip to content
+        {copy.skip}
       </a>
       <Masthead />
       <main id="main">

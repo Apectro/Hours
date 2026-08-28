@@ -807,3 +807,21 @@ footer nav {
   background: var(--accent);
   color: var(--on-accent);
 }
+
+/* The other language. A link, not a switch: each language is a real page with
+   its own URL, so this behaves like the navigation beside it. */
+.lang-switch {
+  font-family: var(--type);
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+}
+
+.lang-switch:hover {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}

@@ -1,12 +1,12 @@
 {
-  "lang": "en",
+  "lang": "de",
   "headlineLines": [
-    "Your hours never",
-    "leave your phone."
+    "Deine Stunden verlassen",
+    "dein Telefon nicht."
   ],
   "equation": [
     [
-      "worked",
+      "gearbeitet",
       "term"
     ],
     [
@@ -14,7 +14,7 @@
       "op"
     ],
     [
-      "credited",
+      "gutgeschrieben",
       "term"
     ],
     [
@@ -22,7 +22,7 @@
       "op"
     ],
     [
-      "expected",
+      "Soll",
       "term"
     ],
     [
@@ -30,7 +30,7 @@
       "op"
     ],
     [
-      "adjustment",
+      "Korrektur",
       "term"
     ],
     [
@@ -38,7 +38,7 @@
       "op"
     ],
     [
-      "balance",
+      "Saldo",
       "result"
     ]
   ],

@@ -8,7 +8,7 @@
     "predev": "npm run images",
     "dev": "vite",
     "prebuild": "npm run images",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && VITE_LANG=de vite build",
     "preview": "vite preview",
     "publish": "node scripts/publish.mjs",
     "og": "node scripts/og.mjs",
