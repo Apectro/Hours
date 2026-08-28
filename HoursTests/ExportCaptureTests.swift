@@ -242,6 +242,46 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertFalse(text.contains("9h 45…") || text.contains("5h 30…"))
     }
 
+    /// No column that must not be cut short is narrower than what it holds.
+    ///
+    /// The page has a fixed width, so widening one column narrows another.
+    /// The first attempt at making room for longer headings did exactly that
+    /// and traded a clipped heading for a clipped date. This measures every
+    /// column of every language against the text it will draw, so the trade
+    /// cannot come back unnoticed.
+    func testNoColumnIsNarrowerThanWhatItMustShow() {
+        let heading = UIFont.systemFont(ofSize: 9, weight: .semibold)
+        let cell = UIFont.systemFont(ofSize: 9.5)
+        func width(_ text: String, _ font: UIFont) -> CGFloat {
+            (text as NSString).size(withAttributes: [.font: font]).width
+        }
+
+        for language in ExportLanguage.allCases where language != .device {
+            let table = monthTable(language: language)
+            let available = PDFReportRenderer.pageSize.width - PDFReportRenderer.margin * 2
+            let widths = PDFReportRenderer.columnWidths(for: table, availableWidth: available)
+
+            XCTAssertEqual(widths.count, table.columns.count)
+            XCTAssertLessThanOrEqual(
+                widths.reduce(0, +), available + 0.5,
+                "\(language.rawValue): the columns are wider than the page"
+            )
+
+            for (index, column) in table.columns.enumerated() {
+                var needed = width(column.heading(in: table.language), heading)
+                if !column.mayTruncate {
+                    for row in table.rows where index < row.values.count {
+                        needed = max(needed, width(row.values[index], cell))
+                    }
+                }
+                XCTAssertGreaterThanOrEqual(
+                    widths[index], needed,
+                    "\(language.rawValue): \(column.rawValue) is too narrow for what it draws"
+                )
+            }
+        }
+    }
+
     /// The CSV and the workbook, written exactly as the app writes them.
     func testCaptureTheDataFiles() throws {
         let table = monthTable()

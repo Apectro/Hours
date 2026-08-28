@@ -9,7 +9,9 @@ enum PDFReportRenderer {
     /// A4 landscape. Wide enough for ten columns without squeezing.
     static let pageSize = CGSize(width: 842, height: 595)
 
-    private static let margin: CGFloat = 36
+    /// Visible to the tests, which check that no column that must not be cut
+    /// short comes out narrower than the text it draws.
+    static let margin: CGFloat = 36
     private static let rowHeight: CGFloat = 20
     private static let headerHeight: CGFloat = 24
     private static let cellPadding: CGFloat = 6
@@ -141,7 +143,7 @@ enum PDFReportRenderer {
             draw(
                 column.heading(in: table.language),
                 in: CGRect(x: x + cellPadding, y: y + 5, width: width - cellPadding * 2, height: headerHeight - 8),
-                font: .systemFont(ofSize: 9, weight: .semibold),
+                font: headingFont,
                 color: .secondaryLabel,
                 alignment: column.isNumeric ? .right : .left
             )
@@ -171,7 +173,7 @@ enum PDFReportRenderer {
             draw(
                 row.values[index],
                 in: CGRect(x: x + cellPadding, y: y + 4, width: width - cellPadding * 2, height: rowHeight - 6),
-                font: .systemFont(ofSize: 9.5),
+                font: cellFont,
                 color: row.hasEntry ? .label : .secondaryLabel,
                 alignment: column.isNumeric ? .right : .left
             )
@@ -241,48 +243,68 @@ enum PDFReportRenderer {
 
     // MARK: - Layout
 
-    /// Column widths from per-column weights, normalised to the page.
+    /// Column widths: what each column cannot do without, and then the rest
+    /// to whoever can use it.
+    ///
+    /// This was per-column weights normalised to the page, tuned by hand
+    /// against English. Two things broke that. Longer headings — "Worked" is
+    /// six letters and "Heures travaillées" is eighteen — and longer figures,
+    /// where a three-figure total needs eight characters in a column drawn
+    /// for six.
+    ///
+    /// Raising the weight of the columns that had outgrown theirs was the
+    /// obvious repair and the wrong one: weights are normalised, so widening
+    /// three columns quietly narrowed the other seven, and the French sheet
+    /// came out with its headings intact and its dates reading "2026-08-…".
+    /// Trading a clipped heading for a clipped date is not a fix.
+    ///
+    /// So the minimum is measured rather than weighted, in the fonts the page
+    /// actually draws — a character count cannot tell "Data" from "Dzień" —
+    /// and only what is left over is shared out, by the old weights, among
+    /// the columns allowed to truncate. A column that must fit always fits,
+    /// and the note gives up the difference.
     static func columnWidths(for table: ReportTable, availableWidth: CGFloat) -> [CGFloat] {
-        let weights = table.columns.indices.map { weight(forColumnAt: $0, in: table) }
-        let total = weights.reduce(0, +)
-        guard total > 0 else {
-            let equal = availableWidth / CGFloat(max(table.columns.count, 1))
-            return Array(repeating: equal, count: table.columns.count)
+        guard !table.columns.isEmpty else { return [] }
+
+        let minimum = table.columns.indices.map { index -> CGFloat in
+            let column = table.columns[index]
+            var needed = width(of: column.heading(in: table.language), font: headingFont)
+            if !column.mayTruncate {
+                for row in table.rows where index < row.values.count {
+                    needed = max(needed, width(of: row.values[index], font: cellFont))
+                }
+            }
+            return needed + cellPadding * 2
         }
-        return weights.map { availableWidth * $0 / total }
+
+        let weights = table.columns.map(weight(for:))
+        let required = minimum.reduce(0, +)
+
+        // Not enough paper even for that — a dozen columns of long words on
+        // one sheet. Everything shares the squeeze, which is what the page
+        // did before and the only honest answer when there is no room.
+        guard required < availableWidth else {
+            let total = weights.reduce(0, +)
+            guard total > 0 else {
+                return Array(repeating: availableWidth / CGFloat(table.columns.count), count: table.columns.count)
+            }
+            return weights.map { availableWidth * $0 / total }
+        }
+
+        // The remainder goes to the columns that can use it. Where none can,
+        // it is spread by weight so the page still fills its width.
+        let flexible = zip(table.columns, weights).map { $0.mayTruncate ? $1 : 0 }
+        let share = flexible.contains(where: { $0 > 0 }) ? flexible : weights
+        let total = share.reduce(0, +)
+        let spare = availableWidth - required
+        return zip(minimum, share).map { $0 + (total > 0 ? spare * $1 / total : 0) }
     }
 
-    /// The tuned weight below, raised when the column's heading or its figures
-    /// will not fit in it.
-    ///
-    /// The weights were chosen against English words and "9h 45m", and hold
-    /// only while nothing is longer. Two things routinely are. A three-figure
-    /// total or a negative running balance is eight characters where the
-    /// duration weights assumed six. And "Worked" is a heading of six letters
-    /// that reads "Heures travaillées" in French and "Nieobecność płatna" in
-    /// Polish — three times the width, in a column that had no idea.
-    ///
-    /// A truncated note is untidy; a truncated heading or a truncated figure
-    /// is a document that misinforms, so both take the room they need and the
-    /// note gives it up. Proportions elsewhere are unchanged, because a
-    /// column already wide enough for its contents asks for nothing.
-    private static func weight(forColumnAt index: Int, in table: ReportTable) -> CGFloat {
-        let column = table.columns[index]
-        let base = weight(for: column)
+    private static let headingFont = UIFont.systemFont(ofSize: 9, weight: .semibold)
+    private static let cellFont = UIFont.systemFont(ofSize: 9.5)
 
-        // Characters the tuned weight can hold, judged from the widest
-        // English case each was drawn for.
-        let heading = column.heading(in: table.language).count
-        let figures = column.isDuration
-            ? table.rows.reduce(0) { widest, row in
-                max(widest, index < row.values.count ? row.values[index].count : 0)
-            }
-            : 0
-        let needed = max(heading, figures)
-        let affordable = column.isDuration ? 8 : max(column.title.count, 8)
-
-        guard needed > affordable else { return base }
-        return base * CGFloat(needed) / CGFloat(affordable)
+    private static func width(of text: String, font: UIFont) -> CGFloat {
+        (text as NSString).size(withAttributes: [.font: font]).width
     }
 
     private static func weight(for column: ReportColumn) -> CGFloat {

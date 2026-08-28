@@ -67,6 +67,20 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
 
     var isDuration: Bool { isNumeric || self == .breakTime }
 
+    /// Whether cutting this column's values short is untidy or wrong.
+    ///
+    /// A note that ends in an ellipsis is a note somebody can go and read in
+    /// the app. A date, a clock time or a figure that ends in one is a
+    /// document that misinforms, and there is no reading it any other way.
+    /// So the columns holding free text give up their room first, and the
+    /// rest keep theirs.
+    var mayTruncate: Bool {
+        switch self {
+        case .note, .location, .tags, .job, .holiday: return true
+        default: return false
+        }
+    }
+
     /// A sensible default order; the user can reorder and disable columns.
     static let defaultSelection: [ReportColumn] = [
         .date, .weekday, .dayType, .start, .end, .breakTime, .worked, .expected, .overtime, .note
