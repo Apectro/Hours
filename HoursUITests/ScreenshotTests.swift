@@ -76,19 +76,19 @@ final class ScreenshotTests: XCTestCase {
 
         // 3 — the month's figures.
         app.tab(.insights).tap()
-        XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
         capture("03-insights", app)
 
         // 4 — settings, which is where the configurability shows.
         app.tab(.settings).tap()
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
         capture("04-settings", app)
 
         // 5 — the privacy screen, which is the reason to choose this one.
         let privacy = app.buttons["settings-privacy"]
         XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
         privacy.tap()
-        XCTAssertTrue(app.navigationBars["Privacy"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.screen("screen-privacy").waitForExistence(timeout: 10))
         capture("05-privacy", app)
 
         // 6 — the export screen, reached from the calendar's overflow menu.
@@ -98,7 +98,7 @@ final class ScreenshotTests: XCTestCase {
         let exportItem = app.buttons["calendar-export"]
         XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "the overflow menu has no Export item")
         exportItem.tap()
-        XCTAssertTrue(app.navigationBars["Export"].waitForExistence(timeout: 10), "Export did not open")
+        XCTAssertTrue(app.screen("screen-export").waitForExistence(timeout: 10), "Export did not open")
         capture("10-export", app)
 
         XCTAssertEqual(

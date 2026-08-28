@@ -19,3 +19,15 @@ extension XCUIApplication {
         tabBars.buttons.element(boundBy: tab.rawValue)
     }
 }
+
+
+extension XCUIApplication {
+    /// A screen, by the identifier its root carries.
+    ///
+    /// Queried across every element type rather than as a `navigationBar` or
+    /// an `otherElement`, because which type SwiftUI surfaces an identifier as
+    /// is not worth guessing from a CI log fifteen minutes at a time.
+    func screen(_ identifier: String) -> XCUIElement {
+        descendants(matching: .any)[identifier]
+    }
+}

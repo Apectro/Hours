@@ -150,6 +150,8 @@ struct SettingsScreen: View {
             }
             .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
             .navigationTitle("Settings")
+            // A screen the UI tests wait for. The title beside it is translated.
+            .accessibilityIdentifier("screen-settings")
         }
     }
 

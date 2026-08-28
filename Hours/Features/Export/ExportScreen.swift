@@ -48,6 +48,8 @@ struct ExportScreen: View {
                 shareSection
             }
             .navigationTitle("Export")
+            // A screen the UI tests wait for. The title beside it is translated.
+            .accessibilityIdentifier("screen-export")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -72,6 +72,8 @@ struct StatisticsScreen: View {
             }
             .background(Color.hoursCanvas)
             .navigationTitle("Insights")
+            // A screen the UI tests wait for. The title beside it is translated.
+            .accessibilityIdentifier("screen-insights")
         }
     }
 

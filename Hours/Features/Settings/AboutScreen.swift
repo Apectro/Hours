@@ -57,6 +57,8 @@ struct AboutScreen: View {
             }
         }
         .navigationTitle("Privacy")
+        // A screen the UI tests wait for. The title beside it is translated.
+        .accessibilityIdentifier("screen-privacy")
         .navigationBarTitleDisplayMode(.inline)
     }
 
