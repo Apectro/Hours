@@ -86,33 +86,41 @@ export const howItWorks = [
   },
 ] as const;
 
+/**
+ * The captures are 1320x2868 because that is the simulator's window. The
+ * markup declares those numbers so the browser reserves the right shape
+ * before an image arrives, and `shot` is a base name rather than a path
+ * because each one is served at several widths — see scripts/images.mjs.
+ */
+export const shotSize = { width: 1320, height: 2868 } as const;
+
 export const shots = [
   {
-    src: "shots/01-calendar.png",
+    shot: "01-calendar",
     alt: "The month view, with days washed by type and the period's totals beneath",
     title: "The month",
     caption: "Colour-washed by day type, totals underneath, gaps outlined.",
   },
   {
-    src: "shots/02-day-editor.png",
+    shot: "02-day-editor",
     alt: "The day editor, showing start and end times, a break and a note",
     title: "A day",
     caption: "Times, breaks, notes — and only the fields you switched on.",
   },
   {
-    src: "shots/03-insights.png",
+    shot: "03-insights",
     alt: "The insights screen showing worked, expected and balance figures",
     title: "Insights",
     caption: "Today, the week, the month, the year, and a running balance.",
   },
   {
-    src: "shots/04-settings.png",
+    shot: "04-settings",
     alt: "The settings screen, listing the working schedule, jobs, fields, day types and reminders",
     title: "Settings",
     caption: "Which fields exist, how a day is measured, what a day type means.",
   },
   {
-    src: "shots/10-export.png",
+    shot: "10-export",
     alt: "The export screen showing a range, a format and a preview of the timesheet",
     title: "Timesheets",
     caption: "The preview is the file. What you see is what gets shared.",
@@ -171,3 +179,26 @@ export const plans = [
     ],
   },
 ] as const;
+
+/**
+ * The App Store link, once there is one. The hero promotes it to the primary
+ * action the moment this is a URL; until then the page does not pretend to
+ * have somewhere to send anybody. Changing this line is the whole launch.
+ */
+export const appStore: string | null = null;
+
+/**
+ * The evidence for the section that claims ten languages. It is a crop of a
+ * real export the capture suite renders on every run, not a mock-up, which is
+ * also why the note in it is still in English: the app translates its own
+ * words and leaves yours alone.
+ */
+export const timesheetProof = {
+  shot: "timesheet-de",
+  width: 1570,
+  height: 520,
+  alt:
+    "A crop of a German timesheet: the columns read Datum, Tag, Art, Beginn, Ende, " +
+    "Pause, Gearbeitet, Soll, Überstunden and Notizen, the weekdays read Sa, So, Mo, " +
+    "Di and Mi, and the day types read Wochenende and Arbeit",
+} as const;

@@ -5,7 +5,7 @@ pages the App Store needs.
 
 | | |
 |---|---|
-| `index.html`, `assets/`, `shots/`, `icon.svg` | **Built output. Do not edit.** The site is written in `web/` and copied here by `npm run publish`. |
+| `index.html`, `assets/`, `shots/`, `icon.svg`, `og.png` | **Built output. Do not edit.** The site is written in `web/` and copied here by `npm run publish`. |
 | `privacy/index.html` | The privacy policy, written by hand. Apple requires a reachable URL for one. |
 | `app-store-listing.md` | Draft copy for every field App Store Connect asks for. |
 

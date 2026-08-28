@@ -1,15 +1,52 @@
 import {
+  appStore,
   balance,
   cases,
   howItWorks,
   languages,
   plans,
   privacyClaims,
+  shotSize,
   shots,
+  timesheetProof,
 } from "./content";
 
 const REPO = "https://github.com/Apectro/Hours";
 const PRIVACY = "privacy/";
+
+/**
+ * One screenshot, at the several widths scripts/images.mjs writes. `sizes`
+ * has to be given per use, because the browser picks a file before it has any
+ * layout to measure and would otherwise assume the image fills the viewport.
+ */
+function Shot({
+  shot,
+  alt,
+  sizes,
+  loading,
+}: {
+  shot: string;
+  alt: string;
+  sizes: string;
+  loading?: "lazy";
+}) {
+  return (
+    <picture>
+      <source
+        type="image/webp"
+        sizes={sizes}
+        srcSet={`shots/${shot}.480.webp 480w, shots/${shot}.960.webp 960w`}
+      />
+      <img
+        src={`shots/${shot}.640.png`}
+        alt={alt}
+        width={shotSize.width}
+        height={shotSize.height}
+        loading={loading}
+      />
+    </picture>
+  );
+}
 
 function Masthead() {
   return (
@@ -47,7 +84,12 @@ function Hero() {
           </p>
 
           <div className="hero-actions">
-            <a className="button primary" href="#pricing">
+            {appStore ? (
+              <a className="button primary" href={appStore}>
+                Get it on the App Store
+              </a>
+            ) : null}
+            <a className={`button ${appStore ? "secondary" : "primary"}`} href="#pricing">
               What it costs
             </a>
             <a className="button secondary" href={REPO}>
@@ -55,16 +97,16 @@ function Hero() {
             </a>
           </div>
           <p className="hero-note">
+            {appStore ? null : "Not on the App Store yet. "}
             Free to record your hours, and that part stays free. Requires iOS 17.
           </p>
         </div>
 
         <div className="hero-shot">
-          <img
-            src="shots/01-calendar.png"
+          <Shot
+            shot="01-calendar"
             alt="Hours on an iPhone, showing a month of days coloured by type with totals beneath"
-            width={1290}
-            height={2796}
+            sizes="320px"
           />
         </div>
       </div>
@@ -175,8 +217,8 @@ function Gallery() {
         </div>
         <div className="gallery">
           {shots.map((shot) => (
-            <figure key={shot.src}>
-              <img src={shot.src} alt={shot.alt} width={1290} height={2796} loading="lazy" />
+            <figure key={shot.shot}>
+              <Shot shot={shot.shot} alt={shot.alt} sizes="225px" loading="lazy" />
               <figcaption>
                 <strong>{shot.title}</strong>
                 {shot.caption}
@@ -204,6 +246,28 @@ function Timesheets() {
             can still be summed.
           </p>
         </div>
+        <figure className="proof">
+          <picture>
+            <source
+              type="image/webp"
+              sizes="(max-width: 1160px) 92vw, 1040px"
+              srcSet={`shots/${timesheetProof.shot}.800.webp 800w, shots/${timesheetProof.shot}.1570.webp 1570w`}
+            />
+            <img
+              src={`shots/${timesheetProof.shot}.800.png`}
+              alt={timesheetProof.alt}
+              width={timesheetProof.width}
+              height={timesheetProof.height}
+              loading="lazy"
+            />
+          </picture>
+          <figcaption>
+            <strong>A real export, in German.</strong> Every heading, weekday and
+            day type is translated — and the note is not, because those are the
+            words you typed. The same file exists in nine other languages.
+          </figcaption>
+        </figure>
+
         <div className="cards">
           <article className="card">
             <span className="tag">Independent of the app</span>

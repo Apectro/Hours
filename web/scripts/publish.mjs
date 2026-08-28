@@ -20,7 +20,7 @@ const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
 
 /** Everything the build owns in docs/. Nothing else is ever touched. */
-const built = ["index.html", "assets", "shots", "icon.svg", ".nojekyll"];
+const built = ["index.html", "assets", "shots", "icon.svg", "og.png", ".nojekyll"];
 
 execFileSync("npx", ["vite", "build"], { cwd: web, stdio: "inherit" });
 
