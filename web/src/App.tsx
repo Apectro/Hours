@@ -294,7 +294,7 @@ function Gallery() {
         <div className="gallery">
           {copy.gallery.shots.map((shot) => (
             <figure key={shot.shot}>
-              <Shot shot={shot.shot} alt={shot.alt} sizes="200px" loading="lazy" />
+              <Shot shot={shot.shot} alt={shot.alt} sizes="260px" loading="lazy" />
               <figcaption>
                 <strong>{shot.title}</strong>
                 {shot.caption}

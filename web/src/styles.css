@@ -536,11 +536,30 @@ table.cases tr:last-child td {
 
 /* -------------------------------------------------------------- screenshots */
 
+/*
+  A strip that scrolls, not a grid that wraps.
+  
+  Five screenshots in an auto-fit grid fitted four to a row in a 1032px shell
+  and left the fifth alone beside three empty cells — and at 233px a phone
+  screen is too small to read, which is the entire job of showing one. They
+  are wider now and the row scrolls, so nothing is orphaned and the cut-off
+  edge says there is more to see.
+*/
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
-  gap: clamp(20px, 3vw, 34px);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(255px, 1fr);
+  gap: clamp(20px, 3vw, 30px);
   margin-top: 34px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  /* Room for the scrollbar so it never sits on the captions. */
+  padding-bottom: 14px;
+  scrollbar-width: thin;
+}
+
+.gallery figure {
+  scroll-snap-align: start;
 }
 
 .gallery figure {
