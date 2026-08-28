@@ -48,14 +48,32 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
 
     /// The locale that names months and weekdays.
     ///
-    /// `device` keeps the phone's, so a German phone set to a 24-hour clock
-    /// and Monday weeks keeps both.
+    /// `device` keeps the phone's own locale when the phone speaks a language
+    /// the export has words for — so a German phone set to Austria still
+    /// writes Jänner rather than Januar, which `de_DE` would have taken away.
+    ///
+    /// When it does not, the fallback's locale comes with the fallback's
+    /// words. A French phone gets English column titles, and English titles
+    /// over "août" and "lun" is the half-translated document this setting
+    /// exists to prevent: worse than either language on its own, because a
+    /// reader cannot tell which parts were meant.
     var locale: Locale {
         switch self {
-        case .device: return .current
+        case .device:
+            let phone = Locale.current
+            return phone.identifier.hasPrefix(resolved.code) ? phone : resolved.locale
         case .english: return Locale(identifier: "en_GB")
         case .german: return Locale(identifier: "de_DE")
         case .croatian: return Locale(identifier: "hr_HR")
+        }
+    }
+
+    /// The two-letter code of the language the words are actually in.
+    private var code: String {
+        switch resolved {
+        case .german: return "de"
+        case .croatian: return "hr"
+        default: return "en"
         }
     }
 

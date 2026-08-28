@@ -17,15 +17,22 @@ enum CSVExporter {
             lines.append(self.row(row.values, separator: separator))
         }
 
-        if preferences.includeSummaryRows && !table.totals.isEmpty {
+        // Everything after the days goes below a blank line, because the data
+        // block is strictly tabular on purpose: an importer reading line one
+        // as the column titles has to keep getting clean columns.
+        let summarised = preferences.includeSummaryRows && !table.totals.isEmpty
+        if summarised || !table.ownerName.isEmpty {
             lines.append("")
+        }
+        // The name is identification, not analysis, so it does not belong to
+        // the summary switch. Turning the summary off used to take the name
+        // with it, and a timesheet with nobody's name on it is one somebody
+        // has to ask about — which is the whole reason the field exists.
+        if !table.ownerName.isEmpty {
+            lines.append(row([table.language(.name), table.ownerName], separator: separator))
+        }
+        if summarised {
             lines.append(row([table.language(.summary), table.subtitle], separator: separator))
-            // The name goes here rather than above the header row: the data
-            // block is strictly tabular on purpose, so that an importer
-            // reading line one as the column titles gets clean columns.
-            if !table.ownerName.isEmpty {
-                lines.append(row([table.language(.name), table.ownerName], separator: separator))
-            }
             for total in table.totals {
                 lines.append(row([total.label, total.value], separator: separator))
             }

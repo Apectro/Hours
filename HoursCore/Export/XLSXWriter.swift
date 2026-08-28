@@ -14,12 +14,17 @@ enum XLSXWriter {
     /// got a totals row of their own, which is the same figures in the place
     /// you can check them against the column they came from — so the second
     /// sheet became a page of white space carrying a copy.
+    /// - Parameter sheetName: the name on the tab. Defaults to the report's
+    ///   own word for hours in the language it is written in — a German
+    ///   workbook whose only English word is the one on the tab is exactly
+    ///   the half-translated document the language setting exists to avoid.
     static func data(
         for table: ReportTable,
         preferences: ExportPreferences,
-        sheetName: String = "Hours",
+        sheetName: String? = nil,
         generatedOn: Date? = nil
     ) -> Data {
+        let sheetName = sheetName ?? table.language(.hours)
         var archive = ZIPArchive()
         archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes.utf8))
         archive.addFile(name: "_rels/.rels", contents: Data(rootRelationships.utf8))

@@ -81,6 +81,39 @@ final class ExportLanguageTests: XCTestCase {
         XCTAssertEqual(ExportLanguage.english.resolved, .english)
     }
 
+    /// Following the phone must not produce half a translation.
+    ///
+    /// `device` resolves its words by looking at the phone and falls back to
+    /// English for a language the export has no words for. The locale that
+    /// names months and weekdays was following the phone regardless, so a
+    /// French handset produced English column titles over "août" and "lun" —
+    /// worse than either language alone, because a reader cannot tell which
+    /// parts were meant.
+    func testFollowingThePhoneNeverMixesTwoLanguages() {
+        // Whatever the host is set to, the words and the month names have to
+        // come from the same place.
+        let device = ExportLanguage.device
+        XCTAssertEqual(
+            String(device.locale.identifier.prefix(2)),
+            expectedCode(for: device.resolved),
+            "the month names and the column titles are in different languages"
+        )
+
+        // The named languages pin their own locale and are unaffected by the
+        // host, which is the point of naming them.
+        XCTAssertEqual(ExportLanguage.german.locale.identifier, "de_DE")
+        XCTAssertEqual(ExportLanguage.croatian.locale.identifier, "hr_HR")
+        XCTAssertEqual(ExportLanguage.english.locale.identifier, "en_GB")
+    }
+
+    private func expectedCode(for language: ExportLanguage) -> String {
+        switch language {
+        case .german: return "de"
+        case .croatian: return "hr"
+        default: return "en"
+        }
+    }
+
     // MARK: - Durations
 
     /// The units are not translated, and that is a decision rather than a gap.

@@ -636,6 +636,70 @@ final class ExportTests: XCTestCase {
 
     // MARK: - The language of the file
 
+    /// The name survives the summary being switched off.
+    ///
+    /// The name went into the summary block, so turning the summary off took
+    /// it with it — and the setting that asks for it says it is printed on
+    /// every timesheet. A timesheet with nobody's name on it is one somebody
+    /// has to ask about, which is the whole reason for the field.
+    func testTheNameStaysInTheCSVWithoutASummary() {
+        var export = ExportPreferences()
+        export.ownerName = "Ada Lovelace"
+        export.includeSummaryRows = false
+        let table = sampleTable(settings: Fixture.settings(export: export))
+
+        let csv = CSVExporter.string(for: table, preferences: export)
+        XCTAssertTrue(csv.contains("Name,Ada Lovelace"), "the name went out with the summary")
+        XCTAssertFalse(csv.contains("Summary,"), "the summary came back")
+
+        // The data block stays strictly tabular: the header, the days, then a
+        // blank line before anything that is not a day.
+        let lines = csv.components(separatedBy: "\r\n")
+        XCTAssertEqual(lines.first, table.headerTitles().joined(separator: ","))
+        guard let blank = lines.firstIndex(of: "") else {
+            return XCTFail("the name is not separated from the days")
+        }
+        XCTAssertEqual(lines[blank + 1], "Name,Ada Lovelace")
+        XCTAssertEqual(blank, table.rows.count + 1, "the blank line is not where the days end")
+    }
+
+    /// No name and no summary means nothing after the days at all.
+    func testWithNeitherANameNorASummaryTheCSVIsOnlyTheTable() {
+        var export = ExportPreferences()
+        export.includeSummaryRows = false
+        let table = sampleTable(settings: Fixture.settings(export: export))
+
+        let csv = CSVExporter.string(for: table, preferences: export)
+        let lines = csv.components(separatedBy: "\r\n").dropLast()
+        XCTAssertEqual(lines.count, table.rows.count + 1, "something was added after the days")
+        XCTAssertFalse(lines.contains(""), "a blank line was written for nothing")
+    }
+
+    /// The tab in a German workbook is not the one English word in it.
+    func testTheSheetTabFollowsTheLanguage() {
+        for (language, expected) in [
+            (ExportLanguage.english, "Hours"),
+            (.german, "Stunden"),
+            (.croatian, "Sati")
+        ] {
+            var export = ExportPreferences()
+            export.language = language
+            let table = sampleTable(settings: Fixture.settings(export: export))
+            let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+
+            XCTAssertTrue(
+                package.contains("<sheet name=\"\(expected)\" sheetId=\"1\""),
+                "\(language.rawValue): the tab says something else"
+            )
+            // The print-title range names the sheet too, and a workbook whose
+            // defined name points at a tab that does not exist opens broken.
+            XCTAssertTrue(
+                package.contains("\'\(expected)\'!$"),
+                "\(language.rawValue): the print titles name a different sheet than the tab"
+            )
+        }
+    }
+
     /// A German timesheet is German the whole way down.
     ///
     /// Not only the column titles: the day types, the summary labels, the
