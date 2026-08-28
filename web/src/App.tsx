@@ -64,6 +64,84 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/**
+ * Light, dark, or whatever the machine says.
+ *
+ * The stylesheet has always had all three states — a bare :root, a
+ * prefers-color-scheme block, and a [data-theme] block that wins over both.
+ * Nothing ever stamped that attribute, so the third of those was dead code and
+ * a visitor whose laptop was in dark mode had no way to read the page in
+ * light. This is what stamps it.
+ *
+ * "Auto" removes the attribute rather than setting a value, which is the
+ * difference between following the system and guessing at it once.
+ */
+const THEMES = [
+  { value: "", label: "Auto" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+] as const;
+
+function ThemeChoice() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("hours-theme");
+      return saved === "light" || saved === "dark" ? saved : "";
+    } catch {
+      return "";
+    }
+  });
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const index = THEMES.findIndex((option) => option.value === theme);
+
+  const choose = (value: string) => {
+    setTheme(value);
+    const root = document.documentElement;
+    if (value) root.dataset.theme = value;
+    else delete root.dataset.theme;
+    try {
+      if (value) localStorage.setItem("hours-theme", value);
+      else localStorage.removeItem("hours-theme");
+    } catch {
+      // A page that cannot remember the choice can still honour it.
+    }
+  };
+
+  /* A radiogroup moves with the arrow keys and holds one tab stop. */
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    let next = index;
+    if (step !== 0) next = (index + step + THEMES.length) % THEMES.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = THEMES.length - 1;
+    else return;
+    event.preventDefault();
+    choose(THEMES[next].value);
+    buttons.current[next]?.focus();
+  };
+
+  return (
+    <div className="theme" role="radiogroup" aria-label="Colour theme">
+      {THEMES.map((option, position) => (
+        <button
+          key={option.label}
+          ref={(node) => {
+            buttons.current[position] = node;
+          }}
+          type="button"
+          role="radio"
+          aria-checked={option.value === theme}
+          tabIndex={position === index ? 0 : -1}
+          onClick={() => choose(option.value)}
+          onKeyDown={onKeyDown}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Masthead() {
   return (
     <header className="masthead">
@@ -74,13 +152,16 @@ function Masthead() {
           </span>
           Hours
         </a>
-        <nav aria-label="Sections">
-          <a href="#balance">The balance</a>
-          <a href="#app">The app</a>
-          <a href="#timesheets">Timesheets</a>
-          <a href="#privacy">Privacy</a>
-          <a href="#pricing">Pricing</a>
-        </nav>
+        <div className="masthead-end">
+          <nav aria-label="Sections">
+            <a href="#balance">The balance</a>
+            <a href="#app">The app</a>
+            <a href="#timesheets">Timesheets</a>
+            <a href="#privacy">Privacy</a>
+            <a href="#pricing">Pricing</a>
+          </nav>
+          <ThemeChoice />
+        </div>
       </div>
     </header>
   );

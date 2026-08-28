@@ -762,3 +762,48 @@ footer nav {
   font-family: var(--type);
   font-size: 14px;
 }
+
+/* ---------------------------------------------------------- the theme choice */
+
+.masthead-end {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2.5vw, 28px);
+}
+
+/*
+  Three states because the stylesheet has three: a stamped light, a stamped
+  dark, and no stamp at all, which follows the machine. A two-way switch would
+  have to pick one of those to throw away.
+*/
+.theme {
+  display: flex;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.theme button {
+  font-family: var(--type);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--rule);
+  padding: 7px 9px;
+  cursor: pointer;
+}
+
+.theme button:first-child {
+  border-left: 0;
+}
+
+.theme button:hover {
+  color: var(--ink);
+}
+
+.theme button[aria-checked="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}

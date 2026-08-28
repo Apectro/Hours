@@ -34,6 +34,23 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Courier+Prime:wght@400;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap"
       rel="stylesheet"
     />
+    <script>
+      /*
+        Stamp the saved choice before anything paints. React cannot do this:
+        it runs after the first paint, so the page would show the system theme
+        for a frame and then swap, which is the flash every themed site has.
+
+        localStorage throws outright in some privacy modes rather than
+        returning null, hence the catch. No saved choice means no stamp, and
+        the stylesheet falls through to prefers-color-scheme.
+      */
+      try {
+        var saved = localStorage.getItem("hours-theme");
+        if (saved === "light" || saved === "dark") {
+          document.documentElement.dataset.theme = saved;
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
