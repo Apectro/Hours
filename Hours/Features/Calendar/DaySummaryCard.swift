@@ -120,7 +120,7 @@ struct DaySummaryCard: View {
                 )
             }
             if settings.features.trackBreaks && computation.breakMinutes > 0 {
-                MetricRow(label: "Break", value: duration.string(computation.breakMinutes), systemImage: "cup.and.saucer")
+                MetricRow(label: String(localized: "Break"), value: duration.string(computation.breakMinutes), systemImage: "cup.and.saucer")
             }
             MetricRow(
                 label: String(localized: "Worked"),
@@ -135,7 +135,7 @@ struct DaySummaryCard: View {
                 )
             }
             if settings.features.trackExpectedHours {
-                MetricRow(label: "Expected", value: duration.string(computation.expectedMinutes), systemImage: "target")
+                MetricRow(label: String(localized: "Expected"), value: duration.string(computation.expectedMinutes), systemImage: "target")
             }
             if computation.adjustmentMinutes != 0 {
                 MetricRow(
@@ -146,10 +146,10 @@ struct DaySummaryCard: View {
                 )
             }
             if settings.features.trackLocation && !computation.location.isEmpty {
-                MetricRow(label: "Location", value: computation.location, systemImage: "mappin.and.ellipse")
+                MetricRow(label: String(localized: "Location"), value: computation.location, systemImage: "mappin.and.ellipse")
             }
             if settings.features.trackTags && !computation.tags.isEmpty {
-                MetricRow(label: "Tags", value: computation.tags.joined(separator: ", "), systemImage: "tag")
+                MetricRow(label: String(localized: "Tags"), value: computation.tags.joined(separator: ", "), systemImage: "tag")
             }
         }
     }

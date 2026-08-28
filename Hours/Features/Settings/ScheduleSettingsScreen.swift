@@ -27,7 +27,7 @@ struct ScheduleSettingsScreen: View {
                     NavigationLink {
                         JobSettingsScreen()
                     } label: {
-                        SettingsRow(title: "All jobs", value: "\(settings.activeJobs.count)", systemImage: "bag")
+                        SettingsRow(title: String(localized: "All jobs"), value: "\(settings.activeJobs.count)", systemImage: "bag")
                     }
                 } footer: {
                     Text("This screen edits \(settings.primaryJob.name). Every job keeps its own week.")

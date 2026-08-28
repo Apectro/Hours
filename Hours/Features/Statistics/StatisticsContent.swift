@@ -125,9 +125,9 @@ struct StatisticsContent: View {
     private var breakdown: some View {
         SurfaceCard {
             VStack(spacing: Metrics.medium) {
-                MetricRow(label: "Days worked", value: "\(summary.daysWorked)", systemImage: "calendar")
+                MetricRow(label: String(localized: "Days worked"), value: "\(summary.daysWorked)", systemImage: "calendar")
                 if settings.features.trackExpectedHours {
-                    MetricRow(label: "Scheduled working days", value: "\(summary.scheduledWorkingDays)", systemImage: "target")
+                    MetricRow(label: String(localized: "Scheduled working days"), value: "\(summary.scheduledWorkingDays)", systemImage: "target")
                 }
                 MetricRow(
                     label: String(localized: "Average per day worked"),
@@ -149,7 +149,7 @@ struct StatisticsContent: View {
                     )
                 }
                 if settings.features.trackBreaks && summary.breakMinutes > 0 {
-                    MetricRow(label: "Breaks", value: duration.string(summary.breakMinutes), systemImage: "cup.and.saucer")
+                    MetricRow(label: String(localized: "Breaks"), value: duration.string(summary.breakMinutes), systemImage: "cup.and.saucer")
                 }
                 if summary.creditedMinutes > 0 {
                     MetricRow(

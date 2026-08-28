@@ -3533,6 +3533,39 @@
    "O pagamento é tratado inteiramente pela App Store, como qualquer compra no teu telemóvel. O Zeitkonto fica a saber uma coisa em troca — se foi pago — e nunca vê o teu nome, o teu email ou o teu cartão. Continua a não haver nada onde iniciar sessão.",
    "De betaling wordt volledig door de App Store afgehandeld, zoals elke aankoop op je telefoon. Zeitkonto hoort er één ding voor terug — of er betaald is — en ziet nooit je naam, je e-mail of je kaart. Er is nog steeds nergens op in te loggen.",
    "Płatność w całości obsługuje App Store, tak jak każdy zakup na twoim telefonie. Zeitkonto dowiaduje się w zamian jednej rzeczy – czy został opłacony – i nigdy nie widzi twojego imienia, e-maila ani karty. Nadal nie ma się gdzie logować."
+  ],
+  "Days worked": [
+   "Tage gearbeitet",
+   "Odrađeni dani",
+   "Oddelani dnevi",
+   "Giorni lavorati",
+   "Jours travaillés",
+   "Días trabajados",
+   "Dias trabalhados",
+   "Gewerkte dagen",
+   "Przepracowane dni"
+  ],
+  "Scheduled working days": [
+   "Geplante Arbeitstage",
+   "Planirani radni dani",
+   "Načrtovani delovni dnevi",
+   "Giorni lavorativi previsti",
+   "Jours travaillés prévus",
+   "Días laborables previstos",
+   "Dias úteis previstos",
+   "Geplande werkdagen",
+   "Zaplanowane dni robocze"
+  ],
+  "All jobs": [
+   "Alle Tätigkeiten",
+   "Svi poslovi",
+   "Vsa dela",
+   "Tutti i lavori",
+   "Tous les postes",
+   "Todos los trabajos",
+   "Todos os trabalhos",
+   "Alle functies",
+   "Wszystkie prace"
   ]
  },
  "sameAsEnglishOnPurpose": [

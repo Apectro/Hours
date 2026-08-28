@@ -61,6 +61,13 @@ jobs:
       - name: Placeholders survive, nothing missing
         run: python3 Scripts/check-localizations.py
 
+      # A literal handed to a view that takes String is shown verbatim. The app
+      # shipped "Expected" and "Fields" in English on a German phone, between
+      # rows that were translated, and nothing failed — it was found in a
+      # screenshot.
+      - name: No labels that only look localized
+        run: python3 Scripts/check-localizable-labels.py
+
       - name: The catalogues are what the generator writes
         run: |
           python3 Scripts/build-catalog.py

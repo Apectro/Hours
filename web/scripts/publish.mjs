@@ -27,6 +27,15 @@ const docs = join(web, "..", "docs");
 /** Hand-written, and never touched by a publish. Everything else is output. */
 const KEEP = new Set(["privacy", "README.md", "app-store-listing.md"]);
 
+/*
+ * Resize the screenshots first. `npm run build` gets this through npm's
+ * prebuild hook, but this script calls vite directly, so the hook never fired
+ * and publish quietly used whatever public/shots happened to hold from the
+ * last build somebody ran by hand. A German set generated after the last
+ * build was therefore never published, and nothing said so.
+ */
+execFileSync("node", ["scripts/images.mjs"], { cwd: web, stdio: "inherit" });
+
 // Both languages: English at the root, German into dist/de.
 execFileSync("npx", ["vite", "build"], { cwd: web, stdio: "inherit" });
 execFileSync("npx", ["vite", "build"], {

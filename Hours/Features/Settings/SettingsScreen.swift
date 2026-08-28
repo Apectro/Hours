@@ -63,7 +63,7 @@ struct SettingsScreen: View {
                     NavigationLink {
                         TrackingSettingsScreen()
                     } label: {
-                        SettingsRow(title: "Fields", value: fieldsSummary, systemImage: "slider.horizontal.3")
+                        SettingsRow(title: String(localized: "Fields"), value: fieldsSummary, systemImage: "slider.horizontal.3")
                     }
                     NavigationLink {
                         DayTypeSettingsScreen()
@@ -87,7 +87,7 @@ struct SettingsScreen: View {
                         NavigationLink {
                             HolidaySettingsScreen()
                         } label: {
-                            SettingsRow(title: "Holidays", value: nil, systemImage: "flag")
+                            SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
                         }
                     }
                 }
@@ -138,12 +138,12 @@ struct SettingsScreen: View {
                     NavigationLink {
                         DataSettingsScreen()
                     } label: {
-                        SettingsRow(title: "Backup and data", value: nil, systemImage: "externaldrive")
+                        SettingsRow(title: String(localized: "Backup and data"), value: nil, systemImage: "externaldrive")
                     }
                     NavigationLink {
                         AboutScreen()
                     } label: {
-                        SettingsRow(title: "Privacy", value: nil, systemImage: "hand.raised")
+                        SettingsRow(title: String(localized: "Privacy"), value: nil, systemImage: "hand.raised")
                     }
                     .accessibilityIdentifier("settings-privacy")
                 }
