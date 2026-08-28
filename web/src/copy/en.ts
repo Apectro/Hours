@@ -38,7 +38,7 @@ export const en = {
     costAction: "What it costs",
     sourceAction: "Read the source",
     notYet: "It isn't on the App Store yet. ",
-    note: "Recording your hours is free and stays free. Needs iOS 17.",
+    note: "Recording your hours is free and stays free. Needs iOS 18.",
     shotAlt: "Zeitkonto on an iPhone, showing a month of days coloured by type with totals beneath",
   },
 

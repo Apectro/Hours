@@ -42,7 +42,7 @@ export const de: Copy = {
     costAction: "Was es kostet",
     sourceAction: "Quellcode lesen",
     notYet: "Noch nicht im App Store. ",
-    note: "Stunden zu erfassen ist kostenlos und bleibt es. Braucht iOS 17.",
+    note: "Stunden zu erfassen ist kostenlos und bleibt es. Braucht iOS 18.",
     shotAlt: "Zeitkonto auf einem iPhone: ein Monat, dessen Tage nach Art eingefärbt sind, mit den Summen darunter",
   },
 
