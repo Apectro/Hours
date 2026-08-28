@@ -255,11 +255,17 @@ enum PDFReportRenderer {
     /// The tuned weight below, raised when the column's contents will not fit
     /// in it.
     ///
-    /// The weights were chosen against English durations — "9h 45m", six
-    /// characters. German writes the same duration as "9 Std 45 Min", twice
-    /// the width, and the column clipped it to "9 Std 30…". A truncated note
-    /// is untidy; a truncated duration is a wrong number, so duration columns
-    /// take whatever room their widest value needs and the note gives it up.
+    /// The weights were chosen against "9h 45m", six characters, and held
+    /// only while nothing was longer — a three-figure total or a negative
+    /// running balance is eight, and a column tuned for six clips it. A
+    /// truncated note is untidy; a truncated duration is a wrong number, so
+    /// duration columns take whatever room their widest value needs and the
+    /// note gives it up.
+    ///
+    /// It was a translated unit that exposed this — "9 Std 45 Min" in a
+    /// column built for "9h 45m" — and the units are no longer translated,
+    /// but the measurement stays: the constant was wrong before any language
+    /// touched it.
     private static func weight(forColumnAt index: Int, in table: ReportTable) -> CGFloat {
         let column = table.columns[index]
         let base = weight(for: column)

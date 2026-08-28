@@ -32,7 +32,7 @@ enum XLSXWriter {
             contents: Data(workbook(sheetName: sheetName, headerRow: worksheet.headerRow).utf8)
         )
         archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships.utf8))
-        archive.addFile(name: "xl/styles.xml", contents: Data(styles(in: table.language).utf8))
+        archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
         archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(worksheet.xml.utf8))
         return archive.finalized()
     }
@@ -231,7 +231,7 @@ enum XLSXWriter {
         <dimension ref="A1:\(lastColumn)\(rowNumber - 1)"/>\
         <sheetViews><sheetView workbookViewId="0"><pane ySplit="\(headerRow)" topLeftCell="A\(headerRow + 1)" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>\
         <sheetFormatPr defaultRowHeight="15" baseColWidth="10"/>\
-        \(columnWidths(for: grid, in: table.language))\
+        \(columnWidths(for: grid))\
         <sheetData>\(rows.joined())</sheetData>\
         \(autoFilter(headerRow: headerRow, lastDataRow: lastDataRow, columns: columns))\
         \(mergeBlock)\
@@ -318,14 +318,14 @@ enum XLSXWriter {
     /// than its own heading is unreadable, and one note three hundred
     /// characters long should not push the rest of the sheet off the screen —
     /// a wrapped cell is better than a column nobody can scroll past.
-    private static func columnWidths(for grid: [[Cell]], in language: ExportLanguage) -> String {
+    private static func columnWidths(for grid: [[Cell]]) -> String {
         let columnCount = grid.map(\.count).max() ?? 0
         guard columnCount > 0 else { return "" }
 
         var widest = Array(repeating: 0, count: columnCount)
         for row in grid {
             for (index, cell) in row.enumerated() where index < columnCount {
-                widest[index] = max(widest[index], cell.width(in: language))
+                widest[index] = max(widest[index], cell.width)
             }
         }
 
@@ -352,34 +352,26 @@ enum XLSXWriter {
         case gap
 
         /// The characters this cell will try to show, for sizing the column.
-        func width(in language: ExportLanguage) -> Int {
+        var width: Int {
             switch self {
             case let .text(value, _): return value.count
-            case let .formula(_, cached, style): return Cell.number(cached, style: style).width(in: language)
+            case let .formula(_, cached, style): return Cell.number(cached, style: style).width
             case .gap: return 0
             case let .number(value, style):
                 switch style {
                 case .count, .summaryCount:
                     return String(Int(value.magnitude)).count
                 default:
-                    // A duration is shown through the mask rather than as the
-                    // fraction of a day the cell holds, so the width is the
-                    // hours it resolves to plus whatever the mask adds — and
-                    // what the mask adds is the language's, not five
-                    // characters of "h 00m". German writes "165 Std 00 Min",
-                    // and a column sized for "165h 00m" shows ### instead.
+                    // A duration is shown through the mask rather than as
+                    // the fraction of a day the cell actually holds, so the
+                    // width is the hours it resolves to plus whatever the
+                    // mask adds after them. That allowance sits next to the
+                    // mask itself: the two were apart once, the mask grew and
+                    // the allowance did not, and every figure came out ###.
                     let hours = Int((value.magnitude * 24).rounded(.down))
-                    return String(hours).count + Cell.maskWidth(in: language) + (value < 0 ? 1 : 0)
+                    return String(hours).count + XLSXWriter.durationMaskWidth + (value < 0 ? 1 : 0)
                 }
             }
-        }
-
-        /// Everything the duration mask adds after the hours: the hour unit,
-        /// a space, two digits of minutes, and the minute unit.
-        static func maskWidth(in language: ExportLanguage) -> Int {
-            language.unitSpacer.count + language.hourUnit.count
-                + 1 + 2
-                + language.unitSpacer.count + language.minuteUnit.count
         }
     }
 
@@ -506,19 +498,14 @@ enum XLSXWriter {
     /// in light grey with dark grey type, a hairline under every row, and days
     /// the schedule expects nothing of greyed out entirely — which carries
     /// more than banding every other row did, because it means something.
-    private static func styles(in language: ExportLanguage) -> String {
-        // The mask spells the units out, so a German workbook reads 8 Std 30
-        // Min in the cell as well as in the text the PDF prints. The spacer
-        // rides inside the quoted literal because the format has its own
-        // space between the two halves, and doubling it would show.
-        let hour = escape(language.unitSpacer + language.hourUnit)
-        let minute = escape(language.unitSpacer + language.minuteUnit)
-        let duration = "[&lt;0][h]&quot;\(hour)&quot; mm&quot;\(minute)&quot;;"
-            + "[&lt;0.0416666][m]&quot;\(minute)&quot;;"
-            + "[h]&quot;\(hour)&quot; mm&quot;\(minute)&quot;"
-        return """
+    /// What the duration mask adds after the hours: "h", a space, two digits
+    /// of minutes, and "m". Declared beside the mask below, because a width
+    /// allowance that lives away from the format it is an allowance for is a
+    /// pair of numbers waiting to disagree.
+    static let durationMaskWidth = 5
+
+    private static let styles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="\(duration)"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="8"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="4"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF9A9AA2"/></top><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="16"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="[&lt;0][h]&quot;h&quot; mm&quot;m&quot;;[&lt;0.0416666][m]&quot;m&quot;;[h]&quot;h&quot; mm&quot;m&quot;"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="8"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="4"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF9A9AA2"/></top><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="16"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """
-    }
 }

@@ -131,22 +131,18 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         }
     }
 
-    // MARK: - Units
 
-    /// What follows the number of hours in "8h 30m".
-    var hourUnit: String { pick(en: "h", de: "Std", hr: "h") }
-
-    /// And the minutes.
-    var minuteUnit: String { pick(en: "m", de: "Min", hr: "min") }
-
-    /// Whether a space comes between the number and its unit.
-    ///
-    /// "8h 30m" is idiomatic English and "8Std 30Min" is not German, so the
-    /// spacing travels with the language rather than being fixed in the
-    /// formatter. It is a separate value because the workbook's number format
-    /// has to be built with exactly the same spacing, or the cell and the
-    /// column total would disagree about how a duration looks.
-    var unitSpacer: String { resolved == .english ? "" : " " }
+    // MARK: - What is deliberately not translated
+    //
+    // Durations keep their English units in every language: 8h 30m, never
+    // "8 Std 30 Min" or "8 h 30 min". They were translated for a while and it
+    // was the wrong call — h and m are read as symbols rather than words
+    // wherever a timesheet is filled in, the longer forms pushed every
+    // duration column wider than the page wanted, and the workbook's number
+    // format has to spell the same units out, so the two could drift.
+    //
+    // A word somebody has to look up would be worth that. A unit nobody does
+    // is not. This paragraph is here so the absence reads as a decision.
 }
 
 /// Everything the app itself writes into an exported timesheet.

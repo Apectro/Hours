@@ -176,8 +176,8 @@ final class ExportCaptureTests: XCTestCase {
     ///
     /// A translation is the kind of thing that passes every assertion and
     /// still comes out wrong — a column left in English, a number format that
-    /// says Std where the text beside it says h, a month name that ignored the
-    /// setting. Assertions cannot see any of that; a rendered page can.
+    /// a number format that disagrees with the text beside it, a month name
+    /// that ignored the setting. Assertions cannot see any of that; a rendered page can.
     func testCaptureTheExportInEveryLanguage() throws {
         for (language, name) in [(ExportLanguage.german, "de"), (ExportLanguage.croatian, "hr")] {
             let table = monthTable(language: language)
@@ -230,11 +230,10 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertTrue(text.contains("Wochenende"), "the day types are not in German")
 
         // A truncated note is untidy. A truncated duration is a wrong number.
-        XCTAssertTrue(
-            text.contains("9 Std 45 Min"),
-            "a duration was clipped by a column sized for English units"
-        )
-        XCTAssertFalse(text.contains("Std 45…") || text.contains("Std 30…"))
+        // The units stay h and m in every language; only the words around
+        // them change.
+        XCTAssertTrue(text.contains("9h 45m"), "a duration was clipped")
+        XCTAssertFalse(text.contains("9h 45…") || text.contains("5h 30…"))
     }
 
     /// The CSV and the workbook, written exactly as the app writes them.

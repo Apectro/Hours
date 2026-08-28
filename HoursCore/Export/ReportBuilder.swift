@@ -24,8 +24,7 @@ struct ReportBuilder: Sendable {
     private var duration: DurationFormatting {
         DurationFormatting.export(
             style: settings.export.durationStyle,
-            decimalSeparator: settings.export.decimalSeparator.character,
-            language: language
+            decimalSeparator: settings.export.decimalSeparator.character
         )
     }
 

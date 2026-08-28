@@ -83,42 +83,54 @@ final class ExportLanguageTests: XCTestCase {
 
     // MARK: - Durations
 
-    /// "8h 30m" is idiomatic English and "8Std 30Min" is not German.
-    func testTheUnitsAndTheirSpacingTravelWithTheLanguage() {
-        func hoursAndMinutes(_ language: ExportLanguage) -> String {
-            DurationFormatting.export(style: .hoursAndMinutes, decimalSeparator: ".", language: language)
-                .string(510)
-        }
-
-        XCTAssertEqual(hoursAndMinutes(.english), "8h 30m")
-        XCTAssertEqual(hoursAndMinutes(.german), "8 Std 30 Min")
-        XCTAssertEqual(hoursAndMinutes(.croatian), "8 h 30 min")
+    /// The units are not translated, and that is a decision rather than a gap.
+    ///
+    /// They were German for a while — "8 Std 30 Min" — and it was the wrong
+    /// call: h and m read as symbols rather than words wherever a timesheet is
+    /// filled in, and the longer forms pushed every duration column wider than
+    /// the page wanted. This test exists so that changing it back is a
+    /// decision somebody makes on purpose.
+    func testDurationsKeepTheirUnitsInEveryLanguage() {
+        let duration = DurationFormatting.export(style: .hoursAndMinutes, decimalSeparator: ".")
+        XCTAssertEqual(duration.string(510), "8h 30m")
+        XCTAssertEqual(duration.string(0), "0h")
+        XCTAssertEqual(duration.string(30), "30m")
+        XCTAssertEqual(duration.string(480), "8h")
+        XCTAssertEqual(duration.signedString(-180), "-3h")
     }
 
-    /// Zero keeps the hour unit in every language, for the same reason it does
-    /// in English: in a column of hours the unit should not change just
-    /// because the value happens to be nothing.
-    func testZeroAndTheUnderAnHourCaseAreTranslatedToo() {
-        let german = DurationFormatting.export(style: .hoursAndMinutes, decimalSeparator: ".", language: .german)
-        XCTAssertEqual(german.string(0), "0 Std")
-        XCTAssertEqual(german.string(30), "30 Min")
-        XCTAssertEqual(german.string(480), "8 Std")
-        XCTAssertEqual(german.signedString(-180), "-3 Std")
-    }
-
-    /// The clock and decimal styles carry no units, so they are the same in
-    /// every language — and the decimal separator stays the user's choice
-    /// rather than the language's, because it is what their spreadsheet reads.
-    func testTheUnitlessStylesAreUnaffected() {
+    /// And the workbook's number format spells out the same two units, so a
+    /// cell and the text beside it cannot disagree about what a duration is.
+    func testTheWorkbookMaskMatchesTheText() {
         for language in languages {
-            XCTAssertEqual(
-                DurationFormatting.export(style: .clock, decimalSeparator: ",", language: language).string(510),
-                "8:30"
+            var export = ExportPreferences()
+            export.language = language
+            let table = ReportTable(
+                title: "Hours",
+                subtitle: "",
+                language: language,
+                columns: [.date, .worked],
+                rows: [],
+                totals: []
             )
-            XCTAssertEqual(
-                DurationFormatting.export(style: .decimal, decimalSeparator: ",", language: language).string(510),
-                "8,50"
+            let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
+            XCTAssertTrue(
+                package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
+                "\(language.rawValue): the workbook mask has drifted from the text"
             )
         }
+    }
+
+    /// The decimal separator stays the user's choice rather than the
+    /// language's, because what matters there is what their spreadsheet reads.
+    func testTheUnitlessStylesAreUnaffected() {
+        XCTAssertEqual(
+            DurationFormatting.export(style: .clock, decimalSeparator: ",").string(510),
+            "8:30"
+        )
+        XCTAssertEqual(
+            DurationFormatting.export(style: .decimal, decimalSeparator: ",").string(510),
+            "8,50"
+        )
     }
 }

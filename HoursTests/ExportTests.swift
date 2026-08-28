@@ -661,10 +661,6 @@ final class ExportTests: XCTestCase {
         XCTAssertFalse(workbook.contains(">Summary<"))
         XCTAssertFalse(workbook.contains(">Total<"))
 
-        // The number format spells the units out, so the cell reads the same
-        // as the text beside it rather than the two disagreeing.
-        XCTAssertTrue(workbook.contains("[h]&quot; Std&quot; mm&quot; Min&quot;"))
-
         let csv = CSVExporter.string(for: table, preferences: export)
         XCTAssertTrue(csv.hasPrefix("Datum,Tag,Art"), "the CSV header is still English")
         XCTAssertTrue(csv.contains("Zusammenfassung,"))
@@ -694,8 +690,7 @@ final class ExportTests: XCTestCase {
 
             let duration = DurationFormatting.export(
                 style: export.durationStyle,
-                decimalSeparator: export.decimalSeparator.character,
-                language: language
+                decimalSeparator: export.decimalSeparator.character
             )
             for (index, column) in table.columns.enumerated() where column.isDuration {
                 // The longest figure this column will actually render.
