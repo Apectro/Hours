@@ -5,35 +5,47 @@
  * /Hours/privacy/ is the URL App Store Connect holds. Changing the Pages
  * source to an Actions workflow would break that URL for as long as it took
  * somebody to notice, so the built site is copied into docs/ instead and the
- * hand-written pages there are left exactly where they are.
+ * hand-written pages there are left where they are.
  *
- * Only the files the build itself produces are removed before copying, so a
- * stale asset from a previous build cannot survive and nothing written by
- * hand can be deleted.
+ * It works by keeping a short list of what is hand-written and clearing
+ * everything else. The obvious way round — listing what the build produces and
+ * deleting only that — was the first version, and it leaks: a file that stops
+ * being an output is never named again, so it stays published forever. That
+ * happened, with a build record that had moved out of public/. A keep-list
+ * cannot leak, and the one thing that must never be deleted is on it and is
+ * checked for afterwards.
  */
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
 
-/** Everything the build owns in docs/. Nothing else is ever touched. */
-const built = ["index.html", "assets", "shots", "icon.svg", "og.png", ".nojekyll"];
+/** Hand-written, and never touched by a publish. Everything else is output. */
+const KEEP = new Set(["privacy", "README.md", "app-store-listing.md"]);
 
 execFileSync("npx", ["vite", "build"], { cwd: web, stdio: "inherit" });
 
-for (const name of built) {
-  const path = join(docs, name);
-  if (existsSync(path)) rmSync(path, { recursive: true, force: true });
+mkdirSync(docs, { recursive: true });
+const removed = [];
+for (const name of readdirSync(docs)) {
+  if (KEEP.has(name)) continue;
+  rmSync(join(docs, name), { recursive: true, force: true });
+  removed.push(name);
 }
 
 cpSync(join(web, "dist"), docs, { recursive: true });
 
 // Pages runs Jekyll unless told not to, which would skip any file whose name
-// begins with an underscore. Vite does not emit one today; this makes sure a
-// future one is still served.
+// begins with an underscore. Vite emits none today; this covers a future one.
 writeFileSync(join(docs, ".nojekyll"), "");
 
-console.log(`Copied the built site into docs/ — ${built.join(", ")}`);
+/* The whole point of publishing this way. Fail loudly rather than quietly. */
+if (!existsSync(join(docs, "privacy", "index.html"))) {
+  throw new Error("docs/privacy/index.html is gone — that URL is in App Store Connect");
+}
+
+console.log(`Published into docs/ (cleared ${removed.length}, kept ${[...KEEP].join(", ")})`);

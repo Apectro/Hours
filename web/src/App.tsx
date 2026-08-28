@@ -3,6 +3,7 @@ import {
   appStore,
   balance,
   cases,
+  headlineLines,
   howItWorks,
   languages,
   plans,
@@ -91,7 +92,14 @@ function Hero() {
       <div className="shell">
         <div className="hero-grid">
           <div>
-            <h1>Your hours never leave your phone.</h1>
+            <h1>
+              {headlineLines.map((line, index) => (
+                <span key={line}>
+                  {index > 0 ? " " : null}
+                  {line}
+                </span>
+              ))}
+            </h1>
             <p className="lede">
               Tap a day, put your hours in, and the month adds itself up. When
               payroll wants a timesheet you export one, in whatever language

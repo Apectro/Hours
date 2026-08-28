@@ -1,0 +1,15 @@
+{
+  "headline": "Your hours never leave your phone.",
+  "headlineLines": ["Your hours never", "leave your phone."],
+  "equation": [
+    ["worked", "term"],
+    ["+", "op"],
+    ["credited", "term"],
+    ["−", "op"],
+    ["expected", "term"],
+    ["+", "op"],
+    ["adjustment", "term"],
+    ["=", "op"],
+    ["balance", "result"]
+  ]
+}

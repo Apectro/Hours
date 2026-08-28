@@ -1,3 +1,5 @@
+import brand from "./brand.json";
+
 /**
  * Everything the page says, in one file, so the words can be argued with
  * without going through JSX.
@@ -7,18 +9,18 @@
  * that is the one Apple reads.
  */
 
+/*
+ * The headline and the balance line live in brand.json rather than here,
+ * because the social card needs them too and it is a Node script that cannot
+ * import TypeScript. They drifted apart once already: the card kept rendering
+ * a headline the page had stopped using, in a palette the page had stopped
+ * having, and nothing noticed. One file, two readers.
+ */
+export const headline = brand.headline;
+export const headlineLines = brand.headlineLines;
+
 /** The one line the whole app comes down to. */
-export const balance = [
-  { text: "worked", kind: "term" },
-  { text: "+", kind: "op" },
-  { text: "credited", kind: "term" },
-  { text: "−", kind: "op" },
-  { text: "expected", kind: "term" },
-  { text: "+", kind: "op" },
-  { text: "adjustment", kind: "term" },
-  { text: "=", kind: "op" },
-  { text: "balance", kind: "result" },
-] as const;
+export const balance = brand.equation.map(([text, kind]) => ({ text, kind }));
 
 /**
  * The cases that make the line above worth having. Every one is a question a

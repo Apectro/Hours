@@ -20,6 +20,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, parse } from "node:path";
 import { fileURLToPath } from "node:url";
+import { cardInputs } from "./brand.mjs";
 
 const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
@@ -67,6 +68,27 @@ check(join(web, "shots-src"), widths);
 check(join(web, "shots-src", "exports"), exportWidths);
 
 if (!existsSync(join(docs, "og.png"))) problems.push("docs/og.png is missing");
+
+/*
+ * The social card is committed rather than built, so it can go stale on its
+ * own. It once did: the site was redesigned and the card carried on rendering
+ * the old headline in the old colours, and nothing caught it. Its bytes cannot
+ * be compared — sharp's output depends on whichever libvips the machine has —
+ * but the inputs it was made from are written beside it and compare exactly.
+ */
+const inputsPath = join(web, "og.inputs.json");
+if (!existsSync(inputsPath)) {
+  problems.push("web/og.inputs.json is missing — run `npm run og`");
+} else {
+  const recorded = readFileSync(inputsPath, "utf8").trim();
+  const current = JSON.stringify(cardInputs(), null, 2);
+  if (recorded !== current) {
+    problems.push(
+      "the social card was made from a headline, palette or typeface the site\n" +
+        "    no longer uses. Run `npm run og` and commit the result.",
+    );
+  }
+}
 if (!existsSync(join(docs, "privacy", "index.html"))) {
   problems.push("docs/privacy/index.html has gone — that URL is in App Store Connect");
 }

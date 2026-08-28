@@ -1,0 +1,56 @@
+{
+  "headlineLines": [
+    "Your hours never",
+    "leave your phone."
+  ],
+  "equation": [
+    [
+      "worked",
+      "term"
+    ],
+    [
+      "+",
+      "op"
+    ],
+    [
+      "credited",
+      "term"
+    ],
+    [
+      "−",
+      "op"
+    ],
+    [
+      "expected",
+      "term"
+    ],
+    [
+      "+",
+      "op"
+    ],
+    [
+      "adjustment",
+      "term"
+    ],
+    [
+      "=",
+      "op"
+    ],
+    [
+      "balance",
+      "result"
+    ]
+  ],
+  "palette": {
+    "INK": "#191c19",
+    "SOFT": "#5f665f",
+    "ACCENT": "#1b5b8e",
+    "GROUND": "#fbfaf7",
+    "RULE": "#c6ccc0",
+    "ON_ACCENT": "#ffffff"
+  },
+  "fonts": {
+    "display": "Bricolage Grotesque",
+    "type": "Courier Prime"
+  }
+}
