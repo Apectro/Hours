@@ -179,7 +179,13 @@ final class ExportCaptureTests: XCTestCase {
     /// a number format that disagrees with the text beside it, a month name
     /// that ignored the setting. Assertions cannot see any of that; a rendered page can.
     func testCaptureTheExportInEveryLanguage() throws {
-        for (language, name) in [(ExportLanguage.german, "de"), (ExportLanguage.croatian, "hr")] {
+        // French and Polish because they have the longest headings — "Heures
+        // travaillées" and "Nieobecność płatna" against English's "Worked" —
+        // so they are where a column tuned for English gives way first.
+        let sampled: [(ExportLanguage, String)] = [
+            (.german, "de"), (.croatian, "hr"), (.french, "fr"), (.polish, "pl")
+        ]
+        for (language, name) in sampled {
             let table = monthTable(language: language)
             let rendered = try pages(of: PDFReportRenderer.data(for: table))
             if let first = rendered.first {
