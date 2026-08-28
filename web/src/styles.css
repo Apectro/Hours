@@ -825,3 +825,22 @@ footer nav {
   color: var(--ink);
   border-color: var(--ink-faint);
 }
+
+/* "Zeitkonto" is four characters longer than the name it replaced, which was
+   enough to push the masthead off a 390px screen. The language link drops to
+   its two-letter code there — shorter, and what a phone would show anyway. */
+.at-narrow {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .at-wide {
+    display: none;
+  }
+  .at-narrow {
+    display: inline;
+  }
+  .wordmark {
+    font-size: 19px;
+  }
+}

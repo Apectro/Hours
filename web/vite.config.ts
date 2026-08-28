@@ -36,6 +36,10 @@ function localiseHtml() {
         .replace(/(property="og:url" content=")[^"]*"/, `$1${canonical}"`)
         .replace(/(property="og:image" content=")[^"]*"/, `$1${SITE}/og${LANG === "de" ? "-de" : ""}.png"`)
         .replace(
+          /(property="og:image:alt" content=")[^"]*"/,
+          `$1Zeitkonto — ${copy.hero.headlineLines.join(" ")}"`,
+        )
+        .replace(
           "</head>",
           `  <link rel="canonical" href="${canonical}" />\n` +
             `    <link rel="alternate" hreflang="en" href="${SITE}/" />\n` +

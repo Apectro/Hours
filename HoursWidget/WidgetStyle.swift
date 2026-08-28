@@ -93,12 +93,12 @@ struct EmptyStateView: View {
                 : String(localized: "Turn on App Groups to use the widget")
         case .waiting:
             return compact
-                ? String(localized: "Open Hours")
-                : String(localized: "Open Hours once to fill this in")
+                ? String(localized: "Open Zeitkonto")
+                : String(localized: "Open Zeitkonto once to fill this in")
         case .locked:
             return compact
-                ? String(localized: "Hours Pro")
-                : String(localized: "Widgets are part of Hours Pro")
+                ? String(localized: "Zeitkonto Pro")
+                : String(localized: "Widgets are part of Zeitkonto Pro")
         case .data, .sample:
             return ""
         }

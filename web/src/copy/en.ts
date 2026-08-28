@@ -9,12 +9,14 @@ import brand from "../brand.json";
  */
 export const en = {
   lang: "en",
-  htmlTitle: "Hours — a work-hours calendar that stays on your phone",
+  htmlTitle: "Zeitkonto — a work-hours calendar that stays on your phone",
   htmlDescription:
     "Record your hours on a calendar, see your balance, and hand payroll a timesheet in ten languages. No account, no server, nothing collected.",
   ogDescription:
     "A work-hours calendar that keeps your hours on your phone. No account, no server, nothing collected.",
   otherLanguage: "Deutsch",
+  /** The phone has no room for the full word. */
+  otherLanguageShort: "DE",
   skip: "Skip to content",
 
   nav: {
@@ -37,7 +39,7 @@ export const en = {
     sourceAction: "Read the source",
     notYet: "It isn't on the App Store yet. ",
     note: "Recording your hours is free and stays free. Needs iOS 17.",
-    shotAlt: "Hours on an iPhone, showing a month of days coloured by type with totals beneath",
+    shotAlt: "Zeitkonto on an iPhone, showing a month of days coloured by type with totals beneath",
   },
 
   equation: {
@@ -146,7 +148,7 @@ export const en = {
           "A nudge when a working day has no hours on it",
           "A JSON backup holding every day you ever entered",
         ] },
-      { name: "Hours Pro", price: "Monthly, yearly, or bought outright once", highlight: true,
+      { name: "Zeitkonto Pro", price: "Monthly, yearly, or bought outright once", highlight: true,
         items: [
           "Timesheets as CSV, Excel or PDF, in ten languages",
           "Home Screen and Lock Screen widgets",
@@ -158,7 +160,7 @@ export const en = {
   },
 
   footer: {
-    line: "Hours is made by one person. No company behind it, and nothing in it that phones home.",
+    line: "Zeitkonto is made by one person. No company behind it, and nothing in it that phones home.",
     privacy: "Privacy",
     source: "Source",
     support: "Support",

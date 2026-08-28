@@ -103,9 +103,9 @@ struct BackupArchive: Codable, Sendable {
         var errorDescription: String? {
             switch self {
             case .notABackup:
-                return "This file is not a Hours backup."
+                return "This file is not a Zeitkonto backup."
             case let .fromANewerVersion(version):
-                return "This backup was made by a newer version of Hours (format \(version)). Update Hours and try again."
+                return "This backup was made by a newer version of Zeitkonto (format \(version)). Update Zeitkonto and try again."
             case let .unreadable(part):
                 return "This backup is damaged: its \(part) could not be read."
             }

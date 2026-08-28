@@ -12,7 +12,7 @@ struct ReminderSettingsScreen: View {
                 Toggle("Remind me about gaps", isOn: enabledBinding)
             } footer: {
                 Text(authorizationDenied
-                     ? "Notifications are switched off for Hours in the Settings app. Turn them on there and this will start working."
+                     ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
                      : "The calendar already marks a working day with nothing on it. This tells you without having to look.")
             }
 

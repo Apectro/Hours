@@ -13,7 +13,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.hours.app.pro.lifetime",
+      "productID" : "app.zeitkonto.pro.lifetime",
       "referenceName" : "Pro lifetime",
       "type" : "NonConsumable"
     }
@@ -43,7 +43,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.hours.app.pro.monthly",
+          "productID" : "app.zeitkonto.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Pro monthly",
           "subscriptionGroupID" : "hours.pro",
@@ -63,7 +63,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.hours.app.pro.yearly",
+          "productID" : "app.zeitkonto.pro.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Pro yearly",
           "subscriptionGroupID" : "hours.pro",

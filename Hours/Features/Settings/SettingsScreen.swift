@@ -17,7 +17,7 @@ struct SettingsScreen: View {
                         isShowingPaywall = true
                     } label: {
                         SettingsRow(
-                            title: subscriptions.isPro ? "Hours Pro" : "Unlock Hours Pro",
+                            title: subscriptions.isPro ? "Zeitkonto Pro" : "Unlock Zeitkonto Pro",
                             value: subscriptions.isPro ? "Active" : nil,
                             systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
                         )

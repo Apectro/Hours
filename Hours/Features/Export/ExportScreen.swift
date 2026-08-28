@@ -185,7 +185,7 @@ struct ExportScreen: View {
             }
         } footer: {
             if !subscriptions.allows(.fileExport) {
-                Text("Timesheets are part of Hours Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
+                Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
             }
         }
     }

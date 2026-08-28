@@ -13,12 +13,14 @@ import type { Copy } from "./en";
  */
 export const de: Copy = {
   lang: "de",
-  htmlTitle: "Hours — ein Stundenkalender, der auf dem Telefon bleibt",
+  htmlTitle: "Zeitkonto — ein Stundenkalender, der auf dem Telefon bleibt",
   htmlDescription:
     "Erfasse deine Stunden in einem Kalender, sieh deinen Saldo, und gib der Lohnbuchhaltung einen Stundenzettel in ihrer Sprache. Kein Konto, kein Server, nichts wird gesammelt.",
   ogDescription:
     "Ein Stundenkalender, der deine Stunden auf dem Telefon lässt. Kein Konto, kein Server, nichts wird gesammelt.",
   otherLanguage: "English",
+  /** The phone has no room for the full word. */
+  otherLanguageShort: "EN",
   skip: "Zum Inhalt springen",
 
   nav: {
@@ -41,7 +43,7 @@ export const de: Copy = {
     sourceAction: "Quellcode lesen",
     notYet: "Noch nicht im App Store. ",
     note: "Stunden zu erfassen ist kostenlos und bleibt es. Braucht iOS 17.",
-    shotAlt: "Hours auf einem iPhone: ein Monat, dessen Tage nach Art eingefärbt sind, mit den Summen darunter",
+    shotAlt: "Zeitkonto auf einem iPhone: ein Monat, dessen Tage nach Art eingefärbt sind, mit den Summen darunter",
   },
 
   equation: {
@@ -150,7 +152,7 @@ export const de: Copy = {
           "Ein Hinweis, wenn an einem Arbeitstag keine Stunden stehen",
           "Eine JSON-Sicherung mit jedem Tag, den du je eingetragen hast",
         ] },
-      { name: "Hours Pro", price: "Monatlich, jährlich, oder einmalig gekauft", highlight: true,
+      { name: "Zeitkonto Pro", price: "Monatlich, jährlich, oder einmalig gekauft", highlight: true,
         items: [
           "Stundenzettel als CSV, Excel oder PDF, in zehn Sprachen",
           "Widgets für Home- und Sperrbildschirm",
@@ -162,7 +164,7 @@ export const de: Copy = {
   },
 
   footer: {
-    line: "Hours ist von einer einzelnen Person gemacht. Keine Firma dahinter, und nichts darin, das nach Hause telefoniert.",
+    line: "Zeitkonto ist von einer einzelnen Person gemacht. Keine Firma dahinter, und nichts darin, das nach Hause telefoniert.",
     privacy: "Datenschutz",
     source: "Quellcode",
     support: "Support",

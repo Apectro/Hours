@@ -55,8 +55,8 @@ struct SyncSettingsScreen: View {
                 Section {
                     Label(
                         isEnabled
-                            ? "Sync starts the next time you open Hours."
-                            : "Sync stops the next time you open Hours.",
+                            ? "Sync starts the next time you open Zeitkonto."
+                            : "Sync stops the next time you open Zeitkonto.",
                         systemImage: "arrow.clockwise"
                     )
                     .foregroundStyle(.secondary)

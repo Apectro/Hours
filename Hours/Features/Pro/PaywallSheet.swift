@@ -30,7 +30,7 @@ struct PaywallSheet: View {
                 .padding(Metrics.large)
             }
             .background(Color.hoursCanvas)
-            .navigationTitle("Hours Pro")
+            .navigationTitle("Zeitkonto Pro")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -46,7 +46,7 @@ struct PaywallSheet: View {
                 if isPro { dismiss() }
             }
             .alert(
-                "Hours",
+                Text(verbatim: AppIdentity.name),
                 isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } }),
                 actions: { Button("OK", role: .cancel) {} },
                 message: { Text(message ?? "") }
@@ -58,7 +58,7 @@ struct PaywallSheet: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            Text(reason?.title ?? "Everything Hours can do")
+            Text(reason?.title ?? "Everything Zeitkonto can do")
                 .font(.title2.bold())
             Text(reason?.explanation ?? "One purchase opens the parts of the app that turn a record of your hours into something you can hand to someone else.")
                 .font(.subheadline)
@@ -146,7 +146,7 @@ struct PaywallSheet: View {
     private var smallprint: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
             Text("There is no account to make. A purchase belongs to your Apple ID, so it is already on your other devices — you should not need Restore, and it is there in case you do.")
-            Text("A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Hours outright is a single payment and never renews.")
+            Text("A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Zeitkonto outright is a single payment and never renews.")
         }
         .font(.caption)
         .foregroundStyle(.tertiary)
@@ -163,7 +163,7 @@ struct PaywallSheet: View {
         case .bought:
             dismiss()
         case .pending:
-            message = "That purchase is waiting for approval. Hours will open up on its own once it goes through."
+            message = "That purchase is waiting for approval. Zeitkonto will open up on its own once it goes through."
         case .cancelled:
             break
         case let .failed(reason):
@@ -178,7 +178,7 @@ struct PaywallSheet: View {
         if await subscriptions.restore() {
             dismiss()
         } else {
-            message = "Nothing to restore on this Apple ID. If you bought Hours with a different one, sign in with that one and try again."
+            message = "Nothing to restore on this Apple ID. If you bought Zeitkonto with a different one, sign in with that one and try again."
         }
     }
 }

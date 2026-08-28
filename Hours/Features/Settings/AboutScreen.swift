@@ -41,8 +41,8 @@ struct AboutScreen: View {
                 )
                 PrivacyPoint(
                     symbol: "creditcard",
-                    title: String(localized: "Buying Hours Pro"),
-                    detail: String(localized: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.")
+                    title: String(localized: "Buying Zeitkonto Pro"),
+                    detail: String(localized: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Zeitkonto is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.")
                 )
             }
 
@@ -73,7 +73,7 @@ struct AboutScreen: View {
         // network connections at all stopped being true the day it could be
         // bought — and this is the worst screen in the app to leave a stale
         // promise on.
-        let purchases = "The one thing it asks the network is whether Hours Pro has been paid for, which it asks the App Store; no part of your hours goes with the question."
+        let purchases = "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question."
         return isSyncing
             ? "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common) \(purchases)"
             : "Your hours are stored locally and nowhere else. \(common) \(purchases)"

@@ -434,120 +434,120 @@
         }
       }
     },
-    "A second job is part of Hours Pro. The job you have keeps working either way.": {
+    "A second job is part of Zeitkonto Pro. The job you have keeps working either way.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine zweite Tätigkeit gehört zu Hours Pro. Die vorhandene funktioniert so oder so weiter."
+            "value": "Eine zweite Tätigkeit gehört zu Zeitkonto Pro. Die vorhandene funktioniert so oder so weiter."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un segundo trabajo forma parte de Hours Pro. El que ya tienes sigue funcionando igual."
+            "value": "Un segundo trabajo forma parte de Zeitkonto Pro. El que ya tienes sigue funcionando igual."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un second poste fait partie de Hours Pro. Celui que vous avez continue de fonctionner dans tous les cas."
+            "value": "Un second poste fait partie de Zeitkonto Pro. Celui que vous avez continue de fonctionner dans tous les cas."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drugi posao je dio Hours Pro. Postojeći posao radi u svakom slučaju."
+            "value": "Drugi posao je dio Zeitkonto Pro. Postojeći posao radi u svakom slučaju."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un secondo lavoro fa parte di Hours Pro. Quello che hai continua a funzionare comunque."
+            "value": "Un secondo lavoro fa parte di Zeitkonto Pro. Quello che hai continua a funzionare comunque."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Een tweede functie hoort bij Hours Pro. De functie die je hebt blijft hoe dan ook werken."
+            "value": "Een tweede functie hoort bij Zeitkonto Pro. De functie die je hebt blijft hoe dan ook werken."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Druga praca jest częścią Hours Pro. Ta, którą masz, działa tak czy inaczej."
+            "value": "Druga praca jest częścią Zeitkonto Pro. Ta, którą masz, działa tak czy inaczej."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Um segundo trabalho faz parte do Hours Pro. O que já tens continua a funcionar na mesma."
+            "value": "Um segundo trabalho faz parte do Zeitkonto Pro. O que já tens continua a funcionar na mesma."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drugo delo je del Hours Pro. Obstoječe delo deluje tako ali tako."
+            "value": "Drugo delo je del Zeitkonto Pro. Obstoječe delo deluje tako ali tako."
           }
         }
       }
     },
-    "A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Hours outright is a single payment and never renews.": {
+    "A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Zeitkonto outright is a single payment and never renews.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein Abo verlängert sich, bis du es kündigst, unter Einstellungen › dein Name › Abos. Hours einmalig zu kaufen ist eine einzige Zahlung und verlängert sich nie."
+            "value": "Ein Abo verlängert sich, bis du es kündigst, unter Einstellungen › dein Name › Abos. Zeitkonto einmalig zu kaufen ist eine einzige Zahlung und verlängert sich nie."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una suscripción se renueva hasta que la canceles, en Ajustes › tu nombre › Suscripciones. Comprar Hours de una vez es un pago único y nunca se renueva."
+            "value": "Una suscripción se renueva hasta que la canceles, en Ajustes › tu nombre › Suscripciones. Comprar Zeitkonto de una vez es un pago único y nunca se renueva."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un abonnement se renouvelle jusqu’à son annulation, dans Réglages › votre nom › Abonnements. Acheter Hours définitivement est un paiement unique, sans renouvellement."
+            "value": "Un abonnement se renouvelle jusqu’à son annulation, dans Réglages › votre nom › Abonnements. Acheter Zeitkonto définitivement est un paiement unique, sans renouvellement."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pretplata se obnavlja dok je ne otkažeš, u Postavke › tvoje ime › Pretplate. Kupnja Hours odjednom je jednokratno plaćanje i nikad se ne obnavlja."
+            "value": "Pretplata se obnavlja dok je ne otkažeš, u Postavke › tvoje ime › Pretplate. Kupnja Zeitkonto odjednom je jednokratno plaćanje i nikad se ne obnavlja."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un abbonamento si rinnova finché non lo annulli, in Impostazioni › il tuo nome › Abbonamenti. Acquistare Hours una volta è un pagamento unico e non si rinnova mai."
+            "value": "Un abbonamento si rinnova finché non lo annulli, in Impostazioni › il tuo nome › Abbonamenti. Acquistare Zeitkonto una volta è un pagamento unico e non si rinnova mai."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Een abonnement wordt verlengd tot je het opzegt, via Instellingen › je naam › Abonnementen. Hours in één keer kopen is een eenmalige betaling en wordt nooit verlengd."
+            "value": "Een abonnement wordt verlengd tot je het opzegt, via Instellingen › je naam › Abonnementen. Zeitkonto in één keer kopen is een eenmalige betaling en wordt nooit verlengd."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Subskrypcja odnawia się, dopóki jej nie anulujesz, w Ustawienia › twoje imię › Subskrypcje. Jednorazowy zakup Hours to pojedyncza płatność, która nigdy się nie odnawia."
+            "value": "Subskrypcja odnawia się, dopóki jej nie anulujesz, w Ustawienia › twoje imię › Subskrypcje. Jednorazowy zakup Zeitkonto to pojedyncza płatność, która nigdy się nie odnawia."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uma subscrição renova-se até a cancelares, em Definições › o teu nome › Subscrições. Comprar o Hours de uma vez é um pagamento único e nunca se renova."
+            "value": "Uma subscrição renova-se até a cancelares, em Definições › o teu nome › Subscrições. Comprar o Zeitkonto de uma vez é um pagamento único e nunca se renova."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Naročnina se obnavlja, dokler je ne prekličeš, v Nastavitve › tvoje ime › Naročnine. Enkraten nakup Hours je eno plačilo in se nikoli ne obnovi."
+            "value": "Naročnina se obnavlja, dokler je ne prekličeš, v Nastavitve › tvoje ime › Naročnine. Enkraten nakup Zeitkonto je eno plačilo in se nikoli ne obnovi."
           }
         }
       }
@@ -2834,61 +2834,61 @@
         }
       }
     },
-    "Buying Hours Pro": {
+    "Buying Zeitkonto Pro": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours Pro kaufen"
+            "value": "Zeitkonto Pro kaufen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprar Hours Pro"
+            "value": "Comprar Zeitkonto Pro"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acheter Hours Pro"
+            "value": "Acheter Zeitkonto Pro"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kupnja Hours Pro"
+            "value": "Kupnja Zeitkonto Pro"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acquistare Hours Pro"
+            "value": "Acquistare Zeitkonto Pro"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours Pro kopen"
+            "value": "Zeitkonto Pro kopen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zakup Hours Pro"
+            "value": "Zakup Zeitkonto Pro"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprar o Hours Pro"
+            "value": "Comprar o Zeitkonto Pro"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nakup Hours Pro"
+            "value": "Nakup Zeitkonto Pro"
           }
         }
       }
@@ -8656,65 +8656,6 @@
         }
       }
     },
-    "Hours Pro": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        }
-      }
-    },
     "Hours and balance": {
       "extractionState": "manual",
       "localizations": {
@@ -11980,120 +11921,120 @@
         }
       }
     },
-    "Open Hours": {
+    "Open Zeitkonto": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours öffnen"
+            "value": "Zeitkonto öffnen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abrir Hours"
+            "value": "Abrir Zeitkonto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrir Hours"
+            "value": "Ouvrir Zeitkonto"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otvori Hours"
+            "value": "Otvori Zeitkonto"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apri Hours"
+            "value": "Apri Zeitkonto"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours openen"
+            "value": "Zeitkonto openen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otwórz Hours"
+            "value": "Otwórz Zeitkonto"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abrir Hours"
+            "value": "Abrir Zeitkonto"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odpri Hours"
+            "value": "Odpri Zeitkonto"
           }
         }
       }
     },
-    "Open Hours once to fill this in": {
+    "Open Zeitkonto once to fill this in": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours einmal öffnen, um dies zu füllen"
+            "value": "Zeitkonto einmal öffnen, um dies zu füllen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre Hours una vez para rellenarlo"
+            "value": "Abre Zeitkonto una vez para rellenarlo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrez Hours une fois pour le remplir"
+            "value": "Ouvrez Zeitkonto une fois pour le remplir"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otvori Hours jednom da se ovo popuni"
+            "value": "Otvori Zeitkonto jednom da se ovo popuni"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apri Hours una volta per compilarlo"
+            "value": "Apri Zeitkonto una volta per compilarlo"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open Hours één keer om dit te vullen"
+            "value": "Open Zeitkonto één keer om dit te vullen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otwórz Hours raz, aby to uzupełnić"
+            "value": "Otwórz Zeitkonto raz, aby to uzupełnić"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre o Hours uma vez para preencher isto"
+            "value": "Abre o Zeitkonto uma vez para preencher isto"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enkrat odpri Hours, da se to izpolni"
+            "value": "Enkrat odpri Zeitkonto, da se to izpolni"
           }
         }
       }
@@ -12452,61 +12393,61 @@
         }
       }
     },
-    "Payment is handled entirely by the App Store, the way every purchase on your phone is. Hours is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.": {
+    "Payment is handled entirely by the App Store, the way every purchase on your phone is. Zeitkonto is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Zahlung wickelt der App Store vollständig ab, wie jeden Kauf auf deinem Telefon. Hours erfährt im Gegenzug genau eines – ob es bezahlt wurde – und sieht nie deinen Namen, deine E-Mail-Adresse oder deine Karte. Es gibt weiterhin nichts, wo man sich anmelden müsste."
+            "value": "Die Zahlung wickelt der App Store vollständig ab, wie jeden Kauf auf deinem Telefon. Zeitkonto erfährt im Gegenzug genau eines – ob es bezahlt wurde – und sieht nie deinen Namen, deine E-Mail-Adresse oder deine Karte. Es gibt weiterhin nichts, wo man sich anmelden müsste."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El pago lo gestiona por completo el App Store, igual que cualquier compra en tu teléfono. Hours recibe a cambio una sola cosa —si se ha pagado— y nunca ve tu nombre, tu correo ni tu tarjeta. Sigue sin haber nada a lo que iniciar sesión."
+            "value": "El pago lo gestiona por completo el App Store, igual que cualquier compra en tu teléfono. Zeitkonto recibe a cambio una sola cosa —si se ha pagado— y nunca ve tu nombre, tu correo ni tu tarjeta. Sigue sin haber nada a lo que iniciar sesión."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le paiement est entièrement géré par l’App Store, comme tout achat sur votre téléphone. Hours n’apprend qu’une chose en retour — s’il a été payé — et ne voit jamais votre nom, votre e-mail ni votre carte. Il n’y a toujours aucun compte auquel se connecter."
+            "value": "Le paiement est entièrement géré par l’App Store, comme tout achat sur votre téléphone. Zeitkonto n’apprend qu’une chose en retour — s’il a été payé — et ne voit jamais votre nom, votre e-mail ni votre carte. Il n’y a toujours aucun compte auquel se connecter."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plaćanje u cijelosti obavlja App Store, kao i svaku kupnju na tvom telefonu. Hours zauzvrat saznaje jedno – je li plaćen – i nikad ne vidi tvoje ime, e-poštu ni karticu. I dalje se nema kamo prijaviti."
+            "value": "Plaćanje u cijelosti obavlja App Store, kao i svaku kupnju na tvom telefonu. Zeitkonto zauzvrat saznaje jedno – je li plaćen – i nikad ne vidi tvoje ime, e-poštu ni karticu. I dalje se nema kamo prijaviti."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il pagamento è gestito interamente dall’App Store, come ogni acquisto sul telefono. Hours riceve in cambio una sola informazione — se è stato pagato — e non vede mai il tuo nome, la tua email o la tua carta. Non c’è comunque nulla in cui accedere."
+            "value": "Il pagamento è gestito interamente dall’App Store, come ogni acquisto sul telefono. Zeitkonto riceve in cambio una sola informazione — se è stato pagato — e non vede mai il tuo nome, la tua email o la tua carta. Non c’è comunque nulla in cui accedere."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "De betaling wordt volledig door de App Store afgehandeld, zoals elke aankoop op je telefoon. Hours hoort er één ding voor terug — of er betaald is — en ziet nooit je naam, je e-mail of je kaart. Er is nog steeds nergens op in te loggen."
+            "value": "De betaling wordt volledig door de App Store afgehandeld, zoals elke aankoop op je telefoon. Zeitkonto hoort er één ding voor terug — of er betaald is — en ziet nooit je naam, je e-mail of je kaart. Er is nog steeds nergens op in te loggen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Płatność w całości obsługuje App Store, tak jak każdy zakup na twoim telefonie. Hours dowiaduje się w zamian jednej rzeczy – czy został opłacony – i nigdy nie widzi twojego imienia, e-maila ani karty. Nadal nie ma się gdzie logować."
+            "value": "Płatność w całości obsługuje App Store, tak jak każdy zakup na twoim telefonie. Zeitkonto dowiaduje się w zamian jednej rzeczy – czy został opłacony – i nigdy nie widzi twojego imienia, e-maila ani karty. Nadal nie ma się gdzie logować."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "O pagamento é tratado inteiramente pela App Store, como qualquer compra no teu telemóvel. O Hours fica a saber uma coisa em troca — se foi pago — e nunca vê o teu nome, o teu email ou o teu cartão. Continua a não haver nada onde iniciar sessão."
+            "value": "O pagamento é tratado inteiramente pela App Store, como qualquer compra no teu telemóvel. O Zeitkonto fica a saber uma coisa em troca — se foi pago — e nunca vê o teu nome, o teu email ou o teu cartão. Continua a não haver nada onde iniciar sessão."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plačilo v celoti izvede App Store, tako kot vsak nakup na tvojem telefonu. Hours v zameno izve eno stvar – ali je plačan – in nikoli ne vidi tvojega imena, e-pošte ali kartice. Še vedno se ni kam prijaviti."
+            "value": "Plačilo v celoti izvede App Store, tako kot vsak nakup na tvojem telefonu. Zeitkonto v zameno izve eno stvar – ali je plačan – in nikoli ne vidi tvojega imena, e-pošte ali kartice. Še vedno se ni kam prijaviti."
           }
         }
       }
@@ -17810,61 +17751,61 @@
         }
       }
     },
-    "Timesheets are part of Hours Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.": {
+    "Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stundenzettel gehören zu Hours Pro. Einstellungen › Sicherung und Daten schreibt eine Datei mit jedem je erfassten Tag – kostenlos, heute und künftig."
+            "value": "Stundenzettel gehören zu Zeitkonto Pro. Einstellungen › Sicherung und Daten schreibt eine Datei mit jedem je erfassten Tag – kostenlos, heute und künftig."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las hojas de horas forman parte de Hours Pro. Ajustes › Copia de seguridad y datos escribe un archivo con cada día registrado: gratis, ahora y siempre."
+            "value": "Las hojas de horas forman parte de Zeitkonto Pro. Ajustes › Copia de seguridad y datos escribe un archivo con cada día registrado: gratis, ahora y siempre."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les feuilles d’heures font partie de Hours Pro. Réglages › Sauvegarde et données écrit un fichier contenant chaque jour enregistré : gratuitement, aujourd’hui et toujours."
+            "value": "Les feuilles d’heures font partie de Zeitkonto Pro. Réglages › Sauvegarde et données écrit un fichier contenant chaque jour enregistré : gratuitement, aujourd’hui et toujours."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evidencije su dio Hours Pro. Postavke › Sigurnosna kopija i podaci zapisuje datoteku sa svakim danom koji si ikad zabilježio – besplatno, sada i uvijek."
+            "value": "Evidencije su dio Zeitkonto Pro. Postavke › Sigurnosna kopija i podaci zapisuje datoteku sa svakim danom koji si ikad zabilježio – besplatno, sada i uvijek."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I fogli ore fanno parte di Hours Pro. Impostazioni › Backup e dati scrive un file con ogni giorno mai registrato: gratis, ora e sempre."
+            "value": "I fogli ore fanno parte di Zeitkonto Pro. Impostazioni › Backup e dati scrive un file con ogni giorno mai registrato: gratis, ora e sempre."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Urenstaten horen bij Hours Pro. Instellingen › Back-up en gegevens schrijft een bestand met elke dag die je ooit hebt vastgelegd — gratis, nu en altijd."
+            "value": "Urenstaten horen bij Zeitkonto Pro. Instellingen › Back-up en gegevens schrijft een bestand met elke dag die je ooit hebt vastgelegd — gratis, nu en altijd."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ewidencje są częścią Hours Pro. Ustawienia › Kopia zapasowa i dane zapisują plik z każdym kiedykolwiek zapisanym dniem – bezpłatnie, teraz i zawsze."
+            "value": "Ewidencje są częścią Zeitkonto Pro. Ustawienia › Kopia zapasowa i dane zapisują plik z każdym kiedykolwiek zapisanym dniem – bezpłatnie, teraz i zawsze."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "As folhas de horas fazem parte do Hours Pro. Definições › Cópia de segurança e dados escreve um ficheiro com todos os dias registados: grátis, agora e sempre."
+            "value": "As folhas de horas fazem parte do Zeitkonto Pro. Definições › Cópia de segurança e dados escreve um ficheiro com todos os dias registados: grátis, agora e sempre."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evidence so del Hours Pro. Nastavitve › Varnostna kopija in podatki zapiše datoteko z vsakim zabeleženim dnem – brezplačno, zdaj in vedno."
+            "value": "Evidence so del Zeitkonto Pro. Nastavitve › Varnostna kopija in podatki zapiše datoteko z vsakim zabeleženim dnem – brezplačno, zdaj in vedno."
           }
         }
       }
@@ -18872,61 +18813,61 @@
         }
       }
     },
-    "Widgets are part of Hours Pro": {
+    "Widgets are part of Zeitkonto Pro": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgets gehören zu Hours Pro"
+            "value": "Widgets gehören zu Zeitkonto Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los widgets forman parte de Hours Pro"
+            "value": "Los widgets forman parte de Zeitkonto Pro"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les widgets font partie de Hours Pro"
+            "value": "Les widgets font partie de Zeitkonto Pro"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgeti su dio Hours Pro"
+            "value": "Widgeti su dio Zeitkonto Pro"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I widget fanno parte di Hours Pro"
+            "value": "I widget fanno parte di Zeitkonto Pro"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgets horen bij Hours Pro"
+            "value": "Widgets horen bij Zeitkonto Pro"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widżety są częścią Hours Pro"
+            "value": "Widżety są częścią Zeitkonto Pro"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os widgets fazem parte do Hours Pro"
+            "value": "Os widgets fazem parte do Zeitkonto Pro"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pripomočki so del Hours Pro"
+            "value": "Pripomočki so del Zeitkonto Pro"
           }
         }
       }
@@ -19517,6 +19458,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tvoj lastni iCloud"
+          }
+        }
+      }
+    },
+    "Zeitkonto Pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
           }
         }
       }

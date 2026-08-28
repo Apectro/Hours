@@ -46,7 +46,8 @@ struct ReminderScheduler {
         guard preferences.isEnabled, await isAuthorized() else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Hours")
+        // The name, not a translated word: see AppIdentity.
+        content.title = AppIdentity.name
         content.body = body ?? String(localized: "Check that this week's hours are recorded.")
         content.sound = .default
 

@@ -44,7 +44,7 @@ struct JobSettingsScreen: View {
                 }
             } footer: {
                 if needsProForAnotherJob {
-                    Text("A second job is part of Hours Pro. The job you have keeps working either way.")
+                    Text("A second job is part of Zeitkonto Pro. The job you have keeps working either way.")
                 }
             }
         }

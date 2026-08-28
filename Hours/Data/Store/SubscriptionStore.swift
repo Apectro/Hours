@@ -20,9 +20,9 @@ import StoreKit
 @MainActor
 final class SubscriptionStore {
     enum ProductID {
-        static let monthly = "com.hours.app.pro.monthly"
-        static let yearly = "com.hours.app.pro.yearly"
-        static let lifetime = "com.hours.app.pro.lifetime"
+        static let monthly = "app.zeitkonto.pro.monthly"
+        static let yearly = "app.zeitkonto.pro.yearly"
+        static let lifetime = "app.zeitkonto.pro.lifetime"
 
         static let all = [monthly, yearly, lifetime]
 

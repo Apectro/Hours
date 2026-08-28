@@ -155,8 +155,8 @@ const headTop = 300 - (lines.length - 1) * 34;
 const card = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect width="${W}" height="${H}" fill="${GROUND}"/>
   <rect x="76" y="68" width="52" height="52" rx="12" fill="${ACCENT}"/>
-  <text x="102" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${ON_ACCENT}" text-anchor="middle">h</text>
-  <text x="146" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${INK}" letter-spacing="-0.6">Hours</text>
+  <text x="102" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${ON_ACCENT}" text-anchor="middle">z</text>
+  <text x="146" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${INK}" letter-spacing="-0.6">Zeitkonto</text>
   ${lines
     .map(
       (line, index) =>

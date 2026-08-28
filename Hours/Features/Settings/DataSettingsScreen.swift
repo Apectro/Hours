@@ -130,7 +130,7 @@ struct DataSettingsScreen: View {
             let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Backups", isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             let stamp = ISO8601DateFormatter.backupStamp.string(from: archive.exportedAt)
-            let url = directory.appendingPathComponent("Hours backup \(stamp).json")
+            let url = directory.appendingPathComponent("Zeitkonto backup \(stamp).json")
             try data.write(to: url, options: .atomic)
             backupURL = url
             message = String(inflected: "Backup ready: ^[\(archive.days.count) day](inflect: true).")

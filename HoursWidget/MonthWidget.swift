@@ -133,7 +133,7 @@ struct MonthWidgetView: View {
             } else if hasData {
                 Label(snapshot.formatting.string(worked), systemImage: "calendar")
             } else {
-                Label("Open Hours", systemImage: "calendar")
+                Label("Open Zeitkonto", systemImage: "calendar")
             }
         }
     }

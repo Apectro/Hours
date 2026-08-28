@@ -18,7 +18,9 @@ import Foundation
 /// nothing.
 enum WidgetSnapshotStore {
     /// Change this alongside the entitlements if the bundle identifier changes.
-    static let appGroupIdentifier = "group.com.hours.app"
+    /// Changing this orphans whatever the widget already wrote, so it was
+    /// worth changing before anybody had a widget rather than after.
+    static let appGroupIdentifier = "group.app.zeitkonto"
 
     static let fileName = "widget-snapshot.json"
 

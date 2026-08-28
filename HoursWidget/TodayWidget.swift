@@ -231,7 +231,7 @@ struct TodayWidgetView: View {
             if hasData {
                 Label(snapshot.formatting.string(worked), systemImage: snapshot.isClockRunning ? "record.circle" : "clock")
             } else {
-                Label("Open Hours", systemImage: "clock.badge.questionmark")
+                Label("Open Zeitkonto", systemImage: "clock.badge.questionmark")
             }
         }
     }

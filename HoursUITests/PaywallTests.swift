@@ -35,16 +35,16 @@ final class PaywallTests: XCTestCase {
         let app = XCUIApplication.hours()
         openSettings(app)
 
-        XCTAssertTrue(app.staticTexts["Unlock Hours Pro"].exists)
+        XCTAssertTrue(app.staticTexts["Unlock Zeitkonto Pro"].exists)
     }
 
     func testAPaidAppStopsAsking() {
         let app = XCUIApplication.hours(pro: true)
         openSettings(app)
 
-        XCTAssertTrue(app.staticTexts["Hours Pro"].exists)
+        XCTAssertTrue(app.staticTexts["Zeitkonto Pro"].exists)
         XCTAssertFalse(
-            app.staticTexts["Unlock Hours Pro"].exists,
+            app.staticTexts["Unlock Zeitkonto Pro"].exists,
             "someone who has paid should never be asked again"
         )
     }
@@ -55,7 +55,7 @@ final class PaywallTests: XCTestCase {
     func testThePaywallSaysWhatStaysFree() {
         let app = XCUIApplication.hours()
         openSettings(app)
-        app.staticTexts["Unlock Hours Pro"].tap()
+        app.staticTexts["Unlock Zeitkonto Pro"].tap()
 
         XCTAssertTrue(app.staticTexts["Free, whatever you decide"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Recording and editing your hours"].exists)
@@ -67,7 +67,7 @@ final class PaywallTests: XCTestCase {
     func testThePaywallCanBeDeclined() {
         let app = XCUIApplication.hours()
         openSettings(app)
-        app.staticTexts["Unlock Hours Pro"].tap()
+        app.staticTexts["Unlock Zeitkonto Pro"].tap()
         XCTAssertTrue(app.buttons["Not now"].waitForExistence(timeout: 5))
 
         app.buttons["Not now"].tap()

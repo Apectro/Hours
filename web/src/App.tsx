@@ -138,9 +138,9 @@ function Masthead() {
       <div className="shell masthead-inner">
         <a className="wordmark" href="#top">
           <span className="mark" aria-hidden="true">
-            h
+            z
           </span>
-          Hours
+          Zeitkonto
         </a>
         <div className="masthead-end">
           <nav aria-label={copy.nav.sections}>
@@ -151,7 +151,8 @@ function Masthead() {
             <a href="#pricing">{copy.nav.pricing}</a>
           </nav>
           <a className="lang-switch" href={otherLanguageHref} hrefLang={language === "de" ? "en" : "de"}>
-            {copy.otherLanguage}
+            <span className="at-wide">{copy.otherLanguage}</span>
+            <span className="at-narrow">{copy.otherLanguageShort}</span>
           </a>
           <ThemeChoice />
         </div>

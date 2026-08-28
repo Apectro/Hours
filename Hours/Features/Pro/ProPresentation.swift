@@ -26,7 +26,7 @@ extension View {
                 Image(systemName: "lock.fill")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel("Hours Pro")
+                    .accessibilityLabel("Zeitkonto Pro")
             }
         } else {
             self

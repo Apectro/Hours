@@ -14,7 +14,7 @@ enum SyncPreference {
 
     /// The CloudKit container. Must match the iCloud capability in the app's
     /// entitlements, if one has been added.
-    static let containerIdentifier = "iCloud.com.hours.app"
+    static let containerIdentifier = "iCloud.app.zeitkonto"
 
     static var isEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: key) }

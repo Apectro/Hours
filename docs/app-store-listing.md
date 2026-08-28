@@ -13,17 +13,18 @@ actually does, which is the part that takes the longest. Edit freely.
 *30 characters. Shown under the icon, and truncated hard.*
 
 ```
-Hours
+Zeitkonto
 ```
 
-`Hours` alone is almost certainly taken. If it is, keep the first word short
-and specific rather than descriptive — `Hours Timesheet` reads as a category,
-`Hours Worked` reads as a feature. Candidates that stay short:
+Named after the thing it keeps. *Zeitkonto* is the standard German term for a
+working-time account, so in the DACH market it is the word people already have
+in their heads rather than a brand they have to learn — and it matches the
+domain. It is opaque to a French or Polish user, which is the price of the
+choice: the app ships in ten languages, the name is in one.
 
-```
-Hours — Work Log
-Hours Timesheet
-```
+**Check it is free before anything else.** App Store names are unique across
+the store, so reserve it in App Store Connect, and check the DACH trademark
+registers while you are at it.
 
 ## Subtitle
 
@@ -56,7 +57,7 @@ No account, no server, no analytics. Your hours stay on your phone. A calendar f
 tapping "more".*
 
 ```
-Hours is a work-hours calendar that keeps your hours on your phone.
+Zeitkonto is a work-hours calendar that keeps your hours on your phone.
 
 No account. No sign-up. No server. Nothing about you is collected, and
 nothing leaves the device unless you export it or switch on iCloud sync —
@@ -220,19 +221,19 @@ Secondary: **Business**.
 plainly that they do not need to.*
 
 ```
-Hours is fully functional without paying. Recording hours, the calendar, the
+Zeitkonto is fully functional without paying. Recording hours, the calendar, the
 day editor, breaks, overtime, the balance and the JSON backup are all free
 and unlimited, and no recorded data is ever withheld behind a purchase.
 
-Hours Pro unlocks producing timesheets (CSV / Excel / PDF), the widgets, a
+Zeitkonto Pro unlocks producing timesheets (CSV / Excel / PDF), the widgets, a
 second job, bulk range editing and iCloud sync. The paywall is reachable
-from Settings > Hours Pro, and from any of those features.
+from Settings > Zeitkonto Pro, and from any of those features.
 
 The purchases can be exercised with a sandbox account. The three products
 are:
-  com.hours.app.pro.monthly   (auto-renewable, group "hours.pro")
-  com.hours.app.pro.yearly    (auto-renewable, same group)
-  com.hours.app.pro.lifetime  (non-consumable)
+  app.zeitkonto.pro.monthly   (auto-renewable, group "zeitkonto.pro")
+  app.zeitkonto.pro.yearly    (auto-renewable, same group)
+  app.zeitkonto.pro.lifetime  (non-consumable)
 
 The app has no account and no login. It makes no network requests other than
 to the App Store, and to the user's own iCloud if they switch sync on. There
@@ -256,7 +257,6 @@ The first version.
 
 ## What still needs a decision
 
-- **The name**, if `Hours` is taken.
 - **Prices.** The numbers in `HoursTests/Hours.storekit` — £1.99 monthly,
   £12.99 yearly, £24.99 outright — were chosen to make the paywall render in
   the simulator, not as a recommendation.

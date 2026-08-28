@@ -1,13 +1,21 @@
-# Hours
+# Zeitkonto
 
 [![Build and test](https://github.com/Apectro/Hours/actions/workflows/ci.yml/badge.svg)](https://github.com/Apectro/Hours/actions/workflows/ci.yml)
 
 A private work-hours calendar for iOS. Your hours stay on the device: no
 account, no server of ours, no analytics, no third-party code. The only network
-call the app makes is to the App Store, to ask whether Hours Pro has been paid
+call the app makes is to the App Store, to ask whether Zeitkonto Pro has been paid
 for — and to your own iCloud, if you switch sync on.
 
 - **Requirements:** Xcode 16 or later, iOS 18 or later.
+> **On the two names.** The product is Zeitkonto: that is the display name, the
+> bundle identifier, and what every user-facing string says. The Xcode project,
+> its targets, the module directories and `Hours.store` still say Hours. Those
+> are internal, invisible to anyone using the app, and renaming them means
+> churning every file path in the project for no one's benefit. The one that
+> would have mattered — the SwiftData store filename — is deliberately
+> untouched, because changing it orphans existing data.
+
 - **Open:** `Hours.xcodeproj`
 - **Run:** select the *Hours* scheme and press ⌘R.
 - **Test:** ⌘U runs the unit tests and the UI tests.
@@ -17,7 +25,7 @@ directory tree — adding a Swift file to `Hours/` is all it takes for it to bui
 and the project file never drifts out of step with the repository.
 
 Before running on a device, set your own bundle identifier and signing team in
-the target's Signing & Capabilities tab. The placeholder is `com.hours.app`.
+the target's Signing & Capabilities tab. The placeholder is `app.zeitkonto`.
 
 ## What it does
 
@@ -113,7 +121,7 @@ part a free account cannot use. They are not wired up by default, precisely so
 that a free-account build still installs:
 
 1. Open the project, select the **Hours** target, then Signing & Capabilities.
-2. Add the **App Groups** capability and create `group.com.hours.app`.
+2. Add the **App Groups** capability and create `group.app.zeitkonto`.
 3. Do the same for the **HoursWidgetExtension** target, ticking the same group.
 
 Nothing else to change; the identifier is already in the code
@@ -152,13 +160,13 @@ another would invent a shift nobody worked.
 wired into the entitlements for the same reason, so a free-account build still
 installs. To enable it: select the **Hours** target, Signing & Capabilities,
 add **iCloud**, tick **CloudKit** and **Key-value storage**, and create the
-container `iCloud.com.hours.app`. If the switch is on but the entitlement is
+container `iCloud.app.zeitkonto`. If the switch is on but the entitlement is
 missing, the app opens its local store instead and says so; it never refuses to
 start.
 
 Sync is not a backup. A day you delete is deleted everywhere.
 
-## Hours Pro
+## Zeitkonto Pro
 
 Recording your hours is free and stays free: the calendar, the day editor,
 breaks, overtime, the balance, reminders, and the backup file that holds every
@@ -216,18 +224,18 @@ entirely on the engine-only pushes that make up most of the history.
 
 1. **Apple Developer Program** — $99 a year, at developer.apple.com. Nothing
    below is possible without it, and the widgets and iCloud sync need it too.
-2. **Bundle identifier** — replace the `com.hours.app` placeholder with one you
-   own, in the Hours target and in `com.hours.app.widget`.
-3. **Capabilities** — App Groups (`group.com.hours.app`) on both targets for
+2. **Bundle identifier** — replace the `app.zeitkonto` placeholder with one you
+   own, in the Hours target and in `app.zeitkonto.widget`.
+3. **Capabilities** — App Groups (`group.app.zeitkonto`) on both targets for
    the widgets; iCloud with CloudKit and Key-value storage, and a container, for
    sync. Both are optional: without them the app runs and says so.
 4. **Paid Applications agreement** — App Store Connect › Business. Until this is
    signed and your bank and tax details are accepted, purchases fail with no
    useful error, which is a confusing afternoon if you have not been warned.
 5. **The three products**, matching `SubscriptionStore.ProductID` exactly:
-   - `com.hours.app.pro.monthly` — auto-renewable, group `hours.pro`
-   - `com.hours.app.pro.yearly` — auto-renewable, same group
-   - `com.hours.app.pro.lifetime` — non-consumable
+   - `app.zeitkonto.pro.monthly` — auto-renewable, group `zeitkonto.pro`
+   - `app.zeitkonto.pro.yearly` — auto-renewable, same group
+   - `app.zeitkonto.pro.lifetime` — non-consumable
 
    Each needs a display name, a description and a price. `Hours.storekit`
    carries placeholders; the real ones live only in App Store Connect.
@@ -235,7 +243,7 @@ entirely on the engine-only pushes that make up most of the history.
    unusually easy to fill in here because it is true: no analytics, no
    third-party code, no account, and nothing sent anywhere but the user's own
    iCloud if they ask for it.
-7. **App Review notes** — say that Hours Pro can be exercised with a sandbox
+7. **App Review notes** — say that Zeitkonto Pro can be exercised with a sandbox
    account, and that the app is fully functional unpaid. Reviewers reject
    paywalls they cannot get behind.
 

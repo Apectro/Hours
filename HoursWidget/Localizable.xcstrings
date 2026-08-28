@@ -60,65 +60,6 @@
         }
       }
     },
-    "Hours Pro": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hours Pro"
-          }
-        }
-      }
-    },
     "Not a working day": {
       "extractionState": "manual",
       "localizations": {
@@ -178,120 +119,120 @@
         }
       }
     },
-    "Open Hours": {
+    "Open Zeitkonto": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours öffnen"
+            "value": "Zeitkonto öffnen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abrir Hours"
+            "value": "Abrir Zeitkonto"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrir Hours"
+            "value": "Ouvrir Zeitkonto"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otvori Hours"
+            "value": "Otvori Zeitkonto"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apri Hours"
+            "value": "Apri Zeitkonto"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours openen"
+            "value": "Zeitkonto openen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otwórz Hours"
+            "value": "Otwórz Zeitkonto"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abrir Hours"
+            "value": "Abrir Zeitkonto"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odpri Hours"
+            "value": "Odpri Zeitkonto"
           }
         }
       }
     },
-    "Open Hours once to fill this in": {
+    "Open Zeitkonto once to fill this in": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hours einmal öffnen, um dies zu füllen"
+            "value": "Zeitkonto einmal öffnen, um dies zu füllen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre Hours una vez para rellenarlo"
+            "value": "Abre Zeitkonto una vez para rellenarlo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrez Hours une fois pour le remplir"
+            "value": "Ouvrez Zeitkonto une fois pour le remplir"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otvori Hours jednom da se ovo popuni"
+            "value": "Otvori Zeitkonto jednom da se ovo popuni"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apri Hours una volta per compilarlo"
+            "value": "Apri Zeitkonto una volta per compilarlo"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open Hours één keer om dit te vullen"
+            "value": "Open Zeitkonto één keer om dit te vullen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otwórz Hours raz, aby to uzupełnić"
+            "value": "Otwórz Zeitkonto raz, aby to uzupełnić"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre o Hours uma vez para preencher isto"
+            "value": "Abre o Zeitkonto uma vez para preencher isto"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enkrat odpri Hours, da se to izpolni"
+            "value": "Enkrat odpri Zeitkonto, da se to izpolni"
           }
         }
       }
@@ -591,61 +532,61 @@
         }
       }
     },
-    "Widgets are part of Hours Pro": {
+    "Widgets are part of Zeitkonto Pro": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgets gehören zu Hours Pro"
+            "value": "Widgets gehören zu Zeitkonto Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los widgets forman parte de Hours Pro"
+            "value": "Los widgets forman parte de Zeitkonto Pro"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les widgets font partie de Hours Pro"
+            "value": "Les widgets font partie de Zeitkonto Pro"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgeti su dio Hours Pro"
+            "value": "Widgeti su dio Zeitkonto Pro"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I widget fanno parte di Hours Pro"
+            "value": "I widget fanno parte di Zeitkonto Pro"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widgets horen bij Hours Pro"
+            "value": "Widgets horen bij Zeitkonto Pro"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Widżety są częścią Hours Pro"
+            "value": "Widżety są częścią Zeitkonto Pro"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Os widgets fazem parte do Hours Pro"
+            "value": "Os widgets fazem parte do Zeitkonto Pro"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pripomočki so del Hours Pro"
+            "value": "Pripomočki so del Zeitkonto Pro"
           }
         }
       }
@@ -705,6 +646,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Danes opravljeno"
+          }
+        }
+      }
+    },
+    "Zeitkonto Pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto Pro"
           }
         }
       }
