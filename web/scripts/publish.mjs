@@ -2,10 +2,10 @@
  * Build the site and put it where GitHub Pages already looks.
  *
  * Pages on this repository serves `main:/docs`, and the privacy policy at
- * /Hours/privacy/ is the URL App Store Connect holds. Changing the Pages
- * source to an Actions workflow would break that URL for as long as it took
- * somebody to notice, so the built site is copied into docs/ instead and the
- * hand-written pages there are left where they are.
+ * zeitkonto.app/privacy/ is the URL App Store Connect holds. Changing the
+ * Pages source to an Actions workflow would break that URL for as long as it
+ * took somebody to notice, so the built site is copied into docs/ instead and
+ * the hand-written pages there are left where they are.
  *
  * It works by keeping a short list of what is hand-written and clearing
  * everything else. The obvious way round — listing what the build produces and

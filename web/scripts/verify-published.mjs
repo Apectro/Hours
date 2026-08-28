@@ -44,8 +44,15 @@ if (published === null) {
   );
 }
 
-/* Every asset the fresh page asks for has to actually be in docs/. */
-for (const asset of [...fresh.matchAll(/(?:src|href)="\/Hours\/(assets\/[^"]+)"/g)].map((m) => m[1])) {
+/*
+ * Every asset the fresh page asks for has to actually be in docs/. The paths
+ * are rooted because the site has its own domain now; this pattern used to
+ * carry the /Hours/ prefix, and a stale copy of it would have matched nothing
+ * and quietly checked nothing at all.
+ */
+const referenced = [...fresh.matchAll(/(?:src|href)="\/(assets\/[^"]+)"/g)].map((m) => m[1]);
+if (referenced.length === 0) problems.push("no assets referenced by index.html — the check is not looking at anything");
+for (const asset of referenced) {
   if (!existsSync(join(docs, asset))) problems.push(`docs/${asset} is referenced but missing`);
 }
 
@@ -91,6 +98,18 @@ if (!existsSync(inputsPath)) {
 }
 if (!existsSync(join(docs, "privacy", "index.html"))) {
   problems.push("docs/privacy/index.html has gone — that URL is in App Store Connect");
+}
+
+/*
+ * Without CNAME, Pages drops the custom domain and serves the site back at
+ * apectro.github.io/Hours/ — where every rooted asset path 404s, so the page
+ * would come up unstyled rather than not at all.
+ */
+const cname = join(docs, "CNAME");
+if (!existsSync(cname)) {
+  problems.push("docs/CNAME is missing — Pages would drop zeitkonto.app");
+} else if (readFileSync(cname, "utf8").trim() !== "zeitkonto.app") {
+  problems.push(`docs/CNAME says "${readFileSync(cname, "utf8").trim()}", not zeitkonto.app`);
 }
 
 if (problems.length > 0) {

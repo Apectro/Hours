@@ -1,6 +1,6 @@
 # web
 
-The marketing site at <https://apectro.github.io/Hours/>. React 18, TypeScript,
+The marketing site at <https://zeitkonto.app/>. React 18, TypeScript,
 Vite; no UI framework and no analytics, for the same reason the app has none.
 
 The page is laid out as a ledger, because that is what a timesheet is: a label
@@ -15,7 +15,7 @@ tokens here move, move those with them.
 
 ```
 npm install
-npm run dev        # localhost:5173, served at /Hours/
+npm run dev        # localhost:5173
 npm run publish    # build, and copy the result into ../docs/
 npm run verify     # fail if ../docs/ is not what this builds
 npm run og         # redraw the social card (rarely)
@@ -87,8 +87,18 @@ in a family that cannot exist, and fails if the two come out identical.
 The URL in the `og:image` tag is absolute, because unfurlers do not resolve
 relative ones. It has to change if the site ever moves.
 
-## The base path
+## The domain
 
-Pages serves the site from `/Hours/`, not a domain root, so `vite.config.ts`
-sets `base` to match. Set `VITE_BASE=/` when serving it anywhere that has its
-own domain.
+The site is `zeitkonto.app`, so `base` is the root and asset paths are rooted.
+`public/CNAME` is what attaches the domain: it sits in `public/` rather than
+being a file `publish` is told to spare, so it is ordinary build output and
+cannot be lost. `npm run verify` fails if it goes missing or says something
+else, because without it Pages serves the site back at
+`apectro.github.io/Hours/`, where every rooted asset path 404s and the page
+comes up unstyled rather than plainly broken.
+
+`og:url` and `og:image` in `index.html` are absolute, because unfurlers do not
+resolve relative ones. They name the domain and have to move with it.
+
+Set `VITE_BASE=/Hours/` to preview the site the way Pages served it before the
+domain was attached. `docs/README.md` has the DNS records.

@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// The site is served from the repository's GitHub Pages, which sits at
-// /Hours/ rather than the domain root. Set VITE_BASE=/ when serving it
-// somewhere that has its own domain.
+// The site is served from its own domain, zeitkonto.app, so the base is the
+// root. It used to be /Hours/, which is where GitHub Pages puts a project
+// site before a custom domain is attached; public/CNAME is what attaches it.
+// Set VITE_BASE=/Hours/ to preview it the old way.
 export default defineConfig({
   plugins: [react()],
-  base: process.env.VITE_BASE ?? "/Hours/",
+  base: process.env.VITE_BASE ?? "/",
   build: { outDir: "dist", assetsDir: "assets" },
 });

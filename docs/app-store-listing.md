@@ -183,18 +183,19 @@ would need rehoming too. Plan for both together or keep the repository public.
 *Optional, and worth filling in now that there is a page behind it.*
 
 ```
-https://apectro.github.io/Hours/
+https://zeitkonto.app/
 ```
 
 Written in `web/`, published into `docs/` by `npm run publish`, served by the
-same Pages setting as the privacy policy.
+same Pages setting as the privacy policy. The domain is attached by
+`docs/CNAME`; see `docs/README.md` for the DNS records it needs.
 
 ## Privacy Policy URL
 
 *Required.*
 
 ```
-https://apectro.github.io/Hours/privacy/
+https://zeitkonto.app/privacy/
 ```
 
 `docs/privacy/index.html` in this repository is the page. See
