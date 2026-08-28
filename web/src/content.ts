@@ -188,17 +188,54 @@ export const plans = [
 export const appStore: string | null = null;
 
 /**
- * The evidence for the section that claims ten languages. It is a crop of a
- * real export the capture suite renders on every run, not a mock-up, which is
- * also why the note in it is still in English: the app translates its own
- * words and leaves yours alone.
+ * The evidence for the section that claims ten languages: four real exports
+ * the capture suite renders on every run, not mock-ups. Each one is a
+ * different month name, a different date format and a different word for a
+ * weekend — and in all four the note is still in English, because that is a
+ * sentence somebody typed and the app does not translate those.
+ *
+ * Only these four are rendered by the capture suite today. The other six
+ * languages are covered by tests rather than by pictures, which is why the
+ * caption says so rather than implying the set is complete.
  */
 export const timesheetProof = {
-  shot: "timesheet-de",
   width: 1570,
   height: 520,
-  alt:
-    "A crop of a German timesheet: the columns read Datum, Tag, Art, Beginn, Ende, " +
-    "Pause, Gearbeitet, Soll, Überstunden and Notizen, the weekdays read Sa, So, Mo, " +
-    "Di and Mi, and the day types read Wochenende and Arbeit",
+  languages: [
+    {
+      code: "de",
+      english: "German",
+      label: "Deutsch",
+      alt:
+        "A German timesheet: the columns read Datum, Tag, Art, Beginn, Ende, Pause, " +
+        "Gearbeitet, Soll, Überstunden and Notizen; the day types read Wochenende and Arbeit",
+    },
+    {
+      code: "fr",
+      english: "French",
+      label: "Français",
+      alt:
+        "A French timesheet: the columns read Date, Jour, Type, Début, Fin, Pause, " +
+        "Heures travaillées, Heures prévues, Heures supp. and Notes; the day types read " +
+        "Week-end and Travail",
+    },
+    {
+      code: "hr",
+      english: "Croatian",
+      label: "Hrvatski",
+      alt:
+        "A Croatian timesheet: the columns read Datum, Dan, Vrsta, Početak, Kraj, Pauza, " +
+        "Odrađeno, Planirano, Prekovremeni and Bilješke; the day types read Vikend and Rad",
+    },
+    {
+      code: "pl",
+      english: "Polish",
+      label: "Polski",
+      alt:
+        "A Polish timesheet: the columns read Data, Dzień, Typ, Początek, Koniec, Przerwa, " +
+        "Przepracowane, Wymagane, Nadgodziny and Notatki; the day types read Weekend and Praca",
+    },
+  ],
 } as const;
+
+export type TimesheetLanguage = (typeof timesheetProof.languages)[number];

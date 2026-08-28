@@ -7,7 +7,7 @@ Vite; no UI framework and no analytics, for the same reason the app has none.
 npm install
 npm run dev        # localhost:5173, served at /Hours/
 npm run publish    # build, and copy the result into ../docs/
-npm run og         # redraw the social card (needs playwright; rarely)
+npm run og         # redraw the social card (rarely)
 ```
 
 `npm run publish` is the whole deployment. Pages serves `main:/docs`, so the
@@ -36,8 +36,12 @@ refresh them, copy the current files out of that branch:
 git show origin/screenshots:iPhone-17-Pro-Max/01-calendar.png > shots-src/01-calendar.png
 ```
 
-`shots-src/exports/` holds the rendered timesheet the language section shows as
-evidence, from the same branch.
+`shots-src/exports/` holds the four rendered timesheets the language section
+shows as evidence, from the same branch. Those four are the ones the capture
+suite renders; the other six languages are covered by tests, which is why the
+caption on the page says so rather than implying the set is complete. Adding a
+fifth means adding it to the capture suite first, then to `timesheetProof` in
+`content.ts` — the crop and the widths are handled by `scripts/images.mjs`.
 
 **`public/shots/` is output, and is not in git.** The captures are 1320px wide
 and the page renders them at 318px and 225px, so publishing them as they come
@@ -53,9 +57,16 @@ If you add a screenshot, put it in `shots-src/` and refer to it by base name in
 
 `public/og.png` is what an unfurler shows when the link is pasted anywhere, and
 it is committed rather than built, because it changes when the wording does and
-not otherwise. `npm run og` redraws it from `scripts/og.html`, which is the
-site's own hero — the webfonts are fetched and inlined first, so a headless
-browser cannot quietly substitute whatever is installed locally.
+not otherwise. `npm run og` redraws it.
+
+It is composed with sharp, which is already a dependency, rather than by
+screenshotting a headless browser — so the script runs from a clean
+`npm install` instead of needing a browser nobody declared. The webfonts are
+downloaded into `.fontcache/` and handed to fontconfig, because the card's
+whole job is to look like the site and a renderer quietly falling back to
+whatever is installed is exactly the drift it exists to avoid. That is checked
+rather than hoped for: the script draws a string in the wanted face and again
+in a family that cannot exist, and fails if the two come out identical.
 
 The URL in the `og:image` tag is absolute, because unfurlers do not resolve
 relative ones. It has to change if the site ever moves.

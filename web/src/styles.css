@@ -511,19 +511,20 @@ section.tinted .card {
   margin-top: 24px;
 }
 
+/* Flat and borderless, so they do not read as the pill buttons above them:
+   these ten are a list, and those four are controls. */
 .languages li {
   list-style: none;
   font-family: var(--mono);
   font-size: 13px;
-  padding: 6px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
+  padding: 5px 10px;
+  border-radius: 5px;
   color: var(--ink-soft);
-  background: var(--paper);
+  background: var(--canvas);
 }
 
 section.tinted .languages li {
-  background: var(--canvas);
+  background: var(--ground-sink, rgba(127, 140, 160, 0.12));
 }
 
 .languages {
@@ -665,6 +666,9 @@ footer nav {
    phone, where squeezing it to 350px would make it unreadable. */
 .proof {
   margin: 0 0 clamp(28px, 4vw, 40px);
+}
+
+.proof-frame {
   overflow-x: auto;
 }
 
@@ -673,7 +677,38 @@ footer nav {
   border: 1px solid var(--rule);
   border-radius: 10px;
   overflow: hidden;
+  /* The export is a white page, and stays one in either theme: it is a
+     photograph of a document, not part of the page's own surface. */
   background: #fff;
+}
+
+.proof-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.proof-tabs button {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 15px;
+  cursor: pointer;
+}
+
+.proof-tabs button:hover {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+
+.proof-tabs button[aria-selected="true"] {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .proof figcaption {

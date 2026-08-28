@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   appStore,
   balance,
@@ -231,6 +232,102 @@ function Gallery() {
   );
 }
 
+/** Shared by the markup and the preload, which have to agree to be useful. */
+const PROOF_SIZES = "(max-width: 1160px) 92vw, 1040px";
+
+const proofSrcSet = (code: string) =>
+  `shots/timesheet-${code}.800.webp 800w, shots/timesheet-${code}.1570.webp 1570w`;
+
+/**
+ * The same export in four languages, as tabs.
+ *
+ * Only the selected image is in the DOM, so switching costs one request
+ * rather than all four up front; hovering or focusing a tab starts that
+ * request early, which is enough to make the swap look instant without
+ * spending the bytes on somebody who never touches it.
+ */
+function TimesheetProof() {
+  const { languages, width, height } = timesheetProof;
+  const [selected, setSelected] = useState(0);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const current = languages[selected];
+
+  const preload = (code: string) => {
+    // Give the preload the same srcset and sizes the markup uses, so the
+    // browser picks the file it is about to need. Naming one width here
+    // instead would fetch a second copy rather than save a request.
+    const image = new Image();
+    image.sizes = PROOF_SIZES;
+    image.srcset = proofSrcSet(code);
+  };
+
+  /* Arrow keys move between tabs, which is what a tablist is expected to do. */
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    const step =
+      event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    let next = selected;
+    if (step !== 0) next = (selected + step + languages.length) % languages.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = languages.length - 1;
+    else return;
+    event.preventDefault();
+    setSelected(next);
+    tabs.current[next]?.focus();
+  };
+
+  return (
+    <figure className="proof">
+      <div className="proof-tabs" role="tablist" aria-label="Timesheet language">
+        {languages.map((language, index) => (
+          <button
+            key={language.code}
+            ref={(node) => {
+              tabs.current[index] = node;
+            }}
+            type="button"
+            role="tab"
+            id={`tab-${language.code}`}
+            aria-selected={index === selected}
+            aria-controls={`panel-${language.code}`}
+            tabIndex={index === selected ? 0 : -1}
+            onClick={() => setSelected(index)}
+            onKeyDown={onKeyDown}
+            onPointerEnter={() => preload(language.code)}
+            onFocus={() => preload(language.code)}
+          >
+            {language.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className="proof-frame"
+        role="tabpanel"
+        id={`panel-${current.code}`}
+        aria-labelledby={`tab-${current.code}`}
+      >
+        <picture key={current.code}>
+          <source type="image/webp" sizes={PROOF_SIZES} srcSet={proofSrcSet(current.code)} />
+          <img
+            src={`shots/timesheet-${current.code}.800.png`}
+            alt={current.alt}
+            width={width}
+            height={height}
+            loading="lazy"
+          />
+        </picture>
+      </div>
+
+      <figcaption>
+        <strong>A real export, in {current.english}.</strong> Every heading,
+        weekday, day type and date format is translated — and the note is not,
+        because those are the words you typed. These four are rendered on every
+        build; the other six are covered by tests.
+      </figcaption>
+    </figure>
+  );
+}
+
 function Timesheets() {
   return (
     <section id="timesheets">
@@ -246,27 +343,7 @@ function Timesheets() {
             can still be summed.
           </p>
         </div>
-        <figure className="proof">
-          <picture>
-            <source
-              type="image/webp"
-              sizes="(max-width: 1160px) 92vw, 1040px"
-              srcSet={`shots/${timesheetProof.shot}.800.webp 800w, shots/${timesheetProof.shot}.1570.webp 1570w`}
-            />
-            <img
-              src={`shots/${timesheetProof.shot}.800.png`}
-              alt={timesheetProof.alt}
-              width={timesheetProof.width}
-              height={timesheetProof.height}
-              loading="lazy"
-            />
-          </picture>
-          <figcaption>
-            <strong>A real export, in German.</strong> Every heading, weekday and
-            day type is translated — and the note is not, because those are the
-            words you typed. The same file exists in nine other languages.
-          </figcaption>
-        </figure>
+        <TimesheetProof />
 
         <div className="cards">
           <article className="card">
