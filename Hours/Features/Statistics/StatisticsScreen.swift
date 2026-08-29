@@ -11,10 +11,14 @@ enum StatisticsScope: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .today: return "Today"
-        case .week: return "Week"
-        case .month: return "Month"
-        case .year: return "Year"
+        // These four were bare literals while "Today", "Week", "Month" and
+        // "Year" sat correctly translated in the catalogue — the enum simply
+        // never asked for them. The segmented control at the top of Insights
+        // was English on a German phone with the German beside it.
+        case .today: return String(localized: "Today")
+        case .week: return String(localized: "Week")
+        case .month: return String(localized: "Month")
+        case .year: return String(localized: "Year")
         }
     }
 

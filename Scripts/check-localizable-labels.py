@@ -15,18 +15,43 @@ rather than needing a simulator.
 import pathlib, re, sys
 
 # view name -> the parameter whose value reaches Text() unlocalized
-GUARDED = {"MetricRow": "label", "SettingsRow": "title"}
+# Every String-typed parameter of these views, not merely the first one.
+#
+# The earlier version guarded MetricRow(label:) and SettingsRow(title:) alone,
+# and the German screenshot showed why that was not enough: the *titles* down
+# the Settings screen were all in German and the *values* beside them read
+# "Active", "Off", "All days" and "10 columns" in English. Same view, same
+# String parameter, same verbatim Text, and a green check.
+GUARDED = {
+    "MetricRow": ["label", "value"],
+    "SettingsRow": ["title", "value"],
+    "StatTile": ["label", "caption"],
+}
 
 problems = []
 for path in sorted(pathlib.Path("Hours").rglob("*.swift")):
     for number, line in enumerate(path.read_text().splitlines(), 1):
-        for view, argument in GUARDED.items():
-            for match in re.finditer(rf'{view}\(\s*{argument}:\s*"', line):
-                problems.append(
-                    f'{path}:{number}: {view}({argument}:) is handed a bare literal.\n'
-                    f'    It takes String, so the literal is shown verbatim and never '
-                    f'translated.\n    Wrap it: {argument}: String(localized: "…")'
-                )
+        for view, arguments in GUARDED.items():
+            for argument in arguments:
+                # Both shapes: the literal straight after the label, and the
+                # literal on the far side of a ternary — which is how "On" and
+                # "Off" reached four rows of Settings untranslated.
+                patterns = [
+                    rf'{view}\(\s*{argument}:\s*"',
+                    rf'{argument}:\s*[^,\n]*\?[^,\n]*"',
+                ]
+                for pattern in patterns:
+                    if not re.search(pattern, line):
+                        continue
+                    # A ternary between two already-wrapped calls is fine.
+                    if "String(localized:" in line and 'localized: "' in line:
+                        continue
+                    problems.append(
+                        f'{path}:{number}: {view}({argument}:) is handed a bare literal.\n'
+                        f'    It takes String, so the literal is shown verbatim and never '
+                        f'translated.\n    Wrap it: {argument}: String(localized: "…")'
+                    )
+                    break
 
 if problems:
     print(f"{len(problems)} unlocalized label(s):\n")

@@ -608,6 +608,17 @@
       "%@ · automatisch",
       "%@ · automatycznie"
     ],
+    "%lld columns": [
+      "%lld Spalten",
+      "%lld stupaca",
+      "%lld stolpcev",
+      "%lld colonne",
+      "%lld colonnes",
+      "%lld columnas",
+      "%lld colunas",
+      "%lld kolommen",
+      "%lld kolumn"
+    ],
     "%lld left alone": [
       "%lld unverändert",
       "%lld nepromijenjeno",
@@ -740,6 +751,17 @@
       "Boven de grens",
       "Powyżej limitu"
     ],
+    "Active": [
+      "Aktiv",
+      "Aktivno",
+      "Aktivno",
+      "Attivo",
+      "Actif",
+      "Activo",
+      "Ativo",
+      "Actief",
+      "Aktywne"
+    ],
     "Add a column": [
       "Spalte hinzufügen",
       "Dodaj stupac",
@@ -838,6 +860,17 @@
       "Ajuste",
       "Correctie",
       "Korekta"
+    ],
+    "All days": [
+      "Alle Tage",
+      "Svi dani",
+      "Vsi dnevi",
+      "Tutti i giorni",
+      "Tous les jours",
+      "Todos los días",
+      "Todos os dias",
+      "Alle dagen",
+      "Wszystkie dni"
     ],
     "All jobs": [
       "Alle Tätigkeiten",
@@ -2852,6 +2885,28 @@
       "OK",
       "OK"
     ],
+    "Off": [
+      "Aus",
+      "Isključeno",
+      "Izklopljeno",
+      "Disattivo",
+      "Désactivé",
+      "Desactivado",
+      "Desativado",
+      "Uit",
+      "Wyłączone"
+    ],
+    "On": [
+      "Ein",
+      "Uključeno",
+      "Vklopljeno",
+      "Attivo",
+      "Activé",
+      "Activado",
+      "Ativado",
+      "Aan",
+      "Włączone"
+    ],
     "One figure at most. A calendar that shows everything shows nothing.": [
       "Höchstens eine Zahl. Ein Kalender, der alles zeigt, zeigt nichts.",
       "Najviše jedan broj. Kalendar koji prikazuje sve ne prikazuje ništa.",
@@ -4007,6 +4062,17 @@
       "Type",
       "Typ"
     ],
+    "Unlock Zeitkonto Pro": [
+      "Zeitkonto Pro freischalten",
+      "Otključaj Zeitkonto Pro",
+      "Odkleni Zeitkonto Pro",
+      "Sblocca Zeitkonto Pro",
+      "Débloquer Zeitkonto Pro",
+      "Desbloquear Zeitkonto Pro",
+      "Desbloquear o Zeitkonto Pro",
+      "Zeitkonto Pro ontgrendelen",
+      "Odblokuj Zeitkonto Pro"
+    ],
     "Use this when a contract states a weekly figure that does not divide evenly across the days.": [
       "Nimm das, wenn ein Vertrag eine Wochenzahl nennt, die sich nicht gleichmäßig auf die Tage aufteilen lässt.",
       "Koristi ovo kad ugovor navodi tjedni broj koji se ne dijeli ravnomjerno po danima.",
@@ -4061,6 +4127,17 @@
       "Dia da semana",
       "Weekdag",
       "Dzień tygodnia"
+    ],
+    "Weekdays only": [
+      "Nur Wochentage",
+      "Samo radni dani",
+      "Samo delovni dnevi",
+      "Solo giorni feriali",
+      "Jours de semaine seulement",
+      "Solo días laborables",
+      "Apenas dias úteis",
+      "Alleen weekdagen",
+      "Tylko dni robocze"
     ],
     "Weekly target": [
       "Wochensoll",

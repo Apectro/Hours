@@ -17,8 +17,12 @@ struct SettingsScreen: View {
                         isShowingPaywall = true
                     } label: {
                         SettingsRow(
-                            title: subscriptions.isPro ? "Zeitkonto Pro" : "Unlock Zeitkonto Pro",
-                            value: subscriptions.isPro ? "Active" : nil,
+                            // The product name does not translate; the verb
+                            // in front of it does.
+                            title: subscriptions.isPro
+                                ? AppIdentity.proName
+                                : String(localized: "Unlock Zeitkonto Pro"),
+                            value: subscriptions.isPro ? String(localized: "Active") : nil,
                             systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
                         )
                     }
@@ -79,7 +83,7 @@ struct SettingsScreen: View {
                     } label: {
                         SettingsRow(
                             title: String(localized: "Reminders"),
-                            value: settings.reminders.isEnabled ? "On" : "Off",
+                            value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
                             systemImage: "bell"
                         )
                     }
@@ -98,7 +102,9 @@ struct SettingsScreen: View {
                     } label: {
                         SettingsRow(
                             title: String(localized: "Calendar"),
-                            value: settings.calendar.showWeekends ? "All days" : "Weekdays only",
+                            value: settings.calendar.showWeekends
+                                ? String(localized: "All days")
+                                : String(localized: "Weekdays only"),
                             systemImage: "square.grid.3x3"
                         )
                     }
@@ -119,7 +125,10 @@ struct SettingsScreen: View {
                     } label: {
                         SettingsRow(
                             title: String(localized: "Export options"),
-                            value: "\(settings.effectiveExportColumns.count) columns",
+                            value: String(
+                                localized: "\(settings.effectiveExportColumns.count) columns",
+                                comment: "How many columns the export will contain"
+                            ),
                             systemImage: "tablecells"
                         )
                     }
@@ -131,7 +140,7 @@ struct SettingsScreen: View {
                     } label: {
                         SettingsRow(
                             title: String(localized: "iCloud"),
-                            value: HoursStack.isSyncing ? "On" : "Off",
+                            value: HoursStack.isSyncing ? String(localized: "On") : String(localized: "Off"),
                             systemImage: "icloud"
                         )
                     }

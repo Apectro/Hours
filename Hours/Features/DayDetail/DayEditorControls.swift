@@ -21,7 +21,9 @@ struct DayResultHeader: View {
                 if settings.features.showsBalance {
                     Divider().frame(height: 34)
                     StatTile(
-                        label: computation.balanceMinutes < 0 ? "Short" : "Overtime",
+                        label: computation.balanceMinutes < 0
+                            ? String(localized: "Short")
+                            : String(localized: "Overtime"),
                         value: duration.signedString(computation.balanceMinutes),
                         tint: Color.hoursBalance(computation.balanceMinutes)
                     )
