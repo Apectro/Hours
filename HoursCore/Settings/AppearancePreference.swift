@@ -7,11 +7,13 @@ enum AppearancePreference: String, Codable, CaseIterable, Hashable, Sendable, Id
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
+        case .system: return language(.appearanceSystem)
+        case .light: return language(.appearanceLight)
+        case .dark: return language(.appearanceDark)
         }
     }
 }

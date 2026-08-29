@@ -23,28 +23,27 @@ enum ProFeature: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .fileExport: return "Timesheets"
-        case .widgets: return "Widgets"
-        case .multipleJobs: return "More than one job"
-        case .rangeEditing: return "Edit a range at once"
-        case .iCloudSync: return "iCloud sync"
+        case .fileExport: return language(.proTimesheets)
+        case .widgets: return language(.proWidgets)
+        case .multipleJobs: return language(.proMultipleJobs)
+        case .rangeEditing: return language(.proRangeEditing)
+        case .iCloudSync: return language(.proICloudSync)
         }
     }
 
-    var explanation: String {
+    var explanation: String { explanation(in: .device) }
+
+    func explanation(in language: ExportLanguage) -> String {
         switch self {
-        case .fileExport:
-            return "Hand your hours to payroll as a spreadsheet or a PDF, laid out the way you choose."
-        case .widgets:
-            return "Today's hours and the month's balance on your Home Screen and Lock Screen."
-        case .multipleJobs:
-            return "Two jobs on the same Tuesday, each with its own contracted week."
-        case .rangeEditing:
-            return "Book a fortnight of leave in one pass instead of ten trips through the editor."
-        case .iCloudSync:
-            return "The same hours on your phone and your iPad, through your own iCloud."
+        case .fileExport: return language(.proTimesheetsExplained)
+        case .widgets: return language(.proWidgetsExplained)
+        case .multipleJobs: return language(.proMultipleJobsExplained)
+        case .rangeEditing: return language(.proRangeEditingExplained)
+        case .iCloudSync: return language(.proICloudSyncExplained)
         }
     }
 

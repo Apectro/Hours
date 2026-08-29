@@ -18,7 +18,11 @@ enum AdjustmentReason: String, Codable, CaseIterable, Hashable, Sendable, Identi
 
     var id: String { rawValue }
 
-    var title: String { label(in: .english) }
+    /// The app's own screens follow the phone. This used to be pinned to
+    /// English, so a German user entered a figure on a screen saying "Payout"
+    /// and then read "Auszahlung" against it in the timesheet they exported —
+    /// the same concept, two answers, in one product.
+    var title: String { label(in: .device) }
 
     /// The label an exported summary gives this adjustment.
     func label(in language: ExportLanguage) -> String {
@@ -29,14 +33,13 @@ enum AdjustmentReason: String, Codable, CaseIterable, Hashable, Sendable, Identi
         }
     }
 
-    var explanation: String {
+    var explanation: String { explanation(in: .device) }
+
+    func explanation(in language: ExportLanguage) -> String {
         switch self {
-        case .correction:
-            return "Adjusts the balance without changing the hours you worked."
-        case .payout:
-            return "Overtime exchanged for money. It leaves the balance and does not come back as time."
-        case .timeOffInLieu:
-            return "Overtime taken as time off. Use a negative figure for the hours drawn down."
+        case .correction: return language(.adjustmentCorrectionExplained)
+        case .payout: return language(.adjustmentPayoutExplained)
+        case .timeOffInLieu: return language(.adjustmentTimeOffExplained)
         }
     }
 

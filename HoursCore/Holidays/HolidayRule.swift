@@ -49,11 +49,13 @@ struct HolidayRecurrence: Hashable, Codable, Sendable {
 
         var id: String { rawValue }
 
-        var title: String {
+        var title: String { label(in: .device) }
+
+        func label(in language: ExportLanguage) -> String {
             switch self {
-            case .once: return "One-off date"
-            case .annual: return "Every year, same date"
-            case .nthWeekday: return "Every year, n-th weekday"
+            case .once: return language(.holidayOnce)
+            case .annual: return language(.holidayAnnual)
+            case .nthWeekday: return language(.holidayNthWeekday)
             }
         }
     }

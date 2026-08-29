@@ -19,19 +19,21 @@ enum DurationPolicy: String, Codable, CaseIterable, Hashable, Sendable, Identifi
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    var explanation: String { explanation(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .wallClock: return "Wall clock"
-        case .elapsedReal: return "Actual elapsed"
+        case .wallClock: return language(.wallClock)
+        case .elapsedReal: return language(.elapsedReal)
         }
     }
 
-    var explanation: String {
+    func explanation(in language: ExportLanguage) -> String {
         switch self {
-        case .wallClock:
-            return "08:00–16:00 counts as 8 h on every day of the year, including clock-change days."
-        case .elapsedReal:
-            return "Shifts crossing a daylight-saving change count the time that actually passed."
+        case .wallClock: return language(.wallClockExplained)
+        case .elapsedReal: return language(.elapsedRealExplained)
         }
     }
 }
@@ -46,11 +48,13 @@ enum RoundingRule: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .exact: return "Exact"
-        case .nearestFiveMinutes: return "Nearest 5 min"
-        case .nearestQuarterHour: return "Nearest 15 min"
+        case .exact: return language(.roundingExact)
+        case .nearestFiveMinutes: return language(.roundingFiveMinutes)
+        case .nearestQuarterHour: return language(.roundingQuarterHour)
         }
     }
 

@@ -67,10 +67,37 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
     /// has no words for.
     var resolved: ExportLanguage {
         guard self == .device else { return self }
-        // The two-letter prefix rather than `Locale.language`, which is not
-        // available on every platform the engine is built for.
-        let phone = String(Locale.current.identifier.prefix(2))
-        return ExportLanguage.allCases.first { $0 != .device && $0.identity.code == phone } ?? .english
+        return ExportLanguage.speaking(Locale.preferredLanguages)
+    }
+
+    /// The first language in an ordered preference list this table has words
+    /// for, or English.
+    ///
+    /// The ordered list rather than `Locale.current`, which is the formatting
+    /// locale and answers a different question. Someone whose preferences run
+    /// Czech, then German, is shown a German app — there is no Czech
+    /// localisation for iOS to pick — while `Locale.current` still says Czech.
+    /// Reading that one field gave them German screens with English labels on
+    /// the parts that come from here.
+    ///
+    /// Walking the list works because this table holds exactly the ten
+    /// languages the app is localised into, so the first preference with
+    /// words here is the first preference iOS could have displayed.
+    ///
+    /// Pure, and takes the list rather than reading it, so the resolution can
+    /// be tested against phones other than the one running the tests.
+    static func speaking(_ preferences: [String]) -> ExportLanguage {
+        for tag in preferences {
+            // The two-letter prefix rather than `Locale.language`, which is
+            // not available on every platform the engine is built for. It also
+            // does the right thing with a tag carrying a script or a region:
+            // pt-BR and zh-Hans both reduce to what this table keys on.
+            let code = String(tag.prefix(2)).lowercased()
+            if let match = allCases.first(where: { $0 != .device && $0.identity.code == code }) {
+                return match
+            }
+        }
+        return .english
     }
 
     /// The locale that names months and weekdays.
@@ -239,7 +266,11 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         }
     }
 
-    private func pick(
+    /// Not private: `AppVocabulary.swift` holds the app's own word table and
+    /// picks from it the same way. Two files, because the vocabulary of a
+    /// document and the vocabulary of a screen are different things that
+    /// happen to share a mechanism.
+    func pick(
         en: String,
         de: String,
         hr: String,

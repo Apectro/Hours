@@ -58,11 +58,13 @@ enum DayCellDetail: String, Codable, CaseIterable, Hashable, Sendable, Identifia
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .hidden: return "Nothing"
-        case .workedHours: return "Worked hours"
-        case .balance: return "Balance"
+        case .hidden: return language(.badgeNothing)
+        case .workedHours: return language(.badgeWorkedHours)
+        case .balance: return language(.badgeBalance)
         }
     }
 }
@@ -73,10 +75,12 @@ enum CalendarScope: String, Codable, CaseIterable, Hashable, Sendable, Identifia
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .month: return "Month"
-        case .week: return "Week"
+        case .month: return language(.periodMonth)
+        case .week: return language(.periodWeek)
         }
     }
 }

@@ -107,6 +107,46 @@ final class ExportLanguageTests: XCTestCase {
         }
     }
 
+    /// The phone's ordered preferences decide, not its formatting locale.
+    ///
+    /// The resolution used to read `Locale.current`, which answers a different
+    /// question: it is the formatting locale. Someone whose preferences run
+    /// Czech then German is shown a German app — iOS has no Czech
+    /// localisation of it to pick — and `Locale.current` still says Czech, so
+    /// every label coming from the engine came out English on an otherwise
+    /// German screen. The first case below is that bug.
+    func testTheFirstPreferenceWithWordsWins() {
+        let cases: [(preferences: [String], expected: ExportLanguage, why: String)] = [
+            (["cs-CZ", "de-DE"], .german,
+             "a language with no localisation should fall through to the next preference"),
+            (["de-DE", "en-GB"], .german, "the first preference wins outright"),
+            (["en-GB", "de-DE"], .english, "order is the whole point"),
+            (["pt-BR"], .portuguese, "a region on the tag must not stop it matching"),
+            (["zh-Hans-CN", "pl-PL"], .polish, "nor must a script"),
+            (["DE"], .german, "a tag that arrives uppercase is the same tag"),
+            (["cs-CZ", "ja-JP"], .english, "nothing recognised falls back to English"),
+            ([], .english, "so does a phone that states no preference at all"),
+        ]
+
+        for (preferences, expected, why) in cases {
+            XCTAssertEqual(ExportLanguage.speaking(preferences), expected, "\(preferences): \(why)")
+        }
+    }
+
+    /// Every language the table speaks must be reachable from a phone set to
+    /// it. A code that does not match its own case is a language nobody can
+    /// ever be given, and nothing else would say so.
+    func testEveryLanguageIsReachableFromAPhoneSetToIt() {
+        for language in languages {
+            let code = String(language.locale.identifier.prefix(2))
+            XCTAssertEqual(
+                ExportLanguage.speaking([code]),
+                language,
+                "a phone set to \(code) cannot reach \(language.rawValue)"
+            )
+        }
+    }
+
     /// A language the export does not speak gets English rather than nothing.
     func testAnUnknownDeviceLanguageLandsOnEnglish() {
         // `.device` resolves against whatever the test host is set to, which

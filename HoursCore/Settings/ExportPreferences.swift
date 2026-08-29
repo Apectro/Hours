@@ -152,11 +152,15 @@ enum CSVSeparator: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         }
     }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    /// The word and a sample of the character. Only the word translates — the
+    /// character is what is being chosen, not a description of it.
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .comma: return "Comma  ,"
-        case .semicolon: return "Semicolon  ;"
-        case .tab: return "Tab"
+        case .comma: return "\(language(.separatorComma))  ,"
+        case .semicolon: return "\(language(.separatorSemicolon))  ;"
+        case .tab: return language(.separatorTab)
         }
     }
 }
@@ -174,10 +178,12 @@ enum DecimalSeparator: String, Codable, CaseIterable, Hashable, Sendable, Identi
         }
     }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .point: return "Point  8.50"
-        case .comma: return "Comma  8,50"
+        case .point: return "\(language(.separatorPoint))  8.50"
+        case .comma: return "\(language(.separatorComma))  8,50"
         }
     }
 }
@@ -191,13 +197,15 @@ enum ExportRangeKind: String, Codable, CaseIterable, Hashable, Sendable, Identif
 
     var id: String { rawValue }
 
-    var title: String {
+    var title: String { label(in: .device) }
+
+    func label(in language: ExportLanguage) -> String {
         switch self {
-        case .day: return "Day"
-        case .week: return "Week"
-        case .month: return "Month"
-        case .year: return "Year"
-        case .custom: return "Custom"
+        case .day: return language(.periodDay)
+        case .week: return language(.periodWeek)
+        case .month: return language(.periodMonth)
+        case .year: return language(.periodYear)
+        case .custom: return language(.periodCustom)
         }
     }
 }
