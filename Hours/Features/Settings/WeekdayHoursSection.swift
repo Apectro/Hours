@@ -115,7 +115,10 @@ struct ShiftDefaultsSection: View {
         } header: {
             Text("Defaults for a new day")
         } footer: {
-            Text("These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(schedule.defaultShiftMinutes)) worked.")
+            Text(String(
+                localized: "These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(schedule.defaultShiftMinutes)) worked.",
+                comment: "Under the default start and end times; the value is the resulting length"
+            ))
         }
     }
 }

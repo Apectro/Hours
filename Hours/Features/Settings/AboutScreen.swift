@@ -69,16 +69,28 @@ struct AboutScreen: View {
     /// the device" while the store is syncing is the one screen in the app it
     /// would be worst to be wrong on.
     private var headlineDetail: String {
-        let common = "There is no account to make, no server of ours, no analytics, no advertising and no third-party code."
+        let common = String(
+            localized: "There is no account to make, no server of ours, no analytics, no advertising and no third-party code.",
+            comment: "Privacy summary, the half that is true whether or not sync is on"
+        )
         // The App Store half is stated in both branches. Hours talks to Apple
         // to ask whether Pro has been paid for, so the old line about making no
         // network connections at all stopped being true the day it could be
         // bought — and this is the worst screen in the app to leave a stale
         // promise on.
-        let purchases = "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question."
+        let purchases = String(
+            localized: "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.",
+            comment: "Privacy summary, the one network call the app makes"
+        )
         return isSyncing
-            ? "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common) \(purchases)"
-            : "Your hours are stored locally and nowhere else. \(common) \(purchases)"
+            ? String(
+                localized: "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common) \(purchases)",
+                comment: "Privacy summary with sync on; the values are the two sentences above"
+              )
+            : String(
+                localized: "Your hours are stored locally and nowhere else. \(common) \(purchases)",
+                comment: "Privacy summary with sync off; the values are the two sentences above"
+              )
     }
 }
 

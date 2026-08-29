@@ -87,7 +87,10 @@ struct StatisticsScreen: View {
             } label: {
                 Image(systemName: "chevron.left")
             }
-            .accessibilityLabel("Previous \(scope.title.lowercased())")
+            .accessibilityLabel(String(
+            localized: "Previous \(scope.title.lowercased())",
+            comment: "VoiceOver; the value is a period name such as month or week"
+        ))
 
             Spacer()
 
@@ -102,7 +105,10 @@ struct StatisticsScreen: View {
             } label: {
                 Image(systemName: "chevron.right")
             }
-            .accessibilityLabel("Next \(scope.title.lowercased())")
+            .accessibilityLabel(String(
+            localized: "Next \(scope.title.lowercased())",
+            comment: "VoiceOver; the value is a period name such as month or week"
+        ))
             .disabled(isAtPresent)
         }
         .buttonStyle(.bordered)

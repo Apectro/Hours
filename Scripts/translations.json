@@ -454,6 +454,204 @@
     }
   },
   "interface": {
+    "%@  ·  %@ credited": [
+      "%@  ·  %@ angerechnet",
+      "%@  ·  %@ priznato",
+      "%@  ·  %@ priznano",
+      "%@  ·  %@ accreditate",
+      "%@  ·  %@ crédité",
+      "%@  ·  %@ acreditadas",
+      "%@  ·  %@ creditadas",
+      "%@  ·  %@ toegekend",
+      "%@  ·  %@ zaliczone"
+    ],
+    "%@ and %@ have no hours recorded.": [
+      "Für %@ und %@ sind keine Stunden erfasst.",
+      "Za %@ i %@ nema evidentiranih sati.",
+      "Za %@ in %@ ni zabeleženih ur.",
+      "Per %@ e %@ non ci sono ore registrate.",
+      "Aucune heure enregistrée pour le %@ et le %@.",
+      "No hay horas registradas para el %@ ni el %@.",
+      "Não há horas registadas para %@ e %@.",
+      "Voor %@ en %@ zijn geen uren vastgelegd.",
+      "Dla %@ i %@ nie zapisano godzin."
+    ],
+    "%@ and %lld more": [
+      "%@ und %lld weitere",
+      "%@ i još %lld",
+      "%@ in še %lld",
+      "%@ e altri %lld",
+      "%@ et %lld de plus",
+      "%@ y %lld más",
+      "%@ e mais %lld",
+      "%@ en nog %lld",
+      "%@ i jeszcze %lld"
+    ],
+    "%@ credited as paid %@": [
+      "%@ als bezahlter %@ angerechnet",
+      "%@ priznato kao plaćeni %@",
+      "%@ priznano kot plačan %@",
+      "%@ accreditate come %@ retribuito",
+      "%@ crédité comme %@ payé",
+      "%@ acreditadas como %@ pagado",
+      "%@ creditadas como %@ pago",
+      "%@ toegekend als betaald %@",
+      "%@ zaliczone jako płatny %@"
+    ],
+    "%@ has no hours recorded.": [
+      "Für %@ sind keine Stunden erfasst.",
+      "Za %@ nema evidentiranih sati.",
+      "Za %@ ni zabeleženih ur.",
+      "Per %@ non ci sono ore registrate.",
+      "Aucune heure enregistrée pour le %@.",
+      "No hay horas registradas para el %@.",
+      "Não há horas registadas para %@.",
+      "Voor %@ zijn geen uren vastgelegd.",
+      "Dla %@ nie zapisano godzin."
+    ],
+    "%@ have no hours recorded, starting %@.": [
+      "%@ haben keine erfassten Stunden, beginnend am %@.",
+      "%@ nema evidentiranih sati, počevši od %@.",
+      "%@ nima zabeleženih ur, začenši z %@.",
+      "%@ non hanno ore registrate, a partire dal %@.",
+      "%@ sans heures enregistrées, à partir du %@.",
+      "%@ sin horas registradas, a partir del %@.",
+      "%@ sem horas registadas, a começar em %@.",
+      "%@ zonder vastgelegde uren, vanaf %@.",
+      "%@ bez zapisanych godzin, począwszy od %@."
+    ],
+    "%@ of expected": [
+      "%@ des Solls",
+      "%@ od očekivanog",
+      "%@ pričakovanega",
+      "%@ del previsto",
+      "%@ du prévu",
+      "%@ de lo previsto",
+      "%@ do previsto",
+      "%@ van verwacht",
+      "%@ oczekiwanego"
+    ],
+    "%@ of expected, including %@ paid absence": [
+      "%@ des Solls, davon %@ bezahlte Abwesenheit",
+      "%@ od očekivanog, uključujući %@ plaćenog izostanka",
+      "%@ pričakovanega, vključno z %@ plačane odsotnosti",
+      "%@ del previsto, incluse %@ di assenza retribuita",
+      "%@ du prévu, dont %@ d'absence payée",
+      "%@ de lo previsto, incluidas %@ de ausencia pagada",
+      "%@ do previsto, incluindo %@ de ausência paga",
+      "%@ van verwacht, inclusief %@ betaald verzuim",
+      "%@ oczekiwanego, w tym %@ płatnej nieobecności"
+    ],
+    "%@ over": [
+      "%@ mehr",
+      "%@ više",
+      "%@ več",
+      "%@ in più",
+      "%@ de plus",
+      "%@ de más",
+      "%@ a mais",
+      "%@ meer",
+      "%@ więcej"
+    ],
+    "%@ short": [
+      "%@ weniger",
+      "%@ manje",
+      "%@ manj",
+      "%@ in meno",
+      "%@ de moins",
+      "%@ de menos",
+      "%@ a menos",
+      "%@ minder",
+      "%@ mniej"
+    ],
+    "%@ this month": [
+      "%@ diesen Monat",
+      "%@ ovaj mjesec",
+      "%@ ta mesec",
+      "%@ questo mese",
+      "%@ ce mois-ci",
+      "%@ este mes",
+      "%@ este mês",
+      "%@ deze maand",
+      "%@ w tym miesiącu"
+    ],
+    "%@ under": [
+      "%@ weniger",
+      "%@ manje",
+      "%@ manj",
+      "%@ in meno",
+      "%@ de moins",
+      "%@ de menos",
+      "%@ a menos",
+      "%@ minder",
+      "%@ mniej"
+    ],
+    "%@ · automatic": [
+      "%@ · automatisch",
+      "%@ · automatski",
+      "%@ · samodejno",
+      "%@ · automatico",
+      "%@ · automatique",
+      "%@ · automático",
+      "%@ · automático",
+      "%@ · automatisch",
+      "%@ · automatycznie"
+    ],
+    "%lld left alone": [
+      "%lld unverändert",
+      "%lld nepromijenjeno",
+      "%lld nespremenjenih",
+      "%lld invariati",
+      "%lld inchangés",
+      "%lld sin cambios",
+      "%lld inalterados",
+      "%lld ongewijzigd",
+      "%lld bez zmian"
+    ],
+    "%lld off": [
+      "%lld frei",
+      "%lld slobodno",
+      "%lld prostih",
+      "%lld liberi",
+      "%lld de repos",
+      "%lld libres",
+      "%lld de folga",
+      "%lld vrij",
+      "%lld wolnych"
+    ],
+    "%lld scheduled": [
+      "%lld geplant",
+      "%lld planirano",
+      "%lld načrtovanih",
+      "%lld pianificati",
+      "%lld prévus",
+      "%lld previstos",
+      "%lld previstos",
+      "%lld gepland",
+      "%lld zaplanowanych"
+    ],
+    "%lld skipped": [
+      "%lld übersprungen",
+      "%lld preskočeno",
+      "%lld preskočenih",
+      "%lld saltati",
+      "%lld ignorés",
+      "%lld omitidos",
+      "%lld ignorados",
+      "%lld overgeslagen",
+      "%lld pominięto"
+    ],
+    "%lld with hours recorded": [
+      "%lld mit erfassten Stunden",
+      "%lld s evidentiranim satima",
+      "%lld z zabeleženimi urami",
+      "%lld con ore registrate",
+      "%lld avec des heures saisies",
+      "%lld con horas registradas",
+      "%lld com horas registadas",
+      "%lld met vastgelegde uren",
+      "%lld z zapisanymi godzinami"
+    ],
     "A backup is a JSON file containing every day, every holiday and all your settings. Nothing is uploaded — you choose where the file goes.": [
       "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht.",
       "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide.",
@@ -784,6 +982,17 @@
       "Saldo per maand",
       "Saldo według miesięcy"
     ],
+    "Block %lld": [
+      "Block %lld",
+      "Blok %lld",
+      "Blok %lld",
+      "Blocco %lld",
+      "Bloc %lld",
+      "Bloque %lld",
+      "Bloco %lld",
+      "Blok %lld",
+      "Blok %lld"
+    ],
     "Break": [
       "Pause",
       "Pauza",
@@ -927,6 +1136,17 @@
       "Wijzig",
       "Zmień"
     ],
+    "Check my hours in ${applicationName}": [
+      "Meine Stunden in ${applicationName} prüfen",
+      "Provjeri moje sate u ${applicationName}",
+      "Preveri moje ure v ${applicationName}",
+      "Controlla le mie ore in ${applicationName}",
+      "Vérifier mes heures dans ${applicationName}",
+      "Consultar mis horas en ${applicationName}",
+      "Ver as minhas horas no ${applicationName}",
+      "Mijn uren bekijken in ${applicationName}",
+      "Sprawdź moje godziny w ${applicationName}"
+    ],
     "Check that this week's hours are recorded.": [
       "Prüfe, ob die Stunden dieser Woche erfasst sind.",
       "Provjeri jesu li sati ovog tjedna zabilježeni.",
@@ -948,6 +1168,17 @@
       "Limpar",
       "Wissen",
       "Wyczyść"
+    ],
+    "Clear %@": [
+      "%@ löschen",
+      "Očisti %@",
+      "Počisti %@",
+      "Cancella %@",
+      "Effacer %@",
+      "Borrar %@",
+      "Limpar %@",
+      "%@ wissen",
+      "Wyczyść %@"
     ],
     "Clock changes": [
       "Zeitumstellung",
@@ -982,6 +1213,17 @@
       "In- en uitklokken",
       "Rozpoczynanie i kończenie"
     ],
+    "Clock in with ${applicationName}": [
+      "Mit ${applicationName} einstempeln",
+      "Prijavi se u ${applicationName}",
+      "Prijavi se v ${applicationName}",
+      "Timbra l'entrata con ${applicationName}",
+      "Pointer l'arrivée avec ${applicationName}",
+      "Fichar entrada con ${applicationName}",
+      "Registar entrada com ${applicationName}",
+      "Inklokken met ${applicationName}",
+      "Rozpocznij pracę w ${applicationName}"
+    ],
     "Clock out": [
       "Ausstempeln",
       "Odjavi se",
@@ -992,6 +1234,17 @@
       "Registar saída",
       "Uitklokken",
       "Zakończ"
+    ],
+    "Clock out with ${applicationName}": [
+      "Mit ${applicationName} ausstempeln",
+      "Odjavi se iz ${applicationName}",
+      "Odjavi se iz ${applicationName}",
+      "Timbra l'uscita con ${applicationName}",
+      "Pointer la sortie avec ${applicationName}",
+      "Fichar salida con ${applicationName}",
+      "Registar saída com ${applicationName}",
+      "Uitklokken met ${applicationName}",
+      "Zakończ pracę w ${applicationName}"
     ],
     "Clock running": [
       "Uhr läuft",
@@ -1025,6 +1278,17 @@
       "Entrada registada às %@.",
       "Ingeklokt om %@.",
       "Rozpoczęto o %@."
+    ],
+    "Clocked in for %@": [
+      "Seit %@ eingestempelt",
+      "Prijavljeni %@",
+      "Prijavljeni %@",
+      "In servizio da %@",
+      "Pointé depuis %@",
+      "Fichado desde hace %@",
+      "Com entrada registada há %@",
+      "%@ ingeklokt",
+      "Zalogowany od %@"
     ],
     "Clocked out. %@ recorded for %@.": [
       "Ausgestempelt. %@ für %@ erfasst.",
@@ -1190,6 +1454,17 @@
       "Dia",
       "Dag",
       "Dzień"
+    ],
+    "Day %lld": [
+      "Tag %lld",
+      "Dan %lld",
+      "Dan %lld",
+      "Giorno %lld",
+      "Jour %lld",
+      "Día %lld",
+      "Dia %lld",
+      "Dag %lld",
+      "Dzień %lld"
     ],
     "Day cells": [
       "Tagesfelder",
@@ -1576,6 +1851,17 @@
       "Einde",
       "Koniec"
     ],
+    "Everything recorded through %@.": [
+      "Alles erfasst bis %@.",
+      "Sve evidentirano do %@.",
+      "Vse zabeleženo do %@.",
+      "Tutto ciò che è registrato fino al %@.",
+      "Tout ce qui est enregistré jusqu'au %@.",
+      "Todo lo registrado hasta el %@.",
+      "Tudo o que está registado até %@.",
+      "Alles vastgelegd tot en met %@.",
+      "Wszystko zapisane do %@."
+    ],
     "Excel on Windows needs the byte-order mark to read accented characters correctly. Numbers, Google Sheets and LibreOffice are happy either way.": [
       "Excel unter Windows braucht die Byte-Order-Mark, um Zeichen mit Akzenten richtig zu lesen. Numbers, Google Sheets und LibreOffice kommen mit beidem zurecht.",
       "Excel na Windowsu treba oznaku redoslijeda bajtova da ispravno čita znakove s dijakritikom. Numbers, Google Sheets i LibreOffice rade i ovako i onako.",
@@ -1630,6 +1916,17 @@
       "Opções de exportação",
       "Exportopties",
       "Opcje eksportu"
+    ],
+    "Export preview, %lld rows": [
+      "Exportvorschau, %lld Zeilen",
+      "Pregled izvoza, %lld redaka",
+      "Predogled izvoza, %lld vrstic",
+      "Anteprima esportazione, %lld righe",
+      "Aperçu de l'export, %lld lignes",
+      "Vista previa de exportación, %lld filas",
+      "Pré-visualização da exportação, %lld linhas",
+      "Exportvoorbeeld, %lld rijen",
+      "Podgląd eksportu, %lld wierszy"
     ],
     "Export…": [
       "Exportieren …",
@@ -1719,6 +2016,17 @@
       "Vult elke dag met je gebruikelijke begin, einde en pauze. Feestdagen in het bereik blijven ongemoeid.",
       "Wypełnia każdy dzień twoim zwykłym początkiem, końcem i przerwą. Święta w zakresie pozostają nietknięte."
     ],
+    "Finish work in ${applicationName}": [
+      "Arbeit in ${applicationName} beenden",
+      "Završi rad u ${applicationName}",
+      "Končaj delo v ${applicationName}",
+      "Termina il lavoro in ${applicationName}",
+      "Terminer le travail dans ${applicationName}",
+      "Terminar de trabajar en ${applicationName}",
+      "Terminar o trabalho no ${applicationName}",
+      "Werk afronden in ${applicationName}",
+      "Skończ pracę w ${applicationName}"
+    ],
     "First": [
       "Erster",
       "Prvi",
@@ -1785,6 +2093,28 @@
       "Van",
       "Od"
     ],
+    "From %@": [
+      "Ab %@",
+      "Od %@",
+      "Od %@",
+      "Da %@",
+      "À partir de %@",
+      "Desde %@",
+      "A partir de %@",
+      "Vanaf %@",
+      "Od %@"
+    ],
+    "From your weekly schedule for %@.": [
+      "Aus Ihrem Wochenplan für %@.",
+      "Iz vašeg tjednog rasporeda za %@.",
+      "Iz vašega tedenskega urnika za %@.",
+      "Dal tuo orario settimanale per %@.",
+      "D'après votre planning hebdomadaire du %@.",
+      "De tu horario semanal para el %@.",
+      "Do seu horário semanal de %@.",
+      "Uit je weekrooster voor %@.",
+      "Z tygodniowego grafiku na %@."
+    ],
     "Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.": [
       "Wochenenden auszublenden entfernt die Spalten Samstag und Sonntag aus dem Raster. Die Tage werden weiterhin erfasst und gezählt.",
       "Skrivanje vikenda uklanja stupce subote i nedjelje iz mreže. Sami dani se i dalje bilježe i računaju.",
@@ -1828,6 +2158,17 @@
       "Horas",
       "Uren",
       "Godziny"
+    ],
+    "Hours already recorded against this job stay, and count towards %@.": [
+      "Bereits auf diese Tätigkeit erfasste Stunden bleiben und zählen zu %@.",
+      "Već evidentirani sati na ovom poslu ostaju i broje se u %@.",
+      "Že zabeležene ure pri tem delu ostanejo in se štejejo k %@.",
+      "Le ore già registrate su questo lavoro restano e contano per %@.",
+      "Les heures déjà saisies sur ce poste restent et comptent pour %@.",
+      "Las horas ya registradas en este trabajo se mantienen y cuentan para %@.",
+      "As horas já registadas neste trabalho mantêm-se e contam para %@.",
+      "Al vastgelegde uren op deze functie blijven staan en tellen mee voor %@.",
+      "Godziny zapisane już przy tej pracy pozostają i liczą się do %@."
     ],
     "Hours and balance": [
       "Stunden und Saldo",
@@ -1883,6 +2224,17 @@
       "A forma como um tipo conta é o que torna o saldo correto: a ausência paga credita as horas contratadas, por isso um dia de férias deixa o saldo inalterado.",
       "Hoe een type telt, is wat het saldo kloppend maakt: betaald verlof schrijft je contracturen bij, dus een verlofdag laat het saldo ongewijzigd.",
       "To, jak liczy się dany typ, decyduje o poprawności salda: płatna nieobecność zalicza godziny umowne, więc dzień urlopu nie zmienia salda."
+    ],
+    "How am I doing in ${applicationName}": [
+      "Wie stehe ich in ${applicationName} da",
+      "Kako stojim u ${applicationName}",
+      "Kako mi gre v ${applicationName}",
+      "Come sto andando in ${applicationName}",
+      "Où j'en suis dans ${applicationName}",
+      "Cómo voy en ${applicationName}",
+      "Como estou no ${applicationName}",
+      "Hoe sta ik ervoor in ${applicationName}",
+      "Jak mi idzie w ${applicationName}"
     ],
     "How far back to check. Days you have marked as excluded, and days that are not working days, are never counted as missing.": [
       "Wie weit zurück geprüft wird. Als ausgenommen markierte Tage und Tage, die keine Arbeitstage sind, gelten nie als fehlend.",
@@ -2071,6 +2423,17 @@
       "Locatie",
       "Miejsce"
     ],
+    "Look back %lld days": [
+      "%lld Tage zurückblicken",
+      "Pogledaj %lld dana unatrag",
+      "Poglej %lld dni nazaj",
+      "Guarda indietro di %lld giorni",
+      "Remonter de %lld jours",
+      "Revisar %lld días atrás",
+      "Recuar %lld dias",
+      "%lld dagen terugkijken",
+      "Sprawdź %lld dni wstecz"
+    ],
     "Make a backup": [
       "Sicherung erstellen",
       "Napravi sigurnosnu kopiju",
@@ -2103,6 +2466,17 @@
       "Marcar os feriados",
       "Feestdagen markeren",
       "Oznacz święta"
+    ],
+    "Marks each day as %@. Any hours on those days are removed if the type does not use times.": [
+      "Markiert jeden Tag als %@. Stunden an diesen Tagen werden entfernt, wenn die Art keine Zeiten verwendet.",
+      "Označava svaki dan kao %@. Sati na tim danima uklanjaju se ako vrsta ne koristi vremena.",
+      "Označi vsak dan kot %@. Ure na teh dnevih se odstranijo, če vrsta ne uporablja časov.",
+      "Segna ogni giorno come %@. Le ore su quei giorni vengono rimosse se il tipo non usa gli orari.",
+      "Marque chaque jour comme %@. Les heures de ces jours sont supprimées si le type n'utilise pas d'horaires.",
+      "Marca cada día como %@. Las horas de esos días se eliminan si el tipo no usa horarios.",
+      "Marca cada dia como %@. As horas desses dias são removidas se o tipo não usar horários.",
+      "Markeert elke dag als %@. Uren op die dagen worden verwijderd als het type geen tijden gebruikt.",
+      "Oznacza każdy dzień jako %@. Godziny w tych dniach są usuwane, jeśli typ nie używa godzin."
     ],
     "Month": [
       "Monat",
@@ -2169,6 +2543,17 @@
       "Nome na folha de horas",
       "Naam op de urenstaat",
       "Imię i nazwisko na ewidencji"
+    ],
+    "Next %@": [
+      "Nächster %@",
+      "Sljedeći %@",
+      "Naslednji %@",
+      "%@ successivo",
+      "%@ suivant",
+      "%@ siguiente",
+      "%@ seguinte",
+      "Volgende %@",
+      "Następny %@"
     ],
     "Next dates": [
       "Nächste Termine",
@@ -2312,6 +2697,17 @@
       "Ainda não há nada registado.",
       "Nog niets vastgelegd.",
       "Nic jeszcze nie zapisano."
+    ],
+    "Nothing recorded yet. %@ expected.": [
+      "Noch nichts erfasst. %@ erwartet.",
+      "Još ništa nije evidentirano. Očekuje se %@.",
+      "Še nič zabeleženo. Pričakovano %@.",
+      "Ancora nulla registrato. Previste %@.",
+      "Rien d'enregistré. %@ attendues.",
+      "Aún no hay nada registrado. Se esperan %@.",
+      "Ainda nada registado. Esperadas %@.",
+      "Nog niets vastgelegd. %@ verwacht.",
+      "Jeszcze nic nie zapisano. Oczekiwane %@."
     ],
     "Nothing to change": [
       "Nichts zu ändern",
@@ -2521,6 +2917,17 @@
       "Pré-visualização",
       "Voorbeeld",
       "Podgląd"
+    ],
+    "Previous %@": [
+      "Vorheriger %@",
+      "Prethodni %@",
+      "Prejšnji %@",
+      "%@ precedente",
+      "%@ précédent",
+      "%@ anterior",
+      "%@ anterior",
+      "Vorige %@",
+      "Poprzedni %@"
     ],
     "Printed under the title of every timesheet, and used to name the file. Leave it empty and nothing is printed. It stays on this device like everything else.": [
       "Wird unter dem Titel jedes Stundenzettels gedruckt und benennt die Datei. Lass es leer, dann wird nichts gedruckt. Es bleibt wie alles andere auf diesem Gerät.",
@@ -2852,6 +3259,17 @@
       "Meerdere pauzes per dag",
       "Kilka przerw dziennie"
     ],
+    "Share %@": [
+      "%@ teilen",
+      "Podijeli %@",
+      "Deli %@",
+      "Condividi %@",
+      "Partager %@",
+      "Compartir %@",
+      "Partilhar %@",
+      "%@ delen",
+      "Udostępnij %@"
+    ],
     "Share backup": [
       "Sicherung teilen",
       "Podijeli kopiju",
@@ -2918,6 +3336,28 @@
       "Weekenden tonen",
       "Pokazuj weekendy"
     ],
+    "Showing the first 12 of %lld rows.": [
+      "Es werden die ersten 12 von %lld Zeilen gezeigt.",
+      "Prikazano je prvih 12 od %lld redaka.",
+      "Prikazanih je prvih 12 od %lld vrstic.",
+      "Vengono mostrate le prime 12 righe di %lld.",
+      "Affichage des 12 premières lignes sur %lld.",
+      "Se muestran las primeras 12 de %lld filas.",
+      "A mostrar as primeiras 12 de %lld linhas.",
+      "De eerste 12 van %lld rijen worden getoond.",
+      "Pokazano pierwszych 12 z %lld wierszy."
+    ],
+    "Since %@, through %@.": [
+      "Seit %@, bis %@.",
+      "Od %@, do %@.",
+      "Od %@ do %@.",
+      "Dal %@, fino al %@.",
+      "Depuis le %@, jusqu'au %@.",
+      "Desde el %@, hasta el %@.",
+      "Desde %@, até %@.",
+      "Vanaf %@, tot en met %@.",
+      "Od %@ do %@."
+    ],
     "Skip non-working days": [
       "Freie Tage überspringen",
       "Preskoči neradne dane",
@@ -2950,6 +3390,28 @@
       "Data de início",
       "Startdatum",
       "Data początkowa"
+    ],
+    "Start work in ${applicationName}": [
+      "Arbeit in ${applicationName} beginnen",
+      "Počni s radom u ${applicationName}",
+      "Začni delo v ${applicationName}",
+      "Inizia a lavorare in ${applicationName}",
+      "Commencer le travail dans ${applicationName}",
+      "Empezar a trabajar en ${applicationName}",
+      "Começar a trabalhar no ${applicationName}",
+      "Beginnen met werken in ${applicationName}",
+      "Zacznij pracę w ${applicationName}"
+    ],
+    "Started %@%@": [
+      "Begonnen um %@%@",
+      "Počelo u %@%@",
+      "Začelo ob %@%@",
+      "Iniziato alle %@%@",
+      "Commencé à %@%@",
+      "Iniciado a las %@%@",
+      "Iniciado às %@%@",
+      "Gestart om %@%@",
+      "Rozpoczęto o %@%@"
     ],
     "Still clocked in": [
       "Noch eingestempelt",
@@ -3061,6 +3523,17 @@
       "Labels, gescheiden door komma’s",
       "Etykiety oddzielone przecinkami"
     ],
+    "That file could not be read as a backup. %@": [
+      "Diese Datei konnte nicht als Sicherung gelesen werden. %@",
+      "Tu datoteku nije bilo moguće pročitati kao kopiju. %@",
+      "Te datoteke ni bilo mogoče prebrati kot kopijo. %@",
+      "Non è stato possibile leggere il file come backup. %@",
+      "Ce fichier n'a pas pu être lu comme une sauvegarde. %@",
+      "No se pudo leer ese archivo como copia de seguridad. %@",
+      "Não foi possível ler esse ficheiro como cópia de segurança. %@",
+      "Dat bestand kon niet als back-up worden gelezen. %@",
+      "Nie udało się odczytać tego pliku jako kopii zapasowej. %@"
+    ],
     "The clock could not be started.": [
       "Die Uhr konnte nicht gestartet werden.",
       "Sat se nije mogao pokrenuti.",
@@ -3071,6 +3544,39 @@
       "Não foi possível iniciar a contagem.",
       "De klok kon niet worden gestart.",
       "Nie udało się uruchomić zegara."
+    ],
+    "The file could not be opened. %@": [
+      "Die Datei konnte nicht geöffnet werden. %@",
+      "Datoteku nije bilo moguće otvoriti. %@",
+      "Datoteke ni bilo mogoče odpreti. %@",
+      "Non è stato possibile aprire il file. %@",
+      "Le fichier n'a pas pu être ouvert. %@",
+      "No se pudo abrir el archivo. %@",
+      "Não foi possível abrir o ficheiro. %@",
+      "Het bestand kon niet worden geopend. %@",
+      "Nie udało się otworzyć pliku. %@"
+    ],
+    "The file could not be prepared. %@": [
+      "Die Datei konnte nicht erstellt werden. %@",
+      "Datoteku nije bilo moguće pripremiti. %@",
+      "Datoteke ni bilo mogoče pripraviti. %@",
+      "Non è stato possibile preparare il file. %@",
+      "Le fichier n'a pas pu être préparé. %@",
+      "No se pudo preparar el archivo. %@",
+      "Não foi possível preparar o ficheiro. %@",
+      "Het bestand kon niet worden voorbereid. %@",
+      "Nie udało się przygotować pliku. %@"
+    ],
+    "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.": [
+      "Das Einzige, was es im Netz abfragt, ist, ob Zeitkonto Pro bezahlt wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit.",
+      "Jedino što pita mrežu jest je li Zeitkonto Pro plaćen, a to pita App Store; ništa od vaših sati ne ide uz to pitanje.",
+      "Edino, kar vpraša omrežje, je, ali je Zeitkonto Pro plačan, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur.",
+      "L'unica cosa che chiede alla rete è se Zeitkonto Pro è stato pagato, e lo chiede all'App Store; nessuna parte delle tue ore parte con la domanda.",
+      "La seule chose qu'il demande au réseau, c'est si Zeitkonto Pro a été payé, et il le demande à l'App Store ; aucune partie de vos heures n'accompagne la question.",
+      "Lo único que pregunta a la red es si se ha pagado Zeitkonto Pro, y se lo pregunta a la App Store; ninguna parte de tus horas viaja con la pregunta.",
+      "A única coisa que pergunta à rede é se o Zeitkonto Pro foi pago, e pergunta-o à App Store; nenhuma parte das suas horas segue com a pergunta.",
+      "Het enige wat het aan het netwerk vraagt is of Zeitkonto Pro betaald is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag.",
+      "Jedyne, o co pyta sieć, to czy opłacono Zeitkonto Pro — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
     ],
     "The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.": [
       "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Tage vor dem Startdatum bleiben im laufenden Saldo unberücksichtigt.",
@@ -3116,6 +3622,17 @@
       "Thema",
       "Motyw"
     ],
+    "There is no account to make, no server of ours, no analytics, no advertising and no third-party code.": [
+      "Es gibt kein Konto anzulegen, keinen Server von uns, keine Analyse, keine Werbung und keinen Fremdcode.",
+      "Nema računa za otvoriti, nema našeg poslužitelja, nema analitike, nema oglasa i nema tuđeg koda.",
+      "Ni računa za ustvariti, ni našega strežnika, ni analitike, ni oglasov in ni tuje kode.",
+      "Non c'è alcun account da creare, nessun nostro server, nessuna analisi, nessuna pubblicità e nessun codice di terze parti.",
+      "Il n'y a aucun compte à créer, aucun serveur à nous, aucune analyse, aucune publicité et aucun code tiers.",
+      "No hay cuenta que crear, ningún servidor nuestro, ninguna analítica, ninguna publicidad y ningún código de terceros.",
+      "Não há conta para criar, nenhum servidor nosso, nenhuma análise, nenhuma publicidade e nenhum código de terceiros.",
+      "Er is geen account aan te maken, geen server van ons, geen analytics, geen advertenties en geen code van derden.",
+      "Nie ma konta do założenia, żadnego naszego serwera, analityki, reklam ani cudzego kodu."
+    ],
     "There is no account to make. A purchase belongs to your Apple ID, so it is already on your other devices — you should not need Restore, and it is there in case you do.": [
       "Es gibt kein Konto anzulegen. Ein Kauf gehört zu deiner Apple-ID und ist damit schon auf deinen anderen Geräten – „Wiederherstellen“ solltest du nicht brauchen, es ist für den Fall der Fälle da.",
       "Nema računa koji treba otvoriti. Kupnja pripada tvom Apple ID-u pa je već na tvojim drugim uređajima – „Vrati” ti ne bi trebao trebati, tu je za svaki slučaj.",
@@ -3126,6 +3643,17 @@
       "Não há conta nenhuma a criar. Uma compra pertence ao teu Apple ID, por isso já está nos teus outros dispositivos — «Restaurar» não deve ser preciso, está aí para o caso de ser.",
       "Er is geen account aan te maken. Een aankoop hoort bij je Apple ID en staat dus al op je andere apparaten — ‘Herstel’ zou niet nodig moeten zijn, het staat er voor het geval dat.",
       "Nie ma konta do założenia. Zakup należy do twojego Apple ID, więc jest już na innych urządzeniach – „Przywróć” nie powinno być potrzebne, jest na wszelki wypadek."
+    ],
+    "These pre-fill the editor when you add hours to a working day. That comes to %@ worked.": [
+      "Diese füllen den Editor vor, wenn Sie an einem Arbeitstag Stunden eintragen. Das ergibt %@ Arbeitszeit.",
+      "Ovo unaprijed ispunjava uređivač kad dodajete sate na radni dan. To iznosi %@ rada.",
+      "To vnaprej izpolni urejevalnik, ko dodate ure na delovni dan. To znese %@ dela.",
+      "Precompilano l'editor quando aggiungi ore a un giorno lavorativo. Fanno %@ di lavoro.",
+      "Ils préremplissent l'éditeur quand vous ajoutez des heures à un jour travaillé. Cela fait %@ de travail.",
+      "Rellenan el editor cuando añades horas a un día laborable. Eso son %@ de trabajo.",
+      "Preenchem o editor quando adiciona horas a um dia de trabalho. Dá %@ de trabalho.",
+      "Deze vullen de editor alvast in als je uren toevoegt aan een werkdag. Dat komt neer op %@ gewerkt.",
+      "Wstępnie wypełniają edytor przy dodawaniu godzin w dniu roboczym. Daje to %@ pracy."
     ],
     "Third": [
       "Dritter",
@@ -3203,6 +3731,17 @@
       "Este mês trabalhou %@.",
       "Deze maand heb je %@ gewerkt.",
       "W tym miesiącu przepracowano %@."
+    ],
+    "Through %@": [
+      "Bis %@",
+      "Do %@",
+      "Do %@",
+      "Fino a %@",
+      "Jusqu'à %@",
+      "Hasta %@",
+      "Até %@",
+      "Tot en met %@",
+      "Do %@"
     ],
     "Time": [
       "Zeit",
@@ -3611,6 +4150,28 @@
       "Je was al ingeklokt om %@.",
       "Zegar był już uruchomiony od %@."
     ],
+    "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. %@ %@": [
+      "Ihre Stunden bleiben auf diesem Gerät und in Ihrem eigenen privaten iCloud-Speicher, den nur Ihre Geräte lesen können. %@ %@",
+      "Vaši sati ostaju na ovom uređaju i u vašoj privatnoj iCloud pohrani, koju mogu čitati samo vaši uređaji. %@ %@",
+      "Vaše ure ostanejo v tej napravi in v vaši zasebni shrambi iCloud, ki jo lahko berejo le vaše naprave. %@ %@",
+      "Le tue ore restano su questo dispositivo e nel tuo spazio iCloud privato, leggibile solo dai tuoi dispositivi. %@ %@",
+      "Vos heures restent sur cet appareil et dans votre propre stockage iCloud privé, que seuls vos appareils peuvent lire. %@ %@",
+      "Tus horas se quedan en este dispositivo y en tu propio almacenamiento privado de iCloud, que solo pueden leer tus dispositivos. %@ %@",
+      "As suas horas ficam neste dispositivo e no seu próprio armazenamento privado do iCloud, que só os seus dispositivos podem ler. %@ %@",
+      "Je uren blijven op dit apparaat en in je eigen privé-iCloudopslag, die alleen jouw apparaten kunnen lezen. %@ %@",
+      "Twoje godziny pozostają na tym urządzeniu i w Twojej prywatnej przestrzeni iCloud, którą mogą odczytać tylko Twoje urządzenia. %@ %@"
+    ],
+    "Your hours are stored locally and nowhere else. %@ %@": [
+      "Ihre Stunden werden lokal gespeichert und sonst nirgends. %@ %@",
+      "Vaši se sati pohranjuju lokalno i nigdje drugdje. %@ %@",
+      "Vaše ure so shranjene lokalno in nikjer drugje. %@ %@",
+      "Le tue ore sono salvate solo in locale. %@ %@",
+      "Vos heures sont stockées en local et nulle part ailleurs. %@ %@",
+      "Tus horas se guardan localmente y en ningún otro sitio. %@ %@",
+      "As suas horas são guardadas localmente e em mais lado nenhum. %@ %@",
+      "Je uren worden lokaal opgeslagen en nergens anders. %@ %@",
+      "Twoje godziny są przechowywane lokalnie i nigdzie indziej. %@ %@"
+    ],
     "Your own iCloud": [
       "Dein eigenes iCloud",
       "Tvoj vlastiti iCloud",
@@ -3632,6 +4193,28 @@
       "Zeitkonto Pro",
       "Zeitkonto Pro",
       "Zeitkonto Pro"
+    ],
+    "archived": [
+      "archiviert",
+      "arhivirano",
+      "arhivirano",
+      "archiviato",
+      "archivé",
+      "archivado",
+      "arquivado",
+      "gearchiveerd",
+      "zarchiwizowane"
+    ],
+    "breaks": [
+      "Pausen",
+      "pauze",
+      "odmori",
+      "pause",
+      "pauses",
+      "descansos",
+      "pausas",
+      "pauzes",
+      "przerwy"
     ],
     "iCloud": [
       "iCloud",
@@ -3655,6 +4238,17 @@
       "iCloud-synchronisatie staat uit. Je gegevens staan in de opslag van deze app en zitten in een versleutelde apparaatback-up als je die maakt. Zet het aan bij Instellingen › iCloud.",
       "Synchronizacja z iCloud jest wyłączona. Twoje dane są we własnym magazynie tej aplikacji i trafiają do zaszyfrowanej kopii urządzenia, jeśli ją utworzysz. Włącz w Ustawienia › iCloud."
     ],
+    "location": [
+      "Ort",
+      "lokacija",
+      "lokacija",
+      "luogo",
+      "lieu",
+      "ubicación",
+      "local",
+      "locatie",
+      "lokalizacja"
+    ],
     "no time at all": [
       "gar keine Zeit",
       "nimalo vremena",
@@ -3666,6 +4260,39 @@
       "helemaal geen tijd",
       "brak czasu"
     ],
+    "notes": [
+      "Notizen",
+      "bilješke",
+      "zapiski",
+      "note",
+      "notes",
+      "notas",
+      "notas",
+      "notities",
+      "notatki"
+    ],
+    "of %@": [
+      "von %@",
+      "od %@",
+      "od %@",
+      "di %@",
+      "sur %@",
+      "de %@",
+      "de %@",
+      "van %@",
+      "z %@"
+    ],
+    "overtime": [
+      "Überstunden",
+      "prekovremeni",
+      "nadure",
+      "straordinari",
+      "heures supplémentaires",
+      "horas extra",
+      "horas extra",
+      "overuren",
+      "nadgodziny"
+    ],
     "per day worked": [
       "pro Arbeitstag",
       "po odrađenom danu",
@@ -3676,6 +4303,17 @@
       "por dia trabalhado",
       "per gewerkte dag",
       "na przepracowany dzień"
+    ],
+    "tags": [
+      "Tags",
+      "oznake",
+      "oznake",
+      "tag",
+      "étiquettes",
+      "etiquetas",
+      "etiquetas",
+      "tags",
+      "tagi"
     ],
     "those types": [
       "diese Arten",

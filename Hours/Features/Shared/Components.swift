@@ -112,8 +112,14 @@ struct BalanceText: View {
 
     private var accessibilityText: String {
         let magnitude = DurationFormatting(style: .hoursAndMinutes, minusSign: "").string(abs(minutes))
-        if minutes > 0 { return "\(magnitude) over" }
-        if minutes < 0 { return "\(magnitude) under" }
+        if minutes > 0 {
+            return String(localized: "\(magnitude) over",
+                          comment: "VoiceOver, a balance in credit")
+        }
+        if minutes < 0 {
+            return String(localized: "\(magnitude) under",
+                          comment: "VoiceOver, a balance in deficit")
+        }
         return "on target"
     }
 }

@@ -178,7 +178,10 @@ struct DaySummaryCard: View {
         switch computation.dayType.expectation {
         case .scheduled:
             return computation.expectedMinutes > 0
-                ? "Nothing recorded yet. \(duration.string(computation.expectedMinutes)) expected."
+                ? String(
+                    localized: "Nothing recorded yet. \(duration.string(computation.expectedMinutes)) expected.",
+                    comment: "An empty working day, with the hours its schedule expects"
+                  )
                 : String(localized: "Nothing recorded yet.")
         case .zero:
             return String(localized: "Not a working day.")

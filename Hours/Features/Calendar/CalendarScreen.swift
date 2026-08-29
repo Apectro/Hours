@@ -438,7 +438,10 @@ private struct WeekDayList: View {
             return "\(times)  ·  \(duration.string(day.workedMinutes))"
         }
         if day.creditedMinutes > 0 {
-            return "\(day.dayType.name)  ·  \(duration.string(day.creditedMinutes)) credited"
+            return String(
+                localized: "\(day.dayType.name)  ·  \(duration.string(day.creditedMinutes)) credited",
+                comment: "A day with no worked hours but paid time, e.g. Vacation · 8h 00m credited"
+            )
         }
         return day.dayType.name
     }

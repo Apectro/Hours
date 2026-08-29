@@ -100,14 +100,22 @@ struct BackupArchive: Codable, Sendable {
         case fromANewerVersion(Int)
         case unreadable(String)
 
+        /// Read by whoever tried to restore, which is a person having a bad
+        /// day already — so it follows the phone like the rest of the app.
+        ///
+        /// `String(format:)` rather than interpolation, because the word table
+        /// has to hold a whole sentence per language and the value belongs in
+        /// a different place in some of them: French puts it at the end,
+        /// German at the front.
         var errorDescription: String? {
+            let language = ExportLanguage.device
             switch self {
             case .notABackup:
-                return "This file is not a Zeitkonto backup."
+                return language(.backupNotABackup)
             case let .fromANewerVersion(version):
-                return "This backup was made by a newer version of Zeitkonto (format \(version)). Update Zeitkonto and try again."
+                return String(format: language(.backupFromNewerVersion), version)
             case let .unreadable(part):
-                return "This backup is damaged: its \(part) could not be read."
+                return String(format: language(.backupUnreadable), part)
             }
         }
     }

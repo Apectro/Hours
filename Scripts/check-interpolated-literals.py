@@ -66,6 +66,19 @@ ALLOWED = {
         "a developer crash message; the app is already unusable when it prints",
     "Invalid calendar date key \\(key)":
         "a precondition failure, not a screen",
+    # An AppShortcutPhrase must be a compile-time literal — it cannot take a
+    # runtime String, so String(localized:) is not available to it. Apple
+    # localizes these through the catalogue instead, keyed on the phrase with
+    # ${applicationName} where \(.applicationName) sits. Those six keys are in
+    # translations.json and ship in the catalogue. Whether iOS then resolves
+    # them is not something this repository can prove: it needs a German phone
+    # and Siri. Stated here rather than left looking finished.
+    "Clock in with \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Start work in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Clock out with \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Finish work in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Check my hours in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "How am I doing in \\(.applicationName)": "AppShortcutPhrase; see the note above",
 }
 
 LITERAL = re.compile(r'"((?:[^"\\]|\\.)*\\\((?:[^"\\]|\\.)*)"')

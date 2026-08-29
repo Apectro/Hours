@@ -150,10 +150,16 @@ struct DataSettingsScreen: View {
                 let archive = try BackupArchive.decoded(from: try Data(contentsOf: url))
                 pendingRestore = archive
             } catch {
-                message = "That file could not be read as a backup. \(error.localizedDescription)"
+                message = String(
+                    localized: "That file could not be read as a backup. \(error.localizedDescription)",
+                    comment: "Restore failed; the value is the system's own description"
+                )
             }
         case let .failure(error):
-            message = "The file could not be opened. \(error.localizedDescription)"
+            message = String(
+                localized: "The file could not be opened. \(error.localizedDescription)",
+                comment: "The file picker failed; the value is the system's own description"
+            )
         }
     }
 
@@ -184,7 +190,10 @@ struct DataSettingsScreen: View {
         var parts: [String] = []
         if !named.isEmpty {
             let shown = named.prefix(8).joined(separator: ", ")
-            parts.append(named.count > 8 ? "\(shown) and \(named.count - 8) more" : shown)
+            parts.append(named.count > 8 ? String(
+            localized: "\(shown) and \(named.count - 8) more",
+            comment: "A truncated list; the first value is the list so far"
+        ) : shown)
         }
         if unidentified > 0 {
             parts.append(String(inflected: "^[\(unidentified) day](inflect: true) with no readable date"))

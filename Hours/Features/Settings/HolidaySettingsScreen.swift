@@ -162,7 +162,10 @@ struct HolidayEditor: View {
                         DatePicker("Date", selection: onceDateBinding, displayedComponents: .date)
                     case .annual:
                         monthPicker
-                        Stepper("Day \(draft.recurrence.day)", value: $draft.recurrence.day, in: 1...31)
+                        Stepper(String(
+            localized: "Day \(draft.recurrence.day)",
+            comment: "Day of the month a holiday falls on"
+        ), value: $draft.recurrence.day, in: 1...31)
                     case .nthWeekday:
                         Picker("Which", selection: $draft.recurrence.ordinal) {
                             Text("First").tag(1)
@@ -185,12 +188,18 @@ struct HolidayEditor: View {
                         Toggle("Only for certain years", isOn: yearBoundsToggle)
                         if draft.recurrence.startYear != nil || draft.recurrence.endYear != nil {
                             Stepper(
-                                "From \(String(draft.recurrence.startYear ?? currentYear))",
+                                String(
+                localized: "From \(String(draft.recurrence.startYear ?? currentYear))",
+                comment: "First year a repeating holiday applies"
+            ),
                                 value: startYearBinding,
                                 in: 1900...2200
                             )
                             Stepper(
-                                "Through \(String(draft.recurrence.endYear ?? currentYear))",
+                                String(
+                localized: "Through \(String(draft.recurrence.endYear ?? currentYear))",
+                comment: "Last year a repeating holiday applies"
+            ),
                                 value: endYearBinding,
                                 in: 1900...2200
                             )

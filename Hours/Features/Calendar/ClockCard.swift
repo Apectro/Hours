@@ -72,7 +72,10 @@ struct ClockCard: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
                     .font(.headline)
-                Text("Started \(formatting.time(running.start, on: running.date))\(jobSuffix)")
+                Text(String(
+                    localized: "Started \(formatting.time(running.start, on: running.date))\(jobSuffix)",
+                    comment: "The running clock; the second value is an optional job name or empty"
+                ))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -103,7 +106,10 @@ struct ClockCard: View {
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Clocked in for \(ClockCard.spokenDuration(seconds))")
+        .accessibilityLabel(String(
+            localized: "Clocked in for \(ClockCard.spokenDuration(seconds))",
+            comment: "VoiceOver, how long the running clock has been going"
+        ))
     }
 
     /// `2:34:07` — seconds included, because a clock that does not tick does
@@ -115,10 +121,15 @@ struct ClockCard: View {
         return String(format: "%d:%02d:%02d", hours, minutes, remainder)
     }
 
+    /// Read out rather than shown, so it goes through the same inflection
+    /// the spoken intents use. The two literals it replaced concatenated
+    /// English and had no plural at all: one minute came out "1 minutes".
     static func spokenDuration(_ seconds: Int) -> String {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
-        if hours == 0 { return "\(minutes) minutes" }
-        return "\(hours) hours \(minutes) minutes"
+        if hours == 0 {
+            return String(inflected: "^[\(minutes) minute](inflect: true)")
+        }
+        return String(inflected: "^[\(hours) hour](inflect: true) ^[\(minutes) minute](inflect: true)")
     }
 }

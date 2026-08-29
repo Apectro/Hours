@@ -28,7 +28,10 @@ struct ReminderSettingsScreen: View {
 
                 Section {
                     Stepper(
-                        "Look back \(settings.reminders.lookBackDays) days",
+                        String(
+                localized: "Look back \(settings.reminders.lookBackDays) days",
+                comment: "How far back the gap reminder checks for missing hours"
+            ),
                         value: settingsStore.binding(\.reminders.lookBackDays),
                         in: 1...90
                     )

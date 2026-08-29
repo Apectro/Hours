@@ -90,7 +90,7 @@ struct RootView: View {
             holidays: repository.holidayRules()
         )
         let gaps = GapFinder.unrecordedWorkingDays(in: days, asOf: today)
-        let body = GapFinder.message(for: gaps, formatting: settingsStore.dateFormatting)
+        let body = GapMessage.text(for: gaps, formatting: settingsStore.dateFormatting)
 
         await scheduler.schedule(preferences: settings.reminders, body: body)
     }

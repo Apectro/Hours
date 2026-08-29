@@ -74,8 +74,14 @@ struct CumulativeBalanceCard: View {
     private var caption: String {
         let formatting = CalendarFormatting(locale: .current, calendar: calendar)
         if let start = settings.balanceStartDate {
-            return "Since \(formatting.mediumDate(start)), through \(formatting.mediumDate(through))."
+            return String(
+                localized: "Since \(formatting.mediumDate(start)), through \(formatting.mediumDate(through)).",
+                comment: "What span the running balance covers"
+            )
         }
-        return "Everything recorded through \(formatting.mediumDate(through))."
+        return String(
+                localized: "Everything recorded through \(formatting.mediumDate(through)).",
+                comment: "The running balance covers everything up to this date"
+            )
     }
 }

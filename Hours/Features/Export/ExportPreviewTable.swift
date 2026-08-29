@@ -29,7 +29,10 @@ struct ExportPreviewTable: View {
             }
             .padding(.horizontal, Metrics.large)
         }
-        .accessibilityLabel("Export preview, \(table.rows.count) rows")
+        .accessibilityLabel(String(
+            localized: "Export preview, \(table.rows.count) rows",
+            comment: "VoiceOver, the table showing what the file will contain"
+        ))
     }
 
     private var headerRow: some View {

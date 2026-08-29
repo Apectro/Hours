@@ -186,7 +186,10 @@ struct DayEditorForm: View {
     private func sectionTitle(at index: Int) -> String {
         guard draft.shifts.count > 1 else { return "Work" }
         guard settings.tracksMultipleJobs, index < draft.shifts.count else {
-            return "Block \(index + 1)"
+            return String(
+                localized: "Block \(index + 1)",
+                comment: "Heading for the second and later blocks of a split shift"
+            )
         }
         return settings.job(draft.shifts[index].jobID).name
     }
@@ -316,7 +319,10 @@ struct DayEditorForm: View {
             Text("Expected hours")
         } footer: {
             if draft.expectedOverrideMinutes == nil {
-                Text("From your weekly schedule for \(formatting.weekdayName(for: draft.date.weekday(in: calendar))).")
+                Text(String(
+                    localized: "From your weekly schedule for \(formatting.weekdayName(for: draft.date.weekday(in: calendar))).",
+                    comment: "Where the expected hours came from; the value is a weekday name"
+                ))
             }
         }
     }

@@ -144,7 +144,10 @@ struct JobEditor: View {
                         Section {
                             Button("Delete job", role: .destructive, action: delete)
                         } footer: {
-                            Text("Hours already recorded against this job stay, and count towards \(settingsStore.settings.primaryJob.name).")
+                            Text(String(
+                                localized: "Hours already recorded against this job stay, and count towards \(settingsStore.settings.primaryJob.name).",
+                                comment: "Deleting a job; the value is the name of the job they move to"
+                            ))
                         }
                     }
                 }

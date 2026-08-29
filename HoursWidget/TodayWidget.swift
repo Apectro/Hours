@@ -102,7 +102,10 @@ struct TodayWidgetView: View {
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
 
-            Text("of \(snapshot.formatting.string(snapshot.monthExpected(at: entry.date, calendar: calendar)))")
+            Text(String(
+                localized: "of \(snapshot.formatting.string(snapshot.monthExpected(at: entry.date, calendar: calendar)))",
+                comment: "Widget, the month's target beneath the hours worked so far"
+            ))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -174,7 +177,10 @@ struct TodayWidgetView: View {
             .lineLimit(1)
             .foregroundStyle(WidgetPalette.running)
         } else if hasData, snapshot.showsBalance {
-            Text("\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month")
+            Text(String(
+                localized: "\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month",
+                comment: "Widget, the month's balance so far"
+            ))
                 .font(.caption2)
                 .foregroundStyle(WidgetPalette.balance(snapshot.monthBalance(at: entry.date, calendar: calendar)))
                 .lineLimit(1)
@@ -215,7 +221,10 @@ struct TodayWidgetView: View {
                     Text(startedAt, style: .timer)
                         .font(.widgetFigure(.caption2, weight: .regular))
                 } else if snapshot.showsBalance {
-                    Text("\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month")
+                    Text(String(
+                        localized: "\(snapshot.formatting.signedString(snapshot.monthBalance(at: entry.date, calendar: calendar))) this month",
+                        comment: "Widget, the month's balance so far"
+                    ))
                         .font(.caption2)
                 }
             } else {

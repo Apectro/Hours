@@ -187,7 +187,11 @@ struct DayCell: View {
             // twelve who cannot tell this particular green from this red.
             if computation.balanceMinutes != 0 {
                 let magnitude = duration.string(abs(computation.balanceMinutes))
-                parts.append(computation.balanceMinutes > 0 ? "\(magnitude) over" : "\(magnitude) short")
+                parts.append(computation.balanceMinutes > 0
+                    ? String(localized: "\(magnitude) over",
+                             comment: "VoiceOver, a day worked longer than expected")
+                    : String(localized: "\(magnitude) short",
+                             comment: "VoiceOver, a day worked less than expected"))
             }
             if isMissingData { parts.append("no hours recorded") }
         }

@@ -33,6 +33,8 @@ enum UITerm: String, CaseIterable, Hashable, Sendable {
     case holidayOnce, holidayAnnual, holidayNthWeekday
     // Separators
     case separatorComma, separatorSemicolon, separatorTab, separatorPoint
+    // When a backup file will not open
+    case backupNotABackup, backupFromNewerVersion, backupUnreadable
     // Why a balance was adjusted by hand
     case adjustmentCorrectionExplained, adjustmentPayoutExplained,
     case adjustmentTimeOffExplained
@@ -178,6 +180,41 @@ extension ExportLanguage {
         case .separatorPoint:
             return pick(en: "Point", de: "Punkt", hr: "Točka", sl: "Pika", it: "Punto", fr: "Point",
                               es: "Punto", pt: "Ponto", nl: "Punt", pl: "Kropka")
+
+        // When a backup file will not open
+        case .backupNotABackup:
+            return pick(en: "This file is not a Zeitkonto backup.",
+                              de: "Diese Datei ist keine Zeitkonto-Sicherung.",
+                              hr: "Ova datoteka nije Zeitkonto sigurnosna kopija.",
+                              sl: "Ta datoteka ni varnostna kopija Zeitkonta.",
+                              it: "Questo file non è un backup di Zeitkonto.",
+                              fr: "Ce fichier n'est pas une sauvegarde Zeitkonto.",
+                              es: "Este archivo no es una copia de seguridad de Zeitkonto.",
+                              pt: "Este ficheiro não é uma cópia de segurança do Zeitkonto.",
+                              nl: "Dit bestand is geen Zeitkonto-back-up.",
+                              pl: "Ten plik nie jest kopią zapasową Zeitkonto.")
+        case .backupFromNewerVersion:
+            return pick(en: "This backup was made by a newer version of Zeitkonto (format %lld). Update Zeitkonto and try again.",
+                              de: "Diese Sicherung stammt aus einer neueren Version von Zeitkonto (Format %lld). Bitte Zeitkonto aktualisieren und erneut versuchen.",
+                              hr: "Ova je kopija napravljena novijom verzijom Zeitkonta (format %lld). Ažurirajte Zeitkonto i pokušajte ponovno.",
+                              sl: "Ta kopija je bila ustvarjena z novejšo različico Zeitkonta (format %lld). Posodobite Zeitkonto in poskusite znova.",
+                              it: "Questo backup è stato creato da una versione più recente di Zeitkonto (formato %lld). Aggiorna Zeitkonto e riprova.",
+                              fr: "Cette sauvegarde a été créée par une version plus récente de Zeitkonto (format %lld). Mettez Zeitkonto à jour et réessayez.",
+                              es: "Esta copia se creó con una versión más reciente de Zeitkonto (formato %lld). Actualiza Zeitkonto e inténtalo de nuevo.",
+                              pt: "Esta cópia foi criada por uma versão mais recente do Zeitkonto (formato %lld). Atualize o Zeitkonto e tente novamente.",
+                              nl: "Deze back-up is gemaakt met een nieuwere versie van Zeitkonto (formaat %lld). Werk Zeitkonto bij en probeer het opnieuw.",
+                              pl: "Ta kopia powstała w nowszej wersji Zeitkonto (format %lld). Zaktualizuj Zeitkonto i spróbuj ponownie.")
+        case .backupUnreadable:
+            return pick(en: "This backup is damaged: its %@ could not be read.",
+                              de: "Diese Sicherung ist beschädigt: %@ konnte nicht gelesen werden.",
+                              hr: "Ova je kopija oštećena: %@ nije bilo moguće pročitati.",
+                              sl: "Ta kopija je poškodovana: %@ ni bilo mogoče prebrati.",
+                              it: "Questo backup è danneggiato: non è stato possibile leggere %@.",
+                              fr: "Cette sauvegarde est endommagée : impossible de lire %@.",
+                              es: "Esta copia está dañada: no se pudo leer %@.",
+                              pt: "Esta cópia está danificada: não foi possível ler %@.",
+                              nl: "Deze back-up is beschadigd: %@ kon niet worden gelezen.",
+                              pl: "Ta kopia jest uszkodzona: nie udało się odczytać %@.")
 
         // Why a balance was adjusted by hand
         case .adjustmentCorrectionExplained:

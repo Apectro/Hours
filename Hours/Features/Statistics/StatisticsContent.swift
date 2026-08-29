@@ -112,12 +112,16 @@ struct StatisticsContent: View {
         guard summary.expectedMinutes > 0 else {
             return String(localized: "No expected hours set for this period")
         }
+        // Formatted before the lookup rather than inside it. A literal % next
+        // to a placeholder makes the catalogue key ambiguous — % or %% — and a
+        // key one character wrong returns the English and says nothing.
         let percent = Int((Double(summary.paidMinutes) / Double(summary.expectedMinutes) * 100).rounded())
+        let share = percent.formatted(.percent.scale(1))
         guard summary.creditedMinutes > 0 else {
-            return String(localized: "\(percent)% of expected")
+            return String(localized: "\(share) of expected")
         }
         let credited = duration.string(summary.creditedMinutes)
-        return String(localized: "\(percent)% of expected, including \(credited) paid absence")
+        return String(localized: "\(share) of expected, including \(credited) paid absence")
     }
 
     // MARK: - Breakdown

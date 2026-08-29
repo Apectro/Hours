@@ -87,10 +87,16 @@ struct BulkEditSheet: View {
                 Section("Result") {
                     LabeledContent("Days changed", value: "\(plan.affectedDayCount)")
                     if plan.skippedExisting > 0 {
-                        LabeledContent("Already recorded", value: "\(plan.skippedExisting) left alone")
+                        LabeledContent("Already recorded", value: String(
+                            localized: "\(plan.skippedExisting) left alone",
+                            comment: "Bulk edit, days that already had hours and were not touched"
+                        ))
                     }
                     if plan.skippedNonWorking > 0 {
-                        LabeledContent("Not working days", value: "\(plan.skippedNonWorking) skipped")
+                        LabeledContent("Not working days", value: String(
+                            localized: "\(plan.skippedNonWorking) skipped",
+                            comment: "Bulk edit, days the schedule does not work"
+                        ))
                     }
                 }
 

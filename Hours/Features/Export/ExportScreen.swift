@@ -126,7 +126,10 @@ struct ExportScreen: View {
                 ExportPreviewTable(table: previewTable, rowLimit: 12)
                     .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
                 if previewTable.rows.count > 12 {
-                    Text("Showing the first 12 of \(previewTable.rows.count) rows.")
+                    Text(String(
+                            localized: "Showing the first 12 of \(previewTable.rows.count) rows.",
+                            comment: "Under the export preview when the range is longer than the preview"
+                        ))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -167,7 +170,10 @@ struct ExportScreen: View {
                 .proLock(true)
             } else if let fileURL {
                 ShareLink(item: fileURL) {
-                    Label("Share \(fileURL.lastPathComponent)", systemImage: "square.and.arrow.up")
+                    Label(String(
+                    localized: "Share \(fileURL.lastPathComponent)",
+                    comment: "The share button; the value is a file name"
+                ), systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(previewTable?.isEmpty ?? true)
@@ -222,7 +228,10 @@ struct ExportScreen: View {
 
     private var entryCountText: String {
         let count = previewTable?.rows.filter(\.hasEntry).count ?? 0
-        return "\(count) with hours recorded"
+        return String(
+            localized: "\(count) with hours recorded",
+            comment: "How many days in the range actually have hours on them"
+        )
     }
 
     /// The language the file is written in. The preview on screen is the
@@ -358,7 +367,10 @@ struct ExportScreen: View {
             failureMessage = nil
         } catch {
             fileURL = nil
-            failureMessage = "The file could not be prepared. \(error.localizedDescription)"
+            failureMessage = String(
+                localized: "The file could not be prepared. \(error.localizedDescription)",
+                comment: "Export failed; the value is the system's own description"
+            )
         }
     }
 

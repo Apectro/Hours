@@ -30,7 +30,10 @@ struct DayResultHeader: View {
 
             if computation.creditedMinutes > 0 {
                 Label(
-                    "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.name.lowercased())",
+                    String(
+                        localized: "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.name.lowercased())",
+                        comment: "e.g. 8h 00m credited as paid vacation; the second value is a day type"
+                    ),
                     systemImage: "checkmark.seal"
                 )
                 .font(.footnote)
@@ -72,7 +75,10 @@ struct OptionalTimeRow: View {
                         .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Clear \(title.lowercased())")
+                .accessibilityLabel(String(
+                    localized: "Clear \(title.lowercased())",
+                    comment: "VoiceOver, the button that empties a field named by the value"
+                ))
             }
         } else {
             HStack {
@@ -158,7 +164,10 @@ struct DayTypeMenu: View {
                 Spacer(minLength: Metrics.small)
                 Image(systemName: resolved.symbolName)
                     .foregroundStyle(resolved.tint.color)
-                Text(selection == nil ? "\(resolved.name) · automatic" : resolved.name)
+                Text(selection == nil
+                    ? String(localized: "\(resolved.name) · automatic",
+                             comment: "A day type the app chose rather than the user")
+                    : resolved.name)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down")
