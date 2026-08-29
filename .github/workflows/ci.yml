@@ -94,6 +94,12 @@ jobs:
       - name: Every writing path carries the month lock
         run: python3 Scripts/check-repository-lock.py
 
+      # The listing states each field's limit and nothing was enforcing them,
+      # so the description reached 5,025 characters against a 4,000 cap — the
+      # kind of thing you discover with the App Store Connect form open.
+      - name: The App Store listing fits its own limits
+        run: python3 Scripts/check-listing-limits.py
+
       - name: The catalogues are what the generator writes
         run: |
           python3 Scripts/build-catalog.py

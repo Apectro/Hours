@@ -60,99 +60,94 @@ tapping "more".*
 Zeitkonto is a work-hours calendar that keeps your hours on your phone.
 
 No account. No sign-up. No server. Nothing about you is collected, and
-nothing leaves the device unless you export it or switch on iCloud sync —
+nothing leaves the device unless you export it or switch on iCloud sync,
 which puts your data in your own iCloud and nowhere else.
 
 A CALENDAR FIRST
 
-The main screen is a month, colour-washed by day type, with your totals for
-the period underneath. Tap a day to see it, tap again to edit it. A working
-day in the past with nothing recorded gets a quiet dashed outline, so gaps
-are obvious when you scan a month rather than something you find out about
-at the end of it.
+The main screen is a month, colour-washed by day type, totals underneath.
+Tap a day to see it, tap again to edit it. A past working day with nothing
+on it gets a quiet dashed outline, so you spot the gap while scanning rather
+than on the last day of the month.
 
 HOURS THE WAY YOURS ACTUALLY WORK
 
-• Start and end times, or a figure you type — whichever suits you
-• An end time before the start is an overnight shift, and is measured as one
+• Start and end times, or a figure you type
+• An end before the start is an overnight shift, and is measured as one
 • Breaks as a length or as clock times, several a day if you need them
-• Split shifts: a morning and an evening are two blocks, and the gap between
-  them is neither worked nor a break
-• A contracted week set per weekday, not one number for all of them — a
-  6/6/6/6/8 week and a four-day week are ordinary, not special cases
-• A weekly target that overrides the days, for a contract stating 37½ hours
+• Split shifts, where the gap between two blocks is neither worked nor break
+• A contracted week per weekday: 6/6/6/6/8 and four-day weeks are ordinary
+• A weekly target overriding the days, for a contract stating 37½ hours
 • More than one job, each with its own contracted week
 • Vacation, sick leave, public holidays, days off — and your own day types
-• A manual adjustment that moves your balance without inventing hours
 • Overtime paid out, recorded as a payout rather than a mystery correction
+• Every field behind a switch — what you switch off disappears rather than
+  sitting greyed out
+
+THE YEAR, AND THE ACCOUNT IT KEEPS
+
+A Zeitkonto has a year boundary. Close a year and the figure it carried is
+fixed, so a correction two years later cannot move what was already agreed.
+Cap the carry-over if your contract does — paid out or forfeited above it. A
+shortfall always carries in full; forgiving one would invent hours nobody
+worked.
+
+A month already handed to payroll can be closed to editing, refusing changes
+from the day editor, a bulk edit, the clock and Siri alike. Reopening it is
+one swipe.
 
 THE BALANCE IS ONE LINE
 
 worked + credited − expected + adjustment
 
-Every day type carries a policy saying how it counts, so the same line is
-right in every case. Eight hours on an eight-hour day is zero. Vacation on a
-Tuesday is zero — the day is credited against what it expected. Vacation on
-a Saturday is zero, because nothing was expected. Two hours on a public
-holiday is plus two.
+Every day type carries a policy saying how it counts, so the line is right
+in every case. Vacation on a Tuesday is zero, credited against what the day
+expected; on a Saturday it is zero too, because nothing was expected.
 
-Worked time and paid absence are always reported separately, so a month
-reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather
-than quietly inflating hours nobody worked.
+Worked time and paid absence are reported separately, so a month reads
+"worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather than
+quietly inflating hours nobody worked.
 
 INSIGHTS
 
 Today, this week, this month, this year: worked, expected, balance,
-averages, day counts, and a running balance that is recomputed from your
-days every time rather than stored — so correcting a day from three years
-ago corrects everything after it.
-
-Totals for a period still in progress stop at today, so the days still to
-come this month do not read as a growing deficit.
+averages, day counts, and a running balance recomputed from your days rather
+than stored — so correcting a day from three years ago corrects everything
+after it. A period still in progress stops at today, so days yet to come do
+not read as a growing deficit.
 
 TIMESHEETS
 
-Export a day, a week, a month, a year or any range you choose, as CSV, Excel
-or PDF. Columns are yours to pick and reorder, and you see the exact table
-before you share it.
-
-EVERYTHING IS A SETTING
-
-Breaks, notes, locations, tags, overtime, holidays, the clock, the weekend —
-every field is behind a switch, and anything you switch off disappears
-rather than sitting greyed out. An app for recording eight hours a day
-should not make you scroll past nine fields you never use.
+Export a day, a week, a month, a year or any range, as CSV, Excel or PDF.
+Columns are yours to pick and reorder, and the preview is the file. The
+sheet's language is its own setting, because whoever reads a timesheet is
+often not whoever filled it in.
 
 BUILT NOT TO LOSE YOUR DATA
 
-Days are stored as dates and times, never as timestamps, so crossing a time
-zone or a daylight-saving change cannot move or reshape what you recorded.
-The one thing that genuinely needs an answer on a clock-change day — how
-long the shift lasted — is a setting: wall clock, or actual elapsed time.
+Days are stored as dates, never timestamps, so crossing a time zone or a
+clock change cannot reshape what you recorded. The one question a
+clock-change day raises — eight hours or nine — is a setting.
 
-Backup and restore writes plain, readable JSON containing every day you have
-ever entered. It is a file you keep, not a service you trust.
+Backup and restore writes plain, readable JSON holding every day you entered:
+a file you keep, not a service you trust.
 
 WIDGETS AND SHORTCUTS
 
-Today's hours and this month's balance on the Home Screen and the Lock
-Screen. Siri and the Shortcuts app can start and stop the clock.
+Today's hours and this month's balance on the Home Screen and Lock Screen.
+Siri and Shortcuts can start and stop the clock.
 
-HOURS PRO
+ZEITKONTO PRO
 
 Recording your hours is free and stays free: the calendar, the day editor,
-breaks, overtime, the balance, reminders, and the backup file that holds
-everything you ever entered. Nothing you have recorded is ever held behind a
-payment — if a subscription lapses, every figure is still there and the
-backup still writes.
+breaks, overtime, the balance, reminders, and the backup holding everything
+you entered. Nothing recorded is held behind a payment — if a subscription
+lapses, every figure is still there and the backup still writes.
 
-What is paid for is producing and creating: timesheets as CSV, Excel or PDF;
-the widgets; a second job; editing a range in one pass; and iCloud sync.
-Monthly, yearly, or bought outright once — an app with no server behind it
-should not only be rentable.
-
-There is no account and no login. A purchase belongs to your Apple Account,
-so it is already on your other devices.
+What is paid for is producing: timesheets as CSV, Excel or PDF; widgets; a
+second job; editing a range in one pass; iCloud sync. Monthly, yearly, or
+bought outright once — an app with no server behind it should not only be
+rentable. No account, no login; a purchase belongs to your Apple Account.
 ```
 
 ## Keywords

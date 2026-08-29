@@ -200,6 +200,21 @@ final class ExportCaptureTests: XCTestCase {
             workbook.lifetime = .keepAlways
             add(workbook)
 
+            // The CSV too. It was captured once, in English, and it is the
+            // format most likely to be opened in a spreadsheet whose own
+            // locale disagrees with the file — which is exactly where a
+            // delimiter and a decimal separator stop being cosmetic.
+            let csv = XCTAttachment(
+                data: CSVExporter.data(
+                    for: table,
+                    preferences: ExportPreferences(language: language)
+                ),
+                uniformTypeIdentifier: "public.comma-separated-values-text"
+            )
+            csv.name = "13-export-csv-\(name).csv"
+            csv.lifetime = .keepAlways
+            add(csv)
+
             print("\(name) header          -> \(table.headerTitles().joined(separator: " | "))")
         }
     }
