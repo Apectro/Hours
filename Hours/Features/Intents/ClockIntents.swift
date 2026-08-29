@@ -17,18 +17,23 @@ struct ClockInIntent: AppIntent {
         let formatting = HoursStack.settings.dateFormatting
 
         if let already = clock.running {
-            return .result(dialog: IntentDialog(
-                "You were already clocked in at \(formatting.time(already.start, on: already.date))."
-            ))
+            return .result(dialog: IntentDialog(stringLiteral: String(
+                localized: "You were already clocked in at \(formatting.time(already.start, on: already.date)).",
+                comment: "Siri, asked to clock in when the clock was already running"
+            )))
         }
 
         guard let started = clock.clockIn() else {
-            return .result(dialog: IntentDialog("The clock could not be started."))
+            return .result(dialog: IntentDialog(stringLiteral: String(
+                localized: "The clock could not be started.",
+                comment: "Siri, when clocking in failed"
+            )))
         }
         HoursStack.refreshWidget()
-        return .result(dialog: IntentDialog(
-            "Clocked in at \(formatting.time(started.start, on: started.date))."
-        ))
+        return .result(dialog: IntentDialog(stringLiteral: String(
+            localized: "Clocked in at \(formatting.time(started.start, on: started.date)).",
+            comment: "Siri, confirming the clock started"
+        )))
     }
 }
 
@@ -46,18 +51,23 @@ struct ClockOutIntent: AppIntent {
 
         switch clock.clockOut() {
         case .nothingRunning:
-            return .result(dialog: IntentDialog("You are not clocked in."))
+            return .result(dialog: IntentDialog(stringLiteral: String(
+                localized: "You are not clocked in.",
+                comment: "Siri, asked to clock out with no clock running"
+            )))
         case let .recorded(date, workedMinutes, wasCapped):
             HoursStack.refreshWidget()
             let formatting = HoursStack.settings.dateFormatting
             if wasCapped {
-                return .result(dialog: IntentDialog(
-                    "Clocked out. That shift had been running over a day, so \(formatting.fullDate(date)) was capped — worth checking."
-                ))
+                return .result(dialog: IntentDialog(stringLiteral: String(
+                    localized: "Clocked out. That shift had been running over a day, so \(formatting.fullDate(date)) was capped — worth checking.",
+                    comment: "Siri, when a forgotten clock ran past a full day"
+                )))
             }
-            return .result(dialog: IntentDialog(
-                "Clocked out. \(SpokenDuration.string(workedMinutes)) recorded for \(formatting.fullDate(date))."
-            ))
+            return .result(dialog: IntentDialog(stringLiteral: String(
+                localized: "Clocked out. \(SpokenDuration.string(workedMinutes)) recorded for \(formatting.fullDate(date)).",
+                comment: "Siri, confirming the clock stopped and what it recorded"
+            )))
         }
     }
 }
@@ -80,7 +90,10 @@ struct HoursStatusIntent: AppIntent {
 
         if let running = HoursStack.clock.running {
             let minutes = running.elapsedMinutes(at: Date())
-            sentences.append("You have been clocked in for \(SpokenDuration.string(minutes)).")
+            sentences.append(String(
+                localized: "You have been clocked in for \(SpokenDuration.string(minutes)).",
+                comment: "Siri status, while the clock is running"
+            ))
         }
 
         let range = today.yearMonth.range(in: calendar)
@@ -92,16 +105,28 @@ struct HoursStatusIntent: AppIntent {
             countingThrough: today
         )
 
-        sentences.append("This month you have worked \(SpokenDuration.string(summary.workedMinutes)).")
+        sentences.append(String(
+            localized: "This month you have worked \(SpokenDuration.string(summary.workedMinutes)).",
+            comment: "Siri status, the month's total"
+        ))
 
         if settings.features.showsBalance {
             let balance = summary.balanceMinutes
             if balance == 0 {
-                sentences.append("You are exactly on target.")
+                sentences.append(String(
+                    localized: "You are exactly on target.",
+                    comment: "Siri status, a balance of exactly zero"
+                ))
             } else if balance > 0 {
-                sentences.append("You are \(SpokenDuration.string(balance)) ahead.")
+                sentences.append(String(
+                    localized: "You are \(SpokenDuration.string(balance)) ahead.",
+                    comment: "Siri status, a balance in credit"
+                ))
             } else {
-                sentences.append("You are \(SpokenDuration.string(-balance)) behind.")
+                sentences.append(String(
+                    localized: "You are \(SpokenDuration.string(-balance)) behind.",
+                    comment: "Siri status, a balance in deficit"
+                ))
             }
         }
 

@@ -39,6 +39,9 @@ let package = Package(
                 "PersistenceCodingTests.swift",
                 // The Apple-only handful that used to keep whole files off
                 // this job. See StorageBridgeTests for what moved and why.
+                // Same reason as InflectionTests: what it asserts is what the
+                // app bundle holds, and there is no app bundle here.
+                "SpokenLocalizationTests.swift",
                 "StorageBridgeTests.swift",
                 "SubscriptionStoreTests.swift",
                 "TimeClockTests.swift",
