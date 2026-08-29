@@ -109,6 +109,36 @@ if (!existsSync(join(docs, "privacy", "index.html"))) {
 }
 
 /*
+ * The German policy is not a nicety. The German page links to it, and a German
+ * page whose privacy link opens English is the half-translated state the
+ * second language exists to prevent — on the one page where a reader is
+ * entitled to their own language.
+ *
+ * Both are checked for the sections rather than merely for existing: a policy
+ * missing a heading is a legal gap, not a formatting one, and the German page
+ * is generated from the English by substitution precisely so the two cannot
+ * drift. This is what says they have not.
+ */
+const policies = [
+  ["docs/privacy/index.html", join(docs, "privacy", "index.html")],
+  ["docs/privacy/de/index.html", join(docs, "privacy", "de", "index.html")],
+];
+const headingCounts = [];
+for (const [name, path] of policies) {
+  if (!existsSync(path)) {
+    problems.push(`${name} has gone — the German page links it`);
+    continue;
+  }
+  headingCounts.push([name, (readFileSync(path, "utf8").match(/<h2[\s>]/g) ?? []).length]);
+}
+if (headingCounts.length === 2 && headingCounts[0][1] !== headingCounts[1][1]) {
+  problems.push(
+    `the policies have drifted: ${headingCounts[0][0]} has ${headingCounts[0][1]} sections, ` +
+      `${headingCounts[1][0]} has ${headingCounts[1][1]}`,
+  );
+}
+
+/*
  * Without CNAME, Pages drops the custom domain and serves the site back at
  * apectro.github.io/Hours/ — where every rooted asset path 404s, so the page
  * would come up unstyled rather than not at all.

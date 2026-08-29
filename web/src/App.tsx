@@ -14,8 +14,13 @@ import { hasGermanShots } from "./content";
 const SHOTS = language === "de" && hasGermanShots ? "/shots/de" : "/shots";
 
 const REPO = "https://github.com/Apectro/Hours";
-// Absolute: the German page sits at /de/, and one privacy policy serves both.
-const PRIVACY = "/privacy/";
+// Absolute, because the German page sits at /de/ and a relative link from
+// there would resolve to /de/privacy/. One policy per language now: a German
+// page linking an English privacy policy is the half-translated state the
+// whole site exists to avoid, and this is the page where it matters most.
+// The English URL stays at /privacy/ — that is the one App Store Connect
+// holds, and it must not move.
+const PRIVACY = language === "de" ? "/privacy/de/" : "/privacy/";
 
 /**
  * One screenshot, at the several widths scripts/images.mjs writes. `sizes` has

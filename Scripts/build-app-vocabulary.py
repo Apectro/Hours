@@ -316,16 +316,18 @@ def wrap_args(case: str, words: dict) -> str:
 
 
 def wrap_cases(names: list) -> str:
-    """`case a, b, c` broken across lines rather than one long one."""
-    lines, current = [], "    case "
-    for i, n in enumerate(names):
-        piece = n + ("," if i < len(names) - 1 else "")
-        if len(current) + len(piece) > 88 and current.strip() != "case":
-            lines.append(current.rstrip())
-            current = "    case "
-        current += piece + " "
-    lines.append(current.rstrip())
-    return "\n".join(lines)
+    """One `case` per line.
+
+    The first version packed several onto a line and broke long ones across
+    two, repeating `case` on the continuation — which produces
+
+        case adjustmentCorrectionExplained, adjustmentPayoutExplained,
+        case adjustmentTimeOffExplained
+
+    and does not compile. A generator has no reason to be clever about width
+    when one declaration per line cannot be got wrong.
+    """
+    return "\n".join(f"    case {name}" for name in names)
 
 
 cases = [c for _, entries in SECTIONS for c, _ in entries]

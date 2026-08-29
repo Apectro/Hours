@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datenschutzerklärung — Zeitkonto</title>
+<meta name="description" content="Zeitkonto erhebt nichts. Kein Konto, kein Server, keine Analyse. Das ist die ganze Erklärung.">
+<meta name="theme-color" content="#1b5b8e">
+<link rel="icon" href="../../icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Courier+Prime:wght@400;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /*
+    Hand-written, and deliberately standalone: this page has to keep resolving
+    at /privacy/de/ even if the site around it is rebuilt or replaced, so it
+    carries its own copy of the tokens rather than linking the built stylesheet.
+    They are the same tokens; if the site's palette moves, move these with it.
+  */
+  :root {
+    --ink: #191c19;
+    --ink-soft: #474e48;
+    --ink-faint: #5f665f;
+    --paper: #fbfaf7;
+    --ground: #e9ece4;
+    --rule: #c6ccc0;
+    --rule-faint: #dbdfd5;
+    --accent: #1b5b8e;
+    --on-accent: #ffffff;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --type: "Courier Prime", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e8eae4;
+      --ink-soft: #adb4ac;
+      --ink-faint: #98a097;
+      --paper: #1b1e1c;
+      --ground: #121412;
+      --rule: #343a35;
+      --rule-faint: #262a27;
+      --accent: #8fbde8;
+      --on-accent: #10161b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8eae4;
+    --ink-soft: #adb4ac;
+    --ink-faint: #98a097;
+    --paper: #1b1e1c;
+    --ground: #121412;
+    --rule: #343a35;
+    --rule-faint: #262a27;
+    --accent: #8fbde8;
+    --on-accent: #10161b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+  :where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 20;
+    background: var(--accent); color: var(--on-accent);
+    padding: 12px 18px; font-weight: 600; text-decoration: none;
+  }
+  .skip:focus { left: 12px; top: 12px; }
+
+  /* The same masthead as the site, so arriving here from the footer does not
+     feel like landing on a different website with no way back. */
+  .masthead {
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 13px clamp(20px, 5vw, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .wordmark {
+    display: inline-flex; align-items: center; gap: 11px;
+    font-family: var(--display); font-weight: 800;
+    font-variation-settings: "opsz" 24;
+    font-size: 21px; letter-spacing: -0.02em;
+    color: var(--ink); text-decoration: none;
+  }
+  .mark {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    background: var(--accent); color: var(--on-accent);
+    border-radius: 5px; font-size: 17px;
+  }
+  .masthead a.back { font-size: 15px; color: var(--ink-soft); text-decoration: none; }
+  .masthead a.back:hover { color: var(--ink); text-decoration: underline; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(38px, 6vw, 66px) clamp(20px, 5vw, 44px) 0;
+    background: var(--paper);
+  }
+
+  h1 {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(32px, 4.6vw, 44px);
+    font-variation-settings: "opsz" 48;
+    letter-spacing: -0.026em; line-height: 1.08;
+    margin: 0;
+  }
+
+  h2 {
+    font-family: var(--display); font-weight: 700;
+    font-size: 21px; font-variation-settings: "opsz" 24;
+    letter-spacing: -0.015em;
+    margin: 40px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule-faint);
+  }
+
+  p { margin: 12px 0 0; }
+  p, li { color: var(--ink-soft); }
+  strong { color: var(--ink); }
+
+  .updated {
+    font-family: var(--type);
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+
+  /* The summary, ruled off the way the site rules off its balance line. */
+  .lede {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 2px solid var(--ink);
+    font-size: 18.5px;
+  }
+
+  ul { margin: 12px 0 0; padding-left: 0; list-style: none; }
+  li { padding: 9px 0; border-bottom: 1px solid var(--rule-faint); }
+  li:last-child { border-bottom: 0; }
+
+  main > footer {
+    margin-top: 46px;
+    padding: 20px 0 clamp(38px, 6vw, 60px);
+    border-top: 1px solid var(--rule);
+    font-size: 15px;
+    color: var(--ink-faint);
+  }
+  main > footer p:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+<a class="skip" href="#policy">Zur Erklärung springen</a>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="../../de/"><span class="mark" aria-hidden="true">z</span>Zeitkonto</a>
+    <a class="back" href="../../de/">Zurück zur Website</a>
+  </div>
+</header>
+
+<main id="policy">
+
+  <h1>Datenschutzerklärung</h1>
+  <p class="updated">Zeitkonto für iOS · zuletzt aktualisiert am 26. August 2026</p>
+
+  <div class="lede">
+    <p><strong>Zeitkonto erhebt keinerlei Daten über Sie.</strong> Es gibt kein Konto, keine Anmeldung und keinen von uns betriebenen Server. Ihre Stunden werden auf Ihrem Gerät gespeichert. Nichts wird irgendwohin gesendet, sofern Sie es nicht bewusst senden — durch den Export einer Datei oder durch das Einschalten der iCloud-Synchronisierung, die Ihre Daten in <em>Ihrem eigenen</em> iCloud-Konto ablegt und sonst nirgends.</p>
+    <p>Diese Erklärung ist kurz, weil es sehr wenig zu beschreiben gibt.</p>
+  </div>
+
+  <h2>Was Zeitkonto speichert und wo</h2>
+  <p>Alles, was Sie erfassen — Tage, Stunden, Schichten, Pausen, Notizen, Tags, Tagesarten, Feiertage und Ihre Einstellungen — wird in eine private Datenbank innerhalb der App auf Ihrem Gerät geschrieben. Andere Apps können sie nicht lesen, und sie ist in Ihrer Gerätesicherung enthalten, falls Sie eine anlegen.</p>
+  <p>Zeitkonto hat keinen Server. Wir können Ihre Daten nicht einsehen und könnten sie auf Anfrage auch nicht für Sie wiederherstellen.</p>
+
+  <h2>iCloud-Synchronisierung (optional, standardmäßig aus)</h2>
+  <p>Wenn Sie die Synchronisierung unter Einstellungen › iCloud einschalten, werden Ihre Tage, Feiertage und Einstellungen in <strong>Ihrem eigenen privaten iCloud-Speicher</strong> unter Ihrem Apple-Account abgelegt. Nur Geräte, die als Sie angemeldet sind, können sie lesen. Es ist Apples Dienst, es gilt Apples Datenschutzerklärung, und kein Dritter — auch wir nicht — hat Zugriff darauf.</p>
+  <p>Die Synchronisierung ist aus, bis Sie sie einschalten, und Sie können sie jederzeit wieder ausschalten.</p>
+  <p><strong>Synchronisierung ist keine Sicherung.</strong> Ein Tag, den Sie löschen, wird auf jedem Gerät gelöscht.</p>
+
+  <h2>Was wir nicht tun</h2>
+  <ul>
+    <li><strong>Keine Analyse.</strong> Zeitkonto enthält keinerlei Analyse- oder Telemetriefunktionen. Wir wissen nicht, wann oder ob Sie die App öffnen.</li>
+    <li><strong>Kein Tracking.</strong> Nichts über Sie wird mit Daten aus anderen Apps oder von Websites zusammengeführt, weder für Werbung noch zu einem anderen Zweck.</li>
+    <li><strong>Kein Fremdcode.</strong> Die App enthält keine Werbenetzwerke, keine Absturzberichte und keine SDKs von Dritten.</li>
+    <li><strong>Keine Konten.</strong> Es gibt nichts zu registrieren und kein Passwort anzulegen.</li>
+    <li><strong>Kein Verkauf, keine Weitergabe.</strong> Wir haben keine Daten über Sie, also gibt es nichts zu verkaufen oder weiterzugeben.</li>
+  </ul>
+
+  <h2>Standort</h2>
+  <p>Zeitkonto hat pro Tag ein optionales Ortsfeld. Es ist ein Text, den Sie selbst eingeben — ein Baustellenname, ein Büro, ein Kunde. <strong>Die App fragt Ihr Gerät nie, wo Sie sind</strong>, und hat keine Standortberechtigung.</p>
+
+  <h2>Mitteilungen</h2>
+  <p>Wenn Sie die Erinnerung in den Einstellungen einschalten, plant Zeitkonto eine lokale Mitteilung auf Ihrem Gerät, um Sie auf Tage ohne Eintrag hinzuweisen. Sie wird vollständig auf dem Gerät geplant und zugestellt; keine Mitteilung läuft über einen Server, und die App fragt das System erst dann um Erlaubnis, wenn Sie die Erinnerung einschalten.</p>
+
+  <h2>Käufe</h2>
+  <p>Zeitkonto Pro wird über den App Store verkauft. Die Zahlung wickelt vollständig Apple ab, genau wie bei jedem anderen Kauf auf Ihrem Telefon. Zeitkonto erfährt dafür genau eines: ob bezahlt wurde. <strong>Die App sieht nie Ihren Namen, Ihre E-Mail-Adresse oder Ihre Zahlungsdaten.</strong> Es ist kein Konto anzulegen, denn ein Kauf gehört zu Ihrem Apple-Account.</p>
+
+  <h2>Exporte und Sicherungen</h2>
+  <p>Wenn Sie einen Stundenzettel als CSV, Excel oder PDF exportieren oder eine Sicherungsdatei schreiben, wird die Datei auf Ihrem Gerät erstellt und an das System-Teilen-Menü übergeben. <strong>Wohin sie geht, entscheiden Sie</strong> — eine Datei auf dem Gerät, iCloud Drive, eine Nachricht, eine E-Mail. Zeitkonto lädt sie nirgendwohin hoch und weiß nicht, wohin Sie sie senden.</p>
+
+  <h2>Kinder</h2>
+  <p>Zeitkonto erhebt von niemandem personenbezogene Daten, unabhängig vom Alter.</p>
+
+  <h2>Ihre Rechte</h2>
+  <p>Rechte wie Auskunft, Berichtigung, Datenübertragbarkeit und Löschung setzen sonst voraus, dass man ein Unternehmen um eine Kopie des Gespeicherten bittet. Das entfällt hier, weil wir nichts speichern. Praktisch bedeutet das:</p>
+  <ul>
+    <li><strong>Auskunft und Übertragbarkeit</strong> — Einstellungen › Sicherung und Daten schreibt eine einfache, lesbare JSON-Datei mit allem, was die App enthält.</li>
+    <li><strong>Berichtigung</strong> — jeder Wert lässt sich in der App bearbeiten.</li>
+    <li><strong>Löschung</strong> — das Löschen der App entfernt ihre lokale Datenbank. Wenn Sie die iCloud-Synchronisierung genutzt haben, können Sie die Daten der App zusätzlich in der System-App „Einstellungen“ unter Ihrem Namen › iCloud aus Ihrem Apple-Account entfernen.</li>
+  </ul>
+
+  <h2>Änderungen an dieser Erklärung</h2>
+  <p>Wenn sich diese Erklärung ändert, wird die aktualisierte Fassung unter dieser Adresse mit neuem Datum oben veröffentlicht. Da die App nichts erhebt, dürfte jede Änderung eher eine Klarstellung sein als eine Änderung dessen, was mit Ihren Daten geschieht.</p>
+
+  <h2>Kontakt</h2>
+  <p>Fragen zum Datenschutz in Zeitkonto richten Sie bitte an <a href="mailto:REPLACE-WITH-YOUR-CONTACT-EMAIL">REPLACE-WITH-YOUR-CONTACT-EMAIL</a>.</p>
+
+  <footer>
+    <p>Zeitkonto ist ein privater Arbeitszeitkalender für iOS. Diese Erklärung gilt nur für die iOS-App.</p>
+  </footer>
+
+</main>
+</body>
+</html>

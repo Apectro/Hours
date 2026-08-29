@@ -62,5 +62,8 @@ writeFileSync(join(docs, ".nojekyll"), "");
 if (!existsSync(join(docs, "privacy", "index.html"))) {
   throw new Error("docs/privacy/index.html is gone — that URL is in App Store Connect");
 }
+if (!existsSync(join(docs, "privacy", "de", "index.html"))) {
+  throw new Error("docs/privacy/de/index.html is gone — the German page links it");
+}
 
 console.log(`Published into docs/ (cleared ${removed.length}, kept ${[...KEEP].join(", ")})`);

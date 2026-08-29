@@ -20,28 +20,56 @@ import Foundation
 /// is exactly how "Expected" and "Fields" once reached a German screenshot.
 enum UITerm: String, CaseIterable, Hashable, Sendable {
     // How a day's length is measured
-    case wallClock, elapsedReal, wallClockExplained, elapsedRealExplained
+    case wallClock
+    case elapsedReal
+    case wallClockExplained
+    case elapsedRealExplained
     // Rounding
-    case roundingExact, roundingFiveMinutes, roundingQuarterHour
+    case roundingExact
+    case roundingFiveMinutes
+    case roundingQuarterHour
     // Appearance
-    case appearanceSystem, appearanceLight, appearanceDark
+    case appearanceSystem
+    case appearanceLight
+    case appearanceDark
     // What a calendar cell shows
-    case badgeNothing, badgeWorkedHours, badgeBalance
+    case badgeNothing
+    case badgeWorkedHours
+    case badgeBalance
     // Periods
-    case periodDay, periodWeek, periodMonth, periodYear, periodCustom
+    case periodDay
+    case periodWeek
+    case periodMonth
+    case periodYear
+    case periodCustom
     // How a holiday repeats
-    case holidayOnce, holidayAnnual, holidayNthWeekday
+    case holidayOnce
+    case holidayAnnual
+    case holidayNthWeekday
     // Separators
-    case separatorComma, separatorSemicolon, separatorTab, separatorPoint
+    case separatorComma
+    case separatorSemicolon
+    case separatorTab
+    case separatorPoint
     // When a backup file will not open
-    case backupNotABackup, backupFromNewerVersion, backupUnreadable
+    case backupNotABackup
+    case backupFromNewerVersion
+    case backupUnreadable
     // Why a balance was adjusted by hand
-    case adjustmentCorrectionExplained, adjustmentPayoutExplained,
+    case adjustmentCorrectionExplained
+    case adjustmentPayoutExplained
     case adjustmentTimeOffExplained
     // What Pro unlocks
-    case proTimesheets, proWidgets, proMultipleJobs, proRangeEditing, proICloudSync,
-    case proTimesheetsExplained, proWidgetsExplained, proMultipleJobsExplained,
-    case proRangeEditingExplained, proICloudSyncExplained
+    case proTimesheets
+    case proWidgets
+    case proMultipleJobs
+    case proRangeEditing
+    case proICloudSync
+    case proTimesheetsExplained
+    case proWidgetsExplained
+    case proMultipleJobsExplained
+    case proRangeEditingExplained
+    case proICloudSyncExplained
 }
 
 extension ExportLanguage {
