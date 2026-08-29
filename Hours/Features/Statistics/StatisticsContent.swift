@@ -209,10 +209,22 @@ struct StatisticsContent: View {
     }
 
     private var monthlyPoints: [MonthlyBalancePoint] {
-        BalanceLedger.monthlySeries(
+        // The carried figure only, not the whole origin.
+        //
+        // This chart has always started from zero rather than from the opening
+        // balance — it shows the shape of a period, not an all-time total —
+        // and that is a separate decision from carry-over, so it stays. What
+        // changes is that a closed year now hands its carried amount to the
+        // months that follow it, which is the one thing that would otherwise
+        // make the chart's last point and the running balance beside it
+        // disagree by exactly the carried amount, both looking plausible.
+        let carriedIn = days.first.flatMap { first in
+            CarryOver.latest(in: settings.yearCloses.filter { $0.year < first.date.year })
+        }
+        return BalanceLedger.monthlySeries(
             over: days,
-            openingMinutes: 0,
-            startDate: settings.balanceStartDate,
+            openingMinutes: carriedIn?.carriedMinutes ?? 0,
+            startDate: settings.balanceOrigin(for: days.first?.date ?? CalendarDate.today(in: calendar)).startDate,
             countingThrough: CalendarDate.today(in: calendar)
         )
     }

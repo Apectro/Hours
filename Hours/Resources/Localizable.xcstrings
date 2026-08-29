@@ -1673,6 +1673,65 @@
         }
       }
     },
+    "Above the cap": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über der Grenze"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por encima del límite"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au-delà du plafond"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iznad granice"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oltre il limite"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boven de grens"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powyżej limitu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acima do limite"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nad omejitvijo"
+          }
+        }
+      }
+    },
     "Add a column": {
       "extractionState": "manual",
       "localizations": {
@@ -4545,6 +4604,65 @@
         }
       }
     },
+    "Cap what carries over": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übertrag begrenzen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limitar el traslado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plafonner le report"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ograniči prijenos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limita il riporto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overdracht begrenzen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogranicz przeniesienie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limitar o que transita"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omeji prenos"
+          }
+        }
+      }
+    },
     "Change": {
       "extractionState": "manual",
       "localizations": {
@@ -6174,6 +6292,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odjava. Ta izmena je trajala več kot dan, zato je bil %@ omejen — preverite."
+          }
+        }
+      }
+    },
+    "Close %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ abschließen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturer %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvori %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ afsluiten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechar %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključi %@"
+          }
+        }
+      }
+    },
+    "Close the year": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jahr abschließen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar el año"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturer l'année"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvori godinu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi l'anno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het jaar afsluiten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij rok"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechar o ano"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključi leto"
+          }
+        }
+      }
+    },
+    "Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Jahresabschluss legt fest, was ins nächste Jahr übertragen wurde; spätere Änderungen an diesem Jahr verschieben die Zahl nicht mehr. Eine Grenze gilt für Überstunden, die Ihnen zustehen; ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar un año fija lo que trasladó al siguiente, de modo que las ediciones posteriores de ese año ya no mueven la cifra. Un límite se aplica a las horas extra que se te deben; un déficit se traslada siempre íntegro, porque perdonarlo inventaría horas que nadie trabajó."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturer une année fixe ce qu'elle a reporté sur la suivante ; les modifications ultérieures à cette année ne déplacent plus le chiffre. Un plafond s'applique aux heures supplémentaires qui vous sont dues ; un déficit se reporte toujours intégralement, car l'effacer inventerait des heures que personne n'a travaillées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvaranje godine utvrđuje što je preneseno u sljedeću, pa kasnije izmjene te godine više ne mijenjaju brojku. Granica se odnosi na prekovremene sate koji vam pripadaju; manjak se uvijek prenosi u cijelosti, jer bi njegov oprost izmislio sate koje nitko nije odradio."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudere un anno fissa ciò che ha riportato in quello successivo, così le modifiche successive a quell'anno non spostano più la cifra. Un limite vale per gli straordinari che ti spettano; un deficit si riporta sempre per intero, perché condonarlo inventerebbe ore che nessuno ha lavorato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een jaar afsluiten legt vast wat het aan het volgende heeft overgedragen, zodat latere wijzigingen in dat jaar het getal niet meer verschuiven. Een grens geldt voor overuren die je tegoed hebt; een tekort gaat altijd volledig mee, want het kwijtschelden zou uren verzinnen die niemand heeft gewerkt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknięcie roku ustala, ile przeniesiono na następny, więc późniejsze zmiany w tym roku nie ruszają już tej liczby. Limit dotyczy nadgodzin, które Ci się należą; niedobór przenosi się zawsze w całości, bo darowanie go wymyśliłoby godziny, których nikt nie przepracował."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechar um ano fixa o que transitou para o seguinte, pelo que edições posteriores desse ano deixam de mover o valor. Um limite aplica-se às horas extra que lhe são devidas; um défice transita sempre por inteiro, porque perdoá-lo inventaria horas que ninguém trabalhou."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključek leta določi, kaj se je preneslo v naslednje, zato poznejši popravki tistega leta številke ne premaknejo več. Omejitev velja za nadure, ki vam pripadajo; primanjkljaj se vedno prenese v celoti, saj bi njegov odpis izmislil ure, ki jih ni nihče opravil."
           }
         }
       }
@@ -12605,6 +12900,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Več"
+          }
+        }
+      }
+    },
+    "Most that may carry": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Höchstens übertragbar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Máximo trasladable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report maximal"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najviše za prijenos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Massimo riportabile"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximaal over te dragen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maksimum do przeniesienia"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Máximo que transita"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Največ za prenos"
           }
         }
       }
@@ -22703,6 +23057,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Leto"
+          }
+        }
+      }
+    },
+    "Year end": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jahresende"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fin de año"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fin d'année"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraj godine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine anno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jaareinde"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koniec roku"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fim do ano"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konec leta"
           }
         }
       }

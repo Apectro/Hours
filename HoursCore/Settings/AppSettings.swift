@@ -41,6 +41,17 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Days before this date are excluded from the running balance.
     var balanceStartDate: CalendarDate?
 
+    /// How the balance is carried across a year boundary. Off by default: an
+    /// app that silently starts zeroing balances every December is worse than
+    /// one that never had the feature.
+    var carryOver: CarryOverPolicy
+    /// Years that have been closed off, and what each handed to the next.
+    ///
+    /// Recorded rather than recomputed, because the point of closing a year is
+    /// that the figure stops moving. Editing a Tuesday in March two years
+    /// later must not quietly change what was carried into January.
+    var yearCloses: [YearClose]
+
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
         features: FeatureToggles = FeatureToggles(),
@@ -55,7 +66,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         jobs: [Job] = [],
         reminders: ReminderPreferences = ReminderPreferences(),
         openingBalanceMinutes: Int = 0,
-        balanceStartDate: CalendarDate? = nil
+        balanceStartDate: CalendarDate? = nil,
+        carryOver: CarryOverPolicy = CarryOverPolicy(),
+        yearCloses: [YearClose] = []
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -71,6 +84,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.reminders = reminders
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
+        self.carryOver = carryOver
+        self.yearCloses = yearCloses
     }
 
     var dayTypeCatalog: DayTypeCatalog { DayTypeCatalog(custom: customDayTypes) }
@@ -128,6 +143,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case schemaVersion, features, schedule, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
         case customDayTypes, jobs, reminders, openingBalanceMinutes, balanceStartDate
+        case carryOver, yearCloses
     }
 
     init(from decoder: Decoder) throws {
@@ -147,7 +163,12 @@ struct AppSettings: Hashable, Codable, Sendable {
             jobs: container.lenient(.jobs, defaults.jobs),
             reminders: container.lenient(.reminders, defaults.reminders),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
-            balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self)
+            balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self),
+            // Both absent from anything written before carry-over existed, so
+            // the lenient decode is what makes an old settings file open
+            // rather than fail.
+            carryOver: container.lenient(.carryOver, defaults.carryOver),
+            yearCloses: container.lenient(.yearCloses, defaults.yearCloses)
         )
     }
 }

@@ -48,11 +48,15 @@ struct CumulativeBalanceCard: View {
     }
 
     private var balance: Int {
+        // A closed year behaves exactly as the opening balance always did: a
+        // figure, and a date before which days do not count. So carry-over
+        // arrives here as a different origin rather than as a second concept.
+        let origin = settings.balanceOrigin(for: through)
         guard let first = entries.first, let firstDate = CalendarDate(key: first.dateKey) else {
-            return settings.openingBalanceMinutes
+            return origin.openingMinutes
         }
-        let start = settings.balanceStartDate.map { max($0, firstDate) } ?? firstDate
-        guard start <= through else { return settings.openingBalanceMinutes }
+        let start = origin.startDate.map { max($0, firstDate) } ?? firstDate
+        guard start <= through else { return origin.openingMinutes }
 
         let engine = PeriodEngine(settings: settings, calendar: calendar)
         var records: [Int: DayRecord] = [:]
@@ -65,8 +69,8 @@ struct CumulativeBalanceCard: View {
         )
         return BalanceLedger.cumulative(
             over: days,
-            openingMinutes: settings.openingBalanceMinutes,
-            startDate: settings.balanceStartDate,
+            openingMinutes: origin.openingMinutes,
+            startDate: origin.startDate,
             countingThrough: CalendarDate.today(in: calendar)
         )
     }

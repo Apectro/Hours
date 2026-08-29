@@ -707,6 +707,17 @@
       "Een werkdag",
       "Dzień roboczy"
     ],
+    "Above the cap": [
+      "Über der Grenze",
+      "Iznad granice",
+      "Nad omejitvijo",
+      "Oltre il limite",
+      "Au-delà du plafond",
+      "Por encima del límite",
+      "Acima do limite",
+      "Boven de grens",
+      "Powyżej limitu"
+    ],
     "Add a column": [
       "Spalte hinzufügen",
       "Dodaj stupac",
@@ -1125,6 +1136,17 @@
       "Annuleer",
       "Anuluj"
     ],
+    "Cap what carries over": [
+      "Übertrag begrenzen",
+      "Ograniči prijenos",
+      "Omeji prenos",
+      "Limita il riporto",
+      "Plafonner le report",
+      "Limitar el traslado",
+      "Limitar o que transita",
+      "Overdracht begrenzen",
+      "Ogranicz przeniesienie"
+    ],
     "Change": [
       "Ändern",
       "Promijeni",
@@ -1311,6 +1333,39 @@
       "Saída registada. Esse turno durava há mais de um dia, por isso %@ foi limitado — vale a pena verificar.",
       "Uitgeklokt. Die dienst liep al meer dan een dag, dus %@ is afgetopt — even nakijken.",
       "Zakończono. Ta zmiana trwała ponad dobę, więc %@ ograniczono — warto sprawdzić."
+    ],
+    "Close %@": [
+      "%@ abschließen",
+      "Zatvori %@",
+      "Zaključi %@",
+      "Chiudi %@",
+      "Clôturer %@",
+      "Cerrar %@",
+      "Fechar %@",
+      "%@ afsluiten",
+      "Zamknij %@"
+    ],
+    "Close the year": [
+      "Jahr abschließen",
+      "Zatvori godinu",
+      "Zaključi leto",
+      "Chiudi l'anno",
+      "Clôturer l'année",
+      "Cerrar el año",
+      "Fechar o ano",
+      "Het jaar afsluiten",
+      "Zamknij rok"
+    ],
+    "Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.": [
+      "Ein Jahresabschluss legt fest, was ins nächste Jahr übertragen wurde; spätere Änderungen an diesem Jahr verschieben die Zahl nicht mehr. Eine Grenze gilt für Überstunden, die Ihnen zustehen; ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden.",
+      "Zatvaranje godine utvrđuje što je preneseno u sljedeću, pa kasnije izmjene te godine više ne mijenjaju brojku. Granica se odnosi na prekovremene sate koji vam pripadaju; manjak se uvijek prenosi u cijelosti, jer bi njegov oprost izmislio sate koje nitko nije odradio.",
+      "Zaključek leta določi, kaj se je preneslo v naslednje, zato poznejši popravki tistega leta številke ne premaknejo več. Omejitev velja za nadure, ki vam pripadajo; primanjkljaj se vedno prenese v celoti, saj bi njegov odpis izmislil ure, ki jih ni nihče opravil.",
+      "Chiudere un anno fissa ciò che ha riportato in quello successivo, così le modifiche successive a quell'anno non spostano più la cifra. Un limite vale per gli straordinari che ti spettano; un deficit si riporta sempre per intero, perché condonarlo inventerebbe ore che nessuno ha lavorato.",
+      "Clôturer une année fixe ce qu'elle a reporté sur la suivante ; les modifications ultérieures à cette année ne déplacent plus le chiffre. Un plafond s'applique aux heures supplémentaires qui vous sont dues ; un déficit se reporte toujours intégralement, car l'effacer inventerait des heures que personne n'a travaillées.",
+      "Cerrar un año fija lo que trasladó al siguiente, de modo que las ediciones posteriores de ese año ya no mueven la cifra. Un límite se aplica a las horas extra que se te deben; un déficit se traslada siempre íntegro, porque perdonarlo inventaría horas que nadie trabajó.",
+      "Fechar um ano fixa o que transitou para o seguinte, pelo que edições posteriores desse ano deixam de mover o valor. Um limite aplica-se às horas extra que lhe são devidas; um défice transita sempre por inteiro, porque perdoá-lo inventaria horas que ninguém trabalhou.",
+      "Een jaar afsluiten legt vast wat het aan het volgende heeft overgedragen, zodat latere wijzigingen in dat jaar het getal niet meer verschuiven. Een grens geldt voor overuren die je tegoed hebt; een tekort gaat altijd volledig mee, want het kwijtschelden zou uren verzinnen die niemand heeft gewerkt.",
+      "Zamknięcie roku ustala, ile przeniesiono na następny, więc późniejsze zmiany w tym roku nie ruszają już tej liczby. Limit dotyczy nadgodzin, które Ci się należą; niedobór przenosi się zawsze w całości, bo darowanie go wymyśliłoby godziny, których nikt nie przepracował."
     ],
     "Colour": [
       "Farbe",
@@ -2510,6 +2565,17 @@
       "Mais",
       "Meer",
       "Więcej"
+    ],
+    "Most that may carry": [
+      "Höchstens übertragbar",
+      "Najviše za prijenos",
+      "Največ za prenos",
+      "Massimo riportabile",
+      "Report maximal",
+      "Máximo trasladable",
+      "Máximo que transita",
+      "Maximaal over te dragen",
+      "Maksimum do przeniesienia"
     ],
     "Name": [
       "Name",
@@ -4072,6 +4138,17 @@
       "Ano",
       "Jaar",
       "Rok"
+    ],
+    "Year end": [
+      "Jahresende",
+      "Kraj godine",
+      "Konec leta",
+      "Fine anno",
+      "Fin d'année",
+      "Fin de año",
+      "Fim do ano",
+      "Jaareinde",
+      "Koniec roku"
     ],
     "You are %@ ahead.": [
       "Sie liegen %@ im Plus.",

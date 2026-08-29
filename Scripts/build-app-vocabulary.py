@@ -134,6 +134,21 @@ SECTIONS = [
             en="Point", de="Punkt", hr="Točka", sl="Pika", it="Punto",
             fr="Point", es="Punto", pt="Ponto", nl="Punt", pl="Kropka")),
     ]),
+    ("Closing a year", [
+        ("surplusNone", dict(
+            en="Everything carried", de="Alles übertragen", hr="Sve preneseno",
+            sl="Vse preneseno", it="Tutto riportato", fr="Tout reporté",
+            es="Todo trasladado", pt="Tudo transitado", nl="Alles overgedragen",
+            pl="Wszystko przeniesione")),
+        ("surplusPaidOut", dict(
+            en="Paid out", de="Ausgezahlt", hr="Isplaćeno", sl="Izplačano",
+            it="Liquidato", fr="Payé", es="Pagado", pt="Pago",
+            nl="Uitbetaald", pl="Wypłacone")),
+        ("surplusForfeited", dict(
+            en="Forfeited", de="Verfallen", hr="Propalo", sl="Zapadlo",
+            it="Decaduto", fr="Perdu", es="Caducado", pt="Caducado",
+            nl="Vervallen", pl="Przepadłe")),
+    ]),
     ("When a backup file will not open", [
         ("backupNotABackup", dict(
             en="This file is not a Zeitkonto backup.",

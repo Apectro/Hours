@@ -51,6 +51,10 @@ enum UITerm: String, CaseIterable, Hashable, Sendable {
     case separatorSemicolon
     case separatorTab
     case separatorPoint
+    // Closing a year
+    case surplusNone
+    case surplusPaidOut
+    case surplusForfeited
     // When a backup file will not open
     case backupNotABackup
     case backupFromNewerVersion
@@ -208,6 +212,21 @@ extension ExportLanguage {
         case .separatorPoint:
             return pick(en: "Point", de: "Punkt", hr: "Točka", sl: "Pika", it: "Punto", fr: "Point",
                               es: "Punto", pt: "Ponto", nl: "Punt", pl: "Kropka")
+
+        // Closing a year
+        case .surplusNone:
+            return pick(en: "Everything carried", de: "Alles übertragen", hr: "Sve preneseno",
+                              sl: "Vse preneseno", it: "Tutto riportato", fr: "Tout reporté",
+                              es: "Todo trasladado", pt: "Tudo transitado",
+                              nl: "Alles overgedragen", pl: "Wszystko przeniesione")
+        case .surplusPaidOut:
+            return pick(en: "Paid out", de: "Ausgezahlt", hr: "Isplaćeno", sl: "Izplačano",
+                              it: "Liquidato", fr: "Payé", es: "Pagado", pt: "Pago",
+                              nl: "Uitbetaald", pl: "Wypłacone")
+        case .surplusForfeited:
+            return pick(en: "Forfeited", de: "Verfallen", hr: "Propalo", sl: "Zapadlo",
+                              it: "Decaduto", fr: "Perdu", es: "Caducado", pt: "Caducado",
+                              nl: "Vervallen", pl: "Przepadłe")
 
         // When a backup file will not open
         case .backupNotABackup:
