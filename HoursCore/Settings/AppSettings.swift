@@ -45,6 +45,8 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// app that silently starts zeroing balances every December is worse than
     /// one that never had the feature.
     var carryOver: CarryOverPolicy
+    /// Months closed to editing, because their timesheet has been handed over.
+    var monthLock: MonthLock
     /// Years that have been closed off, and what each handed to the next.
     ///
     /// Recorded rather than recomputed, because the point of closing a year is
@@ -68,7 +70,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil,
         carryOver: CarryOverPolicy = CarryOverPolicy(),
-        yearCloses: [YearClose] = []
+        yearCloses: [YearClose] = [],
+        monthLock: MonthLock = .unlocked
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -86,6 +89,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.balanceStartDate = balanceStartDate
         self.carryOver = carryOver
         self.yearCloses = yearCloses
+        self.monthLock = monthLock
     }
 
     var dayTypeCatalog: DayTypeCatalog { DayTypeCatalog(custom: customDayTypes) }
@@ -143,7 +147,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case schemaVersion, features, schedule, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
         case customDayTypes, jobs, reminders, openingBalanceMinutes, balanceStartDate
-        case carryOver, yearCloses
+        case carryOver, yearCloses, monthLock
     }
 
     init(from decoder: Decoder) throws {
@@ -168,7 +172,8 @@ struct AppSettings: Hashable, Codable, Sendable {
             // the lenient decode is what makes an old settings file open
             // rather than fail.
             carryOver: container.lenient(.carryOver, defaults.carryOver),
-            yearCloses: container.lenient(.yearCloses, defaults.yearCloses)
+            yearCloses: container.lenient(.yearCloses, defaults.yearCloses),
+            monthLock: container.lenient(.monthLock, defaults.monthLock)
         )
     }
 }

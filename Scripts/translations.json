@@ -520,6 +520,17 @@
       "%@ zonder vastgelegde uren, vanaf %@.",
       "%@ bez zapisanych godzin, począwszy od %@."
     ],
+    "%@ is closed, so that shift was not recorded.": [
+      "%@ ist abgeschlossen, daher wurde diese Schicht nicht erfasst.",
+      "%@ je zatvoren, pa ta smjena nije zabilježena.",
+      "%@ je zaprt, zato ta izmena ni bila zabeležena.",
+      "%@ è chiuso, quindi quel turno non è stato registrato.",
+      "%@ est clôturé, ce poste n'a donc pas été enregistré.",
+      "%@ está cerrado, así que ese turno no se registró.",
+      "%@ está fechado, por isso esse turno não foi registado.",
+      "%@ is afgesloten, dus die dienst is niet vastgelegd.",
+      "%@ jest zamknięty, więc ta zmiana nie została zapisana."
+    ],
     "%@ of expected": [
       "%@ des Solls",
       "%@ od očekivanog",
@@ -662,6 +673,17 @@
       "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro.",
       "Een back-up is een JSON-bestand met elke dag, elke feestdag en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat.",
       "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
+    ],
+    "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": [
+      "Ein abgeschlossener Monat lehnt Änderungen ab — aus dem Tageseditor, einer Sammelbearbeitung, von der Uhr und von Siri gleichermaßen. Sobald ein Stundenzettel übergeben wurde, ist es der Anfang eines Streits, wenn sich die Tage dahinter still ändern. Zum Wiederöffnen den Monat wegwischen.",
+      "Zatvoreni mjesec odbija izmjene — iz uređivača dana, skupne izmjene, sata i Siri jednako. Kad je evidencija predana, tiho mijenjanje dana iza nje početak je spora. Prijeđite prstom preko mjeseca da ga ponovno otvorite.",
+      "Zaprt mesec zavrne spremembe — iz urejevalnika dneva, množičnega urejanja, ure in Siri enako. Ko je evidenca oddana, je tiho spreminjanje dni za njo začetek spora. Povlecite mesec, da ga znova odprete.",
+      "Un mese chiuso rifiuta le modifiche — dall'editor del giorno, da una modifica in blocco, dal timer e da Siri allo stesso modo. Una volta consegnato un foglio ore, i giorni dietro di esso che cambiano in silenzio sono l'inizio di una contestazione. Scorri via un mese per riaprirlo.",
+      "Un mois clôturé refuse les modifications — depuis l'éditeur de journée, une modification groupée, le pointage et Siri. Une fois la feuille d'heures remise, des journées qui changent en silence derrière elle, c'est le début d'un litige. Balayez un mois pour le rouvrir.",
+      "Un mes cerrado rechaza las ediciones: desde el editor de día, una edición en bloque, el fichaje y Siri por igual. Una vez entregada una hoja de horas, que los días que hay detrás cambien en silencio es el principio de una disputa. Desliza un mes para reabrirlo.",
+      "Um mês fechado recusa edições — a partir do editor de dia, de uma edição em bloco, do relógio e da Siri. Depois de entregue uma folha de horas, os dias por trás dela mudarem em silêncio é o início de uma disputa. Deslize um mês para o reabrir.",
+      "Een afgesloten maand weigert wijzigingen — vanuit de dageditor, een bulkbewerking, de klok en Siri. Zodra een urenstaat is ingeleverd, is het stilletjes veranderen van de dagen erachter het begin van een meningsverschil. Veeg een maand weg om hem te heropenen.",
+      "Zamknięty miesiąc odrzuca zmiany — z edytora dnia, edycji zbiorczej, zegara i Siri tak samo. Gdy karta czasu pracy została przekazana, ciche zmiany dni za nią to początek sporu. Przesuń miesiąc, aby go otworzyć ponownie."
     ],
     "A second block records a split shift — the time between blocks is neither worked nor a break.": [
       "Ein zweiter Block erfasst eine geteilte Schicht – die Zeit dazwischen ist weder Arbeitszeit noch Pause.",
@@ -1355,6 +1377,17 @@
       "Fechar o ano",
       "Het jaar afsluiten",
       "Zamknij rok"
+    ],
+    "Closed months": [
+      "Abgeschlossene Monate",
+      "Zatvoreni mjeseci",
+      "Zaprti meseci",
+      "Mesi chiusi",
+      "Mois clôturés",
+      "Meses cerrados",
+      "Meses fechados",
+      "Afgesloten maanden",
+      "Zamknięte miesiące"
     ],
     "Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.": [
       "Ein Jahresabschluss legt fest, was ins nächste Jahr übertragen wurde; spätere Änderungen an diesem Jahr verschieben die Zahl nicht mehr. Eine Grenze gilt für Überstunden, die Ihnen zustehen; ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden.",
@@ -2797,6 +2830,17 @@
       "Niets te wissen",
       "Nie ma czego czyścić"
     ],
+    "Nothing was changed. Reopen %@ in Settings › Calculation first.": [
+      "Es wurde nichts geändert. Öffnen Sie zuerst %@ unter Einstellungen › Berechnung wieder.",
+      "Ništa nije promijenjeno. Najprije ponovno otvorite %@ u Postavke › Izračun.",
+      "Nič ni bilo spremenjeno. Najprej znova odprite %@ v Nastavitve › Izračun.",
+      "Non è stato modificato nulla. Riapri prima %@ in Impostazioni › Calcolo.",
+      "Rien n'a été modifié. Rouvrez d'abord %@ dans Réglages › Calcul.",
+      "No se cambió nada. Vuelve a abrir %@ en Ajustes › Cálculo primero.",
+      "Nada foi alterado. Reabra primeiro %@ em Definições › Cálculo.",
+      "Er is niets gewijzigd. Heropen eerst %@ in Instellingen › Berekening.",
+      "Nic nie zmieniono. Najpierw otwórz ponownie %@ w Ustawienia › Obliczenia."
+    ],
     "OK": [
       "OK",
       "U redu",
@@ -3104,6 +3148,17 @@
       "Remove tudo o que está registado nesses dias.",
       "Verwijdert alles wat op die dagen is vastgelegd.",
       "Usuwa wszystko zapisane w tych dniach."
+    ],
+    "Reopen it in Settings › Calculation if you need to change these hours.": [
+      "Öffnen Sie ihn unter Einstellungen › Berechnung wieder, wenn Sie diese Stunden ändern müssen.",
+      "Ponovno ga otvorite u Postavke › Izračun ako trebate promijeniti ove sate.",
+      "Znova ga odprite v Nastavitve › Izračun, če morate spremeniti te ure.",
+      "Riaprilo in Impostazioni › Calcolo se devi modificare queste ore.",
+      "Rouvrez-le dans Réglages › Calcul si vous devez modifier ces heures.",
+      "Vuelve a abrirlo en Ajustes › Cálculo si necesitas cambiar estas horas.",
+      "Reabra-o em Definições › Cálculo se precisar de alterar estas horas.",
+      "Heropen hem in Instellingen › Berekening als je deze uren wilt wijzigen.",
+      "Otwórz go ponownie w Ustawienia › Obliczenia, jeśli musisz zmienić te godziny."
     ],
     "Repeats": [
       "Wiederholt sich",
@@ -3434,6 +3489,17 @@
       "Ignorar os dias não úteis",
       "Sla niet-werkdagen over",
       "Pomiń dni wolne"
+    ],
+    "Some of those months are closed": [
+      "Einige dieser Monate sind abgeschlossen",
+      "Neki od tih mjeseci su zatvoreni",
+      "Nekateri od teh mesecev so zaprti",
+      "Alcuni di quei mesi sono chiusi",
+      "Certains de ces mois sont clôturés",
+      "Algunos de esos meses están cerrados",
+      "Alguns desses meses estão fechados",
+      "Sommige van die maanden zijn afgesloten",
+      "Niektóre z tych miesięcy są zamknięte"
     ],
     "Start": [
       "Beginn",
@@ -3786,6 +3852,17 @@
       "Este mês",
       "Deze maand",
       "Ten miesiąc"
+    ],
+    "This month is closed": [
+      "Dieser Monat ist abgeschlossen",
+      "Ovaj je mjesec zatvoren",
+      "Ta mesec je zaprt",
+      "Questo mese è chiuso",
+      "Ce mois est clôturé",
+      "Este mes está cerrado",
+      "Este mês está fechado",
+      "Deze maand is afgesloten",
+      "Ten miesiąc jest zamknięty"
     ],
     "This month you have worked %@.": [
       "In diesem Monat haben Sie %@ gearbeitet.",

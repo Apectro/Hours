@@ -355,6 +355,65 @@
         }
       }
     },
+    "%@ is closed, so that shift was not recorded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist abgeschlossen, daher wurde diese Schicht nicht erfasst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está cerrado, así que ese turno no se registró."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est clôturé, ce poste n'a donc pas été enregistré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zatvoren, pa ta smjena nije zabilježena."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ è chiuso, quindi quel turno non è stato registrato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is afgesloten, dus die dienst is niet vastgelegd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ jest zamknięty, więc ta zmiana nie została zapisana."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está fechado, por isso esse turno não foi registado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zaprt, zato ta izmena ni bila zabeležena."
+          }
+        }
+      }
+    },
     "%@ of expected": {
       "extractionState": "manual",
       "localizations": {
@@ -1433,6 +1492,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka."
+          }
+        }
+      }
+    },
+    "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein abgeschlossener Monat lehnt Änderungen ab — aus dem Tageseditor, einer Sammelbearbeitung, von der Uhr und von Siri gleichermaßen. Sobald ein Stundenzettel übergeben wurde, ist es der Anfang eines Streits, wenn sich die Tage dahinter still ändern. Zum Wiederöffnen den Monat wegwischen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mes cerrado rechaza las ediciones: desde el editor de día, una edición en bloque, el fichaje y Siri por igual. Una vez entregada una hoja de horas, que los días que hay detrás cambien en silencio es el principio de una disputa. Desliza un mes para reabrirlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mois clôturé refuse les modifications — depuis l'éditeur de journée, une modification groupée, le pointage et Siri. Une fois la feuille d'heures remise, des journées qui changent en silence derrière elle, c'est le début d'un litige. Balayez un mois pour le rouvrir."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvoreni mjesec odbija izmjene — iz uređivača dana, skupne izmjene, sata i Siri jednako. Kad je evidencija predana, tiho mijenjanje dana iza nje početak je spora. Prijeđite prstom preko mjeseca da ga ponovno otvorite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mese chiuso rifiuta le modifiche — dall'editor del giorno, da una modifica in blocco, dal timer e da Siri allo stesso modo. Una volta consegnato un foglio ore, i giorni dietro di esso che cambiano in silenzio sono l'inizio di una contestazione. Scorri via un mese per riaprirlo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een afgesloten maand weigert wijzigingen — vanuit de dageditor, een bulkbewerking, de klok en Siri. Zodra een urenstaat is ingeleverd, is het stilletjes veranderen van de dagen erachter het begin van een meningsverschil. Veeg een maand weg om hem te heropenen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknięty miesiąc odrzuca zmiany — z edytora dnia, edycji zbiorczej, zegara i Siri tak samo. Gdy karta czasu pracy została przekazana, ciche zmiany dni za nią to początek sporu. Przesuń miesiąc, aby go otworzyć ponownie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um mês fechado recusa edições — a partir do editor de dia, de uma edição em bloco, do relógio e da Siri. Depois de entregue uma folha de horas, os dias por trás dela mudarem em silêncio é o início de uma disputa. Deslize um mês para o reabrir."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaprt mesec zavrne spremembe — iz urejevalnika dneva, množičnega urejanja, ure in Siri enako. Ko je evidenca oddana, je tiho spreminjanje dni za njo začetek spora. Povlecite mesec, da ga znova odprete."
           }
         }
       }
@@ -6410,6 +6528,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zaključi leto"
+          }
+        }
+      }
+    },
+    "Closed months": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgeschlossene Monate"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meses cerrados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois clôturés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvoreni mjeseci"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mesi chiusi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afgesloten maanden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknięte miesiące"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meses fechados"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaprti meseci"
           }
         }
       }
@@ -14143,6 +14320,65 @@
         }
       }
     },
+    "Nothing was changed. Reopen %@ in Settings › Calculation first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurde nichts geändert. Öffnen Sie zuerst %@ unter Einstellungen › Berechnung wieder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se cambió nada. Vuelve a abrir %@ en Ajustes › Cálculo primero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n'a été modifié. Rouvrez d'abord %@ dans Réglages › Calcul."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ništa nije promijenjeno. Najprije ponovno otvorite %@ u Postavke › Izračun."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato modificato nulla. Riapri prima %@ in Impostazioni › Calcolo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is niets gewijzigd. Heropen eerst %@ in Instellingen › Berekening."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic nie zmieniono. Najpierw otwórz ponownie %@ w Ustawienia › Obliczenia."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada foi alterado. Reabra primeiro %@ em Definições › Cálculo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nič ni bilo spremenjeno. Najprej znova odprite %@ v Nastavitve › Izračun."
+          }
+        }
+      }
+    },
     "Nothing was restored: all ^[%lld day](inflect: true) in that file are damaged. Your existing hours have not been touched.": {
       "extractionState": "manual",
       "localizations": {
@@ -16106,6 +16342,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odstrani vse, kar je zabeleženo na te dni."
+          }
+        }
+      }
+    },
+    "Reopen it in Settings › Calculation if you need to change these hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen Sie ihn unter Einstellungen › Berechnung wieder, wenn Sie diese Stunden ändern müssen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve a abrirlo en Ajustes › Cálculo si necesitas cambiar estas horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrez-le dans Réglages › Calcul si vous devez modifier ces heures."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno ga otvorite u Postavke › Izračun ako trebate promijeniti ove sate."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riaprilo in Impostazioni › Calcolo se devi modificare queste ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heropen hem in Instellingen › Berekening als je deze uren wilt wijzigen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz go ponownie w Ustawienia › Obliczenia, jeśli musisz zmienić te godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabra-o em Definições › Cálculo se precisar de alterar estas horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova ga odprite v Nastavitve › Izračun, če morate spremeniti te ure."
           }
         }
       }
@@ -18740,6 +19035,65 @@
         }
       }
     },
+    "Some of those months are closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einige dieser Monate sind abgeschlossen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algunos de esos meses están cerrados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certains de ces mois sont clôturés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neki od tih mjeseci su zatvoreni"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alcuni di quei mesi sono chiusi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommige van die maanden zijn afgesloten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niektóre z tych miesięcy są zamknięte"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alguns desses meses estão fechados"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nekateri od teh mesecev so zaprti"
+          }
+        }
+      }
+    },
     "Start": {
       "extractionState": "manual",
       "localizations": {
@@ -21169,6 +21523,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta mesec"
+          }
+        }
+      }
+    },
+    "This month is closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Monat ist abgeschlossen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este mes está cerrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce mois est clôturé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj je mjesec zatvoren"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo mese è chiuso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze maand is afgesloten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten miesiąc jest zamknięty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este mês está fechado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta mesec je zaprt"
           }
         }
       }

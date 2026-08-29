@@ -88,6 +88,12 @@ jobs:
       - name: Every lookup has a key
         run: python3 Scripts/check-lookups-exist.py
 
+      # A repository built without the lock keeps accepting edits to a closed
+      # month and looks entirely correct doing it. Proven to fail on that exact
+      # omission before being wired in here.
+      - name: Every writing path carries the month lock
+        run: python3 Scripts/check-repository-lock.py
+
       - name: The catalogues are what the generator writes
         run: |
           python3 Scripts/build-catalog.py

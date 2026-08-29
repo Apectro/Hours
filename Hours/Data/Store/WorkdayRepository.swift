@@ -13,8 +13,18 @@ import SwiftData
 struct WorkdayRepository {
     let context: ModelContext
 
-    init(context: ModelContext) {
+    /// Which months refuse edits.
+    ///
+    /// Here rather than at the screens, because there are four ways into a
+    /// day — the editor, a bulk edit, the clock stopping, and Siri — and a
+    /// guard on three of them is not a guard. Reading paths pass `.unlocked`
+    /// and are unaffected; `Scripts/check-repository-lock.py` is what stops a
+    /// *writing* path quietly doing the same.
+    let lock: MonthLock
+
+    init(context: ModelContext, lock: MonthLock = .unlocked) {
         self.context = context
+        self.lock = lock
     }
 
     // MARK: - Reading days
@@ -81,8 +91,15 @@ struct WorkdayRepository {
     /// Creates, updates, or deletes the day so that storage always reflects the
     /// record exactly. A record with nothing in it is deleted rather than
     /// stored, which is what keeps the calendar's "has data" marks honest.
+    /// Throws `MonthLock.Refusal` when the day falls in a closed month.
+    ///
+    /// Throwing rather than returning nil, and rather than quietly doing
+    /// nothing. A save that silently fails is the worst outcome available
+    /// here: the person believes their hours are recorded, and the app agrees
+    /// with them right up to payday.
     @discardableResult
-    func save(_ record: DayRecord) -> DayEntry? {
+    func save(_ record: DayRecord) throws -> DayEntry? {
+        try lock.check(record.date)
         let existing = entry(on: record.date)
 
         if record.isBlank {
@@ -98,7 +115,8 @@ struct WorkdayRepository {
         return entry
     }
 
-    func delete(on date: CalendarDate) {
+    func delete(on date: CalendarDate) throws {
+        try lock.check(date)
         guard let existing = entry(on: date) else { return }
         context.delete(existing)
         persist()

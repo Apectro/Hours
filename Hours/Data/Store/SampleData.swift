@@ -34,7 +34,7 @@ enum SampleData {
             let isWeekend = weekday == 1 || weekday == 7
 
             if day.day >= 8, day.day <= 12 {
-                repository.save(DayRecord(date: day, dayTypeID: .vacation))
+                try? repository.save(DayRecord(date: day, dayTypeID: .vacation))
                 continue
             }
             if day.day == 15 { continue }   // the holiday resolves itself
@@ -43,7 +43,7 @@ enum SampleData {
                 // One worked Saturday, so the overtime figures have something
                 // in them and the weekend styling is visible.
                 if day.day == 22, weekday == 7 {
-                    repository.save(
+                    try? repository.save(
                         DayRecord(date: day, start: TimeOfDay(hour: 10, minute: 0), end: TimeOfDay(hour: 14, minute: 0))
                     )
                 }
@@ -53,12 +53,12 @@ enum SampleData {
             switch day.day % 7 {
             case 0:
                 // A split shift: two blocks with the middle of the day off.
-                repository.save(DayRecord(date: day, shifts: [
+                try? repository.save(DayRecord(date: day, shifts: [
                     Shift(start: TimeOfDay(hour: 8, minute: 0), end: TimeOfDay(hour: 12, minute: 30)),
                     Shift(start: TimeOfDay(hour: 17, minute: 0), end: TimeOfDay(hour: 20, minute: 0)),
                 ]))
             case 3:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: day,
                     start: TimeOfDay(hour: 8, minute: 0),
                     end: TimeOfDay(hour: 18, minute: 15),
@@ -66,14 +66,14 @@ enum SampleData {
                     note: "Release day"
                 ))
             case 5:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: day,
                     start: TimeOfDay(hour: 8, minute: 0),
                     end: TimeOfDay(hour: 15, minute: 0),
                     breaks: [BreakSpan(start: TimeOfDay(hour: 12, minute: 0), end: TimeOfDay(hour: 12, minute: 30))]
                 ))
             default:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: day,
                     start: TimeOfDay(hour: 8, minute: 0),
                     end: TimeOfDay(hour: 16, minute: 30),

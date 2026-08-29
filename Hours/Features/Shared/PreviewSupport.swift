@@ -32,9 +32,9 @@ enum PreviewSupport {
 
             switch date.day % 7 {
             case 0:
-                repository.save(DayRecord(date: date, dayTypeID: .vacation))
+                try? repository.save(DayRecord(date: date, dayTypeID: .vacation))
             case 3:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: date,
                     start: TimeOfDay(hour: 8, minute: 0),
                     end: TimeOfDay(hour: 18, minute: 15),
@@ -42,14 +42,14 @@ enum PreviewSupport {
                     note: "Release day"
                 ))
             case 5:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: date,
                     start: TimeOfDay(hour: 8, minute: 30),
                     end: TimeOfDay(hour: 15, minute: 30),
                     breaks: [.duration(30)]
                 ))
             default:
-                repository.save(DayRecord(
+                try? repository.save(DayRecord(
                     date: date,
                     start: TimeOfDay(hour: 8, minute: 0),
                     end: TimeOfDay(hour: 16, minute: 30),

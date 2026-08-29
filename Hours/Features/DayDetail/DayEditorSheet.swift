@@ -20,6 +20,9 @@ struct DayEditorSheet: View {
     @State private var storedRecord: DayRecord?
     @State private var hasLoaded = false
     @State private var isConfirmingDelete = false
+    /// Set when a write is refused. Non-nil is the alert's own trigger, so a
+    /// refusal cannot be recorded without being shown.
+    @State private var refusal: Error?
 
     init(date: CalendarDate) {
         self.date = date
@@ -63,6 +66,14 @@ struct DayEditorSheet: View {
                 Button("Delete day", role: .destructive) { delete() }
                 Button("Cancel", role: .cancel) {}
             }
+            .alert(
+                "This month is closed",
+                isPresented: Binding(get: { refusal != nil }, set: { if !$0 { refusal = nil } })
+            ) {
+                Button("OK", role: .cancel) { refusal = nil }
+            } message: {
+                Text("Reopen it in Settings › Calculation if you need to change these hours.")
+            }
             .task { load() }
         }
     }
@@ -75,7 +86,9 @@ struct DayEditorSheet: View {
         settingsStore.engine.day(date, record: draft, holidays: holidays)
     }
 
-    private var repository: WorkdayRepository { WorkdayRepository(context: modelContext) }
+    private var repository: WorkdayRepository {
+        WorkdayRepository(context: modelContext, lock: settingsStore.settings.monthLock)
+    }
 
     // MARK: - Actions
 
@@ -88,13 +101,26 @@ struct DayEditorSheet: View {
     }
 
     private func save() {
-        repository.save(draft)
+        do {
+            try repository.save(draft)
+        } catch {
+            // Stay on the sheet. Dismissing would look exactly like a
+            // successful save, which is the failure this refusal exists to
+            // prevent in the first place.
+            refusal = error
+            return
+        }
         HoursStack.refreshWidget()
         dismiss()
     }
 
     private func delete() {
-        repository.delete(on: date)
+        do {
+            try repository.delete(on: date)
+        } catch {
+            refusal = error
+            return
+        }
         HoursStack.refreshWidget()
         dismiss()
     }

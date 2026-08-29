@@ -44,6 +44,10 @@ struct TimeClock {
     enum ClockOutResult: Hashable, Sendable {
         case recorded(date: CalendarDate, workedMinutes: Int, wasCapped: Bool)
         case nothingRunning
+        /// The clock stopped, and the day it belonged to is in a closed month.
+        /// A distinct case rather than a silent failure: the shift is gone
+        /// either way, and the person needs to know which month refused it.
+        case monthIsClosed(YearMonth)
     }
 
     /// Stops the clock and appends the finished block to its day.
@@ -58,7 +62,17 @@ struct TimeClock {
         let finished = running.finished(at: instant, calendar: calendar)
         var record = repository.record(on: running.date) ?? DayRecord(date: running.date)
         record.shifts.append(finished)
-        repository.save(record)
+        do {
+            try repository.save(record)
+        } catch {
+            // The shift is lost either way — the clock has already stopped —
+            // so say which month refused it rather than reporting a generic
+            // failure the person cannot act on.
+            if case let MonthLock.Refusal.monthIsClosed(month) = error {
+                return .monthIsClosed(month)
+            }
+            return .nothingRunning
+        }
 
         return .recorded(
             date: running.date,

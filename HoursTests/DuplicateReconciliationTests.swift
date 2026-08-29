@@ -87,13 +87,13 @@ final class DuplicateReconciliationTests: XCTestCase {
 
     /// And it resolves itself: an edit stamps one of them, which then wins
     /// outright on every device.
-    func testEditingATiedDayResolvesIt() {
+    func testEditingATiedDayResolvesIt() throws {
         let (repository, context) = makeRepository()
         let sameInstant = Date(timeIntervalSince1970: 500)
         insertRaw(into: context, note: "one", updatedAt: sameInstant, createdAt: sameInstant)
         insertRaw(into: context, note: "other", updatedAt: sameInstant, createdAt: sameInstant)
 
-        repository.save(DayRecord(date: date, note: "typed just now"))
+        try repository.save(DayRecord(date: date, note: "typed just now"))
 
         // Read first, then count: the edit stamps one row, and the collapse
         // happens on the next read of the day rather than on the write.
@@ -138,10 +138,10 @@ final class DuplicateReconciliationTests: XCTestCase {
     }
 
     /// The overwhelmingly common case, and the one that must stay cheap.
-    func testAStoreWithNoDuplicatesIsLeftAlone() {
+    func testAStoreWithNoDuplicatesIsLeftAlone() throws {
         let (repository, context) = makeRepository()
-        repository.save(DayRecord(date: date, note: "only one"))
-        repository.save(DayRecord(date: Fixture.date(2026, 8, 5), note: "and another day"))
+        try repository.save(DayRecord(date: date, note: "only one"))
+        try repository.save(DayRecord(date: Fixture.date(2026, 8, 5), note: "and another day"))
 
         XCTAssertEqual(repository.reconcileDuplicates(), 0)
         XCTAssertEqual(count(context), 2)
@@ -150,12 +150,12 @@ final class DuplicateReconciliationTests: XCTestCase {
 
     /// Saving over a duplicated day must leave one row, not edit one and leave
     /// the other behind to win the next merge.
-    func testSavingOverADuplicatedDayLeavesOneRow() {
+    func testSavingOverADuplicatedDayLeavesOneRow() throws {
         let (repository, context) = makeRepository()
         insertRaw(into: context, note: "phone", updatedAt: Date(timeIntervalSince1970: 100))
         insertRaw(into: context, note: "iPad", updatedAt: Date(timeIntervalSince1970: 200))
 
-        repository.save(DayRecord(date: date, note: "typed just now"))
+        try repository.save(DayRecord(date: date, note: "typed just now"))
 
         XCTAssertEqual(count(context), 1)
         XCTAssertEqual(repository.record(on: date)?.note, "typed just now")

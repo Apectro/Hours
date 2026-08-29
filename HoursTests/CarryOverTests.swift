@@ -215,7 +215,17 @@ final class CarryOverTests: XCTestCase {
         )
 
         XCTAssertEqual(withClose, withoutClose)
-        XCTAssertGreaterThan(withClose, 3_000, "the January days should have added to it")
+
+        // Not "greater than 3000", which is what this asserted first and is
+        // simply untrue: a full January holds about eighteen working days and
+        // only four of them were worked, so the month is a large deficit. The
+        // claim worth making is that the carried figure is added to whatever
+        // the period came to, whichever way that went.
+        let periodAlone = BalanceLedger.cumulative(
+            over: days, openingMinutes: 0, startDate: nil
+        )
+        XCTAssertEqual(withClose, periodAlone + 3_000)
+        XCTAssertLessThan(periodAlone, 0, "the unworked weekdays should make January negative")
     }
 
     func testLatestCloseIsTheHighestYear() {

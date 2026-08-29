@@ -221,7 +221,11 @@ struct DataSettingsScreen: View {
 
         repository.deleteAllDays()
         repository.deleteAllHolidays()
-        for record in archive.days { repository.save(record) }
+        // Unlocked on purpose. A restore is not an edit to a closed month; it
+        // is the file becoming the database, and refusing half of it would
+        // leave a mixture of the backup and what was there before.
+        let restoring = WorkdayRepository(context: modelContext, lock: .unlocked)
+        for record in archive.days { try? restoring.save(record) }
         for holiday in archive.holidays { repository.upsert(holiday) }
         settingsStore.replace(with: archive.settings)
 

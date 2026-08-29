@@ -55,6 +55,14 @@ struct ClockOutIntent: AppIntent {
                 localized: "You are not clocked in.",
                 comment: "Siri, asked to clock out with no clock running"
             )))
+        case let .monthIsClosed(month):
+            // The shift is gone either way — the clock has already stopped —
+            // so name the month rather than saying only that it failed.
+            let formatting = HoursStack.settings.dateFormatting
+            return .result(dialog: IntentDialog(stringLiteral: String(
+                localized: "\(formatting.monthTitle(month)) is closed, so that shift was not recorded.",
+                comment: "Siri, clocking out into a month that refuses edits"
+            )))
         case let .recorded(date, workedMinutes, wasCapped):
             HoursStack.refreshWidget()
             let formatting = HoursStack.settings.dateFormatting

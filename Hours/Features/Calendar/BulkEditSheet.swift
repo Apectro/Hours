@@ -24,6 +24,9 @@ struct BulkEditSheet: View {
     @State private var overwrites = false
     @State private var isConfirming = false
     @State private var paywallReason: ProFeature?
+    /// Months in the range that refused the edit. Non-empty is the alert's own
+    /// trigger, so a refusal cannot be recorded without being shown.
+    @State private var refusedMonths: [YearMonth] = []
 
     init(initialRange: CalendarDateRange) {
         self.initialRange = initialRange
@@ -140,14 +143,39 @@ struct BulkEditSheet: View {
             } message: {
                 Text("This cannot be undone.")
             }
+            .alert(
+                "Some of those months are closed",
+                isPresented: Binding(
+                    get: { !refusedMonths.isEmpty },
+                    set: { if !$0 { refusedMonths = [] } }
+                )
+            ) {
+                Button("OK", role: .cancel) { refusedMonths = [] }
+            } message: {
+                Text(String(
+                    localized: "Nothing was changed. Reopen \(refusedMonthNames) in Settings › Calculation first.",
+                    comment: "Bulk edit refused; the value is a list of month names"
+                ))
+            }
         }
+    }
+
+    /// The closed months, named. Nothing is changed when any of them is in
+    /// range, so naming all of them saves a second attempt.
+    private var refusedMonthNames: String {
+        let formatting = settingsStore.dateFormatting
+        return ListFormatter.localizedString(
+            byJoining: refusedMonths.map { formatting.monthTitle($0) }
+        )
     }
 
     // MARK: - Derived
 
     private var settings: AppSettings { settingsStore.settings }
     private var calendar: Calendar { settingsStore.workCalendar }
-    private var repository: WorkdayRepository { WorkdayRepository(context: modelContext) }
+    private var repository: WorkdayRepository {
+        WorkdayRepository(context: modelContext, lock: settings.monthLock)
+    }
     private var range: CalendarDateRange { CalendarDateRange(start: start, end: end) }
 
     private var request: BulkEditRequest {
@@ -217,8 +245,25 @@ struct BulkEditSheet: View {
 
     private func apply() {
         let plan = self.plan
-        for record in plan.changes { repository.save(record) }
-        for date in plan.deletions { repository.delete(on: date) }
+        // Checked before anything is written rather than caught halfway. A
+        // fortnight of leave that applied to the first four days and then
+        // stopped is worse than one that refused outright, because the person
+        // has no way to tell which half landed.
+        let closed = settingsStore.settings.monthLock.lockedMonths(
+            in: CalendarDateRange(start: start, end: end),
+            calendar: settingsStore.workCalendar
+        )
+        guard closed.isEmpty else {
+            refusedMonths = closed
+            return
+        }
+        do {
+            for record in plan.changes { try repository.save(record) }
+            for date in plan.deletions { try repository.delete(on: date) }
+        } catch {
+            refusedMonths = [YearMonth(start)]
+            return
+        }
         HoursStack.refreshWidget()
         dismiss()
     }
