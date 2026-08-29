@@ -80,6 +80,8 @@ export const en = {
         body: "Start and end times, or just type the hours. If the end is before the start it's a night shift and gets measured as one. Breaks go in as a length or as clock times. Split shifts work too, where the gap in the middle is neither worked nor a break." },
       { label: "The week", title: "A contracted week, per weekday",
         body: "Not one number stretched across five days. A 6/6/6/6/8 week is ordinary here, and so is a four-day one. If your contract just says 37½ hours, that overrides the individual days." },
+      { label: "The year", title: "A year that closes, and carries",
+        body: "Close a year and the figure it carried is fixed, so a correction made two years later can't move what somebody already agreed. Cap the carry-over if your contract does — paid out or forfeited above it. A shortfall always carries in full; forgiving it would invent hours nobody worked." },
       { label: "The record", title: "Dates, never timestamps",
         body: "Flying somewhere or a clock change can't quietly reshape what you entered, because days are stored as dates. There is one real question on a clock-change day: was that shift eight hours or nine? You pick which answer you want, once, in settings." },
     ],

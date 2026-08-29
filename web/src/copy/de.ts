@@ -84,6 +84,8 @@ export const de: Copy = {
         body: "Beginn und Ende, oder einfach die Stunden eintippen. Liegt das Ende vor dem Beginn, ist es eine Nachtschicht und wird auch so gemessen. Pausen gehen als Dauer oder als Uhrzeiten hinein. Geteilte Schichten ebenso, bei denen die Lücke dazwischen weder Arbeitszeit noch Pause ist." },
       { label: "Die Woche", title: "Eine Vertragswoche, pro Wochentag",
         body: "Nicht eine Zahl über fünf Tage gespannt. Eine 6/6/6/6/8-Woche ist hier normal, eine Vier-Tage-Woche auch. Steht im Vertrag nur 37½ Stunden, überschreibt das die einzelnen Tage." },
+      { label: "Das Jahr", title: "Ein Jahr, das abschließt und überträgt",
+        body: "Schließt du ein Jahr ab, steht der übertragene Saldo fest — eine Korrektur zwei Jahre später verschiebt ihn nicht mehr. Begrenzt dein Vertrag den Übertrag: darüber wird ausgezahlt oder es verfällt. Ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden." },
       { label: "Der Eintrag", title: "Daten, niemals Zeitstempel",
         body: "Ein Flug oder eine Zeitumstellung kann nicht stillschweigend verändern, was du eingetragen hast, weil Tage als Datum gespeichert werden. An einem Umstellungstag gibt es genau eine echte Frage: waren das acht Stunden oder neun? Welche Antwort du willst, entscheidest du einmal in den Einstellungen." },
     ],
