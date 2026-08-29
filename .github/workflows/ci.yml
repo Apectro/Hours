@@ -10,6 +10,17 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      # Off by default, and an input rather than something that just happens on
+      # every run, for the reason spelled out on the build-and-test job: macOS
+      # minutes bill at ten times the Linux rate and this account has run out of
+      # them before. A walkthrough is around two minutes of simulator time —
+      # twenty billable — which is cheap to ask for and expensive to take
+      # without being asked.
+      record_walkthrough:
+        description: "Record a video of the app being used"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -378,6 +389,7 @@ jobs:
             -project Hours.xcodeproj \
             -scheme Hours \
             -destination "id=${{ steps.sim.outputs.udid }}" \
+            -skip-testing:HoursUITests/WalkthroughTests \
             -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
@@ -432,6 +444,74 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test-german.log"
 
+      # A video of the app being used, which is the one thing a folder of
+      # stills cannot show: how it moves, how long a screen takes to open, what
+      # the transitions actually look like.
+      #
+      # `simctl io recordVideo` films the device, not the test, so the recorder
+      # has to be running before xcodebuild starts and has to outlive it. Two
+      # things make that work:
+      #
+      #   - The simulator is booted here rather than left to xcodebuild.
+      #     recordVideo attaches to a booted device and exits immediately
+      #     against one that is shut down; xcodebuild then boots it a second
+      #     later and the recording is already over, having written a
+      #     zero-length file and returned success.
+      #   - The recorder is stopped with SIGINT. It finalises the MP4 container
+      #     on that signal and only on that signal — killed any other way it
+      #     leaves a file of the right size that no player will open.
+      - name: Record a walkthrough
+        if: github.event_name == 'workflow_dispatch' && inputs.record_walkthrough
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          UDID="${{ steps.sim.outputs.udid }}"
+          VIDEO="$RUNNER_TEMP/walkthrough.mp4"
+          rm -f "$VIDEO"
+
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+
+          xcrun simctl io "$UDID" recordVideo --codec h264 --mask ignored "$VIDEO" &
+          RECORDER=$!
+          # Long enough for the recorder to have opened the file. Without it a
+          # fast test can finish before the first frame is written.
+          sleep 3
+
+          set +e
+          xcodebuild test \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=$UDID" \
+            -only-testing:HoursUITests/WalkthroughTests \
+            -resultBundlePath "$RUNNER_TEMP/HoursWalkthrough.xcresult" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/test-walkthrough.log"
+          STATUS=$?
+          set -e
+
+          # A trailing second so the video does not end on the last tap, then
+          # SIGINT and a wait for the file to be closed.
+          sleep 1
+          kill -INT $RECORDER 2>/dev/null || true
+          wait $RECORDER 2>/dev/null || true
+
+          if [ ! -s "$VIDEO" ]; then
+            echo "::warning::no video was written"
+            exit 0
+          fi
+          BYTES=$(wc -c < "$VIDEO" | tr -d ' ')
+          echo "walkthrough.mp4: $BYTES bytes"
+          # A recorder that attached to a device and filmed nothing still writes
+          # a valid, tiny file. Anything under about 100 KB is a black screen.
+          if [ "$BYTES" -lt 100000 ]; then
+            echo "::warning::walkthrough.mp4 is only $BYTES bytes — probably a blank recording"
+          fi
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::warning::the walkthrough test failed; the video shows how far it got"
+          fi
+
       # The screenshots for the App Store listing, taken by ScreenshotTests and
       # pulled out of the result bundles. xcresulttool names every exported file
       # after its UUID, so Scripts/name-screenshots.py puts the names the test
@@ -473,6 +553,15 @@ jobs:
           # sets never collide on identical filenames.
           harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
 
+          # The walkthrough video, if this run recorded one. Its own folder:
+          # the device folders go to App Store Connect as they are and a stray
+          # MP4 in one of them is a rejected upload.
+          if [ -s "$RUNNER_TEMP/walkthrough.mp4" ]; then
+            mkdir -p "$OUT/walkthrough"
+            cp "$RUNNER_TEMP/walkthrough.mp4" "$OUT/walkthrough/"
+            echo "walkthrough video included"
+          fi
+
           # The German run is continue-on-error, which reports success even
           # when it fails — that is how an empty German folder went unnoticed
           # once already. Count the files rather than trust the step.
@@ -483,7 +572,7 @@ jobs:
           fi
 
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
-          FILES=$(find "$OUT" -type f ! -name '*.png' | wc -l | tr -d ' ')
+          FILES=$(find "$OUT" -type f ! -name '*.png' ! -name '*.mp4' ! -name 'README.md' | wc -l | tr -d ' ')
           echo "screenshots: $SHOTS   export artifacts: $FILES"
           find "$OUT" -type f | sort
           # Six app screens plus up to four PDF pages; the CSV and the workbook
