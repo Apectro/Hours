@@ -556,7 +556,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
             <li><span class="what">Unit tests</span> <button class="copy">app.zeitkonto.tests</button></li>
             <li><span class="what">UI tests</span> <button class="copy">app.zeitkonto.uitests</button></li>
           </ul>
-          <p>If you change this, come back and change the three product identifiers in step 15 to match — they are prefixed with it.</p>
+          <p>If you change this, come back and change the three product identifiers in step 17 to match — they are prefixed with it.</p>
         </div>
       </li>
 
@@ -659,10 +659,13 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s7" aria-labelledby="s7-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--paid">$99 / year</span><span class="chip chip--blocks">Blocks 8–22</span><span class="chip">1–2 days to be approved</span></div>
+          <div class="chips"><span class="chip chip--paid">$99 / year</span><span class="chip chip--blocks">Blocks 8–24</span><span class="chip">1–2 days to be approved</span></div>
           <label class="step-title" id="s7-t" for="s7">Enrol in the Apple Developer Program</label>
           <p class="step-where">developer.apple.com/programs</p>
           <p>Nothing below this line is possible without it. Approval usually takes a day or two and occasionally asks for identity documents, so start it before you need it rather than on the evening you want to ship.</p>
+          <div class="callout">
+            <p><strong>Individual or Organization — decide before you pay.</strong> An individual enrolment needs no company and no D-U-N-S number, and can take money perfectly well. What it does is put <em>your own legal name</em> on the App Store as the seller. An Organization enrolment shows the company name instead, and needs a real legal entity plus a D-U-N-S number, which is free but takes its own few days. Moving from one to the other afterwards is a migration, not a setting, so this is worth ten minutes now.</p>
+          </div>
         </div>
       </li>
 
@@ -757,7 +760,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
     <div class="phase-head">
       <span class="phase-mark">Phase 5 — only if you sell it</span>
       <h2>Switch on Zeitkonto Pro</h2>
-      <p class="phase-note">Skip this entirely if the app is just for you — everything works unpaid in a build you sign yourself. The order in this phase is not a suggestion: step 14 done before step 15 wastes an afternoon.</p>
+      <p class="phase-note">Skip this entirely if the app is just for you — everything works unpaid in a build you sign yourself. The order in this phase is not a suggestion: step 14 done before step 17 wastes an afternoon.</p>
     </div>
 
     <ol class="steps" start="14">
@@ -779,8 +782,35 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s15" aria-labelledby="s15-t">
         <div class="step-body">
+          <div class="chips"><span class="chip">15 minutes</span><span class="chip chip--free">Halves the commission</span></div>
+          <label class="step-title" id="s15-t" for="s15">Apply to the Small Business Program</label>
+          <p class="step-where">App Store Connect › Business › Agreements, Tax, and Banking</p>
+          <p>Apple's commission is 30%. Under the Small Business Program it is <strong>15%</strong>, for anyone who earned under one million dollars across all their apps in the previous year — which is almost certainly you.</p>
+          <p><strong>It is not automatic.</strong> You apply, and it takes effect the month after you are accepted; nothing backdates. Fifteen per cent of everything the app ever earns is a large sum to leave behind because a form went unfilled.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s16" aria-labelledby="s16-t">
+        <div class="step-body">
+          <div class="chips"><span class="chip chip--blocks">Blocks EU distribution</span><span class="chip">Think before filling it in</span></div>
+          <label class="step-title" id="s16-t" for="s16">Declare trader status — and read what it publishes</label>
+          <p class="step-where">App Store Connect › Business › Trader status</p>
+          <p>Selling in the EU requires a trader declaration under the Digital Services Act: name, address, phone number and email. Without it the app cannot be distributed in the EU at all.</p>
+          <div class="callout">
+            <p><strong>Those details are shown publicly on your App Store page.</strong> Not merely held by Apple — displayed, beside the app, to anyone who looks. Enrol as an individual working from home and that is your home address on a public page.</p>
+            <p>This, rather than anything on Apple's enrolment form, is the real argument for a company: a registered business address keeps your home address off it. A mail-forwarding address only works if it is legally valid as a business address where you live, which is worth checking before you rely on it.</p>
+          </div>
+          <p class="fineprint">Apple changes this area regularly and it interacts with how you are registered locally. Worth an hour with an accountant before you fill it in, not after.</p>
+        </div>
+      </li>
+
+
+      <li class="step">
+        <input type="checkbox" class="tick" id="s17" aria-labelledby="s17-t">
+        <div class="step-body">
           <div class="chips"><span class="chip">20 minutes</span><span class="chip chip--blocks">Identifiers must match exactly</span></div>
-          <label class="step-title" id="s15-t" for="s15">Create the three products</label>
+          <label class="step-title" id="s17-t" for="s17">Create the three products</label>
           <p class="step-where">App Store Connect › your app › Monetization</p>
           <p>The identifiers must match <code>SubscriptionStore.ProductID</code> character for character. A typo here is another silent empty paywall.</p>
           <ul class="literals">
@@ -794,20 +824,20 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s16" aria-labelledby="s16-t">
+        <input type="checkbox" class="tick" id="s18" aria-labelledby="s18-t">
         <div class="step-body">
           <div class="chips"><span class="chip">Decision</span></div>
-          <label class="step-title" id="s16-t" for="s16">Decide the real prices</label>
+          <label class="step-title" id="s18-t" for="s18">Decide the real prices</label>
           <p>The numbers in <code>HoursTests/Hours.storekit</code> — £1.99 monthly, £12.99 yearly, £24.99 outright — were chosen to make the paywall render in the simulator. They are placeholders, not a recommendation. The real prices live only in App Store Connect.</p>
           <p>Worth remembering what is and is not behind the payment: recording hours is free forever, and <strong>nothing already recorded is ever withheld</strong> — if a subscription lapses every figure is still there and the backup still writes. What is paid for is producing and creating: the exports, the widgets, a second job, editing a range in one pass, and iCloud sync.</p>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s17" aria-labelledby="s17-t">
+        <input type="checkbox" class="tick" id="s19" aria-labelledby="s19-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--blocks">Easy to miss</span><span class="chip">1 minute</span></div>
-          <label class="step-title" id="s17-t" for="s17">Clear the StoreKit configuration from the Run scheme</label>
+          <label class="step-title" id="s19-t" for="s19">Clear the StoreKit configuration from the Run scheme</label>
           <p class="step-where">Product › Scheme › Edit Scheme › Run › Options › StoreKit Configuration → None</p>
           <p>The Hours scheme currently points Run and Test at <code>HoursTests/Hours.storekit</code>, which is what lets you exercise buying, cancelling, expiring and refunding in the simulator with no account and no network. It is genuinely useful — right up to the moment you want to test a <em>real</em> sandbox purchase.</p>
           <p>While that file is selected, Xcode serves it instead of talking to App Store Connect. A product you have configured perfectly will still look missing. Set it to None when you want the real thing, and put it back afterwards.</p>
@@ -825,13 +855,13 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <p class="phase-note">The part that is writing rather than configuration. Two of these will get the build rejected if they are missing.</p>
     </div>
 
-    <ol class="steps" start="18">
+    <ol class="steps" start="20">
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s18" aria-labelledby="s18-t">
+        <input type="checkbox" class="tick" id="s20" aria-labelledby="s20-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Placeholder is in place</span></div>
-          <label class="step-title" id="s18-t" for="s18">Replace the app icon with one you actually like</label>
+          <label class="step-title" id="s20-t" for="s20">Replace the app icon with one you actually like</label>
           <p class="step-where">Hours/Resources/Assets.xcassets/AppIcon.appiconset/</p>
           <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a real one: four rules of a timesheet, one of them run long and picked out in amber.</p>
           <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are a dozen editable numbers at the top of the file. Run it again after changing them. <strong>Treat it as a working placeholder</strong> — it clears the blocker and it is not embarrassing, but it is not a designed identity either.</p>
@@ -840,10 +870,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s19" aria-labelledby="s19-t">
+        <input type="checkbox" class="tick" id="s21" aria-labelledby="s21-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--free">Mostly done for you</span><span class="chip">30 minutes</span></div>
-          <label class="step-title" id="s19-t" for="s19">Collect the screenshots</label>
+          <label class="step-title" id="s21-t" for="s21">Collect the screenshots</label>
           <p class="step-where">github.com/Apectro/Hours › branch <code>screenshots</code></p>
           <p>They already exist. A test drives the app in a simulator with a month of sample data and captures the calendar, a day, the insights, settings, the privacy screen and the export sheet — plus the actual exported PDF pages, CSV and XLSX. Ten files, on the <code>screenshots</code> branch, kept current.</p>
           <p>Two sizes are now captured for you: the suite runs on the largest iPhone the runner has, then takes the screenshots again on a smaller one. They arrive in a folder each, named after the simulator, so they can be uploaded separately without sorting them out first. The last run gave <code>iPhone-17-Pro-Max</code> and <code>iPhone-17-Pro</code>.</p>
@@ -853,10 +883,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s20" aria-labelledby="s20-t">
+        <input type="checkbox" class="tick" id="s22" aria-labelledby="s22-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip chip--free">Written for you</span><span class="chip">10 minutes</span></div>
-          <label class="step-title" id="s20-t" for="s20">Put the privacy policy on the web</label>
+          <label class="step-title" id="s22-t" for="s22">Put the privacy policy on the web</label>
           <p class="step-where">docs/privacy/index.html</p>
           <p>Every App Store listing needs a privacy policy URL that resolves, even one for an app that collects nothing. <strong>The policy is written</strong> — from the code rather than from a template, with a table in <code>docs/README.md</code> showing where each claim comes from, so it can be checked rather than trusted.</p>
           <p>Pages already serves it from <code>main:/docs</code>; once the domain is attached in phase 2 it is live at: It appears at:</p>
@@ -865,27 +895,27 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           </ul>
           <p>Two edits before you do: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, and the date at the top should be the day you publish.</p>
           <div class="callout">
-            <span class="callout-label">Interacts with step 26</span>
+            <span class="callout-label">Interacts with step 28</span>
             <p>Making the repository private stops Pages serving on a free plan, and the URL dies — which fails review at your next submission. Host the page elsewhere first, or keep the repository public.</p>
           </div>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s21" aria-labelledby="s21-t">
+        <input type="checkbox" class="tick" id="s23" aria-labelledby="s23-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--free">Ten minutes of ticking "No"</span></div>
-          <label class="step-title" id="s21-t" for="s21">Fill in the privacy nutrition label</label>
+          <label class="step-title" id="s23-t" for="s23">Fill in the privacy nutrition label</label>
           <p class="step-where">App Store Connect › App Privacy</p>
           <p><strong>Data Not Collected</strong>, in every category. This is the easiest form you will ever fill in, and it is worth being able to answer it honestly — most apps cannot.</p>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s22" aria-labelledby="s22-t">
+        <input type="checkbox" class="tick" id="s24" aria-labelledby="s24-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--free">Drafted for you</span><span class="chip">30 minutes to edit</span></div>
-          <label class="step-title" id="s22-t" for="s22">Edit the listing and paste it in</label>
+          <label class="step-title" id="s24-t" for="s24">Edit the listing and paste it in</label>
           <p class="step-where">docs/app-store-listing.md</p>
           <p>Every field App Store Connect asks for is drafted, with the character limit it enforces marked against each: name, subtitle, promotional text, the full description, keywords, URLs, age rating and the review notes. The category is already set in the project to Productivity.</p>
           <p>The <strong>review notes</strong> are the ones worth reading before you send. They say plainly that the app is fully functional unpaid and how to reach the paywall — reviewers reject paywalls they cannot get behind, and this one gates producing timesheets rather than recording hours, which is not obvious from outside.</p>
@@ -904,23 +934,23 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <p class="phase-note">Each of these needs an account I do not have access to.</p>
     </div>
 
-    <ol class="steps" start="23">
+    <ol class="steps" start="25">
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s23" aria-labelledby="s23-t">
+        <input type="checkbox" class="tick" id="s25" aria-labelledby="s25-t">
         <div class="step-body">
           <div class="chips"><span class="chip">1 minute</span></div>
-          <label class="step-title" id="s23-t" for="s23">Delete the stale working branch</label>
+          <label class="step-title" id="s25-t" for="s25">Delete the stale working branch</label>
           <p class="step-where">github.com/Apectro/Hours/branches</p>
           <p>The branch <code>claude/work-hours-tracking-app-i0iomp</code> is left over and holds nothing that is not on <code>main</code>. Deleting it needs a permission this session does not have.</p>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s24" aria-labelledby="s24-t">
+        <input type="checkbox" class="tick" id="s26" aria-labelledby="s26-t">
         <div class="step-body">
           <div class="chips"><span class="chip">Decision</span><span class="chip">Costs money if you say yes</span></div>
-          <label class="step-title" id="s24-t" for="s24">Decide about the macOS CI budget</label>
+          <label class="step-title" id="s26-t" for="s26">Decide about the macOS CI budget</label>
           <p class="step-where">GitHub › Settings › Billing › Spending limits</p>
           <p>GitHub bills macOS runner minutes at <strong>ten times</strong> the Linux rate, and the simulator job needs macOS. So the workflow is split: the engine's 210 tests run on Linux on every push in about a minute, and the full simulator build, the UI tests and the screenshot capture run on pull requests and on demand.</p>
           <p>Leave it as it is and it costs nothing extra. Raise the limit if you would rather the simulator suite ran on every push too.</p>
@@ -938,23 +968,23 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <p class="phase-note">Nothing here blocks anything. Listed so you know it exists rather than discovering it later.</p>
     </div>
 
-    <ol class="steps" start="25">
+    <ol class="steps" start="27">
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s25" aria-labelledby="s25-t">
+        <input type="checkbox" class="tick" id="s27" aria-labelledby="s27-t">
         <div class="step-body">
           <div class="chips"><span class="chip">Half a day per language</span></div>
-          <label class="step-title" id="s25-t" for="s25">Add another language</label>
+          <label class="step-title" id="s27-t" for="s27">Add another language</label>
           <p>The app is English only. The string catalogues are wired up and working — nineteen keys across the app and the widget — so adding a language is mostly translation rather than plumbing.</p>
           <p>Two strings would need moving into a catalogue first: the reminder notification's fallback body in <code>ReminderScheduler</code>, and the gap message built in <code>GapFinder.message</code>. Both are literal English inside the engine, which imports nothing but Foundation on purpose.</p>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s26" aria-labelledby="s26-t">
+        <input type="checkbox" class="tick" id="s28" aria-labelledby="s28-t">
         <div class="step-body">
           <div class="chips"><span class="chip">A few minutes</span></div>
-          <label class="step-title" id="s26-t" for="s26">Make the repository private</label>
+          <label class="step-title" id="s28-t" for="s28">Make the repository private</label>
           <p>Nothing in it is secret — there are no keys, no tokens and no personal data anywhere in the tree, and the CI runs without any secret at all. But the App Store listing does not link to it, and a private repository is one fewer thing to think about.</p>
         </div>
       </li>
