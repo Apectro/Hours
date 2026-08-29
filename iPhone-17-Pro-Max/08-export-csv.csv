@@ -1,0 +1,44 @@
+﻿Date,Day,Type,Start,End,Break,Worked,Expected,Overtime,Notes
+2026-08-01,Sat,Weekend,—,—,—,0h,0h,0h,—
+2026-08-02,Sun,Weekend,—,—,—,0h,0h,0h,—
+2026-08-03,Mon,Work,09:00,14:30,—,5h 30m,8h,0h,—
+2026-08-04,Tue,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-05,Wed,Work,08:00,18:15,30m,9h 45m,8h,1h 45m,Release day — stayed for the deploy
+2026-08-06,Thu,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-07,Fri,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-08,Sat,Weekend,—,—,—,0h,0h,0h,—
+2026-08-09,Sun,Weekend,—,—,—,0h,0h,0h,—
+2026-08-10,Mon,Work,08:00,18:15,30m,9h 45m,8h,1h 45m,Release day — stayed for the deploy
+2026-08-11,Tue,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-12,Wed,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-13,Thu,Work,09:00,14:30,—,5h 30m,8h,0h,—
+2026-08-14,Fri,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-15,Sat,Weekend,—,—,—,0h,0h,0h,—
+2026-08-16,Sun,Weekend,—,—,—,0h,0h,0h,—
+2026-08-17,Mon,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-18,Tue,Work,09:00,14:30,—,5h 30m,8h,0h,—
+2026-08-19,Wed,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-20,Thu,Work,08:00,18:15,30m,9h 45m,8h,1h 45m,Release day — stayed for the deploy
+2026-08-21,Fri,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-22,Sat,Weekend,—,—,—,0h,0h,0h,—
+2026-08-23,Sun,Weekend,—,—,—,0h,0h,0h,—
+2026-08-24,Mon,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-25,Tue,Work,08:00,18:15,30m,9h 45m,8h,1h 45m,Release day — stayed for the deploy
+2026-08-26,Wed,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-27,Thu,Work,08:00,16:30,30m,8h,8h,0h,—
+2026-08-28,Fri,Work,09:00,14:30,—,5h 30m,8h,0h,—
+2026-08-29,Sat,Weekend,—,—,—,0h,0h,0h,—
+2026-08-30,Sun,Weekend,—,—,—,0h,0h,0h,—
+2026-08-31,Mon,Work,08:00,16:30,30m,8h,8h,0h,—
+
+Name,Ada Lovelace
+Summary,2026-08-01 – 2026-08-31
+Total worked,165h
+Total expected,168h
+Balance,-3h
+Overtime,7h
+Short,10h
+Days worked,21
+Scheduled working days,21
+Days off,10
+Total breaks,8h 30m
