@@ -72,6 +72,14 @@ final class WalkthroughTests: XCTestCase {
 
         // 1 — the calendar, which is what the app is.
         guard reached("calendar", app.tab(.calendar)) else { return }
+
+        // Where the video should start. The recorder is filming the device,
+        // not the test, so it catches everything xcodebuild does first —
+        // installing the app, the home screen, the launch. On the first run
+        // that was seventy of a hundred and thirty-eight seconds. The trim has
+        // to come from the app itself rather than from a guess, because how
+        // long an install takes is a property of the runner that day.
+        print("WALKTHROUGH_READY \(Date().timeIntervalSince1970)")
         pause(2)
 
         // 2 — a day, opened and closed again. Today, because the sample month

@@ -469,17 +469,31 @@ jobs:
           VIDEO="$RUNNER_TEMP/walkthrough.mp4"
           rm -f "$VIDEO"
 
+          # Built before the recorder starts rather than inside the test run.
+          # `xcodebuild test` would build, install and launch on camera, and
+          # a recording that opens with a minute of home screen is a recording
+          # nobody watches to the end.
+          xcodebuild build-for-testing \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=$UDID" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            > "$RUNNER_TEMP/walkthrough-build.log" 2>&1 \
+            || { echo "::warning::the walkthrough build failed"; tail -20 "$RUNNER_TEMP/walkthrough-build.log"; exit 0; }
+
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
 
           xcrun simctl io "$UDID" recordVideo --codec h264 --mask ignored "$VIDEO" &
           RECORDER=$!
+          REC_START=$(python3 -c 'import time; print(time.time())')
           # Long enough for the recorder to have opened the file. Without it a
           # fast test can finish before the first frame is written.
           sleep 3
 
           set +e
-          xcodebuild test \
+          xcodebuild test-without-building \
             -project Hours.xcodeproj \
             -scheme Hours \
             -destination "id=$UDID" \
@@ -501,11 +515,51 @@ jobs:
             echo "::warning::no video was written"
             exit 0
           fi
+          # Trim off everything before the app was on screen.
+          #
+          # recordVideo films the device, not the test, so the file opens with
+          # xcodebuild installing the app and a long look at the home screen —
+          # seventy of a hundred and thirty-eight seconds, the first time this
+          # ran. How long that takes is a property of the runner on the day, so
+          # the cut comes from a timestamp the app prints when its first screen
+          # is up rather than from a fixed number.
+          #
+          # Both halves degrade rather than fail: no marker, or no ffmpeg on the
+          # image, and the untrimmed file ships with a warning. A video with a
+          # dull opening is worth more than no video.
+          READY=$(grep -m1 -o 'WALKTHROUGH_READY [0-9.]*' "$RUNNER_TEMP/test-walkthrough.log" \
+            | awk '{print $2}' || true)
+          if [ -n "$READY" ] && command -v ffmpeg >/dev/null 2>&1; then
+            # Half a second before the marker, so the first screen fades in on
+            # camera rather than being there already.
+            OFFSET=$(python3 -c "print(max(0, $READY - $REC_START - 0.5))")
+            echo "trimming $OFFSET seconds of install and home screen"
+            # Re-encoded, not stream-copied: a copy cuts to the nearest
+            # keyframe rather than to the offset asked for, and leaves the file
+            # at its capture size — 25 MB, onto a branch that is force-pushed
+            # every run. Half resolution is still a retina phone screen.
+            if ffmpeg -hide_banner -loglevel error -ss "$OFFSET" -i "$VIDEO" \
+                 -vf "scale=660:-2" -c:v libx264 -preset veryfast -crf 24 \
+                 -pix_fmt yuv420p -movflags +faststart -an \
+                 "$RUNNER_TEMP/trimmed.mp4" -y \
+               && [ -s "$RUNNER_TEMP/trimmed.mp4" ]; then
+              mv "$RUNNER_TEMP/trimmed.mp4" "$VIDEO"
+            else
+              echo "::warning::the trim failed; keeping the full recording"
+            fi
+          elif [ -z "$READY" ]; then
+            echo "::warning::no WALKTHROUGH_READY marker in the log — not trimmed"
+          else
+            echo "::warning::no ffmpeg on this runner — not trimmed"
+          fi
+
           BYTES=$(wc -c < "$VIDEO" | tr -d ' ')
           echo "walkthrough.mp4: $BYTES bytes"
           # A recorder that attached to a device and filmed nothing still writes
-          # a valid, tiny file. Anything under about 100 KB is a black screen.
-          if [ "$BYTES" -lt 100000 ]; then
+          # a valid, tiny file. The floor is well under a real recording either
+          # way: the untrimmed capture runs to tens of megabytes and the
+          # trimmed, half-size one to about a megabyte.
+          if [ "$BYTES" -lt 50000 ]; then
             echo "::warning::walkthrough.mp4 is only $BYTES bytes — probably a blank recording"
           fi
           if [ "$STATUS" -ne 0 ]; then
