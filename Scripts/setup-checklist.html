@@ -895,7 +895,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           </ul>
           <p>Two edits before you do: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, and the date at the top should be the day you publish.</p>
           <div class="callout">
-            <span class="callout-label">Interacts with step 28</span>
+            <span class="callout-label">Interacts with step 27</span>
             <p>Making the repository private stops Pages serving on a free plan, and the URL dies — which fails review at your next submission. Host the page elsewhere first, or keep the repository public.</p>
           </div>
         </div>
@@ -939,18 +939,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s25" aria-labelledby="s25-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">1 minute</span></div>
-          <label class="step-title" id="s25-t" for="s25">Delete the stale working branch</label>
-          <p class="step-where">github.com/Apectro/Hours/branches</p>
-          <p>The branch <code>claude/work-hours-tracking-app-i0iomp</code> is left over and holds nothing that is not on <code>main</code>. Deleting it needs a permission this session does not have.</p>
-        </div>
-      </li>
-
-      <li class="step">
-        <input type="checkbox" class="tick" id="s26" aria-labelledby="s26-t">
-        <div class="step-body">
           <div class="chips"><span class="chip">Decision</span><span class="chip">Costs money if you say yes</span></div>
-          <label class="step-title" id="s26-t" for="s26">Decide about the macOS CI budget</label>
+          <label class="step-title" id="s25-t" for="s25">Decide about the macOS CI budget</label>
           <p class="step-where">GitHub › Settings › Billing › Spending limits</p>
           <p>GitHub bills macOS runner minutes at <strong>ten times</strong> the Linux rate, and the simulator job needs macOS. So the workflow is split: the engine's 210 tests run on Linux on every push in about a minute, and the full simulator build, the UI tests and the screenshot capture run on pull requests and on demand.</p>
           <p>Leave it as it is and it costs nothing extra. Raise the limit if you would rather the simulator suite ran on every push too.</p>
@@ -971,20 +961,20 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
     <ol class="steps" start="27">
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s27" aria-labelledby="s27-t">
+        <input type="checkbox" class="tick" id="s26" aria-labelledby="s26-t">
         <div class="step-body">
           <div class="chips"><span class="chip">Half a day per language</span></div>
-          <label class="step-title" id="s27-t" for="s27">Add another language</label>
+          <label class="step-title" id="s26-t" for="s26">Add another language</label>
           <p>The app is English only. The string catalogues are wired up and working — nineteen keys across the app and the widget — so adding a language is mostly translation rather than plumbing.</p>
           <p>Two strings would need moving into a catalogue first: the reminder notification's fallback body in <code>ReminderScheduler</code>, and the gap message built in <code>GapFinder.message</code>. Both are literal English inside the engine, which imports nothing but Foundation on purpose.</p>
         </div>
       </li>
 
       <li class="step">
-        <input type="checkbox" class="tick" id="s28" aria-labelledby="s28-t">
+        <input type="checkbox" class="tick" id="s27" aria-labelledby="s27-t">
         <div class="step-body">
           <div class="chips"><span class="chip">A few minutes</span></div>
-          <label class="step-title" id="s28-t" for="s28">Make the repository private</label>
+          <label class="step-title" id="s27-t" for="s27">Make the repository private</label>
           <p>Nothing in it is secret — there are no keys, no tokens and no personal data anywhere in the tree, and the CI runs without any secret at all. But the App Store listing does not link to it, and a private repository is one fewer thing to think about.</p>
         </div>
       </li>
