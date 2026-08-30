@@ -32,3 +32,7 @@ fastlane/report.xml
 fastlane/screenshots/**/*.png
 fastlane/test_output
 __pycache__/
+
+# The Caddy binary, downloaded by the site job and by anyone running the route
+# check against docs/ by hand.
+/caddy

@@ -1,0 +1,8 @@
+# The build context is uploaded to Railway on every deploy, and this repository
+# is an iOS app that happens to carry a website. Without this it would ship
+# HoursCore, the Xcode project, web/node_modules and the git history to build a
+# static file server.
+*
+!Caddyfile
+!docs
+!docs/**

@@ -592,7 +592,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
     <div class="phase-head">
       <span class="phase-mark">Phase 2 — the domain</span>
       <h2>Point zeitkonto.app at the site</h2>
-      <p class="phase-note">Nothing here involves Apple and none of it costs anything beyond the domain you already own. Do it early anyway: DNS takes time to spread and the certificate takes longer, and the privacy policy URL has to resolve before a submission is accepted. The site itself is built and committed — this only connects the name to it.</p>
+      <p class="phase-note">Nothing here involves Apple. Do it early anyway: DNS takes time to spread and the certificate takes longer, and the privacy policy URL has to resolve before a submission is accepted. The site itself is built and committed — this deploys it and connects the name to it.</p>
     </div>
 
     <ol class="steps" start="4">
@@ -600,28 +600,30 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s4" aria-labelledby="s4-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">5 minutes</span><span class="chip">then up to a day to spread</span></div>
-          <label class="step-title" id="s4-t" for="s4">Add the DNS records</label>
-          <p class="step-where">Wherever you bought zeitkonto.app › DNS</p>
-          <p>Four <strong>A records</strong> on the apex — the bare domain, often written <code>@</code> — one for each of GitHub's Pages addresses:</p>
-          <ul class="literals">
-            <li><span class="what">A</span> <button class="copy">185.199.108.153</button></li>
-            <li><span class="what">A</span> <button class="copy">185.199.109.153</button></li>
-            <li><span class="what">A</span> <button class="copy">185.199.110.153</button></li>
-            <li><span class="what">A</span> <button class="copy">185.199.111.153</button></li>
-          </ul>
-          <p>All four, not one: they are what makes it keep working when a server does not. Then, if you want <code>www.zeitkonto.app</code> to work as well, one <strong>CNAME</strong> record on <code>www</code> pointing at <code>apectro.github.io</code> — the repository owner, with no repository name after it.</p>
+          <div class="chips"><span class="chip">10 minutes</span><span class="chip">around $5 a month</span></div>
+          <label class="step-title" id="s4-t" for="s4">Deploy the site on Railway</label>
+          <p class="step-where">railway.com › New Project › Deploy from GitHub repo</p>
+          <p>Pick <code>Apectro/Hours</code>. Railway reads <code>railway.json</code> at the root, which pins it to the <code>Dockerfile</code> — without that it would find <code>web/package.json</code> next to <code>Package.swift</code> and an Xcode project and have to guess, which is not a thing to leave to a guess.</p>
+          <p>What it builds is Caddy plus the contents of <code>docs/</code>: no Node in the image, nothing compiled at deploy time, about 3MB of site. <code>docs/</code> is the tree CI already checks against <code>web/</code> on every push, so what Railway serves and what the repository says is live are the same files by construction rather than by discipline.</p>
+          <p>Then <strong>Settings › Networking › Generate Domain</strong> for a <code>…up.railway.app</code> address, and open it. Check <code>/</code>, <code>/de/</code> and <code>/privacy/</code> there <em>before</em> going anywhere near DNS. A broken deploy and a half-spread DNS record look identical from outside, and doing them one at a time is the difference between a five-minute problem and an afternoon.</p>
+          <div class="callout">
+            <p><strong>This is the one part of the project that now costs money every month.</strong> Pages was free. Railway&#8217;s paid tier starts around $5 — check the current figure, it has moved — and if it ever lapses, <code>zeitkonto.app/privacy/</code> stops resolving. That does not break anything visibly; it fails your <em>next</em> App Store submission, quietly and much later. Put a real card on it rather than a trial.</p>
+          </div>
         </div>
       </li>
 
       <li class="step">
         <input type="checkbox" class="tick" id="s5" aria-labelledby="s5-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">2 minutes</span><span class="chip chip--blocks">Then wait</span></div>
-          <label class="step-title" id="s5-t" for="s5">Attach the domain in Pages</label>
-          <p class="step-where">github.com/Apectro/Hours › Settings › Pages › Custom domain</p>
-          <p>Enter <code>zeitkonto.app</code> and save. GitHub checks the DNS, then issues a certificate — that part can take anywhere from a few minutes to an hour. When <strong>Enforce HTTPS</strong> becomes tickable, tick it.</p>
-          <p><code>docs/CNAME</code> in the repository already says <code>zeitkonto.app</code>, so this should match what GitHub finds rather than fight it. That file is build output and is rewritten on every publish, which is deliberate: a hand-placed CNAME is the kind of thing a publish quietly clears.</p>
+          <div class="chips"><span class="chip">5 minutes</span><span class="chip">then up to a day to spread</span></div>
+          <label class="step-title" id="s5-t" for="s5">Add the DNS record Railway asks for</label>
+          <p class="step-where">Railway › Settings › Networking › Custom Domain, then your registrar&#8217;s DNS</p>
+          <p>Enter <code>zeitkonto.app</code> in Railway. It then shows you <strong>the exact record to create</strong> — a target unique to your service. Copy it from that screen. Nobody can tell you the value in advance, it is not the same between projects, and it is the one thing on this whole page that has to come from the dashboard rather than from here.</p>
+          <p>Railway issues the certificate itself once the record resolves.</p>
+          <div class="callout">
+            <p><strong>A bare domain often cannot take a CNAME.</strong> <code>zeitkonto.app</code> with nothing in front of it is the apex, and the DNS standard does not allow a CNAME record there. Providers work around it under the names <strong>ALIAS</strong>, <strong>ANAME</strong> or <strong>CNAME flattening</strong>.</p>
+            <p>If yours offers none of them, the two usual answers are to move the domain&#8217;s DNS to a provider that does — Cloudflare does it free and the registration stays where it is — or to serve on <code>www.zeitkonto.app</code> and redirect the apex to it. Find out which of the three your registrar supports before you plan the afternoon around it.</p>
+          </div>
         </div>
       </li>
 
@@ -639,7 +641,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           <div class="callout">
             <p><strong>.app is HTTPS-only, and this is where it bites.</strong> The whole <code>.app</code> top-level domain is on the browser preload list, so browsers refuse to speak plain HTTP to it — there is no insecure version to land on. Between the DNS resolving and the certificate being issued, the site is not slow or ugly, it is <em>unreachable</em>. That is normal, it is usually minutes, and the thing to do about it is wait rather than start changing settings.</p>
           </div>
-          <p class="fineprint">The old <code>apectro.github.io/Hours/</code> address keeps working afterwards — Pages redirects it to the custom domain.</p>
+          <p class="fineprint">There is a script for exactly this: <code>python3 Scripts/check-site-routes.py https://zeitkonto.app</code> checks all four pages, the images, the redirects, and that the two working drafts in <code>docs/</code> are <em>not</em> being served. CI runs it against the same Caddy configuration on every push.</p>
+          <p class="fineprint">Pages still serves the same <code>docs/</code> for free, but it is not a fallback as things stand: <code>docs/CNAME</code> says <code>zeitkonto.app</code>, which is how a custom domain is set, so Pages redirects <code>apectro.github.io/Hours/</code> to the domain — and the domain now points at Railway. Deleting <code>web/public/CNAME</code> and republishing would give you a genuinely independent second copy at the github.io address.</p>
         </div>
       </li>
 
@@ -889,14 +892,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           <label class="step-title" id="s22-t" for="s22">Put the privacy policy on the web</label>
           <p class="step-where">docs/privacy/index.html</p>
           <p>Every App Store listing needs a privacy policy URL that resolves, even one for an app that collects nothing. <strong>The policy is written</strong> — from the code rather than from a template, with a table in <code>docs/README.md</code> showing where each claim comes from, so it can be checked rather than trusted.</p>
-          <p>Pages already serves it from <code>main:/docs</code>; once the domain is attached in phase 2 it is live at: It appears at:</p>
+          <p>It is in <code>docs/</code>, which is what Railway serves; once the domain is attached in phase 2 it is live at:</p>
           <ul class="literals">
             <li><span class="what">URL</span> <button class="copy">https://zeitkonto.app/privacy/</button></li>
           </ul>
           <p>Two edits before you do: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, and the date at the top should be the day you publish.</p>
           <div class="callout">
-            <span class="callout-label">Interacts with step 27</span>
-            <p>Making the repository private stops Pages serving on a free plan, and the URL dies — which fails review at your next submission. Host the page elsewhere first, or keep the repository public.</p>
+            <span class="callout-label">No longer interacts with step 27</span>
+            <p>On Pages this URL and a private repository could not both exist: Pages stops serving a private repository on a free plan, so making it private killed the policy page and failed review at the next submission. Railway deploys from a private repository perfectly well, which removes the conflict — and is the strongest argument for having moved the site there.</p>
           </div>
         </div>
       </li>

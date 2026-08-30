@@ -54,6 +54,25 @@ jobs:
         working-directory: web
         run: npm run verify
 
+      # docs/ holding the right files and the site serving them are separate
+      # claims, and hosting it ourselves is what put a gap between the two: a
+      # matcher in the Caddyfile that 404s more than it meant to would break
+      # the privacy policy URL — the one in App Store Connect — with every
+      # file still in place and the check above still green. So this boots the
+      # production Caddyfile against docs/ and asks it.
+      - name: The site serves what it should
+        run: |
+          curl -fsSL "https://github.com/caddyserver/caddy/releases/download/v${CADDY}/caddy_${CADDY}_linux_amd64.tar.gz" \
+            | tar xz caddy
+          SITE_ROOT="$PWD/docs" PORT=8891 ./caddy run --config Caddyfile --adapter caddyfile &
+          for _ in $(seq 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:8891/ && break
+            sleep 1
+          done
+          python3 Scripts/check-site-routes.py http://127.0.0.1:8891
+        env:
+          CADDY: 2.8.4
+
   # 2,682 translations across nine languages, and the way they break is quiet:
   # a %@ dropped from a German sentence hands the format call the wrong
   # argument, and nothing complains until somebody sees a wrong number. This

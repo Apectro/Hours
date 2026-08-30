@@ -1,0 +1,57 @@
+{
+	# Railway terminates TLS at its edge and forwards plain HTTP to the
+	# container. Caddy must not try to get a certificate of its own: the ACME
+	# challenge would never reach it, and the retries would be the only thing
+	# in the logs.
+	auto_https off
+	admin off
+	persist_config off
+}
+
+# Railway assigns the port at run time; 8080 is the local default.
+:{$PORT:8080} {
+	# /srv in the image. Overridable so this exact file — not an approximation
+	# of it — can be run against docs/ locally: SITE_ROOT=docs caddy run.
+	root * {$SITE_ROOT:/srv}
+
+	# docs/ holds two working drafts alongside the site — the App Store listing
+	# copy and the README recording where each privacy claim comes from — plus
+	# the CNAME file Pages uses. Pages serves all three at the moment. Nothing
+	# links them and they are not pages.
+	@drafts path *.md /CNAME
+	respond @drafts 404
+
+	encode zstd gzip
+
+	# Everything under /assets/ carries a content hash in its filename, so it
+	# can be cached forever. The pages that name those files cannot be: a
+	# browser holding a year-old index.html would keep asking for bundles that
+	# the next publish has already deleted. The screenshots are in the same
+	# position — 01-calendar.480.webp keeps its name when the picture changes,
+	# and they will change once there is a real app icon to shoot against.
+	@immutable path /assets/* /de/assets/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+	@volatile path *.html */ *.webp *.png *.svg
+	header @volatile Cache-Control "no-cache"
+
+	# The app collects nothing and the site should be checkable on that claim
+	# rather than trusted on it. default-src 'none' with an explicit allowance
+	# per kind means a script from anywhere but this origin cannot run, and
+	# connect-src 'none' means no beacon can leave the page at all — including
+	# one somebody adds later without thinking about it.
+	#
+	# 'unsafe-inline' is here because it has to be: index.html stamps the saved
+	# theme before first paint, and the privacy pages carry their own <style>
+	# so they keep rendering if the built site around them is replaced. A hash
+	# would be tighter and would rot silently the first time either changes.
+	#
+	# fonts.googleapis.com and fonts.gstatic.com are the only external origin
+	# the site touches. Naming them here is the audit.
+	header {
+		Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+	}
+
+	file_server
+}
