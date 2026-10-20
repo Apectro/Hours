@@ -24,8 +24,17 @@ The project uses Xcode's synchronized folder groups, so the file list *is* the
 directory tree — adding a Swift file to `Hours/` is all it takes for it to build,
 and the project file never drifts out of step with the repository.
 
-Before running on a device, set your own bundle identifier and signing team in
-the target's Signing & Capabilities tab. The placeholder is `app.zeitkonto`.
+Before running on a device, set your signing team in the target's Signing &
+Capabilities tab. The bundle identifier is `app.zeitkonto.hours`, and the
+widget's is `app.zeitkonto.hours.widget`.
+
+**TestFlight without a Mac.** The *TestFlight* workflow
+(`.github/workflows/testflight.yml`, started by hand from the Actions tab)
+checks the Apple account first, then signs with fastlane match (certificates
+kept encrypted on this repository's `certificates` branch), builds on a
+GitHub-hosted Mac and uploads. The build number is the workflow's run number.
+It needs the repository secrets `ASC_KEY_ID`, `ASC_ISSUER_ID`,
+`ASC_KEY_CONTENT` and `MATCH_PASSWORD`.
 
 ## What it does
 
@@ -224,8 +233,8 @@ entirely on the engine-only pushes that make up most of the history.
 
 1. **Apple Developer Program** — $99 a year, at developer.apple.com. Nothing
    below is possible without it, and the widgets and iCloud sync need it too.
-2. **Bundle identifier** — replace the `app.zeitkonto` placeholder with one you
-   own, in the Hours target and in `app.zeitkonto.widget`.
+2. **Bundle identifier** — `app.zeitkonto.hours` for the app and
+   `app.zeitkonto.hours.widget` for the widget, registered under Identifiers.
 3. **Capabilities** — App Groups (`group.app.zeitkonto`) on both targets for
    the widgets; iCloud with CloudKit and Key-value storage, and a container, for
    sync. Both are optional: without them the app runs and says so.

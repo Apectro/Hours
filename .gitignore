@@ -36,3 +36,5 @@ __pycache__/
 # The Caddy binary, downloaded by the site job and by anyone running the route
 # check against docs/ by hand.
 /caddy
+# fastlane writes these on every run
+fastlane/README.md

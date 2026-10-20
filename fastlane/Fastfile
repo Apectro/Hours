@@ -1,0 +1,166 @@
+# Builds Zeitkonto on a GitHub-hosted Mac and uploads it to TestFlight.
+#
+# Nothing here needs a Mac of your own. Everything secret arrives as an
+# environment variable from the repository's secrets and is never written to a
+# file: the App Store Connect API key (ASC_KEY_ID, ASC_ISSUER_ID,
+# ASC_KEY_CONTENT), the match passphrase (MATCH_PASSWORD) and the workflow's own
+# GITHUB_TOKEN, which is what lets match keep the signing files on the
+# "certificates" branch of this same repository.
+
+require "base64"
+
+default_platform(:ios)
+
+APP_ID = "app.zeitkonto.hours"
+WIDGET_ID = "app.zeitkonto.hours.widget"
+PROJECT = "Hours.xcodeproj"
+SCHEME = "Hours"
+# Xcode target => the bundle identifier it is signed as.
+TARGETS = {
+  "Hours" => APP_ID,
+  "HoursWidgetExtension" => WIDGET_ID
+}.freeze
+
+KEY_INVALID_FIX = <<~TEXT.freeze
+  How to fix it:
+    1. Open App Store Connect → Users and Access → Integrations → App Store Connect API.
+    2. Create a new Team key with Admin access and download the .p8 file (it can only be downloaded once).
+    3. In GitHub → this repository → Settings → Secrets and variables → Actions, update all three secrets:
+         ASC_KEY_ID      = the key's "Key ID"
+         ASC_ISSUER_ID   = the "Issuer ID" shown above the list of keys
+         ASC_KEY_CONTENT = the whole text of the .p8 file, including the BEGIN and END lines
+    4. Run the workflow again.
+TEXT
+
+BUNDLE_ID_MISSING_FIX = <<~TEXT.freeze
+  How to fix it:
+    1. Open developer.apple.com → Account → Certificates, Identifiers & Profiles → Identifiers.
+    2. Click +, choose "App IDs", then "App", and continue.
+    3. Enter any description, choose "Explicit" Bundle ID and type: #{APP_ID}
+    4. Click Continue, then Register.
+    5. Run the workflow again.
+TEXT
+
+APP_MISSING_FIX = <<~TEXT.freeze
+  How to fix it:
+    1. Open App Store Connect → Apps and click + → New App.
+    2. Platform: iOS. Bundle ID: choose #{APP_ID} from the list.
+    3. Enter a name (for example Zeitkonto), a primary language, and any SKU (for example zeitkonto-hours).
+    4. Click Create.
+    5. Run the workflow again.
+TEXT
+
+platform :ios do
+  # Loads the App Store Connect API key into the lane context, where match,
+  # Spaceship and upload_to_testflight all pick it up.
+  private_lane :load_api_key do
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_CONTENT"],
+      in_house: false
+    )
+  end
+
+  # Stops the run with one plain message: which check failed and what to do.
+  def preflight_failed(check, fix, detail = nil)
+    message = ["", "PREFLIGHT FAILED: #{check}", ""]
+    message << "Apple said: #{detail}" << "" if detail
+    message << fix
+    UI.user_error!(message.join("\n"))
+  end
+
+  desc "Checks the App Store Connect key, the Bundle ID and the app record before anything is signed or built"
+  lane :preflight do
+    missing = %w[ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_CONTENT].select { |name| ENV[name].to_s.strip.empty? }
+    unless missing.empty?
+      preflight_failed(
+        "the App Store Connect API key secrets are empty (#{missing.join(', ')})",
+        KEY_INVALID_FIX
+      )
+    end
+
+    # a. The key works.
+    begin
+      load_api_key
+      Spaceship::ConnectAPI::BundleId.all(limit: 1)
+    rescue StandardError => error
+      preflight_failed("the App Store Connect API key does not work", KEY_INVALID_FIX, error.message)
+    end
+    UI.success("✓ App Store Connect API key works")
+
+    # b. The Bundle ID is registered.
+    bundle_id = Spaceship::ConnectAPI::BundleId.find(APP_ID)
+    preflight_failed("the Bundle ID #{APP_ID} is not registered", BUNDLE_ID_MISSING_FIX) unless bundle_id
+    UI.success("✓ Bundle ID #{APP_ID} is registered")
+
+    # The widget is signed separately and needs an identifier of its own. It
+    # has no capabilities, so the key can register it rather than send you
+    # back to the developer website for a second identifier.
+    if Spaceship::ConnectAPI::BundleId.find(WIDGET_ID)
+      UI.success("✓ Bundle ID #{WIDGET_ID} (widget) is registered")
+    else
+      Spaceship::ConnectAPI::BundleId.create(
+        name: "Zeitkonto Widget",
+        platform: Spaceship::ConnectAPI::BundleIdPlatform::IOS,
+        identifier: WIDGET_ID
+      )
+      UI.success("✓ Bundle ID #{WIDGET_ID} (widget) was missing and has been registered")
+    end
+
+    # c. The app exists in App Store Connect.
+    app = Spaceship::ConnectAPI::App.find(APP_ID)
+    preflight_failed("there is no app with the Bundle ID #{APP_ID} in App Store Connect", APP_MISSING_FIX) unless app
+    UI.success("✓ App \"#{app.name}\" exists in App Store Connect")
+  end
+
+  desc "Signs with match, builds, and uploads to TestFlight"
+  lane :beta do
+    setup_ci
+    load_api_key
+
+    token = ENV.fetch("GITHUB_TOKEN")
+    repository = ENV.fetch("GITHUB_REPOSITORY")
+    match(
+      type: "appstore",
+      app_identifier: TARGETS.values,
+      readonly: false,
+      storage_mode: "git",
+      git_url: "https://github.com/#{repository}.git",
+      git_branch: "certificates",
+      git_basic_authorization: Base64.strict_encode64("x-access-token:#{token}"),
+      git_full_name: "github-actions[bot]",
+      git_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+    )
+
+    # match exports the team and profile it used; nothing is hard-coded.
+    team_id = ENV.fetch("sigh_#{APP_ID}_appstore_team-id")
+    profiles = TARGETS.values.to_h { |id| [id, ENV.fetch("sigh_#{id}_appstore_profile-name")] }
+
+    TARGETS.each do |target, id|
+      update_code_signing_settings(
+        path: PROJECT,
+        targets: [target],
+        build_configurations: ["Release"],
+        use_automatic_signing: false,
+        team_id: team_id,
+        bundle_identifier: id,
+        code_sign_identity: "Apple Distribution",
+        profile_name: profiles[id]
+      )
+    end
+
+    build_app(
+      project: PROJECT,
+      scheme: SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "build",
+      xcargs: "CURRENT_PROJECT_VERSION=#{ENV.fetch('GITHUB_RUN_NUMBER')}",
+      export_options: { provisioningProfiles: profiles }
+    )
+
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+end

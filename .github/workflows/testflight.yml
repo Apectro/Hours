@@ -1,0 +1,66 @@
+name: TestFlight
+
+# Builds the app on a GitHub-hosted Mac and uploads it to TestFlight. Started by
+# hand from the Actions tab; nothing here needs a Mac of your own.
+#
+# Secrets reach fastlane only as environment variables and are never written
+# to a file. Signing files live, encrypted with MATCH_PASSWORD, on this
+# repository's "certificates" branch, which match creates on the first run.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  # match commits the encrypted certificate and profiles to the
+  # "certificates" branch with the workflow's own token.
+  contents: write
+
+concurrency:
+  # Two uploads at once would race for the same build number range and the
+  # same match branch; the second one waits instead.
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    name: Build and upload to TestFlight
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # fastlane warns, and some of its tools misbehave, without a UTF-8 locale.
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      FASTLANE_SKIP_UPDATE_CHECK: "1"
+      FASTLANE_HIDE_CHANGELOG: "1"
+      FASTLANE_OPT_OUT_USAGE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # First, before anything is signed or built: is the API key good, is the
+      # Bundle ID registered, does the app exist? Each failure says how to fix it.
+      - name: Preflight — check the Apple account
+        run: fastlane ios preflight
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          fastlane --version
+
+      - name: Sign, build and upload
+        run: fastlane ios beta
+
+      - name: Keep the build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testflight-logs
+          path: ~/Library/Logs/gym/
+          if-no-files-found: ignore
+          retention-days: 7
