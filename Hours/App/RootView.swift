@@ -83,29 +83,11 @@ struct RootView: View {
         }
     }
 
-    /// Reschedules the evening reminders for site days the supervisor usually
-    /// writes. Planned from the last 14 days of site days, so it is cheap and
-    /// always reflects what has been recorded since the app was last open.
     private func refreshSiteReminders() async {
-        let settings = settingsStore.settings
-        let scheduler = ReminderScheduler()
-        guard settings.reminders.siteRemindersEnabled else {
-            await scheduler.cancelSiteReminders()
-            return
-        }
-
-        let calendar = settingsStore.workCalendar
-        let today = CalendarDate.today(in: calendar)
-        let window = CalendarDateRange(
-            start: today.adding(days: -14, in: calendar),
-            end: today
-        )
-        let siteDays = SiteRepository(context: modelContext).siteDays(siteID: nil, in: window)
-        let dates = SiteReminderPlan.dates(siteDays: siteDays, today: today, calendar: calendar)
-        await scheduler.scheduleSiteReminders(
-            dates: dates,
-            time: settings.reminders.siteReminderTime,
-            calendar: calendar
+        await SiteReminderRefresher.refresh(
+            context: modelContext,
+            preferences: settingsStore.settings.reminders,
+            calendar: settingsStore.workCalendar
         )
     }
 

@@ -6,6 +6,7 @@ struct ReminderSettingsScreen: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var authorizationDenied = false
+    @State private var siteAuthorizationDenied = false
 
     var body: some View {
         Form {
@@ -49,7 +50,9 @@ struct ReminderSettingsScreen: View {
                         DatePicker("Time", selection: siteTimeBinding, displayedComponents: .hourAndMinute)
                     }
                 } footer: {
-                    Text("In the evening, a note that a site day you normally write is still missing. Writing the day removes it.")
+                    Text(siteAuthorizationDenied
+                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
+                         : "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.")
                 }
             }
         }
@@ -71,15 +74,25 @@ struct ReminderSettingsScreen: View {
             set: { isOn in
                 guard isOn else {
                     settingsStore.update { $0.reminders.siteRemindersEnabled = false }
+                    siteAuthorizationDenied = false
                     Task { await ReminderScheduler().cancelSiteReminders() }
                     return
                 }
                 Task {
                     let granted = await ReminderScheduler().requestAuthorization()
-                    authorizationDenied = !granted
+                    siteAuthorizationDenied = !granted
                     settingsStore.update { $0.reminders.siteRemindersEnabled = granted }
+                    if granted { await refreshSiteReminders() }
                 }
             }
+        )
+    }
+
+    private func refreshSiteReminders() async {
+        await SiteReminderRefresher.refresh(
+            context: modelContext,
+            preferences: settings.reminders,
+            calendar: settingsStore.workCalendar
         )
     }
 
@@ -92,6 +105,7 @@ struct ReminderSettingsScreen: View {
             set: { date in
                 let time = OptionalTimeRow.time(from: date, in: calendar)
                 settingsStore.update { $0.reminders.siteReminderTime = time }
+                Task { await refreshSiteReminders() }
             }
         )
     }
