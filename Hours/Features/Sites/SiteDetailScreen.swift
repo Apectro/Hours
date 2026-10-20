@@ -19,6 +19,7 @@ struct SiteDetailScreen: View {
 
     @State private var editing: Site?
     @State private var showsCrew = false
+    @State private var exporting: Site?
 
     var body: some View {
         Group {
@@ -35,8 +36,17 @@ struct SiteDetailScreen: View {
         .navigationTitle(site?.name ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            // The director's sheet export joins these two here.
             ToolbarItemGroup(placement: .topBarTrailing) {
+                // Open on a read-only site too: an archived site's months are
+                // still the director's to ask for.
+                Button {
+                    exporting = site
+                } label: {
+                    Label("Export", systemImage: "square.and.arrow.up")
+                }
+                .disabled(site == nil)
+                .accessibilityIdentifier("site-export")
+
                 Button {
                     showsCrew = true
                 } label: {
@@ -51,6 +61,13 @@ struct SiteDetailScreen: View {
         }
         .navigationDestination(isPresented: $showsCrew) {
             CrewScreen(siteID: siteID)
+        }
+        .sheet(item: $exporting) { site in
+            // Last month: the director asks at the start of the next one.
+            SiteExportScreen(
+                site: site,
+                month: CalendarDate.today(in: settingsStore.workCalendar).yearMonth.adding(months: -1)
+            )
         }
         .sheet(item: $editing) { site in
             SiteEditorSheet(

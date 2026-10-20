@@ -40,6 +40,10 @@ enum SampleData {
     /// written up: the three of you from 07:00 to 15:30 with half an hour's
     /// break, except that Ivan left at 12:00. Yesterday rather than today so
     /// today opens empty, with "Same as last day" to fill it from.
+    ///
+    /// Also the 3rd and 4th of last month, everyone there, so the export —
+    /// which opens on last month — has a sheet to show. Early in a month
+    /// rather than late, so neither can be the day before today.
     static func seedSite(into repository: SiteRepository, calendar: Calendar, today: CalendarDate) {
         let site = Site(name: "Kaiserstrasse 12")
         repository.upsert(site)
@@ -60,6 +64,22 @@ enum SampleData {
                 Attendance(memberID: marko.id),
             ]
         ))
+
+        let lastMonth = today.yearMonth.adding(months: -1)
+        for day in [3, 4] {
+            try? repository.save(SiteDay(
+                siteID: site.id,
+                date: CalendarDate(year: lastMonth.year, month: lastMonth.month, day: day),
+                start: TimeOfDay(hour: 7, minute: 0),
+                end: TimeOfDay(hour: 16, minute: 0),
+                breakMinutes: 30,
+                present: [
+                    Attendance(memberID: CrewMember.youID),
+                    Attendance(memberID: ivan.id),
+                    Attendance(memberID: marko.id),
+                ]
+            ))
+        }
     }
 
     /// A working month with the shape a real one has: ordinary days, a couple

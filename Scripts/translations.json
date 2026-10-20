@@ -5105,6 +5105,94 @@
       "Arquivado. Desativa «Arquivado» em «Editar» para alterar os dias.",
       "Gearchiveerd. Zet ‘Gearchiveerd’ uit onder ‘Bewerken’ om de dagen te wijzigen.",
       "Zarchiwizowane. Wyłącz „Zarchiwizowane” w „Edytuj”, aby zmienić jej dni."
+    ],
+    "Your name on the sheet": [
+      "Dein Name auf der Liste",
+      "Tvoje ime na listi",
+      "Tvoje ime na listi",
+      "Il tuo nome sul foglio",
+      "Votre nom sur la feuille",
+      "Tu nombre en la hoja",
+      "O teu nome na folha",
+      "Je naam op de lijst",
+      "Twoje imię na arkuszu"
+    ],
+    "Printed above your column instead of “You”, and kept in Settings › Export options.": [
+      "Steht statt „Du“ über deiner Spalte und wird in Einstellungen › Exportoptionen gespeichert.",
+      "Ispisuje se iznad tvog stupca umjesto „Ti” i sprema u Postavke › Postavke izvoza.",
+      "Izpiše se nad tvojim stolpcem namesto »Ti« in se shrani v Nastavitve › Možnosti izvoza.",
+      "Compare sopra la tua colonna al posto di “Tu” e resta in Impostazioni › Opzioni di esportazione.",
+      "Imprimé au-dessus de votre colonne à la place de « Vous », et conservé dans Réglages › Options d’export.",
+      "Aparece sobre tu columna en lugar de «Tú» y se guarda en Ajustes › Opciones de exportación.",
+      "Aparece por cima da tua coluna em vez de «Tu» e fica guardado em Definições › Opções de exportação.",
+      "Staat boven je kolom in plaats van ‘Jij’ en wordt bewaard in Instellingen › Exportopties.",
+      "Pojawia się nad twoją kolumną zamiast „Ty” i zostaje zapisane w Ustawienia › Opcje eksportu."
+    ],
+    "Previous month": [
+      "Vorheriger Monat",
+      "Prethodni mjesec",
+      "Prejšnji mesec",
+      "Mese precedente",
+      "Mois précédent",
+      "Mes anterior",
+      "Mês anterior",
+      "Vorige maand",
+      "Poprzedni miesiąc"
+    ],
+    "Next month": [
+      "Nächster Monat",
+      "Sljedeći mjesec",
+      "Naslednji mesec",
+      "Mese successivo",
+      "Mois suivant",
+      "Mes siguiente",
+      "Mês seguinte",
+      "Volgende maand",
+      "Następny miesiąc"
+    ],
+    "Nothing recorded this month": [
+      "In diesem Monat nichts erfasst",
+      "Ovaj mjesec ništa nije zabilježeno",
+      "Ta mesec ni nič zabeleženo",
+      "Niente registrato in questo mese",
+      "Rien d’enregistré ce mois-ci",
+      "Nada registrado este mes",
+      "Nada registado este mês",
+      "Niets vastgelegd deze maand",
+      "W tym miesiącu nic nie zapisano"
+    ],
+    "Choose another month to see its days.": [
+      "Einen anderen Monat wählen, um seine Tage zu sehen.",
+      "Odaberi drugi mjesec da vidiš njegove dane.",
+      "Izberi drug mesec, da vidiš njegove dneve.",
+      "Scegli un altro mese per vederne i giorni.",
+      "Choisissez un autre mois pour voir ses jours.",
+      "Elige otro mes para ver sus días.",
+      "Escolhe outro mês para ver os seus dias.",
+      "Kies een andere maand om de dagen te zien.",
+      "Wybierz inny miesiąc, aby zobaczyć jego dni."
+    ],
+    "Share site hours": [
+      "Baustellenstunden teilen",
+      "Podijeli sate s gradilišta",
+      "Deli ure z gradbišča",
+      "Condividi le ore del cantiere",
+      "Partager les heures du chantier",
+      "Compartir horas de la obra",
+      "Partilhar horas da obra",
+      "Uren bouwplaats delen",
+      "Udostępnij godziny z budowy"
+    ],
+    "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": [
+      "Die Stundenliste für die Bauleitung gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung.",
+      "Lista za voditelja dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji.",
+      "Seznam za vodjo je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji.",
+      "Il foglio per il direttore fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup.",
+      "La feuille pour le directeur fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde.",
+      "La hoja para el director forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad.",
+      "A folha para o diretor faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança.",
+      "De lijst voor de uitvoerder hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up.",
+      "Arkusz dla kierownika jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
     ]
   },
   "sameAsEnglishOnPurpose": [

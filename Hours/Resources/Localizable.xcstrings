@@ -5548,6 +5548,65 @@
         }
       }
     },
+    "Choose another month to see its days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einen anderen Monat wählen, um seine Tage zu sehen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige otro mes para ver sus días."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un autre mois pour voir ses jours."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odaberi drugi mjesec da vidiš njegove dane."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un altro mese per vederne i giorni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies een andere maand om de dagen te zien."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wybierz inny miesiąc, aby zobaczyć jego dni."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolhe outro mês para ver os seus dias."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izberi drug mesec, da vidiš njegove dneve."
+          }
+        }
+      }
+    },
     "Clear": {
       "extractionState": "manual",
       "localizations": {
@@ -15166,6 +15225,65 @@
         }
       }
     },
+    "Next month": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächster Monat"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mes siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois suivant"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sljedeći mjesec"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mese successivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volgende maand"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Następny miesiąc"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mês seguinte"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslednji mesec"
+          }
+        }
+      }
+    },
     "No expected hours set for this period": {
       "extractionState": "manual",
       "localizations": {
@@ -15988,6 +16106,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nič se ne zabeleži in ura se ustavi."
+          }
+        }
+      }
+    },
+    "Nothing recorded this month": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In diesem Monat nichts erfasst"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada registrado este mes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien d’enregistré ce mois-ci"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj mjesec ništa nije zabilježeno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niente registrato in questo mese"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niets vastgelegd deze maand"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W tym miesiącu nic nie zapisano"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada registado este mês"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta mesec ni nič zabeleženo"
           }
         }
       }
@@ -18073,6 +18250,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prejšnji dan"
+          }
+        }
+      }
+    },
+    "Previous month": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorheriger Monat"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mes anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois précédent"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prethodni mjesec"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mese precedente"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorige maand"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poprzedni miesiąc"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mês anterior"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prejšnji mesec"
+          }
+        }
+      }
+    },
+    "Printed above your column instead of “You”, and kept in Settings › Export options.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht statt „Du“ über deiner Spalte und wird in Einstellungen › Exportoptionen gespeichert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparece sobre tu columna en lugar de «Tú» y se guarda en Ajustes › Opciones de exportación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imprimé au-dessus de votre colonne à la place de « Vous », et conservé dans Réglages › Options d’export."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ispisuje se iznad tvog stupca umjesto „Ti” i sprema u Postavke › Postavke izvoza."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare sopra la tua colonna al posto di “Tu” e resta in Impostazioni › Opzioni di esportazione."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Staat boven je kolom in plaats van ‘Jij’ en wordt bewaard in Instellingen › Exportopties."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pojawia się nad twoją kolumną zamiast „Ty” i zostaje zapisane w Ustawienia › Opcje eksportu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparece por cima da tua coluna em vez de «Tu» e fica guardado em Definições › Opções de exportação."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izpiše se nad tvojim stolpcem namesto »Ti« in se shrani v Nastavitve › Možnosti izvoza."
           }
         }
       }
@@ -21120,6 +21415,65 @@
         }
       }
     },
+    "Share site hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellenstunden teilen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir horas de la obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partager les heures du chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podijeli sate s gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condividi le ore del cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren bouwplaats delen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udostępnij godziny z budowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partilhar horas da obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deli ure z gradbišča"
+          }
+        }
+      }
+    },
     "Share timesheet": {
       "extractionState": "manual",
       "localizations": {
@@ -23490,6 +23844,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ure ni bilo mogoče zagnati."
+          }
+        }
+      }
+    },
+    "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Stundenliste für die Bauleitung gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La hoja para el director forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La feuille pour le directeur fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista za voditelja dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il foglio per il direttore fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De lijst voor de uitvoerder hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arkusz dla kierownika jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folha para o diretor faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam za vodjo je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji."
           }
         }
       }
@@ -27443,6 +27856,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vaše ure so shranjene lokalno in nikjer drugje. %@ %@"
+          }
+        }
+      }
+    },
+    "Your name on the sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Name auf der Liste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu nombre en la hoja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nom sur la feuille"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje ime na listi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo nome sul foglio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je naam op de lijst"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje imię na arkuszu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O teu nome na folha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje ime na listi"
           }
         }
       }
