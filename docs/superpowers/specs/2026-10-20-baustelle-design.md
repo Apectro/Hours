@@ -119,11 +119,12 @@ a different job (sites get an optional job when more than one job exists).
 
 ### Decisions settled after review *(all my calls)*
 
-- **Your name on the sheet.** The app has no user name today. Settings gains a
-  "Your name" field (lenient decoding, in the backup and synced settings). The
-  sheet's header and your column use it; if it is empty at export time, the
-  export screen asks for it once and saves it. On screen the app keeps saying
-  "You".
+- **Your name on the sheet.** The app already stores one: Settings › Export ›
+  "Name and surname" (`ExportPreferences.ownerName`), which the existing
+  timesheet prints. The sheet's header and your column use it. If it is empty
+  at export time, the site export screen asks for it once and saves it there.
+  On screen the app keeps saying "You". *(Corrected while planning: an earlier
+  draft wrongly said the app had no name and proposed a new setting.)*
 - **Evening reminder mechanics.** Reminder settings gain one field: a site
   reminder time (default 18:00) with its own toggle. For each site worked on in
   the last 14 days, the app schedules a local notification for the next 7 days,
