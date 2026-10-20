@@ -24,8 +24,11 @@ struct DayEditorSheet: View {
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
-    /// A site shift's day, opened from its section.
-    @State private var openSite: SiteRoute?
+    /// The site screens pushed from here: a site shift's day, and from it
+    /// the site's crew. A path of values, like the Sites tab, rather than a
+    /// presented binding: mixing the two kinds of destination in one stack
+    /// is what hung the site screen when it was opened from the Sites tab.
+    @State private var path = NavigationPath()
 
     init(date: CalendarDate) {
         self.date = date
@@ -33,7 +36,7 @@ struct DayEditorSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             DayEditorForm(
                 draft: $draft,
                 computation: computation,
@@ -41,14 +44,17 @@ struct DayEditorSheet: View {
                 calendar: settingsStore.workCalendar,
                 formatting: settingsStore.dateFormatting,
                 siteNames: siteNames,
-                onOpenSite: { openSite = SiteRoute(siteID: $0) }
+                onOpenSite: { path.append(SiteRoute(siteID: $0)) }
             )
-            .navigationDestination(item: $openSite) { route in
+            .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
             }
-            .onChange(of: openSite) { _, route in
+            .navigationDestination(for: SiteCrewRoute.self) { route in
+                CrewScreen(siteID: route.siteID)
+            }
+            .onChange(of: path.count) { _, depth in
                 // Back from the site, which may have changed your hours there.
-                if route == nil { refreshSiteShifts() }
+                if depth == 0 { refreshSiteShifts() }
             }
             .navigationTitle(settingsStore.dateFormatting.mediumDate(date))
             .navigationBarTitleDisplayMode(.inline)

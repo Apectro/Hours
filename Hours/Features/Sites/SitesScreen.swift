@@ -28,6 +28,14 @@ struct SiteRoute: Hashable {
     let siteID: UUID
 }
 
+/// A site's crew list, pushed from the site screen. A value like `SiteRoute`,
+/// so every destination in the stack is pushed by value: a presented-binding
+/// destination on the site screen, mixed with these, left the app never
+/// going idle once the crew was opened.
+struct SiteCrewRoute: Hashable {
+    let siteID: UUID
+}
+
 /// The list itself, in its own view so the month can go into its `@Query`, as
 /// `PeriodDataProvider` does for days.
 private struct SitesContent: View {
@@ -107,6 +115,9 @@ private struct SitesContent: View {
         }
         .navigationDestination(for: SiteRoute.self) { route in
             SiteDetailScreen(siteID: route.siteID)
+        }
+        .navigationDestination(for: SiteCrewRoute.self) { route in
+            CrewScreen(siteID: route.siteID)
         }
         .sheet(isPresented: $isCreating) {
             SiteEditorSheet(

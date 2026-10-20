@@ -18,7 +18,6 @@ struct SiteDetailScreen: View {
     @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
 
     @State private var editing: Site?
-    @State private var showsCrew = false
     @State private var exporting: Site?
 
     var body: some View {
@@ -47,9 +46,9 @@ struct SiteDetailScreen: View {
                 .disabled(site == nil)
                 .accessibilityIdentifier("site-export")
 
-                Button {
-                    showsCrew = true
-                } label: {
+                // By value: the destination is registered with the stack's
+                // root (the Sites tab, or the day editor that opened this).
+                NavigationLink(value: SiteCrewRoute(siteID: siteID)) {
                     Label("Crew", systemImage: "person.2")
                 }
                 .accessibilityIdentifier("site-crew")
@@ -58,9 +57,6 @@ struct SiteDetailScreen: View {
                     .disabled(site == nil)
                     .accessibilityIdentifier("site-edit")
             }
-        }
-        .navigationDestination(isPresented: $showsCrew) {
-            CrewScreen(siteID: siteID)
         }
         .sheet(item: $exporting) { site in
             // Last month: the director asks at the start of the next one.
