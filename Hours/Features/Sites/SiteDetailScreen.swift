@@ -1,14 +1,16 @@
 import SwiftUI
 import SwiftData
 
-/// One site.
+/// One site: its day screen, under the site's name, with the way to the crew
+/// and the editor for the site's name, job and archiving in the toolbar.
 ///
-/// A placeholder for now: the day screen of the mockup replaces this body.
-/// It already carries what the Sites tab needs to be usable — the way to the
-/// crew, and the editor for the site's name, job and archiving.
+/// Opens on today, or on the date it is given — the personal day editor's
+/// "Open on site" passes the day it came from.
 struct SiteDetailScreen: View {
     let siteID: UUID
+    var initialDate: CalendarDate? = nil
 
+    @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
 
     // Every site rather than this one: whether this one is read-only depends
@@ -16,29 +18,39 @@ struct SiteDetailScreen: View {
     @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
 
     @State private var editing: Site?
+    @State private var showsCrew = false
 
     var body: some View {
-        List {
-            Section {
-                NavigationLink {
-                    CrewScreen(siteID: siteID)
+        Group {
+            if let site {
+                SiteDayScreen(
+                    site: site,
+                    isReadOnly: subscriptions.isReadOnly(site, among: sites),
+                    date: initialDate ?? CalendarDate.today(in: settingsStore.workCalendar)
+                )
+            } else {
+                Color.hoursCanvas
+            }
+        }
+        .navigationTitle(site?.name ?? "")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // The director's sheet export joins these two here.
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    showsCrew = true
                 } label: {
                     Label("Crew", systemImage: "person.2")
                 }
                 .accessibilityIdentifier("site-crew")
-            } footer: {
-                if let site, subscriptions.isReadOnly(site, among: sites), !site.isArchived {
-                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
-                }
-            }
-        }
-        .navigationTitle(site?.name ?? "")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+
                 Button("Edit") { editing = site }
                     .disabled(site == nil)
                     .accessibilityIdentifier("site-edit")
             }
+        }
+        .navigationDestination(isPresented: $showsCrew) {
+            CrewScreen(siteID: siteID)
         }
         .sheet(item: $editing) { site in
             SiteEditorSheet(

@@ -10,6 +10,10 @@ struct DayEditorForm: View {
     let settings: AppSettings
     let calendar: Calendar
     let formatting: CalendarFormatting
+    /// Names for the shifts that come from a site day, by site.
+    var siteNames: [UUID: String] = [:]
+    /// Opens a site shift's day on its site, where it is changed.
+    var onOpenSite: ((UUID) -> Void)? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
 
@@ -55,11 +59,25 @@ struct DayEditorForm: View {
     /// True once the day is one where times make sense, or the user has already
     /// entered some.
     private var showsTimes: Bool {
-        computation.dayType.showsTimesByDefault || !draft.shifts.isEmpty
+        computation.dayType.showsTimesByDefault || !manualShifts.isEmpty
+    }
+
+    /// The shifts typed in here. Site shifts are written by their site day
+    /// and only shown (see `siteShiftSection`).
+    private var manualShifts: [Shift] {
+        draft.shifts.filter { $0.siteID == nil }
     }
 
     @ViewBuilder
     private var workSections: some View {
+        // Shown in every mode, the hand-typed one included: that is exactly
+        // when the calendar is not counting them, and saying so needs them on
+        // screen. Keyed by the shift's id, which is its site's id and so
+        // unique within a day; manual shifts are in their own ForEach below.
+        ForEach(draft.shifts.filter { $0.siteID != nil }) { shift in
+            siteShiftSection(shift)
+        }
+
         if !settings.features.autoCalculateWorkedHours {
             Section {
                 DurationStepperRow(
@@ -72,10 +90,10 @@ struct DayEditorForm: View {
             } header: {
                 Text("Work")
             }
-        } else if draft.shifts.isEmpty {
+        } else if manualShifts.isEmpty {
             Section {
                 Button {
-                    draft.shifts = [defaultShift()]
+                    draft.shifts.append(defaultShift())
                 } label: {
                     Label(showsTimes ? "Add hours" : "Add work times", systemImage: "clock")
                 }
@@ -93,7 +111,10 @@ struct DayEditorForm: View {
             // after it, so SwiftUI keeps the view it already had and evaluates
             // it against an index that is now past the end. Shift has carried a
             // stable id since it was written; this uses it.
-            ForEach(Array(draft.shifts.enumerated()), id: \.element.id) { index, _ in
+            //
+            // Site shifts are left out here but keep their place in the array,
+            // so every index below still points into draft.shifts itself.
+            ForEach(Array(draft.shifts.enumerated()).filter { $0.element.siteID == nil }, id: \.element.id) { index, _ in
                 shiftSection(at: index)
             }
             Section {
@@ -115,7 +136,7 @@ struct DayEditorForm: View {
         // a binding read one frame after a removal would still be out of
         // range. A section that briefly does not draw is a far better outcome
         // than a crash in the middle of someone's timesheet.
-        if index < draft.shifts.count {
+        if index < draft.shifts.count, draft.shifts[index].siteID == nil {
             Section {
                 OptionalTimeRow(
                     title: String(localized: "Start"),
@@ -138,7 +159,7 @@ struct DayEditorForm: View {
                     breakRows(at: index)
                 }
 
-                if draft.shifts.count > 1 {
+                if manualShifts.count > 1 {
                     Button("Remove this block", role: .destructive) {
                         // Guarded because the button's closure captures the index
                         // it was built with, and two quick taps on two different
@@ -184,10 +205,13 @@ struct DayEditorForm: View {
     }
 
     private func sectionTitle(at index: Int) -> String {
-        guard draft.shifts.count > 1 else { return "Work" }
+        guard manualShifts.count > 1 else { return "Work" }
         guard settings.tracksMultipleJobs, index < draft.shifts.count else {
+            // Counted among the typed-in blocks only, so a site shift ahead
+            // of them does not make the first one "Block 2".
+            let number = draft.shifts.prefix(index).filter { $0.siteID == nil }.count + 1
             return String(
-                localized: "Block \(index + 1)",
+                localized: "Block \(number)",
                 comment: "Heading for the second and later blocks of a split shift"
             )
         }
@@ -197,7 +221,7 @@ struct DayEditorForm: View {
     private func defaultShift() -> Shift {
         // A second block starts where the schedule's day would have ended,
         // which is a better guess than repeating the morning.
-        let isFirst = draft.shifts.isEmpty
+        let isFirst = manualShifts.isEmpty
         let schedule = settings.primarySchedule
         return Shift(
             start: isFirst ? schedule.defaultStart : schedule.defaultEnd,
@@ -207,7 +231,7 @@ struct DayEditorForm: View {
                 : [],
             // Carry the previous block's job forward: a split shift is usually
             // two halves of the same day at the same place.
-            jobID: draft.shifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
+            jobID: manualShifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
         )
     }
 
@@ -216,6 +240,43 @@ struct DayEditorForm: View {
             get: { draft.manualWorkedMinutes ?? 0 },
             set: { draft.manualWorkedMinutes = $0 }
         )
+    }
+
+    // MARK: - Site shifts
+
+    /// Your hours from a site day, read-only. The site day is the one place
+    /// they are written, so the two can never disagree; changing them here
+    /// would only be overwritten the next time the site day is saved.
+    private func siteShiftSection(_ shift: Shift) -> some View {
+        Section {
+            LabeledContent("Start", value: shift.start.map { formatting.time($0, on: draft.date) } ?? "—")
+            LabeledContent("End", value: shift.end.map { formatting.time($0, on: draft.date) } ?? "—")
+            if shift.totalBreakMinutes > 0 {
+                LabeledContent("Break", value: formatter.string(shift.totalBreakMinutes))
+            }
+            if settings.tracksMultipleJobs {
+                LabeledContent("Job", value: settings.job(shift.jobID).name)
+            }
+            if let onOpenSite, let siteID = shift.siteID {
+                Button {
+                    onOpenSite(siteID)
+                } label: {
+                    Label("Open on site", systemImage: "building.2")
+                }
+                .accessibilityIdentifier("day-editor-open-site")
+            }
+        } header: {
+            Text(shift.siteID.flatMap { siteNames[$0] } ?? String(localized: "Site"))
+        } footer: {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                Text("Written on the site's day, so it is changed there.")
+                // Once, under the first site shift: it is about the day.
+                if shift.id == draft.shifts.first(where: { $0.siteID != nil })?.id,
+                   computation.warnings.contains(.siteHoursNotCounted) {
+                    Label(DayWarning.siteHoursNotCounted.message, systemImage: "exclamationmark.triangle")
+                }
+            }
+        }
     }
 
     // MARK: - Breaks

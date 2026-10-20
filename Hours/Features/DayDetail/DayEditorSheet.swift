@@ -15,6 +15,7 @@ struct DayEditorSheet: View {
     @Environment(SettingsStore.self) private var settingsStore
 
     @Query private var holidayRecords: [HolidayRecord]
+    @Query private var siteEntries: [SiteEntry]
 
     @State private var draft: DayRecord
     @State private var storedRecord: DayRecord?
@@ -23,6 +24,8 @@ struct DayEditorSheet: View {
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
+    /// A site shift's day, opened from its section.
+    @State private var openSite: SiteRoute?
 
     init(date: CalendarDate) {
         self.date = date
@@ -36,8 +39,17 @@ struct DayEditorSheet: View {
                 computation: computation,
                 settings: settingsStore.settings,
                 calendar: settingsStore.workCalendar,
-                formatting: settingsStore.dateFormatting
+                formatting: settingsStore.dateFormatting,
+                siteNames: siteNames,
+                onOpenSite: { openSite = SiteRoute(siteID: $0) }
             )
+            .navigationDestination(item: $openSite) { route in
+                SiteDetailScreen(siteID: route.siteID, initialDate: date)
+            }
+            .onChange(of: openSite) { _, route in
+                // Back from the site, which may have changed your hours there.
+                if route == nil { refreshSiteShifts() }
+            }
             .navigationTitle(settingsStore.dateFormatting.mediumDate(date))
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("day-editor")
@@ -86,6 +98,30 @@ struct DayEditorSheet: View {
         settingsStore.engine.day(date, record: draft, holidays: holidays)
     }
 
+    private var siteNames: [UUID: String] {
+        Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    /// Your hours from site days, as stored right now.
+    private func storedSiteShifts() -> [Shift] {
+        repository.record(on: date)?.shifts.filter { $0.siteID != nil } ?? []
+    }
+
+    /// Site shifts belong to their site days, so the draft never decides
+    /// them: whatever it holds is replaced with what is stored. Without this a
+    /// draft opened before the site day changed would write the old hours
+    /// back over your calendar, and the site and your calendar would disagree.
+    private func withStoredSiteShifts(_ record: DayRecord) -> DayRecord {
+        var record = record
+        record.shifts = record.shifts.filter { $0.siteID == nil } + storedSiteShifts()
+        return record
+    }
+
+    private func refreshSiteShifts() {
+        draft = withStoredSiteShifts(draft)
+        storedRecord = repository.record(on: date)
+    }
+
     private var repository: WorkdayRepository {
         WorkdayRepository(context: modelContext, lock: settingsStore.settings.monthLock)
     }
@@ -102,7 +138,7 @@ struct DayEditorSheet: View {
 
     private func save() {
         do {
-            try repository.save(draft)
+            try repository.save(withStoredSiteShifts(draft))
         } catch {
             // Stay on the sheet. Dismissing would look exactly like a
             // successful save, which is the failure this refusal exists to
@@ -116,7 +152,14 @@ struct DayEditorSheet: View {
 
     private func delete() {
         do {
-            try repository.delete(on: date)
+            // Your site hours stay: they go when the site day does, on the
+            // site. Everything typed in here is deleted.
+            let siteShifts = storedSiteShifts()
+            if siteShifts.isEmpty {
+                try repository.delete(on: date)
+            } else {
+                try repository.save(DayRecord(date: date, shifts: siteShifts))
+            }
         } catch {
             refusal = error
             return

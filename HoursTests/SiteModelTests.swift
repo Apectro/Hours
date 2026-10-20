@@ -52,6 +52,23 @@ final class SiteModelTests: XCTestCase {
         XCTAssertNil(day.attendance(for: UUID()))
     }
 
+    func testBlankSiteDay() {
+        let empty = SiteDay(siteID: UUID(), date: CalendarDate(year: 2026, month: 10, day: 20), breakMinutes: 30, note: "  ")
+        XCTAssertTrue(empty.isBlank, "a break and whitespace alone are nothing to keep")
+
+        var ticked = empty
+        ticked.present = [Attendance(memberID: CrewMember.youID)]
+        XCTAssertFalse(ticked.isBlank)
+
+        var timed = empty
+        timed.start = TimeOfDay(hour: 7, minute: 0)
+        XCTAssertFalse(timed.isBlank)
+
+        var noted = empty
+        noted.note = "Rain, nobody came"
+        XCTAssertFalse(noted.isBlank)
+    }
+
     func testYouIDIsStable() {
         XCTAssertEqual(CrewMember.youID.uuidString, "00000000-0000-4000-8000-0000000000B1")
     }

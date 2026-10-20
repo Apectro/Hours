@@ -42,6 +42,17 @@ struct RootView: View {
                     today: CalendarDate.today(in: HoursStack.calendar)
                 )
             }
+            if SampleData.isSiteRequested {
+                SampleData.seedSite(
+                    into: SiteRepository(context: HoursStack.container.mainContext),
+                    calendar: HoursStack.calendar,
+                    today: CalendarDate.today(in: HoursStack.calendar)
+                )
+            }
+            if SampleData.isClosedMonthRequested {
+                let month = CalendarDate.today(in: HoursStack.calendar).yearMonth
+                settingsStore.update { $0.monthLock.lock(month) }
+            }
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
             HoursStack.refreshWidget()

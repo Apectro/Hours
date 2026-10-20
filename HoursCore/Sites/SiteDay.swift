@@ -82,6 +82,19 @@ struct SiteDay: Hashable, Codable, Sendable {
         )
     }
 
+    /// True when there is nothing worth storing: nobody ticked, no site times
+    /// and no note. The day screen deletes such a day rather than keeping an
+    /// empty row, as the calendar does with a blank `DayRecord`. A break on
+    /// its own does not count, because it means nothing without times; a
+    /// note does, because "rain, nobody came" is worth keeping and dropping
+    /// typed text would be a save that silently did nothing.
+    var isBlank: Bool {
+        present.isEmpty
+            && start == nil
+            && end == nil
+            && note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     /// True when the member was present but worked different hours from the
     /// site's, which is what the day editor flags.
     func hasException(_ memberID: UUID) -> Bool {
