@@ -172,11 +172,12 @@ and, where a value is legitimate but suspicious, is surfaced as a non-blocking
 
 ## Navigation
 
-Three tabs: **Calendar**, **Insights**, **Settings**. The calendar is the
+Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is the
 primary surface and opens on the current month; tapping a day reveals an inline
 summary beneath the grid, and opening it presents the editor as a sheet so the
-month never leaves the screen. Export is reachable from the calendar toolbar
-and from Settings.
+month never leaves the screen. Sites lists each active job site with its crew
+and this month's figures, and leads to the site and its crew list. Export is
+reachable from the calendar toolbar and from Settings.
 
 ## Export
 

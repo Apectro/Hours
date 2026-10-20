@@ -16,6 +16,7 @@ final class LaunchTests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabBars.buttons["Sites"].exists)
         XCTAssertTrue(app.tabBars.buttons["Insights"].exists)
         XCTAssertTrue(app.tabBars.buttons["Settings"].exists)
         XCTAssertTrue(app.tabBars.buttons["Calendar"].isSelected, "the calendar is the landing screen")
@@ -35,6 +36,9 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
         XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+
+        app.tabBars.buttons["Sites"].tap()
+        XCTAssertTrue(app.navigationBars["Sites"].waitForExistence(timeout: 5))
 
         app.tabBars.buttons["Insights"].tap()
         XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 5))

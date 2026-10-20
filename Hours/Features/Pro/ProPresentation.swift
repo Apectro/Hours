@@ -33,3 +33,29 @@ extension View {
         }
     }
 }
+
+// MARK: - Sites
+
+extension SubscriptionStore {
+    /// The `.multipleSites` gate, asked where a site is added or brought back
+    /// from the archive.
+    ///
+    /// Not a bare `allows(.multipleSites)` like the other gates, because the
+    /// first site is free: what is sold is the second *active* one, so the
+    /// answer depends on how many are active right now. `SiteAccess` holds
+    /// that rule and this only supplies the entitlement and the moment.
+    func canAddSite(activeSites: Int) -> Bool {
+        SiteAccess.canAddSite(activeSites: activeSites, entitlement: entitlement, at: Date())
+    }
+
+    /// Whether a site can be read but not changed: one of the extra sites
+    /// after Pro lapsed. Nothing on it is lost, and it opens as usual.
+    func isReadOnly(_ site: Site, among sites: [Site]) -> Bool {
+        SiteAccess.isReadOnly(
+            site,
+            activeSites: sites.filter { !$0.isArchived },
+            entitlement: entitlement,
+            at: Date()
+        )
+    }
+}

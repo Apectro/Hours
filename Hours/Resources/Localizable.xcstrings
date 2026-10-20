@@ -2027,6 +2027,65 @@
         }
       }
     },
+    "Add a coworker": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kollegen hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir un compañero"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un collègue"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj suradnika"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi un collega"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collega toevoegen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj współpracownika"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar um colega"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj sodelavca"
+          }
+        }
+      }
+    },
     "Add a day type": {
       "extractionState": "manual",
       "localizations": {
@@ -2204,6 +2263,65 @@
         }
       }
     },
+    "Add a site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustelle hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir una obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj gradilište"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi un cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaats toevoegen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj budowę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar uma obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj gradbišče"
+          }
+        }
+      }
+    },
     "Add another block": {
       "extractionState": "manual",
       "localizations": {
@@ -2377,6 +2495,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dodaj dneve, ki veljajo tam, kjer delaš. Praznik, ki se ponavlja, je treba vnesti samo enkrat."
+          }
+        }
+      }
+    },
+    "Add the site you work on, then its crew. Each day the times are entered once, for everyone who was there.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füge die Baustelle hinzu, auf der du arbeitest, dann ihre Mannschaft. Jeden Tag werden die Zeiten einmal eingetragen, für alle, die da waren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade la obra en la que trabajas y luego su cuadrilla. Cada día los horarios se introducen una sola vez, para todos los que estuvieron."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez le chantier sur lequel vous travaillez, puis son équipe. Chaque jour, les horaires se saisissent une seule fois, pour tous ceux qui étaient là."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj gradilište na kojem radiš, zatim njegovu ekipu. Svaki dan vremena se unose jednom, za sve koji su bili tamo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi il cantiere su cui lavori, poi la sua squadra. Ogni giorno gli orari si inseriscono una volta sola, per tutti quelli che c’erano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voeg de bouwplaats toe waar je werkt, en daarna de ploeg. Elke dag worden de tijden één keer ingevoerd, voor iedereen die er was."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj budowę, na której pracujesz, a potem jej ekipę. Każdego dnia godziny wpisuje się raz, dla wszystkich, którzy byli na miejscu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona a obra onde trabalhas e depois a sua equipa. Todos os dias os horários são introduzidos uma só vez, para todos os que lá estiveram."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj gradbišče, na katerem delaš, nato njegovo ekipo. Vsak dan se časi vnesejo enkrat, za vse, ki so bili tam."
           }
         }
       }
@@ -2735,6 +2912,65 @@
         }
       }
     },
+    "Always on the crew": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immer in der Mannschaft"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siempre en la cuadrilla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toujours dans l’équipe"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uvijek u ekipi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sempre in squadra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altijd in de ploeg"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zawsze w ekipie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sempre na equipa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vedno v ekipi"
+          }
+        }
+      }
+    },
     "An archived job keeps everything already recorded against it but stops expecting hours and stops being offered for new work.": {
       "extractionState": "manual",
       "localizations": {
@@ -2790,6 +3026,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arhivirano delo obdrži vse že zabeleženo, a ne pričakuje več ur in se ne ponuja za novo delo."
+          }
+        }
+      }
+    },
+    "An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine archivierte Baustelle behält jeden erfassten Tag und ihre ganze Mannschaft und erscheint nicht mehr unter deinen aktiven Baustellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una obra archivada conserva cada día registrado y toda su cuadrilla, y deja de aparecer entre tus obras activas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un chantier archivé conserve chaque jour enregistré et toute son équipe, et n’apparaît plus parmi vos chantiers actifs."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arhivirano gradilište zadržava svaki zabilježeni dan i cijelu ekipu te se više ne prikazuje među aktivnim gradilištima."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un cantiere archiviato conserva ogni giorno registrato e tutta la squadra, e non compare più tra i cantieri attivi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een gearchiveerde bouwplaats houdt elke vastgelegde dag en de hele ploeg, en verschijnt niet meer bij je actieve bouwplaatsen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarchiwizowana budowa zachowuje każdy zapisany dzień i całą ekipę, ale nie pojawia się już wśród aktywnych budów."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma obra arquivada mantém todos os dias registados e toda a equipa, e deixa de aparecer entre as obras ativas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arhivirano gradbišče obdrži vsak zabeležen dan in vso ekipo ter se ne prikazuje več med aktivnimi gradbišči."
           }
         }
       }
@@ -7299,6 +7594,498 @@
         }
       }
     },
+    "Crew": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrilla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équipe"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squadra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa"
+          }
+        }
+      }
+    },
+    "Crew hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden der Mannschaft"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas de la cuadrilla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heures de l’équipe"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati ekipe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ore della squadra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren van de ploeg"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny ekipy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas da equipa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure ekipe"
+          }
+        }
+      }
+    },
+    "Crew: just you": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft: nur du"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrilla: solo tú"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équipe : vous seul"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: samo ti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squadra: solo tu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg: alleen jij"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: tylko ty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa: só tu"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: samo ti"
+          }
+        }
+      }
+    },
+    "Crew: you + ^[%lld coworker](inflect: true)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft: du + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld Kollege"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld Kollegen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crew: you + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld coworker"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld coworkers"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrilla: tú + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld compañero"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld compañeros"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équipe : vous + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld collègue"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld collègues"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: ti + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld suradnika"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld suradnik"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld suradnika"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squadra: tu + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld collega"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld colleghi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg: jij + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld collega"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld collega's"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: ty + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld współpracownicy"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld współpracowników"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld współpracownik"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld współpracownika"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa: tu + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld colega"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld colegas"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa: ti + %#@coworkers@"
+          },
+          "substitutions": {
+            "coworkers": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld sodelavci"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld sodelavec"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld sodelavcev"
+                    }
+                  },
+                  "two": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lld sodelavca"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Custom expected hours": {
       "extractionState": "manual",
       "localizations": {
@@ -8062,6 +8849,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zabeleženi dnevi"
+          }
+        }
+      }
+    },
+    "Days this month": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tage diesen Monat"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Días este mes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours ce mois-ci"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani ovaj mjesec"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorni questo mese"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dagen deze maand"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni w tym miesiącu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dias este mês"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi ta mesec"
           }
         }
       }
@@ -9419,6 +10265,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsako delo ima svoj pogodbeni teden, zato imata dve deli z različnimi urami vsako svoj saldo namesto skupnega."
+          }
+        }
+      }
+    },
+    "Edit": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uredi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewerken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edytuj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uredi"
           }
         }
       }
@@ -11130,6 +12035,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Iz vašega tedenskega urnika za %@."
+          }
+        }
+      }
+    },
+    "Hidden": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeblendet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masqués"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriveni"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascosti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verborgen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukryci"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultos"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriti"
+          }
+        }
+      }
+    },
+    "Hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sakrij"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascondi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbergen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukryj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrij"
           }
         }
       }
@@ -13494,6 +14517,65 @@
         }
       }
     },
+    "New site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Baustelle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novo gradilište"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuovo cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieuwe bouwplaats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowa budowa"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nova obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novo gradbišče"
+          }
+        }
+      }
+    },
     "Next %@": {
       "extractionState": "manual",
       "localizations": {
@@ -13789,6 +14871,65 @@
         }
       }
     },
+    "No sites yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun chantier pour l’instant"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Još nema gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancora nessun cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nog geen bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak budów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ainda não há obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Še ni gradbišč"
+          }
+        }
+      }
+    },
     "No sync": {
       "extractionState": "manual",
       "localizations": {
@@ -14080,6 +15221,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ne zdaj"
+          }
+        }
+      }
+    },
+    "Not offered for new days. Every day already recorded for them stays, on screen and on exports.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werden für neue Tage nicht angeboten. Jeder bereits für sie erfasste Tag bleibt, auf dem Bildschirm und in Exporten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ofrecen para días nuevos. Cada día ya registrado para ellos se mantiene, en pantalla y en las exportaciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne sont plus proposés pour les nouveaux jours. Chaque jour déjà enregistré pour eux reste, à l’écran et dans les exports."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne nude se za nove dane. Svaki dan koji je za njih već zabilježen ostaje, na zaslonu i u izvozima."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vengono proposti per i nuovi giorni. Ogni giorno già registrato per loro resta, sullo schermo e nelle esportazioni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worden niet aangeboden voor nieuwe dagen. Elke dag die al voor hen is vastgelegd blijft, op het scherm en in exports."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie są proponowani na nowe dni. Każdy dzień już dla nich zapisany zostaje, na ekranie i w eksportach."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não são sugeridos para novos dias. Cada dia já registado para eles mantém-se, no ecrã e nas exportações."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne ponujajo se za nove dneve. Vsak dan, ki je zanje že zabeležen, ostane, na zaslonu in v izvozih."
           }
         }
       }
@@ -16228,6 +17428,65 @@
         }
       }
     },
+    "Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur lesbar, bis Zeitkonto Pro wieder aktiv ist oder deine anderen Baustellen archiviert sind. Nichts darauf geht verloren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo lectura hasta que Zeitkonto Pro vuelva a estar activo o archives tus otras obras. No se pierde nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En lecture seule jusqu’à ce que Zeitkonto Pro soit de nouveau actif ou que vos autres chantiers soient archivés. Rien n’est perdu."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo za čitanje dok Zeitkonto Pro ponovno ne bude aktivan ili dok ostala gradilišta ne arhiviraš. Ništa na njemu se ne gubi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sola lettura finché Zeitkonto Pro non torna attivo o finché non archivi gli altri cantieri. Non si perde nulla."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen-lezen tot Zeitkonto Pro weer actief is of je andere bouwplaatsen zijn gearchiveerd. Er gaat niets verloren."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko do odczytu, dopóki Zeitkonto Pro nie będzie znów aktywne lub nie zarchiwizujesz pozostałych budów. Nic nie przepada."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só de leitura até o Zeitkonto Pro voltar a estar ativo ou até arquivares as outras obras. Nada se perde."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo za branje, dokler Zeitkonto Pro ni spet aktiven ali dokler ne arhiviraš drugih gradbišč. Nič na njem se ne izgubi."
+          }
+        }
+      }
+    },
     "Reason": {
       "extractionState": "manual",
       "localizations": {
@@ -16637,6 +17896,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odstrani vse, kar je zabeleženo na te dni."
+          }
+        }
+      }
+    },
+    "Rename": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umbenennen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar nombre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renommer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preimenuj"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rinomina"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naam wijzigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmień nazwę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar o nome"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preimenuj"
           }
         }
       }
@@ -18976,6 +20294,65 @@
         }
       }
     },
+    "Show": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži"
+          }
+        }
+      }
+    },
     "Show times by default": {
       "extractionState": "manual",
       "localizations": {
@@ -19267,6 +20644,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Od %@ do %@."
+          }
+        }
+      }
+    },
+    "Sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišča"
           }
         }
       }
@@ -19798,6 +21234,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsota tedna"
+          }
+        }
+      }
+    },
+    "Swipe a name to rename or hide it. Nobody is ever deleted, so hours already recorded never disappear: someone hidden simply stops being offered for new days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wische über einen Namen, um ihn umzubenennen oder auszublenden. Niemand wird je gelöscht, damit erfasste Stunden nie verschwinden: Wer ausgeblendet ist, wird für neue Tage einfach nicht mehr angeboten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza un nombre para cambiarlo u ocultarlo. Nunca se elimina a nadie, así que las horas ya registradas nunca desaparecen: a quien está oculto simplemente ya no se le ofrece para días nuevos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez un nom pour le renommer ou le masquer. Personne n’est jamais supprimé, donc les heures déjà enregistrées ne disparaissent jamais : une personne masquée n’est simplement plus proposée pour les nouveaux jours."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povuci preko imena da ga preimenuješ ili sakriješ. Nitko se nikad ne briše, pa zabilježeni sati nikad ne nestaju: skrivena osoba samo se više ne nudi za nove dane."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri su un nome per rinominarlo o nasconderlo. Nessuno viene mai eliminato, così le ore già registrate non spariscono mai: chi è nascosto semplicemente non viene più proposto per i nuovi giorni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veeg over een naam om die te wijzigen of te verbergen. Niemand wordt ooit verwijderd, dus vastgelegde uren verdwijnen nooit: wie verborgen is, wordt gewoon niet meer aangeboden voor nieuwe dagen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przesuń po imieniu, aby je zmienić lub ukryć. Nikt nigdy nie jest usuwany, więc zapisane godziny nigdy nie znikają: ukryta osoba po prostu nie jest już proponowana na nowe dni."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza um nome para o mudar ou ocultar. Ninguém é apagado, por isso as horas já registadas nunca desaparecem: quem está oculto deixa apenas de ser sugerido para novos dias."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podrsaj čez ime, da ga preimenuješ ali skriješ. Nihče ni nikoli izbrisan, zato zabeležene ure nikoli ne izginejo: skrita oseba se le ne ponuja več za nove dneve."
           }
         }
       }
@@ -20992,6 +22487,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Datoteke ni bilo mogoče pripraviti. %@"
+          }
+        }
+      }
+    },
+    "The job this site's hours count towards. Days already recorded keep the job they were recorded with.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Tätigkeit, auf die die Stunden dieser Baustelle zählen. Bereits erfasste Tage behalten die Tätigkeit, mit der sie erfasst wurden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El trabajo al que cuentan las horas de esta obra. Los días ya registrados conservan el trabajo con el que se registraron."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le poste auquel comptent les heures de ce chantier. Les jours déjà enregistrés gardent le poste avec lequel ils l’ont été."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posao kojem se pribrajaju sati ovog gradilišta. Već zabilježeni dani zadržavaju posao s kojim su zabilježeni."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il lavoro a cui contano le ore di questo cantiere. I giorni già registrati mantengono il lavoro con cui sono stati registrati."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De functie waarvoor de uren van deze bouwplaats tellen. Al vastgelegde dagen houden de functie waarmee ze zijn vastgelegd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praca, do której liczą się godziny z tej budowy. Już zapisane dni zachowują pracę, z którą je zapisano."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O trabalho para o qual contam as horas desta obra. Os dias já registados mantêm o trabalho com que foram registados."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delo, ki se mu štejejo ure tega gradbišča. Že zabeleženi dnevi obdržijo delo, s katerim so bili zabeleženi."
           }
         }
       }
@@ -23942,6 +25496,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Konec leta"
+          }
+        }
+      }
+    },
+    "You": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tú"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jij"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ti"
           }
         }
       }

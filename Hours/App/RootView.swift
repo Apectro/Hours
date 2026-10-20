@@ -1,10 +1,11 @@
 import SwiftUI
 
-/// Three tabs, calendar first.
+/// Four tabs, calendar first.
 ///
 /// The calendar is where the work happens, so it is the landing surface and
-/// keeps its own navigation stack. Insights and Settings are destinations you
-/// visit, not places you live.
+/// keeps its own navigation stack. Sites sits beside it because a supervisor
+/// writes up the crew's day there as often as their own. Insights and
+/// Settings are destinations you visit, not places you live.
 struct RootView: View {
     var storeFailure: String? = nil
 
@@ -12,6 +13,7 @@ struct RootView: View {
 
     enum Destination: Hashable {
         case calendar
+        case sites
         case insights
         case settings
     }
@@ -101,6 +103,10 @@ struct RootView: View {
             CalendarScreen()
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Destination.calendar)
+
+            SitesScreen()
+                .tabItem { Label("Sites", systemImage: "building.2") }
+                .tag(Destination.sites)
 
             StatisticsScreen()
                 .tabItem { Label("Insights", systemImage: "chart.bar.xaxis") }

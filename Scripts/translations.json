@@ -251,6 +251,49 @@
         "many": "%lld minut",
         "other": "%lld minuty"
       }
+    },
+    "coworkers": {
+      "de": {
+        "one": "%lld Kollege",
+        "other": "%lld Kollegen"
+      },
+      "hr": {
+        "one": "%lld suradnik",
+        "few": "%lld suradnika",
+        "other": "%lld suradnika"
+      },
+      "sl": {
+        "one": "%lld sodelavec",
+        "two": "%lld sodelavca",
+        "few": "%lld sodelavci",
+        "other": "%lld sodelavcev"
+      },
+      "it": {
+        "one": "%lld collega",
+        "other": "%lld colleghi"
+      },
+      "fr": {
+        "one": "%lld collègue",
+        "other": "%lld collègues"
+      },
+      "es": {
+        "one": "%lld compañero",
+        "other": "%lld compañeros"
+      },
+      "pt": {
+        "one": "%lld colega",
+        "other": "%lld colegas"
+      },
+      "nl": {
+        "one": "%lld collega",
+        "other": "%lld collega's"
+      },
+      "pl": {
+        "one": "%lld współpracownik",
+        "few": "%lld współpracownicy",
+        "many": "%lld współpracowników",
+        "other": "%lld współpracownika"
+      }
     }
   },
   "countedSentences": {
@@ -308,6 +351,17 @@
       "pt": "Limpar %#@days@?",
       "nl": "%#@days@ wissen?",
       "pl": "Wyczyścić %#@days@?"
+    },
+    "Crew: you + ^[%lld coworker](inflect: true)": {
+      "de": "Mannschaft: du + %#@coworkers@",
+      "hr": "Ekipa: ti + %#@coworkers@",
+      "sl": "Ekipa: ti + %#@coworkers@",
+      "it": "Squadra: tu + %#@coworkers@",
+      "fr": "Équipe : vous + %#@coworkers@",
+      "es": "Cuadrilla: tú + %#@coworkers@",
+      "pt": "Equipa: tu + %#@coworkers@",
+      "nl": "Ploeg: jij + %#@coworkers@",
+      "pl": "Ekipa: ty + %#@coworkers@"
     },
     "Nothing was restored: all ^[%lld day](inflect: true) in that file are damaged. Your existing hours have not been touched.": {
       "de": "Nichts wiederhergestellt: alle %#@days@ in dieser Datei sind beschädigt. Die vorhandenen Stunden wurden nicht verändert.",
@@ -773,6 +827,17 @@
       "Kolom toevoegen",
       "Dodaj kolumnę"
     ],
+    "Add a coworker": [
+      "Kollegen hinzufügen",
+      "Dodaj suradnika",
+      "Dodaj sodelavca",
+      "Aggiungi un collega",
+      "Ajouter un collègue",
+      "Añadir un compañero",
+      "Adicionar um colega",
+      "Collega toevoegen",
+      "Dodaj współpracownika"
+    ],
     "Add a day type": [
       "Tagesart hinzufügen",
       "Dodaj vrstu dana",
@@ -806,6 +871,17 @@
       "Functie toevoegen",
       "Dodaj pracę"
     ],
+    "Add a site": [
+      "Baustelle hinzufügen",
+      "Dodaj gradilište",
+      "Dodaj gradbišče",
+      "Aggiungi un cantiere",
+      "Ajouter un chantier",
+      "Añadir una obra",
+      "Adicionar uma obra",
+      "Bouwplaats toevoegen",
+      "Dodaj budowę"
+    ],
     "Add another block": [
       "Weiteren Block hinzufügen",
       "Dodaj još jedan blok",
@@ -838,6 +914,17 @@
       "Adiciona os dias que se aplicam onde trabalhas. Um feriado recorrente só tem de ser introduzido uma vez.",
       "Voeg de dagen toe die gelden waar jij werkt. Een terugkerende feestdag hoef je maar één keer in te voeren.",
       "Dodaj dni obowiązujące tam, gdzie pracujesz. Powtarzające się święto wystarczy wprowadzić raz."
+    ],
+    "Add the site you work on, then its crew. Each day the times are entered once, for everyone who was there.": [
+      "Füge die Baustelle hinzu, auf der du arbeitest, dann ihre Mannschaft. Jeden Tag werden die Zeiten einmal eingetragen, für alle, die da waren.",
+      "Dodaj gradilište na kojem radiš, zatim njegovu ekipu. Svaki dan vremena se unose jednom, za sve koji su bili tamo.",
+      "Dodaj gradbišče, na katerem delaš, nato njegovo ekipo. Vsak dan se časi vnesejo enkrat, za vse, ki so bili tam.",
+      "Aggiungi il cantiere su cui lavori, poi la sua squadra. Ogni giorno gli orari si inseriscono una volta sola, per tutti quelli che c’erano.",
+      "Ajoutez le chantier sur lequel vous travaillez, puis son équipe. Chaque jour, les horaires se saisissent une seule fois, pour tous ceux qui étaient là.",
+      "Añade la obra en la que trabajas y luego su cuadrilla. Cada día los horarios se introducen una sola vez, para todos los que estuvieron.",
+      "Adiciona a obra onde trabalhas e depois a sua equipa. Todos os dias os horários são introduzidos uma só vez, para todos os que lá estiveram.",
+      "Voeg de bouwplaats toe waar je werkt, en daarna de ploeg. Elke dag worden de tijden één keer ingevoerd, voor iedereen die er was.",
+      "Dodaj budowę, na której pracujesz, a potem jej ekipę. Każdego dnia godziny wpisuje się raz, dla wszystkich, którzy byli na miejscu."
     ],
     "Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.": [
       "Fügt bei „Heute“ eine Taste hinzu, die eine Uhr startet und stoppt. Schalte es aus, wenn du Stunden lieber nachträglich einträgst.",
@@ -905,6 +992,17 @@
       "Al geregistreerd",
       "Już zapisane"
     ],
+    "Always on the crew": [
+      "Immer in der Mannschaft",
+      "Uvijek u ekipi",
+      "Vedno v ekipi",
+      "Sempre in squadra",
+      "Toujours dans l’équipe",
+      "Siempre en la cuadrilla",
+      "Sempre na equipa",
+      "Altijd in de ploeg",
+      "Zawsze w ekipie"
+    ],
     "An archived job keeps everything already recorded against it but stops expecting hours and stops being offered for new work.": [
       "Eine archivierte Tätigkeit behält alles bisher Erfasste, erwartet aber keine Stunden mehr und wird für neue Arbeit nicht mehr angeboten.",
       "Arhivirani posao zadržava sve što je već zabilježeno, ali više ne očekuje sate niti se nudi za novi rad.",
@@ -915,6 +1013,17 @@
       "Um trabalho arquivado mantém tudo o que já foi registado, mas deixa de prever horas e de ser oferecido para trabalho novo.",
       "Een gearchiveerde functie behoudt alles wat er al is vastgelegd, maar verwacht geen uren meer en wordt niet meer aangeboden.",
       "Zarchiwizowana praca zachowuje wszystko, co już zapisano, ale przestaje oczekiwać godzin i nie jest proponowana do nowej pracy."
+    ],
+    "An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.": [
+      "Eine archivierte Baustelle behält jeden erfassten Tag und ihre ganze Mannschaft und erscheint nicht mehr unter deinen aktiven Baustellen.",
+      "Arhivirano gradilište zadržava svaki zabilježeni dan i cijelu ekipu te se više ne prikazuje među aktivnim gradilištima.",
+      "Arhivirano gradbišče obdrži vsak zabeležen dan in vso ekipo ter se ne prikazuje več med aktivnimi gradbišči.",
+      "Un cantiere archiviato conserva ogni giorno registrato e tutta la squadra, e non compare più tra i cantieri attivi.",
+      "Un chantier archivé conserve chaque jour enregistré et toute son équipe, et n’apparaît plus parmi vos chantiers actifs.",
+      "Una obra archivada conserva cada día registrado y toda su cuadrilla, y deja de aparecer entre tus obras activas.",
+      "Uma obra arquivada mantém todos os dias registados e toda a equipa, e deixa de aparecer entre as obras ativas.",
+      "Een gearchiveerde bouwplaats houdt elke vastgelegde dag en de hele ploeg, en verschijnt niet meer bij je actieve bouwplaatsen.",
+      "Zarchiwizowana budowa zachowuje każdy zapisany dzień i całą ekipę, ale nie pojawia się już wśród aktywnych budów."
     ],
     "An end time earlier than the start is treated as an overnight shift.": [
       "Ein Ende vor dem Beginn gilt als Nachtschicht.",
@@ -1521,6 +1630,39 @@
       "Bestrijkt",
       "Obejmuje"
     ],
+    "Crew": [
+      "Mannschaft",
+      "Ekipa",
+      "Ekipa",
+      "Squadra",
+      "Équipe",
+      "Cuadrilla",
+      "Equipa",
+      "Ploeg",
+      "Ekipa"
+    ],
+    "Crew hours": [
+      "Stunden der Mannschaft",
+      "Sati ekipe",
+      "Ure ekipe",
+      "Ore della squadra",
+      "Heures de l’équipe",
+      "Horas de la cuadrilla",
+      "Horas da equipa",
+      "Uren van de ploeg",
+      "Godziny ekipy"
+    ],
+    "Crew: just you": [
+      "Mannschaft: nur du",
+      "Ekipa: samo ti",
+      "Ekipa: samo ti",
+      "Squadra: solo tu",
+      "Équipe : vous seul",
+      "Cuadrilla: solo tú",
+      "Equipa: só tu",
+      "Ploeg: alleen jij",
+      "Ekipa: tylko ty"
+    ],
     "Custom expected hours": [
       "Abweichende Sollstunden",
       "Prilagođeni planirani sati",
@@ -1663,6 +1805,17 @@
       "Dias registados",
       "Vastgelegde dagen",
       "Zapisane dni"
+    ],
+    "Days this month": [
+      "Tage diesen Monat",
+      "Dani ovaj mjesec",
+      "Dnevi ta mesec",
+      "Giorni questo mese",
+      "Jours ce mois-ci",
+      "Días este mes",
+      "Dias este mês",
+      "Dagen deze maand",
+      "Dni w tym miesiącu"
     ],
     "Days worked": [
       "Tage gearbeitet",
@@ -1916,6 +2069,17 @@
       "Cada trabalho tem a sua própria semana contratada, por isso dois trabalhos com horas diferentes têm cada um o seu saldo em vez de partilharem um.",
       "Elke functie heeft zijn eigen contractweek, dus twee functies met verschillende uren krijgen elk hun eigen saldo in plaats van één gedeeld saldo.",
       "Każda praca ma własny tydzień umowny, więc dwie prace o różnych godzinach mają osobne salda zamiast wspólnego."
+    ],
+    "Edit": [
+      "Bearbeiten",
+      "Uredi",
+      "Uredi",
+      "Modifica",
+      "Modifier",
+      "Editar",
+      "Editar",
+      "Bewerken",
+      "Edytuj"
     ],
     "Edit a range": [
       "Zeitraum bearbeiten",
@@ -2235,6 +2399,28 @@
       "Do seu horário semanal de %@.",
       "Uit je weekrooster voor %@.",
       "Z tygodniowego grafiku na %@."
+    ],
+    "Hidden": [
+      "Ausgeblendet",
+      "Skriveni",
+      "Skriti",
+      "Nascosti",
+      "Masqués",
+      "Ocultos",
+      "Ocultos",
+      "Verborgen",
+      "Ukryci"
+    ],
+    "Hide": [
+      "Ausblenden",
+      "Sakrij",
+      "Skrij",
+      "Nascondi",
+      "Masquer",
+      "Ocultar",
+      "Ocultar",
+      "Verbergen",
+      "Ukryj"
     ],
     "Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.": [
       "Wochenenden auszublenden entfernt die Spalten Samstag und Sonntag aus dem Raster. Die Tage werden weiterhin erfasst und gezählt.",
@@ -2676,6 +2862,17 @@
       "Naam op de urenstaat",
       "Imię i nazwisko na ewidencji"
     ],
+    "New site": [
+      "Neue Baustelle",
+      "Novo gradilište",
+      "Novo gradbišče",
+      "Nuovo cantiere",
+      "Nouveau chantier",
+      "Nueva obra",
+      "Nova obra",
+      "Nieuwe bouwplaats",
+      "Nowa budowa"
+    ],
     "Next %@": [
       "Nächster %@",
       "Sljedeći %@",
@@ -2731,6 +2928,17 @@
       "Geen locatietoegang",
       "Brak dostępu do lokalizacji"
     ],
+    "No sites yet": [
+      "Noch keine Baustellen",
+      "Još nema gradilišta",
+      "Še ni gradbišč",
+      "Ancora nessun cantiere",
+      "Aucun chantier pour l’instant",
+      "Aún no hay obras",
+      "Ainda não há obras",
+      "Nog geen bouwplaatsen",
+      "Brak budów"
+    ],
     "No sync": [
       "Keine Synchronisierung",
       "Bez sinkronizacije",
@@ -2785,6 +2993,17 @@
       "Agora não",
       "Niet nu",
       "Nie teraz"
+    ],
+    "Not offered for new days. Every day already recorded for them stays, on screen and on exports.": [
+      "Werden für neue Tage nicht angeboten. Jeder bereits für sie erfasste Tag bleibt, auf dem Bildschirm und in Exporten.",
+      "Ne nude se za nove dane. Svaki dan koji je za njih već zabilježen ostaje, na zaslonu i u izvozima.",
+      "Ne ponujajo se za nove dneve. Vsak dan, ki je zanje že zabeležen, ostane, na zaslonu in v izvozih.",
+      "Non vengono proposti per i nuovi giorni. Ogni giorno già registrato per loro resta, sullo schermo e nelle esportazioni.",
+      "Ne sont plus proposés pour les nouveaux jours. Chaque jour déjà enregistré pour eux reste, à l’écran et dans les exports.",
+      "No se ofrecen para días nuevos. Cada día ya registrado para ellos se mantiene, en pantalla y en las exportaciones.",
+      "Não são sugeridos para novos dias. Cada dia já registado para eles mantém-se, no ecrã e nas exportações.",
+      "Worden niet aangeboden voor nieuwe dagen. Elke dag die al voor hen is vastgelegd blijft, op het scherm en in exports.",
+      "Nie są proponowani na nowe dni. Każdy dzień już dla nich zapisany zostaje, na ekranie i w eksportach."
     ],
     "Not working days": [
       "Keine Arbeitstage",
@@ -3127,6 +3346,17 @@
       "Bereik",
       "Zakres"
     ],
+    "Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.": [
+      "Nur lesbar, bis Zeitkonto Pro wieder aktiv ist oder deine anderen Baustellen archiviert sind. Nichts darauf geht verloren.",
+      "Samo za čitanje dok Zeitkonto Pro ponovno ne bude aktivan ili dok ostala gradilišta ne arhiviraš. Ništa na njemu se ne gubi.",
+      "Samo za branje, dokler Zeitkonto Pro ni spet aktiven ali dokler ne arhiviraš drugih gradbišč. Nič na njem se ne izgubi.",
+      "Sola lettura finché Zeitkonto Pro non torna attivo o finché non archivi gli altri cantieri. Non si perde nulla.",
+      "En lecture seule jusqu’à ce que Zeitkonto Pro soit de nouveau actif ou que vos autres chantiers soient archivés. Rien n’est perdu.",
+      "Solo lectura hasta que Zeitkonto Pro vuelva a estar activo o archives tus otras obras. No se pierde nada.",
+      "Só de leitura até o Zeitkonto Pro voltar a estar ativo ou até arquivares as outras obras. Nada se perde.",
+      "Alleen-lezen tot Zeitkonto Pro weer actief is of je andere bouwplaatsen zijn gearchiveerd. Er gaat niets verloren.",
+      "Tylko do odczytu, dopóki Zeitkonto Pro nie będzie znów aktywne lub nie zarchiwizujesz pozostałych budów. Nic nie przepada."
+    ],
     "Reason": [
       "Grund",
       "Razlog",
@@ -3203,6 +3433,17 @@
       "Remove tudo o que está registado nesses dias.",
       "Verwijdert alles wat op die dagen is vastgelegd.",
       "Usuwa wszystko zapisane w tych dniach."
+    ],
+    "Rename": [
+      "Umbenennen",
+      "Preimenuj",
+      "Preimenuj",
+      "Rinomina",
+      "Renommer",
+      "Cambiar nombre",
+      "Mudar o nome",
+      "Naam wijzigen",
+      "Zmień nazwę"
     ],
     "Reopen it in Settings › Calculation if you need to change these hours.": [
       "Öffnen Sie ihn unter Einstellungen › Berechnung wieder, wenn Sie diese Stunden ändern müssen.",
@@ -3479,6 +3720,17 @@
       "Kort",
       "Krótko"
     ],
+    "Show": [
+      "Einblenden",
+      "Prikaži",
+      "Prikaži",
+      "Mostra",
+      "Afficher",
+      "Mostrar",
+      "Mostrar",
+      "Tonen",
+      "Pokaż"
+    ],
     "Show times by default": [
       "Zeiten standardmäßig anzeigen",
       "Prikaži vremena po zadanom",
@@ -3533,6 +3785,17 @@
       "Desde %@, até %@.",
       "Vanaf %@, tot en met %@.",
       "Od %@ do %@."
+    ],
+    "Sites": [
+      "Baustellen",
+      "Gradilišta",
+      "Gradbišča",
+      "Cantieri",
+      "Chantiers",
+      "Obras",
+      "Obras",
+      "Bouwplaatsen",
+      "Budowy"
     ],
     "Skip non-working days": [
       "Freie Tage überspringen",
@@ -3632,6 +3895,17 @@
       "Soma da semana",
       "Som van de week",
       "Suma tygodnia"
+    ],
+    "Swipe a name to rename or hide it. Nobody is ever deleted, so hours already recorded never disappear: someone hidden simply stops being offered for new days.": [
+      "Wische über einen Namen, um ihn umzubenennen oder auszublenden. Niemand wird je gelöscht, damit erfasste Stunden nie verschwinden: Wer ausgeblendet ist, wird für neue Tage einfach nicht mehr angeboten.",
+      "Povuci preko imena da ga preimenuješ ili sakriješ. Nitko se nikad ne briše, pa zabilježeni sati nikad ne nestaju: skrivena osoba samo se više ne nudi za nove dane.",
+      "Podrsaj čez ime, da ga preimenuješ ali skriješ. Nihče ni nikoli izbrisan, zato zabeležene ure nikoli ne izginejo: skrita oseba se le ne ponuja več za nove dneve.",
+      "Scorri su un nome per rinominarlo o nasconderlo. Nessuno viene mai eliminato, così le ore già registrate non spariscono mai: chi è nascosto semplicemente non viene più proposto per i nuovi giorni.",
+      "Balayez un nom pour le renommer ou le masquer. Personne n’est jamais supprimé, donc les heures déjà enregistrées ne disparaissent jamais : une personne masquée n’est simplement plus proposée pour les nouveaux jours.",
+      "Desliza un nombre para cambiarlo u ocultarlo. Nunca se elimina a nadie, así que las horas ya registradas nunca desaparecen: a quien está oculto simplemente ya no se le ofrece para días nuevos.",
+      "Desliza um nome para o mudar ou ocultar. Ninguém é apagado, por isso as horas já registadas nunca desaparecem: quem está oculto deixa apenas de ser sugerido para novos dias.",
+      "Veeg over een naam om die te wijzigen of te verbergen. Niemand wordt ooit verwijderd, dus vastgelegde uren verdwijnen nooit: wie verborgen is, wordt gewoon niet meer aangeboden voor nieuwe dagen.",
+      "Przesuń po imieniu, aby je zmienić lub ukryć. Nikt nigdy nie jest usuwany, więc zapisane godziny nigdy nie znikają: ukryta osoba po prostu nie jest już proponowana na nowe dni."
     ],
     "Switch these off to enter worked hours, or the balance, by hand on each day.": [
       "Schalte das aus, um gearbeitete Stunden oder den Saldo an jedem Tag von Hand einzutragen.",
@@ -3753,6 +4027,17 @@
       "Não foi possível preparar o ficheiro. %@",
       "Het bestand kon niet worden voorbereid. %@",
       "Nie udało się przygotować pliku. %@"
+    ],
+    "The job this site's hours count towards. Days already recorded keep the job they were recorded with.": [
+      "Die Tätigkeit, auf die die Stunden dieser Baustelle zählen. Bereits erfasste Tage behalten die Tätigkeit, mit der sie erfasst wurden.",
+      "Posao kojem se pribrajaju sati ovog gradilišta. Već zabilježeni dani zadržavaju posao s kojim su zabilježeni.",
+      "Delo, ki se mu štejejo ure tega gradbišča. Že zabeleženi dnevi obdržijo delo, s katerim so bili zabeleženi.",
+      "Il lavoro a cui contano le ore di questo cantiere. I giorni già registrati mantengono il lavoro con cui sono stati registrati.",
+      "Le poste auquel comptent les heures de ce chantier. Les jours déjà enregistrés gardent le poste avec lequel ils l’ont été.",
+      "El trabajo al que cuentan las horas de esta obra. Los días ya registrados conservan el trabajo con el que se registraron.",
+      "O trabalho para o qual contam as horas desta obra. Os dias já registados mantêm o trabalho com que foram registados.",
+      "De functie waarvoor de uren van deze bouwplaats tellen. Al vastgelegde dagen houden de functie waarmee ze zijn vastgelegd.",
+      "Praca, do której liczą się godziny z tej budowy. Już zapisane dni zachowują pracę, z którą je zapisano."
     ],
     "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.": [
       "Das Einzige, was es im Netz abfragt, ist, ob Zeitkonto Pro bezahlt wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit.",
@@ -4303,6 +4588,17 @@
       "Fim do ano",
       "Jaareinde",
       "Koniec roku"
+    ],
+    "You": [
+      "Du",
+      "Ti",
+      "Ti",
+      "Tu",
+      "Vous",
+      "Tú",
+      "Tu",
+      "Jij",
+      "Ty"
     ],
     "You are %@ ahead.": [
       "Sie liegen %@ im Plus.",
