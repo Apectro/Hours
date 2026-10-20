@@ -263,6 +263,16 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .weekOf:         return pick(en: "week of", de: "Woche vom", hr: "tjedan od", sl: "teden od",
                                           it: "settimana del", fr: "semaine du", es: "semana del", pt: "semana de",
                                           nl: "week van", pl: "tydzień od")
+
+        // The director's sheet
+        case .day:            return pick(en: "Day", de: "Tag", hr: "Dan", sl: "Dan", it: "Giorno", fr: "Jour",
+                                          es: "Día", pt: "Dia", nl: "Dag", pl: "Dzień")
+        case .monthTotal:     return pick(en: "Month total", de: "Monatssumme", hr: "Ukupno za mjesec",
+                                          sl: "Skupaj za mesec", it: "Totale del mese", fr: "Total du mois",
+                                          es: "Total del mes", pt: "Total do mês", nl: "Maandtotaal",
+                                          pl: "Suma miesiąca")
+        case .you:            return pick(en: "You", de: "Du", hr: "Ti", sl: "Ti", it: "Tu", fr: "Vous",
+                                          es: "Tú", pt: "Você", nl: "Jij", pl: "Ty")
         }
     }
 
@@ -327,4 +337,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case scheduledDays, daysOff, totalBreaks
 
     case summary, total, name, page, generated, hours, weekOf
+
+    /// The director's sheet for a site.
+    case day, monthTotal, you
 }

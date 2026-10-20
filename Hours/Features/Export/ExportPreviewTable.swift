@@ -37,8 +37,11 @@ struct ExportPreviewTable: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            ForEach(table.columns) { column in
-                Text(column.heading(in: table.language))
+            // By index: the director's sheet repeats `.worked` once per person,
+            // so a column is not a unique identity here.
+            ForEach(table.columns.indices, id: \.self) { index in
+                let column = table.columns[index]
+                Text(table.heading(at: index))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: width(for: column), alignment: column.isNumeric ? .trailing : .leading)

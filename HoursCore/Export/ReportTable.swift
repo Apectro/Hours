@@ -59,8 +59,22 @@ struct ReportTable: Hashable, Sendable {
     var columns: [ReportColumn]
     var rows: [ReportRow]
     var totals: [ReportTotal]
+    /// Column titles that replace the ones the columns would give, for a
+    /// report whose columns are people rather than kinds of figure (the
+    /// director's sheet has one `.worked` column per person). Ignored unless
+    /// there is exactly one per column.
+    var headingOverrides: [String]? = nil
 
     var isEmpty: Bool { rows.isEmpty }
 
-    func headerTitles() -> [String] { columns.map { $0.heading(in: language) } }
+    func headerTitles() -> [String] {
+        if let headingOverrides, headingOverrides.count == columns.count { return headingOverrides }
+        return columns.map { $0.heading(in: language) }
+    }
+
+    /// The title of one column, honouring the overrides.
+    func heading(at index: Int) -> String {
+        let titles = headerTitles()
+        return titles.indices.contains(index) ? titles[index] : ""
+    }
 }

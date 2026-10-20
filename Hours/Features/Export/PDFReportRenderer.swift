@@ -141,7 +141,7 @@ enum PDFReportRenderer {
         for (index, column) in table.columns.enumerated() {
             let width = widths[index]
             draw(
-                column.heading(in: table.language),
+                table.heading(at: index),
                 in: CGRect(x: x + cellPadding, y: y + 5, width: width - cellPadding * 2, height: headerHeight - 8),
                 font: headingFont,
                 color: .secondaryLabel,
@@ -268,7 +268,7 @@ enum PDFReportRenderer {
 
         let minimum = table.columns.indices.map { index -> CGFloat in
             let column = table.columns[index]
-            var needed = width(of: column.heading(in: table.language), font: headingFont)
+            var needed = width(of: table.heading(at: index), font: headingFont)
             if !column.mayTruncate {
                 for row in table.rows where index < row.values.count {
                     needed = max(needed, width(of: row.values[index], font: cellFont))

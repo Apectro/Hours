@@ -21,7 +21,7 @@ struct ReportBuilder: Sendable {
     /// builder that decides which words come out.
     private var language: ExportLanguage { settings.export.language }
 
-    private var duration: DurationFormatting {
+    var duration: DurationFormatting {
         DurationFormatting.export(
             style: settings.export.durationStyle,
             decimalSeparator: settings.export.decimalSeparator.character
@@ -114,12 +114,9 @@ struct ReportBuilder: Sendable {
                 }
             return (names.isEmpty ? emptyPlaceholder : names.joined(separator: ", "), nil)
         case .start:
-            guard let start = day.start else { return (emptyPlaceholder, nil) }
-            return (settings.export.timeStyle.string(for: start), nil)
+            return (startText(day.start), nil)
         case .end:
-            guard let end = day.end else { return (emptyPlaceholder, nil) }
-            let suffix = day.crossesMidnight ? " (+1)" : ""
-            return (settings.export.timeStyle.string(for: end) + suffix, nil)
+            return (endText(day.end, crossesMidnight: day.crossesMidnight), nil)
         case .breakTime:
             guard day.breakMinutes > 0 else { return (emptyPlaceholder, nil) }
             return (duration.string(day.breakMinutes), day.breakMinutes)
@@ -145,6 +142,18 @@ struct ReportBuilder: Sendable {
         case .note:
             return (day.note.isEmpty ? emptyPlaceholder : day.note, nil)
         }
+    }
+
+    /// How a start time is written, shared with the director's sheet so the
+    /// two can never format the same clock time differently.
+    func startText(_ start: TimeOfDay?) -> String {
+        guard let start else { return emptyPlaceholder }
+        return settings.export.timeStyle.string(for: start)
+    }
+
+    func endText(_ end: TimeOfDay?, crossesMidnight: Bool) -> String {
+        guard let end else { return emptyPlaceholder }
+        return settings.export.timeStyle.string(for: end) + (crossesMidnight ? " (+1)" : "")
     }
 
     // MARK: - Totals
@@ -238,7 +247,7 @@ struct ReportBuilder: Sendable {
         return totals
     }
 
-    private func subtitle(for range: CalendarDateRange) -> String {
+    func subtitle(for range: CalendarDateRange) -> String {
         let start = settings.export.dateStyle.string(for: range.start)
         let end = settings.export.dateStyle.string(for: range.end)
         return range.start == range.end ? start : "\(start) – \(end)"
