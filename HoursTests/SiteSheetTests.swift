@@ -143,6 +143,19 @@ final class SiteSheetTests: XCTestCase {
         XCTAssertTrue(package.contains(">Day<"))
         XCTAssertFalse(package.contains(">Worked<"))
         XCTAssertFalse(package.contains(">Summary<"))
+        // The builder's own closing rows are the totals; no ruled "Total" row follows.
+        XCTAssertFalse(package.contains(">Total<"))
+        XCTAssertFalse(package.contains("<f>SUM("))
+    }
+
+    func testXLSXFilterStopsAtLastDayRow() {
+        let ana = member("Ana")
+        let t = table(crew: [ana], days: [day(3, present: [ana.id]), day(4, present: [ana.id])])
+        let package = String(decoding: XLSXWriter.data(for: t, preferences: ExportPreferences()), as: UTF8.self)
+        // Title, subtitle(+owner), blank, header; two days then two closing rows.
+        let header = (1...20).first { package.contains("<c r=\"A\($0)\" t=\"inlineStr\" s=\"5\">") } ?? 0
+        XCTAssertGreaterThan(header, 0)
+        XCTAssertTrue(package.contains("<autoFilter ref=\"A\(header):C\(header + 2)\"/>"))
     }
 
     func testNoteColumnCarriesDayNote() {

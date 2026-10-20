@@ -113,7 +113,8 @@ struct SiteSheetBuilder: Sendable {
             columns: [.date] + Array(repeating: .worked, count: people.count) + [.note],
             rows: rows,
             totals: [],
-            headingOverrides: [language(.day)] + people.map(\.heading) + [language(.notes)]
+            headingOverrides: [language(.day)] + people.map(\.heading) + [language(.notes)],
+            trailingSummaryRows: 2
         )
     }
 
