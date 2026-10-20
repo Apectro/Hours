@@ -23,6 +23,13 @@ final class SiteDayTests: XCTestCase {
         XCTAssertFalse(you.isSelected, "a new day must start with nobody ticked")
         let same = app.buttons["site-day-same-as-last"]
         XCTAssertTrue(same.exists, "an empty day should offer Same as last day")
+        // It names the day it copies from, which is yesterday, not today.
+        let from = app.staticTexts["site-day-same-as-last-from"]
+        XCTAssertTrue(from.waitForExistence(timeout: 5), "Same as last day does not say which day it copies")
+        XCTAssertTrue(
+            from.label.contains(Self.mediumDate(daysFromToday: -1)),
+            "the hint should name yesterday, \(Self.mediumDate(daysFromToday: -1)): \(from.label)"
+        )
         same.tap()
 
         // Everyone who was there yesterday, at the site's times: Ivan's early
@@ -94,6 +101,18 @@ final class SiteDayTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// A date as the app's day headings write it ("Tue 19 Oct" in English),
+    /// in the simulator's own locale, which is the one the app runs in.
+    private static func mediumDate(daysFromToday offset: Int) -> String {
+        let calendar = Calendar.current
+        let date = calendar.date(byAdding: .day, value: offset, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("EEEdMMM")
+        return formatter.string(from: date)
+    }
 
     private func launch(arguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication.hours()

@@ -33,6 +33,9 @@ struct SiteDayScreen: View {
     @State private var stored: SiteDay?
     /// What "Same as last day" would fill in, if there is an earlier day.
     @State private var lastDay: SiteDay?
+    /// The date "Same as last day" copies from. Kept apart from `lastDay`,
+    /// which is already re-dated to the day being written.
+    @State private var lastDayDate: CalendarDate?
     /// Hidden members included, because a past day may name one.
     @State private var crew: [CrewMember] = []
     /// The note is typed here and saved when the field loses focus, rather
@@ -157,6 +160,20 @@ struct SiteDayScreen: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("site-day-locked")
             }
+        } else if isReadOnly, site.isArchived {
+            // Archiving, not a lapsed Pro, is what stops this one, and the
+            // way back is the site's own editor.
+            Section {
+                Label {
+                    Text("Archived. Switch off Archived under Edit to change its days.")
+                        .font(.footnote)
+                } icon: {
+                    Image(systemName: "archivebox")
+                }
+                .foregroundStyle(.secondary)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("site-day-archived")
+            }
         } else if isReadOnly {
             Section {
                 Label {
@@ -249,11 +266,12 @@ struct SiteDayScreen: View {
             .buttonStyle(.borderedProminent)
             .accessibilityIdentifier("site-day-same-as-last")
         } footer: {
-            if let lastDay {
+            if let lastDayDate {
                 Text(String(
-                    localized: "Copies the times and who was there from \(formatting.mediumDate(lastDay.date)).",
+                    localized: "Copies the times and who was there from \(formatting.mediumDate(lastDayDate)).",
                     comment: "Under the Same as last day button; the value is a date"
                 ))
+                .accessibilityIdentifier("site-day-same-as-last-from")
             }
         }
         .listRowBackground(Color.clear)
@@ -438,6 +456,7 @@ struct SiteDayScreen: View {
         stored = store.siteDay(siteID: site.id, on: date)
         day = stored ?? SiteDay(siteID: site.id, date: date, jobID: site.jobID)
         lastDay = store.sameAsLastDay(siteID: site.id, on: date)
+        lastDayDate = lastDay == nil ? nil : store.lastSiteDay(siteID: site.id, before: date)?.date
         noteText = day.note
         refreshYourWarning()
     }

@@ -3640,6 +3640,65 @@
         }
       }
     },
+    "Archived. Switch off Archived under Edit to change its days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archiviert. Schalte „Archiviert“ unter „Bearbeiten“ aus, um ihre Tage zu ändern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivado. Desactiva «Archivado» en «Editar» para cambiar sus días."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivé. Désactivez « Archivé » dans « Modifier » pour changer ses journées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arhivirano. Isključi „Arhivirano” pod „Uredi” da promijeniš njegove dane."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archiviato. Disattiva «Archiviato» in «Modifica» per cambiarne i giorni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gearchiveerd. Zet ‘Gearchiveerd’ uit onder ‘Bewerken’ om de dagen te wijzigen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarchiwizowane. Wyłącz „Zarchiwizowane” w „Edytuj”, aby zmienić jej dni."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivado. Desativa «Arquivado» em «Editar» para alterar os dias."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arhivirano. Izklopi »Arhivirano« pod »Uredi«, da spremeniš njegove dneve."
+          }
+        }
+      }
+    },
     "Automatic": {
       "extractionState": "manual",
       "localizations": {
