@@ -7,8 +7,10 @@ it is also exactly the shape of a bug that cannot be seen: a screen that writes
 days, built without the lock, silently keeps accepting edits to a closed month
 and looks completely correct.
 
-So: any file that calls `save(` or `delete(` on a repository must pass a lock
-where it builds one. Reading paths are left alone, and the writing paths that
+So: any file that calls `save(`, `delete(` or `replaceAll(` on a repository
+must pass a lock where it builds one. `replaceAll` is how a restore writes
+site data; the restore screen is exempt below with its reason, and nowhere
+else has any business calling it unlocked. Reading paths are left alone, and the writing paths that
 are unlocked on purpose say so here rather than in a comment nobody greps for.
 
 `SiteRepository` has the same default for the same reason, and a site day
@@ -29,9 +31,9 @@ SEARCHED = ["Hours"]
 
 REPOSITORIES = ["WorkdayRepository", "SiteRepository"]
 WRITES = re.compile(
-    r"(?:^|[^\w.])(?:try |try\? )?\w*[Rr]epository\.(?:save|delete)\("
+    r"(?:^|[^\w.])(?:try |try\? )?\w*[Rr]epository\.(?:save|delete|replaceAll)\("
     # A repository built and written to in one expression.
-    r"|Repository\([^)]*\)\.(?:save|delete)\("
+    r"|Repository\([^)]*\)\.(?:save|delete|replaceAll)\("
 )
 
 # Writing paths that are deliberately unlocked, each with the reason.

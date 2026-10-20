@@ -150,17 +150,25 @@ struct SiteRepository {
     /// same reason. The job is the site's job now, not the copied day's,
     /// because a new day freezes the job as it stands when it is written.
     ///
+    /// Someone hidden from the crew since is left out: hidden means no longer
+    /// offered for a new day, and copying them in would record a person who
+    /// has left as present, on the director's sheet. "You" is never a stored
+    /// member, so it is never hidden and always carries over.
+    ///
     /// Not saved here: the caller shows it in the editor and saving is the
     /// person's decision, which is also where the month lock gets its say.
     func sameAsLastDay(siteID: UUID, on date: CalendarDate) -> SiteDay? {
         guard let last = lastSiteDay(siteID: siteID, before: date) else { return nil }
+        let hidden = Set(crew(for: siteID, includeHidden: true).filter(\.isHidden).map(\.id))
         return SiteDay(
             siteID: siteID,
             date: date,
             start: last.start,
             end: last.end,
             breakMinutes: last.breakMinutes,
-            present: last.present.map { Attendance(memberID: $0.memberID) },
+            present: last.present
+                .filter { !hidden.contains($0.memberID) }
+                .map { Attendance(memberID: $0.memberID) },
             jobID: site(id: siteID)?.jobID
         )
     }
@@ -317,7 +325,7 @@ struct SiteRepository {
     ///
     /// Only sync creates these, exactly as for `WorkdayRepository`, and the
     /// rule is the same: last edit wins, and rows nothing can tell apart are
-    /// all kept (see `collapse`).
+    /// all kept (see `ModelContext.collapseDuplicates`).
     ///
     /// The calendar is rewritten without the month lock. This is not an edit
     /// — the site day that won is one somebody already wrote, and the lock
@@ -342,13 +350,13 @@ struct SiteRepository {
 
     private func deduplicatedSites(_ entries: [SiteEntry]) -> [SiteEntry] {
         // Sites carry no createdAt, so the last edit is all there is.
-        collapse(entries, by: \.siteID) {
+        context.collapseDuplicates(entries, by: \.siteID) {
             Freshness(updatedAt: $0.updatedAt, createdAt: $0.updatedAt)
         }.kept
     }
 
     private func deduplicatedCrew(_ entries: [CrewMemberEntry]) -> [CrewMemberEntry] {
-        collapse(entries, by: \.memberID) {
+        context.collapseDuplicates(entries, by: \.memberID) {
             Freshness(updatedAt: $0.updatedAt, createdAt: $0.updatedAt)
         }.kept
     }
@@ -361,7 +369,7 @@ struct SiteRepository {
     /// and the two sides reconcile separately, so nothing guarantees the same
     /// device wins both.
     private func deduplicatedDays(_ entries: [SiteDayEntry], followingCalendar: Bool = true) -> [SiteDayEntry] {
-        let result = collapse(entries, by: \.identity) {
+        let result = context.collapseDuplicates(entries, by: \.identity) {
             Freshness(updatedAt: $0.updatedAt, createdAt: $0.createdAt)
         }
         if followingCalendar, !result.removed.isEmpty {
@@ -383,71 +391,8 @@ struct SiteRepository {
         persist()
     }
 
-    /// How recent a row is, for choosing between duplicates. As in
-    /// `WorkdayRepository`, equal freshness is deliberately not a tie to be
-    /// broken.
-    private struct Freshness: Comparable {
-        let updatedAt: Date
-        let createdAt: Date
-
-        static func < (a: Self, b: Self) -> Bool {
-            a.updatedAt == b.updatedAt ? a.createdAt < b.createdAt : a.updatedAt < b.updatedAt
-        }
-    }
-
-    /// Groups rows by what makes them the same thing, keeps the freshest, and
-    /// deletes the rest. Returns the survivors and the identity of every group
-    /// that lost a row.
-    ///
-    /// The same rules as `WorkdayRepository.collapse`, for the same reasons.
-    /// **Every survivor is chosen before anything is deleted**, because
-    /// reading a deleted and saved model is undefined. **Rows nothing can tell
-    /// apart are all kept**, because two devices breaking that tie differently
-    /// would each delete what the other kept and the day would be gone from
-    /// both. That rules out breaking it on the persistent identifier: it is
-    /// assigned by each device's own store, so two devices would not agree on
-    /// it. A tie heals on the next edit, which stamps one row and makes it win
-    /// outright.
-    private func collapse<Model: PersistentModel, Key: Hashable, Rank: Comparable>(
-        _ models: [Model],
-        by key: KeyPath<Model, Key>,
-        freshness: (Model) -> Rank
-    ) -> (kept: [Model], removed: [Key]) {
-        var groups: [Key: [Model]] = [:]
-        var order: [Key] = []
-        for model in models {
-            let identity = model[keyPath: key]
-            if groups[identity] == nil { order.append(identity) }
-            groups[identity, default: []].append(model)
-        }
-        guard groups.contains(where: { $0.value.count > 1 }) else { return (models, []) }
-
-        var kept: [Model] = []
-        var doomed: [Model] = []
-        var removed: [Key] = []
-        for identity in order {
-            let group = groups[identity] ?? []
-            guard group.count > 1 else {
-                kept.append(contentsOf: group)
-                continue
-            }
-            let best = group.map(freshness).max()
-            let before = doomed.count
-            for model in group {
-                if freshness(model) == best { kept.append(model) } else { doomed.append(model) }
-            }
-            if doomed.count > before { removed.append(identity) }
-        }
-
-        for loser in doomed { context.delete(loser) }
-        persist()
-        // Returned in the order they arrived, which is the order the fetch
-        // sorted them into.
-        return (kept, removed)
-    }
-
     /// Drops later rows that share an identity with an earlier one, without
-    /// deleting anything. Only ever does something when `collapse` kept a tie,
+    /// deleting anything. Only ever does something when a tie was kept,
     /// and keeps the screens from showing one site or one day twice.
     private func firstOfEach<Model, Key: Hashable>(_ models: [Model], by key: KeyPath<Model, Key>) -> [Model] {
         var seen = Set<Key>()

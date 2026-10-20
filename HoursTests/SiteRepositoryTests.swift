@@ -283,6 +283,8 @@ final class SiteRepositoryTests: XCTestCase {
         let context = makeContext()
         let repository = SiteRepository(context: context)
         repository.upsert(site)
+        var leaver = CrewMember(siteID: site.id, name: "Goran")
+        repository.upsert(leaver)
         let monday = Fixture.workingMonday
         let lastDay = SiteDay(
             siteID: site.id,
@@ -293,6 +295,7 @@ final class SiteRepositoryTests: XCTestCase {
             present: [
                 Attendance(memberID: CrewMember.youID),
                 Attendance(memberID: ivan, end: Fixture.time(12), breakMinutes: 0),
+                Attendance(memberID: leaver.id),
             ],
             note: "rain, stopped at 13:00",
             jobID: site.jobID
@@ -305,6 +308,9 @@ final class SiteRepositoryTests: XCTestCase {
         var moved = site
         moved.jobID = UUID()
         repository.upsert(moved)
+        // And Goran has left the crew since.
+        leaver.isHidden = true
+        repository.upsert(leaver)
 
         let thursday = Fixture.date(2026, 8, 6)
         let copy = try XCTUnwrap(repository.sameAsLastDay(siteID: site.id, on: thursday))
@@ -314,7 +320,8 @@ final class SiteRepositoryTests: XCTestCase {
         XCTAssertEqual(copy.start, Fixture.time(7))
         XCTAssertEqual(copy.end, Fixture.time(16))
         XCTAssertEqual(copy.breakMinutes, 45)
-        XCTAssertEqual(copy.present.map(\.memberID), [CrewMember.youID, ivan])
+        XCTAssertEqual(copy.present.map(\.memberID), [CrewMember.youID, ivan], "you carry over; someone who has left does not")
+        XCTAssertNil(copy.attendance(for: leaver.id))
         XCTAssertFalse(copy.hasException(ivan), "Ivan leaving early was that day's exception, not this one's")
         XCTAssertEqual(copy.note, "", "the note was about that day")
         XCTAssertEqual(copy.jobID, moved.jobID, "a new day takes the site's job as it is now")

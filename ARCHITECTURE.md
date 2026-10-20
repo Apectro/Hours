@@ -150,9 +150,10 @@ one, two devices editing the same Tuesday offline produce two rows that CloudKit
 merges in without knowing they mean the same day. So `WorkdayRepository` owns
 the rule instead — every read that could see duplicates collapses them, keeping
 the most recently edited row and deleting the rest, and `reconcileDuplicates()`
-runs on every return to the app. Ties break on creation date and then on the
-identifier, so every device resolves a tie the same way rather than each
-keeping a different row and handing it back to the others forever.
+runs on every return to the app. A tie on the last edit breaks on creation
+date, and rows that still cannot be told apart are all kept until the next edit
+stamps one, since two devices breaking that tie differently would each delete
+the row the other kept.
 
 Last edit wins rather than a merge. Hours are not meaningfully mergeable: a
 start time from one device and an end time from another would invent a shift
