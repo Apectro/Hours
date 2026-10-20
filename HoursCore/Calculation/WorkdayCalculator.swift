@@ -56,6 +56,15 @@ struct WorkdayCalculator: Sendable {
         let isIncluded = record?.isIncluded ?? true
         if !isIncluded { warnings.append(.excludedFromTotals) }
 
+        // Site hours reach the calendar as shifts, but only the automatic,
+        // included, non-credited path adds them up. In the other cases they
+        // are on screen and silently absent from the total, which is worth
+        // saying once rather than per shift.
+        if record?.shifts.contains(where: { $0.siteID != nil }) == true
+            && (!features.autoCalculateWorkedHours || definition.expectation == .creditedAbsence || !isIncluded) {
+            warnings.append(.siteHoursNotCounted)
+        }
+
         return DayComputation(
             date: date,
             dayType: definition,

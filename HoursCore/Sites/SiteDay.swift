@@ -69,6 +69,19 @@ struct SiteDay: Hashable, Codable, Sendable {
         present.first { $0.memberID == memberID }
     }
 
+    /// One person's hours on this day: their own override where they have one,
+    /// the site's value otherwise. `nil` when they are not present. The single
+    /// place this is decided, so the site screen and the calendar cannot
+    /// disagree about it.
+    func resolved(for memberID: UUID) -> (start: TimeOfDay?, end: TimeOfDay?, breakMinutes: Int)? {
+        guard let attendance = attendance(for: memberID) else { return nil }
+        return (
+            attendance.start ?? start,
+            attendance.end ?? end,
+            attendance.breakMinutes ?? breakMinutes
+        )
+    }
+
     /// True when the member was present but worked different hours from the
     /// site's, which is what the day editor flags.
     func hasException(_ memberID: UUID) -> Bool {

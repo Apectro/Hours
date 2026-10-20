@@ -45,9 +45,10 @@ struct SiteDayCalculator: Sendable {
     }
 
     private func personDay(for attendance: Attendance, in day: SiteDay) -> PersonDay {
-        let start = attendance.start ?? day.start
-        let end = attendance.end ?? day.end
-        let breakMinutes = attendance.breakMinutes ?? day.breakMinutes
+        let resolved = day.resolved(for: attendance.memberID)
+        let start = resolved?.start
+        let end = resolved?.end
+        let breakMinutes = resolved?.breakMinutes ?? day.breakMinutes
 
         let record = DayRecord(
             date: day.date,
