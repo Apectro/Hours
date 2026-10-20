@@ -522,6 +522,8 @@ struct SiteDayScreen: View {
             if !next.isBlank {
                 try repository.save(next)
                 stored = next
+                // Written, so tonight's nudge about it would be wrong.
+                ReminderScheduler().cancelSiteReminder(on: next.date)
             } else if stored != nil {
                 try repository.delete(siteID: site.id, on: next.date)
                 stored = nil

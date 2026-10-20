@@ -13337,6 +13337,65 @@
         }
       }
     },
+    "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abends ein Hinweis, dass ein Baustellentag, den du sonst einträgst, noch fehlt. Sobald der Tag eingetragen ist, entfällt er."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por la tarde, un aviso de que falta un día de obra que sueles anotar. Al anotarlo, el aviso desaparece."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le soir, un rappel qu'un jour de chantier que vous saisissez d'habitude manque encore. Une fois saisi, il disparaît."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navečer podsjetnik da nedostaje dan gradilišta koji inače upisuješ. Kad se dan upiše, podsjetnik nestaje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sera, un avviso che manca un giorno di cantiere che di solito registri. Una volta registrato, l'avviso scompare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'s Avonds een melding dat een bouwdag die je normaal invult nog ontbreekt. Zodra je de dag invult, verdwijnt de melding."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wieczorem przypomnienie, że brakuje dnia budowy, który zwykle wpisujesz. Po wpisaniu dnia przypomnienie znika."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À noite, um aviso de que falta um dia de obra que costumas registar. Ao registá-lo, o aviso desaparece."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zvečer opomnik, da manjka dan gradbišča, ki ga običajno vpišeš. Ko dan vpišeš, opomnik izgine."
+          }
+        }
+      }
+    },
     "Include a summary": {
       "extractionState": "manual",
       "localizations": {
@@ -22005,6 +22064,65 @@
         }
       }
     },
+    "Site reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellen-Erinnerung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio de obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappel chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podsjetnik za gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promemoria cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herinnering bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przypomnienie o budowach"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lembrete de obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opomnik za gradbišča"
+          }
+        }
+      }
+    },
     "Site times (everyone)": {
       "extractionState": "manual",
       "localizations": {
@@ -25496,6 +25614,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Danes"
+          }
+        }
+      }
+    },
+    "Today's site hours aren't written yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Stunden der Baustelle für heute sind noch nicht eingetragen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas de la obra de hoy aún no están anotadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures du chantier d'aujourd'hui ne sont pas encore saisies."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati gradilišta za danas još nisu upisani."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ore del cantiere di oggi non sono ancora registrate."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De uren van de bouwplaats van vandaag zijn nog niet ingevuld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny z budowy za dziś nie są jeszcze wpisane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas da obra de hoje ainda não estão registadas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure gradbišča za danes še niso vpisane."
           }
         }
       }

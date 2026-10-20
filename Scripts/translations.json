@@ -5193,6 +5193,39 @@
       "A folha para o diretor faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança.",
       "De lijst voor de uitvoerder hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up.",
       "Arkusz dla kierownika jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
+    ],
+    "Today's site hours aren't written yet.": [
+      "Die Stunden der Baustelle für heute sind noch nicht eingetragen.",
+      "Sati gradilišta za danas još nisu upisani.",
+      "Ure gradbišča za danes še niso vpisane.",
+      "Le ore del cantiere di oggi non sono ancora registrate.",
+      "Les heures du chantier d'aujourd'hui ne sont pas encore saisies.",
+      "Las horas de la obra de hoy aún no están anotadas.",
+      "As horas da obra de hoje ainda não estão registadas.",
+      "De uren van de bouwplaats van vandaag zijn nog niet ingevuld.",
+      "Godziny z budowy za dziś nie są jeszcze wpisane."
+    ],
+    "Site reminders": [
+      "Baustellen-Erinnerung",
+      "Podsjetnik za gradilišta",
+      "Opomnik za gradbišča",
+      "Promemoria cantieri",
+      "Rappel chantiers",
+      "Recordatorio de obras",
+      "Lembrete de obras",
+      "Herinnering bouwplaatsen",
+      "Przypomnienie o budowach"
+    ],
+    "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.": [
+      "Abends ein Hinweis, dass ein Baustellentag, den du sonst einträgst, noch fehlt. Sobald der Tag eingetragen ist, entfällt er.",
+      "Navečer podsjetnik da nedostaje dan gradilišta koji inače upisuješ. Kad se dan upiše, podsjetnik nestaje.",
+      "Zvečer opomnik, da manjka dan gradbišča, ki ga običajno vpišeš. Ko dan vpišeš, opomnik izgine.",
+      "La sera, un avviso che manca un giorno di cantiere che di solito registri. Una volta registrato, l'avviso scompare.",
+      "Le soir, un rappel qu'un jour de chantier que vous saisissez d'habitude manque encore. Une fois saisi, il disparaît.",
+      "Por la tarde, un aviso de que falta un día de obra que sueles anotar. Al anotarlo, el aviso desaparece.",
+      "À noite, um aviso de que falta um dia de obra que costumas registar. Ao registá-lo, o aviso desaparece.",
+      "'s Avonds een melding dat een bouwdag die je normaal invult nog ontbreekt. Zodra je de dag invult, verdwijnt de melding.",
+      "Wieczorem przypomnienie, że brakuje dnia budowy, który zwykle wpisujesz. Po wpisaniu dnia przypomnienie znika."
     ]
   },
   "sameAsEnglishOnPurpose": [

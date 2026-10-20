@@ -37,6 +37,7 @@ let package = Package(
                 "InflectionTests.swift",
                 "MigrationTests.swift",
                 "PersistenceCodingTests.swift",
+                "SiteReminderIdentifierTests.swift",
                 "SiteRepositoryTests.swift",
                 "SiteRestoreTests.swift",
                 // The Apple-only handful that used to keep whole files off

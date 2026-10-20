@@ -65,6 +65,7 @@ struct RootView: View {
                 // another device while this one sleeps.
                 Task { await HoursStack.subscriptions.refresh() }
                 Task { await refreshReminder() }
+                Task { await refreshSiteReminders() }
                 // Anything that arrived from another device while the app was
                 // away is merged by now, so this is the moment to notice two
                 // rows meaning the same Tuesday. A no-op without sync.
@@ -80,6 +81,32 @@ struct RootView: View {
                 HoursStack.refreshWidget()
             }
         }
+    }
+
+    /// Reschedules the evening reminders for site days the supervisor usually
+    /// writes. Planned from the last 14 days of site days, so it is cheap and
+    /// always reflects what has been recorded since the app was last open.
+    private func refreshSiteReminders() async {
+        let settings = settingsStore.settings
+        let scheduler = ReminderScheduler()
+        guard settings.reminders.siteRemindersEnabled else {
+            await scheduler.cancelSiteReminders()
+            return
+        }
+
+        let calendar = settingsStore.workCalendar
+        let today = CalendarDate.today(in: calendar)
+        let window = CalendarDateRange(
+            start: today.adding(days: -14, in: calendar),
+            end: today
+        )
+        let siteDays = SiteRepository(context: modelContext).siteDays(siteID: nil, in: window)
+        let dates = SiteReminderPlan.dates(siteDays: siteDays, today: today, calendar: calendar)
+        await scheduler.scheduleSiteReminders(
+            dates: dates,
+            time: settings.reminders.siteReminderTime,
+            calendar: calendar
+        )
     }
 
     private func refreshReminder() async {
