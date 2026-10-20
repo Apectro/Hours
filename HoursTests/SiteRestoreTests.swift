@@ -177,9 +177,20 @@ final class SiteRestoreTests: XCTestCase {
 
     func testRestoreWritesIntoClosedMonths() throws {
         let context = makeContext()
-        var settings = Fixture.settings()
-        settings.monthLock = MonthLock(months: [YearMonth(year: date.year, month: date.month)])
+        let august = YearMonth(year: date.year, month: date.month)
+        let closedAugust = MonthLock(months: [august])
         let personal = DayRecord(date: Fixture.date(2026, 8, 5), note: "closed but restored")
+
+        // The month really is closed: ordinary writes on this context refuse.
+        XCTAssertThrowsError(try WorkdayRepository(context: context, lock: closedAugust).save(personal)) {
+            XCTAssertEqual($0 as? MonthLock.Refusal, .monthIsClosed(august))
+        }
+        XCTAssertThrowsError(try SiteRepository(context: context, lock: closedAugust).save(crewDay())) {
+            XCTAssertEqual($0 as? MonthLock.Refusal, .monthIsClosed(august))
+        }
+
+        var settings = Fixture.settings()
+        settings.monthLock = closedAugust
         let archive = BackupArchive(
             settings: settings,
             days: [personal],
@@ -189,7 +200,8 @@ final class SiteRestoreTests: XCTestCase {
             siteDays: [crewDay()]
         )
 
-        BackupRestorer(context: context).restore(archive)
+        // The live lock is handed over and must be ignored.
+        BackupRestorer(context: context, liveLock: closedAugust).restore(archive)
 
         let workdays = WorkdayRepository(context: context)
         XCTAssertEqual(workdays.record(on: personal.date)?.note, "closed but restored")

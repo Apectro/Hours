@@ -16,8 +16,18 @@ import SwiftData
 struct BackupRestorer {
     let context: ModelContext
 
-    init(context: ModelContext) {
+    /// The month lock in force on this device when the restore starts.
+    ///
+    /// Deliberately NOT applied: a restore is the file becoming the database,
+    /// not an edit to a closed month, and refusing half of it would leave a
+    /// mixture of the backup and what was there before. It is taken so the
+    /// caller states which lock it is overriding and a test can hold the
+    /// restorer to ignoring it; nothing reads it.
+    let liveLock: MonthLock
+
+    init(context: ModelContext, liveLock: MonthLock = .unlocked) {
         self.context = context
+        self.liveLock = liveLock
     }
 
     // MARK: - Backup

@@ -219,7 +219,7 @@ struct DataSettingsScreen: View {
         // a closed month; it is the file becoming the database, and refusing
         // half of it would leave a mixture of the backup and what was there
         // before.
-        BackupRestorer(context: modelContext).restore(archive)
+        BackupRestorer(context: modelContext, liveLock: settingsStore.settings.monthLock).restore(archive)
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
@@ -238,7 +238,7 @@ struct DataSettingsScreen: View {
     }
 
     private func deleteAll() {
-        BackupRestorer(context: modelContext).deleteEverything()
+        BackupRestorer(context: modelContext, liveLock: settingsStore.settings.monthLock).deleteEverything()
         HoursStack.refreshWidget()
         message = String(localized: "All recorded days, holidays and sites were removed.")
     }
