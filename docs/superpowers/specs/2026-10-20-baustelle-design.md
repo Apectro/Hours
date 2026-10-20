@@ -102,6 +102,21 @@ a different job (sites get an optional job when more than one job exists).
   site was worked recently but today's site day is missing. It follows the
   existing reminder settings rather than adding a separate system.
 
+### Free and Pro *(my recommendation; the user asked for it)*
+
+- **One site is free**, with its full crew, daily recording, the calendar link
+  and reminders. A second active site needs Pro. This mirrors jobs, where one is
+  free and more are Pro: a supervisor can use the whole feature on their real
+  site before paying.
+- **Exporting the director's sheet needs Pro**, under the existing
+  `.fileExport` gate. The preview stays free, as it does for today's export.
+- If Pro lapses, nothing is lost. Every site stays viewable, and the JSON backup
+  still holds all of it. Extra sites become read-only until Pro returns or they
+  are archived down to one active site.
+- New `ProFeature` case: `multipleSites`, with paywall copy in all ten
+  languages. `alwaysFree` gains no new line: recording hours and reading them
+  back already covers this.
+
 ### Decisions settled after review *(all my calls)*
 
 - **Your name on the sheet.** The app has no user name today. Settings gains a
