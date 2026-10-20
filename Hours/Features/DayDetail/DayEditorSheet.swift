@@ -71,7 +71,7 @@ struct DayEditorSheet: View {
                 }
             }
             .confirmationDialog(
-                "Delete everything recorded for this day?",
+                "Delete this day? Hours written on a site stay.",
                 isPresented: $isConfirmingDelete,
                 titleVisibility: .visible
             ) {

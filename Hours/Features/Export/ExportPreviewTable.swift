@@ -119,19 +119,25 @@ struct ExportPreviewTable: View {
     /// A timesheet's columns are kinds of figure and get the fixed widths
     /// above. The director's sheet's are people, each holding "07:00–16:00 ·
     /// 8:30" under a name of any length, so those are sized to what they hold:
-    /// 70 points cut every cell in half.
+    /// 70 points cut every cell in half. Its first column is sized the same
+    /// way, never narrower than the date column's usual width.
     private var columnWidths: [CGFloat] {
         table.columns.indices.map { (index: Int) -> CGFloat in
             let column = table.columns[index]
-            guard table.headingOverrides != nil, column == .worked else {
+            let isSheet = table.headingOverrides != nil
+            // The sheet's first column is the date, but its summary rows write
+            // "Month total" and "Days worked" there, which 92 points cuts off
+            // in Croatian, Slovenian and Polish.
+            guard isSheet, column == .worked || index == 0 else {
                 return ExportPreviewTable.columnWidths[column] ?? 80
             }
+            let minimum = index == 0 ? (ExportPreviewTable.columnWidths[column] ?? 80) : 70
             let longest = table.rows.reduce(table.heading(at: index).count) { widest, row in
                 index < row.values.count ? max(widest, row.values[index].count) : widest
             }
             // About seven points a character at caption size, plus a gap
             // before the next column.
-            return min(max(CGFloat(longest) * 7 + 12, 70), 240)
+            return min(max(CGFloat(longest) * 7 + 12, minimum), 240)
         }
     }
 }

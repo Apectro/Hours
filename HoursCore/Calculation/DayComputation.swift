@@ -27,7 +27,9 @@ enum DayWarning: String, Hashable, Sendable, Identifiable, CaseIterable {
         case .overlappingBreaksMerged: return "Overlapping breaks were merged so the time is not deducted twice."
         case .timeSkippedByClockChange: return "This time does not exist on this date because the clocks changed."
         case .excludedFromTotals: return "This day is excluded from all totals."
-        case .siteHoursNotCounted: return "Your site hours on this day are not counted in your calendar."
+        // The one warning shown in the phone's language; the others above are
+        // still English-only and left alone for now.
+        case .siteHoursNotCounted: return ExportLanguage.device(.siteHoursNotCounted)
         }
     }
 

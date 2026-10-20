@@ -1657,7 +1657,7 @@
       "Ekipa: samo ti",
       "Ekipa: samo ti",
       "Squadra: solo tu",
-      "Équipe : vous seul",
+      "Équipe : uniquement vous",
       "Cuadrilla: solo tú",
       "Equipa: só tu",
       "Ploeg: alleen jij",
@@ -1807,7 +1807,7 @@
       "Zapisane dni"
     ],
     "Days this month": [
-      "Tage diesen Monat",
+      "Tage in diesem Monat",
       "Dani ovaj mjesec",
       "Dnevi ta mesec",
       "Giorni questo mese",
@@ -1937,17 +1937,6 @@
       "Eliminar tudo",
       "Alles wissen",
       "Usuń wszystko"
-    ],
-    "Delete everything recorded for this day?": [
-      "Alles für diesen Tag Erfasste löschen?",
-      "Obrisati sve zabilježeno za ovaj dan?",
-      "Izbrišem vse zabeleženo za ta dan?",
-      "Eliminare tutto ciò che è registrato per questo giorno?",
-      "Supprimer tout ce qui est enregistré pour ce jour ?",
-      "¿Eliminar todo lo registrado para este día?",
-      "Eliminar tudo o que está registado neste dia?",
-      "Alles wissen wat op deze dag is vastgelegd?",
-      "Usunąć wszystko zapisane w tym dniu?"
     ],
     "Delete job": [
       "Tätigkeit löschen",
@@ -4954,47 +4943,47 @@
     ],
     "Here": [
       "Da",
-      "Prisutan",
-      "Prisoten",
+      "Prisutnost",
+      "Prisotnost",
       "Presente",
-      "Présent",
+      "Présence",
       "Presente",
       "Presente",
       "Aanwezig",
-      "Obecny"
+      "Obecność"
     ],
     "Not here": [
       "Nicht da",
-      "Nije bio tu",
-      "Ni bil tu",
+      "Odsutnost",
+      "Odsotnost",
       "Assente",
-      "Absent",
+      "Absence",
       "No estuvo",
       "Não esteve",
       "Niet aanwezig",
-      "Nieobecny"
+      "Nieobecność"
     ],
     "Came late": [
       "Später gekommen",
-      "Došao kasnije",
-      "Prišel pozneje",
-      "Arrivato tardi",
-      "Arrivé en retard",
+      "Kasniji dolazak",
+      "Poznejši prihod",
+      "Arrivo in ritardo",
+      "Arrivée tardive",
       "Llegó tarde",
       "Chegou tarde",
       "Later gekomen",
-      "Przyszedł później"
+      "Późniejsze przyjście"
     ],
     "Left early": [
       "Früher gegangen",
-      "Otišao ranije",
-      "Odšel prej",
-      "Uscito prima",
-      "Parti plus tôt",
+      "Raniji odlazak",
+      "Zgodnejši odhod",
+      "Uscita anticipata",
+      "Départ anticipé",
       "Se fue antes",
       "Saiu mais cedo",
       "Eerder weg",
-      "Wyszedł wcześniej"
+      "Wcześniejsze wyjście"
     ],
     "Own times": [
       "Eigene Zeiten",
@@ -5071,7 +5060,7 @@
       "Abrir en la obra",
       "Abrir na obra",
       "Openen bij bouwplaats",
-      "Otwórz w budowie"
+      "Otwórz na budowie"
     ],
     "Site": [
       "Baustelle",
@@ -5226,6 +5215,17 @@
       "À noite, um aviso de que falta um dia de obra que costumas registar. Ao registá-lo, o aviso desaparece.",
       "'s Avonds een melding dat een bouwdag die je normaal invult nog ontbreekt. Zodra je de dag invult, verdwijnt de melding.",
       "Wieczorem przypomnienie, że brakuje dnia budowy, który zwykle wpisujesz. Po wpisaniu dnia przypomnienie znika."
+    ],
+    "Delete this day? Hours written on a site stay.": [
+      "Diesen Tag löschen? Auf einer Baustelle eingetragene Stunden bleiben erhalten.",
+      "Obrisati ovaj dan? Sati upisani na gradilištu ostaju.",
+      "Izbrišem ta dan? Ure, vpisane na gradbišču, ostanejo.",
+      "Eliminare questo giorno? Le ore scritte in un cantiere restano.",
+      "Supprimer ce jour ? Les heures saisies sur un chantier sont conservées.",
+      "¿Eliminar este día? Las horas escritas en una obra se conservan.",
+      "Eliminar este dia? As horas escritas numa obra mantêm-se.",
+      "Deze dag wissen? Uren die op een bouwplaats zijn ingevuld blijven bewaard.",
+      "Usunąć ten dzień? Godziny wpisane na budowie zostają."
     ]
   },
   "sameAsEnglishOnPurpose": [

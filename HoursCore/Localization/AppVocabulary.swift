@@ -76,6 +76,8 @@ enum UITerm: String, CaseIterable, Hashable, Sendable {
     case proMultipleSitesExplained
     case proRangeEditingExplained
     case proICloudSyncExplained
+    // A warning the day editor shows about site hours
+    case siteHoursNotCounted
 }
 
 extension ExportLanguage {
@@ -402,6 +404,19 @@ extension ExportLanguage {
                               pt: "As mesmas horas no seu iPhone e iPad, através do seu próprio iCloud.",
                               nl: "Dezelfde uren op je iPhone en je iPad, via je eigen iCloud.",
                               pl: "Te same godziny na iPhonie i iPadzie, przez własny iCloud.")
+
+        // A warning the day editor shows about site hours
+        case .siteHoursNotCounted:
+            return pick(en: "Your site hours on this day are not counted in your calendar.",
+                              de: "Deine Baustellenstunden an diesem Tag werden in deinem Kalender nicht mitgezählt.",
+                              hr: "Tvoji sati na gradilištu za ovaj dan ne ulaze u tvoj kalendar.",
+                              sl: "Tvoje ure na gradbišču za ta dan se ne štejejo v tvoj koledar.",
+                              it: "Le tue ore in cantiere di questo giorno non vengono conteggiate nel tuo calendario.",
+                              fr: "Vos heures de chantier de ce jour ne sont pas comptées dans votre calendrier.",
+                              es: "Tus horas de obra de este día no se cuentan en tu calendario.",
+                              pt: "As tuas horas de obra deste dia não são contadas no teu calendário.",
+                              nl: "Je uren op de bouwplaats van deze dag tellen niet mee in je agenda.",
+                              pl: "Twoje godziny na budowie z tego dnia nie wliczają się do Twojego kalendarza.")
         }
     }
 }

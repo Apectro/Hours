@@ -5212,19 +5212,19 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arrivé en retard"
+            "value": "Arrivée tardive"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Došao kasnije"
+            "value": "Kasniji dolazak"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arrivato tardi"
+            "value": "Arrivo in ritardo"
           }
         },
         "nl": {
@@ -5236,7 +5236,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Przyszedł później"
+            "value": "Późniejsze przyjście"
           }
         },
         "pt": {
@@ -5248,7 +5248,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prišel pozneje"
+            "value": "Poznejši prihod"
           }
         }
       }
@@ -8025,7 +8025,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Équipe : vous seul"
+            "value": "Équipe : uniquement vous"
           }
         },
         "hr": {
@@ -9154,7 +9154,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tage diesen Monat"
+            "value": "Tage in diesem Monat"
           }
         },
         "es": {
@@ -9856,65 +9856,6 @@
         }
       }
     },
-    "Delete everything recorded for this day?": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alles für diesen Tag Erfasste löschen?"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Eliminar todo lo registrado para este día?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer tout ce qui est enregistré pour ce jour ?"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Obrisati sve zabilježeno za ovaj dan?"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminare tutto ciò che è registrato per questo giorno?"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alles wissen wat op deze dag is vastgelegd?"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usunąć wszystko zapisane w tym dniu?"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminar tudo o que está registado neste dia?"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izbrišem vse zabeleženo za ta dan?"
-          }
-        }
-      }
-    },
     "Delete job": {
       "extractionState": "manual",
       "localizations": {
@@ -9970,6 +9911,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Izbriši delo"
+          }
+        }
+      }
+    },
+    "Delete this day? Hours written on a site stay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Tag löschen? Auf einer Baustelle eingetragene Stunden bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar este día? Las horas escritas en una obra se conservan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer ce jour ? Les heures saisies sur un chantier sont conservées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrisati ovaj dan? Sati upisani na gradilištu ostaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare questo giorno? Le ore scritte in un cantiere restano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze dag wissen? Uren die op een bouwplaats zijn ingevuld blijven bewaard."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć ten dzień? Godziny wpisane na budowie zostają."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar este dia? As horas escritas numa obra mantêm-se."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izbrišem ta dan? Ure, vpisane na gradbišču, ostanejo."
           }
         }
       }
@@ -12411,13 +12411,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Présent"
+            "value": "Présence"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prisutan"
+            "value": "Prisutnost"
           }
         },
         "it": {
@@ -12435,7 +12435,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obecny"
+            "value": "Obecność"
           }
         },
         "pt": {
@@ -12447,7 +12447,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prisoten"
+            "value": "Prisotnost"
           }
         }
       }
@@ -14181,19 +14181,19 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parti plus tôt"
+            "value": "Départ anticipé"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otišao ranije"
+            "value": "Raniji odlazak"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uscito prima"
+            "value": "Uscita anticipata"
           }
         },
         "nl": {
@@ -14205,7 +14205,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wyszedł wcześniej"
+            "value": "Wcześniejsze wyjście"
           }
         },
         "pt": {
@@ -14217,7 +14217,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odšel prej"
+            "value": "Zgodnejši odhod"
           }
         }
       }
@@ -15833,13 +15833,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Absent"
+            "value": "Absence"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nije bio tu"
+            "value": "Odsutnost"
           }
         },
         "it": {
@@ -15857,7 +15857,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nieobecny"
+            "value": "Nieobecność"
           }
         },
         "pt": {
@@ -15869,7 +15869,7 @@
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ni bil tu"
+            "value": "Odsotnost"
           }
         }
       }
@@ -17529,7 +17529,7 @@
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otwórz w budowie"
+            "value": "Otwórz na budowie"
           }
         },
         "pt": {
