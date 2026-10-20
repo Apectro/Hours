@@ -158,6 +158,12 @@ Last edit wins rather than a merge. Hours are not meaningfully mergeable: a
 start time from one device and an end time from another would invent a shift
 nobody worked.
 
+`SiteRepository` holds the same rule for sites, crew members and site days.
+It also writes your own calendar day in the same save as the site day, through
+`WorkdayRepository` and under the same month lock, and when duplicate site days
+collapse it rewrites the calendar day for that date, so the site and your
+calendar never keep different hours.
+
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
 and, where a value is legitimate but suspicious, is surfaced as a non-blocking

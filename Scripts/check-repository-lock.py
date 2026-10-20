@@ -7,10 +7,14 @@ it is also exactly the shape of a bug that cannot be seen: a screen that writes
 days, built without the lock, silently keeps accepting edits to a closed month
 and looks completely correct.
 
-So: any file that calls `save(` or `delete(on:` on a repository must pass a
-lock where it builds one. Reading paths are left alone, and the two writing
-paths that are unlocked on purpose say so here rather than in a comment nobody
-greps for.
+So: any file that calls `save(` or `delete(` on a repository must pass a lock
+where it builds one. Reading paths are left alone, and the writing paths that
+are unlocked on purpose say so here rather than in a comment nobody greps for.
+
+`SiteRepository` has the same default for the same reason, and a site day
+saved into a closed month would carry your calendar day in with it. Each
+repository type is checked on its own: a file that locks the
+`WorkdayRepository` it builds but not the `SiteRepository` still fails.
 
 A grep, so it runs on Linux in seconds on every push.
 """
@@ -23,9 +27,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SEARCHED = ["Hours"]
 
-CONSTRUCTS = re.compile(r"WorkdayRepository\(")
-WITH_LOCK = re.compile(r"WorkdayRepository\([^)]*lock:")
-WRITES = re.compile(r"(?:^|[^\w.])(?:try |try\? )?\w*[Rr]epository\.(?:save|delete)\(")
+REPOSITORIES = ["WorkdayRepository", "SiteRepository"]
+WRITES = re.compile(
+    r"(?:^|[^\w.])(?:try |try\? )?\w*[Rr]epository\.(?:save|delete)\("
+    # A repository built and written to in one expression.
+    r"|Repository\([^)]*\)\.(?:save|delete)\("
+)
 
 # Writing paths that are deliberately unlocked, each with the reason.
 EXEMPT = {
@@ -48,19 +55,21 @@ def main() -> int:
 
             if not WRITES.search(source):
                 continue
-            if not CONSTRUCTS.search(source):
-                continue  # writes through a repository somebody else built
             if rel in EXEMPT:
                 continue
-            if WITH_LOCK.search(source):
-                continue
-            line = source[: CONSTRUCTS.search(source).start()].count("\n") + 1
-            problems.append((rel, line))
+            for name in REPOSITORIES:
+                constructs = re.search(rf"\b{name}\(", source)
+                if not constructs:
+                    continue  # writes through a repository somebody else built
+                if re.search(rf"\b{name}\([^)]*lock:", source):
+                    continue
+                line = source[: constructs.start()].count("\n") + 1
+                problems.append((rel, line, name))
 
     if problems:
         print(f"{len(problems)} writing path(s) building an unlocked repository:\n")
-        for rel, line in problems:
-            print(f"  {rel}:{line}")
+        for rel, line, name in problems:
+            print(f"  {rel}:{line}  {name}")
         print(
             "\nThis file writes days and builds its own repository without a lock, so\n"
             "edits to a closed month go through and nothing says otherwise.\n"
