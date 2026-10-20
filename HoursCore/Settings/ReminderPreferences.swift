@@ -8,21 +8,29 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
     var time: TimeOfDay
     /// How far back to look for gaps.
     var lookBackDays: Int
+    /// Evening nudge for a job-site day that is probably missing. Separate
+    /// from the weekly gap reminder, so it has its own switch and time.
+    var siteRemindersEnabled: Bool
+    var siteReminderTime: TimeOfDay
 
     init(
         isEnabled: Bool = false,
         weekday: Int = 6,
         time: TimeOfDay = TimeOfDay(hour: 17, minute: 0),
-        lookBackDays: Int = 14
+        lookBackDays: Int = 14,
+        siteRemindersEnabled: Bool = true,
+        siteReminderTime: TimeOfDay = TimeOfDay(hour: 18, minute: 0)
     ) {
         self.isEnabled = isEnabled
         self.weekday = min(max(weekday, 1), 7)
         self.time = time
         self.lookBackDays = min(max(lookBackDays, 1), 90)
+        self.siteRemindersEnabled = siteRemindersEnabled
+        self.siteReminderTime = siteReminderTime
     }
 
     private enum CodingKeys: String, CodingKey {
-        case isEnabled, weekday, time, lookBackDays
+        case isEnabled, weekday, time, lookBackDays, siteRemindersEnabled, siteReminderTime
     }
 
     init(from decoder: Decoder) throws {
@@ -32,7 +40,9 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
             isEnabled: container.lenient(.isEnabled, defaults.isEnabled),
             weekday: container.lenient(.weekday, defaults.weekday),
             time: container.lenient(.time, defaults.time),
-            lookBackDays: container.lenient(.lookBackDays, defaults.lookBackDays)
+            lookBackDays: container.lenient(.lookBackDays, defaults.lookBackDays),
+            siteRemindersEnabled: container.lenient(.siteRemindersEnabled, defaults.siteRemindersEnabled),
+            siteReminderTime: container.lenient(.siteReminderTime, defaults.siteReminderTime)
         )
     }
 }
