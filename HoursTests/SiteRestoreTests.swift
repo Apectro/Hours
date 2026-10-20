@@ -177,9 +177,12 @@ final class SiteRestoreTests: XCTestCase {
 
     func testRestoreWritesIntoClosedMonths() throws {
         let context = makeContext()
+        var settings = Fixture.settings()
+        settings.monthLock = MonthLock(months: [YearMonth(year: date.year, month: date.month)])
+        let personal = DayRecord(date: Fixture.date(2026, 8, 5), note: "closed but restored")
         let archive = BackupArchive(
-            settings: Fixture.settings(),
-            days: [],
+            settings: settings,
+            days: [personal],
             holidays: [],
             sites: [site],
             crew: [],
@@ -188,7 +191,24 @@ final class SiteRestoreTests: XCTestCase {
 
         BackupRestorer(context: context).restore(archive)
 
-        XCTAssertEqual(siteShifts(WorkdayRepository(context: context).record(on: date)).count, 1)
+        let workdays = WorkdayRepository(context: context)
+        XCTAssertEqual(workdays.record(on: personal.date)?.note, "closed but restored")
+        XCTAssertEqual(siteShifts(workdays.record(on: date)).count, 1)
+        XCTAssertEqual(SiteRepository(context: context).siteDays(siteID: nil, in: CalendarDateRange(single: date)).count, 1)
+    }
+
+    // MARK: - The guard
+
+    func testAFileHoldingOnlySitesIsWorthRestoring() {
+        let onlySites = BackupArchive(settings: Fixture.settings(), days: [], holidays: [], sites: [site])
+        XCTAssertTrue(BackupRestorer.hasAnythingToRestore(onlySites))
+    }
+
+    func testTrulyEmptyFilesAreNotWorthRestoring() {
+        XCTAssertFalse(BackupRestorer.hasAnythingToRestore(
+            BackupArchive(settings: Fixture.settings(), days: [], holidays: [])))
+        XCTAssertFalse(BackupRestorer.hasAnythingToRestore(
+            BackupArchive(settings: Fixture.settings(), days: [], holidays: [], sites: [], crew: [], siteDays: [])))
     }
 
     // MARK: - Deleting everything

@@ -16523,61 +16523,61 @@
         }
       }
     },
-    "Removes every recorded day and holiday from this device. Settings are kept.": {
+    "Removes every recorded day, holiday and site from this device. Settings are kept.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entfernt jeden erfassten Tag und Feiertag von diesem Gerät. Einstellungen bleiben erhalten."
+            "value": "Entfernt jeden erfassten Tag, Feiertag und jede Baustelle von diesem Gerät. Einstellungen bleiben erhalten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina de este dispositivo cada día y festivo registrado. Los ajustes se conservan."
+            "value": "Elimina de este dispositivo cada día, festivo y obra registrados. Los ajustes se conservan."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprime chaque jour et jour férié enregistré de cet appareil. Les réglages sont conservés."
+            "value": "Supprime chaque jour, jour férié et chantier enregistré de cet appareil. Les réglages sont conservés."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uklanja svaki zabilježeni dan i praznik s ovog uređaja. Postavke ostaju."
+            "value": "Uklanja svaki zabilježeni dan, praznik i gradilište s ovog uređaja. Postavke ostaju."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rimuove ogni giorno e festività registrati da questo dispositivo. Le impostazioni restano."
+            "value": "Rimuove ogni giorno, festività e cantiere registrati da questo dispositivo. Le impostazioni restano."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwijdert elke vastgelegde dag en feestdag van dit apparaat. Instellingen blijven behouden."
+            "value": "Verwijdert elke vastgelegde dag, feestdag en bouwplaats van dit apparaat. Instellingen blijven behouden."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usuwa z tego urządzenia każdy zapisany dzień i święto. Ustawienia pozostają."
+            "value": "Usuwa z tego urządzenia każdy zapisany dzień, święto i budowę. Ustawienia pozostają."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove deste dispositivo todos os dias e feriados registados. As definições são mantidas."
+            "value": "Remove deste dispositivo todos os dias, feriados e obras registados. As definições são mantidas."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Odstrani vsak zabeležen dan in praznik iz te naprave. Nastavitve ostanejo."
+            "value": "Odstrani vsak zabeležen dan, praznik in gradbišče iz te naprave. Nastavitve ostanejo."
           }
         }
       }

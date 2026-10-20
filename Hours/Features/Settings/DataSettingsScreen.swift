@@ -55,7 +55,7 @@ struct DataSettingsScreen: View {
                     isConfirmingDelete = true
                 }
             } footer: {
-                Text("Removes every recorded day and holiday from this device. Settings are kept.")
+                Text("Removes every recorded day, holiday and site from this device. Settings are kept.")
             }
 
             if let message {
@@ -205,7 +205,7 @@ struct DataSettingsScreen: View {
         // decoder now refuses damaged files, which is what made this reachable
         // in the first place; this is the second lock on the same door,
         // because the thing behind it is every hour the person ever recorded.
-        guard !archive.days.isEmpty || !archive.holidays.isEmpty else {
+        guard BackupRestorer.hasAnythingToRestore(archive) else {
             // A file whose every day is damaged is not an empty file, and
             // saying "holds no days" about it would be a lie that costs the
             // person the chance to look for a better copy.

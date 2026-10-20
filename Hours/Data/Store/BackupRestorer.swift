@@ -51,6 +51,13 @@ struct BackupRestorer {
 
     // MARK: - Restore
 
+    /// Whether restoring would put anything back. A file with no days, no
+    /// holidays and no sites can only erase, and there is a button for that.
+    /// A file holding only sites is not empty: it must restore.
+    static func hasAnythingToRestore(_ archive: BackupArchive) -> Bool {
+        !archive.days.isEmpty || !archive.holidays.isEmpty || !(archive.sites ?? []).isEmpty
+    }
+
     /// Makes the archive the whole of the store: days and holidays, then site
     /// data, then the site shifts in the calendar.
     ///

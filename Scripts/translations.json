@@ -3182,16 +3182,16 @@
       "Dit blok verwijderen",
       "Usuń ten blok"
     ],
-    "Removes every recorded day and holiday from this device. Settings are kept.": [
-      "Entfernt jeden erfassten Tag und Feiertag von diesem Gerät. Einstellungen bleiben erhalten.",
-      "Uklanja svaki zabilježeni dan i praznik s ovog uređaja. Postavke ostaju.",
-      "Odstrani vsak zabeležen dan in praznik iz te naprave. Nastavitve ostanejo.",
-      "Rimuove ogni giorno e festività registrati da questo dispositivo. Le impostazioni restano.",
-      "Supprime chaque jour et jour férié enregistré de cet appareil. Les réglages sont conservés.",
-      "Elimina de este dispositivo cada día y festivo registrado. Los ajustes se conservan.",
-      "Remove deste dispositivo todos os dias e feriados registados. As definições são mantidas.",
-      "Verwijdert elke vastgelegde dag en feestdag van dit apparaat. Instellingen blijven behouden.",
-      "Usuwa z tego urządzenia każdy zapisany dzień i święto. Ustawienia pozostają."
+    "Removes every recorded day, holiday and site from this device. Settings are kept.": [
+      "Entfernt jeden erfassten Tag, Feiertag und jede Baustelle von diesem Gerät. Einstellungen bleiben erhalten.",
+      "Uklanja svaki zabilježeni dan, praznik i gradilište s ovog uređaja. Postavke ostaju.",
+      "Odstrani vsak zabeležen dan, praznik in gradbišče iz te naprave. Nastavitve ostanejo.",
+      "Rimuove ogni giorno, festività e cantiere registrati da questo dispositivo. Le impostazioni restano.",
+      "Supprime chaque jour, jour férié et chantier enregistré de cet appareil. Les réglages sont conservés.",
+      "Elimina de este dispositivo cada día, festivo y obra registrados. Los ajustes se conservan.",
+      "Remove deste dispositivo todos os dias, feriados e obras registados. As definições são mantidas.",
+      "Verwijdert elke vastgelegde dag, feestdag en bouwplaats van dit apparaat. Instellingen blijven behouden.",
+      "Usuwa z tego urządzenia każdy zapisany dzień, święto i budowę. Ustawienia pozostają."
     ],
     "Removes everything recorded on those days.": [
       "Entfernt alles, was an diesen Tagen erfasst ist.",
