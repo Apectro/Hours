@@ -16,18 +16,25 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
     /// which is what every shift is until a second job exists.
     var jobID: UUID?
 
+    /// Set when this shift was derived from the user's own hours on a job
+    /// site. The site day is the single source of truth: such a shift is
+    /// rebuilt from it whenever the site day changes, never edited here.
+    var siteID: UUID?
+
     init(
         id: UUID = UUID(),
         start: TimeOfDay? = nil,
         end: TimeOfDay? = nil,
         breaks: [BreakSpan] = [],
-        jobID: UUID? = nil
+        jobID: UUID? = nil,
+        siteID: UUID? = nil
     ) {
         self.id = id
         self.start = start
         self.end = end
         self.breaks = breaks
         self.jobID = jobID
+        self.siteID = siteID
     }
 
     var hasTimes: Bool { start != nil && end != nil }
@@ -47,7 +54,7 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, start, end, breaks, jobID
+        case id, start, end, breaks, jobID, siteID
     }
 
     init(from decoder: Decoder) throws {
@@ -68,7 +75,8 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
             start: try container.decodeIfPresent(TimeOfDay.self, forKey: .start),
             end: try container.decodeIfPresent(TimeOfDay.self, forKey: .end),
             breaks: try container.decodeIfPresent([BreakSpan].self, forKey: .breaks) ?? [],
-            jobID: container.lenientOptional(.jobID, UUID.self)
+            jobID: container.lenientOptional(.jobID, UUID.self),
+            siteID: container.lenientOptional(.siteID, UUID.self)
         )
     }
 }

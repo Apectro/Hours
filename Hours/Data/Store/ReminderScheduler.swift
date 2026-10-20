@@ -8,6 +8,10 @@ import UserNotifications
 /// never prompted.
 struct ReminderScheduler {
     static let identifier = "hours.gap-reminder"
+    /// Every site reminder starts with this. The weekly reminder's identifier
+    /// does not, so each kind can be replaced or cancelled without touching
+    /// the other.
+    static let siteIdentifierPrefix = "site-reminder-"
 
     private let center: UNUserNotificationCenter
 
@@ -66,5 +70,60 @@ struct ReminderScheduler {
 
     func cancel() {
         center.removePendingNotificationRequests(withIdentifiers: [ReminderScheduler.identifier])
+    }
+
+    // MARK: - Site reminders
+
+    /// `site-reminder-20260804`: one pending request per date, so saving that
+    /// day can remove exactly its own.
+    static func siteReminderIdentifier(for date: CalendarDate) -> String {
+        siteIdentifierPrefix + String(format: "%08d", date.key)
+    }
+
+    /// Replaces every pending site reminder with one per date in `dates`, at
+    /// `time` on that day. Instants already past (today, after the time) are
+    /// skipped, since a calendar trigger in the past would never fire.
+    func scheduleSiteReminders(
+        dates: [CalendarDate],
+        time: TimeOfDay,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async {
+        await cancelSiteReminders()
+        guard await isAuthorized() else { return }
+
+        for date in dates {
+            var components = date.components
+            components.hour = time.hour
+            components.minute = time.minute
+            guard let instant = calendar.date(from: components), instant > now else { continue }
+
+            let content = UNMutableNotificationContent()
+            content.title = AppIdentity.name
+            content.body = String(localized: "Today's site hours aren't written yet.")
+            content.sound = .default
+
+            let request = UNNotificationRequest(
+                identifier: ReminderScheduler.siteReminderIdentifier(for: date),
+                content: content,
+                trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            )
+            try? await center.add(request)
+        }
+    }
+
+    /// Removes the reminder for one day, because that day has just been
+    /// written.
+    func cancelSiteReminder(on date: CalendarDate) {
+        center.removePendingNotificationRequests(
+            withIdentifiers: [ReminderScheduler.siteReminderIdentifier(for: date)]
+        )
+    }
+
+    /// Removes every pending site reminder, leaving the weekly one alone.
+    func cancelSiteReminders() async {
+        let pending = await center.pendingNotificationRequests()
+        let ids = pending.map(\.identifier).filter { $0.hasPrefix(ReminderScheduler.siteIdentifierPrefix) }
+        center.removePendingNotificationRequests(withIdentifiers: ids)
     }
 }

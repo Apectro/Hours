@@ -59,8 +59,27 @@ struct ReportTable: Hashable, Sendable {
     var columns: [ReportColumn]
     var rows: [ReportRow]
     var totals: [ReportTotal]
+    /// Column titles that replace the ones the columns would give, for a
+    /// report whose columns are people rather than kinds of figure (the
+    /// director's sheet has one `.worked` column per person). Ignored unless
+    /// there is exactly one per column.
+    var headingOverrides: [String]? = nil
+    /// How many of the last rows are summaries the builder already wrote
+    /// (the director's sheet ends with a month total and a days-worked row).
+    /// The workbook then adds no ruled "Total" row of its own, and keeps these
+    /// rows out of the filter range so sorting never mixes them into the days.
+    var trailingSummaryRows: Int = 0
 
     var isEmpty: Bool { rows.isEmpty }
 
-    func headerTitles() -> [String] { columns.map { $0.heading(in: language) } }
+    func headerTitles() -> [String] {
+        if let headingOverrides, headingOverrides.count == columns.count { return headingOverrides }
+        return columns.map { $0.heading(in: language) }
+    }
+
+    /// The title of one column, honouring the overrides.
+    func heading(at index: Int) -> String {
+        let titles = headerTitles()
+        return titles.indices.contains(index) ? titles[index] : ""
+    }
 }

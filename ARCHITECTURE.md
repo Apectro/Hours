@@ -125,7 +125,9 @@ which case it keeps its contracted hours and only its name is carried through.
 ## Persistence
 
 - **SwiftData** for entities: `DayEntry` (one per `dateKey`) and
-  `HolidayRecord`. These are records the user creates, queries and exports.
+  `HolidayRecord`, and for job sites `SiteEntry`, `CrewMemberEntry` and
+  `SiteDayEntry` (one per site and `dateKey`). These are records the user
+  creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -148,13 +150,20 @@ one, two devices editing the same Tuesday offline produce two rows that CloudKit
 merges in without knowing they mean the same day. So `WorkdayRepository` owns
 the rule instead — every read that could see duplicates collapses them, keeping
 the most recently edited row and deleting the rest, and `reconcileDuplicates()`
-runs on every return to the app. Ties break on creation date and then on the
-identifier, so every device resolves a tie the same way rather than each
-keeping a different row and handing it back to the others forever.
+runs on every return to the app. A tie on the last edit breaks on creation
+date, and rows that still cannot be told apart are all kept until the next edit
+stamps one, since two devices breaking that tie differently would each delete
+the row the other kept.
 
 Last edit wins rather than a merge. Hours are not meaningfully mergeable: a
 start time from one device and an end time from another would invent a shift
 nobody worked.
+
+`SiteRepository` holds the same rule for sites, crew members and site days.
+It also writes your own calendar day in the same save as the site day, through
+`WorkdayRepository` and under the same month lock, and when duplicate site days
+collapse it rewrites the calendar day for that date, so the site and your
+calendar never keep different hours.
 
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
@@ -163,11 +172,12 @@ and, where a value is legitimate but suspicious, is surfaced as a non-blocking
 
 ## Navigation
 
-Three tabs: **Calendar**, **Insights**, **Settings**. The calendar is the
+Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is the
 primary surface and opens on the current month; tapping a day reveals an inline
 summary beneath the grid, and opening it presents the editor as a sheet so the
-month never leaves the screen. Export is reachable from the calendar toolbar
-and from Settings.
+month never leaves the screen. Sites lists each active job site with its crew
+and this month's figures, and leads to the site and its crew list. Export is
+reachable from the calendar toolbar and from Settings.
 
 ## Export
 

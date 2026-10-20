@@ -16,11 +16,19 @@ struct ExportPreviewTable: View {
     ]
 
     var body: some View {
+        let widths = columnWidths
         ScrollView(.horizontal, showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
-                headerRow
-                ForEach(Array(table.rows.prefix(rowLimit))) { row in
-                    dataRow(row)
+                headerRow(widths)
+                ForEach(Array(dayRows.prefix(rowLimit))) { row in
+                    dataRow(row, widths: widths)
+                    Divider()
+                }
+                // The director's sheet ends with its own month total and days
+                // worked. They are the point of the sheet, so they are shown
+                // even when the days above them are cut short.
+                ForEach(Array(summaryRows)) { row in
+                    dataRow(row, widths: widths, isSummary: true)
                     Divider()
                 }
                 if !table.totals.isEmpty {
@@ -35,13 +43,17 @@ struct ExportPreviewTable: View {
         ))
     }
 
-    private var headerRow: some View {
+    private func headerRow(_ widths: [CGFloat]) -> some View {
         HStack(spacing: 0) {
-            ForEach(table.columns) { column in
-                Text(column.heading(in: table.language))
+            // By index: the director's sheet repeats `.worked` once per person,
+            // so a column is not a unique identity here.
+            ForEach(table.columns.indices, id: \.self) { index in
+                let column = table.columns[index]
+                Text(table.heading(at: index))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
-                    .frame(width: width(for: column), alignment: column.isNumeric ? .trailing : .leading)
+                    .frame(width: widths[index], alignment: column.isNumeric ? .trailing : .leading)
+                    .accessibilityIdentifier("export-preview-heading")
             }
         }
         .padding(.vertical, Metrics.small)
@@ -50,16 +62,17 @@ struct ExportPreviewTable: View {
         }
     }
 
-    private func dataRow(_ row: ReportRow) -> some View {
+    private func dataRow(_ row: ReportRow, widths: [CGFloat], isSummary: Bool = false) -> some View {
         HStack(spacing: 0) {
             ForEach(table.columns.indices, id: \.self) { index in
                 let column = table.columns[index]
                 Text(index < row.values.count ? row.values[index] : "")
-                    .font(.caption)
+                    .font(isSummary ? .caption.weight(.semibold) : .caption)
                     .monospacedDigit()
                     .foregroundStyle(row.hasEntry ? .primary : .secondary)
                     .lineLimit(1)
-                    .frame(width: width(for: column), alignment: column.isNumeric ? .trailing : .leading)
+                    .frame(width: widths[index], alignment: column.isNumeric ? .trailing : .leading)
+                    .accessibilityIdentifier(isSummary ? "export-preview-summary" : "")
             }
         }
         .padding(.vertical, 5)
@@ -88,7 +101,43 @@ struct ExportPreviewTable: View {
         .padding(.bottom, Metrics.small)
     }
 
-    private func width(for column: ReportColumn) -> CGFloat {
-        ExportPreviewTable.columnWidths[column] ?? 80
+    /// The days, without the summary rows a builder wrote at the end.
+    private var dayRows: ArraySlice<ReportRow> {
+        table.rows.dropLast(summaryCount)
+    }
+
+    private var summaryRows: ArraySlice<ReportRow> {
+        table.rows.suffix(summaryCount)
+    }
+
+    private var summaryCount: Int {
+        min(max(table.trailingSummaryRows, 0), table.rows.count)
+    }
+
+    /// One width per column, by position.
+    ///
+    /// A timesheet's columns are kinds of figure and get the fixed widths
+    /// above. The director's sheet's are people, each holding "07:00–16:00 ·
+    /// 8:30" under a name of any length, so those are sized to what they hold:
+    /// 70 points cut every cell in half. Its first column is sized the same
+    /// way, never narrower than the date column's usual width.
+    private var columnWidths: [CGFloat] {
+        table.columns.indices.map { (index: Int) -> CGFloat in
+            let column = table.columns[index]
+            let isSheet = table.headingOverrides != nil
+            // The sheet's first column is the date, but its summary rows write
+            // "Month total" and "Days worked" there, which 92 points cuts off
+            // in Croatian, Slovenian and Polish.
+            guard isSheet, column == .worked || index == 0 else {
+                return ExportPreviewTable.columnWidths[column] ?? 80
+            }
+            let minimum = index == 0 ? (ExportPreviewTable.columnWidths[column] ?? 80) : 70
+            let longest = table.rows.reduce(table.heading(at: index).count) { widest, row in
+                index < row.values.count ? max(widest, row.values[index].count) : widest
+            }
+            // About seven points a character at caption size, plus a gap
+            // before the next column.
+            return min(max(CGFloat(longest) * 7 + 12, minimum), 240)
+        }
     }
 }

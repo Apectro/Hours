@@ -96,7 +96,7 @@ final class EntitlementTests: XCTestCase {
         XCTAssertFalse(sold.contains("calendar"))
         XCTAssertFalse(sold.contains("balance"))
         XCTAssertEqual(
-            ProFeature.allCases.count, 5,
+            ProFeature.allCases.count, 6,
             "adding a paid feature is a product decision — update ProFeature.alwaysFree and this test deliberately"
         )
     }

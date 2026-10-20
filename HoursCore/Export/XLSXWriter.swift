@@ -180,13 +180,14 @@ enum XLSXWriter {
             }
             emit(cells)
         }
-        let lastDataRow = rowNumber - 1
+        let lastRow = rowNumber - 1
+        let lastDataRow = lastRow - min(max(0, table.trailingSummaryRows), table.rows.count)
 
         // A ruled total under each column of figures, as a timesheet on paper
         // has always had. Written as SUM over the days rather than as the
         // number they happen to add up to, so correcting a Tuesday corrects
         // the total too.
-        if lastDataRow > headerRow {
+        if lastDataRow > headerRow && table.trailingSummaryRows == 0 {
             let durationColumns = Set(table.rows.flatMap { reportRow in
                 reportRow.minutes.enumerated().compactMap { $0.element == nil ? nil : $0.offset }
             })

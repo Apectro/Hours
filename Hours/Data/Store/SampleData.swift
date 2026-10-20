@@ -18,6 +18,70 @@ enum SampleData {
         ProcessInfo.processInfo.arguments.contains(launchArgument)
     }
 
+    /// A site with a crew, for the UI tests of the site day screen. Separate
+    /// from the sample month so those tests start from a calendar with
+    /// nothing else in it.
+    static let siteLaunchArgument = "-hours-sample-site"
+
+    static var isSiteRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(siteLaunchArgument)
+    }
+
+    /// Closes the current month, for the test that a closed month refuses
+    /// site edits. Settings in a UI test run are an ephemeral copy, so this
+    /// never reaches anyone's real lock.
+    static let closedMonthLaunchArgument = "-hours-closed-month"
+
+    static var isClosedMonthRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(closedMonthLaunchArgument)
+    }
+
+    /// "Kaiserstrasse 12", with Ivan and Marko on the crew and yesterday
+    /// written up: the three of you from 07:00 to 15:30 with half an hour's
+    /// break, except that Ivan left at 12:00. Yesterday rather than today so
+    /// today opens empty, with "Same as last day" to fill it from.
+    ///
+    /// Also the 3rd and 4th of last month, everyone there, so the export —
+    /// which opens on last month — has a sheet to show. Early in a month
+    /// rather than late, so neither can be the day before today.
+    static func seedSite(into repository: SiteRepository, calendar: Calendar, today: CalendarDate) {
+        let site = Site(name: "Kaiserstrasse 12")
+        repository.upsert(site)
+        let ivan = CrewMember(siteID: site.id, name: "Ivan", sortOrder: 0)
+        let marko = CrewMember(siteID: site.id, name: "Marko", sortOrder: 1)
+        repository.upsert(ivan)
+        repository.upsert(marko)
+
+        try? repository.save(SiteDay(
+            siteID: site.id,
+            date: today.adding(days: -1, in: calendar),
+            start: TimeOfDay(hour: 7, minute: 0),
+            end: TimeOfDay(hour: 15, minute: 30),
+            breakMinutes: 30,
+            present: [
+                Attendance(memberID: CrewMember.youID),
+                Attendance(memberID: ivan.id, end: TimeOfDay(hour: 12, minute: 0)),
+                Attendance(memberID: marko.id),
+            ]
+        ))
+
+        let lastMonth = today.yearMonth.adding(months: -1)
+        for day in [3, 4] {
+            try? repository.save(SiteDay(
+                siteID: site.id,
+                date: CalendarDate(year: lastMonth.year, month: lastMonth.month, day: day),
+                start: TimeOfDay(hour: 7, minute: 0),
+                end: TimeOfDay(hour: 16, minute: 0),
+                breakMinutes: 30,
+                present: [
+                    Attendance(memberID: CrewMember.youID),
+                    Attendance(memberID: ivan.id),
+                    Attendance(memberID: marko.id),
+                ]
+            ))
+        }
+    }
+
     /// A working month with the shape a real one has: ordinary days, a couple
     /// of long ones, an early finish, a split shift, a week of leave, a public
     /// holiday and a Saturday that was worked.

@@ -13,6 +13,7 @@ enum DayWarning: String, Hashable, Sendable, Identifiable, CaseIterable {
     case overlappingBreaksMerged
     case timeSkippedByClockChange
     case excludedFromTotals
+    case siteHoursNotCounted
 
     var id: String { rawValue }
 
@@ -26,12 +27,15 @@ enum DayWarning: String, Hashable, Sendable, Identifiable, CaseIterable {
         case .overlappingBreaksMerged: return "Overlapping breaks were merged so the time is not deducted twice."
         case .timeSkippedByClockChange: return "This time does not exist on this date because the clocks changed."
         case .excludedFromTotals: return "This day is excluded from all totals."
+        // The one warning shown in the phone's language; the others above are
+        // still English-only and left alone for now.
+        case .siteHoursNotCounted: return ExportLanguage.device(.siteHoursNotCounted)
         }
     }
 
     var isProblem: Bool {
         switch self {
-        case .overlappingBreaksMerged, .excludedFromTotals: return false
+        case .overlappingBreaksMerged, .excludedFromTotals, .siteHoursNotCounted: return false
         default: return true
         }
     }

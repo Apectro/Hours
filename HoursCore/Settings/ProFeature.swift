@@ -18,6 +18,8 @@ enum ProFeature: String, CaseIterable, Codable, Sendable, Identifiable {
     case fileExport
     case widgets
     case multipleJobs
+    /// A second active job site. The first is free, like the first job.
+    case multipleSites
     case rangeEditing
     case iCloudSync
 
@@ -30,6 +32,7 @@ enum ProFeature: String, CaseIterable, Codable, Sendable, Identifiable {
         case .fileExport: return language(.proTimesheets)
         case .widgets: return language(.proWidgets)
         case .multipleJobs: return language(.proMultipleJobs)
+        case .multipleSites: return language(.proMultipleSites)
         case .rangeEditing: return language(.proRangeEditing)
         case .iCloudSync: return language(.proICloudSync)
         }
@@ -42,6 +45,7 @@ enum ProFeature: String, CaseIterable, Codable, Sendable, Identifiable {
         case .fileExport: return language(.proTimesheetsExplained)
         case .widgets: return language(.proWidgetsExplained)
         case .multipleJobs: return language(.proMultipleJobsExplained)
+        case .multipleSites: return language(.proMultipleSitesExplained)
         case .rangeEditing: return language(.proRangeEditingExplained)
         case .iCloudSync: return language(.proICloudSyncExplained)
         }
@@ -52,6 +56,7 @@ enum ProFeature: String, CaseIterable, Codable, Sendable, Identifiable {
         case .fileExport: return "tablecells"
         case .widgets: return "square.grid.2x2"
         case .multipleJobs: return "briefcase"
+        case .multipleSites: return "building.2"
         case .rangeEditing: return "calendar.badge.plus"
         case .iCloudSync: return "icloud"
         }

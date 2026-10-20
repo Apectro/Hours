@@ -14,6 +14,16 @@ struct BackupArchive: Codable, Sendable {
     var days: [DayRecord]
     var holidays: [HolidayRule]
 
+    /// Job sites, their crews and the days recorded on them.
+    ///
+    /// Optional because nil and empty mean different things on restore: nil is
+    /// a file written before Sites existed, which must leave the sites already
+    /// on the device alone, while an empty list is a backup of someone who has
+    /// none, which replaces them.
+    var sites: [Site]?
+    var crew: [CrewMember]?
+    var siteDays: [SiteDay]?
+
     /// Days that were in the file and could not be read.
     ///
     /// Damage is rarely total. One day mangled by a bad edit, a truncated
@@ -35,6 +45,9 @@ struct BackupArchive: Codable, Sendable {
         settings: AppSettings,
         days: [DayRecord],
         holidays: [HolidayRule],
+        sites: [Site]? = nil,
+        crew: [CrewMember]? = nil,
+        siteDays: [SiteDay]? = nil,
         damagedDays: [DamagedDay] = []
     ) {
         self.formatVersion = formatVersion
@@ -42,6 +55,9 @@ struct BackupArchive: Codable, Sendable {
         self.settings = settings
         self.days = days.sorted { $0.date < $1.date }
         self.holidays = holidays
+        self.sites = sites
+        self.crew = crew
+        self.siteDays = siteDays
         self.damagedDays = damagedDays
     }
 
@@ -59,7 +75,7 @@ struct BackupArchive: Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case formatVersion, exportedAt, settings, days, holidays
+        case formatVersion, exportedAt, settings, days, holidays, sites, crew, siteDays
     }
 
     /// Written out rather than synthesised, so that `damagedDays` being absent
@@ -72,6 +88,10 @@ struct BackupArchive: Codable, Sendable {
         try container.encode(settings, forKey: .settings)
         try container.encode(days, forKey: .days)
         try container.encode(holidays, forKey: .holidays)
+        // Only when present, so a nil stays distinguishable from empty.
+        try container.encodeIfPresent(sites, forKey: .sites)
+        try container.encodeIfPresent(crew, forKey: .crew)
+        try container.encodeIfPresent(siteDays, forKey: .siteDays)
     }
 
     /// A day that was in the file and could not be read.
@@ -166,6 +186,12 @@ struct BackupArchive: Codable, Sendable {
             settings: container.lenient(.settings, AppSettings()),
             days: days,
             holidays: holidays,
+            // Lenient: a missing key is an older file, and a damaged list
+            // reads as absent rather than as "no sites", so it cannot wipe
+            // the sites on the device.
+            sites: container.lenientOptional(.sites),
+            crew: container.lenientOptional(.crew),
+            siteDays: container.lenientOptional(.siteDays),
             damagedDays: damaged
         )
     }

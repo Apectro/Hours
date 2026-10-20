@@ -67,13 +67,17 @@ enum UITerm: String, CaseIterable, Hashable, Sendable {
     case proTimesheets
     case proWidgets
     case proMultipleJobs
+    case proMultipleSites
     case proRangeEditing
     case proICloudSync
     case proTimesheetsExplained
     case proWidgetsExplained
     case proMultipleJobsExplained
+    case proMultipleSitesExplained
     case proRangeEditingExplained
     case proICloudSyncExplained
+    // A warning the day editor shows about site hours
+    case siteHoursNotCounted
 }
 
 extension ExportLanguage {
@@ -314,6 +318,12 @@ extension ExportLanguage {
                               it: "Più di un lavoro", fr: "Plusieurs postes",
                               es: "Más de un trabajo", pt: "Mais do que um trabalho",
                               nl: "Meer dan één functie", pl: "Więcej niż jedna praca")
+        case .proMultipleSites:
+            return pick(en: "More than one site", de: "Mehr als eine Baustelle",
+                              hr: "Više od jednog gradilišta", sl: "Več kot eno gradbišče",
+                              it: "Più di un cantiere", fr: "Plusieurs chantiers",
+                              es: "Más de una obra", pt: "Mais do que uma obra",
+                              nl: "Meer dan één bouwplaats", pl: "Więcej niż jedna budowa")
         case .proRangeEditing:
             return pick(en: "Edit a range at once", de: "Zeitraum auf einmal bearbeiten",
                               hr: "Uređivanje raspona odjednom", sl: "Urejanje obdobja naenkrat",
@@ -361,6 +371,17 @@ extension ExportLanguage {
                               pt: "Dois trabalhos na mesma terça-feira, cada um com a sua semana contratada.",
                               nl: "Twee functies op dezelfde dinsdag, elk met een eigen contractweek.",
                               pl: "Dwie prace tego samego wtorku, każda z własnym tygodniem umownym.")
+        case .proMultipleSitesExplained:
+            return pick(en: "Keep a separate crew and sheet for every site you supervise. Your first site is free.",
+                              de: "Führen Sie für jede Baustelle, die Sie leiten, eine eigene Mannschaft und ein eigenes Blatt. Ihre erste Baustelle ist kostenlos.",
+                              hr: "Vodite zasebnu ekipu i list za svako gradilište koje nadgledate. Prvo gradilište je besplatno.",
+                              sl: "Za vsako gradbišče, ki ga vodite, imejte ločeno ekipo in list. Prvo gradbišče je brezplačno.",
+                              it: "Tieni una squadra e un foglio separati per ogni cantiere che supervisioni. Il tuo primo cantiere è gratuito.",
+                              fr: "Gardez une équipe et une feuille distinctes pour chaque chantier que vous dirigez. Votre premier chantier est gratuit.",
+                              es: "Mantén una cuadrilla y una hoja separadas para cada obra que supervisas. Tu primera obra es gratis.",
+                              pt: "Mantenha uma equipa e uma folha separadas para cada obra que supervisiona. A sua primeira obra é gratuita.",
+                              nl: "Houd voor elke bouwplaats die je begeleidt een aparte ploeg en staat bij. Je eerste bouwplaats is gratis.",
+                              pl: "Prowadź osobną ekipę i arkusz dla każdej budowy, którą nadzorujesz. Pierwsza budowa jest bezpłatna.")
         case .proRangeEditingExplained:
             return pick(en: "Book a fortnight of leave in one pass instead of ten trips through the editor.",
                               de: "Zwei Wochen Urlaub in einem Zug eintragen statt zehnmal durch den Editor.",
@@ -383,6 +404,19 @@ extension ExportLanguage {
                               pt: "As mesmas horas no seu iPhone e iPad, através do seu próprio iCloud.",
                               nl: "Dezelfde uren op je iPhone en je iPad, via je eigen iCloud.",
                               pl: "Te same godziny na iPhonie i iPadzie, przez własny iCloud.")
+
+        // A warning the day editor shows about site hours
+        case .siteHoursNotCounted:
+            return pick(en: "Your site hours on this day are not counted in your calendar.",
+                              de: "Deine Baustellenstunden an diesem Tag werden in deinem Kalender nicht mitgezählt.",
+                              hr: "Tvoji sati na gradilištu za ovaj dan ne ulaze u tvoj kalendar.",
+                              sl: "Tvoje ure na gradbišču za ta dan se ne štejejo v tvoj koledar.",
+                              it: "Le tue ore in cantiere di questo giorno non vengono conteggiate nel tuo calendario.",
+                              fr: "Vos heures de chantier de ce jour ne sont pas comptées dans votre calendrier.",
+                              es: "Tus horas de obra de este día no se cuentan en tu calendario.",
+                              pt: "As tuas horas de obra deste dia não são contadas no teu calendário.",
+                              nl: "Je uren op de bouwplaats van deze dag tellen niet mee in je agenda.",
+                              pl: "Twoje godziny na budowie z tego dnia nie wliczają się do Twojego kalendarza.")
         }
     }
 }

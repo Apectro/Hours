@@ -10,8 +10,9 @@ import XCTest
 /// one place rather than leaving bare indices at eleven call sites.
 enum Tab: Int {
     case calendar = 0
-    case insights = 1
-    case settings = 2
+    case sites = 1
+    case insights = 2
+    case settings = 3
 }
 
 extension XCUIApplication {

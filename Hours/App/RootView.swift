@@ -1,10 +1,11 @@
 import SwiftUI
 
-/// Three tabs, calendar first.
+/// Four tabs, calendar first.
 ///
 /// The calendar is where the work happens, so it is the landing surface and
-/// keeps its own navigation stack. Insights and Settings are destinations you
-/// visit, not places you live.
+/// keeps its own navigation stack. Sites sits beside it because a supervisor
+/// writes up the crew's day there as often as their own. Insights and
+/// Settings are destinations you visit, not places you live.
 struct RootView: View {
     var storeFailure: String? = nil
 
@@ -12,6 +13,7 @@ struct RootView: View {
 
     enum Destination: Hashable {
         case calendar
+        case sites
         case insights
         case settings
     }
@@ -40,6 +42,17 @@ struct RootView: View {
                     today: CalendarDate.today(in: HoursStack.calendar)
                 )
             }
+            if SampleData.isSiteRequested {
+                SampleData.seedSite(
+                    into: SiteRepository(context: HoursStack.container.mainContext),
+                    calendar: HoursStack.calendar,
+                    today: CalendarDate.today(in: HoursStack.calendar)
+                )
+            }
+            if SampleData.isClosedMonthRequested {
+                let month = CalendarDate.today(in: HoursStack.calendar).yearMonth
+                settingsStore.update { $0.monthLock.lock(month) }
+            }
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
             HoursStack.refreshWidget()
@@ -52,10 +65,12 @@ struct RootView: View {
                 // another device while this one sleeps.
                 Task { await HoursStack.subscriptions.refresh() }
                 Task { await refreshReminder() }
+                Task { await refreshSiteReminders() }
                 // Anything that arrived from another device while the app was
                 // away is merged by now, so this is the moment to notice two
                 // rows meaning the same Tuesday. A no-op without sync.
                 HoursStack.repository.reconcileDuplicates()
+                SiteRepository(context: HoursStack.container.mainContext).reconcileDuplicates()
                 HoursStack.refreshWidget()
             }
             // And again on the way out, which is the moment the widget is about
@@ -66,6 +81,14 @@ struct RootView: View {
                 HoursStack.refreshWidget()
             }
         }
+    }
+
+    private func refreshSiteReminders() async {
+        await SiteReminderRefresher.refresh(
+            context: modelContext,
+            preferences: settingsStore.settings.reminders,
+            calendar: settingsStore.workCalendar
+        )
     }
 
     private func refreshReminder() async {
@@ -100,6 +123,10 @@ struct RootView: View {
             CalendarScreen()
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Destination.calendar)
+
+            SitesScreen()
+                .tabItem { Label("Sites", systemImage: "building.2") }
+                .tag(Destination.sites)
 
             StatisticsScreen()
                 .tabItem { Label("Insights", systemImage: "chart.bar.xaxis") }
