@@ -1496,61 +1496,61 @@
         }
       }
     },
-    "A backup is a JSON file containing every day, every holiday and all your settings. Nothing is uploaded — you choose where the file goes.": {
+    "A backup is a JSON file containing every day, every holiday, every site and all your settings. Nothing is uploaded — you choose where the file goes.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht."
+            "value": "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag, jeder Baustelle und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una copia es un archivo JSON con cada día, cada festivo y todos tus ajustes. No se sube nada: tú eliges dónde va el archivo."
+            "value": "Una copia es un archivo JSON con cada día, cada festivo, cada obra y todos tus ajustes. No se sube nada: tú eliges dónde va el archivo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une sauvegarde est un fichier JSON contenant chaque jour, chaque jour férié et tous vos réglages. Rien n’est envoyé : vous choisissez où va le fichier."
+            "value": "Une sauvegarde est un fichier JSON contenant chaque jour, chaque jour férié, chaque chantier et tous vos réglages. Rien n’est envoyé : vous choisissez où va le fichier."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide."
+            "value": "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom, svakim gradilištem i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un backup è un file JSON con ogni giorno, ogni festività e tutte le impostazioni. Non viene caricato nulla: scegli tu dove va il file."
+            "value": "Un backup è un file JSON con ogni giorno, ogni festività, ogni cantiere e tutte le impostazioni. Non viene caricato nulla: scegli tu dove va il file."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Een back-up is een JSON-bestand met elke dag, elke feestdag en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat."
+            "value": "Een back-up is een JSON-bestand met elke dag, elke feestdag, elke bouwplaats en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
+            "value": "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem, każdą budową i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro."
+            "value": "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados, todas as obras e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka."
+            "value": "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom, vsakim gradbiščem in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka."
           }
         }
       }
@@ -2617,61 +2617,61 @@
         }
       }
     },
-    "All recorded days and holidays were removed.": {
+    "All recorded days, holidays and sites were removed.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle erfassten Tage und Feiertage wurden entfernt."
+            "value": "Alle erfassten Tage, Feiertage und Baustellen wurden entfernt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se han eliminado todos los días y festivos registrados."
+            "value": "Se han eliminado todos los días, festivos y obras registrados."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tous les jours et jours fériés enregistrés ont été supprimés."
+            "value": "Tous les jours, jours fériés et chantiers enregistrés ont été supprimés."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Svi zabilježeni dani i praznici su uklonjeni."
+            "value": "Svi zabilježeni dani, praznici i gradilišta su uklonjeni."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutti i giorni e le festività registrati sono stati rimossi."
+            "value": "Tutti i giorni, le festività e i cantieri registrati sono stati rimossi."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle vastgelegde dagen en feestdagen zijn verwijderd."
+            "value": "Alle vastgelegde dagen, feestdagen en bouwplaatsen zijn verwijderd."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wszystkie zapisane dni i święta zostały usunięte."
+            "value": "Wszystkie zapisane dni, święta i budowy zostały usunięte."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos os dias e feriados registados foram removidos."
+            "value": "Todos os dias, feriados e obras registados foram removidos."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vsi zabeleženi dnevi in prazniki so bili odstranjeni."
+            "value": "Vsi zabeleženi dnevi, prazniki in gradbišča so bili odstranjeni."
           }
         }
       }
@@ -8597,61 +8597,61 @@
         }
       }
     },
-    "Delete every recorded day and holiday?": {
+    "Delete every recorded day, holiday and site?": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle erfassten Tage und Feiertage löschen?"
+            "value": "Alle erfassten Tage, Feiertage und Baustellen löschen?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Eliminar todos los días y festivos registrados?"
+            "value": "¿Eliminar todos los días, festivos y obras registrados?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer tous les jours et jours fériés enregistrés ?"
+            "value": "Supprimer tous les jours, jours fériés et chantiers enregistrés ?"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obrisati sve zabilježene dane i praznike?"
+            "value": "Obrisati sve zabilježene dane, praznike i gradilišta?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminare tutti i giorni e le festività registrati?"
+            "value": "Eliminare tutti i giorni, le festività e i cantieri registrati?"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle vastgelegde dagen en feestdagen wissen?"
+            "value": "Alle vastgelegde dagen, feestdagen en bouwplaatsen wissen?"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usunąć wszystkie zapisane dni i święta?"
+            "value": "Usunąć wszystkie zapisane dni, święta i budowy?"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar todos os dias e feriados registados?"
+            "value": "Eliminar todos os dias, feriados e obras registados?"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izbrišem vse zabeležene dneve in praznike?"
+            "value": "Izbrišem vse zabeležene dneve, praznike in gradbišča?"
           }
         }
       }

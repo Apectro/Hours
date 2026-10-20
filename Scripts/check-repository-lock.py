@@ -44,6 +44,8 @@ EXEMPT = {
         "builds an in-memory store for Xcode previews",
     "Hours/Features/Settings/DataSettingsScreen.swift":
         "a restore is the file becoming the database, not an edit to a closed month",
+    "Hours/Data/Store/BackupRestorer.swift":
+        "where the restore writes happen: the file becoming the database, not an edit to a closed month",
 }
 
 

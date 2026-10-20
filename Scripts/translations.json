@@ -674,16 +674,16 @@
       "%lld met vastgelegde uren",
       "%lld z zapisanymi godzinami"
     ],
-    "A backup is a JSON file containing every day, every holiday and all your settings. Nothing is uploaded — you choose where the file goes.": [
-      "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht.",
-      "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide.",
-      "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka.",
-      "Un backup è un file JSON con ogni giorno, ogni festività e tutte le impostazioni. Non viene caricato nulla: scegli tu dove va il file.",
-      "Une sauvegarde est un fichier JSON contenant chaque jour, chaque jour férié et tous vos réglages. Rien n’est envoyé : vous choisissez où va le fichier.",
-      "Una copia es un archivo JSON con cada día, cada festivo y todos tus ajustes. No se sube nada: tú eliges dónde va el archivo.",
-      "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro.",
-      "Een back-up is een JSON-bestand met elke dag, elke feestdag en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat.",
-      "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
+    "A backup is a JSON file containing every day, every holiday, every site and all your settings. Nothing is uploaded — you choose where the file goes.": [
+      "Eine Sicherung ist eine JSON-Datei mit jedem Tag, jedem Feiertag, jeder Baustelle und allen Einstellungen. Nichts wird hochgeladen – du entscheidest, wohin die Datei geht.",
+      "Sigurnosna kopija je JSON datoteka sa svakim danom, svakim praznikom, svakim gradilištem i svim postavkama. Ništa se ne šalje – ti biraš kamo datoteka ide.",
+      "Varnostna kopija je datoteka JSON z vsakim dnem, vsakim praznikom, vsakim gradbiščem in vsemi nastavitvami. Nič se ne naloži – sam izbereš, kam gre datoteka.",
+      "Un backup è un file JSON con ogni giorno, ogni festività, ogni cantiere e tutte le impostazioni. Non viene caricato nulla: scegli tu dove va il file.",
+      "Une sauvegarde est un fichier JSON contenant chaque jour, chaque jour férié, chaque chantier et tous vos réglages. Rien n’est envoyé : vous choisissez où va le fichier.",
+      "Una copia es un archivo JSON con cada día, cada festivo, cada obra y todos tus ajustes. No se sube nada: tú eliges dónde va el archivo.",
+      "Uma cópia é um ficheiro JSON com todos os dias, todos os feriados, todas as obras e todas as definições. Nada é enviado — escolhes tu para onde vai o ficheiro.",
+      "Een back-up is een JSON-bestand met elke dag, elke feestdag, elke bouwplaats en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat.",
+      "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem, każdą budową i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
     ],
     "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": [
       "Ein abgeschlossener Monat lehnt Änderungen ab — aus dem Tageseditor, einer Sammelbearbeitung, von der Uhr und von Siri gleichermaßen. Sobald ein Stundenzettel übergeben wurde, ist es der Anfang eines Streits, wenn sich die Tage dahinter still ändern. Zum Wiederöffnen den Monat wegwischen.",
@@ -883,16 +883,16 @@
       "Alle functies",
       "Wszystkie prace"
     ],
-    "All recorded days and holidays were removed.": [
-      "Alle erfassten Tage und Feiertage wurden entfernt.",
-      "Svi zabilježeni dani i praznici su uklonjeni.",
-      "Vsi zabeleženi dnevi in prazniki so bili odstranjeni.",
-      "Tutti i giorni e le festività registrati sono stati rimossi.",
-      "Tous les jours et jours fériés enregistrés ont été supprimés.",
-      "Se han eliminado todos los días y festivos registrados.",
-      "Todos os dias e feriados registados foram removidos.",
-      "Alle vastgelegde dagen en feestdagen zijn verwijderd.",
-      "Wszystkie zapisane dni i święta zostały usunięte."
+    "All recorded days, holidays and sites were removed.": [
+      "Alle erfassten Tage, Feiertage und Baustellen wurden entfernt.",
+      "Svi zabilježeni dani, praznici i gradilišta su uklonjeni.",
+      "Vsi zabeleženi dnevi, prazniki in gradbišča so bili odstranjeni.",
+      "Tutti i giorni, le festività e i cantieri registrati sono stati rimossi.",
+      "Tous les jours, jours fériés et chantiers enregistrés ont été supprimés.",
+      "Se han eliminado todos los días, festivos y obras registrados.",
+      "Todos os dias, feriados e obras registados foram removidos.",
+      "Alle vastgelegde dagen, feestdagen en bouwplaatsen zijn verwijderd.",
+      "Wszystkie zapisane dni, święta i budowy zostały usunięte."
     ],
     "Already recorded": [
       "Bereits erfasst",
@@ -1763,16 +1763,16 @@
       "Dag verwijderen",
       "Usuń dzień"
     ],
-    "Delete every recorded day and holiday?": [
-      "Alle erfassten Tage und Feiertage löschen?",
-      "Obrisati sve zabilježene dane i praznike?",
-      "Izbrišem vse zabeležene dneve in praznike?",
-      "Eliminare tutti i giorni e le festività registrati?",
-      "Supprimer tous les jours et jours fériés enregistrés ?",
-      "¿Eliminar todos los días y festivos registrados?",
-      "Eliminar todos os dias e feriados registados?",
-      "Alle vastgelegde dagen en feestdagen wissen?",
-      "Usunąć wszystkie zapisane dni i święta?"
+    "Delete every recorded day, holiday and site?": [
+      "Alle erfassten Tage, Feiertage und Baustellen löschen?",
+      "Obrisati sve zabilježene dane, praznike i gradilišta?",
+      "Izbrišem vse zabeležene dneve, praznike in gradbišča?",
+      "Eliminare tutti i giorni, le festività e i cantieri registrati?",
+      "Supprimer tous les jours, jours fériés et chantiers enregistrés ?",
+      "¿Eliminar todos los días, festivos y obras registrados?",
+      "Eliminar todos os dias, feriados e obras registados?",
+      "Alle vastgelegde dagen, feestdagen en bouwplaatsen wissen?",
+      "Usunąć wszystkie zapisane dni, święta i budowy?"
     ],
     "Delete everything": [
       "Alles löschen",

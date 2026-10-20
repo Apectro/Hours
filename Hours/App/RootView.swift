@@ -56,6 +56,7 @@ struct RootView: View {
                 // away is merged by now, so this is the moment to notice two
                 // rows meaning the same Tuesday. A no-op without sync.
                 HoursStack.repository.reconcileDuplicates()
+                SiteRepository(context: HoursStack.container.mainContext).reconcileDuplicates()
                 HoursStack.refreshWidget()
             }
             // And again on the way out, which is the moment the widget is about

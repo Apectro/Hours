@@ -38,6 +38,7 @@ let package = Package(
                 "MigrationTests.swift",
                 "PersistenceCodingTests.swift",
                 "SiteRepositoryTests.swift",
+                "SiteRestoreTests.swift",
                 // The Apple-only handful that used to keep whole files off
                 // this job. See StorageBridgeTests for what moved and why.
                 // GapMessage moved into the app target when its sentences

@@ -47,7 +47,7 @@ struct DataSettingsScreen: View {
             } header: {
                 Text("Backup")
             } footer: {
-                Text("A backup is a JSON file containing every day, every holiday and all your settings. Nothing is uploaded — you choose where the file goes.")
+                Text("A backup is a JSON file containing every day, every holiday, every site and all your settings. Nothing is uploaded — you choose where the file goes.")
             }
 
             Section {
@@ -76,7 +76,7 @@ struct DataSettingsScreen: View {
             handleImport(result)
         }
         .confirmationDialog(
-            "Delete every recorded day and holiday?",
+            "Delete every recorded day, holiday and site?",
             isPresented: $isConfirmingDelete,
             titleVisibility: .visible
         ) {
@@ -120,11 +120,7 @@ struct DataSettingsScreen: View {
     // MARK: - Actions
 
     private func createBackup() {
-        let archive = BackupArchive(
-            settings: settingsStore.settings,
-            days: repository.allEntries().map(\.record),
-            holidays: repository.holidayRules()
-        )
+        let archive = BackupRestorer(context: modelContext).makeArchive(settings: settingsStore.settings)
         do {
             let data = try archive.encoded()
             let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Backups", isDirectory: true)
@@ -219,14 +215,11 @@ struct DataSettingsScreen: View {
             return
         }
 
-        repository.deleteAllDays()
-        repository.deleteAllHolidays()
-        // Unlocked on purpose. A restore is not an edit to a closed month; it
-        // is the file becoming the database, and refusing half of it would
-        // leave a mixture of the backup and what was there before.
-        let restoring = WorkdayRepository(context: modelContext, lock: .unlocked)
-        for record in archive.days { try? restoring.save(record) }
-        for holiday in archive.holidays { repository.upsert(holiday) }
+        // Unlocked on purpose, inside the restorer. A restore is not an edit to
+        // a closed month; it is the file becoming the database, and refusing
+        // half of it would leave a mixture of the backup and what was there
+        // before.
+        BackupRestorer(context: modelContext).restore(archive)
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
@@ -245,10 +238,9 @@ struct DataSettingsScreen: View {
     }
 
     private func deleteAll() {
-        repository.deleteAllDays()
-        repository.deleteAllHolidays()
+        BackupRestorer(context: modelContext).deleteEverything()
         HoursStack.refreshWidget()
-        message = String(localized: "All recorded days and holidays were removed.")
+        message = String(localized: "All recorded days, holidays and sites were removed.")
     }
 }
 
