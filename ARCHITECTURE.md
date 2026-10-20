@@ -125,7 +125,9 @@ which case it keeps its contracted hours and only its name is carried through.
 ## Persistence
 
 - **SwiftData** for entities: `DayEntry` (one per `dateKey`) and
-  `HolidayRecord`. These are records the user creates, queries and exports.
+  `HolidayRecord`, and for job sites `SiteEntry`, `CrewMemberEntry` and
+  `SiteDayEntry` (one per site and `dateKey`). These are records the user
+  creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
