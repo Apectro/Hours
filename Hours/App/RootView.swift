@@ -10,6 +10,8 @@ struct RootView: View {
     var storeFailure: String? = nil
 
     @State private var selection: Destination = .calendar
+    /// A widget's link, waiting for the Sites tab to follow it.
+    @State private var siteLink: AppLink?
 
     enum Destination: Hashable {
         case calendar
@@ -30,6 +32,14 @@ struct RootView: View {
                 StoreFailureBanner(message: storeFailure)
             }
             tabs
+        }
+        // A widget's buttons are links, because a widget cannot write the
+        // store (see `AppLink`). Anything that is not one of ours is ignored
+        // and the app opens where it was.
+        .onOpenURL { url in
+            guard let link = AppLink(url: url) else { return }
+            selection = .sites
+            siteLink = link
         }
         .task {
             // Only ever true behind a launch argument the UI test target
@@ -125,7 +135,7 @@ struct RootView: View {
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Destination.calendar)
 
-            SitesScreen()
+            SitesScreen(link: $siteLink)
                 .tabItem { Label("Sites", systemImage: "building.2") }
                 .tag(Destination.sites)
 

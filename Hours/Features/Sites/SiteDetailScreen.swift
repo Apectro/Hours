@@ -10,6 +10,8 @@ import SwiftData
 struct SiteDetailScreen: View {
     let siteID: UUID
     var initialDate: CalendarDate? = nil
+    /// See `SiteRoute.appliesSameAsLastDay`.
+    var appliesSameAsLastDay = false
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -28,7 +30,8 @@ struct SiteDetailScreen: View {
                 SiteDayScreen(
                     site: site,
                     isReadOnly: subscriptions.isReadOnly(site, among: sites),
-                    date: initialDate ?? CalendarDate.today(in: settingsStore.workCalendar)
+                    date: initialDate ?? CalendarDate.today(in: settingsStore.workCalendar),
+                    appliesSameAsLastDay: appliesSameAsLastDay
                 )
             } else {
                 Color.hoursCanvas

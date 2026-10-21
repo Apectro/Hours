@@ -10,6 +10,10 @@ import SwiftData
 /// happening, and a list that keeps growing with finished jobs buries the
 /// one that is not.
 struct SitesScreen: View {
+    /// A link from a widget, handed down by the root and cleared once
+    /// followed, so the same link arriving again is followed again.
+    @Binding var link: AppLink?
+
     @Environment(SettingsStore.self) private var settingsStore
 
     /// A path of values, so the site screen's menu can push the crew by value
@@ -26,6 +30,29 @@ struct SitesScreen: View {
         // On the stack rather than its root view, so the screens pushed onto
         // it are handed the action too.
         .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
+        // `initial`, because the tab may be built by the very link that
+        // selected it.
+        .onChange(of: link, initial: true) { _, newLink in
+            follow(newLink)
+        }
+    }
+
+    /// Opens what a widget asked for by replacing the path with it: by value,
+    /// as every other screen on this stack is pushed, and from the list, so
+    /// Back leads where it always does.
+    private func follow(_ newLink: AppLink?) {
+        guard let newLink else { return }
+        var next = NavigationPath()
+        switch newLink {
+        case .sites:
+            break
+        case let .site(id):
+            next.append(SiteRoute(siteID: id))
+        case let .siteSameAsLastDay(id):
+            next.append(SiteRoute(siteID: id, appliesSameAsLastDay: true))
+        }
+        path = next
+        link = nil
     }
 }
 
@@ -33,6 +60,9 @@ struct SitesScreen: View {
 /// another screen pushing a `UUID` for some other purpose cannot land here.
 struct SiteRoute: Hashable {
     let siteID: UUID
+    /// Set by the site widget's "Same as yesterday": fill today from the last
+    /// written day on arrival, where the screen's own button could.
+    var appliesSameAsLastDay = false
 }
 
 /// A site's crew list, pushed from the site screen. A value like `SiteRoute`,
@@ -148,7 +178,7 @@ private struct SitesContent: View {
             }
         }
         .navigationDestination(for: SiteRoute.self) { route in
-            SiteDetailScreen(siteID: route.siteID)
+            SiteDetailScreen(siteID: route.siteID, appliesSameAsLastDay: route.appliesSameAsLastDay)
         }
         .navigationDestination(for: SiteCrewRoute.self) { route in
             CrewScreen(siteID: route.siteID)

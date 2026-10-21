@@ -55,6 +55,9 @@ struct SiteDayScreen: View {
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
+    /// The site widget's "Same as yesterday", not yet acted on. Cleared on
+    /// first appearance, so coming back from the crew does not fill it again.
+    @State private var requestsSameAsLastDay: Bool
     @FocusState private var isNoteFocused: Bool
 
     /// One sheet at a time, chosen by value: stacking several `.sheet`
@@ -71,9 +74,10 @@ struct SiteDayScreen: View {
         }
     }
 
-    init(site: Site, isReadOnly: Bool, date: CalendarDate) {
+    init(site: Site, isReadOnly: Bool, date: CalendarDate, appliesSameAsLastDay: Bool = false) {
         self.site = site
         self.isReadOnly = isReadOnly
+        _requestsSameAsLastDay = State(initialValue: appliesSameAsLastDay)
         _date = State(initialValue: date)
         _month = State(initialValue: date.yearMonth)
         _day = State(initialValue: SiteDay(siteID: site.id, date: date, jobID: site.jobID))
@@ -111,7 +115,10 @@ struct SiteDayScreen: View {
         .scrollDismissesKeyboard(.interactively)
         // A screen the UI tests wait for. The title above it is the site's name.
         .accessibilityIdentifier("screen-site-day")
-        .onAppear { load() }
+        .onAppear {
+            load()
+            applyRequestedSameAsLastDay()
+        }
         .onDisappear { commitNote() }
         .onChange(of: isNoteFocused) { _, focused in
             if !focused { commitNote() }
@@ -356,6 +363,18 @@ struct SiteDayScreen: View {
     private func fillFromLastDay() {
         guard let lastDay else { return }
         commit(lastDay)
+    }
+
+    /// The widget's button does exactly what this screen's own "Same as last
+    /// day" would, and only where that button is offered: today, nothing
+    /// written yet, a day to copy, and a month and site that can be changed.
+    /// Anywhere else the site simply opens, which is what the person sees
+    /// the widget do on a day already written.
+    private func applyRequestedSameAsLastDay() {
+        guard requestsSameAsLastDay else { return }
+        requestsSameAsLastDay = false
+        guard date == today, showsUnwrittenChoice else { return }
+        fillFromLastDay()
     }
 
     private func commitNote() {
