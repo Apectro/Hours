@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Draws Zeitkonto's app icon.
 
-A script rather than a checked-in binary nobody can edit: the mark is a clock
-whose amber wedge, sweeping from twelve, is the time banked so far — a
-Zeitkonto is literally a time account — with the hand at its leading edge.
+A script rather than a checked-in binary nobody can edit: the mark is a navy
+hard hat on a warm amber field — the job site, where the hours are worked.
 Change the numbers below and run it; the PNG is the output, not the source.
+
+Every shape is a signed distance (negative inside, positive outside), which
+gives clean anti-aliased edges and the soft shadow under the hat without an
+imaging library.
 
 iOS app icons must be fully opaque — an alpha channel is rejected at upload —
 so this writes 8-bit RGB with no transparency and lets the system apply its own
@@ -19,82 +22,77 @@ import zlib
 from pathlib import Path
 
 SIZE = 1024
-SUBSAMPLES = 3  # per axis, so 9 samples a pixel: edges that are not stepped
 
-TOP = (0x16, 0x20, 0x4E)
-BOTTOM = (0x2C, 0x4A, 0x94)
-FACE = (0x18, 0x24, 0x56)
-RING_COLOUR = (0xF4, 0xF5, 0xF9)
-BANKED = (0xF0, 0xA8, 0x3E)
+FIELD_TOP_LEFT = (0xFF, 0xBA, 0x40)
+FIELD_BOTTOM_RIGHT = (0xF0, 0x80, 0x1E)
+GLOW = (0xFF, 0xF0, 0xC8)
+GLOW_STRENGTH = 0.35      # how much the soft light at the top left lifts the field
+GLOW_CENTRE = (230, 70)
+GLOW_RADII = (530, 490)
+GLOW_SOFTNESS = 140
+HAT = (0x18, 0x22, 0x54)
+RIDGE = (0x2C, 0x3A, 0x80)
 
-CENTRE = SIZE / 2
-RING_OUTER = 352          # outer radius of the white ring
-RING_WIDTH = 62
-WEDGE_GAP = 26            # face showing between the ring and the wedge
-SWEEP_DEGREES = 125       # how far the wedge has filled, clockwise from twelve
-HAND_LENGTH = 178
-HAND_WIDTH = 50
-HUB_RADIUS = 44
-
-RING_INNER = RING_OUTER - RING_WIDTH
-WEDGE_RADIUS = RING_INNER - WEDGE_GAP
-HAND_ANGLE = math.radians(SWEEP_DEGREES)          # clockwise from twelve
-HAND_TIP = (CENTRE + HAND_LENGTH * math.sin(HAND_ANGLE),
-            CENTRE - HAND_LENGTH * math.cos(HAND_ANGLE))
-
-
-def background(y):
-    t = y / (SIZE - 1)
-    return tuple(a + (b - a) * t for a, b in zip(TOP, BOTTOM))
+CENTRE_X = 512
+DOME_RADIUS = 250
+DOME_BASE = 600           # the dome is the top half of a circle centred here
+BRIM = (182, 610, 842, 696)   # left, top, right, bottom
+BRIM_RADIUS = 43
+RIDGE_BOX = (478, 382, 546, 590)
+RIDGE_RADIUS = 34
+SHADOW_OFFSET = 16
+SHADOW_SOFTNESS = 30
+SHADOW_STRENGTH = 0.27
 
 
-def near_segment(x, y, ax, ay, bx, by, radius):
-    """Within `radius` of the segment a–b: a line with round caps."""
-    dx, dy = bx - ax, by - ay
-    t = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)))
-    px, py = ax + t * dx - x, ay + t * dy - y
-    return px * px + py * py <= radius * radius
+def rounded_box(x, y, box, radius):
+    """Signed distance to a rounded rectangle."""
+    left, top, right, bottom = box
+    cx, cy = (left + right) / 2, (top + bottom) / 2
+    qx = abs(x - cx) - (right - left) / 2 + radius
+    qy = abs(y - cy) - (bottom - top) / 2 + radius
+    outside = math.hypot(max(qx, 0.0), max(qy, 0.0))
+    return outside + min(max(qx, qy), 0.0) - radius
+
+
+def hat(x, y):
+    """Signed distance to the dome and the brim together."""
+    dome = max(math.hypot(x - CENTRE_X, y - DOME_BASE) - DOME_RADIUS, y - DOME_BASE)
+    return min(dome, rounded_box(x, y, BRIM, BRIM_RADIUS))
+
+
+def coverage(distance):
+    """How much of a pixel a shape covers, from its distance at the pixel centre."""
+    return min(1.0, max(0.0, 0.5 - distance))
+
+
+def blurred(distance, softness):
+    """A shape's edge seen through a Gaussian blur."""
+    return 0.5 * math.erfc(distance / (softness * math.sqrt(2)))
+
+
+def mix(under, over, amount):
+    return tuple(a + (b - a) * amount for a, b in zip(under, over))
 
 
 def colour_at(x, y):
-    """The colour of one sample point, painted back to front."""
-    dx, dy = x - CENTRE, y - CENTRE
-    distance = math.hypot(dx, dy)
-    if distance > RING_OUTER:
-        return None                                   # background
-    if near_segment(x, y, CENTRE, CENTRE, *HAND_TIP, HAND_WIDTH / 2) or distance <= HUB_RADIUS:
-        return RING_COLOUR
-    if distance > RING_INNER:
-        return RING_COLOUR
-    if distance <= WEDGE_RADIUS:
-        # Angle clockwise from twelve, 0...360.
-        angle = math.degrees(math.atan2(dx, -dy)) % 360
-        if angle <= SWEEP_DEGREES:
-            return BANKED
-    return FACE
+    t = (x + y) / (2 * SIZE)
+    colour = mix(FIELD_TOP_LEFT, FIELD_BOTTOM_RIGHT, t)
+    gx, gy = (x - GLOW_CENTRE[0]) / GLOW_RADII[0], (y - GLOW_CENTRE[1]) / GLOW_RADII[1]
+    glow_distance = (math.hypot(gx, gy) - 1) * min(GLOW_RADII)
+    colour = mix(colour, GLOW, GLOW_STRENGTH * blurred(glow_distance, GLOW_SOFTNESS))
+    shadow = SHADOW_STRENGTH * blurred(hat(x, y - SHADOW_OFFSET), SHADOW_SOFTNESS)
+    colour = mix(colour, (0, 0, 0), shadow)
+    colour = mix(colour, HAT, coverage(hat(x, y)))
+    return mix(colour, RIDGE, coverage(rounded_box(x, y, RIDGE_BOX, RIDGE_RADIUS)))
 
 
 def render():
     rows = bytearray()
-    step = 1 / SUBSAMPLES
-    offsets = [(i + 0.5) * step for i in range(SUBSAMPLES)]
-    samples = SUBSAMPLES * SUBSAMPLES
     for py in range(SIZE):
         rows.append(0)  # PNG filter type: none
-        fill = background(py + 0.5)
-        far = abs(py + 0.5 - CENTRE) > RING_OUTER + 1
         for px in range(SIZE):
-            if far or abs(px + 0.5 - CENTRE) > RING_OUTER + 1:
-                rows.extend(round(c) for c in fill)
-                continue
-            total = [0.0, 0.0, 0.0]
-            for oy in offsets:
-                for ox in offsets:
-                    colour = colour_at(px + ox, py + oy) or fill
-                    total[0] += colour[0]
-                    total[1] += colour[1]
-                    total[2] += colour[2]
-            rows.extend(round(c / samples) for c in total)
+            rows.extend(round(c) for c in colour_at(px + 0.5, py + 0.5))
     return bytes(rows)
 
 
