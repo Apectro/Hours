@@ -105,4 +105,34 @@ final class AuditExportTests: XCTestCase {
         let running = XLSXWriter.columnName(table.columns.firstIndex(of: .cumulativeBalance)!)
         XCTAssertFalse(package.contains("<f>SUM(\(running)"), "the running balance is being added up")
     }
+
+    // MARK: - The running balance with empty days left out
+
+    /// Leaving empty days out of the file hides their rows, not their hours.
+    /// A working day nobody recorded is still eight hours short in the
+    /// summary's balance; the running-balance column, and the "balance
+    /// carried forward" made from it, skipped it with its row.
+    func testLeavingEmptyDaysOutDoesNotLeaveTheirShortfallOutOfTheRunningBalance() {
+        var settings = Fixture.settings()
+        settings.export.columns = [.date, .worked, .balance, .cumulativeBalance]
+        settings.export.includeEmptyDays = false
+
+        let range = CalendarDateRange(start: Fixture.workingMonday, end: Fixture.date(2026, 8, 7))
+        let records: [Int: DayRecord] = [
+            Fixture.workingMonday.key: DayRecord(
+                date: Fixture.workingMonday, start: Fixture.time(8), end: Fixture.time(17, 30), breaks: [.duration(30)]
+            )
+            // Tuesday to Friday: nothing recorded.
+        ]
+        let days = Fixture.engine(settings: settings, calendar: calendar).days(in: range, records: records, holidays: [])
+        let table = ReportBuilder(settings: settings, calendar: calendar)
+            .makeTable(days: days, range: range, title: "Week", openingBalanceMinutes: 120)
+        let summary = PeriodAggregator.summarize(days, range: range)
+
+        XCTAssertEqual(table.rows.count, 1, "only Monday has anything to show")
+        let running = table.columns.firstIndex(of: .cumulativeBalance)!
+        XCTAssertEqual(table.totalRow?.minutes[running], 120 + summary.balanceMinutes)
+        let carried = table.totals.first { $0.label == settings.export.language(.carriedForward) }
+        XCTAssertEqual(carried?.minutes, 120 + summary.balanceMinutes)
+    }
 }
