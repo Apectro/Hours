@@ -24,19 +24,12 @@ enum ExportFormat: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
-    var systemImage: String {
+    /// What each format is for, under its name on the format cards.
+    var purpose: String {
         switch self {
-        case .csv: return "tablecells"
-        case .xlsx: return "tablecells.badge.ellipsis"
-        case .pdf: return "doc.richtext"
-        }
-    }
-
-    var explanation: String {
-        switch self {
-        case .csv: return "Opens in Excel, Numbers, Google Sheets and LibreOffice."
-        case .xlsx: return "A summary, then the days, then their totals. Hours read as 8h 00m and still add up."
-        case .pdf: return "A ruled table with a summary, ready to print or send on."
+        case .csv: return String(localized: "Plain data", comment: "Export format card: what a CSV file is for")
+        case .xlsx: return String(localized: "For payroll", comment: "Export format card: what an Excel file is for")
+        case .pdf: return String(localized: "To print or send", comment: "Export format card: what a PDF is for")
         }
     }
 }
@@ -51,13 +44,6 @@ enum ExportFileFactory {
         preferences: ExportPreferences,
         baseName: String
     ) throws -> URL {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Exports", isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-
-        let url = directory
-            .appendingPathComponent(sanitise(baseName))
-            .appendingPathExtension(format.fileExtension)
-
         let data: Data
         switch format {
         case .csv:
@@ -67,7 +53,18 @@ enum ExportFileFactory {
         case .pdf:
             data = PDFReportRenderer.data(for: table)
         }
+        return try write(data: data, format: format, baseName: baseName)
+    }
 
+    /// Writes bytes already produced — the PDF the preview was drawn from,
+    /// so the page on screen and the page shared are one rendering, not two.
+    static func write(data: Data, format: ExportFormat, baseName: String) throws -> URL {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Exports", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let url = directory
+            .appendingPathComponent(sanitise(baseName))
+            .appendingPathExtension(format.fileExtension)
         try data.write(to: url, options: .atomic)
         return url
     }

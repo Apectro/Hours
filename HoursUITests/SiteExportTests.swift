@@ -1,6 +1,6 @@
 import XCTest
 
-/// The director's sheet: a site's month, one column per person.
+/// The director's sheet: a site's month, one group of columns per person.
 ///
 /// Starts from the seeded site (`SampleData.seedSite`), which has the 3rd and
 /// 4th of last month written up with you, Ivan and Marko all there. The export
@@ -28,8 +28,15 @@ final class SiteExportTests: XCTestCase {
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
-        // One column per person, you first. No name is set in a UI test run,
-        // so your column says "You".
+        // The screen opens on the PDF, previewed as its first page. The
+        // workbook's preview is the table, so switch to it.
+        XCTAssertTrue(app.descendants(matching: .any)["export-preview-page"].waitForExistence(timeout: 10), "the PDF has no page preview")
+        let excel = app.buttons["export-format-xlsx"]
+        XCTAssertTrue(excel.waitForExistence(timeout: 5), "there is no Excel format card")
+        excel.tap()
+
+        // One pair of columns per person, you first, under the person's name.
+        // No name is set in a UI test run, so yours says "You".
         let headings = app.staticTexts.matching(identifier: "export-preview-heading")
         XCTAssertTrue(headings.firstMatch.waitForExistence(timeout: 5), "the preview has no headings")
         let titles = headings.allElementsBoundByIndex.map(\.label)
