@@ -304,17 +304,23 @@ struct WorkdayCalculator: Sendable {
         var sawOutsideShift = false
 
         for span in shift.breaks {
-            if let breakStart = span.start, let breakEnd = span.end {
-                var relativeStart = breakStart.minutes - start.minutes
-                if relativeStart < 0 { relativeStart += TimeOfDay.minutesPerDay }
-                var relativeEnd = breakEnd.minutes - start.minutes
-                if relativeEnd < 0 { relativeEnd += TimeOfDay.minutesPerDay }
-                if relativeEnd < relativeStart { relativeEnd += TimeOfDay.minutesPerDay }
-
-                let clippedStart = min(max(relativeStart, 0), grossMinutes)
-                let clippedEnd = min(max(relativeEnd, 0), grossMinutes)
+            if let breakStart = span.start, span.end != nil {
+                let length = span.minutes
+                // A wall-clock break has no day of its own, so it can sit at
+                // either of two places relative to the shift: so many minutes
+                // after its start, or — when it began before the shift did —
+                // a day less than that. Only reading the first made a lunch
+                // of 11:30–12:30 on a shift from 12:00 land twenty-three hours
+                // into the shift and deduct nothing, while the same overlap at
+                // the other end of a shift was clipped and deducted. Whichever
+                // placement overlaps the shift more is the one that was meant.
+                let forward = (breakStart.minutes - start.minutes + TimeOfDay.minutesPerDay) % TimeOfDay.minutesPerDay
+                let placements = [forward, forward - TimeOfDay.minutesPerDay].map { relativeStart in
+                    (min(max(relativeStart, 0), grossMinutes), min(max(relativeStart + length, 0), grossMinutes))
+                }
+                let (clippedStart, clippedEnd) = placements.max { ($0.1 - $0.0) < ($1.1 - $1.0) } ?? placements[0]
                 if clippedEnd <= clippedStart {
-                    if relativeEnd > relativeStart { sawOutsideShift = true }
+                    if length > 0 { sawOutsideShift = true }
                     continue
                 }
                 intervals.append((clippedStart, clippedEnd))

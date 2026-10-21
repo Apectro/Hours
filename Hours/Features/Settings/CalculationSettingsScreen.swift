@@ -196,24 +196,18 @@ struct CalculationSettingsScreen: View {
     /// running total on the statistics screen is — through the same origin, so
     /// a year closed after another picks up the earlier carry-over rather than
     /// counting from the beginning again.
+    ///
+    /// Through the engine's `runningBalance`, which starts at the first
+    /// recorded day. This used to start on 1 January four years back, and
+    /// count every working day before the app was in use as a day short.
     private func balance(of year: Int) -> Int {
-        let calendar = settingsStore.workCalendar
-        let settings = settingsStore.settings
-        let december = CalendarDate(year: year, month: 12, day: 31)
-        let origin = settings.balanceOrigin(for: CalendarDate(year: year, month: 1, day: 1))
-        let range = CalendarDateRange(
-            start: origin.startDate ?? CalendarDate(year: year - 4, month: 1, day: 1),
-            end: december
-        )
-        let days = PeriodEngine(settings: settings, calendar: calendar).days(
-            in: range,
-            records: repository.records(in: range),
-            holidays: repository.holidayRules()
-        )
-        return BalanceLedger.cumulative(
-            over: days,
-            openingMinutes: origin.openingMinutes,
-            startDate: origin.startDate
+        let repository = self.repository
+        return PeriodEngine(settings: settingsStore.settings, calendar: settingsStore.workCalendar).runningBalance(
+            through: CalendarDate(year: year, month: 12, day: 31),
+            firstRecorded: repository.recordedDateBounds()?.first,
+            holidays: repository.holidayRules(),
+            countingThrough: nil,
+            records: { repository.records(in: $0) }
         )
     }
 

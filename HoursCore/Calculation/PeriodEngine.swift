@@ -115,7 +115,10 @@ struct PeriodEngine: Sendable {
             guard settings.features.trackExpectedHours else { continue }
             let weekday = day.date.weekday(in: calendar)
             for job in jobs {
-                let contracted = job.schedule.contractedMinutes(forWeekday: weekday)
+                // `expectedMinutes`, not the raw per-day figure: a weekly
+                // override is the contract, and the day's own expectation —
+                // the month total beside this card — is built from it.
+                let contracted = job.schedule.expectedMinutes(forWeekday: weekday)
                 switch day.dayType.expectation {
                 case .zero:
                     continue

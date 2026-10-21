@@ -50,18 +50,22 @@ struct ReportBuilder: Sendable {
         countingThrough: CalendarDate? = nil
     ) -> ReportTable {
         let columns = settings.effectiveExportColumns
-        let included = settings.export.includeEmptyDays
-            ? days
-            : days.filter { $0.hasEntry || $0.workedMinutes > 0 || $0.creditedMinutes > 0 }
+        func isShown(_ day: DayComputation) -> Bool {
+            settings.export.includeEmptyDays || day.hasEntry || day.workedMinutes > 0 || day.creditedMinutes > 0
+        }
 
         var running = openingBalanceMinutes
         var rows: [ReportRow] = []
-        rows.reserveCapacity(included.count)
+        rows.reserveCapacity(days.count)
 
-        for day in included {
-            let counts = day.isIncluded
-                && !(countingThrough.map { day.date > $0 && !day.hasEntry } ?? false)
-            if counts { running += day.balanceMinutes }
+        // The running balance walks every day, shown or not. Leaving empty
+        // days out of the file hides their rows, not their hours: a working
+        // day nobody recorded is still short in the summary's balance, and
+        // skipping it here left the running column and the "carried forward"
+        // made from it disagreeing with that balance by a day's hours apiece.
+        for day in days {
+            if day.counts(through: countingThrough) { running += day.balanceMinutes }
+            guard isShown(day) else { continue }
             rows.append(makeRow(day: day, columns: columns, runningBalance: running))
         }
 
