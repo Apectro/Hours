@@ -220,6 +220,21 @@ enum XLSXWriter {
                     let summed = table.rows.reduce(0) { running, reportRow in
                         running + (index < reportRow.minutes.count ? (reportRow.minutes[index] ?? 0) : 0)
                     }
+                    // The figure the PDF prints under this column, which is
+                    // the summary's. A SUM is written only where the days
+                    // really add up to it. They do not on a month still in
+                    // progress — the rows carry days not yet reached, with
+                    // their expected hours and their shortfall — nor where a
+                    // day is excluded, and a running balance has no sum at
+                    // all: added up, it came to many times the real balance.
+                    // There the total is the summary's figure, so the row
+                    // under the days agrees with the summary above them.
+                    let stated = table.totalRow.flatMap { index < $0.minutes.count ? $0.minutes[index] : nil }
+                    let column = index < table.columns.count ? table.columns[index] : nil
+                    if let stated, stated != summed || column == .cumulativeBalance {
+                        totals.append(.number(dayFraction(minutes: stated), style: .totalDuration))
+                        continue
+                    }
                     totals.append(.formula(
                         "SUM(\(letter)\(headerRow + 1):\(letter)\(lastDataRow))",
                         cached: dayFraction(minutes: summed),
