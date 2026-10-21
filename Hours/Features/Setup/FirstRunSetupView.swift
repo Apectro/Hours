@@ -32,7 +32,7 @@ struct FirstRunSetupView: View {
             Group {
                 switch step {
                 case .name:
-                    SetupNameStep(name: $answers.name, onSubmit: advance)
+                    SetupNameStep(name: $answers.name, onReturn: advance)
                 case .week:
                     SetupWeekStep(answers: $answers)
                 case .breaks:

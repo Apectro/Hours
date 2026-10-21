@@ -5,7 +5,7 @@ import XCTest
 /// Every other UI test starts from an empty store and default settings, which
 /// is what a fresh install looks like, so the app shows the setup to them only
 /// when `-hours-first-run` asks it to. These are the tests that ask.
-final class FirstRunSetupTests: XCTestCase {
+final class FirstRunTests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false

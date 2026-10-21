@@ -3,7 +3,8 @@ import SwiftUI
 /// 1 · "What's your name?" — for the sheets you hand in.
 struct SetupNameStep: View {
     @Binding var name: String
-    let onSubmit: () -> Void
+    /// Return on the keyboard continues, as the button does.
+    let onReturn: () -> Void
 
     @FocusState private var isFocused: Bool
 
@@ -18,7 +19,7 @@ struct SetupNameStep: View {
                 .textInputAutocapitalization(.words)
                 .submitLabel(.continue)
                 .focused($isFocused)
-                .onSubmit(onSubmit)
+                .onSubmit(onReturn)
                 .font(.title3)
                 .padding(Metrics.large)
                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
