@@ -68,8 +68,11 @@ final class FirstRunTests: XCTestCase {
     func testTheLastScreenCanOpenANewSite() {
         let app = launchWithSetup()
 
-        XCTAssertTrue(app.screen("screen-setup-name").waitForExistence(timeout: 10), "the setup was not shown")
-        for _ in 0..<3 {
+        // Each step waited for before the next tap: three taps in a row can
+        // land while a step is still sliding in, and a lost tap leaves the
+        // test a screen short of where it thinks it is.
+        for step in ["screen-setup-name", "screen-setup-week", "screen-setup-breaks"] {
+            XCTAssertTrue(app.screen(step).waitForExistence(timeout: 10), "\(step) did not come")
             app.buttons["setup-continue"].tap()
         }
         XCTAssertTrue(app.screen("screen-setup-finish").waitForExistence(timeout: 5), "the last screen did not come")
