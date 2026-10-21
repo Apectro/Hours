@@ -34,7 +34,7 @@ enum XLSXWriter {
         let worksheet = sheet(for: table, preferences: preferences, generatedOn: generatedOn)
         archive.addFile(
             name: "xl/workbook.xml",
-            contents: Data(workbook(sheetName: sheetName, headerRow: worksheet.headerRow).utf8)
+            contents: Data(workbook(sheetName: sheetName, headerRows: worksheet.headerRows).utf8)
         )
         archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships.utf8))
         archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
@@ -57,7 +57,7 @@ enum XLSXWriter {
         for table: ReportTable,
         preferences: ExportPreferences,
         generatedOn: Date?
-    ) -> (xml: String, headerRow: Int) {
+    ) -> (xml: String, headerRows: ClosedRange<Int>) {
         var rows: [String] = []
         var grid: [[Cell]] = []
         var merges: [String] = []
@@ -79,11 +79,18 @@ enum XLSXWriter {
         }
 
         let columns = max(1, table.columns.count)
+        let isSiteSheet = table.kind == .siteSheet
 
-        // The title block, as the PDF opens.
+        // The title block, as the PDF opens. The director's sheet says which
+        // month of which site in one line, and who kept it in the next, where
+        // a timesheet has the person's name.
         merge(0, columns - 1, row: rowNumber)
-        emit([Cell.text(table.title, style: .title)], sizing: [], height: 26)
-        if !table.ownerName.isEmpty {
+        let title = isSiteSheet && !table.eyebrow.isEmpty ? "\(table.title) — \(table.eyebrow)" : table.title
+        emit([Cell.text(title, style: .title)], sizing: [], height: 26)
+        if isSiteSheet {
+            merge(0, columns - 1, row: rowNumber)
+            emit([Cell.text(table.byline, style: .subtitle)], sizing: [])
+        } else if !table.ownerName.isEmpty {
             merge(0, columns - 1, row: rowNumber)
             emit([Cell.text(table.ownerName, style: .bold)], sizing: [])
         }
@@ -163,25 +170,38 @@ enum XLSXWriter {
             blank()
         }
 
-        let headerRow = rowNumber
-        emit(table.headerTitles().map { Cell.text($0, style: .header) }, height: 22)
+        // Grouped columns get two heading rows: the person's name across
+        // their pair, then what each of the pair holds. The rows above the
+        // days are all repeated on every printed page and frozen on screen.
+        let firstHeaderRow = rowNumber
+        let groups = table.validGroups
+        if groups.isEmpty {
+            emit(table.headerTitles().map { Cell.text($0, style: .header) }, height: 22)
+        } else {
+            let (top, bottom) = groupHeaderCells(for: table)
+            // A name sizes nothing: it spans its pair, and letting it widen
+            // the times column alone would push the hours off to the right.
+            var sizing = top
+            for range in table.groupRanges {
+                if range.count > 1 {
+                    merge(range.lowerBound, range.upperBound - 1, row: rowNumber)
+                    sizing[range.lowerBound] = .gap
+                } else {
+                    let letter = columnName(range.lowerBound)
+                    merges.append("\(letter)\(rowNumber):\(letter)\(rowNumber + 1)")
+                }
+            }
+            emit(top, sizing: sizing, height: 22)
+            emit(bottom, height: 18)
+        }
+        let headerRow = rowNumber - 1
+        let firstDataRow = rowNumber
+        let lastDataRow = firstDataRow - 1 + table.rows.count - min(max(0, table.trailingSummaryRows), table.rows.count)
 
         for reportRow in table.rows {
-            // The PDF greys a day the schedule expects nothing of, and that
-            // carries more than a wash on every other row did: a weekend and a
-            // Wednesday stop looking alike, which is the mistake the banding
-            // was there to prevent in the first place.
-            let rest = !reportRow.isWorkingDay
-            let cells = reportRow.values.enumerated().map { index, value -> Cell in
-                if index < reportRow.minutes.count, let minutes = reportRow.minutes[index] {
-                    return Cell.number(dayFraction(minutes: minutes), style: .duration(rest: rest))
-                }
-                return Cell.text(value, style: .text(rest: rest))
-            }
-            emit(cells)
+            emit(cells(for: reportRow, in: table, dataRows: firstDataRow...max(firstDataRow, lastDataRow)))
         }
         let lastRow = rowNumber - 1
-        let lastDataRow = lastRow - min(max(0, table.trailingSummaryRows), table.rows.count)
 
         // A ruled total under each column of figures, as a timesheet on paper
         // has always had. Written as SUM over the days rather than as the
@@ -212,6 +232,12 @@ enum XLSXWriter {
             emit(totals, height: 20)
         }
 
+        // How to read the director's sheet, under it, as the PDF has it.
+        if !table.legend.isEmpty {
+            blank()
+            merge(0, columns - 1, row: rowNumber)
+            emit([Cell.text(table.legend, style: .subtitle)], sizing: [])
+        }
 
         let lastColumn = columnName(columns - 1)
         let mergeBlock = merges.isEmpty
@@ -245,7 +271,74 @@ enum XLSXWriter {
         \(footer(title: table.title, language: table.language))\
         </worksheet>
         """
-        return (xml, headerRow)
+        return (xml, firstHeaderRow...headerRow)
+    }
+
+    /// The two heading rows of a grouped table.
+    ///
+    /// A column alone in its group — the day, the note — is headed once, in
+    /// the top row, and merged down through the second; the covered cells are
+    /// still written, empty, so the fill and the rule under the headings run
+    /// unbroken across the merge.
+    private static func groupHeaderCells(for table: ReportTable) -> (top: [Cell], bottom: [Cell]) {
+        let headings = table.columnHeadings()
+        var top: [Cell] = []
+        var bottom: [Cell] = []
+        for (group, range) in zip(table.validGroups, table.groupRanges) {
+            for index in range {
+                if index == range.lowerBound {
+                    top.append(.text(group.title, style: range.count > 1 ? .groupHeader : .groupHeaderLeft))
+                } else {
+                    top.append(.blank(style: .groupHeader))
+                }
+                if range.count > 1 {
+                    let numeric = table.columns[index].isNumeric
+                    bottom.append(.text(headings[index], style: numeric ? .subHeaderRight : .subHeader))
+                } else {
+                    bottom.append(.blank(style: .subHeader))
+                }
+            }
+        }
+        return (top, bottom)
+    }
+
+    /// One row's cells, styled by what the row and each column are for.
+    ///
+    /// A total's figures are SUM formulas over the days above them, so
+    /// correcting a Tuesday corrects the total; the cached value beside each
+    /// formula is what a reader that does not calculate shows.
+    private static func cells(for reportRow: ReportRow, in table: ReportTable, dataRows: ClosedRange<Int>) -> [Cell] {
+        // The PDF greys a day the schedule expects nothing of, and that
+        // carries more than a wash on every other row did: a weekend and a
+        // Wednesday stop looking alike, which is the mistake the banding
+        // was there to prevent in the first place.
+        let rest = !reportRow.isWorkingDay
+        return reportRow.values.enumerated().map { index, value -> Cell in
+            let minutes = index < reportRow.minutes.count ? reportRow.minutes[index] : nil
+            let column = index < table.columns.count ? table.columns[index] : .note
+            let flagged = reportRow.flagged.contains(index)
+            switch reportRow.role {
+            case .total:
+                guard let minutes else { return .text(value, style: .totalLabel) }
+                let letter = columnName(index)
+                return .formula(
+                    "SUM(\(letter)\(dataRows.lowerBound):\(letter)\(dataRows.upperBound))",
+                    cached: dayFraction(minutes: minutes),
+                    style: .groupTotal
+                )
+            case .count:
+                if let count = Int(value) { return .number(Double(count), style: .mutedCount) }
+                return .text(value, style: .summaryLabel)
+            case .day:
+                if let minutes {
+                    let style: Style = flagged ? .flaggedDuration : .duration(rest: rest)
+                    return .number(dayFraction(minutes: minutes), style: style)
+                }
+                if flagged { return .text(value, style: .flaggedText) }
+                if column == .times { return .text(value, style: .mutedText) }
+                return .text(value, style: .text(rest: rest))
+            }
+        }
     }
 
     private static func figure(for total: ReportTotal) -> Cell {
@@ -306,6 +399,22 @@ enum XLSXWriter {
         case plain = 13
         case totalLabel = 14
         case totalDuration = 15
+        /// A person's name across their pair of columns.
+        case groupHeader = 16
+        /// A column heading alone in its group, merged down two rows.
+        case groupHeaderLeft = 17
+        /// The second heading row: what each column of a pair holds.
+        case subHeader = 18
+        case subHeaderRight = 19
+        /// Times beside the hours they produced, quieter than the hours.
+        case mutedText = 20
+        /// Someone who came late or left early, in dark orange: the PDF's
+        /// orange is too light to read as text on white.
+        case flaggedText = 21
+        case flaggedDuration = 22
+        /// A month total, on a faint green so it reads as the answer.
+        case groupTotal = 23
+        case mutedCount = 24
 
         static func text(rest: Bool) -> Style { rest ? .restText : .normal }
         static func duration(rest: Bool) -> Style { rest ? .restDuration : .duration }
@@ -356,16 +465,19 @@ enum XLSXWriter {
         /// Holds a position in the row without writing a cell, so a merged
         /// span or an overflow is not blocked by an empty one.
         case gap
+        /// An empty cell that still carries a style: the covered part of a
+        /// merged heading, so its fill and border are drawn.
+        case blank(style: Style)
 
         /// The characters this cell will try to show, for sizing the column.
         var width: Int {
             switch self {
             case let .text(value, _): return value.count
             case let .formula(_, cached, style): return Cell.number(cached, style: style).width
-            case .gap: return 0
+            case .gap, .blank: return 0
             case let .number(value, style):
                 switch style {
-                case .count, .summaryCount:
+                case .count, .summaryCount, .mutedCount:
                     return String(Int(value.magnitude)).count
                 default:
                     // A duration is shown through the mask rather than as
@@ -392,6 +504,8 @@ enum XLSXWriter {
             switch cell {
             case .gap:
                 continue
+            case let .blank(style):
+                xml += "<c r=\"\(reference)\" s=\"\(style.rawValue)\"/>"
             case let .text(value, style):
                 xml += "<c r=\"\(reference)\" t=\"inlineStr\" s=\"\(style.rawValue)\"><is><t xml:space=\"preserve\">\(escape(value))</t></is></c>"
             case let .number(value, style):
@@ -468,15 +582,17 @@ enum XLSXWriter {
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>
     """
 
-    private static func workbook(sheetName: String, headerRow: Int) -> String {
+    private static func workbook(sheetName: String, headerRows: ClosedRange<Int>) -> String {
         let name = escape(String(sheetName.prefix(31)))
+        let first = headerRows.lowerBound
+        let last = headerRows.upperBound
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr date1904="1"/><sheets><sheet name="\(name)" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm.Print_Titles" localSheetId="0">\'\(name)\'!$\(headerRow):$\(headerRow)</definedName></definedNames></workbook>
+        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr date1904="1"/><sheets><sheet name="\(name)" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm.Print_Titles" localSheetId="0">\'\(name)\'!$\(first):$\(last)</definedName></definedNames></workbook>
         """
     }
 
-    /// Sixteen cell formats, in the order `Style` indexes them.
+    /// Twenty-five cell formats, in the order `Style` indexes them.
     ///
     /// Durations are stored as a fraction of a day and shown through a mask,
     /// which is the only way a cell can read "9h 45m" and still be added up:
@@ -512,6 +628,6 @@ enum XLSXWriter {
 
     private static let styles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="[&lt;0][h]&quot;h&quot; mm&quot;m&quot;;[&lt;0.0416666][m]&quot;m&quot;;[h]&quot;h&quot; mm&quot;m&quot;"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="8"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="4"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF9A9AA2"/></top><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="16"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="[&lt;0][h]&quot;h&quot; mm&quot;m&quot;;[&lt;0.0416666][m]&quot;m&quot;;[h]&quot;h&quot; mm&quot;m&quot;"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="9"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FFC55A00"/><name val="Calibri"/></font></fonts><fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF4E5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEEF6F0"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="5"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF9A9AA2"/></top><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="medium"><color rgb="FF1C1C1E"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="25"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="0" fontId="8" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="8" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="5" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="165" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """
 }
