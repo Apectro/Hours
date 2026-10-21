@@ -46,7 +46,7 @@ struct CalendarScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                PeriodDataProvider(range: layout.coveredRange) { data in
+                PeriodDataProvider(range: fetchedRange) { data in
                     CalendarPeriodView(
                         layout: layout,
                         summaryRange: summaryRange,
@@ -113,6 +113,18 @@ struct CalendarScreen: View {
         case .month: return anchorDate.yearMonth.range(in: calendar)
         case .week: return CalendarDateRange.week(containing: anchorDate, in: calendar)
         }
+    }
+
+    /// The grid's days, and the whole weeks around the summary's: earnings
+    /// count overtime from the first day of a week, which a month that starts
+    /// on a Thursday does not show.
+    private var fetchedRange: CalendarDateRange {
+        let covered = layout.coveredRange
+        let weeks = CalendarDateRange(
+            start: CalendarDateRange.week(containing: summaryRange.start, in: calendar).start,
+            end: CalendarDateRange.week(containing: summaryRange.end, in: calendar).end
+        )
+        return CalendarDateRange(start: min(covered.start, weeks.start), end: max(covered.end, weeks.end))
     }
 
     private var title: String {
@@ -296,6 +308,9 @@ private struct CalendarPeriodView: View {
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
+    /// What the period earned through today, while earnings are the main
+    /// figure.
+    private let earnings: EarningsSummary?
     private let selectedComputation: DayComputation
     private let weekDays: [DayComputation]
 
@@ -342,6 +357,9 @@ private struct CalendarPeriodView: View {
             range: summaryRange,
             countingThrough: today
         )
+        self.earnings = settings.showsEarnings
+            ? engine.earnings(in: summaryRange, records: data.records, holidays: data.holidays, countingThrough: today)
+            : nil
         self.selectedComputation = byKey[selectedDate.key] ?? DayComputation.empty(on: selectedDate)
         self.weekDays = scope == .week
             ? resolved.filter { summaryRange.contains($0.date) }
@@ -365,7 +383,8 @@ private struct CalendarPeriodView: View {
                 PeriodSummaryBar(
                     summary: summary,
                     settings: settings,
-                    catalog: settings.dayTypeCatalog
+                    catalog: settings.dayTypeCatalog,
+                    earnings: earnings
                 )
             }
 

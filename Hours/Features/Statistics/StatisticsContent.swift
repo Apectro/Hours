@@ -11,6 +11,8 @@ struct StatisticsContent: View {
     private let engine: PeriodEngine
     private let days: [DayComputation]
     private let summary: PeriodSummary
+    /// Nil while no job has a rate.
+    private let earnings: EarningsSummary?
     private var duration: DurationFormatting { settings.displayFormatting }
 
     init(
@@ -37,11 +39,31 @@ struct StatisticsContent: View {
         )
         self.days = resolved.days
         self.summary = resolved.summary
+        // Through today, and only from whole weeks, which the screen fetches.
+        self.earnings = engine.earnings(
+            in: range,
+            records: data.records,
+            holidays: data.holidays,
+            countingThrough: CalendarDate.today(in: calendar)
+        )
     }
 
     var body: some View {
         VStack(spacing: Metrics.large) {
             headline
+
+            if let earnings {
+                if !summary.isEmpty || earnings.totalCents > 0 {
+                    EarningsCard(
+                        earnings: earnings,
+                        money: settings.money,
+                        formatting: formatting,
+                        showsMonths: scope == .year
+                    )
+                }
+            } else {
+                EarningsHint(jobID: settings.primaryJob.id)
+            }
 
             if summary.isEmpty && summary.expectedMinutes == 0 {
                 ContentUnavailableView(

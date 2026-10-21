@@ -14,6 +14,8 @@ struct DayEditorForm: View {
     var siteNames: [UUID: String] = [:]
     /// Opens a site shift's day on its site, where it is changed.
     var onOpenSite: ((UUID) -> Void)? = nil
+    /// What the day earns, when earnings are the main figure.
+    var earnings: DayEarnings? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
@@ -37,7 +39,7 @@ struct DayEditorForm: View {
 
     private var summarySection: some View {
         Section {
-            DayResultHeader(computation: computation, settings: settings)
+            DayResultHeader(computation: computation, settings: settings, earnings: earnings)
                 .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large, bottom: Metrics.medium, trailing: Metrics.large))
         }
     }

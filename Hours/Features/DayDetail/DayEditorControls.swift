@@ -5,6 +5,8 @@ import SwiftUI
 struct DayResultHeader: View {
     let computation: DayComputation
     let settings: AppSettings
+    /// Small, under the hours: the hours are what is being edited.
+    var earnings: DayEarnings? = nil
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
@@ -40,6 +42,19 @@ struct DayResultHeader: View {
                 )
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+            }
+
+            if let earnings, earnings.totalCents > 0 {
+                Label(
+                    String(
+                        localized: "\(settings.money.string(earnings.totalCents)) earned",
+                        comment: "Day editor, what the day earns; the value is an amount of money"
+                    ),
+                    systemImage: "banknote"
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("day-earnings")
             }
 
             ForEach(computation.warnings.filter(\.isProblem)) { warning in
