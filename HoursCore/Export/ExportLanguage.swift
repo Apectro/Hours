@@ -317,6 +317,53 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                 + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
         )
 
+        // The same legend for a site whose job pays its breaks, and for a
+        // month that has days of both kinds (the site moved jobs mid-month).
+        case .siteLegendPaidBreaks: return pick(
+            en: "Each person: on site – off site, then hours worked, paid break included. Orange = came late or "
+                + "left early. — = not on this site that day.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden, bezahlte Pause inbegriffen. Orange = später "
+                + "gekommen oder früher gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati, plaćena pauza uključena. Narančasto = došao "
+                + "kasnije ili otišao ranije. — = taj dan nije bio na ovom gradilištu.",
+            sl: "Za vsako osebo: prihod – odhod, nato delovne ure, plačan odmor vključen. Oranžno = prišel pozneje "
+                + "ali odšel prej. — = ta dan ni bil na tem gradbišču.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate, pausa retribuita inclusa. Arancione = "
+                + "arrivato tardi o uscito prima. — = quel giorno non era in questo cantiere.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées, pause payée comprise. "
+                + "Orange = arrivé en retard ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
+            es: "Para cada persona: llegada – salida y después las horas trabajadas, pausa pagada incluida. "
+                + "Naranja = llegó tarde o se fue antes. — = no estuvo en esta obra ese día.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas, pausa paga incluída. Laranja = "
+                + "chegou mais tarde ou saiu mais cedo. — = não esteve nesta obra nesse dia.",
+            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren, betaalde pauze inbegrepen. Oranje = "
+                + "later gekomen of eerder vertrokken. — = die dag niet op deze bouwplaats.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny, z płatną przerwą. "
+                + "Pomarańczowy = przyszedł później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+        )
+        case .siteLegendMixedBreaks: return pick(
+            en: "Each person: on site – off site, then hours worked. Orange = came late or left early. "
+                + "— = not on this site that day.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden. Orange = später gekommen oder früher "
+                + "gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati. Narančasto = došao kasnije ili otišao ranije. "
+                + "— = taj dan nije bio na ovom gradilištu.",
+            sl: "Za vsako osebo: prihod – odhod, nato delovne ure. Oranžno = prišel pozneje ali odšel prej. "
+                + "— = ta dan ni bil na tem gradbišču.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate. Arancione = arrivato tardi o uscito prima. "
+                + "— = quel giorno non era in questo cantiere.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées. Orange = arrivé en retard "
+                + "ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
+            es: "Para cada persona: llegada – salida y después las horas trabajadas. Naranja = llegó tarde o se "
+                + "fue antes. — = no estuvo en esta obra ese día.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas. Laranja = chegou mais tarde ou "
+                + "saiu mais cedo. — = não esteve nesta obra nesse dia.",
+            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren. Oranje = later gekomen of eerder "
+                + "vertrokken. — = die dag niet op deze bouwplaats.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny. Pomarańczowy = przyszedł "
+                + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+        )
+
         // The printed page around the table
         case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
                                           sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
@@ -409,6 +456,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
 
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
+    case siteLegendPaidBreaks, siteLegendMixedBreaks
 
     /// The printed page around the table.
     case timesheet, employeeSignature, employerSignature, checkedSignature, of

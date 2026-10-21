@@ -50,9 +50,15 @@ struct SiteDayCalculator: Sendable {
         let end = resolved?.end
         let breakMinutes = resolved?.breakMinutes ?? day.breakMinutes
 
+        // The day's job decides whether the break is paid, for everyone on
+        // it: the crew work for the same employer on that site as you do.
+        // `SiteDay.jobID` is the site's job frozen when the day was written,
+        // so no job here means the site had none, and the primary job's rule
+        // applies — the same resolution your own calendar shift gets from
+        // `SiteCalendarSync`, which is what keeps the two in agreement.
         let record = DayRecord(
             date: day.date,
-            shifts: [Shift(start: start, end: end, breaks: [.duration(breakMinutes)])]
+            shifts: [Shift(start: start, end: end, breaks: [.duration(breakMinutes)], jobID: day.jobID)]
         )
         let definition = settings.dayTypeCatalog.definition(for: .work)
         var warnings: [DayWarning] = []

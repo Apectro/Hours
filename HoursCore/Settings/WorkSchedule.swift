@@ -115,13 +115,19 @@ struct WorkSchedule: Hashable, Codable, Sendable {
         storedMinutesByWeekday.filter { $0 > 0 }.count
     }
 
-    /// The default shift length implied by the default start/end/break, used to
-    /// pre-fill a new day.
-    var defaultShiftMinutes: Int {
+    /// What a day with the default start, end and break comes to, used to
+    /// say what a new day will be pre-filled with.
+    ///
+    /// The schedule cannot know whether its break is paid, because that is a
+    /// property of the job it belongs to, so the caller says. Taking it as an
+    /// argument rather than defaulting it is deliberate: a default would be
+    /// the unpaid answer, and the footer showing it was exactly the place
+    /// that said 8h 30m to someone paid for nine.
+    func defaultShiftMinutes(breaksArePaid: Bool) -> Int {
         let raw = defaultEnd.minutes >= defaultStart.minutes
             ? defaultEnd.minutes - defaultStart.minutes
             : defaultEnd.minutes + TimeOfDay.minutesPerDay - defaultStart.minutes
-        return max(0, raw - defaultBreakMinutes)
+        return breaksArePaid ? raw : max(0, raw - defaultBreakMinutes)
     }
 }
 

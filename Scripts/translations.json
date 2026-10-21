@@ -3730,6 +3730,28 @@
       "Meerdere pauzes per dag",
       "Kilka przerw dziennie"
     ],
+    "Breaks are paid": [
+      "Pausen werden bezahlt",
+      "Pauze su plaćene",
+      "Odmori so plačani",
+      "Le pause sono retribuite",
+      "Pauses rémunérées",
+      "Los descansos se pagan",
+      "As pausas são pagas",
+      "Pauzes worden betaald",
+      "Przerwy są płatne"
+    ],
+    "Your break still gets written down, but it counts as worked time. Turn this on if your employer pays your breaks.": [
+      "Deine Pause wird weiterhin erfasst, zählt aber als Arbeitszeit. Schalte das ein, wenn dein Arbeitgeber deine Pausen bezahlt.",
+      "Pauza se i dalje bilježi, ali se računa kao radno vrijeme. Uključi ovo ako ti poslodavac plaća pauze.",
+      "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore.",
+      "La pausa viene comunque registrata, ma conta come tempo di lavoro. Attivalo se il tuo datore di lavoro ti paga le pause.",
+      "Votre pause reste enregistrée, mais elle compte comme temps de travail. Activez ceci si votre employeur rémunère vos pauses.",
+      "Tu descanso se sigue anotando, pero cuenta como tiempo trabajado. Actívalo si tu empresa te paga los descansos.",
+      "A tua pausa continua a ser registada, mas conta como tempo de trabalho. Ativa isto se o teu empregador te paga as pausas.",
+      "Je pauze wordt nog steeds vastgelegd, maar telt als gewerkte tijd. Zet dit aan als je werkgever je pauzes betaalt.",
+      "Przerwa nadal jest zapisywana, ale liczy się jako czas pracy. Włącz to, jeśli pracodawca płaci ci za przerwy."
+    ],
     "Share %@": [
       "%@ teilen",
       "Podijeli %@",

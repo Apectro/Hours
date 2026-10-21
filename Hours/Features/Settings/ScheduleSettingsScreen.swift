@@ -19,8 +19,16 @@ struct ScheduleSettingsScreen: View {
                 schedule: primarySchedule,
                 calendar: settingsStore.workCalendar,
                 tracksBreaks: settings.features.trackBreaks,
+                breaksArePaid: settings.primaryJob.breaksArePaid,
                 durationFormatting: settings.displayFormatting
             )
+
+            // Also on the job's own editor. Here too because this is where
+            // someone with one job looks after their hours, and the footer
+            // above, which the switch changes, is on this screen.
+            if settings.features.trackBreaks {
+                PaidBreaksSection(breaksArePaid: primaryBreaksArePaid)
+            }
 
             if settings.tracksMultipleJobs {
                 Section {
@@ -47,6 +55,14 @@ struct ScheduleSettingsScreen: View {
         Binding(
             get: { settingsStore.settings.primarySchedule },
             set: { newValue in settingsStore.update { $0.setPrimarySchedule(newValue) } }
+        )
+    }
+
+    /// The same, for the primary job's break rule.
+    private var primaryBreaksArePaid: Binding<Bool> {
+        Binding(
+            get: { settingsStore.settings.primaryJob.breaksArePaid },
+            set: { newValue in settingsStore.update { $0.setPrimaryBreaksArePaid(newValue) } }
         )
     }
 }
