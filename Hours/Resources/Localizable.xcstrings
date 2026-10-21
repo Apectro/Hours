@@ -4781,6 +4781,65 @@
         }
       }
     },
+    "Breaks are paid": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausen werden bezahlt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los descansos se pagan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauses rémunérées"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauze su plaćene"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le pause sono retribuite"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauzes worden betaald"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przerwy są płatne"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As pausas são pagas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odmori so plačani"
+          }
+        }
+      }
+    },
     "Buying Zeitkonto Pro": {
       "extractionState": "manual",
       "localizations": {
@@ -28879,6 +28938,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ura je že tekla od %@."
+          }
+        }
+      }
+    },
+    "Your break still gets written down, but it counts as worked time. Turn this on if your employer pays your breaks.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Pause wird weiterhin erfasst, zählt aber als Arbeitszeit. Schalte das ein, wenn dein Arbeitgeber deine Pausen bezahlt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu descanso se sigue anotando, pero cuenta como tiempo trabajado. Actívalo si tu empresa te paga los descansos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre pause reste enregistrée, mais elle compte comme temps de travail. Activez ceci si votre employeur rémunère vos pauses."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauza se i dalje bilježi, ali se računa kao radno vrijeme. Uključi ovo ako ti poslodavac plaća pauze."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pausa viene comunque registrata, ma conta come tempo di lavoro. Attivalo se il tuo datore di lavoro ti paga le pause."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je pauze wordt nog steeds vastgelegd, maar telt als gewerkte tijd. Zet dit aan als je werkgever je pauzes betaalt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przerwa nadal jest zapisywana, ale liczy się jako czas pracy. Włącz to, jeśli pracodawca płaci ci za przerwy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua pausa continua a ser registada, mas conta como tempo de trabalho. Ativa isto se o teu empregador te paga as pausas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore."
           }
         }
       }

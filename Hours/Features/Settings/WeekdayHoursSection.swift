@@ -131,3 +131,22 @@ struct ShiftDefaultsSection: View {
         schedule.defaultShiftMinutes(breaksArePaid: breaksArePaid || !tracksBreaks)
     }
 }
+
+/// Whether a job's employer pays for its breaks.
+///
+/// Its own section rather than a row under the defaults, because it changes
+/// every day recorded against the job, not only how a new one is pre-filled.
+/// Callers show it only while breaks are tracked: with breaks off nothing is
+/// ever taken off, so the switch would do nothing.
+struct PaidBreaksSection: View {
+    @Binding var breaksArePaid: Bool
+
+    var body: some View {
+        Section {
+            Toggle("Breaks are paid", isOn: $breaksArePaid)
+                .accessibilityIdentifier("breaks-are-paid")
+        } footer: {
+            Text("Your break still gets written down, but it counts as worked time. Turn this on if your employer pays your breaks.")
+        }
+    }
+}

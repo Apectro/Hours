@@ -130,8 +130,16 @@ struct JobEditor: View {
                     schedule: $draft.schedule,
                     calendar: settingsStore.workCalendar,
                     tracksBreaks: settingsStore.settings.features.trackBreaks,
+                    breaksArePaid: draft.breaksArePaid,
                     durationFormatting: settingsStore.settings.displayFormatting
                 )
+
+                // Never behind the paywall: it changes how hours already
+                // recorded add up, and those are the person's whether or not
+                // they pay. Only a second job is sold.
+                if settingsStore.settings.features.trackBreaks {
+                    PaidBreaksSection(breaksArePaid: $draft.breaksArePaid)
+                }
 
                 if !isNew {
                     Section {
@@ -177,8 +185,10 @@ struct JobEditor: View {
             if isNew {
                 settings.addJob(job)
             } else if job.isPrimary && settings.jobs.isEmpty {
-                // Still the single-job case: the schedule lives at the top level.
+                // Still the single-job case: the schedule and the break rule
+                // live at the top level.
                 settings.setPrimarySchedule(job.schedule)
+                settings.setPrimaryBreaksArePaid(job.breaksArePaid)
             } else {
                 settings.updateJob(id: job.id) { $0 = job }
             }
