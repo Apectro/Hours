@@ -162,6 +162,27 @@ enum WidgetSnapshotBuilder {
             }
     }
 
+    // MARK: - Earnings
+
+    /// The widgets' earnings, from the summaries the engine already made for
+    /// the month and the week through today. Nil unless earnings are what the
+    /// app leads with, so a widget never shows money the app does not.
+    static func earnings(
+        month: EarningsSummary?,
+        week: EarningsSummary?,
+        today: CalendarDate,
+        settings: AppSettings,
+        currencyCode: String
+    ) -> WidgetEarnings? {
+        guard settings.showsEarnings, let month else { return nil }
+        return WidgetEarnings(
+            currencyCode: currencyCode,
+            todayCents: month.days.first { $0.date == today }?.totalCents ?? 0,
+            weekCents: week?.totalCents ?? 0,
+            monthCents: month.totalCents
+        )
+    }
+
     // MARK: - The clock
 
     /// The site a running clock belongs to, when there is no doubt about it.
