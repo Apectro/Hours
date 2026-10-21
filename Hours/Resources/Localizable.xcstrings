@@ -10977,6 +10977,65 @@
         }
       }
     },
+    "Everyone ticked on this day gets these times, except people whose own times you changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle, die an diesem Tag abgehakt sind, bekommen diese Zeiten – außer denen, deren eigene Zeiten du geändert hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los marcados este día reciben este horario, salvo quienes tienen un horario propio que cambiaste."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les personnes cochées ce jour-là reçoivent ces horaires, sauf celles dont vous avez modifié les horaires."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svi označeni na ovaj dan dobivaju ova vremena, osim onih kojima si promijenio vlastito vrijeme."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti quelli spuntati in questo giorno ricevono questi orari, tranne chi ha orari propri che hai cambiato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iedereen die op deze dag is aangevinkt krijgt deze tijden, behalve wie je eigen tijden hebt gegeven."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszyscy zaznaczeni tego dnia dostają te godziny, oprócz osób, którym zmieniłeś własne godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os marcados neste dia ficam com este horário, exceto quem tem um horário próprio que alteraste."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsi, označeni na ta dan, dobijo te čase, razen tistih, ki si jim spremenil lastni čas."
+          }
+        }
+      }
+    },
     "Everything recorded through %@.": {
       "extractionState": "manual",
       "localizations": {
@@ -22237,6 +22296,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Čas na gradbišču (vsi)"
+          }
+        }
+      }
+    },
+    "Site times · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellenzeiten · %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horario de la obra · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horaires du chantier · %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrijeme gradilišta · %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orari del cantiere · %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tijden bouwplaats · %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny budowy · %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horário da obra · %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čas gradbišča · %@"
           }
         }
       }

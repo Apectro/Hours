@@ -5302,6 +5302,28 @@
       "Não registado",
       "Niet ingevuld",
       "Niewpisane"
+    ],
+    "Site times · %@": [
+      "Baustellenzeiten · %@",
+      "Vrijeme gradilišta · %@",
+      "Čas gradbišča · %@",
+      "Orari del cantiere · %@",
+      "Horaires du chantier · %@",
+      "Horario de la obra · %@",
+      "Horário da obra · %@",
+      "Tijden bouwplaats · %@",
+      "Godziny budowy · %@"
+    ],
+    "Everyone ticked on this day gets these times, except people whose own times you changed.": [
+      "Alle, die an diesem Tag abgehakt sind, bekommen diese Zeiten – außer denen, deren eigene Zeiten du geändert hast.",
+      "Svi označeni na ovaj dan dobivaju ova vremena, osim onih kojima si promijenio vlastito vrijeme.",
+      "Vsi, označeni na ta dan, dobijo te čase, razen tistih, ki si jim spremenil lastni čas.",
+      "Tutti quelli spuntati in questo giorno ricevono questi orari, tranne chi ha orari propri che hai cambiato.",
+      "Toutes les personnes cochées ce jour-là reçoivent ces horaires, sauf celles dont vous avez modifié les horaires.",
+      "Todos los marcados este día reciben este horario, salvo quienes tienen un horario propio que cambiaste.",
+      "Todos os marcados neste dia ficam com este horário, exceto quem tem um horário próprio que alteraste.",
+      "Iedereen die op deze dag is aangevinkt krijgt deze tijden, behalve wie je eigen tijden hebt gegeven.",
+      "Wszyscy zaznaczeni tego dnia dostają te godziny, oprócz osób, którym zmieniłeś własne godziny."
     ]
   },
   "sameAsEnglishOnPurpose": [
