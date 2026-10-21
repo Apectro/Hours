@@ -21,6 +21,13 @@ on:
         description: "Record a video of the app being used"
         type: boolean
         default: false
+      # The listing needs one size in English. The second size and German are
+      # for the website, and on a slow runner they are what pushed the job
+      # past its limit before the store set was saved.
+      extra_screenshots:
+        description: "Also take the second-size and German screenshots"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -323,8 +330,8 @@ jobs:
     runs-on: macos-latest
     # The suite has grown to 25–29 minutes on a clean run; at 30 a single
     # slow simulator start or failing test was cut off before it could say
-    # which test failed.
-    timeout-minutes: 40
+    # which test failed. 50 since a slow runner took 20 for the suite alone.
+    timeout-minutes: 50
 
     steps:
       - uses: actions/checkout@v4
@@ -449,7 +456,7 @@ jobs:
       # suite is not paid for twice — the rest of it has already run above and
       # does not depend on the screen.
       - name: Screenshots at the second size
-        if: always() && steps.sim.outputs.second_udid != ''
+        if: always() && steps.sim.outputs.second_udid != '' && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
         continue-on-error: true
         run: |
           set -o pipefail
@@ -473,7 +480,7 @@ jobs:
       # finds everything by accessibility identifier — a suite that waits for
       # buttons["Calendar"] passes in English and hangs here.
       - name: Screenshots in German
-        if: always()
+        if: always() && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
         continue-on-error: true
         run: |
           set -o pipefail
