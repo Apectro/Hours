@@ -60,7 +60,7 @@ enum BulkEditor {
 
         for date in request.range.days(in: calendar) {
             let weekday = date.weekday(in: calendar)
-            let contracted = settings.contractedMinutes(forWeekday: weekday)
+            let contracted = settings.contractedMinutes(on: date, calendar: calendar)
 
             if request.skipsNonWorkingDays && contracted == 0 {
                 skippedNonWorking += 1
@@ -109,7 +109,7 @@ enum BulkEditor {
                 }
                 var record = current ?? DayRecord(date: date)
                 record.dayTypeID = nil
-                record.shifts = [defaultShift(for: settings)]
+                record.shifts = [defaultShift(for: settings, on: date)]
                 changes.append(record)
             }
         }
@@ -122,8 +122,9 @@ enum BulkEditor {
         )
     }
 
-    private static func defaultShift(for settings: AppSettings) -> Shift {
-        let schedule = settings.primarySchedule
+    /// The default shift of the week in force on `date`.
+    private static func defaultShift(for settings: AppSettings, on date: CalendarDate) -> Shift {
+        let schedule = settings.primarySchedule(on: date)
         return Shift(
             start: schedule.defaultStart,
             end: schedule.defaultEnd,

@@ -15,6 +15,9 @@ struct WorkdayCalculator: Sendable {
     /// time it is asked.
     private let paidBreaksByJob: [UUID: Bool]
     private let primaryPaysBreaks: Bool
+    /// The jobs that expect hours, resolved once for the same reason: every
+    /// day asks them for the week in force on its date.
+    private let activeJobs: [Job]
 
     init(settings: AppSettings, calendar: Calendar) {
         self.settings = settings
@@ -25,6 +28,7 @@ struct WorkdayCalculator: Sendable {
             uniquingKeysWith: { first, _ in first }
         )
         self.primaryPaysBreaks = settings.primaryJob.breaksArePaid
+        self.activeJobs = settings.activeJobs
     }
 
     // MARK: - Entry point
@@ -106,9 +110,8 @@ struct WorkdayCalculator: Sendable {
     /// schedule, then an ordinary working day.
     func resolveDayTypeID(record: DayRecord?, date: CalendarDate, holiday: HolidayRule?) -> DayTypeID {
         if let explicit = record?.dayTypeID { return explicit }
-        let weekday = date.weekday(in: calendar)
         // Summed across jobs: a day is a working day if any job expects hours.
-        let contracted = settings.contractedMinutes(forWeekday: weekday)
+        let contracted = contractedMinutes(on: date)
         if let holiday {
             // A "working holiday" is still an ordinary day for the arithmetic;
             // only its name is carried through to the calendar and reports.
@@ -139,8 +142,16 @@ struct WorkdayCalculator: Sendable {
             // for someone taking a day off, and the wrong one for someone off
             // from one job and working another — who should record the day as
             // worked and set the leave with a per-day expected override.
-            return settings.contractedMinutes(forWeekday: date.weekday(in: calendar))
+            return contractedMinutes(on: date)
         }
+    }
+
+    /// What every active job expects of `date`, each from the week it had in
+    /// force that day — `AppSettings.contractedMinutes(on:calendar:)`, with
+    /// the jobs already resolved.
+    private func contractedMinutes(on date: CalendarDate) -> Int {
+        let weekday = date.weekday(in: calendar)
+        return activeJobs.reduce(0) { $0 + $1.schedule(on: date).expectedMinutes(forWeekday: weekday) }
     }
 
     // MARK: - Shift arithmetic

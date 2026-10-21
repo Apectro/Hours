@@ -137,8 +137,8 @@ struct SiteDayScreen: View {
             case .siteTimes:
                 SiteTimesSheet(
                     day: day,
-                    defaultStart: settings.primarySchedule.defaultStart,
-                    defaultEnd: settings.primarySchedule.defaultEnd,
+                    defaultStart: settings.primarySchedule(on: day.date).defaultStart,
+                    defaultEnd: settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: commit
                 )
             }

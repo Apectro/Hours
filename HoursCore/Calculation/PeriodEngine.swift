@@ -155,7 +155,7 @@ struct PeriodEngine: Sendable {
                 // `expectedMinutes`, not the raw per-day figure: a weekly
                 // override is the contract, and the day's own expectation —
                 // the month total beside this card — is built from it.
-                let contracted = job.schedule.expectedMinutes(forWeekday: weekday)
+                let contracted = job.schedule(on: day.date).expectedMinutes(forWeekday: weekday)
                 switch day.dayType.expectation {
                 case .zero:
                     continue
@@ -182,7 +182,9 @@ struct PeriodEngine: Sendable {
     /// The record a brand-new day should start from, pre-filled from the
     /// schedule so the common case is "open, glance, save".
     func draftRecord(for date: CalendarDate, holidays: [HolidayRule]) -> DayRecord {
-        let schedule = settings.primaryJob.schedule
+        // The week in force on that day, not today's: a day in October is
+        // pre-filled with October's hours after a change in November.
+        let schedule = settings.primarySchedule(on: date)
         let resolver = HolidayResolver(
             rules: holidays,
             calendar: calendar,

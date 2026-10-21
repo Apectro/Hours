@@ -108,7 +108,7 @@ change — it is only not taken off. The rule is the job's because employers
 differ, and it is decided per shift because one day can hold two of them. A
 shift with no job, or a job since deleted, follows the primary job; an
 archived job keeps its rule for its history. While there is only one job its
-rule lives beside the top-level `schedule`, as `primaryBreaksArePaid`.
+rule lives beside the top-level `schedules`, as `primaryBreaksArePaid`.
 
 Nothing else subtracts a break. The day editor's preview, the time clock, bulk
 edits, site days and every total read worked minutes from that one place, so
@@ -142,9 +142,33 @@ was written. The engine the day editor uses resolves one day at a time and is
 not told, because a single day's figures do not depend on where the balance
 starts.
 
-Day type precedence when nothing is set explicitly: holiday rule → weekly
-schedule (0 contracted hours means weekend) → ordinary working day. An explicit
-choice on the day always wins.
+**A schedule changes from a date onward.** A contract that becomes a
+four-day week in November must not rewrite October, which was worked — and
+perhaps handed in — under the old one. So each job's week, and the top-level
+`schedules` of the one-job case, is a `ScheduleHistory`: versions of
+`WorkSchedule`, each with the day it took effect, the first one "since
+always". Everything that reads a schedule for a date reads the version in
+force on that date — the latest that had started — through
+`schedule(on:)`: expected hours and the day type in `WorkdayCalculator`, each
+job's share in `jobTotals`, a new day's pre-filled times, a bulk fill, the
+widget's "off at". A weekly override belongs to its version. What is not about
+a date — the summary row in Settings, the week the editor opens on — uses
+today's version. Saving a changed week asks when it starts: from today, from
+a date (which replaces any version starting on or after it), or "it was
+always like this", which is the old behaviour and leaves a single version.
+The dialog names any closed month the answer would rewrite, and the screen
+lists the changes so one can be taken back, letting the week before it run on.
+
+Settings written before versions existed have only `schedule`, and read as
+one version since always. Both are written: the history under
+`scheduleVersions`, and the newest week under `schedule`, where an older
+version of the app reads it and applies it to all of history as it always
+did. When the two disagree on reading, an older app edited the week after a
+newer one wrote the list; that edit lands on the newest version.
+
+Day type precedence when nothing is set explicitly: holiday rule → the weekly
+schedule in force that day (0 contracted hours means weekend) → ordinary
+working day. An explicit choice on the day always wins.
 
 ## Holidays
 

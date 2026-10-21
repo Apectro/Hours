@@ -36,13 +36,13 @@ struct PersonTimesSheet: View {
                         title: String(localized: "On site"),
                         time: startBinding,
                         calendar: calendar,
-                        fallback: day.start ?? settings.primarySchedule.defaultStart
+                        fallback: day.start ?? settings.primarySchedule(on: day.date).defaultStart
                     )
                     OptionalTimeRow(
                         title: String(localized: "Off site"),
                         time: endBinding,
                         calendar: calendar,
-                        fallback: day.end ?? settings.primarySchedule.defaultEnd
+                        fallback: day.end ?? settings.primarySchedule(on: day.date).defaultEnd
                     )
                     DurationStepperRow(
                         title: String(localized: "Break"),

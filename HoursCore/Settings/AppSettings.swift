@@ -15,7 +15,9 @@ struct AppSettings: Hashable, Codable, Sendable {
 
     var schemaVersion: Int
     var features: FeatureToggles
-    var schedule: WorkSchedule
+    /// The contracted week while there is one job, and how it changed over
+    /// time. Once there are jobs each carries its own.
+    var schedules: ScheduleHistory
     var calendar: CalendarPreferences
     var export: ExportPreferences
     var appearance: AppearancePreference
@@ -63,6 +65,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         schemaVersion: Int = AppSettings.currentSchemaVersion,
         features: FeatureToggles = FeatureToggles(),
         schedule: WorkSchedule = WorkSchedule(),
+        schedules: ScheduleHistory? = nil,
         calendar: CalendarPreferences = CalendarPreferences(),
         export: ExportPreferences = ExportPreferences(),
         appearance: AppearancePreference = .system,
@@ -81,7 +84,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
-        self.schedule = schedule
+        self.schedules = schedules ?? ScheduleHistory(schedule)
         self.calendar = calendar
         self.export = export
         self.appearance = appearance
@@ -97,6 +100,13 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.carryOver = carryOver
         self.yearCloses = yearCloses
         self.monthLock = monthLock
+    }
+
+    /// The newest week of the single-job schedule. For a date, read
+    /// `primarySchedule(on:)` or a job's `schedule(on:)`.
+    var schedule: WorkSchedule {
+        get { schedules.latest }
+        set { schedules.latest = newValue }
     }
 
     var dayTypeCatalog: DayTypeCatalog { DayTypeCatalog(custom: customDayTypes) }
@@ -151,7 +161,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, features, schedule, calendar, export, appearance
+        case schemaVersion, features, schedule, scheduleVersions, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
         case customDayTypes, jobs, primaryBreaksArePaid, reminders, openingBalanceMinutes, balanceStartDate
         case carryOver, yearCloses, monthLock
@@ -163,7 +173,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.init(
             schemaVersion: container.lenient(.schemaVersion, AppSettings.currentSchemaVersion),
             features: container.lenient(.features, defaults.features),
-            schedule: container.lenient(.schedule, defaults.schedule),
+            schedules: container.scheduleHistory(versionsKey: .scheduleVersions, scheduleKey: .schedule),
             calendar: container.lenient(.calendar, defaults.calendar),
             export: container.lenient(.export, defaults.export),
             appearance: container.lenient(.appearance, defaults.appearance),
@@ -183,5 +193,32 @@ struct AppSettings: Hashable, Codable, Sendable {
             yearCloses: container.lenient(.yearCloses, defaults.yearCloses),
             monthLock: container.lenient(.monthLock, defaults.monthLock)
         )
+    }
+
+    /// Written out by hand only for the schedule, which goes in twice: the
+    /// newest week under `schedule`, where a version of the app from before
+    /// schedules changed over time looks for it, and the whole history under
+    /// `scheduleVersions`. See `Job.encode(to:)`.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(schemaVersion, forKey: .schemaVersion)
+        try container.encode(features, forKey: .features)
+        try container.encode(schedules.latest, forKey: .schedule)
+        try container.encode(schedules, forKey: .scheduleVersions)
+        try container.encode(calendar, forKey: .calendar)
+        try container.encode(export, forKey: .export)
+        try container.encode(appearance, forKey: .appearance)
+        try container.encode(durationPolicy, forKey: .durationPolicy)
+        try container.encode(rounding, forKey: .rounding)
+        try container.encode(displayDurationStyle, forKey: .displayDurationStyle)
+        try container.encode(customDayTypes, forKey: .customDayTypes)
+        try container.encode(jobs, forKey: .jobs)
+        try container.encode(primaryBreaksArePaid, forKey: .primaryBreaksArePaid)
+        try container.encode(reminders, forKey: .reminders)
+        try container.encode(openingBalanceMinutes, forKey: .openingBalanceMinutes)
+        try container.encodeIfPresent(balanceStartDate, forKey: .balanceStartDate)
+        try container.encode(carryOver, forKey: .carryOver)
+        try container.encode(yearCloses, forKey: .yearCloses)
+        try container.encode(monthLock, forKey: .monthLock)
     }
 }

@@ -5819,6 +5819,171 @@
       "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais.",
       "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee.",
       "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
+    ],
+    "When does this change start?": [
+      "Ab wann gilt diese Änderung?",
+      "Od kada vrijedi ova promjena?",
+      "Od kdaj velja ta sprememba?",
+      "Da quando vale questa modifica?",
+      "À partir de quand ce changement s’applique-t-il ?",
+      "¿Desde cuándo se aplica este cambio?",
+      "A partir de quando se aplica esta alteração?",
+      "Vanaf wanneer geldt deze wijziging?",
+      "Od kiedy obowiązuje ta zmiana?"
+    ],
+    "From today": [
+      "Ab heute",
+      "Od danas",
+      "Od danes",
+      "Da oggi",
+      "À partir d’aujourd’hui",
+      "Desde hoy",
+      "A partir de hoje",
+      "Vanaf vandaag",
+      "Od dzisiaj"
+    ],
+    "From a date…": [
+      "Ab einem Datum…",
+      "Od datuma…",
+      "Od datuma…",
+      "Da una data…",
+      "À partir d’une date…",
+      "Desde una fecha…",
+      "A partir de uma data…",
+      "Vanaf een datum…",
+      "Od daty…"
+    ],
+    "From a date": [
+      "Ab einem Datum",
+      "Od datuma",
+      "Od datuma",
+      "Da una data",
+      "À partir d’une date",
+      "Desde una fecha",
+      "A partir de uma data",
+      "Vanaf een datum",
+      "Od daty"
+    ],
+    "It was always like this": [
+      "Das war schon immer so",
+      "Oduvijek je bilo ovako",
+      "Vedno je bilo tako",
+      "È sempre stato così",
+      "Ça a toujours été ainsi",
+      "Siempre fue así",
+      "Sempre foi assim",
+      "Het was altijd al zo",
+      "Zawsze tak było"
+    ],
+    "Starts on": [
+      "Beginnt am",
+      "Počinje",
+      "Začne se",
+      "Inizia il",
+      "Commence le",
+      "Empieza el",
+      "Começa em",
+      "Begint op",
+      "Zaczyna się"
+    ],
+    "Changes": [
+      "Änderungen",
+      "Promjene",
+      "Spremembe",
+      "Modifiche",
+      "Changements",
+      "Cambios",
+      "Alterações",
+      "Wijzigingen",
+      "Zmiany"
+    ],
+    "Days before the change keep the week they had.": [
+      "Tage vor der Änderung behalten ihre bisherige Woche.",
+      "Dani prije promjene zadržavaju tjedan koji su imali.",
+      "Dnevi pred spremembo obdržijo teden, ki so ga imeli.",
+      "I giorni prima della modifica mantengono la settimana che avevano.",
+      "Les jours antérieurs au changement gardent la semaine qu’ils avaient.",
+      "Los días anteriores al cambio conservan la semana que tenían.",
+      "Os dias antes da alteração mantêm a semana que tinham.",
+      "Dagen vóór de wijziging houden de week die ze hadden.",
+      "Dni przed zmianą zachowują dotychczasowy tydzień."
+    ],
+    "“From today” changes closed months: %@.": [
+      "„Ab heute“ ändert abgeschlossene Monate: %@.",
+      "„Od danas” mijenja zatvorene mjesece: %@.",
+      "»Od danes« spremeni zaprte mesece: %@.",
+      "«Da oggi» modifica mesi chiusi: %@.",
+      "« À partir d’aujourd’hui » modifie des mois clôturés : %@.",
+      "«Desde hoy» cambia meses cerrados: %@.",
+      "«A partir de hoje» altera meses fechados: %@.",
+      "‘Vanaf vandaag’ wijzigt afgesloten maanden: %@.",
+      "„Od dzisiaj” zmienia zamknięte miesiące: %@."
+    ],
+    "“It was always like this” changes closed months: %@.": [
+      "„Das war schon immer so“ ändert abgeschlossene Monate: %@.",
+      "„Oduvijek je bilo ovako” mijenja zatvorene mjesece: %@.",
+      "»Vedno je bilo tako« spremeni zaprte mesece: %@.",
+      "«È sempre stato così» modifica mesi chiusi: %@.",
+      "« Ça a toujours été ainsi » modifie des mois clôturés : %@.",
+      "«Siempre fue así» cambia meses cerrados: %@.",
+      "«Sempre foi assim» altera meses fechados: %@.",
+      "‘Het was altijd al zo’ wijzigt afgesloten maanden: %@.",
+      "„Zawsze tak było” zmienia zamknięte miesiące: %@."
+    ],
+    "This changes closed months: %@.": [
+      "Das ändert abgeschlossene Monate: %@.",
+      "Ovo mijenja zatvorene mjesece: %@.",
+      "To spremeni zaprte mesece: %@.",
+      "Questo modifica mesi chiusi: %@.",
+      "Cela modifie des mois clôturés : %@.",
+      "Esto cambia meses cerrados: %@.",
+      "Isto altera meses fechados: %@.",
+      "Dit wijzigt afgesloten maanden: %@.",
+      "To zmienia zamknięte miesiące: %@."
+    ],
+    "The new week applies from this day on. Days before it keep the week they had.": [
+      "Die neue Woche gilt ab diesem Tag. Tage davor behalten ihre bisherige Woche.",
+      "Novi tjedan vrijedi od ovog dana. Dani prije zadržavaju tjedan koji su imali.",
+      "Novi teden velja od tega dne naprej. Dnevi pred njim obdržijo teden, ki so ga imeli.",
+      "La nuova settimana vale da questo giorno in poi. I giorni precedenti mantengono la settimana che avevano.",
+      "La nouvelle semaine s’applique à partir de ce jour. Les jours antérieurs gardent la semaine qu’ils avaient.",
+      "La nueva semana se aplica desde este día. Los días anteriores conservan la semana que tenían.",
+      "A nova semana aplica-se a partir deste dia. Os dias anteriores mantêm a semana que tinham.",
+      "De nieuwe week geldt vanaf deze dag. Dagen ervoor houden de week die ze hadden.",
+      "Nowy tydzień obowiązuje od tego dnia. Dni wcześniejsze zachowują dotychczasowy tydzień."
+    ],
+    "Swipe to remove a change. The week before it then runs on in its place.": [
+      "Wische, um eine Änderung zu entfernen. Die Woche davor gilt dann weiter.",
+      "Povuci da ukloniš promjenu. Tjedan prije nje tada vrijedi i dalje.",
+      "Podrsaj, da odstraniš spremembo. Teden pred njo potem velja še naprej.",
+      "Scorri per rimuovere una modifica. La settimana precedente continua allora a valere.",
+      "Balayez pour retirer un changement. La semaine d’avant s’applique alors à sa place.",
+      "Desliza para quitar un cambio. La semana anterior sigue entonces en su lugar.",
+      "Desliza para remover uma alteração. A semana anterior continua então em vigor.",
+      "Veeg om een wijziging te verwijderen. De week ervoor geldt dan verder.",
+      "Przesuń, aby usunąć zmianę. Tydzień sprzed niej obowiązuje wtedy dalej."
+    ],
+    "Changed on %@ · earlier: %@ a week": [
+      "Geändert am %@ · vorher: %@ pro Woche",
+      "Promijenjeno %@ · prije: %@ tjedno",
+      "Spremenjeno %@ · prej: %@ na teden",
+      "Modificata il %@ · prima: %@ a settimana",
+      "Changé le %@ · avant : %@ par semaine",
+      "Cambiado el %@ · antes: %@ a la semana",
+      "Alterado em %@ · antes: %@ por semana",
+      "Gewijzigd op %@ · eerder: %@ per week",
+      "Zmieniono %@ · wcześniej: %@ tygodniowo"
+    ],
+    "Changes on %@ · until then: %@ a week": [
+      "Ändert sich am %@ · bis dahin: %@ pro Woche",
+      "Mijenja se %@ · do tada: %@ tjedno",
+      "Spremeni se %@ · do takrat: %@ na teden",
+      "Cambia il %@ · fino ad allora: %@ a settimana",
+      "Change le %@ · d’ici là : %@ par semaine",
+      "Cambia el %@ · hasta entonces: %@ a la semana",
+      "Muda em %@ · até lá: %@ por semana",
+      "Wijzigt op %@ · tot dan: %@ per week",
+      "Zmienia się %@ · do tego czasu: %@ tygodniowo"
     ]
   },
   "sameAsEnglishOnPurpose": [

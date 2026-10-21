@@ -182,7 +182,7 @@ enum WidgetSnapshotBuilder {
     /// expected, where "off at 16:30" would be a strange thing to say.
     static func defaultEnd(today: DayComputation?, running: RunningShift?, settings: AppSettings) -> TimeOfDay? {
         guard let today, today.isIncluded, today.isScheduledWorkingDay else { return nil }
-        return settings.job(running?.jobID).schedule.defaultEnd
+        return settings.job(running?.jobID).schedule(on: today.date).defaultEnd
     }
 
     // MARK: - The site
