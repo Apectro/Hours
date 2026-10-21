@@ -1,7 +1,0 @@
-# Cloudflare Pages serves every file in docs/, and docs/ also holds working
-# notes that are not pages: the listing notes, the README and the design
-# plans. Cloudflare follows a redirect even where a file exists, so these send
-# a visitor to the home page instead of to a draft.
-/README.md                 /  302
-/app-store-listing.md      /  302
-/superpowers/*             /  302

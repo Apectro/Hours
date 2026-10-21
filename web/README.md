@@ -28,7 +28,7 @@ job is the price of the trade.
 
 `npm run publish` is the whole deployment. Cloudflare Pages serves `docs/` as it
 stands on `main`, with no build step of its own, so the site goes live when the
-commit lands — see `docs/README.md` for the setup.
+commit lands — see `notes/website.md` for the setup.
 
 ## Two languages
 
@@ -59,7 +59,7 @@ Where the two disagree the listing wins, because that is the one Apple reads.
 
 Two claims on the page are tied to this repository and have to stay true: the
 privacy section pairs each promise with what keeps it (`privacy.claims` in the
-copy, matching the table in `docs/README.md`), and the six balance cases are
+copy, matching the table in `notes/website.md`), and the six balance cases are
 the ones the calculation engine is tested against.
 
 ## Screenshots
@@ -126,4 +126,4 @@ source.
 `og:url` and `og:image` in `index.html` are absolute, because unfurlers do not
 resolve relative ones. They name the domain and have to move with it.
 
-`docs/README.md` has the Cloudflare setup.
+`notes/website.md` has the Cloudflare setup.

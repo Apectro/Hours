@@ -252,7 +252,7 @@ repository; what is left needs a person in App Store Connect.
 
 **The listing** is `fastlane/metadata/`, in English (U.S.) and German — name,
 subtitle, description, keywords, URLs, categories, review notes, and the age
-rating in `fastlane/age-rating.json`. `docs/app-store-listing.md` explains it,
+rating in `fastlane/age-rating.json`. `notes/app-store-listing.md` explains it,
 and CI fails when a field is over the store's limit.
 
 **Screenshots are made for you.** `ScreenshotTests` drives the app with a
@@ -307,7 +307,7 @@ Manager role to create products.
    that build on the version page, and add the three products to the version
    (the first in-app purchases have to be submitted with an app version).
 8. **The owner's name** in `fastlane/metadata/copyright.txt`, and the contact
-   email on the privacy and support pages (`docs/app-store-listing.md` says
+   email on the privacy and support pages (`notes/app-store-listing.md` says
    where).
 
 `Hours.storekit`'s prices (£1.99, £12.99, £24.99) are only for the simulator;

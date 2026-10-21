@@ -25,7 +25,7 @@ const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
 
 /** Hand-written, and never touched by a publish. Everything else is output. */
-const KEEP = new Set(["privacy", "support", "superpowers", "README.md", "app-store-listing.md"]);
+const KEEP = new Set(["privacy", "support"]);
 
 /*
  * Resize the screenshots first. `npm run build` gets this through npm's

@@ -69,7 +69,9 @@ struct PaywallSheet: View {
 
     private var features: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
-            ForEach(ProFeature.allCases) { feature in
+            // Sync is only sold in a build that can sync (`SyncPreference`);
+            // offering a feature the build lacks is grounds for rejection.
+            ForEach(ProFeature.allCases.filter { $0 != .iCloudSync || SyncPreference.isAvailable }) { feature in
                 HStack(alignment: .top, spacing: Metrics.medium) {
                     Image(systemName: feature.symbolName)
                         .foregroundStyle(Color.accentColor)

@@ -113,7 +113,7 @@ app's own App Group container on the same device.
 ## Contact
 
 The privacy policy and the support page give a contact address. It is
-written once per page as `REPLACE-WITH-YOUR-CONTACT-EMAIL`; replace it in
+marijomiksa@pm.me, written once per page; to change it, edit
 `docs/privacy/index.html`, `docs/privacy/de/index.html`,
 `docs/support/index.html` and `docs/support/de/index.html` (and the same in
 `web/src/` if the site is rebuilt).
@@ -121,7 +121,7 @@ written once per page as `REPLACE-WITH-YOUR-CONTACT-EMAIL`; replace it in
 ## Hosting
 
 The site, the privacy policy and the support page are served by Cloudflare
-Pages from this repository's `docs/` folder — see `docs/README.md`. Nothing
+Pages from this repository's `docs/` folder — see `notes/website.md`. Nothing
 public links to the repository, so it can be private.
 
 ## What still needs a decision

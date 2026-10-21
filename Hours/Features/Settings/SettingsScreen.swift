@@ -29,7 +29,7 @@ struct SettingsScreen: View {
                     .tint(.primary)
                 } footer: {
                     if !subscriptions.isPro {
-                        Text("Timesheets, widgets, a second job, range editing and iCloud sync. Recording your hours is free and stays free.")
+                        Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
                     }
                 }
 

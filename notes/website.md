@@ -68,10 +68,9 @@ second check that the routes answer, but it is not what serves the site.
 
 ## Before it goes live
 
-The privacy and support pages each name a contact address once, as
-`REPLACE-WITH-YOUR-CONTACT-EMAIL` — four places in all, two per language.
-Replace it in each, and keep the date at the top of the policy current when it
-changes.
+The privacy and support pages each name the contact address
+(marijomiksa@pm.me) once — four places in all, two per language. Change it in
+each if it ever changes, and keep the date at the top of the policy current.
 
 ## Is the policy accurate?
 
