@@ -18,10 +18,10 @@ struct SiteTimesSheet: View {
     @State private var start: TimeOfDay?
     @State private var end: TimeOfDay?
     @State private var breakMinutes: Int
-    @State private var editing: Edge = .start
+    @State private var editing: TimeField = .start
 
     /// Which of the two times the wheel is turning.
-    private enum Edge: Hashable {
+    private enum TimeField: Hashable {
         case start, end
     }
 
@@ -98,7 +98,7 @@ struct SiteTimesSheet: View {
 
     // MARK: - Times
 
-    private func timeTile(_ edge: Edge) -> some View {
+    private func timeTile(_ edge: TimeField) -> some View {
         let isSelected = editing == edge
         let title = edge == .start ? String(localized: "On site") : String(localized: "Off site")
         let value = edge == .start ? start : end
@@ -153,14 +153,14 @@ struct SiteTimesSheet: View {
         )
     }
 
-    private func setTime(_ time: TimeOfDay, for edge: Edge) {
+    private func setTime(_ time: TimeOfDay, for edge: TimeField) {
         switch edge {
         case .start: start = time
         case .end: end = time
         }
     }
 
-    private func fallback(for edge: Edge) -> TimeOfDay {
+    private func fallback(for edge: TimeField) -> TimeOfDay {
         edge == .start ? defaultStart : defaultEnd
     }
 
@@ -187,12 +187,13 @@ struct SiteTimesSheet: View {
     }
 
     private var choices: [Int] {
+        // The day's own break stays on offer after another chip is tapped,
+        // so changing your mind is one tap back.
         var all = Self.breakChoices
-        if !all.contains(breakMinutes) {
-            all.append(breakMinutes)
-            all.sort()
+        for extra in [day.breakMinutes, breakMinutes] where !all.contains(extra) {
+            all.append(extra)
         }
-        return all
+        return all.sorted()
     }
 
     private func chipRow(_ minutes: ArraySlice<Int>) -> some View {
