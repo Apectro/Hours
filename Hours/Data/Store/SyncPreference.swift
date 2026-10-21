@@ -16,8 +16,20 @@ enum SyncPreference {
     /// entitlements, if one has been added.
     static let containerIdentifier = "iCloud.app.zeitkonto"
 
+    /// Whether this build can sync at all: it carries the iCloud entitlement
+    /// only when it is compiled with `ICLOUD_SYNC`. Without the entitlement,
+    /// opening a CloudKit store does not throw something the stack could
+    /// catch and fall back from — the process is killed at launch, every
+    /// launch, because the choice is remembered. So a build without it never
+    /// offers the switch and never acts on a choice made in one that had it.
+    #if ICLOUD_SYNC
+    static let isAvailable = true
+    #else
+    static let isAvailable = false
+    #endif
+
     static var isEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: key) }
+        get { isAvailable && UserDefaults.standard.bool(forKey: key) }
         set { UserDefaults.standard.set(newValue, forKey: key) }
     }
 }
