@@ -11,6 +11,15 @@ final class TesterAccessTests: XCTestCase {
         XCTAssertEqual(result, .free, "a customer's free install must stay free")
     }
 
+    func testAppStoreInstallWithALapsedPurchaseStaysLapsed() {
+        let lapsed = Entitlement(kind: .subscription, expiresAt: now.addingTimeInterval(-60), checkedAt: now)
+
+        let result = TesterAccess.entitlement(storeAnswer: lapsed, isTestFlight: false, testerLocksPro: false, at: now)
+
+        XCTAssertEqual(result, lapsed)
+        XCTAssertFalse(result.isActive(at: now))
+    }
+
     func testTestFlightInstallUnlocksPro() {
         let result = TesterAccess.entitlement(storeAnswer: .free, isTestFlight: true, testerLocksPro: false, at: now)
 

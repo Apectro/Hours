@@ -40,7 +40,10 @@ struct SettingsScreen: View {
                     Section {
                         Toggle("Pro unlocked for testing", isOn: Binding(
                             get: { !subscriptions.testerLocksPro },
-                            set: { subscriptions.setTesterLocksPro(!$0) }
+                            set: {
+                                subscriptions.setTesterLocksPro(!$0)
+                                HoursStack.refreshWidget()
+                            }
                         ))
                         .accessibilityIdentifier("settings-tester-pro")
                     } header: {

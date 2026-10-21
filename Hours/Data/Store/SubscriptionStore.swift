@@ -102,6 +102,11 @@ final class SubscriptionStore {
                 await self.refresh()
             }
         }
+
+        // Asked here rather than only when the main screen appears: an App
+        // Intent can wake the app in the background and write the widget,
+        // and a TestFlight install must not be written as locked then.
+        Task { [weak self] in await self?.detectInstallSource() }
     }
 
     deinit { updates?.cancel() }
@@ -111,14 +116,22 @@ final class SubscriptionStore {
     /// Asks StoreKit where this copy came from. A sandbox app transaction is a
     /// TestFlight install (or a developer's own build); the App Store's is
     /// production, and an Xcode StoreKit session is neither.
+    ///
+    /// Compiled in only when the build asks for it (`TESTER_UNLOCK`, set by
+    /// the TestFlight workflow's "Unlock Pro for testers" switch). App Review
+    /// also runs in the sandbox, so the build submitted for review is made
+    /// with the switch off and has no unlock in it at all.
     func detectInstallSource() async {
+        #if TESTER_UNLOCK
         guard !isPinned else { return }
         guard case let .verified(transaction)? = try? await AppTransaction.shared else { return }
         isTestFlightInstall = transaction.environment == .sandbox
         applyTesterAccess()
+        #endif
     }
 
     func setTesterLocksPro(_ locks: Bool) {
+        guard !isPinned else { return }
         testerLocksPro = locks
         defaults.set(locks, forKey: SubscriptionStore.testerLocksProKey)
         applyTesterAccess()
@@ -295,6 +308,7 @@ final class SubscriptionStore {
     static func ephemeral(_ entitlement: Entitlement = .free) -> SubscriptionStore {
         let defaults = UserDefaults(suiteName: "hours.preview.\(UUID().uuidString)") ?? .standard
         let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement")
+        store.storeAnswer = entitlement
         store.entitlement = entitlement
         return store
     }
@@ -304,6 +318,7 @@ final class SubscriptionStore {
     static func pinned(_ entitlement: Entitlement) -> SubscriptionStore {
         let defaults = UserDefaults(suiteName: "hours.uitest.\(UUID().uuidString)") ?? .standard
         let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement", pinned: true)
+        store.storeAnswer = entitlement
         store.entitlement = entitlement
         return store
     }

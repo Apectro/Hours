@@ -150,6 +150,17 @@ platform :ios do
       )
     end
 
+    # TestFlight builds unlock Pro for testers (see TesterAccess). App Review
+    # runs in the same sandbox, so the build submitted for review is made with
+    # TESTER_UNLOCK=false and has no unlock compiled in.
+    xcargs = ["CURRENT_PROJECT_VERSION=#{ENV.fetch('GITHUB_RUN_NUMBER')}"]
+    if ENV["TESTER_UNLOCK"] == "true"
+      xcargs << "SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) TESTER_UNLOCK'"
+      UI.message("Pro is unlocked for TestFlight testers in this build")
+    else
+      UI.important("No tester unlock in this build: this is the one to submit for App Review")
+    end
+
     build_app(
       project: PROJECT,
       scheme: SCHEME,
@@ -157,7 +168,7 @@ platform :ios do
       export_method: "app-store",
       clean: true,
       output_directory: "build",
-      xcargs: "CURRENT_PROJECT_VERSION=#{ENV.fetch('GITHUB_RUN_NUMBER')}",
+      xcargs: xcargs.join(" "),
       export_options: { provisioningProfiles: profiles }
     )
 
