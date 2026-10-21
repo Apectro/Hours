@@ -85,6 +85,8 @@ APP_STRINGS = {
     # A site card: the people on the crew other than you. Zero is a separate,
     # plain string ("Crew: just you"), so this is only ever asked for one or more.
     "Crew: you + ^[%lld coworker](inflect: true)": entry("Crew: you + %#@coworkers@", COWORKERS()),
+    # Under a site's name on its own screen. Zero is "Just you", as above.
+    "You + ^[%lld coworker](inflect: true)": entry("You + %#@coworkers@", COWORKERS()),
     # A site's day: how many were there, in a grid cell's VoiceOver label and
     # under "Same as last day".
     "^[%lld person](inflect: true)": entry("%#@people@", PEOPLE()),

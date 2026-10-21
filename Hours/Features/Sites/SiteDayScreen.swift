@@ -1,21 +1,22 @@
 import SwiftUI
 import SwiftData
 
-/// Writing up one day on a site (mockup screen 2): the site's times once for
-/// everyone, a tick for each person who was there, and changed times only for
-/// whoever came late or left early.
+/// A site's month and one day of it (mockup boards 4–6): the month as the
+/// calendar draws yours, this month's figures, and the selected day on one
+/// card — the site's times once for everyone, a tick for each person who was
+/// there, and changed times only for whoever came late or left early.
 ///
 /// Edits are saved as they are made, with no Save button. This is a page you
-/// move through day by day with the arrows, not a sheet you open and dismiss,
-/// and a draft that vanished on the next arrow tap would be a save that
-/// silently did nothing. Every write goes through `SiteRepository` with the
-/// month lock, which writes your calendar day in the same step; a refusal is
-/// shown with the calendar's own message and the screen goes back to what is
-/// stored, so it never shows hours that are not recorded.
+/// move through day by day, not a sheet you open and dismiss, and a draft that
+/// vanished on the next tap in the grid would be a save that silently did
+/// nothing. Every write goes through `SiteRepository` with the month lock,
+/// which writes your calendar day in the same step; a refusal is shown with
+/// the calendar's own message and the screen goes back to what is stored, so
+/// it never shows hours that are not recorded.
 ///
-/// A date with nothing recorded opens empty, nobody ticked, with "Same as last
-/// day" offered first. Opening it writes nothing: the day is stored on the
-/// first tick or time, and deleted again when it is emptied.
+/// A date with nothing recorded offers "Same as last day" and "Start from
+/// empty" first. Neither writes anything on its own beyond what it says: the
+/// day is stored on the first tick or time, and deleted again when emptied.
 struct SiteDayScreen: View {
     let site: Site
     /// One of the extra sites after Pro lapsed: shown, not changed.
@@ -27,46 +28,86 @@ struct SiteDayScreen: View {
     @Query private var holidayRecords: [HolidayRecord]
 
     @State private var date: CalendarDate
-    /// What the screen shows. Equal to `stored` except for a day that is not
+    /// The month the grid shows. Usually the selected date's, but the arrows
+    /// move it on their own.
+    @State private var month: YearMonth
+    /// What the card shows. Equal to `stored` except for a day that is not
     /// yet worth storing (see `SiteDay.isBlank`).
     @State private var day: SiteDay
     @State private var stored: SiteDay?
+    /// Every stored day under the grid, borrowed neighbouring days included.
+    @State private var monthDays: [SiteDay] = []
     /// What "Same as last day" would fill in, if there is an earlier day.
     @State private var lastDay: SiteDay?
     /// The date "Same as last day" copies from. Kept apart from `lastDay`,
     /// which is already re-dated to the day being written.
     @State private var lastDayDate: CalendarDate?
+    /// "Start from empty" was chosen for the selected day, so the ordinary
+    /// card shows although nothing is stored yet.
+    @State private var startsEmpty = false
     /// Hidden members included, because a past day may name one.
     @State private var crew: [CrewMember] = []
     /// The note is typed here and saved when the field loses focus, rather
     /// than on every keystroke, which would rewrite your calendar day per letter.
     @State private var noteText = ""
     @State private var yourHoursNotCounted = false
-    @State private var editingPerson: PersonReference?
+    @State private var activeSheet: ActiveSheet?
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
     @FocusState private var isNoteFocused: Bool
 
+    /// One sheet at a time, chosen by value: stacking several `.sheet`
+    /// modifiers on one view has undefined behaviour.
+    private enum ActiveSheet: Identifiable {
+        case person(PersonReference)
+        case siteTimes
+
+        var id: String {
+            switch self {
+            case let .person(person): return "person-\(person.id.uuidString)"
+            case .siteTimes: return "site-times"
+            }
+        }
+    }
+
     init(site: Site, isReadOnly: Bool, date: CalendarDate) {
         self.site = site
         self.isReadOnly = isReadOnly
         _date = State(initialValue: date)
+        _month = State(initialValue: date.yearMonth)
         _day = State(initialValue: SiteDay(siteID: site.id, date: date, jobID: site.jobID))
     }
 
     var body: some View {
-        List {
-            dateSection
-            noticeSection
-            timesSection
-            if showsSameAsLastDay {
-                sameAsLastDaySection
+        ScrollView {
+            VStack(alignment: .leading, spacing: Metrics.large) {
+                Text(crewLine)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("site-crew-line")
+
+                SiteDayNotice(isLocked: isLocked, isReadOnly: isReadOnly, isArchived: site.isArchived)
+
+                SiteMonthGrid(
+                    layout: layout,
+                    presentCounts: presentCounts,
+                    selectedDate: date,
+                    today: today,
+                    calendar: calendar,
+                    formatting: formatting,
+                    onSelect: select,
+                    onStep: step
+                )
+
+                monthSummary
+
+                dayCard
             }
-            crewSection
-            totalSection
-            noteSection
+            .padding(.horizontal, Metrics.large)
+            .padding(.bottom, Metrics.extraLarge)
         }
+        .background(Color.hoursCanvas)
         .scrollDismissesKeyboard(.interactively)
         // A screen the UI tests wait for. The title above it is the site's name.
         .accessibilityIdentifier("screen-site-day")
@@ -75,13 +116,23 @@ struct SiteDayScreen: View {
         .onChange(of: isNoteFocused) { _, focused in
             if !focused { commitNote() }
         }
-        .sheet(item: $editingPerson) { person in
-            if let attendance = day.attendance(for: person.id) {
-                PersonTimesSheet(
-                    name: person.name,
-                    attendance: attendance,
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case let .person(person):
+                if let attendance = day.attendance(for: person.id) {
+                    PersonTimesSheet(
+                        name: person.name,
+                        attendance: attendance,
+                        day: day,
+                        onSave: replace
+                    )
+                }
+            case .siteTimes:
+                SiteTimesSheet(
                     day: day,
-                    onSave: replace
+                    defaultStart: settings.primarySchedule.defaultStart,
+                    defaultEnd: settings.primarySchedule.defaultEnd,
+                    onSave: commit
                 )
             }
         }
@@ -95,147 +146,77 @@ struct SiteDayScreen: View {
         }
     }
 
-    // MARK: - Date
+    // MARK: - Parts
 
-    private var dateSection: some View {
-        Section {
-            HStack(spacing: Metrics.medium) {
-                Button {
-                    move(to: date.adding(days: -1, in: calendar))
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.body.weight(.semibold))
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Previous day")
-                .accessibilityIdentifier("site-day-previous")
+    private var crewLine: String {
+        let coworkers = crew.filter { !$0.isHidden }.count
+        guard coworkers > 0 else { return String(localized: "Just you") }
+        return String(inflected: "You + ^[\(coworkers) coworker](inflect: true)")
+    }
 
-                Spacer(minLength: 0)
+    private var monthSummary: some View {
+        let written = monthDays.filter { month.contains($0.date) }
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        let results = written.map { calculator.compute($0) }
+        let crewMinutes = results.reduce(0) { $0 + $1.crewTotalMinutes }
+        let yourMinutes = results.reduce(0) { total, result in
+            total + (result.people.first(where: { $0.memberID == CrewMember.youID })?.workedMinutes ?? 0)
+        }
 
-                DatePicker("Date", selection: dateBinding, displayedComponents: .date)
-                    .labelsHidden()
-                    .accessibilityIdentifier("site-day-date")
-
-                Spacer(minLength: 0)
-
-                Button {
-                    move(to: date.adding(days: 1, in: calendar))
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.body.weight(.semibold))
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Next day")
-                .accessibilityIdentifier("site-day-next")
+        return SurfaceCard {
+            HStack(alignment: .top, spacing: Metrics.small) {
+                StatTile(label: String(localized: "Days written"), value: "\(written.count)")
+                Divider().frame(height: 34)
+                StatTile(label: String(localized: "Crew hours"), value: formatter.string(crewMinutes))
+                Divider().frame(height: 34)
+                StatTile(label: String(localized: "You"), value: formatter.string(yourMinutes))
             }
         }
     }
-
-    private var dateBinding: Binding<Date> {
-        Binding(
-            get: { date.date(in: calendar) },
-            set: { move(to: CalendarDate($0, calendar: calendar)) }
-        )
-    }
-
-    // MARK: - Why it cannot be changed
 
     @ViewBuilder
-    private var noticeSection: some View {
-        if isLocked {
-            Section {
-                Label {
-                    VStack(alignment: .leading, spacing: Metrics.tiny) {
-                        Text("This month is closed")
-                            .font(.subheadline.weight(.semibold))
-                        Text("Reopen it in Settings › Calculation if you need to change these hours.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                } icon: {
-                    Image(systemName: "lock.fill")
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("site-day-locked")
-            }
-        } else if isReadOnly, site.isArchived {
-            // Archiving, not a lapsed Pro, is what stops this one, and the
-            // way back is the site's own editor.
-            Section {
-                Label {
-                    Text("Archived. Switch off Archived under Edit to change its days.")
-                        .font(.footnote)
-                } icon: {
-                    Image(systemName: "archivebox")
-                }
-                .foregroundStyle(.secondary)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("site-day-archived")
-            }
-        } else if isReadOnly {
-            Section {
-                Label {
-                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
-                        .font(.footnote)
-                } icon: {
-                    Image(systemName: "lock.fill")
-                }
-                .foregroundStyle(.secondary)
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("site-day-read-only")
-            }
+    private var dayCard: some View {
+        if showsUnwrittenChoice, let lastDay, let lastDayDate {
+            SiteUnwrittenDayCard(
+                title: dayTitle,
+                lastDayDate: lastDayDate,
+                lastDay: lastDay,
+                formatting: formatting,
+                onSameAsLastDay: fillFromLastDay,
+                onStartEmpty: { startsEmpty = true }
+            )
+        } else {
+            SiteDayCard(
+                title: dayTitle,
+                day: day,
+                result: result,
+                rows: rows,
+                isWritten: stored != nil,
+                canEdit: canEdit,
+                warnings: warnings,
+                formatting: formatting,
+                durations: formatter,
+                noteText: $noteText,
+                isNoteFocused: $isNoteFocused,
+                onToggle: toggle,
+                onEditPerson: { activeSheet = .person($0) },
+                onEditTimes: { activeSheet = .siteTimes }
+            )
         }
     }
 
-    // MARK: - Site times
-
-    private var timesSection: some View {
-        Section {
-            OptionalTimeRow(
-                title: String(localized: "On site"),
-                time: binding(\.start),
-                calendar: calendar,
-                fallback: settings.primarySchedule.defaultStart
-            )
-            OptionalTimeRow(
-                title: String(localized: "Off site"),
-                time: binding(\.end),
-                calendar: calendar,
-                fallback: settings.primarySchedule.defaultEnd
-            )
-            DurationStepperRow(
-                title: String(localized: "Break"),
-                minutes: binding(\.breakMinutes),
-                range: 0...(12 * 60),
-                step: 5,
-                formatting: formatter
-            )
-        } header: {
-            Text("Site times (everyone)")
-        } footer: {
-            warningsView
-        }
-        .disabled(!canEdit)
+    /// Only on a day with nothing in it, so it can never stand in front of
+    /// one, and only where it could be used: a closed month or a read-only
+    /// site shows the ordinary card, greyed, which also says who is not there.
+    private var showsUnwrittenChoice: Bool {
+        canEdit
+            && !startsEmpty
+            && stored == nil
+            && lastDay != nil
+            && day.present.isEmpty && day.start == nil && day.end == nil
     }
 
-    /// Quiet, as in the day editor: a half-entered day is a normal state while
-    /// typing. Each warning once, however many people it applies to — with no
-    /// end time it applies to all of them, and saying so per person is noise.
-    @ViewBuilder
-    private var warningsView: some View {
-        let visible = warnings
-        if !visible.isEmpty {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
-                ForEach(visible) { warning in
-                    Label(warning.message, systemImage: "exclamationmark.triangle")
-                        .font(.footnote)
-                        .foregroundStyle(warning.isProblem ? Color.hoursNegative : Color.secondary)
-                }
-            }
-        }
-    }
+    private var dayTitle: String { formatting.dayTitle(date) }
 
     private var warnings: [DayWarning] {
         var seen: [DayWarning] = []
@@ -248,127 +229,6 @@ struct SiteDayScreen: View {
             seen.append(.siteHoursNotCounted)
         }
         return seen
-    }
-
-    // MARK: - Same as last day
-
-    /// Only on a day with nothing in it, so it can never overwrite one.
-    private var showsSameAsLastDay: Bool {
-        lastDay != nil && day.present.isEmpty && day.start == nil && day.end == nil
-    }
-
-    private var sameAsLastDaySection: some View {
-        Section {
-            Button(action: fillFromLastDay) {
-                Label("Same as last day", systemImage: "arrow.uturn.backward.circle")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .accessibilityIdentifier("site-day-same-as-last")
-        } footer: {
-            if let lastDayDate {
-                Text(String(
-                    localized: "Copies the times and who was there from \(formatting.mediumDate(lastDayDate)).",
-                    comment: "Under the Same as last day button; the value is a date"
-                ))
-                .accessibilityIdentifier("site-day-same-as-last-from")
-            }
-        }
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets())
-        .disabled(!canEdit)
-    }
-
-    // MARK: - Who was here
-
-    private var crewSection: some View {
-        Section {
-            ForEach(rows) { row in
-                personRow(row)
-            }
-        } header: {
-            Text("Who was here")
-        } footer: {
-            Text("Tap a name to tick or untick them. Tap their times to change just that person.")
-        }
-    }
-
-    private func personRow(_ row: PersonReference) -> some View {
-        let person = result.people.first { $0.memberID == row.id }
-        let exception = SiteException.of(row.id, in: day)
-
-        return HStack(spacing: Metrics.medium) {
-            Button {
-                toggle(row.id)
-            } label: {
-                HStack(spacing: Metrics.medium) {
-                    Image(systemName: person != nil ? "checkmark.circle.fill" : "circle")
-                        .font(.title3)
-                        .foregroundStyle(person != nil ? Color.accentColor : Color.secondary)
-                    Text(row.name)
-                        .foregroundStyle(.primary)
-                    Spacer(minLength: 0)
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .disabled(!canEdit)
-            .accessibilityLabel(row.name)
-            .accessibilityValue(person != nil ? String(localized: "Here") : String(localized: "Not here"))
-            .accessibilityAddTraits(person != nil ? .isSelected : [])
-            .accessibilityIdentifier(row.id == CrewMember.youID ? "site-person-you" : "site-person-\(row.name)")
-
-            Button {
-                editingPerson = row
-            } label: {
-                timesLabel(person: person, exception: exception)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .disabled(!canEdit || person == nil)
-            .accessibilityIdentifier(row.id == CrewMember.youID ? "site-times-you" : "site-times-\(row.name)")
-        }
-        .listRowBackground(exception != nil ? Color.hoursNegative.opacity(0.12) : nil)
-    }
-
-    @ViewBuilder
-    private func timesLabel(person: PersonDay?, exception: SiteException?) -> some View {
-        VStack(alignment: .trailing, spacing: 2) {
-            if let person {
-                if let exception {
-                    Text(exceptionTitle(exception))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.hoursNegative)
-                }
-                Text(timeRange(person))
-                    .font(.subheadline)
-                    .foregroundStyle(exception != nil ? Color.hoursNegative : Color.secondary)
-                Text(formatter.string(person.workedMinutes))
-                    .font(.hoursFigure(.subheadline, weight: .medium))
-                    .foregroundStyle(.primary)
-            } else {
-                Text("Not here")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(verbatim: "—")
-                    .font(.hoursFigure(.subheadline, weight: .medium))
-                    .foregroundStyle(.tertiary)
-            }
-        }
-        .multilineTextAlignment(.trailing)
-    }
-
-    private func exceptionTitle(_ exception: SiteException) -> String {
-        switch exception {
-        case .cameLate: return String(localized: "Came late")
-        case .leftEarly: return String(localized: "Left early")
-        case .changedTimes: return String(localized: "Own times")
-        }
-    }
-
-    private func timeRange(_ person: PersonDay) -> String {
-        guard let start = person.start, let end = person.end else { return "—" }
-        return "\(formatting.time(start, on: date)) – \(formatting.time(end, on: date))"
     }
 
     /// You first, then the crew in their order. Someone hidden from the crew
@@ -389,43 +249,24 @@ struct SiteDayScreen: View {
         return rows
     }
 
-    // MARK: - Total and note
-
-    private var totalSection: some View {
-        Section {
-            HStack {
-                Text("Crew total today")
-                Spacer(minLength: Metrics.medium)
-                Text(formatter.string(result.crewTotalMinutes))
-                    .font(.hoursFigure(.body))
-                    .contentTransition(.numericText())
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("site-crew-total")
-        }
-    }
-
-    private var noteSection: some View {
-        Section {
-            TextField("Notes", text: $noteText, axis: .vertical)
-                .lineLimit(1...5)
-                .focused($isNoteFocused)
-                .disabled(!canEdit)
-                .accessibilityIdentifier("site-day-note")
-        } footer: {
-            Text("Printed with this day when the site is exported.")
-        }
-    }
-
     // MARK: - Derived
 
     private var settings: AppSettings { settingsStore.settings }
     private var calendar: Calendar { settingsStore.workCalendar }
     private var formatting: CalendarFormatting { settingsStore.dateFormatting }
     private var formatter: DurationFormatting { settings.displayFormatting }
+    private var today: CalendarDate { CalendarDate.today(in: calendar) }
 
     private var isLocked: Bool { settings.monthLock.isLocked(date) }
     private var canEdit: Bool { !isReadOnly && !isLocked }
+
+    private var layout: MonthLayout {
+        MonthLayout.make(month: month, calendar: calendar, includesWeekends: true)
+    }
+
+    private var presentCounts: [Int: Int] {
+        Dictionary(monthDays.map { ($0.date.key, $0.present.count) }, uniquingKeysWith: { first, _ in first })
+    }
 
     private var result: SiteDayResult {
         SiteDayCalculator(settings: settings, calendar: calendar).compute(day)
@@ -433,17 +274,6 @@ struct SiteDayScreen: View {
 
     private var repository: SiteRepository {
         SiteRepository(context: modelContext, lock: settings.monthLock)
-    }
-
-    private func binding<Value>(_ keyPath: WritableKeyPath<SiteDay, Value>) -> Binding<Value> {
-        Binding(
-            get: { day[keyPath: keyPath] },
-            set: { value in
-                var next = day
-                next[keyPath: keyPath] = value
-                commit(next)
-            }
-        )
     }
 
     // MARK: - Loading
@@ -458,13 +288,41 @@ struct SiteDayScreen: View {
         lastDay = store.sameAsLastDay(siteID: site.id, on: date)
         lastDayDate = lastDay == nil ? nil : store.lastSiteDay(siteID: site.id, before: date)?.date
         noteText = day.note
+        startsEmpty = false
+        reloadMonth()
         refreshYourWarning()
     }
 
-    private func move(to newDate: CalendarDate) {
+    private func reloadMonth() {
+        monthDays = repository.siteDays(siteID: site.id, in: layout.coveredRange)
+    }
+
+    /// A tap in the grid. A day borrowed from a neighbouring month moves the
+    /// grid there, as in the calendar, rather than selecting something the
+    /// month on screen no longer shows.
+    private func select(_ newDate: CalendarDate) {
         guard newDate != date else { return }
         commitNote()
-        date = newDate
+        withAnimation(.snappy(duration: 0.2)) {
+            date = newDate
+            if !month.contains(newDate) { month = newDate.yearMonth }
+        }
+        load()
+    }
+
+    /// The month arrows. The selection follows into the new month — today if
+    /// it is there, otherwise the same day of the month — so the card never
+    /// describes a day the grid is not showing.
+    private func step(_ direction: Int) {
+        commitNote()
+        let next = month.adding(months: direction)
+        let newDate = next.contains(today)
+            ? today
+            : CalendarDate(year: next.year, month: next.month, day: min(date.day, next.dayCount(in: calendar)))
+        withAnimation(.snappy(duration: 0.25)) {
+            month = next
+            date = newDate
+        }
         load()
     }
 
@@ -536,13 +394,61 @@ struct SiteDayScreen: View {
             day = stored ?? SiteDay(siteID: site.id, date: date, jobID: site.jobID)
             noteText = day.note
         }
+        reloadMonth()
         refreshYourWarning()
         HoursStack.refreshWidget()
     }
 }
 
-/// A row of the crew list: who, and the name to show.
-struct PersonReference: Identifiable, Hashable {
-    let id: UUID
-    let name: String
+/// Why the selected day cannot be changed, when it cannot: a closed month, an
+/// archived site, or a site that is read-only because Pro lapsed.
+private struct SiteDayNotice: View {
+    let isLocked: Bool
+    let isReadOnly: Bool
+    let isArchived: Bool
+
+    var body: some View {
+        if isLocked {
+            notice(systemImage: "lock.fill") {
+                VStack(alignment: .leading, spacing: Metrics.tiny) {
+                    Text("This month is closed")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Reopen it in Settings › Calculation if you need to change these hours.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .accessibilityIdentifier("site-day-locked")
+        } else if isReadOnly, isArchived {
+            // Archiving, not a lapsed Pro, is what stops this one, and the
+            // way back is the site's own editor.
+            notice(systemImage: "archivebox") {
+                Text("Archived. Switch off Archived under Edit to change its days.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityIdentifier("site-day-archived")
+        } else if isReadOnly {
+            notice(systemImage: "lock.fill") {
+                Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityIdentifier("site-day-read-only")
+        }
+    }
+
+    private func notice<Content: View>(systemImage: String, @ViewBuilder content: () -> Content) -> some View {
+        Label {
+            content()
+                .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: systemImage)
+                .foregroundStyle(.secondary)
+        }
+        .padding(Metrics.medium)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
 }
