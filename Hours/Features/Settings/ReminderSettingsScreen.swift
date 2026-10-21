@@ -1,12 +1,14 @@
 import SwiftUI
 
-/// The weekly nudge about days with nothing recorded.
+/// The weekly nudge about days with nothing recorded, and for someone with a
+/// site, the evening site reminder and the note on the 1st about the sheet.
 struct ReminderSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
 
     @State private var authorizationDenied = false
     @State private var siteAuthorizationDenied = false
+    @State private var sheetAuthorizationDenied = false
 
     var body: some View {
         Form {
@@ -54,6 +56,17 @@ struct ReminderSettingsScreen: View {
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
                          : "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.")
                 }
+
+                Section {
+                    Toggle("Monthly sheet for the director", isOn: sheetEnabledBinding)
+                    if settings.reminders.monthlySheetEnabled {
+                        DatePicker("Time", selection: sheetTimeBinding, displayedComponents: .hourAndMinute)
+                    }
+                } footer: {
+                    Text(sheetAuthorizationDenied
+                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
+                         : "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.")
+                }
             }
         }
         .navigationTitle("Reminders")
@@ -86,6 +99,45 @@ struct ReminderSettingsScreen: View {
                 }
             }
         )
+    }
+
+    /// Same promise as the other two toggles.
+    private var sheetEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { settings.reminders.monthlySheetEnabled },
+            set: { isOn in
+                guard isOn else {
+                    settingsStore.update { $0.reminders.monthlySheetEnabled = false }
+                    sheetAuthorizationDenied = false
+                    Task { await ReminderScheduler().cancelMonthlySheetReminders() }
+                    return
+                }
+                Task {
+                    let granted = await ReminderScheduler().requestAuthorization()
+                    sheetAuthorizationDenied = !granted
+                    settingsStore.update { $0.reminders.monthlySheetEnabled = granted }
+                    if granted { await refreshMonthlySheets() }
+                }
+            }
+        )
+    }
+
+    private var sheetTimeBinding: Binding<Date> {
+        let calendar = settingsStore.workCalendar
+        return Binding(
+            get: {
+                OptionalTimeRow.date(from: settings.reminders.monthlySheetTime, in: calendar)
+            },
+            set: { date in
+                let time = OptionalTimeRow.time(from: date, in: calendar)
+                settingsStore.update { $0.reminders.monthlySheetTime = time }
+                Task { await refreshMonthlySheets() }
+            }
+        )
+    }
+
+    private func refreshMonthlySheets() async {
+        await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore)
     }
 
     private func refreshSiteReminders() async {

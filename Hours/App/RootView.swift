@@ -10,7 +10,8 @@ struct RootView: View {
     var storeFailure: String? = nil
 
     @State private var selection: Destination = .calendar
-    /// A widget's link, waiting for the Sites tab to follow it.
+    /// A widget's or a notification's link, waiting for the Sites tab to
+    /// follow it.
     @State private var siteLink: AppLink?
 
     enum Destination: Hashable {
@@ -38,8 +39,14 @@ struct RootView: View {
         // and the app opens where it was.
         .onOpenURL { url in
             guard let link = AppLink(url: url) else { return }
-            selection = .sites
-            siteLink = link
+            follow(link)
+        }
+        // A tapped notification's link, followed the same way. `initial`,
+        // because a tap that launched the app arrives before this view does.
+        .onChange(of: HoursStack.notificationLinks.pending, initial: true) { _, link in
+            guard let link else { return }
+            HoursStack.notificationLinks.pending = nil
+            follow(link)
         }
         .task {
             // Only ever true behind a launch argument the UI test target
@@ -66,6 +73,7 @@ struct RootView: View {
             await HoursStack.subscriptions.detectInstallSource()
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
+            await refreshMonthlySheets()
             HoursStack.refreshWidget()
         }
         .onChange(of: scenePhase) { _, phase in
@@ -77,6 +85,7 @@ struct RootView: View {
                 Task { await HoursStack.subscriptions.refresh() }
                 Task { await refreshReminder() }
                 Task { await refreshSiteReminders() }
+                Task { await refreshMonthlySheets() }
                 // Anything that arrived from another device while the app was
                 // away is merged by now, so this is the moment to notice two
                 // rows meaning the same Tuesday. A no-op without sync.
@@ -92,6 +101,16 @@ struct RootView: View {
                 HoursStack.refreshWidget()
             }
         }
+    }
+
+    /// Every link the app follows is a place on the Sites tab.
+    private func follow(_ link: AppLink) {
+        selection = .sites
+        siteLink = link
+    }
+
+    private func refreshMonthlySheets() async {
+        await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore)
     }
 
     private func refreshSiteReminders() async {

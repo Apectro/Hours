@@ -125,6 +125,10 @@ struct SiteEditorSheet: View {
         SiteRepository(context: modelContext, lock: settingsStore.settings.monthLock).upsert(site)
         // A renamed or archived site changes which card the widget shows.
         HoursStack.refreshWidget()
+        // And what the note on the 1st says, or whether there is one.
+        let context = modelContext
+        let store = settingsStore
+        Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: store) }
         dismiss()
     }
 }

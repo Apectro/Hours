@@ -1024,6 +1024,65 @@
         }
       }
     },
+    "%@ sheet for %@ is ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die %@-Liste für %@ ist fertig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La hoja de %@ de %@ está lista"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La feuille mensuelle (%@) pour %@ est prête"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista za %@ za gradilište %@ je spremna"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il foglio di %@ per %@ è pronto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De lijst van %@ voor %@ is klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arkusz za %@ dla budowy %@ jest gotowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folha de %@ de %@ está pronta"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam za %@ za gradbišče %@ je pripravljen"
+          }
+        }
+      }
+    },
     "%@ short": {
       "extractionState": "manual",
       "localizations": {
@@ -15638,6 +15697,65 @@
         }
       }
     },
+    "Monthly sheet for the director": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monatsliste für die Bauleitung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoja mensual para el director"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feuille mensuelle pour le directeur"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mjesečna lista za voditelja"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foglio mensile per il direttore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maandlijst voor de uitvoerder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miesięczny arkusz dla kierownika"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folha mensal para o diretor"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mesečni seznam za vodjo"
+          }
+        }
+      }
+    },
     "More": {
       "extractionState": "manual",
       "localizations": {
@@ -18368,6 +18486,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prihod na gradbišče"
+          }
+        }
+      }
+    },
+    "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am 1. ein Hinweis für jede Baustelle, auf der du letzten Monat gearbeitet hast, dass ihre Liste bereit zum Abgeben ist. Ein Tipp darauf öffnet die Liste."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El día 1, un aviso por cada obra en la que trabajaste el mes pasado: su hoja está lista para enviar. Al tocarlo se abre la hoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le 1er du mois, un avis pour chaque chantier sur lequel vous avez travaillé le mois dernier : sa feuille est prête à envoyer. Touchez-le pour ouvrir la feuille."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prvog u mjesecu, obavijest za svako gradilište na kojem si radio prošli mjesec da je njegova lista spremna za slanje. Dodir je otvara."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il primo del mese, un avviso per ogni cantiere su cui hai lavorato il mese scorso: il suo foglio è pronto da inviare. Toccandolo si apre il foglio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prvega v mesecu obvestilo za vsako gradbišče, na katerem si delal prejšnji mesec, da je njegov seznam pripravljen za pošiljanje. Dotik ga odpre."
           }
         }
       }
@@ -22532,6 +22709,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drugi"
+          }
+        }
+      }
+    },
+    "Send it to your director.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit, sie der Bauleitung zu geben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envíasela al director."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyez-la au directeur."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji je voditelju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mandalo al direttore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stuur hem naar de uitvoerder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij go kierownikowi."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envia-a ao diretor."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlji ga vodji."
           }
         }
       }

@@ -5786,6 +5786,50 @@
       "desde as %@",
       "sinds %@",
       "od %@"
+    ],
+    "%@ sheet for %@ is ready": [
+      "Die %@-Liste für %@ ist fertig",
+      "Lista za %@ za gradilište %@ je spremna",
+      "Seznam za %@ za gradbišče %@ je pripravljen",
+      "Il foglio di %@ per %@ è pronto",
+      "La feuille mensuelle (%@) pour %@ est prête",
+      "La hoja de %@ de %@ está lista",
+      "A folha de %@ de %@ está pronta",
+      "De lijst van %@ voor %@ is klaar",
+      "Arkusz za %@ dla budowy %@ jest gotowy"
+    ],
+    "Send it to your director.": [
+      "Zeit, sie der Bauleitung zu geben.",
+      "Pošalji je voditelju.",
+      "Pošlji ga vodji.",
+      "Mandalo al direttore.",
+      "Envoyez-la au directeur.",
+      "Envíasela al director.",
+      "Envia-a ao diretor.",
+      "Stuur hem naar de uitvoerder.",
+      "Wyślij go kierownikowi."
+    ],
+    "Monthly sheet for the director": [
+      "Monatsliste für die Bauleitung",
+      "Mjesečna lista za voditelja",
+      "Mesečni seznam za vodjo",
+      "Foglio mensile per il direttore",
+      "Feuille mensuelle pour le directeur",
+      "Hoja mensual para el director",
+      "Folha mensal para o diretor",
+      "Maandlijst voor de uitvoerder",
+      "Miesięczny arkusz dla kierownika"
+    ],
+    "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.": [
+      "Am 1. ein Hinweis für jede Baustelle, auf der du letzten Monat gearbeitet hast, dass ihre Liste bereit zum Abgeben ist. Ein Tipp darauf öffnet die Liste.",
+      "Prvog u mjesecu, obavijest za svako gradilište na kojem si radio prošli mjesec da je njegova lista spremna za slanje. Dodir je otvara.",
+      "Prvega v mesecu obvestilo za vsako gradbišče, na katerem si delal prejšnji mesec, da je njegov seznam pripravljen za pošiljanje. Dotik ga odpre.",
+      "Il primo del mese, un avviso per ogni cantiere su cui hai lavorato il mese scorso: il suo foglio è pronto da inviare. Toccandolo si apre il foglio.",
+      "Le 1er du mois, un avis pour chaque chantier sur lequel vous avez travaillé le mois dernier : sa feuille est prête à envoyer. Touchez-le pour ouvrir la feuille.",
+      "El día 1, un aviso por cada obra en la que trabajaste el mes pasado: su hoja está lista para enviar. Al tocarlo se abre la hoja.",
+      "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha.",
+      "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen.",
+      "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
     ]
   },
   "sameAsEnglishOnPurpose": [
