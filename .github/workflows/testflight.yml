@@ -9,6 +9,11 @@ name: TestFlight
 
 on:
   workflow_dispatch:
+    inputs:
+      tester_unlock:
+        description: "Unlock Pro for testers (turn off for the build you submit to App Review)"
+        type: boolean
+        default: true
 
 permissions:
   # match commits the encrypted certificate and profiles to the
@@ -32,6 +37,7 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      TESTER_UNLOCK: ${{ inputs.tester_unlock }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # fastlane warns, and some of its tools misbehave, without a UTF-8 locale.
       LANG: en_US.UTF-8

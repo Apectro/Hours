@@ -5226,6 +5226,39 @@
       "Eliminar este dia? As horas escritas numa obra mantêm-se.",
       "Deze dag wissen? Uren die op een bouwplaats zijn ingevuld blijven bewaard.",
       "Usunąć ten dzień? Godziny wpisane na budowie zostają."
+    ],
+    "Pro unlocked for testing": [
+      "Pro zum Testen freigeschaltet",
+      "Pro otključan za testiranje",
+      "Pro odklenjen za testiranje",
+      "Pro sbloccato per i test",
+      "Pro débloqué pour les tests",
+      "Pro desbloqueado para pruebas",
+      "Pro desbloqueado para testes",
+      "Pro ontgrendeld om te testen",
+      "Pro odblokowany do testów"
+    ],
+    "TestFlight": [
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight",
+      "TestFlight"
+    ],
+    "Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.": [
+      "Nur in TestFlight-Builds. Ausschalten, um die Bezahlseite zu sehen und einen Kauf wie ein Kunde zu testen. Die App-Store-Version verlangt immer eine Zahlung.",
+      "Samo u TestFlight verzijama. Isključi da vidiš stranicu za plaćanje i isprobaš kupnju kao kupac. Verzija iz App Storea uvijek traži plaćanje.",
+      "Samo v različicah TestFlight. Izklopi, da vidiš stran za plačilo in preizkusiš nakup kot kupec. Različica iz trgovine App Store vedno zahteva plačilo.",
+      "Solo nelle build di TestFlight. Disattiva per vedere la pagina di acquisto e provare a comprare come farebbe un cliente. La versione dell'App Store chiede sempre di pagare.",
+      "Uniquement dans les versions TestFlight. Désactivez pour voir la page d'achat et essayer un achat comme un client. La version de l'App Store demande toujours de payer.",
+      "Solo en las versiones de TestFlight. Desactívalo para ver la pantalla de compra y probar a comprar como un cliente. La versión de la App Store siempre pide pagar.",
+      "Apenas nas versões TestFlight. Desativa para ver o ecrã de compra e experimentar comprar como um cliente. A versão da App Store pede sempre o pagamento.",
+      "Alleen in TestFlight-builds. Zet uit om het betaalscherm te zien en een aankoop te proberen zoals een klant. De App Store-versie vraagt altijd om te betalen.",
+      "Tylko w wersjach TestFlight. Wyłącz, aby zobaczyć ekran zakupu i wypróbować zakup jak klient. Wersja z App Store zawsze prosi o zapłatę."
     ]
   },
   "sameAsEnglishOnPurpose": [
