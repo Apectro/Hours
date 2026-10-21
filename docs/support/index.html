@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support — Zeitkonto</title>
+<meta name="description" content="How to reach us, and answers about backups, a new phone, where your data lives, Zeitkonto Pro and subscriptions.">
+<meta name="theme-color" content="#1b5b8e">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Courier+Prime:wght@400;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /*
+    Hand-written, and deliberately standalone: this page has to keep resolving
+    at /support/ even if the site around it is rebuilt or replaced, so it
+    carries its own copy of the tokens rather than linking the built stylesheet.
+    They are the same tokens; if the site's palette moves, move these with it.
+  */
+  :root {
+    --ink: #191c19;
+    --ink-soft: #474e48;
+    --ink-faint: #5f665f;
+    --paper: #fbfaf7;
+    --ground: #e9ece4;
+    --rule: #c6ccc0;
+    --rule-faint: #dbdfd5;
+    --accent: #1b5b8e;
+    --on-accent: #ffffff;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --type: "Courier Prime", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e8eae4;
+      --ink-soft: #adb4ac;
+      --ink-faint: #98a097;
+      --paper: #1b1e1c;
+      --ground: #121412;
+      --rule: #343a35;
+      --rule-faint: #262a27;
+      --accent: #8fbde8;
+      --on-accent: #10161b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8eae4;
+    --ink-soft: #adb4ac;
+    --ink-faint: #98a097;
+    --paper: #1b1e1c;
+    --ground: #121412;
+    --rule: #343a35;
+    --rule-faint: #262a27;
+    --accent: #8fbde8;
+    --on-accent: #10161b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+  :where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 20;
+    background: var(--accent); color: var(--on-accent);
+    padding: 12px 18px; font-weight: 600; text-decoration: none;
+  }
+  .skip:focus { left: 12px; top: 12px; }
+
+  /* The same masthead as the site, so arriving here from the footer does not
+     feel like landing on a different website with no way back. */
+  .masthead {
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 13px clamp(20px, 5vw, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .wordmark {
+    display: inline-flex; align-items: center; gap: 11px;
+    font-family: var(--display); font-weight: 800;
+    font-variation-settings: "opsz" 24;
+    font-size: 21px; letter-spacing: -0.02em;
+    color: var(--ink); text-decoration: none;
+  }
+  .mark {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    background: var(--accent); color: var(--on-accent);
+    border-radius: 5px; font-size: 17px;
+  }
+  .masthead a.back { font-size: 15px; color: var(--ink-soft); text-decoration: none; }
+  .masthead a.back:hover { color: var(--ink); text-decoration: underline; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(38px, 6vw, 66px) clamp(20px, 5vw, 44px) 0;
+    background: var(--paper);
+  }
+
+  h1 {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(32px, 4.6vw, 44px);
+    font-variation-settings: "opsz" 48;
+    letter-spacing: -0.026em; line-height: 1.08;
+    margin: 0;
+  }
+
+  h2 {
+    font-family: var(--display); font-weight: 700;
+    font-size: 21px; font-variation-settings: "opsz" 24;
+    letter-spacing: -0.015em;
+    margin: 40px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule-faint);
+  }
+
+  p { margin: 12px 0 0; }
+  p, li { color: var(--ink-soft); }
+  strong { color: var(--ink); }
+
+  .updated {
+    font-family: var(--type);
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+
+  /* The summary, ruled off the way the site rules off its balance line. */
+  .lede {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 2px solid var(--ink);
+    font-size: 18.5px;
+  }
+
+  ul { margin: 12px 0 0; padding-left: 0; list-style: none; }
+  li { padding: 9px 0; border-bottom: 1px solid var(--rule-faint); }
+  li:last-child { border-bottom: 0; }
+
+  main > footer {
+    margin-top: 46px;
+    padding: 20px 0 clamp(38px, 6vw, 60px);
+    border-top: 1px solid var(--rule);
+    font-size: 15px;
+    color: var(--ink-faint);
+  }
+  main > footer p:first-child { margin-top: 0; }
+
+  /* The one thing a support page is for, set apart from the answers. */
+  .contact {
+    margin-top: 26px;
+    padding: 18px 20px;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+  }
+  .contact p:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+<a class="skip" href="#support">Skip to the answers</a>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="../"><span class="mark" aria-hidden="true">z</span>Zeitkonto</a>
+    <a class="back" href="../">Back to the site</a>
+  </div>
+</header>
+
+<main id="support">
+
+  <h1>Support</h1>
+  <p class="updated">Zeitkonto for iOS</p>
+
+  <div class="contact">
+    <!-- The one place this page names a contact address. -->
+    <p><strong>Write to us</strong> at <a href="mailto:REPLACE-WITH-YOUR-CONTACT-EMAIL">REPLACE-WITH-YOUR-CONTACT-EMAIL</a>. Say which iPhone and which iOS version you have, and what you expected to happen. A person reads every message.</p>
+    <p>Zeitkonto has no account and no server, so we cannot see your data — please don't send a backup file unless we ask, and remove anything you would rather we didn't read.</p>
+  </div>
+
+  <h2>Where are my hours stored?</h2>
+  <p>On your iPhone, inside the app, and nowhere else. There is no account and no server of ours. Your days, sites, crews and pay are included in your device's own backup (iCloud Backup, or a backup to a computer) like any app's data. See the <a href="../privacy/">privacy policy</a> for the details.</p>
+
+  <h2>How do I make a backup, and restore it?</h2>
+  <p>Settings › Backup and data › <strong>Share backup</strong> writes one readable JSON file with every day, holiday, site and setting. Keep it wherever you like — Files, iCloud Drive, an email to yourself.</p>
+  <p>To restore, open Settings › Backup and data › <strong>Restore from a backup</strong> and pick the file. Restoring <strong>replaces</strong> what is on the phone with what is in the file, and asks before it does.</p>
+
+  <h2>I have a new phone. How do I take my hours with me?</h2>
+  <p>If you move to the new iPhone from an iCloud Backup, from a computer backup or with Quick Start, Zeitkonto's data comes with it. If you set the new phone up fresh, make a backup on the old one (above), send the file to yourself, install Zeitkonto on the new phone and restore it there.</p>
+
+  <h2>What does Zeitkonto Pro add?</h2>
+  <p>Recording is free: the calendar, the day editor, your first site and its crew, earnings, the balance, reminders and backups. Pro adds exporting files (PDF, Excel, CSV — including the director's monthly sheet), the widgets and the Live Activity, more than one site, a second job, and editing a range of days at once. It is monthly, yearly, or a single purchase. Nothing you recorded is ever locked away if a subscription ends.</p>
+
+  <h2>I paid, but Pro is locked. How do I restore my purchase?</h2>
+  <p>A purchase belongs to your Apple Account, so it should appear by itself on every device signed in with it. If it doesn't, open Settings › Unlock Zeitkonto Pro and tap <strong>Restore</strong>. Make sure the device is signed in to the App Store with the Apple Account you paid with. There is no Zeitkonto account to log in to.</p>
+
+  <h2>How do I cancel a subscription?</h2>
+  <p>Subscriptions are managed by Apple, not by us: open the Settings app on your iPhone, tap your name › <strong>Subscriptions</strong> › Zeitkonto, and choose Cancel Subscription. Pro stays on until the end of the period you have paid for. For a refund, use <a href="https://reportaproblem.apple.com/">reportaproblem.apple.com</a> — Apple handles all payments and refunds.</p>
+
+  <h2>Who can see my crew's names and my pay?</h2>
+  <p>Nobody but you, unless you export a file. A site's sheet carries the crew's names and hours, never money; your earnings appear only on a personal timesheet you export with earnings switched on.</p>
+
+  <footer>
+    <p>Zeitkonto is a private work-hours calendar for iOS. <a href="../privacy/">Privacy policy</a> · <a href="de/">Deutsch</a></p>
+  </footer>
+
+</main>
+</body>
+</html>
