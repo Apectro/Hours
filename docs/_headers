@@ -1,0 +1,25 @@
+# Cloudflare Pages response headers, copied into docs/ by `npm run publish`.
+# The same policy the Caddyfile states, so the site behaves alike wherever it
+# is served; see the Caddyfile for the reasoning behind each line.
+#
+# The app collects nothing and the site should be checkable on that claim:
+# connect-src 'none' means no beacon can leave a page, and Google Fonts is the
+# only other origin any page touches. 'unsafe-inline' because index.html sets
+# the saved theme before first paint and the privacy and support pages carry
+# their own <style>.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+# Vite names everything under assets/ by its content hash, so it can be cached
+# for a year. Pages and screenshots keep their names when they change, and
+# keep Cloudflare's default of revalidating every time.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/de/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -14,11 +14,12 @@
 	# of it — can be run against docs/ locally: SITE_ROOT=docs caddy run.
 	root * {$SITE_ROOT:/srv}
 
-	# docs/ holds two working drafts alongside the site — the App Store listing
-	# copy and the README recording where each privacy claim comes from — plus
-	# the CNAME file Pages uses. Pages serves all three at the moment. Nothing
-	# links them and they are not pages.
-	@drafts path *.md /CNAME
+	# docs/ holds working notes alongside the site — the App Store listing
+	# notes, the README recording where each privacy claim comes from, the
+	# design plans — and the two files Cloudflare Pages reads for its own
+	# configuration. Nothing links them and they are not pages. (Cloudflare
+	# itself redirects the notes away with docs/_redirects.)
+	@drafts path *.md /_headers /_redirects /superpowers/*
 	respond @drafts 404
 
 	encode zstd gzip

@@ -1,82 +1,77 @@
 # docs
 
-What GitHub Pages serves, which is two things: the marketing site and the
-pages the App Store needs.
+What Cloudflare Pages serves at `https://zeitkonto.app/`: the marketing site
+and the pages the App Store needs.
 
 | | |
 |---|---|
-| `index.html`, `assets/`, `shots/`, `icon.svg`, `og.png`, `CNAME` | **Built output. Do not edit.** The site is written in `web/` and copied here by `npm run publish`. |
-| `privacy/index.html` | The privacy policy, written by hand. Apple requires a reachable URL for one. |
-| `app-store-listing.md` | Draft copy for every field App Store Connect asks for. |
+| `index.html`, `de/`, `assets/`, `shots/`, `icon.svg`, `og*.png`, `404.html`, `_headers`, `_redirects` | **Built output. Do not edit.** The site is written in `web/` and copied here by `npm run publish`. |
+| `privacy/index.html`, `privacy/de/index.html` | The privacy policy, written by hand. App Store Connect holds `/privacy/`. |
+| `support/index.html`, `support/de/index.html` | The support page, written by hand. App Store Connect holds `/support/`. |
+| `app-store-listing.md`, `README.md`, `superpowers/` | Working notes. Not pages: `_redirects` sends them to the home page. |
 
 ## Why the built site lives in a committed folder
 
-Pages serves `main:/docs`, and the privacy policy URL is the one App Store
-Connect holds. Moving Pages to an Actions workflow would take that URL down for
-as long as it took somebody to notice the source setting had to be flipped by
-hand. Copying the build into `docs/` keeps the existing setting, so the privacy
-URL cannot break.
+Cloudflare Pages deploys this folder exactly as it stands on `main`, with no
+build step of its own. So what is live is what is committed, CI checks on every
+push that it is what `web/` builds (`npm run verify`), and a broken build tool
+on Cloudflare's side cannot take the privacy policy down.
 
-`web/scripts/publish.mjs` deletes only the names the build produces before
-copying, so a stale asset cannot survive a rebuild and nothing written by hand
-can be removed by one.
+`web/scripts/publish.mjs` keeps a short list of the hand-written names and
+clears everything else before copying, so a stale asset cannot survive a
+rebuild and nothing written by hand can be removed by one.
 
-## The domain
+`_headers` sets the same Content-Security-Policy and security headers the
+`Caddyfile` does, and caches the hashed files under `assets/` for a year.
+`404.html` is there so an unknown path is a 404: without one, Cloudflare Pages
+treats a site as a single-page app and answers every typo with the home page.
 
-The site is `zeitkonto.app`. `CNAME` in this folder is what tells Pages so, and
-it comes from `web/public/CNAME` — it is build output, not a file to edit here,
-because a hand-placed CNAME is the kind of thing that gets cleared by a publish
-and noticed a week later. `npm run verify` fails if it goes missing or changes.
+## Setting it up
 
-**DNS.** For the apex, four A records to GitHub's Pages addresses:
+**1. Put the domain on Cloudflare.** dash.cloudflare.com › **Add a domain** ›
+`zeitkonto.app` › Free plan. Cloudflare imports the existing records and
+names two nameservers; at the registrar, replace the domain's nameservers with
+those two (the registration stays where it is). Wait for the email saying the
+domain is active.
 
-```
-185.199.108.153
-185.199.109.153
-185.199.110.153
-185.199.111.153
-```
+**2. Create the Pages project.** dash.cloudflare.com › **Workers & Pages** ›
+**Create** › **Pages** › **Connect to Git** › authorise GitHub for this
+repository only › pick it, then:
 
-and, if you want `www` to work, a CNAME record pointing `www` at
-`apectro.github.io`. Then Settings › Pages › Custom domain, enter
-`zeitkonto.app`, and tick **Enforce HTTPS** once it becomes available.
+- Production branch: `main`
+- Framework preset: None
+- Build command: *(empty)*
+- Build output directory: `docs`
 
-**`.app` is on the HSTS preload list**, which means browsers refuse to speak
-plain HTTP to it — there is no insecure fallback to land on. So between the DNS
-resolving and GitHub finishing the certificate, the site is not slow or ugly,
-it is unreachable. That wait is usually minutes and can be an hour. Do not
-panic and start changing things during it.
+Save and Deploy. Open the `…pages.dev` address and check `/`, `/de/`,
+`/privacy/` and `/support/` before going further. Every push to `main`
+redeploys; pushes to other branches get preview addresses.
 
-The old `apectro.github.io/Hours/` address keeps working: once a custom domain
-is set, Pages redirects it to the new one.
+**3. Attach the domain.** The project › **Custom domains** › **Set up a custom
+domain** › `zeitkonto.app` (and `www.zeitkonto.app` if wanted). With the
+domain on Cloudflare, the record and the certificate are added for you.
 
-## Turning the privacy policy into a URL
+**`.app` is on the HSTS preload list**, so browsers refuse plain HTTP to it.
+Between the domain resolving and the certificate being issued the site is not
+slow, it is unreachable. That is usually minutes. Wait rather than change
+things.
 
-Apple will not accept a submission without a privacy policy URL that resolves.
-Pages serves this folder for free:
+Then `python3 Scripts/check-site-routes.py https://zeitkonto.app` checks the
+pages, images and redirects.
 
-1. Settings › Pages
-2. Source: **Deploy from a branch**
-3. Branch: `main`, folder: **`/docs`**
-4. Save, and wait a minute
+**The repository can be private.** Nothing public links to it, and Cloudflare
+deploys from a private repository the same as from a public one.
 
-The policy is then at:
+The `Caddyfile`, `Dockerfile` and `railway.json` at the root are the earlier
+self-hosted setup. CI still boots that Caddyfile against this folder as a
+second check that the routes answer, but it is not what serves the site.
 
-```
-https://zeitkonto.app/privacy/
-```
+## Before it goes live
 
-That is the URL to paste into App Store Connect, and the site itself is at
-`https://zeitkonto.app/`.
-
-**Two things to change before you publish it.** The contact address currently
-reads `REPLACE-WITH-YOUR-CONTACT-EMAIL`, and the date at the top says
-26 August 2026 — set it to the day you actually publish.
-
-**If you make the repository private**, Pages stops serving on a free plan and
-the URL dies, which will fail review at the next submission. Owning the domain
-does not save you here — it points at Pages. Host the page somewhere else
-first, or keep the repository public.
+The privacy and support pages each name a contact address once, as
+`REPLACE-WITH-YOUR-CONTACT-EMAIL` — four places in all, two per language.
+Replace it in each, and keep the date at the top of the policy current when it
+changes.
 
 ## Is the policy accurate?
 
@@ -87,8 +82,10 @@ is checkable:
 |---|---|
 | No analytics, no third-party code | `Package.swift` declares no external packages, and the project links no SDKs |
 | No account | There is no auth layer anywhere in the app |
-| Local storage by default | `HoursModelContainer` opens a local store unless sync is switched on |
-| iCloud is the user's own | CloudKit private database and `NSUbiquitousKeyValueStore` |
+| Stored on the device | `HoursModelContainer` opens a local store; this build cannot sync (`SyncPreference.isAvailable` is false without `ICLOUD_SYNC`) |
+| Crew names are typed, not read from Contacts | No Contacts import; a crew member is a `TextField` |
+| Pay stays off site sheets | Site exports are built without earnings; earnings appear on a personal timesheet only with `ExportPreferences.includeEarnings` |
+| Widgets read a local snapshot | `WidgetSnapshotWriter` writes JSON into the `group.app.zeitkonto` App Group container |
 | Never asks for location | No CoreLocation import; the field is a `TextField` |
 | Notifications are local | `UNCalendarNotificationTrigger`, scheduled on the device |
 | The app learns only entitlement | `SubscriptionStore` reads `Transaction.currentEntitlements` and nothing else |

@@ -1,11 +1,11 @@
 /**
- * Build the site and put it where GitHub Pages already looks.
+ * Build the site and put it where Cloudflare Pages serves it from.
  *
- * Pages on this repository serves `main:/docs`, and the privacy policy at
- * zeitkonto.app/privacy/ is the URL App Store Connect holds. Changing the
- * Pages source to an Actions workflow would break that URL for as long as it
- * took somebody to notice, so the built site is copied into docs/ instead and
- * the hand-written pages there are left where they are.
+ * Cloudflare Pages deploys this repository's `docs/` folder as it stands on
+ * main, with no build step of its own, and the privacy policy at
+ * zeitkonto.app/privacy/ is the URL App Store Connect holds. So the built site
+ * is copied into docs/ and the hand-written pages there are left where they
+ * are: what is committed is exactly what is served.
  *
  * It works by keeping a short list of what is hand-written and clearing
  * everything else. The obvious way round — listing what the build produces and
@@ -16,7 +16,7 @@
  * checked for afterwards.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { cpSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,7 +25,7 @@ const web = dirname(dirname(fileURLToPath(import.meta.url)));
 const docs = join(web, "..", "docs");
 
 /** Hand-written, and never touched by a publish. Everything else is output. */
-const KEEP = new Set(["privacy", "README.md", "app-store-listing.md"]);
+const KEEP = new Set(["privacy", "support", "superpowers", "README.md", "app-store-listing.md"]);
 
 /*
  * Resize the screenshots first. `npm run build` gets this through npm's
@@ -54,16 +54,15 @@ for (const name of readdirSync(docs)) {
 
 cpSync(join(web, "dist"), docs, { recursive: true });
 
-// Pages runs Jekyll unless told not to, which would skip any file whose name
-// begins with an underscore. Vite emits none today; this covers a future one.
-writeFileSync(join(docs, ".nojekyll"), "");
-
 /* The whole point of publishing this way. Fail loudly rather than quietly. */
 if (!existsSync(join(docs, "privacy", "index.html"))) {
   throw new Error("docs/privacy/index.html is gone — that URL is in App Store Connect");
 }
 if (!existsSync(join(docs, "privacy", "de", "index.html"))) {
   throw new Error("docs/privacy/de/index.html is gone — the German page links it");
+}
+if (!existsSync(join(docs, "support", "index.html"))) {
+  throw new Error("docs/support/index.html is gone — that URL is in App Store Connect");
 }
 
 console.log(`Published into docs/ (cleared ${removed.length}, kept ${[...KEEP].join(", ")})`);

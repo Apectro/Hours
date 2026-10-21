@@ -26,9 +26,9 @@ URL that cannot break, and costs one failure mode: editing `src/` without
 running `publish` leaves the live site quietly serving the previous build. That
 job is the price of the trade.
 
-`npm run publish` is the whole deployment. Pages serves `main:/docs`, so the
-site goes live when the commit lands on `main` — see `docs/README.md` for why
-it is arranged that way rather than as an Actions workflow.
+`npm run publish` is the whole deployment. Cloudflare Pages serves `docs/` as it
+stands on `main`, with no build step of its own, so the site goes live when the
+commit lands — see `docs/README.md` for the setup.
 
 ## Two languages
 
@@ -54,13 +54,13 @@ any real selling.
 
 `src/copy/` holds everything each page says, so the copy can be read and
 corrected without going through JSX. It is drawn from
-`docs/app-store-listing.md`, which was written from what the app actually does.
+the store listing in `fastlane/metadata/`, which was written from what the app actually does.
 Where the two disagree the listing wins, because that is the one Apple reads.
 
-Two claims on the page are checkable against this repository and have to stay
-true: the privacy section pairs each promise with the thing in the code that
-makes it (`privacyClaims`), and the six balance cases are the ones the
-calculation engine is tested against.
+Two claims on the page are tied to this repository and have to stay true: the
+privacy section pairs each promise with what keeps it (`privacy.claims` in the
+copy, matching the table in `docs/README.md`), and the six balance cases are
+the ones the calculation engine is tested against.
 
 ## Screenshots
 
@@ -110,15 +110,20 @@ relative ones. It has to change if the site ever moves.
 ## The domain
 
 The site is `zeitkonto.app`, so `base` is the root and asset paths are rooted.
-`public/CNAME` is what attaches the domain: it sits in `public/` rather than
-being a file `publish` is told to spare, so it is ordinary build output and
-cannot be lost. `npm run verify` fails if it goes missing or says something
-else, because without it Pages serves the site back at
-`apectro.github.io/Hours/`, where every rooted asset path 404s and the page
-comes up unstyled rather than plainly broken.
+The domain is attached in the Cloudflare dashboard, not by a file.
+
+`public/` also holds the three files Cloudflare Pages reads from the root of
+what it serves: `_headers` (the security headers and long caching for
+`assets/`), `_redirects` (the working notes in `docs/` are not pages) and
+`404.html` (without it every unknown path would get the home page and a 200).
+They are ordinary build output, so a publish cannot lose them, and
+`npm run verify` fails if the copies in `docs/` differ.
+
+The footer links the privacy policy and the support page, both hand-written in
+`docs/`. Nothing on the site links to the repository: the app is not open
+source.
 
 `og:url` and `og:image` in `index.html` are absolute, because unfurlers do not
 resolve relative ones. They name the domain and have to move with it.
 
-Set `VITE_BASE=/Hours/` to preview the site the way Pages served it before the
-domain was attached. `docs/README.md` has the DNS records.
+`docs/README.md` has the Cloudflare setup.

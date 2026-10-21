@@ -592,7 +592,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
     <div class="phase-head">
       <span class="phase-mark">Phase 2 — the domain</span>
       <h2>Point zeitkonto.app at the site</h2>
-      <p class="phase-note">Nothing here involves Apple. Do it early anyway: DNS takes time to spread and the certificate takes longer, and the privacy policy URL has to resolve before a submission is accepted. The site itself is built and committed — this deploys it and connects the name to it.</p>
+      <p class="phase-note">Nothing here involves Apple. Do it early anyway: DNS takes time to spread and the certificate takes longer, and the privacy policy and support URLs have to resolve before a submission is accepted. The site itself is built and committed in <code>docs/</code> — this deploys it with Cloudflare Pages and connects the name to it.</p>
     </div>
 
     <ol class="steps" start="4">
@@ -600,30 +600,30 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s4" aria-labelledby="s4-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">10 minutes</span><span class="chip">around $5 a month</span></div>
-          <label class="step-title" id="s4-t" for="s4">Deploy the site on Railway</label>
-          <p class="step-where">railway.com › New Project › Deploy from GitHub repo</p>
-          <p>Pick <code>Apectro/Hours</code>. Railway reads <code>railway.json</code> at the root, which pins it to the <code>Dockerfile</code> — without that it would find <code>web/package.json</code> next to <code>Package.swift</code> and an Xcode project and have to guess, which is not a thing to leave to a guess.</p>
-          <p>What it builds is Caddy plus the contents of <code>docs/</code>: no Node in the image, nothing compiled at deploy time, about 3MB of site. <code>docs/</code> is the tree CI already checks against <code>web/</code> on every push, so what Railway serves and what the repository says is live are the same files by construction rather than by discipline.</p>
-          <p>Then <strong>Settings › Networking › Generate Domain</strong> for a <code>…up.railway.app</code> address, and open it. Check <code>/</code>, <code>/de/</code> and <code>/privacy/</code> there <em>before</em> going anywhere near DNS. A broken deploy and a half-spread DNS record look identical from outside, and doing them one at a time is the difference between a five-minute problem and an afternoon.</p>
-          <div class="callout">
-            <p><strong>This is the one part of the project that now costs money every month.</strong> Pages was free. Railway&#8217;s paid tier starts around $5 — check the current figure, it has moved — and if it ever lapses, <code>zeitkonto.app/privacy/</code> stops resolving. That does not break anything visibly; it fails your <em>next</em> App Store submission, quietly and much later. Put a real card on it rather than a trial.</p>
-          </div>
+          <div class="chips"><span class="chip">15 minutes</span><span class="chip chip--free">Free</span></div>
+          <label class="step-title" id="s4-t" for="s4">Put zeitkonto.app on Cloudflare</label>
+          <p class="step-where">dash.cloudflare.com › Add a domain</p>
+          <p>Enter <code>zeitkonto.app</code>, choose the <strong>Free</strong> plan, and let Cloudflare import the existing records. It then names two nameservers. At your registrar, replace the domain&#8217;s nameservers with those two; the registration itself stays where it is. Cloudflare emails when the domain is active — usually within the hour, sometimes a day.</p>
+          <p>Cloudflare serving the DNS is what lets the bare <code>zeitkonto.app</code> point at the site at all: the apex cannot take an ordinary CNAME, and Cloudflare flattens one for you.</p>
         </div>
       </li>
 
       <li class="step">
         <input type="checkbox" class="tick" id="s5" aria-labelledby="s5-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">5 minutes</span><span class="chip">then up to a day to spread</span></div>
-          <label class="step-title" id="s5-t" for="s5">Add the DNS record Railway asks for</label>
-          <p class="step-where">Railway › Settings › Networking › Custom Domain, then your registrar&#8217;s DNS</p>
-          <p>Enter <code>zeitkonto.app</code> in Railway. It then shows you <strong>the exact record to create</strong> — a target unique to your service. Copy it from that screen. Nobody can tell you the value in advance, it is not the same between projects, and it is the one thing on this whole page that has to come from the dashboard rather than from here.</p>
-          <p>Railway issues the certificate itself once the record resolves.</p>
-          <div class="callout">
-            <p><strong>A bare domain often cannot take a CNAME.</strong> <code>zeitkonto.app</code> with nothing in front of it is the apex, and the DNS standard does not allow a CNAME record there. Providers work around it under the names <strong>ALIAS</strong>, <strong>ANAME</strong> or <strong>CNAME flattening</strong>.</p>
-            <p>If yours offers none of them, the two usual answers are to move the domain&#8217;s DNS to a provider that does — Cloudflare does it free and the registration stays where it is — or to serve on <code>www.zeitkonto.app</code> and redirect the apex to it. Find out which of the three your registrar supports before you plan the afternoon around it.</p>
-          </div>
+          <div class="chips"><span class="chip">10 minutes</span><span class="chip chip--free">Free</span></div>
+          <label class="step-title" id="s5-t" for="s5">Deploy the site with Cloudflare Pages</label>
+          <p class="step-where">dash.cloudflare.com › Workers &amp; Pages › Create › Pages › Connect to Git</p>
+          <p>Authorise Cloudflare on GitHub for this repository only, pick it, and set:</p>
+          <ul class="literals">
+            <li><span class="what">Production branch</span> <button class="copy">main</button></li>
+            <li><span class="what">Framework preset</span> <button class="copy">None</button></li>
+            <li><span class="what">Build command</span> <span>leave empty</span></li>
+            <li><span class="what">Build output directory</span> <button class="copy">docs</button></li>
+          </ul>
+          <p>Save and Deploy. Nothing is built: <code>docs/</code> is the site, already built and committed, and CI checks it against <code>web/</code> on every push — so what Cloudflare serves and what the repository says is live are the same files. Every push to <code>main</code> redeploys.</p>
+          <p>Open the <code>…pages.dev</code> address it gives you and check <code>/</code>, <code>/de/</code>, <code>/privacy/</code> and <code>/support/</code> there <em>before</em> attaching the domain.</p>
+          <p>Then the project › <strong>Custom domains</strong> › Set up a custom domain › <code>zeitkonto.app</code>. With the domain already on Cloudflare it adds the record and the certificate itself. Add <code>www.zeitkonto.app</code> the same way if you want it.</p>
         </div>
       </li>
 
@@ -631,18 +631,19 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
         <input type="checkbox" class="tick" id="s6" aria-labelledby="s6-t">
         <div class="step-body">
           <div class="chips"><span class="chip">1 minute</span><span class="chip chip--blocks">Blocks the listing</span></div>
-          <label class="step-title" id="s6-t" for="s6">Check all three addresses resolve</label>
+          <label class="step-title" id="s6-t" for="s6">Check the addresses resolve</label>
           <p class="step-where">Any browser</p>
           <ul class="literals">
             <li><span class="what">English</span> <button class="copy">https://zeitkonto.app/</button></li>
             <li><span class="what">German</span> <button class="copy">https://zeitkonto.app/de/</button></li>
             <li><span class="what">Policy</span> <button class="copy">https://zeitkonto.app/privacy/</button></li>
+            <li><span class="what">Support</span> <button class="copy">https://zeitkonto.app/support/</button></li>
           </ul>
           <div class="callout">
             <p><strong>.app is HTTPS-only, and this is where it bites.</strong> The whole <code>.app</code> top-level domain is on the browser preload list, so browsers refuse to speak plain HTTP to it — there is no insecure version to land on. Between the DNS resolving and the certificate being issued, the site is not slow or ugly, it is <em>unreachable</em>. That is normal, it is usually minutes, and the thing to do about it is wait rather than start changing settings.</p>
           </div>
-          <p class="fineprint">There is a script for exactly this: <code>python3 Scripts/check-site-routes.py https://zeitkonto.app</code> checks all four pages, the images, the redirects, and that the two working drafts in <code>docs/</code> are <em>not</em> being served. CI runs it against the same Caddy configuration on every push.</p>
-          <p class="fineprint">Pages still serves the same <code>docs/</code> for free, but it is not a fallback as things stand: <code>docs/CNAME</code> says <code>zeitkonto.app</code>, which is how a custom domain is set, so Pages redirects <code>apectro.github.io/Hours/</code> to the domain — and the domain now points at Railway. Deleting <code>web/public/CNAME</code> and republishing would give you a genuinely independent second copy at the github.io address.</p>
+          <p class="fineprint">There is a script for exactly this: <code>python3 Scripts/check-site-routes.py https://zeitkonto.app</code> checks the pages, the images and the redirects. Cloudflare answers the working notes in <code>docs/</code> with a redirect to the home page (<code>_redirects</code>) where Caddy answers 404, so expect the script to report those three lines differently against Cloudflare.</p>
+          <p class="fineprint">Nothing public links to the repository and Cloudflare deploys from a private one, so the repository can be made private without touching the site.</p>
         </div>
       </li>
 
@@ -812,27 +813,26 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s17" aria-labelledby="s17-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">20 minutes</span><span class="chip chip--blocks">Identifiers must match exactly</span></div>
+          <div class="chips"><span class="chip chip--free">Done by a workflow</span><span class="chip">5 minutes</span></div>
           <label class="step-title" id="s17-t" for="s17">Create the three products</label>
-          <p class="step-where">App Store Connect › your app › Monetization</p>
-          <p>The identifiers must match <code>SubscriptionStore.ProductID</code> character for character. A typo here is another silent empty paywall.</p>
+          <p class="step-where">GitHub › Actions › App Store › Run workflow › what: products</p>
+          <p>The workflow creates the subscription group (reference name <code>Hours Pro</code>, shown to customers as Zeitkonto Pro), the monthly and yearly subscriptions in it, and the lifetime purchase, with names and descriptions in English and German and the prices set. Whatever exists is skipped, and the log lists what it made. The identifiers match <code>SubscriptionStore.ProductID</code> exactly:</p>
           <ul class="literals">
             <li><span class="what">Monthly</span> <button class="copy">app.zeitkonto.pro.monthly</button></li>
             <li><span class="what">Yearly</span> <button class="copy">app.zeitkonto.pro.yearly</button></li>
             <li><span class="what">Lifetime</span> <button class="copy">app.zeitkonto.pro.lifetime</button></li>
           </ul>
-          <p>Monthly and yearly are <strong>auto-renewable subscriptions in one shared group</strong> — call it <code>hours.pro</code> — so someone can move between them. Lifetime is a <strong>non-consumable</strong>. Each needs a display name, a description and a price before it will even appear.</p>
-          <p>If you ever change the bundle identifier, change these three constants in <code>Hours/Data/Store/SubscriptionStore.swift</code> to match your new prefix.</p>
+          <p>The API key needs the Admin or App Manager role. If Apple refuses, the run says what to create by hand instead. Still by hand either way: <strong>a review screenshot</strong> of the paywall on each product&#8217;s page.</p>
         </div>
       </li>
 
       <li class="step">
         <input type="checkbox" class="tick" id="s18" aria-labelledby="s18-t">
         <div class="step-body">
-          <div class="chips"><span class="chip">Decision</span></div>
-          <label class="step-title" id="s18-t" for="s18">Decide the real prices</label>
-          <p>The numbers in <code>HoursTests/Hours.storekit</code> — £1.99 monthly, £12.99 yearly, £24.99 outright — were chosen to make the paywall render in the simulator. They are placeholders, not a recommendation. The real prices live only in App Store Connect.</p>
-          <p>Worth remembering what is and is not behind the payment: recording hours is free forever, and <strong>nothing already recorded is ever withheld</strong> — if a subscription lapses every figure is still there and the backup still writes. What is paid for is producing and creating: the exports, the widgets, a second job, editing a range in one pass, and iCloud sync.</p>
+          <div class="chips"><span class="chip chip--free">Decided</span></div>
+          <label class="step-title" id="s18-t" for="s18">The prices</label>
+          <p><strong>€2.99 a month, €19.99 a year, €39.99 outright</strong>, set in Germany; Apple works out every other territory from it. The numbers in <code>HoursTests/Hours.storekit</code> are only for the simulator.</p>
+          <p>Worth remembering what is and is not behind the payment: recording hours is free forever, and <strong>nothing already recorded is ever withheld</strong> — if a subscription lapses every figure is still there and the backup still writes. What is paid for is producing and creating: the exports, the widgets and the Live Activity, more than one site, a second job, and editing a range in one pass.</p>
         </div>
       </li>
 
@@ -875,13 +875,11 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s21" aria-labelledby="s21-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--free">Mostly done for you</span><span class="chip">30 minutes</span></div>
-          <label class="step-title" id="s21-t" for="s21">Collect the screenshots</label>
-          <p class="step-where">github.com/Apectro/Hours › branch <code>screenshots</code></p>
-          <p>They already exist. A test drives the app in a simulator with a month of sample data and captures the calendar, a day, the insights, settings, the privacy screen and the export sheet — plus the actual exported PDF pages, CSV and XLSX. Ten files, on the <code>screenshots</code> branch, kept current.</p>
-          <p>Two sizes are now captured for you: the suite runs on the largest iPhone the runner has, then takes the screenshots again on a smaller one. They arrive in a folder each, named after the simulator, so they can be uploaded separately without sorting them out first. The last run gave <code>iPhone-17-Pro-Max</code> and <code>iPhone-17-Pro</code>.</p>
-          <p>The <strong>6.9-inch set is the one App Store Connect requires</strong>, and that is the Pro Max folder. The second size is there to choose from, not because Apple demands it — and note that a genuine 6.5-inch device (an iPhone 11 Pro Max) is not installed on the runner, so if your listing specifically needs that size you will have to take it by hand.</p>
-          <p>That job runs on pull requests and on demand, not on every push — Actions › Build and test › Run workflow.</p>
+          <div class="chips"><span class="chip chip--free">Done for you</span><span class="chip">5 minutes</span></div>
+          <label class="step-title" id="s21-t" for="s21">Upload the listing and screenshots</label>
+          <p class="step-where">GitHub › Actions › App Store › Run workflow › what: listing</p>
+          <p>First run Actions › Build and test › Run workflow on <code>main</code>. It takes seven screenshots with a sample month — a site with a crew of five, a pay rate — on the largest iPhone and on a 13-inch iPad, in English and German, and lays them out under <code>app-store/</code> on the <code>screenshots</code> branch.</p>
+          <p>Then the App Store workflow uploads them with the text in <code>fastlane/metadata/</code>, the age rating and the categories. It submits nothing. <strong>The app runs on iPad</strong>, so App Store Connect needs the iPad set as well; the run warns if it is missing.</p>
         </div>
       </li>
 
@@ -889,18 +887,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
         <input type="checkbox" class="tick" id="s22" aria-labelledby="s22-t">
         <div class="step-body">
           <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip chip--free">Written for you</span><span class="chip">10 minutes</span></div>
-          <label class="step-title" id="s22-t" for="s22">Put the privacy policy on the web</label>
-          <p class="step-where">docs/privacy/index.html</p>
-          <p>Every App Store listing needs a privacy policy URL that resolves, even one for an app that collects nothing. <strong>The policy is written</strong> — from the code rather than from a template, with a table in <code>docs/README.md</code> showing where each claim comes from, so it can be checked rather than trusted.</p>
-          <p>It is in <code>docs/</code>, which is what Railway serves; once the domain is attached in phase 2 it is live at:</p>
+          <label class="step-title" id="s22-t" for="s22">Fill in the contact address on the privacy and support pages</label>
+          <p class="step-where">docs/privacy/, docs/support/ (each with a de/ page)</p>
+          <p>Every App Store listing needs a privacy policy URL and a support URL that resolve. <strong>Both pages are written</strong>, in English and German, and are live once phase 2 is done:</p>
           <ul class="literals">
-            <li><span class="what">URL</span> <button class="copy">https://zeitkonto.app/privacy/</button></li>
+            <li><span class="what">Policy</span> <button class="copy">https://zeitkonto.app/privacy/</button></li>
+            <li><span class="what">Support</span> <button class="copy">https://zeitkonto.app/support/</button></li>
           </ul>
-          <p>Two edits before you do: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, and the date at the top should be the day you publish.</p>
-          <div class="callout">
-            <span class="callout-label">No longer interacts with step 27</span>
-            <p>On Pages this URL and a private repository could not both exist: Pages stops serving a private repository on a free plan, so making it private killed the policy page and failed review at the next submission. Railway deploys from a private repository perfectly well, which removes the conflict — and is the strongest argument for having moved the site there.</p>
-          </div>
+          <p>One edit: the contact address says <code>REPLACE-WITH-YOUR-CONTACT-EMAIL</code>, once on each of the four pages.</p>
         </div>
       </li>
 
@@ -917,12 +911,11 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s24" aria-labelledby="s24-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--free">Drafted for you</span><span class="chip">30 minutes to edit</span></div>
-          <label class="step-title" id="s24-t" for="s24">Edit the listing and paste it in</label>
-          <p class="step-where">docs/app-store-listing.md</p>
-          <p>Every field App Store Connect asks for is drafted, with the character limit it enforces marked against each: name, subtitle, promotional text, the full description, keywords, URLs, age rating and the review notes. The category is already set in the project to Productivity.</p>
-          <p>The <strong>review notes</strong> are the ones worth reading before you send. They say plainly that the app is fully functional unpaid and how to reach the paywall — reviewers reject paywalls they cannot get behind, and this one gates producing timesheets rather than recording hours, which is not obvious from outside.</p>
-          <p>Three things in it still need you: confirming <em>Zeitkonto</em> is free to claim, the prices, and the contact email.</p>
+          <div class="chips"><span class="chip chip--free">Written for you</span><span class="chip">10 minutes</span></div>
+          <label class="step-title" id="s24-t" for="s24">Finish the listing by hand</label>
+          <p class="step-where">App Store Connect › your app</p>
+          <p>The text is in <code>fastlane/metadata/</code> (explained in <code>docs/app-store-listing.md</code>) and the workflow uploads it. What it deliberately does not: the <strong>App Review contact</strong> — name, phone, email — under App Review Information, and the owner&#8217;s name in <code>fastlane/metadata/copyright.txt</code>.</p>
+          <p>The <strong>review notes</strong> say the app is fully functional unpaid, where the paywall is, and that the TestFlight unlock is compiled out of the review build — so submit a build made with <em>Unlock Pro for testers</em> off, and add the three products to the version.</p>
         </div>
       </li>
 
@@ -978,7 +971,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
         <div class="step-body">
           <div class="chips"><span class="chip">A few minutes</span></div>
           <label class="step-title" id="s27-t" for="s27">Make the repository private</label>
-          <p>Nothing in it is secret — there are no keys, no tokens and no personal data anywhere in the tree, and the CI runs without any secret at all. But the App Store listing does not link to it, and a private repository is one fewer thing to think about.</p>
+          <p class="step-where">GitHub › Settings › General › Danger Zone › Change visibility</p>
+          <p>The app is not open source, and nothing public links here any more: the site, the listing and the support page point at zeitkonto.app. Cloudflare Pages keeps deploying from a private repository, so the privacy and support URLs are unaffected.</p>
+          <p>One cost to know first: Actions minutes on a private repository come out of the account&#8217;s monthly allowance, and macOS minutes count ten times. The simulator job and the TestFlight and App Store workflows are macOS; the budget in step 25 is what keeps that from surprising you.</p>
         </div>
       </li>
 

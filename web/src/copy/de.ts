@@ -40,7 +40,6 @@ export const de: Copy = {
     lede: "Tag antippen, Stunden eintragen, und der Monat rechnet sich selbst zusammen. Wenn die Lohnbuchhaltung einen Stundenzettel will, exportierst du einen — in der Sprache, die sie liest. Es gibt kein Konto anzulegen und nirgendwo, wohin etwas davon ginge.",
     appStoreAction: "Im App Store laden",
     costAction: "Was es kostet",
-    sourceAction: "Quellcode lesen",
     notYet: "Noch nicht im App Store. ",
     note: "Stunden zu erfassen ist kostenlos und bleibt es. Braucht iOS 18.",
     shotAlt: "Zeitkonto auf einem iPhone: ein Monat, dessen Tage nach Art eingefärbt sind, mit den Summen darunter",
@@ -130,13 +129,13 @@ export const de: Copy = {
   },
 
   privacy: {
-    heading: "Jedes Versprechen hier, und wo es zu prüfen ist",
-    lede: "Die App ist eine Datei auf deinem Telefon. Es gibt kein Konto anzulegen und keinen Server, an den etwas ginge, und der Quellcode ist offen — du musst also nichts davon glauben.",
+    heading: "Jedes Versprechen hier, und was es hält",
+    lede: "Die App ist eine Datei auf deinem Telefon. Es gibt kein Konto anzulegen und keinen Server, an den etwas ginge. Jedes Versprechen unten ist die Bauweise der App, keine Einstellung, die später jemand ausschalten könnte.",
     claims: [
       { claim: "Kein Konto, keine Anmeldung", evidence: "in der ganzen App gibt es keine Anmeldeschicht" },
-      { claim: "Keine Analyse, kein Tracking", evidence: "Package.swift führt keine externen Pakete" },
-      { claim: "Nichts verlässt das Gerät", evidence: "außer du exportierst eine Datei oder schaltest iCloud ein" },
-      { claim: "iCloud ist deins", evidence: "private CloudKit-Datenbank, standardmäßig aus" },
+      { claim: "Keine Analyse, kein Tracking", evidence: "keinerlei Code von Dritten in der App" },
+      { claim: "Nichts verlässt das Gerät", evidence: "außer du exportierst eine Datei und schickst sie selbst" },
+      { claim: "Mannschaft und Lohn bleiben bei dir", evidence: "Baustellen, Namen und Stundenlöhne liegen auf dem Telefon; Geld steht nie auf einer Baustellenliste" },
       { claim: "Fragt nie, wo du bist", evidence: "kein CoreLocation-Import; das Feld ist ein Textfeld" },
       { claim: "Erinnerungen sind lokal", evidence: "UNCalendarNotificationTrigger, auf dem Gerät geplant" },
     ],
@@ -149,6 +148,7 @@ export const de: Copy = {
       { name: "Kostenlos, und bleibt es", price: "Nichts, wofür man sich anmelden müsste", highlight: false,
         items: [
           "Der Kalender, der Tageseditor und jedes Feld",
+          "Deine erste Baustelle mit Mannschaft, und was du verdient hast",
           "Pausen, Überstunden, Korrekturen und der Saldo",
           "Auswertung für Tag, Woche, Monat und Jahr",
           "Ein Hinweis, wenn an einem Arbeitstag keine Stunden stehen",
@@ -156,11 +156,10 @@ export const de: Copy = {
         ] },
       { name: "Zeitkonto Pro", price: "Monatlich, jährlich, oder einmalig gekauft", highlight: true,
         items: [
-          "Stundenzettel als CSV, Excel oder PDF, in zehn Sprachen",
-          "Widgets für Home- und Sperrbildschirm",
-          "Eine zweite Tätigkeit mit eigener Vertragswoche",
+          "Stundenzettel und die Liste für die Bauleitung als CSV, Excel oder PDF, in zehn Sprachen",
+          "Widgets für Home- und Sperrbildschirm, und die Uhr als Live-Aktivität",
+          "Mehr als eine Baustelle, und eine zweite Tätigkeit mit eigener Woche",
           "Einen ganzen Zeitraum in einem Zug bearbeiten",
-          "iCloud-Sync zwischen deinen eigenen Geräten",
         ] },
     ],
   },
@@ -168,7 +167,6 @@ export const de: Copy = {
   footer: {
     line: "Zeitkonto ist von einer einzelnen Person gemacht. Keine Firma dahinter, und nichts darin, das nach Hause telefoniert.",
     privacy: "Datenschutz",
-    source: "Quellcode",
     support: "Support",
   },
 };
