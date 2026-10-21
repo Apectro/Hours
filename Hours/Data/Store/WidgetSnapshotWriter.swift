@@ -59,6 +59,9 @@ struct WidgetSnapshotWriter {
 
         let running = clock.running
         let allSites = sites.sites(includeArchived: true)
+        let earned = settings.showsEarnings
+            ? earnings(engine: engine, month: month, week: week, today: today, holidays: holidays)
+            : nil
         return WidgetSnapshot(
             generatedAt: instant,
             isClockRunning: running != nil,
@@ -79,7 +82,32 @@ struct WidgetSnapshotWriter {
             monthMarks: WidgetSnapshotBuilder.monthMarks(monthDays, today: today),
             clockSiteName: WidgetSnapshotBuilder.clockSiteName(for: running, among: allSites),
             todayDefaultEnd: WidgetSnapshotBuilder.defaultEnd(today: todayComputation, running: running, settings: settings),
-            site: siteCard(among: allSites, today: today)
+            site: siteCard(among: allSites, today: today),
+            earnings: earned
+        )
+    }
+
+    /// The month's and the week's earnings through today, from one fetch of
+    /// the whole weeks around both — overtime after the contracted week is
+    /// counted from the week's first day, which the month may not hold.
+    private func earnings(
+        engine: PeriodEngine,
+        month: CalendarDateRange,
+        week: CalendarDateRange,
+        today: CalendarDate,
+        holidays: [HolidayRule]
+    ) -> WidgetEarnings? {
+        let fetched = engine.earningsRange(covering: CalendarDateRange(
+            start: min(month.start, week.start),
+            end: max(month.end, week.end)
+        ))
+        let records = repository.records(in: fetched)
+        return WidgetSnapshotBuilder.earnings(
+            month: engine.earnings(in: month, records: records, holidays: holidays, countingThrough: today),
+            week: engine.earnings(in: week, records: records, holidays: holidays, countingThrough: today),
+            today: today,
+            settings: settings,
+            currencyCode: settings.money.currencyCode
         )
     }
 

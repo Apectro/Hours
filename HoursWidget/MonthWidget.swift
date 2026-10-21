@@ -28,6 +28,8 @@ struct MonthFigures {
     var balance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
     var fraction: Double? { snapshot.monthFraction(at: entry.date, calendar: calendar) }
     var marks: [WidgetDayMark] { snapshot.monthMarks(at: entry.date, calendar: calendar) }
+    /// The month's earnings, while they are what the app leads with.
+    var earned: Int? { snapshot.monthEarnings(at: entry.date, calendar: calendar) }
 
     func duration(_ minutes: Int) -> String { snapshot.formatting.string(minutes) }
 
@@ -36,13 +38,17 @@ struct MonthFigures {
         entry.date.formatted(.dateTime.month(.wide)).uppercased()
     }
 
-    /// The big figure: the balance, or the hours themselves for someone who
-    /// has switched the balance off.
+    /// The big figure: what the month earned, the balance, or the hours
+    /// themselves for someone who has switched the balance off.
     var headline: String {
-        snapshot.showsBalance ? snapshot.formatting.signedString(balance) : duration(worked)
+        if let earned, let money = snapshot.money { return money.string(earned, showsCents: false) }
+        return snapshot.showsBalance ? snapshot.formatting.signedString(balance) : duration(worked)
     }
 
     var verdict: String {
+        if earned != nil {
+            return String(localized: "this month · \(duration(worked))", comment: "Widget, under the month's earnings; the value is the hours worked")
+        }
         guard snapshot.showsBalance else {
             return String(localized: "of \(duration(expected))", comment: "Widget, the month's target beneath the hours worked so far")
         }
@@ -81,7 +87,8 @@ struct MonthSmall: View {
             HStack(alignment: .firstTextBaseline) {
                 WidgetHeading(text: Text(verbatim: figures.monthName), color: WidgetPalette.navy)
                 Spacer(minLength: 4)
-                if figures.entry.hasData, figures.snapshot.showsBalance {
+                // With earnings the hours are under the figure instead.
+                if figures.entry.hasData, figures.snapshot.showsBalance, figures.earned == nil {
                     Text(figures.duration(figures.worked))
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundStyle(WidgetPalette.navy.opacity(0.7))
@@ -226,7 +233,7 @@ struct MonthRectangular: View {
                 Text(figures.headline)
                     .font(.widgetFigure(.headline, weight: .bold))
                     .widgetAccentable()
-                Text(figures.snapshot.showsBalance ? figures.verdict : String(localized: "of \(figures.duration(figures.expected))", comment: "Widget, the month's target beneath the hours worked so far"))
+                Text(figures.snapshot.showsBalance || figures.earned != nil ? figures.verdict : String(localized: "of \(figures.duration(figures.expected))", comment: "Widget, the month's target beneath the hours worked so far"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -242,7 +249,15 @@ struct MonthInline: View {
     let figures: MonthFigures
 
     var body: some View {
-        if figures.entry.hasData, figures.snapshot.showsBalance {
+        if figures.entry.hasData, figures.earned != nil {
+            Label(
+                String(
+                    localized: "\(figures.headline) month",
+                    comment: "Lock Screen and widgets, the month's balance in two words"
+                ),
+                systemImage: "calendar"
+            )
+        } else if figures.entry.hasData, figures.snapshot.showsBalance {
             Label(
                 String(
                     localized: "\(figures.snapshot.formatting.signedString(figures.balance)) month",

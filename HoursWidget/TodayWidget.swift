@@ -33,6 +33,14 @@ struct TodayFigures {
     var monthBalance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
     var monthWorked: Int { snapshot.monthWorked(at: entry.date, calendar: calendar) }
     var startedAt: Date? { snapshot.isClockRunning ? snapshot.clockStartedAt : nil }
+    /// Today's earnings as recorded, while they are what the app leads with.
+    var earnedToday: Int? { snapshot.todayEarnings(at: entry.date, calendar: calendar) }
+
+    /// "€120.00", when there are earnings to show.
+    var earnedTodayText: String? {
+        guard let earnedToday, let money = snapshot.money else { return nil }
+        return money.string(earnedToday)
+    }
 
     func duration(_ minutes: Int) -> String { snapshot.formatting.string(minutes) }
     func signed(_ minutes: Int) -> String { snapshot.formatting.signedString(minutes) }
@@ -57,6 +65,9 @@ struct TodayFigures {
 
     /// "Month +3:30", or the month's hours when the balance is switched off.
     var monthLine: String {
+        if let earnedTodayText {
+            return String(localized: "\(earnedTodayText) today", comment: "Lock Screen, what today has earned")
+        }
         let figure = snapshot.showsBalance ? signed(monthBalance) : duration(monthWorked)
         return String(localized: "Month \(figure)", comment: "Widget, the month's balance or hours on one line")
     }
@@ -237,24 +248,33 @@ struct RunningColumn: View {
     }
 }
 
-/// The month's balance and the days still to write, when no clock runs.
+/// The month's balance and the days still to write, when no clock runs — or,
+/// with earnings as the main figure, what today has earned in its place.
 struct MonthColumn: View {
     let figures: TodayFigures
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            WidgetHeading(text: Text("THIS MONTH"), color: WidgetPalette.amber)
-            if figures.snapshot.showsBalance {
-                Text(figures.signed(figures.monthBalance))
+            if let earned = figures.earnedTodayText {
+                WidgetHeading(text: Text("EARNED TODAY"), color: WidgetPalette.amber)
+                Text(earned)
                     .font(.widgetFigure(size: 24))
-                    .foregroundStyle(WidgetPalette.balance(figures.monthBalance))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
             } else {
-                Text(figures.duration(figures.monthWorked))
-                    .font(.widgetFigure(size: 24))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                WidgetHeading(text: Text("THIS MONTH"), color: WidgetPalette.amber)
+                if figures.snapshot.showsBalance {
+                    Text(figures.signed(figures.monthBalance))
+                        .font(.widgetFigure(size: 24))
+                        .foregroundStyle(WidgetPalette.balance(figures.monthBalance))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                } else {
+                    Text(figures.duration(figures.monthWorked))
+                        .font(.widgetFigure(size: 24))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
             }
             if figures.snapshot.unrecordedDayCount > 0 {
                 Text(UnrecordedDays.text(figures.snapshot.unrecordedDayCount))
@@ -377,6 +397,7 @@ struct TodayInline: View {
             localized: "\(figures.duration(figures.worked)) today",
             comment: "Lock Screen, the hours worked today"
         )
+        if let earned = figures.earnedTodayText { return "⛑ " + today + " · " + earned }
         guard figures.snapshot.showsBalance else { return "⛑ " + today }
         let month = String(
             localized: "\(figures.signed(figures.monthBalance)) month",
