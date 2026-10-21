@@ -72,12 +72,21 @@ final class SubscriptionStore {
 
     private static let testerLocksProKey = "hours.tester.locksPro"
 
+    /// Whether this store sells anything. Only the app's own store is built
+    /// with `FreeLaunch.paymentsEnabled`; every other store — the StoreKit
+    /// tests, previews, the UI tests' pinned one — keeps purchases working,
+    /// so the paywall and the purchase code stay tested while the first
+    /// release is free.
+    @ObservationIgnored let paymentsEnabled: Bool
+
     init(
         defaults: UserDefaults = .standard,
         cacheKey: String = "hours.entitlement",
-        pinned: Bool = false
+        pinned: Bool = false,
+        paymentsEnabled: Bool = true
     ) {
         self.isPinned = pinned
+        self.paymentsEnabled = paymentsEnabled
         self.defaults = defaults
         self.cacheKey = cacheKey
         // Provisional, and only until the first `refresh()` returns: without it
@@ -86,11 +95,7 @@ final class SubscriptionStore {
         let cached = SubscriptionStore.cached(from: defaults, key: cacheKey)
         let provisional = cached?.isTrustworthyOffline(at: Date()) == true ? cached! : .free
         self.storeAnswer = provisional
-        // A pinned store (UI tests) keeps exactly what it was handed, so the
-        // paywall stays tested for the day payments are switched on.
-        self.entitlement = pinned
-            ? provisional
-            : FreeLaunch.entitlement(storeAnswer: provisional, paymentsEnabled: FreeLaunch.paymentsEnabled, at: Date())
+        self.entitlement = FreeLaunch.entitlement(storeAnswer: provisional, paymentsEnabled: paymentsEnabled, at: Date())
         self.testerLocksPro = defaults.bool(forKey: SubscriptionStore.testerLocksProKey)
 
         // A transaction can arrive at any moment — a renewal, a refund, a
@@ -149,16 +154,12 @@ final class SubscriptionStore {
             testerLocksPro: testerLocksPro,
             at: now
         )
-        entitlement = isPinned
-            ? tested
-            : FreeLaunch.entitlement(storeAnswer: tested, paymentsEnabled: FreeLaunch.paymentsEnabled, at: now)
+        entitlement = FreeLaunch.entitlement(storeAnswer: tested, paymentsEnabled: paymentsEnabled, at: now)
     }
 
     /// Whether this copy of the app sells anything: the Pro row, the tester
-    /// switch and "Buying Zeitkonto Pro" only appear when it does. The UI
-    /// tests' pinned store always does, so the paywall keeps its tests while
-    /// the first release is free (`FreeLaunch`).
-    var offersPurchases: Bool { isPinned || FreeLaunch.paymentsEnabled }
+    /// switch and "Buying Zeitkonto Pro" only appear when it does.
+    var offersPurchases: Bool { paymentsEnabled }
 
     var isPro: Bool { entitlement.isActive(at: Date()) }
 

@@ -83,7 +83,7 @@ enum HoursStack {
     /// That way the locks, the gates and the paywall are what gets exercised by
     /// default, and a test that wants the other side says so out loud.
     static let subscriptions: SubscriptionStore = {
-        guard isRunningUITests else { return SubscriptionStore() }
+        guard isRunningUITests else { return SubscriptionStore(paymentsEnabled: FreeLaunch.paymentsEnabled) }
         let paid = ProcessInfo.processInfo.arguments.contains("-hours-pro")
         return SubscriptionStore.pinned(paid ? Entitlement(kind: .lifetime) : .free)
     }()
