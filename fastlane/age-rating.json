@@ -2,6 +2,7 @@
   "alcoholTobaccoOrDrugUseOrReferences": "NONE",
   "contests": "NONE",
   "gamblingSimulated": "NONE",
+  "gunsOrOtherWeapons": "NONE",
   "horrorOrFearThemes": "NONE",
   "matureOrSuggestiveThemes": "NONE",
   "medicalOrTreatmentInformation": "NONE",
@@ -11,6 +12,14 @@
   "violenceCartoonOrFantasy": "NONE",
   "violenceRealistic": "NONE",
   "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+  "advertising": false,
+  "ageAssurance": false,
   "gambling": false,
-  "unrestrictedWebAccess": false
+  "healthOrWellnessTopics": false,
+  "lootBox": false,
+  "messagingAndChat": false,
+  "parentalControls": false,
+  "socialMedia": false,
+  "unrestrictedWebAccess": false,
+  "userGeneratedContent": false
 }
