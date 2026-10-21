@@ -1,8 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// One site: its day screen, under the site's name, with the way to the crew
-/// and the editor for the site's name, job and archiving in the toolbar.
+/// One site: its month and day screen under the site's name, with the crew,
+/// the export and the editor for the site's name, job and archiving folded
+/// into one menu in the toolbar.
 ///
 /// Opens on today, or on the date it is given — the personal day editor's
 /// "Open on site" passes the day it came from.
@@ -12,6 +13,7 @@ struct SiteDetailScreen: View {
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
+    @Environment(\.openSiteCrew) private var openSiteCrew
 
     // Every site rather than this one: whether this one is read-only depends
     // on the others (see `SiteAccess.isReadOnly`).
@@ -33,29 +35,46 @@ struct SiteDetailScreen: View {
             }
         }
         .navigationTitle(site?.name ?? "")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                // Open on a read-only site too: an archived site's months are
-                // still the director's to ask for.
-                Button {
-                    exporting = site
-                } label: {
-                    Label("Export", systemImage: "square.and.arrow.up")
-                }
-                .disabled(site == nil)
-                .accessibilityIdentifier("site-export")
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    // Pushed by value onto whichever stack this screen is in
+                    // (the Sites tab, or the day editor that opened it): a
+                    // presented-binding destination here is what once left
+                    // the app never going idle. A NavigationLink cannot sit
+                    // in a Menu, so the stack's root hands down the push.
+                    Button {
+                        openSiteCrew(SiteCrewRoute(siteID: siteID))
+                    } label: {
+                        Label("Crew", systemImage: "person.2")
+                    }
+                    // On the control, not on its label: the element a UI
+                    // test can tap is the button.
+                    .accessibilityIdentifier("site-crew")
 
-                // By value: the destination is registered with the stack's
-                // root (the Sites tab, or the day editor that opened this).
-                NavigationLink(value: SiteCrewRoute(siteID: siteID)) {
-                    Label("Crew", systemImage: "person.2")
-                }
-                .accessibilityIdentifier("site-crew")
+                    // Open on a read-only site too: an archived site's months
+                    // are still the director's to ask for.
+                    Button {
+                        exporting = site
+                    } label: {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                    }
+                    .disabled(site == nil)
+                    .accessibilityIdentifier("site-export")
 
-                Button("Edit") { editing = site }
+                    Button {
+                        editing = site
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
                     .disabled(site == nil)
                     .accessibilityIdentifier("site-edit")
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+                .accessibilityLabel("More")
+                .accessibilityIdentifier("site-more")
             }
         }
         .sheet(item: $exporting) { site in

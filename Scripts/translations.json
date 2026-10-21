@@ -450,6 +450,17 @@
       "nl": "De back-up bevat %#@days@ en %#@holidays@.%@ Alles wat nu is opgeslagen wordt verwijderd.",
       "pl": "Kopia zawiera %#@days@ i %#@holidays@.%@ Wszystko, co jest teraz zapisane, zostanie usunięte."
     },
+    "You + ^[%lld coworker](inflect: true)": {
+      "de": "Du + %#@coworkers@",
+      "hr": "Ti + %#@coworkers@",
+      "sl": "Ti + %#@coworkers@",
+      "it": "Tu + %#@coworkers@",
+      "fr": "Vous + %#@coworkers@",
+      "es": "Tú + %#@coworkers@",
+      "pt": "Tu + %#@coworkers@",
+      "nl": "Jij + %#@coworkers@",
+      "pl": "Ty + %#@coworkers@"
+    },
     "^[%lld day](inflect: true)": {
       "de": "%#@days@",
       "hr": "%#@days@",
@@ -4885,28 +4896,6 @@
       "die types",
       "tych typów"
     ],
-    "Previous day": [
-      "Vorheriger Tag",
-      "Prethodni dan",
-      "Prejšnji dan",
-      "Giorno precedente",
-      "Jour précédent",
-      "Día anterior",
-      "Dia anterior",
-      "Vorige dag",
-      "Poprzedni dzień"
-    ],
-    "Next day": [
-      "Nächster Tag",
-      "Sljedeći dan",
-      "Naslednji dan",
-      "Giorno successivo",
-      "Jour suivant",
-      "Día siguiente",
-      "Dia seguinte",
-      "Volgende dag",
-      "Następny dzień"
-    ],
     "On site": [
       "Auf der Baustelle",
       "Dolazak na gradilište",
@@ -4929,17 +4918,6 @@
       "Van de bouwplaats",
       "Wyjście z budowy"
     ],
-    "Site times (everyone)": [
-      "Baustellenzeiten (alle)",
-      "Vrijeme na gradilištu (svi)",
-      "Čas na gradbišču (vsi)",
-      "Orari del cantiere (tutti)",
-      "Horaires du chantier (tous)",
-      "Horario de la obra (todos)",
-      "Horário da obra (todos)",
-      "Tijden bouwplaats (iedereen)",
-      "Godziny na budowie (wszyscy)"
-    ],
     "Same as last day": [
       "Wie am letzten Tag",
       "Isto kao zadnji dan",
@@ -4950,28 +4928,6 @@
       "Igual ao último dia",
       "Zelfde als vorige dag",
       "Jak ostatniego dnia"
-    ],
-    "Copies the times and who was there from %@.": [
-      "Übernimmt die Zeiten und wer da war vom %@.",
-      "Preuzima vremena i tko je bio tamo od %@.",
-      "Prevzame čase in kdo je bil tam od %@.",
-      "Copia gli orari e chi c’era da %@.",
-      "Reprend les horaires et les présents du %@.",
-      "Copia el horario y quién estuvo del %@.",
-      "Copia o horário e quem esteve de %@.",
-      "Neemt de tijden en wie er was over van %@.",
-      "Kopiuje godziny i obecnych z %@."
-    ],
-    "Who was here": [
-      "Wer war da",
-      "Tko je bio tu",
-      "Kdo je bil tu",
-      "Chi c’era",
-      "Présents",
-      "Quién estuvo",
-      "Quem esteve",
-      "Wie was er",
-      "Kto był"
     ],
     "Tap a name to tick or untick them. Tap their times to change just that person.": [
       "Tippe auf einen Namen, um ihn abzuhaken oder den Haken zu entfernen. Tippe auf die Zeiten, um nur diese Person zu ändern.",
@@ -5049,17 +5005,6 @@
       "Desconhecido",
       "Onbekend",
       "Nieznany"
-    ],
-    "Crew total today": [
-      "Mannschaft heute gesamt",
-      "Ekipa danas ukupno",
-      "Ekipa danes skupaj",
-      "Totale squadra oggi",
-      "Total de l’équipe aujourd’hui",
-      "Total de la cuadrilla hoy",
-      "Total da equipa hoje",
-      "Totaal ploeg vandaag",
-      "Ekipa dziś razem"
     ],
     "Printed with this day when the site is exported.": [
       "Wird beim Export der Baustelle bei diesem Tag gedruckt.",
@@ -5258,6 +5203,160 @@
       "Eliminar este dia? As horas escritas numa obra mantêm-se.",
       "Deze dag wissen? Uren die op een bouwplaats zijn ingevuld blijven bewaard.",
       "Usunąć ten dzień? Godziny wpisane na budowie zostają."
+    ],
+    "Written": [
+      "Eingetragen",
+      "Upisano",
+      "Vpisano",
+      "Registrato",
+      "Saisi",
+      "Anotado",
+      "Registado",
+      "Ingevuld",
+      "Wpisane"
+    ],
+    "Not written": [
+      "Nicht eingetragen",
+      "Nije upisano",
+      "Ni vpisano",
+      "Non registrato",
+      "Non saisi",
+      "Sin anotar",
+      "Não registado",
+      "Niet ingevuld",
+      "Niewpisane"
+    ],
+    "Site times · %@": [
+      "Baustellenzeiten · %@",
+      "Vrijeme gradilišta · %@",
+      "Čas gradbišča · %@",
+      "Orari del cantiere · %@",
+      "Horaires du chantier · %@",
+      "Horario de la obra · %@",
+      "Horário da obra · %@",
+      "Tijden bouwplaats · %@",
+      "Godziny budowy · %@"
+    ],
+    "Everyone ticked on this day gets these times, except people whose own times you changed.": [
+      "Alle, die an diesem Tag abgehakt sind, bekommen diese Zeiten – außer denen, deren eigene Zeiten du geändert hast.",
+      "Svi označeni na ovaj dan dobivaju ova vremena, osim onih kojima si promijenio vlastito vrijeme.",
+      "Vsi, označeni na ta dan, dobijo te čase, razen tistih, ki si jim spremenil lastni čas.",
+      "Tutti quelli spuntati in questo giorno ricevono questi orari, tranne chi ha orari propri che hai cambiato.",
+      "Toutes les personnes cochées ce jour-là reçoivent ces horaires, sauf celles dont vous avez modifié les horaires.",
+      "Todos los marcados este día reciben este horario, salvo quienes tienen un horario propio que cambiaste.",
+      "Todos os marcados neste dia ficam com este horário, exceto quem tem um horário próprio que alteraste.",
+      "Iedereen die op deze dag is aangevinkt krijgt deze tijden, behalve wie je eigen tijden hebt gegeven.",
+      "Wszyscy zaznaczeni tego dnia dostają te godziny, oprócz osób, którym zmieniłeś własne godziny."
+    ],
+    "Crew · %lld of %lld here": [
+      "Mannschaft · %lld von %lld da",
+      "Ekipa · %lld od %lld prisutno",
+      "Ekipa · %lld od %lld prisotnih",
+      "Squadra · %lld su %lld presenti",
+      "Équipe · %lld sur %lld présents",
+      "Cuadrilla · %lld de %lld presentes",
+      "Equipa · %lld de %lld presentes",
+      "Ploeg · %lld van %lld aanwezig",
+      "Ekipa · %lld z %lld obecnych"
+    ],
+    "Crew total: %@": [
+      "Mannschaft gesamt: %@",
+      "Ekipa ukupno: %@",
+      "Ekipa skupaj: %@",
+      "Totale squadra: %@",
+      "Total de l’équipe : %@",
+      "Total de la cuadrilla: %@",
+      "Total da equipa: %@",
+      "Totaal ploeg: %@",
+      "Ekipa razem: %@"
+    ],
+    "No break · everyone": [
+      "Keine Pause · alle",
+      "Bez pauze · svi",
+      "Brez odmora · vsi",
+      "Nessuna pausa · tutti",
+      "Sans pause · tous",
+      "Sin descanso · todos",
+      "Sem pausa · todos",
+      "Geen pauze · iedereen",
+      "Bez przerwy · wszyscy"
+    ],
+    "%@ break · everyone": [
+      "%@ Pause · alle",
+      "%@ pauze · svi",
+      "%@ odmora · vsi",
+      "%@ di pausa · tutti",
+      "%@ de pause · tous",
+      "%@ de descanso · todos",
+      "%@ de pausa · todos",
+      "%@ pauze · iedereen",
+      "%@ przerwy · wszyscy"
+    ],
+    "Nobody is ticked for this day yet.": [
+      "Für diesen Tag ist noch niemand abgehakt.",
+      "Za ovaj dan još nitko nije označen.",
+      "Za ta dan še nihče ni označen.",
+      "Per questo giorno non è ancora spuntato nessuno.",
+      "Personne n’est encore coché pour ce jour.",
+      "Todavía no hay nadie marcado para este día.",
+      "Ainda não há ninguém marcado neste dia.",
+      "Voor deze dag is nog niemand aangevinkt.",
+      "Na ten dzień nikt nie jest jeszcze zaznaczony."
+    ],
+    "Start from empty": [
+      "Leer beginnen",
+      "Počni od praznog",
+      "Začni s praznim",
+      "Inizia da vuoto",
+      "Partir de zéro",
+      "Empezar desde cero",
+      "Começar do zero",
+      "Leeg beginnen",
+      "Zacznij od zera"
+    ],
+    "Just you": [
+      "Nur du",
+      "Samo ti",
+      "Samo ti",
+      "Solo tu",
+      "Uniquement vous",
+      "Solo tú",
+      "Só tu",
+      "Alleen jij",
+      "Tylko ty"
+    ],
+    "Days written": [
+      "Eingetragene Tage",
+      "Upisani dani",
+      "Vpisani dnevi",
+      "Giorni registrati",
+      "Jours saisis",
+      "Días anotados",
+      "Dias registados",
+      "Ingevulde dagen",
+      "Wpisane dni"
+    ],
+    "Today: written": [
+      "Heute: eingetragen",
+      "Danas: upisano",
+      "Danes: vpisano",
+      "Oggi: registrato",
+      "Aujourd’hui : saisi",
+      "Hoy: anotado",
+      "Hoje: registado",
+      "Vandaag: ingevuld",
+      "Dziś: wpisane"
+    ],
+    "Today: not written yet": [
+      "Heute: noch nicht eingetragen",
+      "Danas: još nije upisano",
+      "Danes: še ni vpisano",
+      "Oggi: non ancora registrato",
+      "Aujourd’hui : pas encore saisi",
+      "Hoy: aún sin anotar",
+      "Hoje: ainda não registado",
+      "Vandaag: nog niet ingevuld",
+      "Dziś: jeszcze niewpisane"
     ],
     "Pro unlocked for testing": [
       "Pro zum Testen freigeschaltet",

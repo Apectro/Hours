@@ -675,14 +675,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s8" aria-labelledby="s8-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--paid">Needs step 7</span><span class="chip">10 minutes</span><span class="chip">Turns on widgets</span></div>
-          <label class="step-title" id="s8-t" for="s8">Add the App Group — on both targets</label>
-          <p class="step-where">Signing &amp; Capabilities › + Capability › App Groups</p>
-          <p>A widget runs in its own process and cannot open the app's database, so the app writes a small snapshot into a shared container and the widget reads that. The container is the App Group. Add the capability to the <strong>Hours</strong> target and to the <strong>HoursWidgetExtension</strong> target, ticking the same group on each:</p>
+          <div class="chips"><span class="chip chip--paid">Needs step 7</span><span class="chip">5 minutes</span><span class="chip">Turns on widgets</span></div>
+          <label class="step-title" id="s8-t" for="s8">Create the App Group and tick it on both identifiers</label>
+          <p class="step-where">developer.apple.com › Certificates, Identifiers &amp; Profiles › Identifiers</p>
+          <p>A widget runs in its own process and cannot open the app's database, so the app writes a small snapshot into a shared container and the widget reads that. The container is the App Group. The app and the widget already ask for it in their entitlements; Apple only grants it once the group exists in your account. Click <strong>+</strong> › App Groups and register:</p>
           <ul class="literals">
             <li><span class="what">Group</span> <button class="copy">group.app.zeitkonto</button></li>
           </ul>
-          <p>That exact string is already in the code, at <code>WidgetSnapshotStore.appGroupIdentifier</code>. Use a different one if you prefer, and change it there to match. Until this is done the widgets say so on their face rather than showing a convincing screenful of zeroes.</p>
+          <p>Then open the identifier <code>app.zeitkonto.hours</code>, tick <strong>App Groups</strong>, configure it, tick the group and save. Do the same for <code>app.zeitkonto.hours.widget</code>. The TestFlight workflow checks this before it builds and makes new signing profiles on its own afterwards. Until it is done the widgets say so on their face rather than showing a convincing screenful of zeroes.</p>
         </div>
       </li>
 
@@ -863,11 +863,11 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s20" aria-labelledby="s20-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Placeholder is in place</span></div>
+          <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Designed icon is in place</span></div>
           <label class="step-title" id="s20-t" for="s20">Replace the app icon with one you actually like</label>
           <p class="step-where">Hours/Resources/Assets.xcassets/AppIcon.appiconset/</p>
-          <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a real one: four rules of a timesheet, one of them run long and picked out in amber.</p>
-          <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are a dozen editable numbers at the top of the file. Run it again after changing them. <strong>Treat it as a working placeholder</strong> — it clears the blocker and it is not embarrassing, but it is not a designed identity either.</p>
+          <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a designed one: a navy hard hat on a warm amber field — the job site, where the hours are worked.</p>
+          <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are editable numbers at the top of the file. Run it again after changing them. It replaced the first placeholder (four timesheet rules) and then a clock design that looked too generic.</p>
           <p>If you replace it by hand: 1024×1024, <strong>no alpha channel</strong> (iOS rejects transparency in an icon), square — the system applies its own rounded mask.</p>
         </div>
       </li>

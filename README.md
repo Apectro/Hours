@@ -124,20 +124,23 @@ writes a small JSON snapshot into a shared container and the widget reads that.
 It is refreshed whenever anything it shows changes — a day saved, the clock
 started or stopped, the app closed.
 
-**The shared container needs an App Group, and App Groups need a paid Apple
-Developer account.** Nothing else in the app does, so the widgets are the one
-part a free account cannot use. They are not wired up by default, precisely so
-that a free-account build still installs:
+**The shared container is an App Group, `group.app.zeitkonto`, and App Groups
+need a paid Apple Developer account.** Both targets carry it in their
+entitlements (`Hours.entitlements`, `HoursWidget.entitlements`, at the root so
+Xcode's synchronised folders do not copy them into the bundle), so the group
+has to exist in the developer account before a signed build will go through:
 
-1. Open the project, select the **Hours** target, then Signing & Capabilities.
-2. Add the **App Groups** capability and create `group.app.zeitkonto`.
-3. Do the same for the **HoursWidgetExtension** target, ticking the same group.
+1. developer.apple.com › Certificates, Identifiers & Profiles › Identifiers ›
+   **+** › App Groups, identifier `group.app.zeitkonto`.
+2. Open the identifiers `app.zeitkonto.hours` and `app.zeitkonto.hours.widget`,
+   tick **App Groups**, configure, tick the group, save.
 
-Nothing else to change; the identifier is already in the code
-(`WidgetSnapshotStore.appGroupIdentifier`, if you would rather use a different
-one). Until that is done the app behaves exactly as it does now — it notices
-the container is missing and writes nothing — and the widgets say so instead of
-showing a convincing screenful of zeroes.
+The TestFlight workflow's preflight checks this and says so in plain words if
+it is missing, and it makes new signing profiles by itself the first time they
+lack the group. A free-account build has to drop the two entitlements files
+from the targets' build settings. If the container is ever missing at run time,
+the app writes nothing and the widgets say so instead of showing a convincing
+screenful of zeroes.
 
 Tapping a widget opens the app. There are no buttons on it: an interactive
 widget runs its action inside the widget's own process, which cannot reach the

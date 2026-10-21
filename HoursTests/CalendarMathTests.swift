@@ -245,4 +245,15 @@ final class CalendarMathTests: XCTestCase {
         XCTAssertEqual(result.dayType.id, .work)
         XCTAssertEqual(result.expectedMinutes, 300)
     }
+
+    /// A site's day card heads the day with its weekday in full and no year:
+    /// the month is on screen right above it.
+    func testDayTitleNamesTheWeekdayWithoutTheYear() {
+        let formatting = CalendarFormatting(locale: Locale(identifier: "en_GB"), calendar: calendar)
+        let title = formatting.dayTitle(Fixture.date(2026, 8, 4))
+        XCTAssertTrue(title.contains("Tuesday"), title)
+        XCTAssertTrue(title.contains("4"), title)
+        XCTAssertTrue(title.contains("Aug"), title)
+        XCTAssertFalse(title.contains("2026"), "the year belongs to the month above: \(title)")
+    }
 }

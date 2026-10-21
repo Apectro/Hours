@@ -21,15 +21,7 @@ struct CalendarMonthGrid: View {
 
     var body: some View {
         VStack(spacing: Metrics.small) {
-            HStack(spacing: Metrics.tiny) {
-                ForEach(layout.weekdays, id: \.self) { weekday in
-                    Text(formatting.veryShortWeekdaySymbol(for: weekday))
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityLabel(formatting.weekdayName(for: weekday))
-                }
-            }
+            WeekdayHeader(weekdays: layout.weekdays, formatting: formatting)
 
             LazyVGrid(columns: columns, spacing: Metrics.tiny) {
                 ForEach(layout.days, id: \.key) { date in
@@ -57,7 +49,6 @@ struct DayCell: View {
     // Not `private`: a private stored property makes the memberwise
     // initializer private too.
     @ScaledMetric(relativeTo: .subheadline) var cellHeight: CGFloat = Metrics.dayCellHeight
-    @ScaledMetric(relativeTo: .subheadline) var numberDiameter: CGFloat = 28
 
     let date: CalendarDate
     let computation: DayComputation?
@@ -70,23 +61,13 @@ struct DayCell: View {
 
     var body: some View {
         VStack(spacing: 2) {
-            ZStack {
-                if isSelected {
-                    Circle().fill(Color.accentColor)
-                } else if isToday {
-                    Circle().stroke(Color.accentColor, lineWidth: 1.5)
-                }
-                Text("\(date.day)")
-                    .font(.system(.subheadline, design: .rounded, weight: isToday || isSelected ? .bold : .regular))
-                    .foregroundStyle(numberColor)
-            }
-            .frame(width: numberDiameter, height: numberDiameter)
+            DayNumberCircle(day: date.day, isSelected: isSelected, isToday: isToday)
 
             detailLabel
         }
         .frame(maxWidth: .infinity)
         .frame(height: cellHeight)
-        .background { background }
+        .background { DayCellBackground(wash: washColor, isMissing: isMissingData) }
         .opacity(isInMonth ? 1 : 0.35)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
@@ -118,19 +99,6 @@ struct DayCell: View {
         }
     }
 
-    @ViewBuilder
-    private var background: some View {
-        let shape = RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
-        ZStack {
-            shape.fill(washColor)
-            if isMissingData {
-                // A working day in the past with nothing recorded. Quiet, but
-                // impossible to miss when scanning a month.
-                shape.strokeBorder(Color.hoursSubdued, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-            }
-        }
-    }
-
     private var washColor: Color {
         guard let computation else { return .clear }
         switch computation.dayType.expectation {
@@ -141,12 +109,6 @@ struct DayCell: View {
         case .creditedAbsence:
             return computation.dayType.tint.color.opacity(0.16)
         }
-    }
-
-    private var numberColor: Color {
-        if isSelected { return .white }
-        if isToday { return .accentColor }
-        return .primary
     }
 
     private var detailText: String? {
@@ -197,5 +159,78 @@ struct DayCell: View {
         }
         if isToday { parts.append("today") }
         return parts.joined(separator: ", ")
+    }
+}
+
+// MARK: - Shared with the site's month
+
+/// The single-letter weekday names above a month grid, starting on the
+/// calendar's own first weekday. Shared by the calendar and a site's month so
+/// the two grids line up the same way.
+struct WeekdayHeader: View {
+    let weekdays: [Int]
+    let formatting: CalendarFormatting
+
+    var body: some View {
+        HStack(spacing: Metrics.tiny) {
+            ForEach(weekdays, id: \.self) { weekday in
+                Text(formatting.veryShortWeekdaySymbol(for: weekday))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel(formatting.weekdayName(for: weekday))
+            }
+        }
+    }
+}
+
+/// A day's number in its circle: filled with the accent when selected, ringed
+/// with it for today. One view for every month grid in the app, so a site's
+/// month and the calendar can never drift apart in how a day looks.
+struct DayNumberCircle: View {
+    // Grows with the user's text size, like the cell around it. Not
+    // `private`, so the memberwise initializer stays usable.
+    @ScaledMetric(relativeTo: .subheadline) var diameter: CGFloat = 28
+
+    let day: Int
+    let isSelected: Bool
+    let isToday: Bool
+
+    var body: some View {
+        ZStack {
+            if isSelected {
+                Circle().fill(Color.accentColor)
+            } else if isToday {
+                Circle().stroke(Color.accentColor, lineWidth: 1.5)
+            }
+            Text("\(day)")
+                .font(.system(.subheadline, design: .rounded, weight: isToday || isSelected ? .bold : .regular))
+                .foregroundStyle(numberColor)
+        }
+        .frame(width: diameter, height: diameter)
+    }
+
+    private var numberColor: Color {
+        if isSelected { return .white }
+        if isToday { return .accentColor }
+        return .primary
+    }
+}
+
+/// The rounded shape behind a day: a colour wash, and the dashed outline for
+/// a working day in the past with nothing recorded — quiet, but impossible to
+/// miss when scanning a month.
+struct DayCellBackground: View {
+    let wash: Color
+    let isMissing: Bool
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
+        ZStack {
+            shape.fill(wash)
+            if isMissing {
+                shape.strokeBorder(Color.hoursSubdued, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+            }
+        }
     }
 }

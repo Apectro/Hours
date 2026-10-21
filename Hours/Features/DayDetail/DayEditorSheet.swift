@@ -94,6 +94,9 @@ struct DayEditorSheet: View {
             }
             .task { load() }
         }
+        // The site screen's menu opens the crew through this, onto the same
+        // path of values (see `OpenSiteCrewAction`).
+        .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
     }
 
     // MARK: - Derived

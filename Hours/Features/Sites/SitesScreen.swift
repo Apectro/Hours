@@ -12,13 +12,20 @@ import SwiftData
 struct SitesScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
 
+    /// A path of values, so the site screen's menu can push the crew by value
+    /// (see `OpenSiteCrewAction`).
+    @State private var path = NavigationPath()
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             SitesContent(
                 month: CalendarDate.today(in: settingsStore.workCalendar).yearMonth,
                 calendar: settingsStore.workCalendar
             )
         }
+        // On the stack rather than its root view, so the screens pushed onto
+        // it are handed the action too.
+        .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
     }
 }
 
@@ -34,6 +41,33 @@ struct SiteRoute: Hashable {
 /// going idle once the crew was opened.
 struct SiteCrewRoute: Hashable {
     let siteID: UUID
+}
+
+/// Pushes a site's crew onto the navigation stack the site screen is in.
+///
+/// The site screen keeps Crew in its toolbar menu, and a `NavigationLink`
+/// does not work from inside a `Menu`. A presented binding is not an option
+/// either: mixed with the value routes, it left the app never going idle. So
+/// each stack that shows a site — the Sites tab and the day editor's "Open on
+/// site" — owns a path, and hands down this action to append to it.
+struct OpenSiteCrewAction {
+    let open: (SiteCrewRoute) -> Void
+
+    func callAsFunction(_ route: SiteCrewRoute) {
+        open(route)
+    }
+}
+
+private struct OpenSiteCrewKey: EnvironmentKey {
+    // Does nothing outside a stack that provides it, which only a preview is.
+    static let defaultValue = OpenSiteCrewAction { _ in }
+}
+
+extension EnvironmentValues {
+    var openSiteCrew: OpenSiteCrewAction {
+        get { self[OpenSiteCrewKey.self] }
+        set { self[OpenSiteCrewKey.self] = newValue }
+    }
 }
 
 /// The list itself, in its own view so the month can go into its `@Query`, as
@@ -242,7 +276,8 @@ private struct LoadedSites {
     var days: [UUID: [SiteDay]] = [:]
 }
 
-/// One active site, as screen 1 of the mockup draws it.
+/// One active site, as screen 1 of the mockup draws it, with a line saying
+/// whether today has been written up on it.
 private struct SiteCard: View {
     let site: Site
     /// The crew offered for a new day, not counting you. People hidden from
@@ -271,6 +306,8 @@ private struct SiteCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
+                todayLine
+
                 HStack(alignment: .top, spacing: Metrics.small) {
                     StatTile(
                         label: String(localized: "Days this month"),
@@ -297,6 +334,21 @@ private struct SiteCard: View {
         }
         .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .accessibilityElement(children: .combine)
+    }
+
+    /// Whether today is written up yet: the one thing worth knowing before
+    /// opening a site at the end of a working day.
+    private var todayLine: some View {
+        let isWritten = days.contains { $0.date == CalendarDate.today(in: settingsStore.workCalendar) }
+        return Label {
+            Text(isWritten ? String(localized: "Today: written") : String(localized: "Today: not written yet"))
+                .foregroundStyle(isWritten ? Color.secondary : Color.hoursNegative)
+        } icon: {
+            Image(systemName: isWritten ? "checkmark.circle.fill" : "circle.dashed")
+                .foregroundStyle(isWritten ? Color.accentColor : Color.hoursNegative)
+        }
+        .font(.subheadline)
+        .accessibilityIdentifier("site-card-today")
     }
 
     private var crewLine: String {

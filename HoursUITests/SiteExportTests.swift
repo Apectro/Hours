@@ -23,8 +23,12 @@ final class SiteExportTests: XCTestCase {
         card.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
 
+        // Export is in the toolbar's menu, with Crew and Edit.
+        let more = app.buttons["site-more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
+        more.tap()
         let export = app.buttons["site-export"]
-        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site has no Export button")
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
