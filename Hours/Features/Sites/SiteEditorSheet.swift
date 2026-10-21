@@ -174,8 +174,8 @@ struct SiteEditorSheet: View {
         HoursStack.refreshWidget()
         // And what the note on the 1st says, or whether there is one.
         let context = modelContext
-        let store = settingsStore
-        Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: store) }
+        let settings = settingsStore
+        Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: settings) }
         dismiss()
     }
 }
