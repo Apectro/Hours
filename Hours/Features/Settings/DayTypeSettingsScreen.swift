@@ -85,7 +85,7 @@ struct DayTypeSettingsScreen: View {
         HStack(spacing: Metrics.medium) {
             DayTypeBadge(definition: definition, size: 30)
             VStack(alignment: .leading, spacing: 1) {
-                Text(definition.name)
+                Text(definition.displayName())
                     .foregroundStyle(.primary)
                 Text(expectationDescription(definition.expectation))
                     .font(.caption)

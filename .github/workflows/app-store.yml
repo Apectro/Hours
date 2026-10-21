@@ -93,7 +93,14 @@ jobs:
           }
           git log -1 --format='screenshots from %s (%cr)' FETCH_HEAD
           WANTED=$(grep -cvE '^(#|$)' fastlane/screenshots.txt)
-          for LOCALE in en-US de-DE; do
+          # English shots only for now: App Store Connect shows the primary
+          # language's screenshots on the German page too. Add de-DE back
+          # here to upload German ones.
+          SHOT_LOCALES="en-US"
+          for LOCALE in $(ls "$DIR/app-store"); do
+            case " $SHOT_LOCALES " in *" $LOCALE "*) ;; *) rm -rf "$DIR/app-store/$LOCALE" ;; esac
+          done
+          for LOCALE in $SHOT_LOCALES; do
             PHONE=$(find "$DIR/app-store/$LOCALE" -name 'iphone-*.png' | wc -l | tr -d ' ')
             echo "$LOCALE: $PHONE iPhone (of $WANTED)"
             if [ "$PHONE" -lt "$WANTED" ]; then

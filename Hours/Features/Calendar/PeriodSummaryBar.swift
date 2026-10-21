@@ -85,7 +85,7 @@ struct PeriodSummaryBar: View {
         }
         for definition in catalog.all where definition.expectation == .creditedAbsence {
             let count = summary.count(of: definition.id)
-            if count > 0 { parts.append("\(count) \(definition.name.lowercased())") }
+            if count > 0 { parts.append("\(count) \(definition.nameInRunningText())") }
         }
         if summary.daysOff > 0 { parts.append(String(localized: "\(summary.daysOff) off")) }
         return parts.joined(separator: "  ·  ")

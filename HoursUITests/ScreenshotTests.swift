@@ -27,10 +27,11 @@ final class ScreenshotTests: XCTestCase {
     }
 
     /// Sample data and Pro, because a listing should show the app doing its
-    /// job rather than an empty calendar and a row of locks.
+    /// job rather than an empty calendar and a row of locks. As shipped, so a
+    /// free release shows nothing for sale.
     private func launchForShots() -> XCUIApplication {
         let app = XCUIApplication.hours(pro: true)
-        app.launchArguments += ["-hours-sample-data"]
+        app.launchArguments += ["-hours-sample-data", "-hours-as-shipped"]
         app.launch()
         XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 15))
         return app

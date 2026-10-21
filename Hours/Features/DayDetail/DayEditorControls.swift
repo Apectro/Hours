@@ -35,7 +35,7 @@ struct DayResultHeader: View {
             if computation.creditedMinutes > 0 {
                 Label(
                     String(
-                        localized: "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.name.lowercased())",
+                        localized: "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.nameInRunningText())",
                         comment: "e.g. 8h 00m credited as paid vacation; the second value is a day type"
                     ),
                     systemImage: "checkmark.seal"
@@ -171,7 +171,7 @@ struct DayTypeMenu: View {
                 Button {
                     selection = definition.id
                 } label: {
-                    Label(definition.name, systemImage: definition.symbolName)
+                    Label(definition.displayName(), systemImage: definition.symbolName)
                 }
             }
         } label: {

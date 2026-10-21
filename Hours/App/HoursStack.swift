@@ -82,10 +82,16 @@ enum HoursStack {
     /// UI tests run as someone who has not paid unless they ask otherwise.
     /// That way the locks, the gates and the paywall are what gets exercised by
     /// default, and a test that wants the other side says so out loud.
+    /// `-hours-as-shipped` is for the App Store screenshots: whatever the
+    /// release offers for sale, so a free launch shows no purchase anywhere.
     static let subscriptions: SubscriptionStore = {
         guard isRunningUITests else { return SubscriptionStore(paymentsEnabled: FreeLaunch.paymentsEnabled) }
-        let paid = ProcessInfo.processInfo.arguments.contains("-hours-pro")
-        return SubscriptionStore.pinned(paid ? Entitlement(kind: .lifetime) : .free)
+        let arguments = ProcessInfo.processInfo.arguments
+        let paid = arguments.contains("-hours-pro")
+        return SubscriptionStore.pinned(
+            paid ? Entitlement(kind: .lifetime) : .free,
+            paymentsEnabled: arguments.contains("-hours-as-shipped") ? FreeLaunch.paymentsEnabled : true
+        )
     }()
 
     /// What a tapped notification asked to open (see `NotificationLinks`).

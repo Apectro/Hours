@@ -33,7 +33,10 @@ struct AboutScreen: View {
                     PrivacyPoint(
                         symbol: "icloud.slash",
                         title: String(localized: "No sync"),
-                        detail: String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud.")
+                        // Without sync in this build there is no setting to point at.
+                        detail: SyncPreference.isAvailable
+                            ? String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud.")
+                            : String(localized: "Your data lives in this app's own storage and is included in an encrypted device backup if you make one.")
                     )
                 }
                 PrivacyPoint(
@@ -55,8 +58,8 @@ struct AboutScreen: View {
                     symbol: "externaldrive",
                     title: String(localized: "Make a backup"),
                     detail: isSyncing
-                        ? "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › Backup and data."
-                        : "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › Backup and data."
+                        ? String(localized: "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › Backup and data.")
+                        : String(localized: "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › Backup and data.")
                 )
             }
         }

@@ -233,5 +233,8 @@ enum SampleData {
             from: nil
         )
         settings.export.ownerName = "Alex Berger"
+        // Euros whatever region the simulator is in: the listing is for people
+        // paid in euros, and a US runner otherwise shows dollars.
+        settings.currencyCode = "EUR"
     }
 }

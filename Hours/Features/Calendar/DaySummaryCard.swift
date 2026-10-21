@@ -77,7 +77,7 @@ struct DaySummaryCard: View {
                 Text(formatting.fullDate(computation.date))
                     .font(.headline)
                 HStack(spacing: Metrics.tiny) {
-                    Text(computation.dayType.name)
+                    Text(computation.dayType.displayName())
                     if let holidayName = computation.holidayName {
                         Text("·")
                         Text(holidayName)

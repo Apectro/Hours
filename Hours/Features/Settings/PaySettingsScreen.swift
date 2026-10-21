@@ -103,7 +103,7 @@ struct PaySettingsScreen: View {
             HStack {
                 Text("Hourly rate")
                 Spacer(minLength: Metrics.small)
-                TextField("Hourly rate", value: rateBinding, format: .number.precision(.fractionLength(0...2)))
+                TextField("Hourly rate", value: rateBinding, format: .number.precision(.fractionLength(2)))
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .font(.hoursFigure(.body, weight: .medium))

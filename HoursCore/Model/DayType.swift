@@ -110,6 +110,20 @@ extension DayTypeDefinition {
         return language(term)
     }
 
+    /// What this type is called on screen. The built-ins are stored with
+    /// their English names, so the screen translates them by the same rule as
+    /// an export does; `.device` follows the language the app is shown in.
+    func displayName(in language: ExportLanguage = .device) -> String {
+        exportName(in: language)
+    }
+
+    /// The name inside a sentence or a count — "5 vacation" — lower-cased
+    /// except in German, where a noun keeps its capital: "5 Urlaub".
+    func nameInRunningText(in language: ExportLanguage = .device) -> String {
+        let name = displayName(in: language)
+        return language.resolved == .german ? name : name.lowercased()
+    }
+
     private static func term(for id: DayTypeID) -> ExportTerm? {
         switch id {
         case .work: return .work
