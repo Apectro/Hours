@@ -112,13 +112,21 @@ struct WidgetSnapshotWriter {
         )
     }
 
-    /// Writes the snapshot and asks the widget to reload.
+    /// Writes the snapshot, asks the widget to reload, and brings the clock's
+    /// Live Activity in line with it.
     ///
-    /// Both are no-ops when the app group has not been set up, so nothing here
-    /// fails or complains on a build without one.
+    /// The Live Activity is kept in step from here because every path that
+    /// starts, stops or changes the clock already ends in this call — the
+    /// clock card, Siri and Shortcuts, the Live Activity's own stop button and
+    /// the app coming back — so none of them has to remember a second one.
+    /// It does not need the app group, so it goes first; the file and the
+    /// reload are no-ops without one, so nothing here fails or complains on a
+    /// build that has none.
     func refresh(at instant: Date = Date()) {
+        let snapshot = snapshot(at: instant)
+        ClockActivityController.sync(with: snapshot)
         guard WidgetSnapshotStore.isConfigured else { return }
-        WidgetSnapshotStore.write(snapshot(at: instant))
+        WidgetSnapshotStore.write(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
     }
 }
