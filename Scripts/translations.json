@@ -294,6 +294,49 @@
         "many": "%lld współpracowników",
         "other": "%lld współpracownika"
       }
+    },
+    "people": {
+      "de": {
+        "one": "%lld Person",
+        "other": "%lld Personen"
+      },
+      "hr": {
+        "one": "%lld osoba",
+        "few": "%lld osobe",
+        "other": "%lld osoba"
+      },
+      "sl": {
+        "one": "%lld oseba",
+        "two": "%lld osebi",
+        "few": "%lld osebe",
+        "other": "%lld oseb"
+      },
+      "it": {
+        "one": "%lld persona",
+        "other": "%lld persone"
+      },
+      "fr": {
+        "one": "%lld personne",
+        "other": "%lld personnes"
+      },
+      "es": {
+        "one": "%lld persona",
+        "other": "%lld personas"
+      },
+      "pt": {
+        "one": "%lld pessoa",
+        "other": "%lld pessoas"
+      },
+      "nl": {
+        "one": "%lld persoon",
+        "other": "%lld personen"
+      },
+      "pl": {
+        "one": "%lld osoba",
+        "few": "%lld osoby",
+        "many": "%lld osób",
+        "other": "%lld osoby"
+      }
     }
   },
   "countedSentences": {
@@ -505,6 +548,17 @@
       "pt": "%#@minutes@",
       "nl": "%#@minutes@",
       "pl": "%#@minutes@"
+    },
+    "^[%lld person](inflect: true)": {
+      "de": "%#@people@",
+      "hr": "%#@people@",
+      "sl": "%#@people@",
+      "it": "%#@people@",
+      "fr": "%#@people@",
+      "es": "%#@people@",
+      "pt": "%#@people@",
+      "nl": "%#@people@",
+      "pl": "%#@people@"
     }
   },
   "interface": {
@@ -5226,6 +5280,28 @@
       "Eliminar este dia? As horas escritas numa obra mantêm-se.",
       "Deze dag wissen? Uren die op een bouwplaats zijn ingevuld blijven bewaard.",
       "Usunąć ten dzień? Godziny wpisane na budowie zostają."
+    ],
+    "Written": [
+      "Eingetragen",
+      "Upisano",
+      "Vpisano",
+      "Registrato",
+      "Saisi",
+      "Anotado",
+      "Registado",
+      "Ingevuld",
+      "Wpisane"
+    ],
+    "Not written": [
+      "Nicht eingetragen",
+      "Nije upisano",
+      "Ni vpisano",
+      "Non registrato",
+      "Non saisi",
+      "Sin anotar",
+      "Não registado",
+      "Niet ingevuld",
+      "Niewpisane"
     ]
   },
   "sameAsEnglishOnPurpose": [

@@ -65,6 +65,7 @@ HOLIDAYS = lambda n: plural("holidays", n, "%lld holiday", "%lld holidays")
 HOURS = lambda n=1: plural("hours", n, "%lld hour", "%lld hours")
 MINUTES = lambda n=1: plural("minutes", n, "%lld minute", "%lld minutes")
 COWORKERS = lambda n=1: plural("coworkers", n, "%lld coworker", "%lld coworkers")
+PEOPLE = lambda n=1: plural("people", n, "%lld person", "%lld people")
 
 APP_STRINGS = {
     "^[%lld day](inflect: true)": entry("%#@days@", DAYS()),
@@ -84,6 +85,9 @@ APP_STRINGS = {
     # A site card: the people on the crew other than you. Zero is a separate,
     # plain string ("Crew: just you"), so this is only ever asked for one or more.
     "Crew: you + ^[%lld coworker](inflect: true)": entry("Crew: you + %#@coworkers@", COWORKERS()),
+    # A site's day: how many were there, in a grid cell's VoiceOver label and
+    # under "Same as last day".
+    "^[%lld person](inflect: true)": entry("%#@people@", PEOPLE()),
     "^[%lld hour](inflect: true) ^[%lld minute](inflect: true)": entry(
         "%#@hours@ %#@minutes@", HOURS(1), MINUTES(2)
     ),
