@@ -1,260 +1,131 @@
 # App Store listing
 
-Draft copy for App Store Connect. Every field Apple asks for, with the length
-limit it enforces, so nothing has to be rewritten at the paste stage.
+The listing itself is **`fastlane/metadata/`**: every field App Store Connect
+asks for, in English (U.S.) and German, as the files `fastlane deliver`
+uploads. This page is the reasoning behind them and the parts no file can
+hold. Edit the copy there, not here — the *App Store* workflow uploads those
+files as they stand, and `Scripts/check-store-metadata.py` fails CI when a
+field is over the store's limit.
 
-Nothing here is binding — it is a first draft written from what the app
-actually does, which is the part that takes the longest. Edit freely.
+| Field | File (per language) | Limit |
+|---|---|---|
+| Name | `name.txt` | 30 characters |
+| Subtitle | `subtitle.txt` | 30 characters |
+| Promotional text | `promotional_text.txt` | 170 characters, changeable without review |
+| Description | `description.txt` | 4,000 characters |
+| Keywords | `keywords.txt` | 100 bytes, commas, no spaces |
+| What's new | `release_notes.txt` | 4,000 characters |
+| Support URL | `support_url.txt` | `https://zeitkonto.app/support/` (`/support/de/`) |
+| Marketing URL | `marketing_url.txt` | `https://zeitkonto.app/` (`/de/`) |
+| Privacy policy | `privacy_url.txt` | `https://zeitkonto.app/privacy/` (`/privacy/de/`) |
 
----
+Once for the app: `copyright.txt`, `primary_category.txt` (Productivity),
+`secondary_category.txt` (Business), `review_information/notes.txt`, and the
+age rating in `fastlane/age-rating.json` (4+, every question "none").
 
-## Name
+## Who it is written for
 
-*30 characters. Shown under the icon, and truncated hard.*
+The person who runs a site — a foreman, a Polier, a supervisor with a crew of
+four or five — and has to hand the director a sheet at the end of the month.
+That is what the app does better than any general hours tracker: one entry for
+the whole crew, "Same as last day", the site's month, and the monthly sheet,
+with a reminder on the 1st. The listing leads with it, then earnings (the
+reason to open the app on a day nothing went wrong), then the calendar and the
+balance for everyone else. The privacy story stays in the second paragraph:
+no account, no server, nothing leaves the phone unless exported.
 
-```
-Zeitkonto
-```
+**Earnings are private.** The copy says so in both languages, because a
+supervisor showing the crew's sheet must be able to trust that their own rate
+is not on it.
 
-Named after the thing it keeps. *Zeitkonto* is the standard German term for a
-working-time account, so in the DACH market it is the word people already have
-in their heads rather than a brand they have to learn — and it matches the
-domain. It is opaque to a French or Polish user, which is the price of the
-choice: the app ships in ten languages, the name is in one.
+**iCloud sync is not mentioned.** The current build does not offer it
+(`SyncPreference.isAvailable` is false without `ICLOUD_SYNC`), and a listing
+that sells a feature the reviewer cannot find is a rejection.
 
-**Check it is free before anything else.** App Store names are unique across
-the store, so reserve it in App Store Connect, and check the DACH trademark
-registers while you are at it.
+## The German copy
 
-## Subtitle
+Informal *du*, like the app's newer screens, and the app's own words: Baustelle,
+Mannschaft, Bauleitung, Monatsliste, Verdienst, Zuschläge, Saldo, Soll,
+Auswertung, „Wie am letzten Tag“. Careful, not reviewed — worth a native read
+before it does any real selling.
 
-*30 characters. Sits under the name in search results and does most of the work.*
+## The name
 
-```
-Your hours, on your phone
-```
-
-Alternatives, depending on what you want to lead with:
-
-```
-Private work-hours calendar     (29)
-Track hours. No account.        (24)
-A calendar for your hours       (25)
-```
-
-## Promotional text
-
-*170 characters. Can be changed without submitting an update — useful for
-saying what is new without waiting for review.*
-
-```
-No account, no server, no analytics. Your hours stay on your phone. A calendar first: see the month, tap a day, done. Free to record; pay only to export.
-```
-
-## Description
-
-*4,000 characters. The first three lines are all most people read before
-tapping "more".*
-
-```
-Zeitkonto is a work-hours calendar that keeps your hours on your phone.
-
-No account. No sign-up. No server. Nothing about you is collected, and
-nothing leaves the device unless you export it or switch on iCloud sync,
-which puts your data in your own iCloud and nowhere else.
-
-A CALENDAR FIRST
-
-The main screen is a month, colour-washed by day type, totals underneath.
-Tap a day to see it, tap again to edit it. A past working day with nothing
-on it gets a quiet dashed outline, so you spot the gap while scanning rather
-than on the last day of the month.
-
-HOURS THE WAY YOURS ACTUALLY WORK
-
-• Start and end times, or a figure you type
-• An end before the start is an overnight shift, and is measured as one
-• Breaks as a length or as clock times, several a day if you need them
-• Split shifts, where the gap between two blocks is neither worked nor break
-• A contracted week per weekday: 6/6/6/6/8 and four-day weeks are ordinary
-• A weekly target overriding the days, for a contract stating 37½ hours
-• More than one job, each with its own contracted week
-• Vacation, sick leave, public holidays, days off — and your own day types
-• Overtime paid out, recorded as a payout rather than a mystery correction
-• Every field behind a switch — what you switch off disappears rather than
-  sitting greyed out
-
-THE YEAR, AND THE ACCOUNT IT KEEPS
-
-A Zeitkonto has a year boundary. Close a year and the figure it carried is
-fixed, so a correction two years later cannot move what was already agreed.
-Cap the carry-over if your contract does — paid out or forfeited above it. A
-shortfall always carries in full; forgiving one would invent hours nobody
-worked.
-
-A month already handed to payroll can be closed to editing, refusing changes
-from the day editor, a bulk edit, the clock and Siri alike. Reopening it is
-one swipe.
-
-THE BALANCE IS ONE LINE
-
-worked + credited − expected + adjustment
-
-Every day type carries a policy saying how it counts, so the line is right
-in every case. Vacation on a Tuesday is zero, credited against what the day
-expected; on a Saturday it is zero too, because nothing was expected.
-
-Worked time and paid absence are reported separately, so a month reads
-"worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather than
-quietly inflating hours nobody worked.
-
-INSIGHTS
-
-Today, this week, this month, this year: worked, expected, balance,
-averages, day counts, and a running balance recomputed from your days rather
-than stored — so correcting a day from three years ago corrects everything
-after it. A period still in progress stops at today, so days yet to come do
-not read as a growing deficit.
-
-TIMESHEETS
-
-Export a day, a week, a month, a year or any range, as CSV, Excel or PDF.
-Columns are yours to pick and reorder, and the preview is the file. The
-sheet's language is its own setting, because whoever reads a timesheet is
-often not whoever filled it in.
-
-BUILT NOT TO LOSE YOUR DATA
-
-Days are stored as dates, never timestamps, so crossing a time zone or a
-clock change cannot reshape what you recorded. The one question a
-clock-change day raises — eight hours or nine — is a setting.
-
-Backup and restore writes plain, readable JSON holding every day you entered:
-a file you keep, not a service you trust.
-
-WIDGETS AND SHORTCUTS
-
-Today's hours and this month's balance on the Home Screen and Lock Screen.
-Siri and Shortcuts can start and stop the clock.
-
-ZEITKONTO PRO
-
-Recording your hours is free and stays free: the calendar, the day editor,
-breaks, overtime, the balance, reminders, and the backup holding everything
-you entered. Nothing recorded is held behind a payment — if a subscription
-lapses, every figure is still there and the backup still writes.
-
-What is paid for is producing: timesheets as CSV, Excel or PDF; widgets; a
-second job; editing a range in one pass; iCloud sync. Monthly, yearly, or
-bought outright once — an app with no server behind it should not only be
-rentable. No account, no login; a purchase belongs to your Apple Account.
-```
+`Zeitkonto` is the standard German term for a working-time account, so in
+the DACH market it is a word people already have. The listing adds what it is
+for after a colon — *Site Hours*, *Baustellen-Stunden* — because the name
+field is the strongest search signal and the brand alone says nothing to
+someone searching for timesheets. App Store names are unique across the store:
+reserve it before anything else.
 
 ## Keywords
 
-*100 characters total, comma-separated, no spaces after commas. Do not repeat
-words already in the name or subtitle — Apple indexes those anyway.*
+Not repeated from the name (Apple indexes the name anyway; the check refuses
+a repeat). German keywords are counted in bytes, so an umlaut costs two.
 
-```
-timesheet,overtime,shift,work,tracker,clock,payroll,flexitime,rota,attendance,freelance,invoice
-```
+## Screenshots
 
-That is 94 characters. Swap in whatever matches your market — `flexitime` and
-`rota` are British; `PTO` and `punch clock` are American.
+Taken by `ScreenshotTests` with the sample month (`SampleData.seed`): a site
+with a crew of five, a month of site days, a pay rate with surcharges. Seven
+shots, in this order — the calendar with the month's earnings, the site's
+month and day card, the director's sheet, the day editor, Insights with
+earnings, Pay, and Privacy. CI takes them on the largest iPhone (6.9-inch
+slot) and on a 13-inch iPad, in English and German, and lays them out for
+upload on the `screenshots` branch under `app-store/`.
 
-## Support URL
-
-*Required. A page that exists is enough; it does not have to be elaborate.*
-
-```
-https://github.com/Apectro/Hours
-```
-
-If the repository goes private this has to become something else, and Pages
-would stop serving on a free plan at the same moment, so the privacy policy
-would need rehoming too. Plan for both together or keep the repository public.
-
-## Marketing URL
-
-*Optional, and worth filling in now that there is a page behind it.*
-
-```
-https://zeitkonto.app/
-```
-
-Written in `web/`, published into `docs/` by `npm run publish`, served by the
-same Pages setting as the privacy policy. The domain is attached by
-`docs/CNAME`; see `docs/README.md` for the DNS records it needs.
-
-## Privacy Policy URL
-
-*Required.*
-
-```
-https://zeitkonto.app/privacy/
-```
-
-`docs/privacy/index.html` in this repository is the page. See
-`docs/README.md` for turning Pages on.
-
-## Age rating
-
-`4+`. Nothing in the app triggers a higher rating: no user-generated content
-that is shared, no web view, no links out except the App Store, no gambling,
-no contests.
-
-## Category
-
-Primary: **Productivity** — already set in the project as
-`public.app-category.productivity`.
-
-Secondary: **Business**.
+The app targets iPad (`TARGETED_DEVICE_FAMILY = 1,2`), so the iPad set is
+required, not optional. If the runner has no 13-inch iPad simulator the run
+says so, and the shots have to be taken by hand — or the app made iPhone-only.
 
 ## App Review notes
 
-*Not shown to users. Reviewers reject paywalls they cannot get behind, so say
-plainly that they do not need to.*
+`fastlane/metadata/review_information/notes.txt`: the app works unpaid, where
+the paywall is (Settings › Unlock Zeitkonto Pro, and from every Pro feature),
+the three sandbox products, no account, no network except the App Store, no
+location permission, and that the TestFlight tester unlock is compiled out of
+the review build. Submit a build made with the TestFlight workflow's *Unlock
+Pro for testers* switch **off**.
 
-```
-Zeitkonto is fully functional without paying. Recording hours, the calendar, the
-day editor, breaks, overtime, the balance and the JSON backup are all free
-and unlimited, and no recorded data is ever withheld behind a purchase.
+The review contact (name, phone, email) is entered in App Store Connect by
+hand and is deliberately not in this repository.
 
-Zeitkonto Pro unlocks producing timesheets (CSV / Excel / PDF), the widgets, a
-second job, bulk range editing and iCloud sync. The paywall is reachable
-from Settings > Zeitkonto Pro, and from any of those features.
+## Pro products
 
-The purchases can be exercised with a sandbox account. The three products
-are:
-  app.zeitkonto.pro.monthly   (auto-renewable, group "zeitkonto.pro")
-  app.zeitkonto.pro.yearly    (auto-renewable, same group)
-  app.zeitkonto.pro.lifetime  (non-consumable)
+Created by `fastlane ios products` (the *App Store* workflow, `what: products`):
 
-The app has no account and no login. It makes no network requests other than
-to the App Store, and to the user's own iCloud if they switch sync on. There
-is no analytics, no tracking and no third-party code.
+| Product | Type | Price (base: Germany) |
+|---|---|---|
+| `app.zeitkonto.pro.monthly` | auto-renewable, 1 month | €2.99 |
+| `app.zeitkonto.pro.yearly` | auto-renewable, 1 year | €19.99 |
+| `app.zeitkonto.pro.lifetime` | non-consumable | €39.99 |
 
-The optional "location" field on a day is a text note the user types. The app
-never requests location permission and links no location framework.
+The two subscriptions share one group, referenced as *Hours Pro* (the name in
+`Hours.storekit`). Apple gives the group a numeric id of its own; the lane
+prints it.
 
-No demo account is needed, as there is nothing to sign in to.
-```
+## App Privacy
 
-## Version release notes
+App Store Connect › App Privacy: **Data Not Collected**. True here: no
+analytics, no third-party code, no account, and nothing sent anywhere. Crew
+names, sites and pay stay on the device; the widgets read a snapshot in the
+app's own App Group container on the same device.
 
-*For 1.0.*
+## Contact
 
-```
-The first version.
-```
+The privacy policy and the support page give a contact address. It is
+written once per page as `REPLACE-WITH-YOUR-CONTACT-EMAIL`; replace it in
+`docs/privacy/index.html`, `docs/privacy/de/index.html`,
+`docs/support/index.html` and `docs/support/de/index.html` (and the same in
+`web/src/` if the site is rebuilt).
 
----
+## Hosting
+
+The site, the privacy policy and the support page are served by Cloudflare
+Pages from this repository's `docs/` folder — see `docs/README.md`. Nothing
+public links to the repository, so it can be private.
 
 ## What still needs a decision
 
-- **Prices.** The numbers in `HoursTests/Hours.storekit` — £1.99 monthly,
-  £12.99 yearly, £24.99 outright — were chosen to make the paywall render in
-  the simulator, not as a recommendation.
-- **A contact email** for the privacy policy, which currently says
-  `REPLACE-WITH-YOUR-CONTACT-EMAIL`.
-- **Territories.** Worldwide is the default and is usually right.
+- **The owner's name** for the copyright line (`fastlane/metadata/copyright.txt`).
+- **The contact email** (above).
+- **Territories.** Worldwide is the default and usually right.

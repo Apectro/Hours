@@ -113,11 +113,12 @@ jobs:
       - name: Every writing path carries the month lock
         run: python3 Scripts/check-repository-lock.py
 
-      # The listing states each field's limit and nothing was enforcing them,
-      # so the description reached 5,025 characters against a 4,000 cap — the
-      # kind of thing you discover with the App Store Connect form open.
-      - name: The App Store listing fits its own limits
-        run: python3 Scripts/check-listing-limits.py
+      # The listing is fastlane/metadata, uploaded as it stands by the App
+      # Store workflow. Nothing used to enforce the store's limits, so the
+      # description reached 5,025 characters against a 4,000 cap — the kind of
+      # thing you discover with the upload half done.
+      - name: The App Store listing fits the store's limits
+        run: python3 Scripts/check-store-metadata.py
 
       - name: The catalogues are what the generator writes
         run: |
@@ -234,7 +235,7 @@ jobs:
           # rest of this pattern is not code. Everything else — the app target,
           # the widget, the shared layer, the Apple-only tests, the project file
           # — has no compiler anywhere else in this workflow.
-          UNCOVERED=$(echo "$CHANGED" | grep -vE '^(HoursCore/|Scripts/|[^/]*\.md$|\.gitignore$)' || true)
+          UNCOVERED=$(echo "$CHANGED" | grep -vE '^(HoursCore/|Scripts/|fastlane/metadata/|[^/]*\.md$|\.gitignore$)' || true)
           if [ -n "$UNCOVERED" ]; then
             echo "needs Xcode, because of:"
             echo "$UNCOVERED"

@@ -1,0 +1,1 @@
+Arbeitszeit,Überstunden,Polier,Bauleiter,Lohn,Zeiterfassung,Schicht,Stempeluhr,Bau,Kolonne

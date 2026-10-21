@@ -1,0 +1,53 @@
+Zeitkonto ist ein Arbeitszeitkalender für alle, die eine Baustelle führen: den Tag einmal für die ganze Mannschaft eintragen, der Bauleitung eine saubere Monatsliste geben und sehen, was deine eigenen Stunden gebracht haben.
+
+Kein Konto. Keine Anmeldung. Kein Server. Deine Stunden, deine Baustellen und die Namen deiner Mannschaft bleiben auf deinem iPhone, und nichts verlässt es, außer du exportierst es.
+
+EIN EINTRAG FÜR DIE GANZE MANNSCHAFT
+
+• Jede Baustelle hat ihre Mannschaft. Zeiten einmal eintragen, abhaken, wer da war.
+• Jemand kam später oder ging mittags? Nur seine Zeiten ändern, der Rest bleibt.
+• „Wie am letzten Tag“ übernimmt mit einem Tipp den letzten Tag auf der Baustelle.
+• Jede Baustelle hat ihren eigenen Monatskalender, mit der Zahl der Leute pro Tag.
+• Neue Baustelle? Leute aus deinen anderen Mannschaften auswählen statt neu tippen.
+• Bezahlte Pausen pro Tätigkeit einstellbar.
+
+DIE MONATSLISTE FÜR DIE BAULEITUNG
+
+Am Monatsanfang erinnert dich Zeitkonto pro Baustelle, dass die Liste für den letzten Monat fertig ist. Sie zeigt alle, eine Spaltengruppe pro Person, mit deinem Namen oben: als PDF, Excel oder CSV, mit Vorschau genau wie gedruckt. Geld steht nie auf einer Baustellenliste.
+
+WAS DU VERDIENT HAST
+
+Trag einen Stundenlohn ein, und der Kalender zeigt zuerst deinen Verdienst: Überstunden nach einem normalen Tag oder nach deiner Woche, Zuschläge für Samstag, Sonntag, Feiertag und Nacht, bezahlte freie Tage zu deinem Lohn. Eine Lohnerhöhung gilt ab einem Datum, die Monate davor behalten ihren Satz. Dein Verdienst gehört dir und erscheint nie bei deiner Mannschaft.
+
+ZUERST EIN KALENDER
+
+Der Hauptbildschirm ist der Monat, nach Tagesart eingefärbt, darunter die Summen. Einmal tippen zeigt den Tag, noch einmal tippen bearbeitet ihn. Ein vergangener Arbeitstag ohne Eintrag bekommt einen gestrichelten Rand, damit die Lücke jetzt auffällt und nicht erst am Monatsende.
+
+STUNDEN, WIE DEINE WIRKLICH SIND
+
+• Beginn und Ende; ein Ende vor dem Beginn ist eine Nachtschicht
+• Pausen als Dauer oder mit Uhrzeit
+• Geteilte Schichten und mehrere Tätigkeiten, jede mit eigener Woche
+• Deine Sollzeit pro Wochentag, ab einem Datum änderbar, wenn sich dein Vertrag ändert
+• Urlaub, Krankheit, Feiertage und eigene Tagesarten
+• Jedes Feld abschaltbar: was du ausschaltest, verschwindet
+
+DAS SALDO, AB DEINEM ERSTEN TAG
+
+gearbeitet + bezahlte Abwesenheit − Soll + Korrektur
+
+Gezählt ab deinem ersten eingetragenen Tag, damit du mitten im Jahr nicht mit Hunderten Minusstunden startest. Arbeitszeit und bezahlte Abwesenheit stehen immer getrennt. Die Auswertung zeigt heute, die Woche, den Monat und das Jahr, mit dem Verdienst zuerst.
+
+WIDGETS UND LIVE-AKTIVITÄT
+
+Heute, Dieser Monat, Diese Woche und deine aktuelle Baustelle auf dem Home-Bildschirm, mit „Wie gestern“ direkt im Baustellen-Widget. Während die Uhr läuft, zeigt eine Live-Aktivität sie auf dem Sperrbildschirm und in der Dynamic Island, mit Stopp-Taste. Auch Siri und Kurzbefehle starten und stoppen sie.
+
+GEBAUT, UM NICHTS ZU VERLIEREN
+
+Tage werden als Datum gespeichert, Zeitzonen und Zeitumstellungen können sie nicht verschieben. Schließ einen abgegebenen Monat, und nichts ändert ihn mehr aus Versehen. Die Sicherung ist eine lesbare JSON-Datei mit allem, was du eingetragen hast: eine Datei, die du behältst, kein Dienst, dem du vertrauen musst.
+
+ZEITKONTO PRO
+
+Eintragen ist kostenlos und bleibt es: der Kalender, der Tageseditor, deine erste Baustelle mit Mannschaft, der Verdienst, das Saldo, Erinnerungen und die Sicherung. Nichts, was du eingetragen hast, wird je zurückgehalten.
+
+Pro ist zum Erstellen: Listen und Stundenzettel als PDF, Excel oder CSV, die Widgets und die Live-Aktivität, mehr als eine Baustelle, eine zweite Tätigkeit und mehrere Tage auf einmal bearbeiten. Monatlich, jährlich oder einmal für immer. Kein Konto, keine Anmeldung: ein Kauf gehört zu deinem Apple Account.
