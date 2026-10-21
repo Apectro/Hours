@@ -95,17 +95,10 @@ jobs:
           WANTED=$(grep -cvE '^(#|$)' fastlane/screenshots.txt)
           for LOCALE in en-US de-DE; do
             PHONE=$(find "$DIR/app-store/$LOCALE" -name 'iphone-*.png' | wc -l | tr -d ' ')
-            TABLET=$(find "$DIR/app-store/$LOCALE" -name 'ipad-*.png' | wc -l | tr -d ' ')
-            echo "$LOCALE: $PHONE iPhone, $TABLET iPad (of $WANTED each)"
+            echo "$LOCALE: $PHONE iPhone (of $WANTED)"
             if [ "$PHONE" -lt "$WANTED" ]; then
               echo "::error::$LOCALE has $PHONE of $WANTED iPhone screenshots. Run Build and test on main again and check its screenshot steps."
               exit 1
-            fi
-            # The app runs on iPad, so App Store Connect wants iPad shots
-            # before it will submit. Uploading without them is still useful;
-            # submitting is not, so it is a warning here.
-            if [ "$TABLET" -lt "$WANTED" ]; then
-              echo "::warning::$LOCALE has $TABLET of $WANTED iPad screenshots. App Store Connect will not submit the app until the 13-inch iPad set is there."
             fi
           done
           echo "SCREENSHOTS_DIR=$DIR/app-store" >> "$GITHUB_ENV"

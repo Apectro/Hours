@@ -398,32 +398,11 @@ jobs:
               the second screenshot size will have to be taken by hand"
           fi
 
-          # The app targets iPad too (TARGETED_DEVICE_FAMILY = 1,2), and App
-          # Store Connect will not submit an iPad app without 13-inch iPad
-          # screenshots. A 13-inch iPad Pro or Air is 2064×2752 or 2048×2732,
-          # both of which are the 13-inch slot; the 12.9-inch Pro is the same
-          # 2048×2732. Nothing else is accepted there, so no fallback to a
-          # smaller iPad — a missing set is a warning, not a wrong-size upload.
-          IPADS=$(xcrun simctl list devices available | grep "iPad" || true)
-          TABLET=$(echo "$IPADS" | grep -E "iPad Pro 13-inch" | head -1)
-          [ -n "$TABLET" ] || TABLET=$(echo "$IPADS" | grep -E "iPad Pro \(12\.9-inch\)" | head -1)
-          [ -n "$TABLET" ] || TABLET=$(echo "$IPADS" | grep -E "iPad Air 13-inch" | head -1)
-          IPAD=$(echo "$TABLET" | udid_of)
-          IPAD_NAME=$(echo "$TABLET" | name_of)
-          if [ -n "$IPAD" ]; then
-            echo "ipad      -> $IPAD_NAME ($IPAD)"
-          else
-            echo "::warning::no 13-inch iPad simulator on this runner; \
-              the iPad screenshots App Store Connect requires will have to be taken by hand"
-          fi
-
           {
             echo "udid=$PRIMARY"
             echo "name=$PRIMARY_NAME"
             echo "second_udid=$SECONDARY"
             echo "second_name=$SECONDARY_NAME"
-            echo "ipad_udid=$IPAD"
-            echo "ipad_name=$IPAD_NAME"
           } >> "$GITHUB_OUTPUT"
 
       # Guards a step whose failure mode is not a red build but a green one that
@@ -510,33 +489,6 @@ jobs:
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test-german.log"
-
-      # The 13-inch iPad set, in both languages: App Store Connect requires
-      # it for an app that runs on iPad. Same suite, same rules — tabs by
-      # position, nothing found by label — so it needs nothing iPad-specific
-      # beyond the destination.
-      - name: Screenshots on iPad
-        if: always() && steps.sim.outputs.ipad_udid != ''
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          for LANG_CODE in en de; do
-            BUNDLE="$RUNNER_TEMP/HoursiPad-$LANG_CODE.xcresult"
-            rm -rf "$BUNDLE"
-            REGION=US; [ "$LANG_CODE" = de ] && REGION=DE
-            xcodebuild test \
-              -project Hours.xcodeproj \
-              -scheme Hours \
-              -destination "id=${{ steps.sim.outputs.ipad_udid }}" \
-              -only-testing:HoursUITests/ScreenshotTests \
-              -testLanguage "$LANG_CODE" \
-              -testRegion "$REGION" \
-              -resultBundlePath "$BUNDLE" \
-              -skipMacroValidation \
-              CODE_SIGNING_ALLOWED=NO \
-              | tee "$RUNNER_TEMP/test-ipad-$LANG_CODE.log" \
-              || echo "::warning::the iPad screenshots in $LANG_CODE failed"
-          done
 
       # A video of the app being used, which is the one thing a folder of
       # stills cannot show: how it moves, how long a screen takes to open, what
@@ -673,7 +625,6 @@ jobs:
         env:
           PRIMARY_NAME: ${{ steps.sim.outputs.name }}
           SECOND_NAME: ${{ steps.sim.outputs.second_name }}
-          IPAD_NAME: ${{ steps.sim.outputs.ipad_name }}
         run: |
           OUT="$RUNNER_TEMP/screenshots"
           rm -rf "$OUT"
@@ -701,17 +652,13 @@ jobs:
           # German goes in its own folder beside the device folders, so the two
           # sets never collide on identical filenames.
           harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
-          if [ -n "$IPAD_NAME" ]; then
-            harvest "$RUNNER_TEMP/HoursiPad-en.xcresult" "$(slug "$IPAD_NAME")"
-            harvest "$RUNNER_TEMP/HoursiPad-de.xcresult" "$(slug "$IPAD_NAME")-de"
-          fi
 
           # The listing's shots and nothing else, laid out for fastlane
           # deliver (app-store/<locale>/), which is what the App Store
           # workflow uploads. Checked for a size App Store Connect has a slot
           # for here, where the run that made them can still say so.
           python3 Scripts/store-screenshots.py "$OUT" fastlane/screenshots.txt \
-            "$(slug "$PRIMARY_NAME")" "${IPAD_NAME:+$(slug "$IPAD_NAME")}" \
+            "$(slug "$PRIMARY_NAME")" \
             || echo "::warning::the App Store set is incomplete — see the warnings above"
 
           # The walkthrough video, if this run recorded one. Its own folder:

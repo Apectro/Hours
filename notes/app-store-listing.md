@@ -70,12 +70,12 @@ with a crew of five, a month of site days, a pay rate with surcharges. Seven
 shots, in this order — the calendar with the month's earnings, the site's
 month and day card, the director's sheet, the day editor, Insights with
 earnings, Pay, and Privacy. CI takes them on the largest iPhone (6.9-inch
-slot) and on a 13-inch iPad, in English and German, and lays them out for
-upload on the `screenshots` branch under `app-store/`.
+slot), in English and German, and lays them out for upload on the
+`screenshots` branch under `app-store/`.
 
-The app targets iPad (`TARGETED_DEVICE_FAMILY = 1,2`), so the iPad set is
-required, not optional. If the runner has no 13-inch iPad simulator the run
-says so, and the shots have to be taken by hand — or the app made iPhone-only.
+The app is iPhone-only (`TARGETED_DEVICE_FAMILY = 1`), the owner's choice, so
+App Store Connect asks for no iPad screenshots. Turning iPad back on means
+taking a 13-inch iPad set too.
 
 ## App Review notes
 

@@ -260,9 +260,9 @@ sample month â€” a site with a crew of five, a month of site days, a pay rate â€
 and takes seven shots: the calendar with the month's earnings, a site, the
 director's sheet, the day editor, Insights, Pay and Privacy. The full
 simulator job takes them on the largest iPhone the runner has (the 6.9-inch
-slot) and on a 13-inch iPad, in English and German, and lays the set out for
-upload under `app-store/` on the `screenshots` branch. The app targets iPad,
-so App Store Connect wants the iPad set as well as the iPhone one.
+slot), in English and German, and lays the set out for upload under
+`app-store/` on the `screenshots` branch. The app is iPhone-only, so no iPad
+set is needed.
 
 That happens in the full simulator job, which does **not** run on every push:
 macOS minutes bill at ten times the Linux rate, so it runs on pull requests and
