@@ -53,6 +53,7 @@ struct RootView: View {
                 let month = CalendarDate.today(in: HoursStack.calendar).yearMonth
                 settingsStore.update { $0.monthLock.lock(month) }
             }
+            await HoursStack.subscriptions.detectInstallSource()
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
             HoursStack.refreshWidget()
