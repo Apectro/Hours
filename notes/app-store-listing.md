@@ -1,3 +1,11 @@
+> **The first release is free, with everything unlocked and nothing sold**
+> (`HoursCore/Settings/FreeLaunch.swift`, `paymentsEnabled = false`). Don't run
+> the `products` lane, don't attach in-app purchases to the version, and no
+> Paid Apps agreement is needed yet. To start selling: sign the agreement, run
+> the App Store workflow with `products`, flip the constant, restore the Pro
+> section of the description, the website's pricing and the support/privacy
+> wording, and ship a build — deciding first what early free users keep.
+
 # App Store listing
 
 The listing itself is **`fastlane/metadata/`**: every field App Store Connect

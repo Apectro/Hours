@@ -46,8 +46,6 @@ BUILT NOT TO LOSE YOUR DATA
 
 Days are stored as dates, so a time zone or a clock change can't reshape them. Close a month you have handed in and nothing can change it by accident. Backup and restore writes a plain JSON file holding everything you entered: a file you keep, not a service you trust.
 
-ZEITKONTO PRO
+FREE, ALL OF IT
 
-Recording is free and stays free: the calendar, the day editor, your first site with its crew, earnings, the balance, reminders and the backup. Nothing you recorded is ever held back.
-
-Pro is for producing: sheets and timesheets as PDF, Excel or CSV, the widgets and the Live Activity, more than one site, a second job, and editing a range of days at once. Monthly, yearly, or once for good. No account and no login: a purchase belongs to your Apple Account.
+Everything is included at no cost: the calendar and day editor, sites and crews, the director's sheet and timesheets as PDF, Excel or CSV, earnings, the widgets and the Live Activity. No account, no login, no ads.

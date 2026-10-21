@@ -86,7 +86,11 @@ final class SubscriptionStore {
         let cached = SubscriptionStore.cached(from: defaults, key: cacheKey)
         let provisional = cached?.isTrustworthyOffline(at: Date()) == true ? cached! : .free
         self.storeAnswer = provisional
-        self.entitlement = provisional
+        // A pinned store (UI tests) keeps exactly what it was handed, so the
+        // paywall stays tested for the day payments are switched on.
+        self.entitlement = pinned
+            ? provisional
+            : FreeLaunch.entitlement(storeAnswer: provisional, paymentsEnabled: FreeLaunch.paymentsEnabled, at: Date())
         self.testerLocksPro = defaults.bool(forKey: SubscriptionStore.testerLocksProKey)
 
         // A transaction can arrive at any moment — a renewal, a refund, a
@@ -138,13 +142,23 @@ final class SubscriptionStore {
     }
 
     private func applyTesterAccess() {
-        entitlement = TesterAccess.entitlement(
+        let now = Date()
+        let tested = TesterAccess.entitlement(
             storeAnswer: storeAnswer,
             isTestFlight: isTestFlightInstall,
             testerLocksPro: testerLocksPro,
-            at: Date()
+            at: now
         )
+        entitlement = isPinned
+            ? tested
+            : FreeLaunch.entitlement(storeAnswer: tested, paymentsEnabled: FreeLaunch.paymentsEnabled, at: now)
     }
+
+    /// Whether this copy of the app sells anything: the Pro row, the tester
+    /// switch and "Buying Zeitkonto Pro" only appear when it does. The UI
+    /// tests' pinned store always does, so the paywall keeps its tests while
+    /// the first release is free (`FreeLaunch`).
+    var offersPurchases: Bool { isPinned || FreeLaunch.paymentsEnabled }
 
     var isPro: Bool { entitlement.isActive(at: Date()) }
 

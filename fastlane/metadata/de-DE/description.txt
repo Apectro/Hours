@@ -46,8 +46,6 @@ GEBAUT, UM NICHTS ZU VERLIEREN
 
 Tage werden als Datum gespeichert, Zeitzonen und Zeitumstellungen können sie nicht verschieben. Schließ einen abgegebenen Monat, und nichts ändert ihn mehr aus Versehen. Die Sicherung ist eine lesbare JSON-Datei mit allem, was du eingetragen hast: eine Datei, die du behältst, kein Dienst, dem du vertrauen musst.
 
-ZEITKONTO PRO
+KOSTENLOS, ALLES DAVON
 
-Eintragen ist kostenlos und bleibt es: der Kalender, der Tageseditor, deine erste Baustelle mit Mannschaft, der Verdienst, das Saldo, Erinnerungen und die Sicherung. Nichts, was du eingetragen hast, wird je zurückgehalten.
-
-Pro ist zum Erstellen: Listen und Stundenzettel als PDF, Excel oder CSV, die Widgets und die Live-Aktivität, mehr als eine Baustelle, eine zweite Tätigkeit und mehrere Tage auf einmal bearbeiten. Monatlich, jährlich oder einmal für immer. Kein Konto, keine Anmeldung: ein Kauf gehört zu deinem Apple Account.
+Alles ist dabei, ohne Kosten: Kalender und Tageseditor, Baustellen und Mannschaften, die Monatsliste für die Bauleitung und Stundenzettel als PDF, Excel oder CSV, der Verdienst, die Widgets und die Live-Aktivität. Kein Konto, keine Anmeldung, keine Werbung.

@@ -41,7 +41,7 @@ export const de: Copy = {
     appStoreAction: "Im App Store laden",
     costAction: "Was es kostet",
     notYet: "Noch nicht im App Store. ",
-    note: "Stunden zu erfassen ist kostenlos und bleibt es. Braucht iOS 18.",
+    note: "Kostenlos, mit allem. Braucht iOS 18.",
     shotAlt: "Zeitkonto auf einem iPhone: ein Monat, dessen Tage nach Art eingefärbt sind, mit den Summen darunter",
   },
 
@@ -142,24 +142,17 @@ export const de: Copy = {
   },
 
   pricing: {
-    heading: "Erfassen ist kostenlos. Bezahlt wird für Dokumente.",
-    lede: "Nichts, was du erfasst hast, wird je weggesperrt. Läuft ein Abo aus, steht jede Zahl weiterhin da und die Sicherung wird weiterhin geschrieben. Bezahlt wird dafür, daraus eine Datei zu machen, die jemand anderes lesen kann.",
+    heading: "Kostenlos. Alles davon.",
+    lede: "Kein Abo, keine Testphase, kein Konto. Alles, was Zeitkonto kann, ist dabei, und nichts, was du erfasst, wird je weggesperrt.",
     plans: [
-      { name: "Kostenlos, und bleibt es", price: "Nichts, wofür man sich anmelden müsste", highlight: false,
+      { name: "Alles", price: "Kostenlos", highlight: true,
         items: [
           "Der Kalender, der Tageseditor und jedes Feld",
-          "Deine erste Baustelle mit Mannschaft, und was du verdient hast",
-          "Pausen, Überstunden, Korrekturen und der Saldo",
-          "Auswertung für Tag, Woche, Monat und Jahr",
-          "Ein Hinweis, wenn an einem Arbeitstag keine Stunden stehen",
-          "Eine JSON-Sicherung mit jedem Tag, den du je eingetragen hast",
-        ] },
-      { name: "Zeitkonto Pro", price: "Monatlich, jährlich, oder einmalig gekauft", highlight: true,
-        items: [
-          "Stundenzettel und die Liste für die Bauleitung als CSV, Excel oder PDF, in zehn Sprachen",
+          "Baustellen und Mannschaften, und die Monatsliste für die Bauleitung",
+          "Stundenzettel als CSV, Excel oder PDF, in zehn Sprachen",
+          "Was du verdient hast, mit deinem Stundenlohn und Zuschlägen",
           "Widgets für Home- und Sperrbildschirm, und die Uhr als Live-Aktivität",
-          "Mehr als eine Baustelle, und eine zweite Tätigkeit mit eigener Woche",
-          "Einen ganzen Zeitraum in einem Zug bearbeiten",
+          "Eine JSON-Sicherung mit jedem Tag, den du je eingetragen hast",
         ] },
     ],
   },

@@ -37,7 +37,7 @@ export const en = {
     appStoreAction: "Get it on the App Store",
     costAction: "What it costs",
     notYet: "It isn't on the App Store yet. ",
-    note: "Recording your hours is free and stays free. Needs iOS 18.",
+    note: "Free, with everything included. Needs iOS 18.",
     shotAlt: "Zeitkonto on an iPhone, showing a month of days coloured by type with totals beneath",
   },
 
@@ -138,24 +138,17 @@ export const en = {
   },
 
   pricing: {
-    heading: "Recording is free. You pay to make documents.",
-    lede: "Nothing you've recorded ever gets locked up. If a subscription lapses every figure is still there and the backup still writes. What you're paying for is turning it into a file somebody else can read.",
+    heading: "Free. All of it.",
+    lede: "No subscription, no trial, no account. Everything Zeitkonto does is included, and nothing you record is ever locked up.",
     plans: [
-      { name: "Free, and staying that way", price: "Nothing to sign up for", highlight: false,
+      { name: "Everything", price: "Free", highlight: true,
         items: [
           "The calendar, the day editor and every field",
-          "Your first site and its crew, and what you earned",
-          "Breaks, overtime, adjustments and the balance",
-          "Insights for the day, week, month and year",
-          "A nudge when a working day has no hours on it",
-          "A JSON backup holding every day you ever entered",
-        ] },
-      { name: "Zeitkonto Pro", price: "Monthly, yearly, or bought outright once", highlight: true,
-        items: [
-          "Timesheets and the director's sheet as CSV, Excel or PDF, in ten languages",
+          "Sites and crews, and the director's monthly sheet",
+          "Timesheets as CSV, Excel or PDF, in ten languages",
+          "What you earned, with your rate and surcharges",
           "Home Screen and Lock Screen widgets, and the clock as a Live Activity",
-          "More than one site, and a second job with its own week",
-          "Editing a whole range of days in one pass",
+          "A JSON backup holding every day you ever entered",
         ] },
     ],
   },
