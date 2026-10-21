@@ -233,11 +233,13 @@ final class ExportCaptureTests: XCTestCase {
             .compactMap { document.page(at: $0)?.string }
             .joined()
 
-        for heading in ["Datum", "Art", "Gearbeitet", "Pause", "Überstunden"] {
+        // The page prints its column titles in capitals.
+        for heading in ["DATUM", "ART", "GEARBEITET", "PAUSE", "ÜBERSTUNDEN"] {
             XCTAssertTrue(text.contains(heading), "the PDF never drew the column title \(heading)")
         }
         for english in ["Worked", "Expected", "Overtime", "Break"] {
             XCTAssertFalse(text.contains(english), "\(english) is still in English in the rendered PDF")
+            XCTAssertFalse(text.contains(english.uppercased()), "\(english) is still in English in the rendered PDF")
         }
 
         // Weekdays come from the calendar's own locale, which is not the one
@@ -265,8 +267,9 @@ final class ExportCaptureTests: XCTestCase {
     /// column of every language against the text it will draw, so the trade
     /// cannot come back unnoticed.
     func testNoColumnIsNarrowerThanWhatItMustShow() {
-        let heading = UIFont.systemFont(ofSize: 9, weight: .semibold)
-        let cell = UIFont.systemFont(ofSize: 9.5)
+        // The fonts the page draws in, and the headings as it prints them:
+        // in capitals, which are wider.
+        let heading = PDFReportStyle.headingFont
         func width(_ text: String, _ font: UIFont) -> CGFloat {
             (text as NSString).size(withAttributes: [.font: font]).width
         }
@@ -283,9 +286,11 @@ final class ExportCaptureTests: XCTestCase {
             )
 
             for (index, column) in table.columns.enumerated() {
-                var needed = width(column.heading(in: table.language), heading)
+                let printed = column.heading(in: table.language).uppercased(with: table.language.locale)
+                var needed = width(printed, heading)
                 if !column.mayTruncate {
                     for row in table.rows where index < row.values.count {
+                        let cell = PDFReportLayout.font(for: column, role: row.role)
                         needed = max(needed, width(row.values[index], cell))
                     }
                 }
@@ -294,6 +299,81 @@ final class ExportCaptureTests: XCTestCase {
                     "\(language.rawValue): \(column.rawValue) is too narrow for what it draws"
                 )
             }
+        }
+    }
+
+    // MARK: - The director's sheet
+
+    /// A site's month with the cases its page has to show: someone off for a
+    /// day, someone leaving early, and a note.
+    private func siteTable() -> ReportTable {
+        let site = Site(name: "Trg Pravde Zagreb")
+        var export = ExportPreferences()
+        export.ownerName = "Marijo Mikša"
+        let settings = Fixture.settings(export: export)
+        let ivan = CrewMember(siteID: site.id, name: "Ivan Horvat", isHidden: false, sortOrder: 0)
+        let marko = CrewMember(siteID: site.id, name: "Marko Kovač", isHidden: false, sortOrder: 1)
+        var days: [SiteDay] = []
+        for day in 1...31 {
+            let date = Fixture.date(2026, 8, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            var present = [Attendance(memberID: CrewMember.youID), Attendance(memberID: ivan.id)]
+            if day % 6 != 0 {
+                present.append(Attendance(memberID: marko.id, end: day % 5 == 0 ? Fixture.time(13) : nil))
+            }
+            days.append(SiteDay(
+                siteID: site.id,
+                date: date,
+                start: Fixture.time(7),
+                end: Fixture.time(16),
+                breakMinutes: 30,
+                present: present,
+                note: day == 12 ? "Crane delivery" : ""
+            ))
+        }
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        return SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
+            .makeTable(
+                site: site,
+                crew: [ivan, marko],
+                results: days.map(calculator.compute),
+                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
+            )
+    }
+
+    func testCaptureTheSiteSheet() throws {
+        let table = siteTable()
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(2).enumerated() {
+            attach(image, named: "14-site-pdf-\(index + 1)")
+        }
+        let workbook = XCTAttachment(
+            data: XLSXWriter.data(for: table, preferences: ExportPreferences(), generatedOn: Date()),
+            uniformTypeIdentifier: "org.openxmlformats.spreadsheetml.sheet"
+        )
+        workbook.name = "15-site-xlsx.xlsx"
+        workbook.lifetime = .keepAlways
+        add(workbook)
+
+        // The names head their columns and the closing rows are there.
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(text.contains("IVAN HORVAT"), "a person's name is missing from the headings")
+        XCTAssertTrue(text.contains("Month total"))
+        XCTAssertTrue(text.contains("Checked"), "the signature line is missing")
+    }
+
+    /// The footer counts the pages it is on, which it can only do because
+    /// the pages are laid out before any is drawn.
+    func testTheFooterKnowsHowManyPagesThereAre() throws {
+        let table = monthTable(days: 31)
+        let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+        let count = document.pageCount
+        XCTAssertGreaterThan(count, 0)
+        for index in 0..<count {
+            let text = document.page(at: index)?.string ?? ""
+            XCTAssertTrue(text.contains("page \(index + 1) of \(count)"), "page \(index + 1) does not say of \(count)")
         }
     }
 
