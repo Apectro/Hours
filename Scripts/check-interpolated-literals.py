@@ -79,6 +79,11 @@ ALLOWED = {
     "Finish work in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "Check my hours in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "How am I doing in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    # Looked up, as a LocalizedStringKey: "Since %@ · %@ so far" is in
+    # translations.json. It cannot be String(localized:) because the second
+    # value is a Text counting up live on the Lock Screen, and a String
+    # would freeze it.
+    "Since \\(since) · \\(timer) so far": "a Text key holding a live timer; see the note above",
 }
 
 LITERAL = re.compile(r'"((?:[^"\\]|\\.)*\\\((?:[^"\\]|\\.)*)"')

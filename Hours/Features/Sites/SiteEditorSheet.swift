@@ -123,6 +123,8 @@ struct SiteEditorSheet: View {
         }
 
         SiteRepository(context: modelContext, lock: settingsStore.settings.monthLock).upsert(site)
+        // A renamed or archived site changes which card the widget shows.
+        HoursStack.refreshWidget()
         dismiss()
     }
 }

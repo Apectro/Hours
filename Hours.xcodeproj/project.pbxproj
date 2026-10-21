@@ -28,6 +28,7 @@
 		AA0000000000000000000011 /* Hours.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000021 /* HoursTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HoursTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000061 /* HoursWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HoursWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000000000000000000008A /* Hours-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Hours-Info.plist"; sourceTree = "<group>"; };
 		AA000000000000000000006D /* HoursWidget-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HoursWidget-Info.plist"; sourceTree = "<group>"; };
 		AA0000000000000000000071 /* HoursUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HoursUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -103,6 +104,7 @@
 				AA0000000000000000000050 /* HoursCore */,
 				AA0000000000000000000080 /* HoursShared */,
 				AA0000000000000000000012 /* Hours */,
+				AA000000000000000000008A /* Hours-Info.plist */,
 				AA0000000000000000000062 /* HoursWidget */,
 				AA000000000000000000006D /* HoursWidget-Info.plist */,
 				AA0000000000000000000022 /* HoursTests */,
@@ -468,9 +470,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Hours-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -500,9 +504,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Hours-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -581,6 +587,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -608,6 +615,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

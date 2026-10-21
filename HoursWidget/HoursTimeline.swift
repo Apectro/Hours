@@ -30,7 +30,9 @@ extension HoursEntry {
     /// What previews and the gallery show. Plausible figures, so the widget is
     /// judged on its layout rather than on a grid of zeroes.
     static func sample(at date: Date = Date()) -> HoursEntry {
-        HoursEntry(
+        let calendar = Calendar.current
+        let today = CalendarDate(date, calendar: calendar)
+        return HoursEntry(
             date: date,
             snapshot: WidgetSnapshot(
                 generatedAt: date,
@@ -45,10 +47,58 @@ extension HoursEntry {
                 showsBalance: true,
                 unrecordedDayCount: 1,
                 durationStyle: .hoursAndMinutes,
-                isUnlocked: true
+                isUnlocked: true,
+                week: sampleWeek(today: today, calendar: calendar),
+                monthMarks: sampleMonth(today: today, calendar: calendar),
+                clockSiteName: "Trg Pravde",
+                todayDefaultEnd: TimeOfDay(hour: 16, minute: 0),
+                site: WidgetSite(
+                    id: UUID(),
+                    name: "Trg Pravde",
+                    isTodayWritten: false,
+                    lastDay: today.adding(days: -1, in: calendar),
+                    lastDayPeople: 4,
+                    includesYou: true,
+                    initials: ["IH", "DB", "MK"],
+                    lastStart: TimeOfDay(hour: 7, minute: 0),
+                    lastEnd: TimeOfDay(hour: 16, minute: 0)
+                )
             ),
             state: .sample
         )
+    }
+
+    /// A full-looking week up to today and nothing after it.
+    private static func sampleWeek(today: CalendarDate, calendar: Calendar) -> WidgetWeek {
+        let range = CalendarDateRange.week(containing: today, in: calendar)
+        let pattern = [510, 540, 372, 480, 450, 0, 0]
+        let worked = range.days(in: calendar).enumerated().map { index, date in
+            date < today ? pattern[index] : 0
+        }
+        return WidgetWeek(
+            start: range.start,
+            firstWeekday: calendar.firstWeekday,
+            workedMinutes: worked,
+            expectedMinutes: 2_400
+        )
+    }
+
+    /// The month's weekdays, one of them short.
+    private static func sampleMonth(today: CalendarDate, calendar: Calendar) -> [WidgetDayMark] {
+        let weekdays = today.yearMonth.range(in: calendar).days(in: calendar).filter { date in
+            !calendar.isDateInWeekend(date.date(in: calendar))
+        }
+        return weekdays.enumerated().map { index, date in
+            let state: WidgetDayMark.State
+            if date == today {
+                state = .today
+            } else if date > today {
+                state = .toCome
+            } else {
+                state = index == 5 ? .short : .done
+            }
+            return WidgetDayMark(date: date, state: state)
+        }
     }
 }
 

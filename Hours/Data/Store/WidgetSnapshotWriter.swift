@@ -5,10 +5,19 @@ import WidgetKit
 /// Builds the widget's snapshot from the real data and writes it out.
 ///
 /// Called whenever something the widget shows could have changed: the app
-/// becoming active, a day being saved, the clock starting or stopping.
+/// becoming active, a day or a site day being saved, the clock starting or
+/// stopping.
+///
+/// It only fetches. What the figures mean is decided by the engine —
+/// `PeriodEngine` for the days, `WidgetSnapshotBuilder` for the week, the
+/// month's squares and the site card — so the widget cannot disagree with
+/// the calendar.
 @MainActor
 struct WidgetSnapshotWriter {
     let repository: WorkdayRepository
+    /// Read only. Its reads collapse duplicates, which writes, so this runs
+    /// outside any view's body, as every refresh does.
+    let sites: SiteRepository
     let settings: AppSettings
     let clock: ActiveShiftStore
     let calendar: Calendar
@@ -41,7 +50,15 @@ struct WidgetSnapshotWriter {
         )
         let gaps = GapFinder.unrecordedWorkingDays(in: windowDays, asOf: today)
 
+        let week = CalendarDateRange.week(containing: today, in: calendar)
+        let weekDays = engine.days(
+            in: week,
+            records: repository.records(in: week),
+            holidays: holidays
+        )
+
         let running = clock.running
+        let allSites = sites.sites(includeArchived: true)
         return WidgetSnapshot(
             generatedAt: instant,
             isClockRunning: running != nil,
@@ -57,17 +74,59 @@ struct WidgetSnapshotWriter {
             showsBalance: settings.features.showsBalance,
             unrecordedDayCount: gaps.count,
             durationStyle: settings.displayDurationStyle,
-            isUnlocked: isUnlocked
+            isUnlocked: isUnlocked,
+            week: WidgetSnapshotBuilder.week(weekDays, today: today, calendar: calendar),
+            monthMarks: WidgetSnapshotBuilder.monthMarks(monthDays, today: today),
+            clockSiteName: WidgetSnapshotBuilder.clockSiteName(for: running, among: allSites),
+            todayDefaultEnd: WidgetSnapshotBuilder.defaultEnd(today: todayComputation, running: running, settings: settings),
+            site: siteCard(among: allSites, today: today)
         )
     }
 
-    /// Writes the snapshot and asks the widget to reload.
+    /// How far back a site counts as one you are working on. Two months: long
+    /// enough to cover a holiday, short enough that last year's site does not
+    /// win over the one you added on Monday and have not written up yet.
+    private static let recentSiteDays = 62
+
+    private func siteCard(among allSites: [Site], today: CalendarDate) -> WidgetSite? {
+        let window = CalendarDateRange(
+            start: today.adding(days: -Self.recentSiteDays, in: calendar),
+            end: today
+        )
+        guard let site = WidgetSnapshotBuilder.mostRecentSite(
+            among: allSites,
+            recentDays: sites.siteDays(siteID: nil, in: window),
+            today: today
+        ) else { return nil }
+
+        // Today's day when it is written, otherwise the last one before it,
+        // however long ago: the card says which day it is describing.
+        let lastDay = sites.siteDay(siteID: site.id, on: today)
+            ?? sites.lastSiteDay(siteID: site.id, before: today)
+        return WidgetSnapshotBuilder.site(
+            site,
+            today: today,
+            lastDay: lastDay,
+            // Hidden members included: a past day may name one.
+            crew: sites.crew(for: site.id, includeHidden: true)
+        )
+    }
+
+    /// Writes the snapshot, asks the widget to reload, and brings the clock's
+    /// Live Activity in line with it.
     ///
-    /// Both are no-ops when the app group has not been set up, so nothing here
-    /// fails or complains on a build without one.
+    /// The Live Activity is kept in step from here because every path that
+    /// starts, stops or changes the clock already ends in this call — the
+    /// clock card, Siri and Shortcuts, the Live Activity's own stop button and
+    /// the app coming back — so none of them has to remember a second one.
+    /// It does not need the app group, so it goes first; the file and the
+    /// reload are no-ops without one, so nothing here fails or complains on a
+    /// build that has none.
     func refresh(at instant: Date = Date()) {
+        let snapshot = snapshot(at: instant)
+        ClockActivityController.sync(with: snapshot)
         guard WidgetSnapshotStore.isConfigured else { return }
-        WidgetSnapshotStore.write(snapshot(at: instant))
+        WidgetSnapshotStore.write(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
     }
 }
@@ -76,6 +135,7 @@ extension HoursStack {
     static var widgetWriter: WidgetSnapshotWriter {
         WidgetSnapshotWriter(
             repository: repository,
+            sites: SiteRepository(context: container.mainContext),
             settings: settings.settings,
             clock: clock,
             calendar: calendar,

@@ -40,7 +40,7 @@ struct CalendarScreen: View {
                         settings: settings,
                         formatting: settingsStore.dateFormatting,
                         onClockOut: clockOut,
-                        onDiscard: { timeClock.discard() }
+                        onDiscard: discard
                     )
                     .padding(.bottom, Metrics.large)
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -197,6 +197,13 @@ struct CalendarScreen: View {
                 if !summaryRange.contains(date) { anchorDate = date }
             }
         }
+        HoursStack.refreshWidget()
+    }
+
+    /// Nothing is recorded, but the widget and the Live Activity were both
+    /// showing a running clock, so they are told it stopped.
+    private func discard() {
+        timeClock.discard()
         HoursStack.refreshWidget()
     }
 

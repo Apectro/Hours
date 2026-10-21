@@ -2,7 +2,12 @@ import AppIntents
 import Foundation
 
 /// Starting the clock from Siri, Shortcuts or Spotlight.
-struct ClockInIntent: AppIntent {
+///
+/// A `LiveActivityIntent` rather than a plain one because it runs without
+/// opening the app, and only an intent marked this way may start a Live
+/// Activity from the background. Without it the lock screen would show the
+/// clock when it was started in the app and not when it was started by voice.
+struct ClockInIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Clock in"
     static var description = IntentDescription(
         "Starts the clock. Does nothing if one is already running."
@@ -57,7 +62,9 @@ struct ClockOutIntent: AppIntent {
             )))
         case let .monthIsClosed(month):
             // The shift is gone either way — the clock has already stopped —
-            // so name the month rather than saying only that it failed.
+            // so name the month rather than saying only that it failed. The
+            // widget and the Live Activity still have to hear that it stopped.
+            HoursStack.refreshWidget()
             let formatting = HoursStack.settings.dateFormatting
             return .result(dialog: IntentDialog(stringLiteral: String(
                 localized: "\(formatting.monthTitle(month)) is closed, so that shift was not recorded.",

@@ -36,6 +36,21 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     /// whenever anything changes.
     var isUnlocked: Bool
 
+    // The redesigned widgets' figures. Each one is optional or empty in a
+    // file an earlier version wrote, and the widget simply leaves that part
+    // out until the app has run once and written a new one.
+
+    /// The week's bars, for the This week widget.
+    var week: WidgetWeek?
+    /// A square per working day of the month, for the month widget.
+    var monthMarks: [WidgetDayMark]
+    /// The site the running clock belongs to, when that is certain.
+    var clockSiteName: String?
+    /// When today's work is due to end, for "off at 16:30".
+    var todayDefaultEnd: TimeOfDay?
+    /// The site card, or nil when there is no active site.
+    var site: WidgetSite?
+
     static let empty = WidgetSnapshot(
         generatedAt: .distantPast,
         isClockRunning: false,
@@ -133,11 +148,75 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         return Double(monthWorked(at: instant, calendar: calendar)) / Double(expected)
     }
 
+    // MARK: - The redesigned widgets
+
+    /// The week's bars as they stand at `instant`, today's with the running
+    /// clock in it. Nil once the week is over: Monday morning's widget must
+    /// not draw last week's bars under THIS WEEK.
+    func weekBars(at instant: Date, calendar: Calendar) -> [WidgetWeekBar]? {
+        guard let week, week.workedMinutes.count == 7 else { return nil }
+        let today = CalendarDate.today(in: calendar, now: instant)
+        let todayIndex = week.start.days(until: today, in: calendar)
+        guard (0..<7).contains(todayIndex) else { return nil }
+
+        return week.workedMinutes.enumerated().map { index, stored in
+            let isToday = index == todayIndex
+            return WidgetWeekBar(
+                date: week.start.adding(days: index, in: calendar),
+                // Today's bar follows the same rule as the Today widget, so
+                // the two never show different figures for the same day.
+                minutes: isToday ? todayIncludingRunningClock(at: instant, calendar: calendar) : stored,
+                isToday: isToday
+            )
+        }
+    }
+
+    func weekWorked(at instant: Date, calendar: Calendar) -> Int {
+        weekBars(at: instant, calendar: calendar)?.reduce(0) { $0 + $1.minutes } ?? 0
+    }
+
+    func weekExpected(at instant: Date, calendar: Calendar) -> Int {
+        weekBars(at: instant, calendar: calendar) == nil ? 0 : (week?.expectedMinutes ?? 0)
+    }
+
+    /// The month's squares as they stand at `instant`.
+    ///
+    /// Past midnight the file still describes yesterday, so the square that
+    /// was today takes the state yesterday's own figures give it and the new
+    /// day becomes today. Squares still to come stay that way: nothing in this
+    /// file says what happened on them.
+    func monthMarks(at instant: Date, calendar: Calendar) -> [WidgetDayMark] {
+        guard describesMonth(of: instant, calendar: calendar) else { return [] }
+        guard !describesDay(of: instant, calendar: calendar) else { return monthMarks }
+
+        let today = CalendarDate.today(in: calendar, now: instant)
+        let yesterday: WidgetDayMark.State = todayWorkedMinutes >= todayExpectedMinutes ? .done : .short
+        return monthMarks.map { mark in
+            var mark = mark
+            if mark.date == today {
+                mark.state = .today
+            } else if mark.state == .today, mark.date < today {
+                mark.state = yesterday
+            }
+            return mark
+        }
+    }
+
+    /// Whether the site card's day is written, for the day `instant` falls in.
+    func isSiteTodayWritten(at instant: Date, calendar: Calendar) -> Bool {
+        describesDay(of: instant, calendar: calendar) && (site?.isTodayWritten ?? false)
+    }
+
+    func defaultEnd(at instant: Date, calendar: Calendar) -> TimeOfDay? {
+        describesDay(of: instant, calendar: calendar) ? todayDefaultEnd : nil
+    }
+
     private enum CodingKeys: String, CodingKey {
         case generatedAt, isClockRunning, clockStartedAt, clockJobName
         case todayWorkedMinutes, todayExpectedMinutes
         case monthWorkedMinutes, monthExpectedMinutes, monthBalanceMinutes
         case showsBalance, unrecordedDayCount, durationStyle, isUnlocked
+        case week, monthMarks, clockSiteName, todayDefaultEnd, site
     }
 
     init(from decoder: Decoder) throws {
@@ -155,7 +234,12 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
             showsBalance: container.lenient(.showsBalance, true),
             unrecordedDayCount: container.lenient(.unrecordedDayCount, 0),
             durationStyle: container.lenient(.durationStyle, DurationStyle.hoursAndMinutes),
-            isUnlocked: container.lenient(.isUnlocked, false)
+            isUnlocked: container.lenient(.isUnlocked, false),
+            week: container.lenientOptional(.week, WidgetWeek.self),
+            monthMarks: container.lenient(.monthMarks, []),
+            clockSiteName: container.lenientOptional(.clockSiteName, String.self),
+            todayDefaultEnd: container.lenientOptional(.todayDefaultEnd, TimeOfDay.self),
+            site: container.lenientOptional(.site, WidgetSite.self)
         )
     }
 
@@ -172,7 +256,12 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         showsBalance: Bool,
         unrecordedDayCount: Int,
         durationStyle: DurationStyle,
-        isUnlocked: Bool
+        isUnlocked: Bool,
+        week: WidgetWeek? = nil,
+        monthMarks: [WidgetDayMark] = [],
+        clockSiteName: String? = nil,
+        todayDefaultEnd: TimeOfDay? = nil,
+        site: WidgetSite? = nil
     ) {
         self.generatedAt = generatedAt
         self.isClockRunning = isClockRunning
@@ -187,5 +276,10 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         self.unrecordedDayCount = unrecordedDayCount
         self.durationStyle = durationStyle
         self.isUnlocked = isUnlocked
+        self.week = week
+        self.monthMarks = monthMarks
+        self.clockSiteName = clockSiteName
+        self.todayDefaultEnd = todayDefaultEnd
+        self.site = site
     }
 }

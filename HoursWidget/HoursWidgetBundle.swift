@@ -8,10 +8,16 @@ import WidgetKit
 /// hard memory limit, so opening the SwiftData store here would mean running
 /// migrations and taking locks in a process the system is willing to kill
 /// mid-write. A snapshot cannot corrupt anything and cannot be slow.
+///
+/// The Live Activity is the exception: the system hands it its state
+/// directly, from the app, so it needs no snapshot at all.
 @main
 struct HoursWidgetBundle: WidgetBundle {
     var body: some Widget {
         TodayWidget()
         MonthWidget()
+        WeekWidget()
+        SiteWidget()
+        ClockLiveActivity()
     }
 }

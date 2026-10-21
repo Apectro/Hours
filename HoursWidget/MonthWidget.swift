@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-/// The month at a glance: worked against expected, and the balance.
+/// The month at a glance: the balance, and a square for each working day.
 ///
 /// Separate from the Today widget rather than a size of it, because the two
 /// answer different questions and people want different ones on their Home
@@ -17,86 +17,128 @@ struct MonthWidget: Widget {
     }
 }
 
+/// The figures every Month family reads.
+struct MonthFigures {
+    let entry: HoursEntry
+    let calendar = Calendar.current
+
+    var snapshot: WidgetSnapshot { entry.snapshot }
+    var worked: Int { snapshot.monthWorked(at: entry.date, calendar: calendar) }
+    var expected: Int { snapshot.monthExpected(at: entry.date, calendar: calendar) }
+    var balance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
+    var fraction: Double? { snapshot.monthFraction(at: entry.date, calendar: calendar) }
+    var marks: [WidgetDayMark] { snapshot.monthMarks(at: entry.date, calendar: calendar) }
+
+    func duration(_ minutes: Int) -> String { snapshot.formatting.string(minutes) }
+
+    /// "OCTOBER", in the phone's language.
+    var monthName: String {
+        entry.date.formatted(.dateTime.month(.wide)).uppercased()
+    }
+
+    /// The big figure: the balance, or the hours themselves for someone who
+    /// has switched the balance off.
+    var headline: String {
+        snapshot.showsBalance ? snapshot.formatting.signedString(balance) : duration(worked)
+    }
+
+    var verdict: String {
+        guard snapshot.showsBalance else {
+            return String(localized: "of \(duration(expected))", comment: "Widget, the month's target beneath the hours worked so far")
+        }
+        if balance > 0 { return String(localized: "ahead of plan") }
+        if balance < 0 { return String(localized: "behind plan") }
+        return String(localized: "on plan")
+    }
+}
+
 struct MonthWidgetView: View {
     @Environment(\.widgetFamily) private var family
     let entry: HoursEntry
 
-    private var snapshot: WidgetSnapshot { entry.snapshot }
-    private var hasData: Bool { entry.state == .data || entry.state == .sample }
-    private var calendar: Calendar { .current }
-    private var worked: Int { snapshot.monthWorked(at: entry.date, calendar: calendar) }
-    private var expected: Int { snapshot.monthExpected(at: entry.date, calendar: calendar) }
-    private var balance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
-    private var fraction: Double? { snapshot.monthFraction(at: entry.date, calendar: calendar) }
-    private var balanceColor: Color { WidgetPalette.balance(balance) }
-
     var body: some View {
         Group {
             switch family {
-            case .accessoryInline: inline
-            case .accessoryRectangular: rectangular
-            case .systemMedium: medium
-            default: small
+            case .accessoryInline: MonthInline(figures: MonthFigures(entry: entry))
+            case .accessoryRectangular: MonthRectangular(figures: MonthFigures(entry: entry))
+            case .systemMedium: MonthMedium(figures: MonthFigures(entry: entry))
+            default: MonthSmall(figures: MonthFigures(entry: entry))
             }
         }
-        .widgetBackground(onHomeScreen: family == .systemSmall || family == .systemMedium)
+        .widgetCard(.amber, onHomeScreen: family == .systemSmall || family == .systemMedium)
     }
+}
 
-    private var small: some View {
+// MARK: - Home Screen
+
+/// Board 11, top right: the month's name and hours, the balance in large,
+/// and a square per working day.
+struct MonthSmall: View {
+    let figures: MonthFigures
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("THIS MONTH")
-                .font(.system(.caption2, design: .rounded, weight: .semibold))
-                .foregroundStyle(.secondary)
-
-            Spacer(minLength: 4)
-
-            if hasData {
-                Text(snapshot.formatting.string(worked))
-                    .font(.widgetFigure(.title, weight: .bold))
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-
-                Text("of \(snapshot.formatting.string(expected))")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-
-                if let fraction {
-                    ProgressBar(fraction: fraction, tint: balanceColor)
-                        .padding(.top, 8)
-                }
-
+            HStack(alignment: .firstTextBaseline) {
+                WidgetHeading(text: Text(verbatim: figures.monthName), color: WidgetPalette.navy)
                 Spacer(minLength: 4)
-                balanceLine
+                if figures.entry.hasData, figures.snapshot.showsBalance {
+                    Text(figures.duration(figures.worked))
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundStyle(WidgetPalette.navy.opacity(0.7))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+            }
+
+            if figures.entry.hasData {
+                Spacer(minLength: 4)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(figures.headline)
+                        .font(.widgetFigure(size: 34, weight: .heavy))
+                        .foregroundStyle(WidgetPalette.navy)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .widgetAccentable()
+                    Text(figures.verdict)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(WidgetPalette.navy.opacity(0.75))
+                        .lineLimit(1)
+                }
+                .accessibilityElement(children: .combine)
+                Spacer(minLength: 4)
+                DaySquares(marks: figures.marks)
             } else {
                 Spacer(minLength: 0)
-                EmptyStateView(state: entry.state, compact: true)
+                EmptyStateView(state: figures.entry.state, compact: false)
                     .frame(maxWidth: .infinity)
                 Spacer(minLength: 0)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
+}
 
-    private var medium: some View {
-        HStack(alignment: .center, spacing: 16) {
-            small
+struct MonthMedium: View {
+    let figures: MonthFigures
 
-            if hasData {
-                Divider()
-
+    var body: some View {
+        HStack(spacing: 16) {
+            MonthSmall(figures: figures)
+            if figures.entry.hasData, let fraction = figures.fraction {
                 VStack(spacing: 6) {
-                    if let fraction {
-                        ZStack {
-                            ProgressRing(fraction: fraction, tint: balanceColor)
-                            Text("\(Int((fraction * 100).rounded()))%")
-                                .font(.widgetFigure(.subheadline, weight: .semibold))
-                                .minimumScaleFactor(0.6)
-                        }
-                        .frame(width: 68, height: 68)
+                    ZStack {
+                        ProgressRing(fraction: fraction, tint: WidgetPalette.navy, lineWidth: 8)
+                        Text("\(Int((fraction * 100).rounded()))%")
+                            .font(.widgetFigure(size: 15))
+                            .foregroundStyle(WidgetPalette.navy)
+                            .minimumScaleFactor(0.6)
+                            .padding(.horizontal, 10)
                     }
-                    if snapshot.unrecordedDayCount > 0 {
-                        Label(unrecordedText, systemImage: "exclamationmark.circle")
-                            .font(.caption2)
-                            .foregroundStyle(WidgetPalette.negative)
+                    .frame(width: 72, height: 72)
+                    if figures.snapshot.unrecordedDayCount > 0 {
+                        Text(UnrecordedDays.text(figures.snapshot.unrecordedDayCount))
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(WidgetPalette.navy.opacity(0.75))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
@@ -105,55 +147,113 @@ struct MonthWidgetView: View {
             }
         }
     }
+}
 
-    private var rectangular: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            if hasData {
-                Text("This month")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                Text(snapshot.formatting.string(worked))
-                    .font(.widgetFigure(.headline, weight: .semibold))
-                if snapshot.showsBalance {
-                    Text(snapshot.formatting.signedString(balance))
-                        .font(.caption2)
+/// One square per working day: done, short, today, still to come.
+///
+/// Rows of eleven, as the design has them, so a month of twenty-odd working
+/// days is two rows and a short month still lines up.
+struct DaySquares: View {
+    let marks: [WidgetDayMark]
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
+    private static let perRow = 11
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            ForEach(Array(stride(from: 0, to: marks.count, by: Self.perRow)), id: \.self) { start in
+                HStack(spacing: 3) {
+                    ForEach(start..<min(start + Self.perRow, marks.count), id: \.self) { index in
+                        square(marks[index].state)
+                    }
+                    // Empty places keep a short last row aligned with the one above.
+                    ForEach(0..<(Self.perRow - min(Self.perRow, marks.count - start)), id: \.self) { _ in
+                        Color.clear.frame(height: 8)
+                    }
                 }
-            } else {
-                EmptyStateView(state: entry.state, compact: true)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .widgetAccentable()
-    }
-
-    private var inline: some View {
-        Group {
-            if hasData, snapshot.showsBalance {
-                Label(snapshot.formatting.signedString(balance), systemImage: "calendar")
-            } else if hasData {
-                Label(snapshot.formatting.string(worked), systemImage: "calendar")
-            } else {
-                Label("Open Zeitkonto", systemImage: "calendar")
-            }
-        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
     }
 
     @ViewBuilder
-    private var balanceLine: some View {
-        if snapshot.showsBalance {
-            Text(snapshot.formatting.signedString(balance))
-                .font(.widgetFigure(.subheadline, weight: .semibold))
-                .foregroundStyle(balanceColor)
-                .lineLimit(1)
-        } else if snapshot.unrecordedDayCount > 0 {
-            Text(unrecordedText)
-                .font(.caption2)
-                .foregroundStyle(WidgetPalette.negative)
-                .lineLimit(1)
+    private func square(_ state: WidgetDayMark.State) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 3, style: .continuous)
+        switch state {
+        case .done:
+            shape.fill(WidgetPalette.navy).frame(height: 8).widgetAccentable()
+        case .short:
+            shape.fill(WidgetPalette.navy.opacity(0.45)).frame(height: 8)
+        case .toCome:
+            shape.fill(WidgetPalette.navy.opacity(0.15)).frame(height: 8)
+        case .today:
+            // White on amber in full colour; tinted, white would read as
+            // "done", so today is an outline there.
+            if renderingMode.isFullColor {
+                shape.fill(Color.white).frame(height: 8)
+            } else {
+                shape.strokeBorder(Color.primary, lineWidth: 1.5).frame(height: 8).widgetAccentable()
+            }
         }
     }
 
-    private var unrecordedText: String {
-        String(inflected: "^[\(snapshot.unrecordedDayCount) day](inflect: true) missing")
+    private var accessibilitySummary: String {
+        let done = marks.filter { $0.state == .done }.count
+        let short = marks.filter { $0.state == .short }.count
+        return String(
+            localized: "Working days: \(done) done, \(short) short",
+            comment: "VoiceOver, the month widget's squares"
+        )
+    }
+}
+
+// MARK: - Lock Screen
+
+struct MonthRectangular: View {
+    let figures: MonthFigures
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            if figures.entry.hasData {
+                HStack(spacing: 4) {
+                    HardHat()
+                        .frame(width: 11, height: 6)
+                        .widgetAccentable()
+                    Text("This month")
+                        .font(.caption.weight(.bold))
+                }
+                Text(figures.headline)
+                    .font(.widgetFigure(.headline, weight: .bold))
+                    .widgetAccentable()
+                Text(figures.snapshot.showsBalance ? figures.verdict : String(localized: "of \(figures.duration(figures.expected))", comment: "Widget, the month's target beneath the hours worked so far"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            } else {
+                EmptyStateView(state: figures.entry.state, compact: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct MonthInline: View {
+    let figures: MonthFigures
+
+    var body: some View {
+        if figures.entry.hasData, figures.snapshot.showsBalance {
+            Label(
+                String(
+                    localized: "\(figures.snapshot.formatting.signedString(figures.balance)) month",
+                    comment: "Lock Screen and widgets, the month's balance in two words"
+                ),
+                systemImage: "calendar"
+            )
+        } else if figures.entry.hasData {
+            Label(figures.duration(figures.worked), systemImage: "calendar")
+        } else {
+            Label("Open Zeitkonto", systemImage: "calendar")
+        }
     }
 }
