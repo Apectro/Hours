@@ -50,6 +50,23 @@ APP_MISSING_FIX = <<~TEXT.freeze
     5. Run the workflow again.
 TEXT
 
+# The widget reads the app's figures from a container the two share. Apple
+# only lets both open it when the group exists in the developer account and is
+# ticked on both identifiers; the code and the entitlements files name it too
+# (WidgetSnapshotStore.appGroupIdentifier, Hours.entitlements,
+# HoursWidget.entitlements).
+APP_GROUP = "group.app.zeitkonto"
+
+APP_GROUP_FIX = <<~TEXT.freeze
+  How to fix it (once, on the website — the API key cannot create App Groups):
+    1. Open developer.apple.com → Account → Certificates, Identifiers & Profiles → Identifiers.
+    2. Click +, choose "App Groups", continue. Description: Zeitkonto. Identifier: #{APP_GROUP}. Register.
+    3. Back in Identifiers, open #{APP_ID}. Tick "App Groups", click "Configure" (or "Edit"),
+       tick #{APP_GROUP}, Continue, then Save. Confirm the dialog about profiles.
+    4. Do the same for #{WIDGET_ID}.
+    5. Run the workflow again. It makes new signing profiles by itself.
+TEXT
+
 platform :ios do
   # Loads the App Store Connect API key into the lane context, where match,
   # Spaceship and upload_to_testflight all pick it up.
@@ -94,9 +111,9 @@ platform :ios do
     preflight_failed("the Bundle ID #{APP_ID} is not registered", BUNDLE_ID_MISSING_FIX) unless bundle_id
     UI.success("✓ Bundle ID #{APP_ID} is registered")
 
-    # The widget is signed separately and needs an identifier of its own. It
-    # has no capabilities, so the key can register it rather than send you
-    # back to the developer website for a second identifier.
+    # The widget is signed separately and needs an identifier of its own. The
+    # key can register it; the App Group it shares with the app is ticked on
+    # the website (check d says how).
     if Spaceship::ConnectAPI::BundleId.find(WIDGET_ID)
       UI.success("✓ Bundle ID #{WIDGET_ID} (widget) is registered")
     else
@@ -112,6 +129,16 @@ platform :ios do
     app = Spaceship::ConnectAPI::App.find(APP_ID)
     preflight_failed("there is no app with the Bundle ID #{APP_ID} in App Store Connect", APP_MISSING_FIX) unless app
     UI.success("✓ App \"#{app.name}\" exists in App Store Connect")
+
+    # d. Both identifiers can use the shared App Group. Without it the widget
+    # can never see the app's figures, and signing refuses the entitlement.
+    TARGETS.each_value do |id|
+      capabilities = Spaceship::ConnectAPI::BundleId.find(id).get_capabilities
+      unless capabilities.any? { |capability| capability.capability_type == "APP_GROUPS" }
+        preflight_failed("the Bundle ID #{id} does not have the App Groups capability", APP_GROUP_FIX)
+      end
+    end
+    UI.success("✓ App Groups is switched on for both Bundle IDs")
   end
 
   desc "Signs with match, builds, and uploads to TestFlight"
@@ -121,17 +148,41 @@ platform :ios do
 
     token = ENV.fetch("GITHUB_TOKEN")
     repository = ENV.fetch("GITHUB_REPOSITORY")
-    match(
-      type: "appstore",
-      app_identifier: TARGETS.values,
-      readonly: false,
-      storage_mode: "git",
-      git_url: "https://github.com/#{repository}.git",
-      git_branch: "certificates",
-      git_basic_authorization: Base64.strict_encode64("x-access-token:#{token}"),
-      git_full_name: "github-actions[bot]",
-      git_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
-    )
+    sign = lambda do |force|
+      match(
+        type: "appstore",
+        app_identifier: TARGETS.values,
+        readonly: false,
+        force: force,
+        storage_mode: "git",
+        git_url: "https://github.com/#{repository}.git",
+        git_branch: "certificates",
+        git_basic_authorization: Base64.strict_encode64("x-access-token:#{token}"),
+        git_full_name: "github-actions[bot]",
+        git_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+      )
+    end
+
+    # A profile is a snapshot of the identifier's capabilities on the day it
+    # was made, and match keeps reusing it. One made before the App Group was
+    # ticked lacks it, and the build would fail at signing with an error that
+    # names neither. So: look inside, and make new ones once if needed.
+    without_group = lambda do
+      TARGETS.values.reject do |id|
+        profile = FastlaneCore::ProvisioningProfile.parse(ENV.fetch("sigh_#{id}_appstore_profile-path"))
+        Array(profile.dig("Entitlements", "com.apple.security.application-groups")).include?(APP_GROUP)
+      end
+    end
+
+    sign.call(false)
+    unless without_group.call.empty?
+      UI.important("The signing profiles predate the App Group; making new ones")
+      sign.call(true)
+      missing = without_group.call
+      unless missing.empty?
+        UI.user_error!("New profiles for #{missing.join(', ')} still lack #{APP_GROUP}.\n#{APP_GROUP_FIX}")
+      end
+    end
 
     # match exports the team and profile it used; nothing is hard-coded.
     team_id = ENV.fetch("sigh_#{APP_ID}_appstore_team-id")
