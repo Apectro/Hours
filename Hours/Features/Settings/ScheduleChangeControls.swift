@@ -10,10 +10,12 @@ import SwiftUI
 /// is meant (a week entered wrongly from the start).
 ///
 /// Used by Working schedule and by a job's editor, so the two ask the same
-/// question in the same words.
-struct ScheduleChangePrompt: ViewModifier {
+/// question in the same words — and by Pay, since a raise is the same kind of
+/// change and has the same months to leave alone.
+struct ScheduleChangePrompt<Value: DatedValue>: ViewModifier {
     @Binding var isPresented: Bool
-    let history: ScheduleHistory
+    let history: DatedHistory<Value>
+    var subject: DatedChangeSubject = .week
     let lock: MonthLock
     let calendar: Calendar
     let formatting: CalendarFormatting
@@ -76,7 +78,9 @@ struct ScheduleChangePrompt: ViewModifier {
 
     /// What each answer leaves alone, and which closed months it would not.
     private var message: String {
-        var parts = [String(localized: "Days before the change keep the week they had.")]
+        var parts = [subject == .week
+            ? String(localized: "Days before the change keep the week they had.")
+            : String(localized: "Days before the change keep the pay they had.")]
         let fromToday = history.closedMonths(affectedByChangeFrom: today, lock: lock)
         if !fromToday.isEmpty {
             parts.append(String(
@@ -100,7 +104,9 @@ struct ScheduleChangePrompt: ViewModifier {
             lock: lock
         )
         guard !closed.isEmpty else {
-            return String(localized: "The new week applies from this day on. Days before it keep the week they had.")
+            return subject == .week
+                ? String(localized: "The new week applies from this day on. Days before it keep the week they had.")
+                : String(localized: "The new pay applies from this day on. Days before it keep the pay they had.")
         }
         return String(
             localized: "This changes closed months: \(names(closed)).",
@@ -113,11 +119,19 @@ struct ScheduleChangePrompt: ViewModifier {
     }
 }
 
+/// What a dated change is a change of, for the words the prompt uses.
+enum DatedChangeSubject {
+    case week
+    case pay
+}
+
 extension View {
-    /// Asks when a changed week starts; see `ScheduleChangePrompt`.
-    func scheduleChangePrompt(
+    /// Asks when a changed week, or a change of pay, starts; see
+    /// `ScheduleChangePrompt`.
+    func scheduleChangePrompt<Value: DatedValue>(
         isPresented: Binding<Bool>,
-        history: ScheduleHistory,
+        history: DatedHistory<Value>,
+        subject: DatedChangeSubject = .week,
         lock: MonthLock,
         calendar: Calendar,
         formatting: CalendarFormatting,
@@ -126,6 +140,7 @@ extension View {
         modifier(ScheduleChangePrompt(
             isPresented: isPresented,
             history: history,
+            subject: subject,
             lock: lock,
             calendar: calendar,
             formatting: formatting,

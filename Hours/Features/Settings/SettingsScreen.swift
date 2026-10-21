@@ -64,6 +64,16 @@ struct SettingsScreen: View {
                         )
                     }
                     NavigationLink {
+                        PaySettingsScreen(jobID: settings.primaryJob.id)
+                    } label: {
+                        SettingsRow(
+                            title: String(localized: "Pay"),
+                            value: paySummary,
+                            systemImage: "banknote"
+                        )
+                    }
+                    .accessibilityIdentifier("settings-pay")
+                    NavigationLink {
                         JobSettingsScreen()
                     } label: {
                         SettingsRow(
@@ -202,6 +212,18 @@ struct SettingsScreen: View {
         let days = schedule.workingDaysPerWeek
         let total = settings.displayFormatting.string(weekly)
         return String(inflected: "\(total) over ^[\(days) day](inflect: true)")
+    }
+
+    /// The main job's rate today: "€15.00 an hour", or that none is set.
+    private var paySummary: String {
+        let today = CalendarDate.today(in: settingsStore.workCalendar)
+        guard let rules = settings.primaryJob.pay?.value(on: today) else {
+            return String(localized: "Not set")
+        }
+        return String(
+            localized: "\(settings.money.string(rules.hourlyRateCents)) an hour",
+            comment: "Settings, the hourly rate; the value is an amount of money"
+        )
     }
 
     private var fieldsSummary: String {
