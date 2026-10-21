@@ -5357,6 +5357,28 @@
       "Dias registados",
       "Ingevulde dagen",
       "Wpisane dni"
+    ],
+    "Today: written": [
+      "Heute: eingetragen",
+      "Danas: upisano",
+      "Danes: vpisano",
+      "Oggi: registrato",
+      "Aujourd’hui : saisi",
+      "Hoy: anotado",
+      "Hoje: registado",
+      "Vandaag: ingevuld",
+      "Dziś: wpisane"
+    ],
+    "Today: not written yet": [
+      "Heute: noch nicht eingetragen",
+      "Danas: još nije upisano",
+      "Danes: še ni vpisano",
+      "Oggi: non ancora registrato",
+      "Aujourd’hui : pas encore saisi",
+      "Hoy: aún sin anotar",
+      "Hoje: ainda não registado",
+      "Vandaag: nog niet ingevuld",
+      "Dziś: jeszcze niewpisane"
     ]
   },
   "sameAsEnglishOnPurpose": [

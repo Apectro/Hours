@@ -276,7 +276,8 @@ private struct LoadedSites {
     var days: [UUID: [SiteDay]] = [:]
 }
 
-/// One active site, as screen 1 of the mockup draws it.
+/// One active site, as screen 1 of the mockup draws it, with a line saying
+/// whether today has been written up on it.
 private struct SiteCard: View {
     let site: Site
     /// The crew offered for a new day, not counting you. People hidden from
@@ -305,6 +306,8 @@ private struct SiteCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
+                todayLine
+
                 HStack(alignment: .top, spacing: Metrics.small) {
                     StatTile(
                         label: String(localized: "Days this month"),
@@ -331,6 +334,21 @@ private struct SiteCard: View {
         }
         .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .accessibilityElement(children: .combine)
+    }
+
+    /// Whether today is written up yet: the one thing worth knowing before
+    /// opening a site at the end of a working day.
+    private var todayLine: some View {
+        let isWritten = days.contains { $0.date == CalendarDate.today(in: settingsStore.workCalendar) }
+        return Label {
+            Text(isWritten ? String(localized: "Today: written") : String(localized: "Today: not written yet"))
+                .foregroundStyle(isWritten ? Color.secondary : Color.hoursNegative)
+        } icon: {
+            Image(systemName: isWritten ? "checkmark.circle.fill" : "circle.dashed")
+                .foregroundStyle(isWritten ? Color.accentColor : Color.hoursNegative)
+        }
+        .font(.subheadline)
+        .accessibilityIdentifier("site-card-today")
     }
 
     private var crewLine: String {

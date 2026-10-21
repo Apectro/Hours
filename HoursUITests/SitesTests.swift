@@ -31,11 +31,14 @@ final class SitesTests: XCTestCase {
         XCTAssertTrue(card.label.contains("Kaiserstrasse 12"), "the card does not carry the site's name: \(card.label)")
         XCTAssertFalse(app.staticTexts["Unlock Zeitkonto Pro"].exists, "the first site must be free")
 
-        // Into the site and on to its crew.
+        // Into the site and on to its crew, which is in the toolbar's menu.
         card.tap()
-        let crewRow = app.buttons["site-crew"]
-        XCTAssertTrue(crewRow.waitForExistence(timeout: 5), "the site did not open")
-        crewRow.tap()
+        let more = app.buttons["site-more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
+        more.tap()
+        let crewItem = app.buttons["site-crew"]
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        crewItem.tap()
         XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
 
         // You are always there, before anyone is added.
@@ -63,7 +66,7 @@ final class SitesTests: XCTestCase {
         // sit first in the bar; their titles are the site's name and a
         // translated word, and either may be shortened to fit.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(crewRow.waitForExistence(timeout: 5), "could not get back to the site")
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "could not get back to the site")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         let updated = app.buttons["site-card"].firstMatch
