@@ -155,14 +155,16 @@ struct SettingsScreen: View {
                 }
 
                 Section("Data") {
-                    NavigationLink {
-                        SyncSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "iCloud"),
-                            value: HoursStack.isSyncing ? String(localized: "On") : String(localized: "Off"),
-                            systemImage: "icloud"
-                        )
+                    if SyncPreference.isAvailable {
+                        NavigationLink {
+                            SyncSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "iCloud"),
+                                value: HoursStack.isSyncing ? String(localized: "On") : String(localized: "Off"),
+                                systemImage: "icloud"
+                            )
+                        }
                     }
                     NavigationLink {
                         DataSettingsScreen()
