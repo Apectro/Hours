@@ -209,6 +209,8 @@ struct CrewScreen: View {
         var renamed = member
         renamed.name = name
         repository.upsert(renamed)
+        // The site widget draws the crew by their initials.
+        HoursStack.refreshWidget()
     }
 
     private func setHidden(_ member: CrewMember, _ isHidden: Bool) {
