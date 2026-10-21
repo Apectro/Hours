@@ -7,7 +7,8 @@ final class AppLinkTests: XCTestCase {
     private let id = UUID(uuidString: "6F9A1C2E-1B7D-4E0A-9C3B-2D5E8F7A6B41")!
 
     func testEveryLinkReadsBackAsItself() {
-        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id)] {
+        let october = YearMonth(year: 2026, month: 10)
+        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id), .siteExport(id, october)] {
             XCTAssertEqual(AppLink(url: link.url), link, "\(link.url)")
         }
     }
@@ -19,6 +20,23 @@ final class AppLinkTests: XCTestCase {
             AppLink.siteSameAsLastDay(id).url.absoluteString,
             "zeitkonto://site/\(id.uuidString)/same-as-last"
         )
+        XCTAssertEqual(
+            AppLink.siteExport(id, YearMonth(year: 2026, month: 3)).url.absoluteString,
+            "zeitkonto://site/\(id.uuidString)/export?month=2026-03"
+        )
+    }
+
+    /// The monthly reminder opens a site's sheet on the month it names, so
+    /// a month that cannot be one is refused rather than guessed at.
+    func testAnExportLinkNeedsARealMonth() {
+        let base = "zeitkonto://site/\(id.uuidString)/export"
+        XCTAssertEqual(
+            AppLink(url: URL(string: base + "?month=2026-12")!),
+            .siteExport(id, YearMonth(year: 2026, month: 12))
+        )
+        for query in ["", "?month=", "?month=2026-13", "?month=2026-0", "?month=26-10", "?month=2026-10-01", "?other=2026-10"] {
+            XCTAssertNil(AppLink(url: URL(string: base + query)!), query)
+        }
     }
 
     /// Typed by hand, a link arrives in whatever case it was typed in.

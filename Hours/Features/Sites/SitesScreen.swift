@@ -10,8 +10,9 @@ import SwiftData
 /// happening, and a list that keeps growing with finished jobs buries the
 /// one that is not.
 struct SitesScreen: View {
-    /// A link from a widget, handed down by the root and cleared once
-    /// followed, so the same link arriving again is followed again.
+    /// A link from a widget or a notification, handed down by the root and
+    /// cleared once followed, so the same link arriving again is followed
+    /// again.
     @Binding var link: AppLink?
 
     @Environment(SettingsStore.self) private var settingsStore
@@ -50,6 +51,8 @@ struct SitesScreen: View {
             next.append(SiteRoute(siteID: id))
         case let .siteSameAsLastDay(id):
             next.append(SiteRoute(siteID: id, appliesSameAsLastDay: true))
+        case let .siteExport(id, month):
+            next.append(SiteRoute(siteID: id, exportMonth: month))
         }
         path = next
         link = nil
@@ -63,6 +66,9 @@ struct SiteRoute: Hashable {
     /// Set by the site widget's "Same as yesterday": fill today from the last
     /// written day on arrival, where the screen's own button could.
     var appliesSameAsLastDay = false
+    /// Set by the monthly reminder: open the site's sheet for this month on
+    /// arrival, over the site, so closing it leaves you on the site.
+    var exportMonth: YearMonth? = nil
 }
 
 /// A site's crew list, pushed from the site screen. A value like `SiteRoute`,
@@ -178,7 +184,11 @@ private struct SitesContent: View {
             }
         }
         .navigationDestination(for: SiteRoute.self) { route in
-            SiteDetailScreen(siteID: route.siteID, appliesSameAsLastDay: route.appliesSameAsLastDay)
+            SiteDetailScreen(
+                siteID: route.siteID,
+                appliesSameAsLastDay: route.appliesSameAsLastDay,
+                exportMonth: route.exportMonth
+            )
         }
         .navigationDestination(for: SiteCrewRoute.self) { route in
             CrewScreen(siteID: route.siteID)

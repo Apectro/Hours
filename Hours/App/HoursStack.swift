@@ -88,6 +88,9 @@ enum HoursStack {
         return SubscriptionStore.pinned(paid ? Entitlement(kind: .lifetime) : .free)
     }()
 
+    /// What a tapped notification asked to open (see `NotificationLinks`).
+    static let notificationLinks = NotificationLinks()
+
     static var calendar: Calendar { settings.workCalendar }
 
     /// A repository on the main context. Intents and the app share it, so a

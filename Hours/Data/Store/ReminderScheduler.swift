@@ -12,6 +12,10 @@ struct ReminderScheduler {
     /// does not, so each kind can be replaced or cancelled without touching
     /// the other.
     static let siteIdentifierPrefix = "site-reminder-"
+    /// Every monthly sheet reminder starts with this, for the same reason.
+    static let monthlySheetIdentifierPrefix = "monthly-sheet-"
+    /// Where a notification keeps the `AppLink` a tap on it follows.
+    static let linkKey = "link"
 
     private let center: UNUserNotificationCenter
 
@@ -124,6 +128,58 @@ struct ReminderScheduler {
     func cancelSiteReminders() async {
         let pending = await center.pendingNotificationRequests()
         let ids = pending.map(\.identifier).filter { $0.hasPrefix(ReminderScheduler.siteIdentifierPrefix) }
+        center.removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
+    // MARK: - Monthly sheet reminders
+
+    /// `monthly-sheet-<site>`: one per site, since only the next 1st is ever
+    /// planned.
+    static func monthlySheetIdentifier(for reminder: MonthlySheetReminder) -> String {
+        monthlySheetIdentifierPrefix + reminder.siteID.uuidString
+    }
+
+    /// Replaces every pending monthly sheet reminder with `reminders`, each at
+    /// `time` on its 1st. Each carries the link to that site's export on the
+    /// month it covers, which a tap follows (see `NotificationLinks`).
+    func scheduleMonthlySheetReminders(
+        _ reminders: [MonthlySheetReminder],
+        time: TimeOfDay,
+        formatting: CalendarFormatting,
+        calendar: Calendar = .current,
+        now: Date = Date()
+    ) async {
+        await cancelMonthlySheetReminders()
+        guard await isAuthorized() else { return }
+
+        for reminder in reminders {
+            var components = reminder.date.components
+            components.hour = time.hour
+            components.minute = time.minute
+            guard let instant = calendar.date(from: components), instant > now else { continue }
+
+            let month = formatting.monthName(reminder.month)
+            let content = UNMutableNotificationContent()
+            content.title = String(localized: "\(month) sheet for \(reminder.siteName) is ready")
+            content.body = String(localized: "Send it to your director.")
+            content.sound = .default
+            content.userInfo = [
+                ReminderScheduler.linkKey: AppLink.siteExport(reminder.siteID, reminder.month).url.absoluteString
+            ]
+
+            let request = UNNotificationRequest(
+                identifier: ReminderScheduler.monthlySheetIdentifier(for: reminder),
+                content: content,
+                trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            )
+            try? await center.add(request)
+        }
+    }
+
+    /// Removes every pending monthly sheet reminder, leaving the others alone.
+    func cancelMonthlySheetReminders() async {
+        let pending = await center.pendingNotificationRequests()
+        let ids = pending.map(\.identifier).filter { $0.hasPrefix(ReminderScheduler.monthlySheetIdentifierPrefix) }
         center.removePendingNotificationRequests(withIdentifiers: ids)
     }
 }

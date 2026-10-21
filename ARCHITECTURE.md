@@ -280,6 +280,43 @@ iOS runs in the app's process; the widget extension compiles the same type, in
 `HoursShared`, only to put it on the button, and its `perform` is compiled out
 there by the `WIDGET_EXTENSION` condition only that target sets.
 
+## Reminders and the links they open
+
+Three kinds of local notification, each planned in the engine and scheduled by
+`ReminderScheduler`, under its own identifier prefix so each can be replaced
+without touching the others: the weekly gap reminder (`GapFinder`), the evening
+site reminder (`SiteReminderPlan`), and the note on the 1st that a site's sheet
+is ready for the director (`MonthlySheetReminderPlan`). None of them asks for
+permission until its switch is turned on; the two site ones are on by default
+and simply schedule nothing while notifications are not allowed.
+
+The monthly note only ever plans the next 1st — the one after depends on days
+not written yet — so it is redone on launch, on every return to the app, when a
+site day appears or goes, when a site is renamed or archived, and from its
+settings. It carries an `AppLink` (`zeitkonto://site/<id>/export?month=2026-10`)
+in its `userInfo`. A tap reaches `NotificationTapDelegate`, set in the app's
+`init` so a tap that launches the app is not missed, which leaves the link in
+`HoursStack.notificationLinks`; `RootView` follows it exactly as it follows a
+widget's `onOpenURL`, by value onto the Sites tab, where the site screen opens
+the export as a sheet. The delegate handles taps only: a notification arriving
+while the app is open is still not shown, as before.
+
+## First run
+
+A fresh install asks three questions once (`FirstRunSetupView`): a name for the
+sheets, the working week, whether breaks are paid. Each answer is written as
+you continue past it, through the same helpers the settings screens use
+(`setPrimarySchedule`, `setPrimaryBreaksArePaid`), so skipping half-way keeps
+what was answered, and continuing without changing anything leaves the
+defaults exactly as they were.
+
+Telling a fresh install from an update is `FirstRunSetup.decide`: any stored
+day, holiday or site, sync being on, or any setting off its default means
+someone has been using the app, so they are not asked and that is remembered.
+The flag lives in its own `UserDefaults` key, like the sync preference, because
+it belongs to the installation rather than to the data. UI tests start from what
+a fresh install looks like, so they see it only when `-hours-first-run` asks.
+
 ## Export
 
 One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,
