@@ -129,7 +129,11 @@ APP_STRINGS = {
 }
 
 WIDGET_STRINGS = {
-    "^[%lld day](inflect: true) missing": entry("%#@days@ missing", DAYS()),
+    # Days in the reminder's fortnight with nothing recorded, on the month
+    # widget and the Lock Screen.
+    "^[%lld day](inflect: true) to write": entry("%#@days@ to write", DAYS()),
+    # The site widget: how many were on the site its last written day.
+    "^[%lld person](inflect: true)": entry("%#@people@", PEOPLE()),
 }
 
 

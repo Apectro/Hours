@@ -13,5 +13,7 @@ struct HoursWidgetBundle: WidgetBundle {
     var body: some Widget {
         TodayWidget()
         MonthWidget()
+        WeekWidget()
+        SiteWidget()
     }
 }

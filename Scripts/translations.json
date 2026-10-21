@@ -22,8 +22,8 @@
     "loses.",
     "",
     "widgetInterface names the subset the widget extension uses. The widget",
-    "ships its own catalogue, and giving it all 280 app strings would bloat an",
-    "extension that needs a dozen."
+    "ships its own catalogue, and giving it every app string would bloat an",
+    "extension that needs a few dozen."
   ],
   "languages": [
     "de",
@@ -504,6 +504,17 @@
       "pt": "%#@days@ ainda usam «%@». Esses dias aparecerão como Desconhecido e deixarão de contar no saldo. As horas registadas são mantidas.",
       "nl": "%#@days@ gebruiken nog steeds ‘%@’. Die dagen verschijnen als Onbekend en tellen niet meer mee in het saldo. De geregistreerde uren blijven bewaard.",
       "pl": "%#@days@ nadal używa „%@”. Te dni będą pokazywane jako Nieznane i przestaną liczyć się do salda. Zapisane na nich godziny pozostają."
+    },
+    "^[%lld day](inflect: true) to write": {
+      "de": "%#@days@ offen",
+      "hr": "%#@days@ za upis",
+      "sl": "%#@days@ za vpis",
+      "it": "%#@days@ da registrare",
+      "fr": "%#@days@ à saisir",
+      "es": "%#@days@ por anotar",
+      "pt": "%#@days@ por registar",
+      "nl": "%#@days@ in te vullen",
+      "pl": "%#@days@ do wpisania"
     },
     "^[%lld day](inflect: true) with no readable date": {
       "de": "%#@days@ ohne lesbares Datum",
@@ -5412,6 +5423,270 @@
       "Apenas nas versões TestFlight. Desativa para ver o ecrã de compra e experimentar comprar como um cliente. A versão da App Store pede sempre o pagamento.",
       "Alleen in TestFlight-builds. Zet uit om het betaalscherm te zien en een aankoop te proberen zoals een klant. De App Store-versie vraagt altijd om te betalen.",
       "Tylko w wersjach TestFlight. Wyłącz, aby zobaczyć ekran zakupu i wypróbować zakup jak klient. Wersja z App Store zawsze prosi o zapłatę."
+    ],
+    "Add the site you work on, and today's crew is one tap away here.": [
+      "Füge die Baustelle hinzu, auf der du arbeitest – dann ist die Mannschaft von heute hier nur einen Tipp entfernt.",
+      "Dodaj gradilište na kojem radiš i današnja ekipa bit će ovdje na dodir.",
+      "Dodaj gradbišče, na katerem delaš, in današnja ekipa bo tukaj le en dotik stran.",
+      "Aggiungi il cantiere su cui lavori e la squadra di oggi sarà qui a portata di tocco.",
+      "Ajoutez le chantier sur lequel vous travaillez, et l’équipe du jour sera ici à portée de doigt.",
+      "Añade la obra en la que trabajas y la cuadrilla de hoy estará aquí a un toque.",
+      "Adiciona a obra onde trabalhas e a equipa de hoje fica aqui a um toque.",
+      "Voeg de bouwplaats toe waar je werkt, dan is de ploeg van vandaag hier één tik verderop.",
+      "Dodaj budowę, na której pracujesz, a dzisiejsza ekipa będzie tu na jedno dotknięcie."
+    ],
+    "Clocked in · %@": [
+      "Eingestempelt · %@",
+      "Prijavljen · %@",
+      "Prijavljen prihod · %@",
+      "Entrata timbrata · %@",
+      "Arrivée pointée · %@",
+      "Entrada fichada · %@",
+      "Entrada registada · %@",
+      "Ingeklokt · %@",
+      "Rozpoczęto · %@"
+    ],
+    "Hours this week, day by day.": [
+      "Stunden dieser Woche, Tag für Tag.",
+      "Sati ovog tjedna, dan po dan.",
+      "Ure tega tedna, dan za dnem.",
+      "Le ore di questa settimana, giorno per giorno.",
+      "Les heures de cette semaine, jour par jour.",
+      "Las horas de esta semana, día a día.",
+      "As horas desta semana, dia a dia.",
+      "Uren deze week, dag voor dag.",
+      "Godziny w tym tygodniu, dzień po dniu."
+    ],
+    "Hours worked this month, and whether you are ahead or behind.": [
+      "Diesen Monat gearbeitete Stunden und ob du vorn oder hinten liegst.",
+      "Sati odrađeni ovaj mjesec i jesi li u plusu ili minusu.",
+      "Ure, opravljene ta mesec, in ali si v plusu ali minusu.",
+      "Ore lavorate questo mese, e se sei avanti o indietro.",
+      "Les heures travaillées ce mois-ci, et si vous êtes en avance ou en retard.",
+      "Horas trabajadas este mes, y si vas adelantado o atrasado.",
+      "Horas trabalhadas este mês, e se estás adiantado ou atrasado.",
+      "Gewerkte uren deze maand, en of je voor of achter loopt.",
+      "Godziny przepracowane w tym miesiącu i czy jesteś do przodu, czy do tyłu."
+    ],
+    "Month %@": [
+      "Monat %@",
+      "Mjesec %@",
+      "Mesec %@",
+      "Mese %@",
+      "Mois %@",
+      "Mes %@",
+      "Mês %@",
+      "Maand %@",
+      "Miesiąc %@"
+    ],
+    "Not written yet": [
+      "Noch nicht eingetragen",
+      "Još nije upisano",
+      "Še ni vpisano",
+      "Non ancora registrato",
+      "Pas encore saisi",
+      "Aún sin anotar",
+      "Ainda não registado",
+      "Nog niet ingevuld",
+      "Jeszcze niewpisane"
+    ],
+    "Nothing written yet": [
+      "Noch nichts eingetragen",
+      "Još ništa nije upisano",
+      "Še nič ni vpisano",
+      "Ancora niente registrato",
+      "Rien de saisi pour l’instant",
+      "Aún no hay nada anotado",
+      "Ainda nada registado",
+      "Nog niets ingevuld",
+      "Jeszcze nic nie wpisano"
+    ],
+    "Open site": [
+      "Baustelle öffnen",
+      "Otvori gradilište",
+      "Odpri gradbišče",
+      "Apri cantiere",
+      "Ouvrir le chantier",
+      "Abrir obra",
+      "Abrir obra",
+      "Bouwplaats openen",
+      "Otwórz budowę"
+    ],
+    "Same as yesterday": [
+      "Wie gestern",
+      "Isto kao jučer",
+      "Enako kot včeraj",
+      "Come ieri",
+      "Comme hier",
+      "Igual que ayer",
+      "Igual a ontem",
+      "Zelfde als gisteren",
+      "Jak wczoraj"
+    ],
+    "Since %@ · %@ so far": [
+      "Seit %@ · bisher %@",
+      "Od %@ · dosad %@",
+      "Od %@ · doslej %@",
+      "Dalle %@ · finora %@",
+      "Depuis %@ · %@ jusqu’ici",
+      "Desde las %@ · %@ hasta ahora",
+      "Desde as %@ · %@ até agora",
+      "Sinds %@ · tot nu toe %@",
+      "Od %@ · na razie %@"
+    ],
+    "THIS WEEK": [
+      "DIESE WOCHE",
+      "OVAJ TJEDAN",
+      "TA TEDEN",
+      "QUESTA SETTIMANA",
+      "CETTE SEMAINE",
+      "ESTA SEMANA",
+      "ESTA SEMANA",
+      "DEZE WEEK",
+      "TEN TYDZIEŃ"
+    ],
+    "This week": [
+      "Diese Woche",
+      "Ovaj tjedan",
+      "Ta teden",
+      "Questa settimana",
+      "Cette semaine",
+      "Esta semana",
+      "Esta semana",
+      "Deze week",
+      "Ten tydzień"
+    ],
+    "Today on your site, and who was there last time.": [
+      "Heute auf deiner Baustelle, und wer zuletzt da war.",
+      "Danas na tvom gradilištu i tko je bio tamo zadnji put.",
+      "Danes na tvojem gradbišču in kdo je bil tam zadnjič.",
+      "Oggi nel tuo cantiere, e chi c’era l’ultima volta.",
+      "Aujourd’hui sur votre chantier, et qui était là la dernière fois.",
+      "Hoy en tu obra, y quién estuvo la última vez.",
+      "Hoje na tua obra, e quem lá esteve da última vez.",
+      "Vandaag op je bouwplaats, en wie er de vorige keer was.",
+      "Dziś na twojej budowie i kto był tam ostatnio."
+    ],
+    "What you have worked today, and whether the clock is running.": [
+      "Was du heute gearbeitet hast und ob die Uhr läuft.",
+      "Odrađeno danas i radi li sat.",
+      "Danes opravljeno in ali ura teče.",
+      "Quanto hai lavorato oggi, e se la timbratura è in corso.",
+      "Ce que vous avez travaillé aujourd’hui, et si le pointage est en cours.",
+      "Lo que has trabajado hoy, y si el fichaje está en curso.",
+      "O que trabalhaste hoje, e se o registo está em curso.",
+      "Wat je vandaag hebt gewerkt, en of de klok loopt.",
+      "Ile dziś przepracowano i czy zegar działa."
+    ],
+    "Working days: %lld done, %lld short": [
+      "Arbeitstage: %lld erfüllt, %lld zu kurz",
+      "Radni dani: %lld ispunjeno, %lld manjka",
+      "Delovni dnevi: %lld izpolnjenih, %lld prekratkih",
+      "Giorni lavorativi: %lld completi, %lld scarsi",
+      "Jours ouvrés : %lld complets, %lld incomplets",
+      "Días laborables: %lld completos, %lld cortos",
+      "Dias úteis: %lld completos, %lld curtos",
+      "Werkdagen: %lld gehaald, %lld te kort",
+      "Dni robocze: %lld pełne, %lld niepełne"
+    ],
+    "Yesterday": [
+      "Gestern",
+      "Jučer",
+      "Včeraj",
+      "Ieri",
+      "Hier",
+      "Ayer",
+      "Ontem",
+      "Gisteren",
+      "Wczoraj"
+    ],
+    "%@ today": [
+      "%@ heute",
+      "%@ danas",
+      "%@ danes",
+      "%@ oggi",
+      "%@ aujourd’hui",
+      "%@ hoy",
+      "%@ hoje",
+      "%@ vandaag",
+      "%@ dziś"
+    ],
+    "%@ month": [
+      "%@ Monat",
+      "%@ mjesec",
+      "%@ mesec",
+      "%@ mese",
+      "%@ ce mois",
+      "%@ mes",
+      "%@ mês",
+      "%@ maand",
+      "%@ miesiąc"
+    ],
+    "ahead of plan": [
+      "vor dem Soll",
+      "ispred plana",
+      "pred načrtom",
+      "in anticipo sul previsto",
+      "en avance sur le prévu",
+      "por delante de lo previsto",
+      "à frente do previsto",
+      "voor op schema",
+      "przed planem"
+    ],
+    "behind plan": [
+      "hinter dem Soll",
+      "iza plana",
+      "za načrtom",
+      "in ritardo sul previsto",
+      "en retard sur le prévu",
+      "por detrás de lo previsto",
+      "atrás do previsto",
+      "achter op schema",
+      "za planem"
+    ],
+    "on plan": [
+      "genau im Soll",
+      "prema planu",
+      "po načrtu",
+      "in linea con il previsto",
+      "dans les temps",
+      "según lo previsto",
+      "conforme o previsto",
+      "op schema",
+      "zgodnie z planem"
+    ],
+    "off at %@": [
+      "Feierabend um %@",
+      "kraj u %@",
+      "konec ob %@",
+      "fine alle %@",
+      "fin à %@",
+      "salida a las %@",
+      "saída às %@",
+      "klaar om %@",
+      "koniec o %@"
+    ],
+    "running": [
+      "läuft",
+      "radi",
+      "teče",
+      "in corso",
+      "en cours",
+      "en curso",
+      "em curso",
+      "loopt",
+      "trwa"
+    ],
+    "since %@": [
+      "seit %@",
+      "od %@",
+      "od %@",
+      "dalle %@",
+      "depuis %@",
+      "desde las %@",
+      "desde as %@",
+      "sinds %@",
+      "od %@"
     ]
   },
   "sameAsEnglishOnPurpose": [
@@ -5422,7 +5697,6 @@
     }
   ],
   "widgetInterface": [
-    "Clock running",
     "Zeitkonto Pro",
     "Not a working day",
     "Open Zeitkonto",
@@ -5433,6 +5707,38 @@
     "This month",
     "Turn on App Groups to use the widget",
     "Widgets are part of Zeitkonto Pro",
-    "Worked today"
+    "Worked today",
+    "Clock out",
+    "Clocked in",
+    "No sites yet",
+    "Same as last day",
+    "Site",
+    "Today",
+    "Written",
+    "of %@",
+    "Add the site you work on, and today's crew is one tap away here.",
+    "Clocked in · %@",
+    "Hours this week, day by day.",
+    "Hours worked this month, and whether you are ahead or behind.",
+    "Month %@",
+    "Not written yet",
+    "Nothing written yet",
+    "Open site",
+    "Same as yesterday",
+    "Since %@ · %@ so far",
+    "THIS WEEK",
+    "This week",
+    "Today on your site, and who was there last time.",
+    "What you have worked today, and whether the clock is running.",
+    "Working days: %lld done, %lld short",
+    "Yesterday",
+    "%@ today",
+    "%@ month",
+    "ahead of plan",
+    "behind plan",
+    "on plan",
+    "off at %@",
+    "running",
+    "since %@"
   ]
 }
