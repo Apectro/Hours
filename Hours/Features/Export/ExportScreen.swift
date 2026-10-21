@@ -81,6 +81,7 @@ struct ExportScreen: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Done") { dismiss() }
+                            .accessibilityIdentifier("export-done")
                     }
                 }
                 .safeAreaInset(edge: .bottom) {

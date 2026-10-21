@@ -1,0 +1,12 @@
+# The App Store screenshots, in listing order: one name per line, as
+# ScreenshotTests attaches them (HoursUITests/ScreenshotTests.swift, `listing`).
+# CI copies exactly these into the deliver layout; anything else the test run
+# attaches (the export captures, the CSV and the workbook) stays out.
+# Scripts/check-store-metadata.py fails when this and the test disagree.
+01-calendar
+02-site
+03-site-sheet
+04-day-editor
+05-insights
+06-pay
+07-privacy

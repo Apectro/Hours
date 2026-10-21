@@ -55,59 +55,97 @@ final class ScreenshotTests: XCTestCase {
         return element.exists && element.isHittable
     }
 
+    /// Waits for an element to become enabled — the export's page preview is
+    /// a disabled button until the PDF has been drawn, and a shot taken
+    /// before then is a grey well.
+    private func waitUntilEnabled(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: element)
+        return XCTWaiter().wait(for: [enabled], timeout: timeout) == .completed
+    }
+
     /// Which shots actually got taken. The first version of this test wrapped
     /// every capture in `if it exists`, so a screen that failed to open simply
     /// produced no picture and a green tick — four files where five were
     /// expected, and nothing in the log saying which one was missing.
     private var taken: [String] = []
 
+    /// The listing's order, which is the order App Store Connect shows them
+    /// in: `fastlane deliver` sorts by filename. `fastlane/screenshots.txt`
+    /// carries the same list for the upload, and
+    /// `Scripts/check-store-metadata.py` fails when the two differ.
+    ///
+    /// Numbered 01–07 with names of their own, because the export capture
+    /// tests attach `06-export-pdf-1` and `07-export-pdf-summary` to the same
+    /// folder: the upload picks these by name, never by number.
+    static let listing = [
+        "01-calendar", "02-site", "03-site-sheet", "04-day-editor",
+        "05-insights", "06-pay", "07-privacy",
+    ]
+
     func testCaptureTheListing() {
         let app = launchForShots()
 
-        // 1 — the calendar, which is what the app is.
+        // 1 — the calendar, which is what the app is. A rate is set in the
+        // sample data, so the month's summary leads with what it earned.
         capture("01-calendar", app)
 
-        // 2 — a day open, showing what one holds. Today, because the sample
-        // month is seeded around it and because it is the day already selected.
+        // 2 — the site, which is who the app is for: the site's month and
+        // today's card, the crew ticked off once for everyone.
+        app.tab(.sites).tap()
+        let card = app.buttons["site-card"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 10), "the sample site has no card")
+        card.tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10), "the site did not open")
+        XCTAssertTrue(app.descendants(matching: .any)["site-day-times"].waitForExistence(timeout: 5), "today's site card is not written")
+        capture("02-site", app)
+
+        // 3 — the director's sheet: last month, one column group per person,
+        // previewed as the PDF's first page.
+        app.buttons["site-more"].tap()
+        let export = app.buttons["site-export"]
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
+        export.tap()
+        XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
+        let page = app.descendants(matching: .any)["export-preview-page"]
+        XCTAssertTrue(page.waitForExistence(timeout: 10), "the sheet has no page preview")
+        XCTAssertTrue(waitUntilEnabled(page, timeout: 15), "the sheet's first page was never drawn")
+        capture("03-site-sheet", app)
+        app.buttons["export-done"].tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
+
+        // 4 — a day open, showing what one holds. Today, because the sample
+        // month always writes it, and it is the day already selected.
+        app.tab(.calendar).tap()
         let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
-        capture("02-day-editor", app)
+        capture("04-day-editor", app)
         app.buttons["day-editor-cancel"].tap()
 
-        // 3 — the month's figures.
+        // 5 — the month's figures, earnings first.
         app.tab(.insights).tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
-        capture("03-insights", app)
+        XCTAssertTrue(app.descendants(matching: .any)["insights-earned"].waitForExistence(timeout: 10), "Insights shows no earnings")
+        capture("05-insights", app)
 
-        // 4 — settings, which is where the configurability shows.
+        // 6 — what the job pays: the rate and the surcharges.
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
-        capture("04-settings", app)
+        let pay = app.buttons["settings-pay"]
+        XCTAssertTrue(reveal(pay, in: app), "could not find Pay in Settings")
+        pay.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["pay-hourly-rate"].waitForExistence(timeout: 10), "Pay did not open")
+        capture("06-pay", app)
+        // Back by position: the back button's label is the translated title.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
 
-        // 5 — the privacy screen, which is the reason to choose this one.
+        // 7 — the privacy screen, which is the reason to choose this one.
         let privacy = app.buttons["settings-privacy"]
         XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
         privacy.tap()
         XCTAssertTrue(app.screen("screen-privacy").waitForExistence(timeout: 10))
-        capture("05-privacy", app)
+        capture("07-privacy", app)
 
-        // 6 — the export screen, reached from the calendar's overflow menu.
-        app.tab(.calendar).tap()
-        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
-        app.buttons["calendar-more"].tap()
-        let exportItem = app.buttons["calendar-export"]
-        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "the overflow menu has no Export item")
-        exportItem.tap()
-        XCTAssertTrue(app.screen("screen-export").waitForExistence(timeout: 10), "Export did not open")
-        capture("10-export", app)
-
-        XCTAssertEqual(
-            taken,
-            [
-                "01-calendar", "02-day-editor", "03-insights",
-                "04-settings", "05-privacy", "10-export",
-            ],
-            "a screenshot is missing"
-        )
+        XCTAssertEqual(taken, Self.listing, "a screenshot is missing")
     }
 }
