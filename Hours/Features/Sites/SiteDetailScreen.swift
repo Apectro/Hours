@@ -12,6 +12,8 @@ struct SiteDetailScreen: View {
     var initialDate: CalendarDate? = nil
     /// See `SiteRoute.appliesSameAsLastDay`.
     var appliesSameAsLastDay = false
+    /// See `SiteRoute.exportMonth`.
+    var exportMonth: YearMonth? = nil
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -23,6 +25,11 @@ struct SiteDetailScreen: View {
 
     @State private var editing: Site?
     @State private var exporting: Site?
+    /// The month the export opens on; `nil` is last month, as the menu does.
+    @State private var exportingMonth: YearMonth?
+    /// The link's export is opened once. Coming back to the site from the
+    /// sheet must not open it again.
+    @State private var openedLinkedExport = false
 
     var body: some View {
         Group {
@@ -59,6 +66,7 @@ struct SiteDetailScreen: View {
                     // Open on a read-only site too: an archived site's months
                     // are still the director's to ask for.
                     Button {
+                        exportingMonth = nil
                         exporting = site
                     } label: {
                         Label("Export", systemImage: "square.and.arrow.up")
@@ -84,8 +92,14 @@ struct SiteDetailScreen: View {
             // Last month: the director asks at the start of the next one.
             SiteExportScreen(
                 site: site,
-                month: CalendarDate.today(in: settingsStore.workCalendar).yearMonth.adding(months: -1)
+                month: exportingMonth
+                    ?? CalendarDate.today(in: settingsStore.workCalendar).yearMonth.adding(months: -1)
             )
+        }
+        // `initial`, and keyed on the site arriving, because the query may
+        // not have it yet the first time the screen is drawn.
+        .onChange(of: site?.id, initial: true) { _, _ in
+            openLinkedExport()
         }
         .sheet(item: $editing) { site in
             SiteEditorSheet(
@@ -95,6 +109,13 @@ struct SiteDetailScreen: View {
                 otherActiveSites: sites.filter { !$0.isArchived && $0.id != site.id }.count
             )
         }
+    }
+
+    private func openLinkedExport() {
+        guard let exportMonth, !openedLinkedExport, let site else { return }
+        openedLinkedExport = true
+        exportingMonth = exportMonth
+        exporting = site
     }
 
     /// For display only, so a duplicate row left by sync just means the first
