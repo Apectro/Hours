@@ -6,6 +6,9 @@
 {
   "name": "hours",
   "compatibility_date": "2026-10-01",
+  // Pull requests run `wrangler preview`, which refuses to start without this
+  // block. Empty is enough: assets and the rest stay at the top level.
+  "previews": {},
   "assets": {
     "directory": "./docs",
     // docs/404.html for any path that is not a file.

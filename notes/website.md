@@ -39,7 +39,7 @@ domain is active.
 not as a Pages project. That works the same, as long as `wrangler.jsonc` at the
 repository root stays: it names the Worker and points its static assets at
 `docs/`, which both the production deploy and the pull-request preview uploads
-read. Without it the previews fail ("Workers Builds: hours" red on a PR).
+read; pull requests run `wrangler preview`, which also needs its `"previews": {}` block. Without them the previews fail ("Workers Builds: hours" red on a PR).
 
 **2. Create the Pages project.** dash.cloudflare.com › **Workers & Pages** ›
 **Create** › **Pages** › **Connect to Git** › authorise GitHub for this
