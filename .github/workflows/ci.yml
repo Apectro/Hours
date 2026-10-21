@@ -28,6 +28,13 @@ on:
         description: "Also take the second-size and German screenshots"
         type: boolean
         default: false
+      # New store screenshots without waiting for the whole suite: the shots
+      # come from ScreenshotTests alone, so the other twenty minutes of tests
+      # add nothing to them.
+      screenshots_only:
+        description: "Only take the screenshots (skip the other tests)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -435,6 +442,8 @@ jobs:
             | tee "$RUNNER_TEMP/build.log"
 
       - name: Test
+        env:
+          ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.screenshots_only && '-only-testing:HoursUITests/ScreenshotTests' || '' }}
         run: |
           set -o pipefail
           rm -rf "$RUNNER_TEMP/Hours.xcresult"
@@ -442,6 +451,7 @@ jobs:
             -project Hours.xcodeproj \
             -scheme Hours \
             -destination "id=${{ steps.sim.outputs.udid }}" \
+            $ONLY \
             -skip-testing:HoursUITests/WalkthroughTests \
             -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
             -skipMacroValidation \
