@@ -31,7 +31,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 METADATA = ROOT / "fastlane/metadata"
-LOCALES = ["en-US", "de-DE"]
+# Whichever languages the listing has: a folder per locale is what deliver
+# uploads. German is parked in notes/listing-de until it has a free name.
+LOCALES = sorted(
+    d.name for d in METADATA.iterdir() if d.is_dir() and d.name != "review_information"
+)
 
 # What App Store Connect allows, per field.
 LIMITS = {
