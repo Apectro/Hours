@@ -33,6 +33,23 @@ struct SettingsScreen: View {
                     }
                 }
 
+                // Only in a TestFlight install, where Pro is unlocked without
+                // paying (see `TesterAccess`). The switch is how a tester sees
+                // the paywall and tries a purchase as a customer would.
+                if subscriptions.isTestFlightInstall {
+                    Section {
+                        Toggle("Pro unlocked for testing", isOn: Binding(
+                            get: { !subscriptions.testerLocksPro },
+                            set: { subscriptions.setTesterLocksPro(!$0) }
+                        ))
+                        .accessibilityIdentifier("settings-tester-pro")
+                    } header: {
+                        Text("TestFlight")
+                    } footer: {
+                        Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
+                    }
+                }
+
                 Section("Work") {
                     NavigationLink {
                         ScheduleSettingsScreen()

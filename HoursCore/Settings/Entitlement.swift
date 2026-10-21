@@ -4,7 +4,8 @@ import Foundation
 ///
 /// A value type with no StoreKit in it, so the rules can be tested exhaustively
 /// and off-platform. `SubscriptionStore` builds one of these from the App
-/// Store; nothing else is allowed to invent one.
+/// Store; nothing else is allowed to invent one, with a single exception that
+/// StoreKit itself vouches for: `TesterAccess` unlocks a TestFlight install.
 ///
 /// Notably there is no `isPro: Bool` stored anywhere the user could reach. The
 /// answer is derived from a transaction every time, and the only thing written

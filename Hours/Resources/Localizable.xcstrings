@@ -17251,6 +17251,65 @@
         }
       }
     },
+    "Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur in TestFlight-Builds. Ausschalten, um die Bezahlseite zu sehen und einen Kauf wie ein Kunde zu testen. Die App-Store-Version verlangt immer eine Zahlung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo en las versiones de TestFlight. Desactívalo para ver la pantalla de compra y probar a comprar como un cliente. La versión de la App Store siempre pide pagar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uniquement dans les versions TestFlight. Désactivez pour voir la page d'achat et essayer un achat comme un client. La version de l'App Store demande toujours de payer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo u TestFlight verzijama. Isključi da vidiš stranicu za plaćanje i isprobaš kupnju kao kupac. Verzija iz App Storea uvijek traži plaćanje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo nelle build di TestFlight. Disattiva per vedere la pagina di acquisto e provare a comprare come farebbe un cliente. La versione dell'App Store chiede sempre di pagare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen in TestFlight-builds. Zet uit om het betaalscherm te zien en een aankoop te proberen zoals een klant. De App Store-versie vraagt altijd om te betalen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko w wersjach TestFlight. Wyłącz, aby zobaczyć ekran zakupu i wypróbować zakup jak klient. Wersja z App Store zawsze prosi o zapłatę."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apenas nas versões TestFlight. Desativa para ver o ecrã de compra e experimentar comprar como um cliente. A versão da App Store pede sempre o pagamento."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo v različicah TestFlight. Izklopi, da vidiš stran za plačilo in preizkusiš nakup kot kupec. Različica iz trgovine App Store vedno zahteva plačilo."
+          }
+        }
+      }
+    },
     "Only what you export": {
       "extractionState": "manual",
       "localizations": {
@@ -18604,6 +18663,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zasebnost"
+          }
+        }
+      }
+    },
+    "Pro unlocked for testing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro zum Testen freigeschaltet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro desbloqueado para pruebas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro débloqué pour les tests"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro otključan za testiranje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro sbloccato per i test"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro ontgrendeld om te testen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro odblokowany do testów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro desbloqueado para testes"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro odklenjen za testiranje"
           }
         }
       }
@@ -23299,6 +23417,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tapni ime, da ga označiš ali odznačiš. Tapni čase, da spremeniš samo to osebo."
+          }
+        }
+      }
+    },
+    "TestFlight": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight"
           }
         }
       }

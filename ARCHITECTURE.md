@@ -250,6 +250,14 @@ nothing. Second-guessing it did not protect anyone offline — StoreKit had
 already done that — it only made an expiry or a refund take a fortnight to
 take effect.
 
+**TestFlight installs get Pro without paying.** `TesterAccess` unlocks it
+when StoreKit's own app transaction says the copy came from TestFlight (the
+sandbox environment), so the App Store build can never reach it. A real
+purchase always wins, a switch in Settings — shown only in TestFlight — turns
+the unlock off so the paywall can be tested, and only the App Store's own
+answer is cached, so moving from TestFlight to the App Store version never
+starts out unlocked.
+
 The cached entitlement survives for one purpose: to fill the moment between
 launch and StoreKit replying, so a subscriber does not watch their own app sit
 locked for a second. It is provisional, the first completed refresh overwrites
