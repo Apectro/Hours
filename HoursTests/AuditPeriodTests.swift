@@ -16,7 +16,7 @@ final class AuditPeriodTests: XCTestCase {
         var settings = Fixture.settings()
         var contract = WorkSchedule()
         contract.weeklyTargetOverrideMinutes = 37 * 60 + 30
-        settings.setPrimarySchedule(contract)
+        settings.changePrimarySchedule(to: contract, from: nil)
         settings.addJob(Job(name: "Evenings", schedule: WorkSchedule(minutesByWeekday: [0, 120, 120, 0, 0, 0, 0])))
 
         let engine = Fixture.engine(settings: settings, calendar: calendar)

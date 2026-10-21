@@ -196,8 +196,10 @@ struct SettingsScreen: View {
     }
 
     private var scheduleSummary: String {
-        let weekly = settings.primarySchedule.weeklyTargetMinutes
-        let days = settings.primarySchedule.workingDaysPerWeek
+        // Today's week: a change still to come is not what you work now.
+        let schedule = settings.primarySchedule(on: CalendarDate.today(in: settingsStore.workCalendar))
+        let weekly = schedule.weeklyTargetMinutes
+        let days = schedule.workingDaysPerWeek
         let total = settings.displayFormatting.string(weekly)
         return String(inflected: "\(total) over ^[\(days) day](inflect: true)")
     }

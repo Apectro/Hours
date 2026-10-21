@@ -137,8 +137,8 @@ struct SiteDayScreen: View {
             case .siteTimes:
                 SiteTimesSheet(
                     day: day,
-                    defaultStart: settings.primarySchedule.defaultStart,
-                    defaultEnd: settings.primarySchedule.defaultEnd,
+                    defaultStart: settings.primarySchedule(on: day.date).defaultStart,
+                    defaultEnd: settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: commit
                 )
             }
@@ -395,6 +395,7 @@ struct SiteDayScreen: View {
             return
         }
 
+        let wasStored = stored != nil
         do {
             if !next.isBlank {
                 try repository.save(next)
@@ -416,6 +417,12 @@ struct SiteDayScreen: View {
         reloadMonth()
         refreshYourWarning()
         HoursStack.refreshWidget()
+        // A day written or removed can decide whether its site gets a note
+        // on the 1st. A change to a day already there cannot, so it does not
+        // reschedule.
+        if (stored != nil) != wasStored {
+            Task { await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore) }
+        }
     }
 }
 

@@ -60,6 +60,65 @@
         }
       }
     },
+    "%@ (your first entry)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (dein erster Eintrag)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tu primera entrada)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (votre première saisie)"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tvoj prvi unos)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (la tua prima voce)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (je eerste invoer)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (twój pierwszy wpis)"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (o teu primeiro registo)"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tvoj prvi vnos)"
+          }
+        }
+      }
+    },
     "%@ and %@ have no hours recorded.": {
       "extractionState": "manual",
       "localizations": {
@@ -1024,6 +1083,65 @@
         }
       }
     },
+    "%@ sheet for %@ is ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die %@-Liste für %@ ist fertig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La hoja de %@ de %@ está lista"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La feuille mensuelle (%@) pour %@ est prête"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista za %@ za gradilište %@ je spremna"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il foglio di %@ per %@ è pronto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De lijst van %@ voor %@ is klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arkusz za %@ dla budowy %@ jest gotowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folha de %@ de %@ está pronta"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seznam za %@ za gradbišče %@ je pripravljen"
+          }
+        }
+      }
+    },
     "%@ short": {
       "extractionState": "manual",
       "localizations": {
@@ -1791,6 +1909,65 @@
         }
       }
     },
+    "A paid break is still written down, but it counts as worked time instead of being taken off the day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine bezahlte Pause wird trotzdem eingetragen, zählt aber als Arbeitszeit, statt vom Tag abgezogen zu werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un descanso pagado se anota igualmente, pero cuenta como tiempo trabajado en lugar de restarse del día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une pause rémunérée est quand même notée, mais elle compte comme temps travaillé au lieu d’être retirée de la journée."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plaćena pauza se i dalje upisuje, ali se računa kao radno vrijeme umjesto da se oduzme od dana."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una pausa retribuita viene comunque annotata, ma conta come tempo lavorato invece di essere tolta dalla giornata."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een betaalde pauze wordt nog steeds genoteerd, maar telt als gewerkte tijd in plaats van van de dag af te gaan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Płatna przerwa nadal jest zapisywana, ale liczy się jako czas pracy, zamiast być odejmowana od dnia."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma pausa paga continua a ser registada, mas conta como tempo trabalhado em vez de ser descontada do dia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plačan odmor se še vedno zapiše, vendar šteje kot delovni čas, namesto da bi se odštel od dneva."
+          }
+        }
+      }
+    },
     "A second block records a split shift — the time between blocks is neither worked nor a break.": {
       "extractionState": "manual",
       "localizations": {
@@ -2141,6 +2318,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aktivno"
+          }
+        }
+      }
+    },
+    "Add": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
           }
         }
       }
@@ -2617,6 +2853,65 @@
         }
       }
     },
+    "Add from other sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von anderen Baustellen hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir de otras obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter depuis d’autres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj s drugih gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi da altri cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen van andere bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj z innych budów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar de outras obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj z drugih gradbišč"
+          }
+        }
+      }
+    },
     "Add the days that apply where you work. A recurring holiday only has to be entered once.": {
       "extractionState": "manual",
       "localizations": {
@@ -3085,6 +3380,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsa dela"
+          }
+        }
+      }
+    },
+    "All of this can be changed in Settings whenever you like.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das alles kannst du jederzeit in den Einstellungen ändern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes cambiar todo esto en Ajustes cuando quieras."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez modifier tout cela dans Réglages quand vous le souhaitez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve ovo možeš promijeniti u Postavkama kad god želiš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi cambiare tutto questo nelle Impostazioni quando vuoi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je kunt dit allemaal wijzigen in Instellingen wanneer je wilt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystko to możesz zmienić w Ustawieniach, kiedy tylko chcesz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podes alterar tudo isto nas Definições quando quiseres."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse to lahko kadar koli spremeniš v Nastavitvah."
           }
         }
       }
@@ -3994,6 +4348,65 @@
         }
       }
     },
+    "Are your breaks paid?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werden deine Pausen bezahlt?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te pagan los descansos?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos pauses sont-elles rémunérées ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jesu li ti pauze plaćene?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tue pause sono retribuite?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worden je pauzes betaald?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czy twoje przerwy są płatne?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As tuas pausas são pagas?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ali so tvoji odmori plačani?"
+          }
+        }
+      }
+    },
     "Automatic": {
       "extractionState": "manual",
       "localizations": {
@@ -4226,6 +4639,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Povprečje na oddelan dan"
+          }
+        }
+      }
+    },
+    "Back": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrás"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natrag"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indietro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terug"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wstecz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazaj"
           }
         }
       }
@@ -4777,6 +5249,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saldo po mesecih"
+          }
+        }
+      }
+    },
+    "Balance counts from": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo zählt ab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El saldo cuenta desde"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le solde compte à partir du"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo se broji od"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il saldo parte dal"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo telt vanaf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo liczone od"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O saldo conta a partir de"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo se šteje od"
           }
         }
       }
@@ -5780,6 +6311,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spremeni"
+          }
+        }
+      }
+    },
+    "Changed on %@ · earlier: %@ a week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geändert am %@ · vorher: %@ pro Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiado el %@ · antes: %@ a la semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changé le %@ · avant : %@ par semaine"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijenjeno %@ · prije: %@ tjedno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modificata il %@ · prima: %@ a settimana"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gewijzigd op %@ · eerder: %@ per week"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmieniono %@ · wcześniej: %@ tygodniowo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterado em %@ · antes: %@ por semana"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremenjeno %@ · prej: %@ na teden"
+          }
+        }
+      }
+    },
+    "Changes": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changements"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promjene"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifiche"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzigingen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmiany"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterações"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremembe"
+          }
+        }
+      }
+    },
+    "Changes on %@ · until then: %@ a week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändert sich am %@ · bis dahin: %@ pro Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia el %@ · hasta entonces: %@ a la semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change le %@ · d’ici là : %@ par semaine"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mijenja se %@ · do tada: %@ tjedno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia il %@ · fino ad allora: %@ a settimana"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzigt op %@ · tot dan: %@ per week"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmienia się %@ · do tego czasu: %@ tygodniowo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muda em %@ · até lá: %@ por semana"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremeni se %@ · do takrat: %@ na teden"
           }
         }
       }
@@ -7889,6 +8597,65 @@
         }
       }
     },
+    "Continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastavi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doorgaan"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalej"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naprej"
+          }
+        }
+      }
+    },
     "Contracted hours": {
       "extractionState": "manual",
       "localizations": {
@@ -8184,6 +8951,65 @@
         }
       }
     },
+    "Create a site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustelle anlegen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear una obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stvori gradilište"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea un cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaats aanmaken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utwórz budowę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar uma obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustvari gradbišče"
+          }
+        }
+      }
+    },
     "Crew": {
       "extractionState": "manual",
       "localizations": {
@@ -8239,6 +9065,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ekipa"
+          }
+        }
+      }
+    },
+    "Crew from your other sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft von deinen anderen Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrilla de tus otras obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équipe de vos autres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa s tvojih drugih gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squadra dai tuoi altri cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg van je andere bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa z twoich innych budów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa das tuas outras obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa s tvojih drugih gradbišč"
           }
         }
       }
@@ -9439,6 +10324,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dnevi"
+          }
+        }
+      }
+    },
+    "Days before the change keep the week they had.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tage vor der Änderung behalten ihre bisherige Woche."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días anteriores al cambio conservan la semana que tenían."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les jours antérieurs au changement gardent la semaine qu’ils avaient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani prije promjene zadržavaju tjedan koji su imali."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I giorni prima della modifica mantengono la settimana che avevano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dagen vóór de wijziging houden de week die ze hadden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni przed zmianą zachowują dotychczasowy tydzień."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias antes da alteração mantêm a semana que tinham."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi pred spremembo obdržijo teden, ki so ga imeli."
           }
         }
       }
@@ -11032,6 +11976,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsako delo ima svoj pogodbeni teden, zato imata dve deli z različnimi urami vsako svoj saldo namesto skupnega."
+          }
+        }
+      }
+    },
+    "Each site keeps its own crew, so they are added to this one as new names. Their days on other sites stay where they are.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede Baustelle hat ihre eigene Mannschaft, deshalb kommen sie hier als neue Namen dazu. Ihre Tage auf anderen Baustellen bleiben, wo sie sind."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada obra tiene su propia cuadrilla, así que se añaden aquí como nombres nuevos. Sus días en otras obras se quedan donde están."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque chantier a sa propre équipe : ils sont donc ajoutés ici comme nouveaux noms. Leurs jours sur les autres chantiers restent où ils sont."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svako gradilište ima svoju ekipu, pa se ovdje dodaju kao nova imena. Njihovi dani na drugim gradilištima ostaju gdje jesu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni cantiere ha la sua squadra, quindi vengono aggiunti qui come nuovi nomi. I loro giorni sugli altri cantieri restano dove sono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke bouwplaats heeft een eigen ploeg, dus ze komen hier als nieuwe namen bij. Hun dagen op andere bouwplaatsen blijven waar ze zijn."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każda budowa ma własną ekipę, więc zostaną tu dodani jako nowe nazwiska. Ich dni na innych budowach zostają tam, gdzie są."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada obra tem a sua própria equipa, por isso são adicionados aqui como nomes novos. Os seus dias noutras obras ficam onde estão."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsako gradbišče ima svojo ekipo, zato so tukaj dodani kot nova imena. Njihovi dnevi na drugih gradbiščih ostanejo, kjer so."
           }
         }
       }
@@ -12983,6 +13986,183 @@
         }
       }
     },
+    "From a date": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ab einem Datum"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde una fecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’une date"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od datuma"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da una data"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanaf een datum"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od daty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de uma data"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od datuma"
+          }
+        }
+      }
+    },
+    "From a date…": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ab einem Datum…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde una fecha…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’une date…"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od datuma…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da una data…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanaf een datum…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od daty…"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de uma data…"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od datuma…"
+          }
+        }
+      }
+    },
+    "From today": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ab heute"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’aujourd’hui"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od danas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da oggi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanaf vandaag"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od dzisiaj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de hoje"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od danes"
+          }
+        }
+      }
+    },
     "From your weekly schedule for %@.": {
       "extractionState": "manual",
       "localizations": {
@@ -14517,6 +15697,124 @@
         }
       }
     },
+    "It goes on the sheets you hand in. Nothing else uses it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er steht auf den Listen, die du abgibst. Sonst wird er nirgends verwendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparece en las hojas que entregas. No se usa para nada más."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il figure sur les feuilles que vous remettez. Rien d’autre ne l’utilise."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoji na listama koje predaješ. Ništa ga drugo ne koristi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare sui fogli che consegni. Non viene usato per altro."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hij staat op de lijsten die je inlevert. Verder wordt hij nergens gebruikt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pojawia się na arkuszach, które oddajesz. Nic innego z niego nie korzysta."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparece nas folhas que entregas. Não é usado para mais nada."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piše na seznamih, ki jih oddaš. Nič drugega ga ne uporablja."
+          }
+        }
+      }
+    },
+    "It was always like this": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das war schon immer so"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siempre fue así"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça a toujours été ainsi"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oduvijek je bilo ovako"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È sempre stato così"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het was altijd al zo"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zawsze tak było"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sempre foi assim"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vedno je bilo tako"
+          }
+        }
+      }
+    },
     "Job": {
       "extractionState": "manual",
       "localizations": {
@@ -15638,6 +16936,65 @@
         }
       }
     },
+    "Monthly sheet for the director": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monatsliste für die Bauleitung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoja mensual para el director"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feuille mensuelle pour le directeur"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mjesečna lista za voditelja"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foglio mensile per il direttore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maandlijst voor de uitvoerder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miesięczny arkusz dla kierownika"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folha mensal para o diretor"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mesečni seznam za vodjo"
+          }
+        }
+      }
+    },
     "More": {
       "extractionState": "manual",
       "localizations": {
@@ -16637,6 +17994,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Brez sinhronizacije"
+          }
+        }
+      }
+    },
+    "No, they're taken off": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nein, sie werden abgezogen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No, se descuentan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non, elles sont retirées"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne, oduzimaju se"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No, vengono tolte"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nee, ze gaan eraf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie, są odejmowane"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não, são descontadas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne, odštejejo se"
           }
         }
       }
@@ -18368,6 +19784,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prihod na gradbišče"
+          }
+        }
+      }
+    },
+    "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am 1. ein Hinweis für jede Baustelle, auf der du letzten Monat gearbeitet hast, dass ihre Liste bereit zum Abgeben ist. Ein Tipp darauf öffnet die Liste."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El día 1, un aviso por cada obra en la que trabajaste el mes pasado: su hoja está lista para enviar. Al tocarlo se abre la hoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le 1er du mois, un avis pour chaque chantier sur lequel vous avez travaillé le mois dernier : sa feuille est prête à envoyer. Touchez-le pour ouvrir la feuille."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prvog u mjesecu, obavijest za svako gradilište na kojem si radio prošli mjesec da je njegova lista spremna za slanje. Dodir je otvara."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il primo del mese, un avviso per ogni cantiere su cui hai lavorato il mese scorso: il suo foglio è pronto da inviare. Toccandolo si apre il foglio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prvega v mesecu obvestilo za vsako gradbišče, na katerem si delal prejšnji mesec, da je njegov seznam pripravljen za pošiljanje. Dotik ga odpre."
           }
         }
       }
@@ -22536,6 +24011,65 @@
         }
       }
     },
+    "Send it to your director.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit, sie der Bauleitung zu geben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envíasela al director."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyez-la au directeur."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji je voditelju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mandalo al direttore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stuur hem naar de uitvoerder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij go kierownikowi."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envia-a ao diretor."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlji ga vodji."
+          }
+        }
+      }
+    },
     "Set": {
       "extractionState": "manual",
       "localizations": {
@@ -23716,6 +25250,65 @@
         }
       }
     },
+    "Skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preskoči"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overslaan"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomiń"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preskoči"
+          }
+        }
+      }
+    },
     "Skip non-working days": {
       "extractionState": "manual",
       "localizations": {
@@ -24129,6 +25722,65 @@
         }
       }
     },
+    "Starts on": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginnt am"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza el"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commence le"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Počinje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizia il"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begint op"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaczyna się"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começa em"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Začne se"
+          }
+        }
+      }
+    },
     "Still clocked in": {
       "extractionState": "manual",
       "localizations": {
@@ -24361,6 +26013,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Podrsaj čez ime, da ga preimenuješ ali skriješ. Nihče ni nikoli izbrisan, zato zabeležene ure nikoli ne izginejo: skrita oseba se le ne ponuja več za nove dneve."
+          }
+        }
+      }
+    },
+    "Swipe to remove a change. The week before it then runs on in its place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wische, um eine Änderung zu entfernen. Die Woche davor gilt dann weiter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza para quitar un cambio. La semana anterior sigue entonces en su lugar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez pour retirer un changement. La semaine d’avant s’applique alors à sa place."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povuci da ukloniš promjenu. Tjedan prije nje tada vrijedi i dalje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri per rimuovere una modifica. La settimana precedente continua allora a valere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veeg om een wijziging te verwijderen. De week ervoor geldt dan verder."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przesuń, aby usunąć zmianę. Tydzień sprzed niej obowiązuje wtedy dalej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza para remover uma alteração. A semana anterior continua então em vigor."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podrsaj, da odstraniš spremembo. Teden pred njo potem velja še naprej."
           }
         }
       }
@@ -25010,6 +26721,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "TestFlight"
+          }
+        }
+      }
+    },
+    "That comes to %@ a day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das sind %@ pro Tag."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son %@ al día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela fait %@ par jour."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To je %@ dnevno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fanno %@ al giorno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dat is %@ per dag."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To daje %@ dziennie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "São %@ por dia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To je %@ na dan."
           }
         }
       }
@@ -25677,6 +27447,65 @@
         }
       }
     },
+    "The days you normally work and your usual hours. A day you leave empty is then a day short.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Tage, an denen du normalerweise arbeitest, und deine üblichen Zeiten. Ein Tag, den du leer lässt, fehlt dann."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días que trabajas normalmente y tu horario habitual. Un día que dejes vacío cuenta entonces como que falta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les jours où vous travaillez d’habitude et vos horaires habituels. Un jour laissé vide compte alors comme manquant."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani kad obično radiš i tvoje uobičajeno vrijeme. Dan koji ostaviš prazan tada ti nedostaje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I giorni in cui lavori di solito e il tuo orario abituale. Un giorno lasciato vuoto risulta poi mancante."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De dagen waarop je normaal werkt en je gebruikelijke tijden. Een dag die je leeg laat, komt dan tekort."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni, w które zwykle pracujesz, i twoje zwykłe godziny. Dzień zostawiony pusty liczy się wtedy jako brakujący."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias em que trabalhas normalmente e o teu horário habitual. Um dia que deixes vazio conta então como em falta."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi, ko običajno delaš, in tvoj običajni čas. Dan, ki ga pustiš praznega, ti potem manjka."
+          }
+        }
+      }
+    },
     "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
       "extractionState": "manual",
       "localizations": {
@@ -25913,6 +27742,65 @@
         }
       }
     },
+    "The new week applies from this day on. Days before it keep the week they had.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die neue Woche gilt ab diesem Tag. Tage davor behalten ihre bisherige Woche."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La nueva semana se aplica desde este día. Los días anteriores conservan la semana que tenían."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La nouvelle semaine s’applique à partir de ce jour. Les jours antérieurs gardent la semaine qu’ils avaient."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novi tjedan vrijedi od ovog dana. Dani prije zadržavaju tjedan koji su imali."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La nuova settimana vale da questo giorno in poi. I giorni precedenti mantengono la settimana che avevano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De nieuwe week geldt vanaf deze dag. Dagen ervoor houden de week die ze hadden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nowy tydzień obowiązuje od tego dnia. Dni wcześniejsze zachowują dotychczasowy tydzień."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A nova semana aplica-se a partir deste dia. Os dias anteriores mantêm a semana que tinham."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novi teden velja od tega dne naprej. Dnevi pred njim obdržijo teden, ki so ga imeli."
+          }
+        }
+      }
+    },
     "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.": {
       "extractionState": "manual",
       "localizations": {
@@ -25972,61 +27860,61 @@
         }
       }
     },
-    "The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.": {
+    "The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Tage vor dem Startdatum bleiben im laufenden Saldo unberücksichtigt."
+            "value": "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Ohne Startdatum zählt der Saldo ab dem ersten Tag, an dem du etwas erfasst hast. Tage vor dem Start bleiben in allen Summen unberücksichtigt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Los días anteriores a la fecha de inicio quedan fuera del saldo acumulado."
+            "value": "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Sin fecha de inicio, el saldo cuenta desde el primer día en que registraste algo. Los días anteriores quedan fuera de todos los totales."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Les jours antérieurs à la date de début sont exclus du solde cumulé."
+            "value": "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Sans date de début, le solde compte à partir du premier jour où vous avez saisi quelque chose. Les jours antérieurs sont exclus de tous les totaux."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Dani prije datuma početka ne ulaze u tekući saldo."
+            "value": "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Bez datuma početka saldo se broji od prvog dana kad si nešto zabilježio. Dani prije početka ne ulaze ni u jedan zbroj."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. I giorni precedenti alla data di inizio restano fuori dal saldo progressivo."
+            "value": "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. Senza una data di inizio, il saldo parte dal primo giorno in cui hai registrato qualcosa. I giorni precedenti restano fuori da ogni totale."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Dagen vóór de startdatum tellen niet mee in het doorlopende saldo."
+            "value": "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Dni sprzed daty początkowej nie wchodzą do salda narastającego."
+            "value": "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Os dias anteriores à data de início ficam de fora do saldo acumulado."
+            "value": "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Dnevi pred datumom začetka niso vključeni v tekoči saldo."
+            "value": "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Brez datuma začetka se saldo šteje od prvega dne, ko si kaj zabeležil. Dnevi pred začetkom niso vključeni v noben seštevek."
           }
         }
       }
@@ -26562,6 +28450,65 @@
         }
       }
     },
+    "This changes closed months: %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ändert abgeschlossene Monate: %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto cambia meses cerrados: %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela modifie des mois clôturés : %@."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovo mijenja zatvorene mjesece: %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo modifica mesi chiusi: %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit wijzigt afgesloten maanden: %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To zmienia zamknięte miesiące: %@."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto altera meses fechados: %@."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To spremeni zaprte mesece: %@."
+          }
+        }
+      }
+    },
     "This clock has been running for over a day. Stopping it now records a full day at most — check the times afterwards.": {
       "extractionState": "manual",
       "localizations": {
@@ -26971,6 +28918,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Do %@"
+          }
+        }
+      }
+    },
+    "Tick the people who come along. Anyone else can be added from the site's crew later.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hake die Leute an, die mitkommen. Alle anderen kannst du später in der Mannschaft der Baustelle hinzufügen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca a las personas que vienen contigo. A los demás puedes añadirlos más tarde desde la cuadrilla de la obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cochez les personnes qui viennent avec vous. Les autres pourront être ajoutées plus tard depuis l’équipe du chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi ljude koji dolaze s tobom. Ostale možeš dodati kasnije u ekipi gradilišta."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spunta le persone che vengono con te. Gli altri si possono aggiungere più tardi dalla squadra del cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vink de mensen aan die meegaan. Anderen kun je later toevoegen bij de ploeg van de bouwplaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaznacz osoby, które idą z tobą. Pozostałych możesz dodać później w ekipie budowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca as pessoas que vêm contigo. As outras podem ser adicionadas mais tarde na equipa da obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi ljudi, ki pridejo s tabo. Ostale lahko dodaš pozneje v ekipi gradbišča."
           }
         }
       }
@@ -28686,6 +30692,65 @@
         }
       }
     },
+    "What's your name?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie heißt du?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo te llamas?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous appelez-vous ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako se zoveš?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come ti chiami?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoe heet je?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak masz na imię?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como te chamas?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kako ti je ime?"
+          }
+        }
+      }
+    },
     "When": {
       "extractionState": "manual",
       "localizations": {
@@ -28741,6 +30806,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kdaj"
+          }
+        }
+      }
+    },
+    "When does this change start?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ab wann gilt diese Änderung?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Desde cuándo se aplica este cambio?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir de quand ce changement s’applique-t-il ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od kada vrijedi ova promjena?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da quando vale questa modifica?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanaf wanneer geldt deze wijziging?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od kiedy obowiązuje ta zmiana?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de quando se aplica esta alteração?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od kdaj velja ta sprememba?"
           }
         }
       }
@@ -29335,6 +31459,65 @@
         }
       }
     },
+    "Write today": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heute eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotar hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir aujourd’hui"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši danas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi oggi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vandaag invullen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisz dzisiaj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar hoje"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši danes"
+          }
+        }
+      }
+    },
     "Written": {
       "extractionState": "manual",
       "localizations": {
@@ -29567,6 +31750,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Konec leta"
+          }
+        }
+      }
+    },
+    "Yes, they're paid": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ja, sie werden bezahlt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sí, me los pagan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oui, elles sont rémunérées"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da, plaćene su"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sì, sono retribuite"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ja, ze worden betaald"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tak, są płatne"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sim, são pagas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da, plačani so"
           }
         }
       }
@@ -30417,6 +32659,65 @@
         }
       }
     },
+    "You're set": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles bereit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo listo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est prêt"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremno je"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto pronto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je bent klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gotowe"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Está tudo pronto"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripravljeno"
+          }
+        }
+      }
+    },
     "Your break still gets written down, but it counts as worked time. Turn this on if your employer pays your breaks.": {
       "extractionState": "manual",
       "localizations": {
@@ -30472,6 +32773,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore."
+          }
+        }
+      }
+    },
+    "Your first entry": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein erster Eintrag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu primera entrada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre première saisie"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj prvi unos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua prima voce"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je eerste invoer"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twój pierwszy wpis"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O teu primeiro registo"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj prvi vnos"
           }
         }
       }
@@ -30594,6 +32954,65 @@
         }
       }
     },
+    "Your name": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu nombre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nom"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje ime"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo nome"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je naam"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje imię"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O teu nome"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje ime"
+          }
+        }
+      }
+    },
     "Your name on the sheet": {
       "extractionState": "manual",
       "localizations": {
@@ -30708,6 +33127,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tvoj lastni iCloud"
+          }
+        }
+      }
+    },
+    "Your working week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Arbeitswoche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu semana laboral"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre semaine de travail"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj radni tjedan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua settimana lavorativa"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je werkweek"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twój tydzień pracy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua semana de trabalho"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj delovni teden"
           }
         }
       }
@@ -35209,6 +37687,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "te vrste"
+          }
+        }
+      }
+    },
+    "“From today” changes closed months: %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Ab heute“ ändert abgeschlossene Monate: %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Desde hoy» cambia meses cerrados: %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« À partir d’aujourd’hui » modifie des mois clôturés : %@."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Od danas” mijenja zatvorene mjesece: %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Da oggi» modifica mesi chiusi: %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Vanaf vandaag’ wijzigt afgesloten maanden: %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Od dzisiaj” zmienia zamknięte miesiące: %@."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«A partir de hoje» altera meses fechados: %@."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Od danes« spremeni zaprte mesece: %@."
+          }
+        }
+      }
+    },
+    "“It was always like this” changes closed months: %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Das war schon immer so“ ändert abgeschlossene Monate: %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Siempre fue así» cambia meses cerrados: %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Ça a toujours été ainsi » modifie des mois clôturés : %@."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Oduvijek je bilo ovako” mijenja zatvorene mjesece: %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«È sempre stato così» modifica mesi chiusi: %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Het was altijd al zo’ wijzigt afgesloten maanden: %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Zawsze tak było” zmienia zamknięte miesiące: %@."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Sempre foi assim» altera meses fechados: %@."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Vedno je bilo tako« spremeni zaprte mesece: %@."
           }
         }
       }

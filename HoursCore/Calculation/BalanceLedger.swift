@@ -47,8 +47,9 @@ enum BalanceLedger {
         startDate: CalendarDate?,
         countingThrough: CalendarDate?
     ) -> Bool {
-        // The opening balance is the ledger's own rule and nothing else's: a
-        // period summary is not affected by when someone started counting.
+        // A closed year's origin is the ledger's own rule and nothing else's:
+        // a period summary is not affected by a year being closed. Where the
+        // balance starts is the day's own business; see `counts(through:)`.
         if let startDate, day.date < startDate { return false }
         return day.counts(through: countingThrough)
     }
@@ -100,15 +101,16 @@ extension PeriodEngine {
     /// using the app went into the close as a full day short.
     ///
     /// The rule is the statistics card's: the origin a closed year or an
-    /// opening balance gives, and from the later of its start date and the
-    /// first day anything was recorded — a day before then is a day the app
-    /// was not in use, not a day nobody turned up.
+    /// opening balance gives, counted from the engine's `balanceStart` — the
+    /// start date when one is set, otherwise the first day anything was
+    /// recorded. A day before then is a day the app was not in use, not a day
+    /// nobody turned up, and the month and the widget leave it out the same
+    /// way.
     ///
     /// - Parameter records: the stored records for a range; asked once, for
     ///   the range the balance covers, so a caller can read just that much.
     func runningBalance(
         through end: CalendarDate,
-        firstRecorded: CalendarDate?,
         holidays: [HolidayRule],
         countingThrough: CalendarDate?,
         records: (CalendarDateRange) -> [Int: DayRecord]
@@ -116,7 +118,6 @@ extension PeriodEngine {
         balance(
             through: end,
             origin: settings.balanceOrigin(for: end),
-            firstRecorded: firstRecorded,
             holidays: holidays,
             countingThrough: countingThrough,
             records: records
@@ -130,7 +131,6 @@ extension PeriodEngine {
     /// than from the closing balance before its cap.
     func balanceCarried(
         into range: CalendarDateRange,
-        firstRecorded: CalendarDate?,
         holidays: [HolidayRule],
         countingThrough: CalendarDate?,
         records: (CalendarDateRange) -> [Int: DayRecord]
@@ -138,7 +138,6 @@ extension PeriodEngine {
         balance(
             through: range.start.adding(days: -1, in: calendar),
             origin: settings.balanceOrigin(for: range.start),
-            firstRecorded: firstRecorded,
             holidays: holidays,
             countingThrough: countingThrough,
             records: records
@@ -148,13 +147,14 @@ extension PeriodEngine {
     private func balance(
         through end: CalendarDate,
         origin: (openingMinutes: Int, startDate: CalendarDate?),
-        firstRecorded: CalendarDate?,
         holidays: [HolidayRule],
         countingThrough: CalendarDate?,
         records: (CalendarDateRange) -> [Int: DayRecord]
     ) -> Int {
-        guard let firstRecorded else { return origin.openingMinutes }
-        let start = origin.startDate.map { Swift.max($0, firstRecorded) } ?? firstRecorded
+        guard let begins = balanceStart else { return origin.openingMinutes }
+        // A closed year moves the origin on to the January after it; before
+        // that, the balance begins where every other figure does.
+        let start = origin.startDate.map { Swift.max($0, begins) } ?? begins
         guard start <= end else { return origin.openingMinutes }
 
         let span = CalendarDateRange(start: start, end: end)

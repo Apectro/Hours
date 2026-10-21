@@ -144,10 +144,11 @@ enum WidgetSnapshotBuilder {
     /// A square for every working day of the month, in order.
     ///
     /// Weekends, leave and holidays are left out rather than drawn as empty:
-    /// a row of squares reads as days owed, and none of those are.
+    /// a row of squares reads as days owed, and none of those are. Nor are
+    /// the days before the balance starts.
     static func monthMarks(_ days: [DayComputation], today: CalendarDate) -> [WidgetDayMark] {
         days
-            .filter { $0.isIncluded && $0.isScheduledWorkingDay }
+            .filter { $0.isIncluded && !$0.precedesBalanceStart && $0.isScheduledWorkingDay }
             .map { day in
                 let state: WidgetDayMark.State
                 if day.date == today {
@@ -181,7 +182,7 @@ enum WidgetSnapshotBuilder {
     /// expected, where "off at 16:30" would be a strange thing to say.
     static func defaultEnd(today: DayComputation?, running: RunningShift?, settings: AppSettings) -> TimeOfDay? {
         guard let today, today.isIncluded, today.isScheduledWorkingDay else { return nil }
-        return settings.job(running?.jobID).schedule.defaultEnd
+        return settings.job(running?.jobID).schedule(on: today.date).defaultEnd
     }
 
     // MARK: - The site

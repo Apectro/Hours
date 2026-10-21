@@ -26,6 +26,9 @@ struct CrewScreen: View {
     @State private var newName = ""
     @State private var renaming: CrewMember?
     @State private var renameText = ""
+    /// People on your other crews who are not on this one.
+    @State private var candidates: [CrewCandidate] = []
+    @State private var isPicking = false
     @FocusState private var isAddingFocused: Bool
 
     init(siteID: UUID) {
@@ -55,6 +58,15 @@ struct CrewScreen: View {
                         .focused($isAddingFocused)
                         .onSubmit(add)
                         .accessibilityIdentifier("crew-new-name")
+
+                    if !candidates.isEmpty {
+                        Button {
+                            isPicking = true
+                        } label: {
+                            Label("Add from other sites", systemImage: "person.badge.plus")
+                        }
+                        .accessibilityIdentifier("crew-add-from-sites")
+                    }
                 }
             } footer: {
                 if isReadOnly {
@@ -93,6 +105,13 @@ struct CrewScreen: View {
                 .textInputAutocapitalization(.words)
             Button("Save") { rename(member) }
             Button("Cancel", role: .cancel) { renaming = nil }
+        }
+        .sheet(isPresented: $isPicking) {
+            CrewPickerSheet(candidates: candidates) { chosen in
+                repository.addCrew(chosen, to: siteID)
+                // The site widget draws the crew by their initials.
+                HoursStack.refreshWidget()
+            }
         }
         .onChange(of: changeToken, initial: true) { _, _ in
             reload()
@@ -176,6 +195,8 @@ struct CrewScreen: View {
         let store = repository
         members = store.crew(for: siteID, includeHidden: true)
         sites = store.sites(includeArchived: true)
+        let calendar = settingsStore.workCalendar
+        candidates = store.crewCandidates(for: siteID, today: CalendarDate.today(in: calendar), calendar: calendar)
     }
 
     private var isRenaming: Binding<Bool> {

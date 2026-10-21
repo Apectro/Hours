@@ -16,6 +16,9 @@ struct DayEditorForm: View {
     var onOpenSite: ((UUID) -> Void)? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
+    /// The week in force on the day being edited: a day before a change of
+    /// contract is offered the old contract's times.
+    private var schedule: WorkSchedule { settings.primarySchedule(on: draft.date) }
 
     var body: some View {
         Form {
@@ -142,13 +145,13 @@ struct DayEditorForm: View {
                     title: String(localized: "Start"),
                     time: $draft.shifts[index].start,
                     calendar: calendar,
-                    fallback: settings.primarySchedule.defaultStart
+                    fallback: schedule.defaultStart
                 )
                 OptionalTimeRow(
                     title: String(localized: "End"),
                     time: $draft.shifts[index].end,
                     calendar: calendar,
-                    fallback: settings.primarySchedule.defaultEnd
+                    fallback: schedule.defaultEnd
                 )
 
                 if settings.tracksMultipleJobs {
@@ -222,7 +225,6 @@ struct DayEditorForm: View {
         // A second block starts where the schedule's day would have ended,
         // which is a better guess than repeating the morning.
         let isFirst = manualShifts.isEmpty
-        let schedule = settings.primarySchedule
         return Shift(
             start: isFirst ? schedule.defaultStart : schedule.defaultEnd,
             end: nil,
@@ -312,7 +314,7 @@ struct DayEditorForm: View {
             }
 
             Button {
-                let minutes = settings.primarySchedule.defaultBreakMinutes
+                let minutes = schedule.defaultBreakMinutes
                 draft.shifts[index].breaks.append(.duration(minutes > 0 ? minutes : 15))
             } label: {
                 Label("Add break", systemImage: "plus.circle")

@@ -108,7 +108,7 @@ change — it is only not taken off. The rule is the job's because employers
 differ, and it is decided per shift because one day can hold two of them. A
 shift with no job, or a job since deleted, follows the primary job; an
 archived job keeps its rule for its history. While there is only one job its
-rule lives beside the top-level `schedule`, as `primaryBreaksArePaid`.
+rule lives beside the top-level `schedules`, as `primaryBreaksArePaid`.
 
 Nothing else subtracts a break. The day editor's preview, the time clock, bulk
 edits, site days and every total read worked minutes from that one place, so
@@ -123,9 +123,52 @@ Worked time and credited absence are reported separately everywhere, so a
 month reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather
 than silently inflating hours nobody worked.
 
-Day type precedence when nothing is set explicitly: holiday rule → weekly
-schedule (0 contracted hours means weekend) → ordinary working day. An explicit
-choice on the day always wins.
+**The balance starts on your first day.** Someone who installs the app on
+19 October did not spend 1 to 16 October eight hours short every day. The
+balance starts at `AppSettings.balanceStartDate` when one is set — in either
+direction: earlier than the first entry says the days in between were owed,
+later says the days before it are settled — and otherwise at the first day
+anything was recorded, a calendar day or a site day. `PeriodEngine` takes that
+first day as an input (`firstRecorded`, read by the repository with two
+one-row sorted fetches) and marks every day before the start
+`precedesBalanceStart`. Such a day does not count (`counts(through:)`) and is
+not a gap (`isUnrecordedWorkingDay`), so the month, the statistics, the
+exports, the running balance, closing a year, the reminder, the calendar's
+dashed outlines and the widget all start in the same place without knowing the
+rule exists. With nothing recorded and no start date, nothing counts: the
+balance is zero and nothing is missing. A day with something on it is never
+before the start, even if the first recorded day was read a moment before it
+was written. The engine the day editor uses resolves one day at a time and is
+not told, because a single day's figures do not depend on where the balance
+starts.
+
+**A schedule changes from a date onward.** A contract that becomes a
+four-day week in November must not rewrite October, which was worked — and
+perhaps handed in — under the old one. So each job's week, and the top-level
+`schedules` of the one-job case, is a `ScheduleHistory`: versions of
+`WorkSchedule`, each with the day it took effect, the first one "since
+always". Everything that reads a schedule for a date reads the version in
+force on that date — the latest that had started — through
+`schedule(on:)`: expected hours and the day type in `WorkdayCalculator`, each
+job's share in `jobTotals`, a new day's pre-filled times, a bulk fill, the
+widget's "off at". A weekly override belongs to its version. What is not about
+a date — the summary row in Settings, the week the editor opens on — uses
+today's version. Saving a changed week asks when it starts: from today, from
+a date (which replaces any version starting on or after it), or "it was
+always like this", which is the old behaviour and leaves a single version.
+The dialog names any closed month the answer would rewrite, and the screen
+lists the changes so one can be taken back, letting the week before it run on.
+
+Settings written before versions existed have only `schedule`, and read as
+one version since always. Both are written: the history under
+`scheduleVersions`, and the newest week under `schedule`, where an older
+version of the app reads it and applies it to all of history as it always
+did. When the two disagree on reading, an older app edited the week after a
+newer one wrote the list; that edit lands on the newest version.
+
+Day type precedence when nothing is set explicitly: holiday rule → the weekly
+schedule in force that day (0 contracted hours means weekend) → ordinary
+working day. An explicit choice on the day always wins.
 
 ## Holidays
 
@@ -236,6 +279,43 @@ stale one on the next launch. The stop button is a `LiveActivityIntent`, which
 iOS runs in the app's process; the widget extension compiles the same type, in
 `HoursShared`, only to put it on the button, and its `perform` is compiled out
 there by the `WIDGET_EXTENSION` condition only that target sets.
+
+## Reminders and the links they open
+
+Three kinds of local notification, each planned in the engine and scheduled by
+`ReminderScheduler`, under its own identifier prefix so each can be replaced
+without touching the others: the weekly gap reminder (`GapFinder`), the evening
+site reminder (`SiteReminderPlan`), and the note on the 1st that a site's sheet
+is ready for the director (`MonthlySheetReminderPlan`). None of them asks for
+permission until its switch is turned on; the two site ones are on by default
+and simply schedule nothing while notifications are not allowed.
+
+The monthly note only ever plans the next 1st — the one after depends on days
+not written yet — so it is redone on launch, on every return to the app, when a
+site day appears or goes, when a site is renamed or archived, and from its
+settings. It carries an `AppLink` (`zeitkonto://site/<id>/export?month=2026-10`)
+in its `userInfo`. A tap reaches `NotificationTapDelegate`, set in the app's
+`init` so a tap that launches the app is not missed, which leaves the link in
+`HoursStack.notificationLinks`; `RootView` follows it exactly as it follows a
+widget's `onOpenURL`, by value onto the Sites tab, where the site screen opens
+the export as a sheet. The delegate handles taps only: a notification arriving
+while the app is open is still not shown, as before.
+
+## First run
+
+A fresh install asks three questions once (`FirstRunSetupView`): a name for the
+sheets, the working week, whether breaks are paid. Each answer is written as
+you continue past it, through the same helpers the settings screens use
+(`setPrimarySchedule`, `setPrimaryBreaksArePaid`), so skipping half-way keeps
+what was answered, and continuing without changing anything leaves the
+defaults exactly as they were.
+
+Telling a fresh install from an update is `FirstRunSetup.decide`: any stored
+day, holiday or site, sync being on, or any setting off its default means
+someone has been using the app, so they are not asked and that is remembered.
+The flag lives in its own `UserDefaults` key, like the sync preference, because
+it belongs to the installation rather than to the data. UI tests start from what
+a fresh install looks like, so they see it only when `-hours-first-run` asks.
 
 ## Export
 

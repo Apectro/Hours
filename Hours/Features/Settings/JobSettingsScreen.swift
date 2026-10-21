@@ -87,8 +87,9 @@ struct JobSettingsScreen: View {
     }
 
     private func summary(for job: Job) -> String {
-        let weekly = settingsStore.settings.displayFormatting.string(job.schedule.weeklyTargetMinutes)
-        let days = job.schedule.workingDaysPerWeek
+        let schedule = job.schedule(on: CalendarDate.today(in: settingsStore.workCalendar))
+        let weekly = settingsStore.settings.displayFormatting.string(schedule.weeklyTargetMinutes)
+        let days = schedule.workingDaysPerWeek
         var parts = [String(inflected: "\(weekly) over ^[\(days) day](inflect: true)")]
         if job.isArchived { parts.append(String(localized: "archived")) }
         return parts.joined(separator: "  ·  ")
@@ -101,6 +102,11 @@ struct JobEditor: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var draft: Job
+    /// The week being edited, nil until something is. Kept apart from
+    /// `draft` because it is today's week rather than the job's whole
+    /// history, and saving it asks when it starts.
+    @State private var week: WorkSchedule?
+    @State private var isAskingWhen = false
     private let isNew: Bool
 
     init(job: Job, isNew: Bool) {
@@ -121,13 +127,13 @@ struct JobEditor: View {
                 }
 
                 WeekdayHoursSection(
-                    schedule: $draft.schedule,
+                    schedule: editedWeek,
                     formatting: settingsStore.dateFormatting,
                     durationFormatting: settingsStore.settings.displayFormatting
                 )
 
                 ShiftDefaultsSection(
-                    schedule: $draft.schedule,
+                    schedule: editedWeek,
                     calendar: settingsStore.workCalendar,
                     tracksBreaks: settingsStore.settings.features.trackBreaks,
                     breaksArePaid: draft.breaksArePaid,
@@ -140,6 +146,17 @@ struct JobEditor: View {
                 if settingsStore.settings.features.trackBreaks {
                     PaidBreaksSection(breaksArePaid: $draft.breaksArePaid)
                 }
+
+                ScheduleHistorySection(
+                    history: draft.schedules,
+                    today: today,
+                    formatting: settingsStore.dateFormatting,
+                    durationFormatting: settingsStore.settings.displayFormatting,
+                    onRemove: { date in
+                        draft.schedules.removeChange(from: date)
+                        week = nil
+                    }
+                )
 
                 if !isNew {
                     Section {
@@ -167,19 +184,56 @@ struct JobEditor: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
+                    Button("Save", action: requestSave)
                         .fontWeight(.semibold)
                         .disabled(draft.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .scheduleChangePrompt(
+                isPresented: $isAskingWhen,
+                history: draft.schedules,
+                lock: settingsStore.settings.monthLock,
+                calendar: settingsStore.workCalendar,
+                formatting: settingsStore.dateFormatting
+            ) { start in
+                var job = draft
+                if let week { job.schedules.change(to: week, from: start) }
+                save(job)
+            }
+        }
+    }
+
+    private var today: CalendarDate { CalendarDate.today(in: settingsStore.workCalendar) }
+
+    /// Today's week, edited in place until Save.
+    private var editedWeek: Binding<WorkSchedule> {
+        Binding(
+            get: { week ?? draft.schedule(on: today) },
+            set: { week = $0 }
+        )
+    }
+
+    /// A new job's week is simply its week; an existing job's changed week
+    /// first asks when the change starts.
+    private func requestSave() {
+        guard let week, week != draft.schedule(on: today) else {
+            save(draft)
+            return
+        }
+        if isNew {
+            var job = draft
+            job.schedules = ScheduleHistory(week)
+            save(job)
+        } else {
+            isAskingWhen = true
         }
     }
 
     /// The primary job is what everything else falls back to, so it stays.
     private var canDelete: Bool { !draft.isPrimary }
 
-    private func save() {
-        var job = draft
+    private func save(_ edited: Job) {
+        var job = edited
         job.name = job.name.trimmingCharacters(in: .whitespacesAndNewlines)
         settingsStore.update { settings in
             if isNew {
@@ -187,7 +241,7 @@ struct JobEditor: View {
             } else if job.isPrimary && settings.jobs.isEmpty {
                 // Still the single-job case: the schedule and the break rule
                 // live at the top level.
-                settings.setPrimarySchedule(job.schedule)
+                settings.primarySchedules = job.schedules
                 settings.setPrimaryBreaksArePaid(job.breaksArePaid)
             } else {
                 settings.updateJob(id: job.id) { $0 = job }

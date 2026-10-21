@@ -72,6 +72,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     var hasEntry: Bool
     var isIncluded: Bool
     var crossesMidnight: Bool
+    /// Before the day the balance starts: the start date when one is set,
+    /// otherwise the first day anything was recorded. Such a day is not short,
+    /// not owed and not missing — the app was not in use yet. Set by
+    /// `PeriodEngine`, which is the one place that knows where the balance
+    /// starts.
+    var precedesBalanceStart: Bool = false
 
     var note: String
     var location: String
@@ -103,8 +109,11 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     /// on it. What the cut-off excludes is expected hours not yet worked —
     /// without it the current month would show a deficit for every day still
     /// to come.
+    ///
+    /// A day before the balance starts never counts, whatever is on it, so a
+    /// month someone began halfway through adds up from the day they began.
     func counts(through cutoff: CalendarDate?) -> Bool {
-        guard isIncluded else { return false }
+        guard isIncluded, !precedesBalanceStart else { return false }
         if let cutoff, date > cutoff, !hasEntry { return false }
         return true
     }
@@ -126,8 +135,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     /// The single definition of a gap: the calendar draws these with a dashed
     /// outline and the reminder counts them, so the two can never disagree
     /// about what is missing.
+    ///
+    /// Nothing before the balance starts is a gap, or the calendar would nag
+    /// about every week before the app was installed.
     func isUnrecordedWorkingDay(asOf today: CalendarDate) -> Bool {
         isIncluded
+            && !precedesBalanceStart
             && isScheduledWorkingDay
             && !hasEntry
             && workedMinutes == 0

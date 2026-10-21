@@ -99,8 +99,12 @@ extension SettingsStore {
         CalendarFormatting(locale: .current, calendar: workCalendar)
     }
 
+    /// For one day at a time — the day editor and the site screen. A single
+    /// day's figures do not depend on where the balance starts, so this one
+    /// is not told; anything adding days up builds its engine with the first
+    /// recorded day instead.
     var engine: PeriodEngine {
-        PeriodEngine(settings: settings, calendar: workCalendar)
+        PeriodEngine(settings: settings, calendar: workCalendar, firstRecorded: nil)
     }
 
     var durationFormatting: DurationFormatting {

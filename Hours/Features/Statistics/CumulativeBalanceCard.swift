@@ -12,6 +12,7 @@ struct CumulativeBalanceCard: View {
 
     @Query private var entries: [DayEntry]
     @Query private var holidayRecords: [HolidayRecord]
+    @Environment(\.modelContext) private var modelContext
 
     init(through: CalendarDate, settings: AppSettings, calendar: Calendar) {
         self.through = through
@@ -57,9 +58,15 @@ struct CumulativeBalanceCard: View {
         var records: [Int: DayRecord] = [:]
         for entry in entries { records[entry.dateKey] = entry.record }
 
-        return PeriodEngine(settings: settings, calendar: calendar).runningBalance(
+        // The first recorded day from the store rather than from `entries`,
+        // which holds only calendar days: a site day written before any of
+        // them is where everything else starts the balance, so it starts here.
+        return PeriodEngine(
+            settings: settings,
+            calendar: calendar,
+            firstRecorded: WorkdayRepository(context: modelContext).firstRecordedDate()
+        ).runningBalance(
             through: through,
-            firstRecorded: entries.first.flatMap { CalendarDate(key: $0.dateKey) },
             holidays: holidayRecords.map(\.rule),
             countingThrough: CalendarDate.today(in: calendar),
             records: { _ in records }

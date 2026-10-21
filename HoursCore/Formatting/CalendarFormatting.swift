@@ -52,6 +52,12 @@ struct CalendarFormatting: Sendable {
         formatter("yMMM").string(from: month.firstDay.date(in: calendar))
     }
 
+    /// "August", standing alone: the form a language uses for a month on its
+    /// own, which in some is not the one inside a date.
+    func monthName(_ month: YearMonth) -> String {
+        formatter("LLLL").string(from: month.firstDay.date(in: calendar))
+    }
+
     /// "Aug"
     func monthAbbreviation(_ month: YearMonth) -> String {
         formatter("MMM").string(from: month.firstDay.date(in: calendar))
@@ -71,6 +77,12 @@ struct CalendarFormatting: Sendable {
     /// as on a site's day card under its own month.
     func dayTitle(_ date: CalendarDate) -> String {
         formatter("EEEEdMMM").string(from: date.date(in: calendar))
+    }
+
+    /// "19 Oct 2026": a date that may be years away, where the weekday would
+    /// be noise and the year is the point.
+    func dateWithYear(_ date: CalendarDate) -> String {
+        formatter("dMMMy").string(from: date.date(in: calendar))
     }
 
     /// "4 Aug"
