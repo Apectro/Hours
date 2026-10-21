@@ -67,6 +67,12 @@ struct CalendarFormatting: Sendable {
         formatter("EEEdMMM").string(from: date.date(in: calendar))
     }
 
+    /// "Tuesday, 4 Aug": a day's heading where the year goes without saying,
+    /// as on a site's day card under its own month.
+    func dayTitle(_ date: CalendarDate) -> String {
+        formatter("EEEEdMMM").string(from: date.date(in: calendar))
+    }
+
     /// "4 Aug"
     func shortDate(_ date: CalendarDate) -> String {
         formatter("dMMM").string(from: date.date(in: calendar))
