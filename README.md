@@ -38,6 +38,11 @@ It needs the repository secrets `ASC_KEY_ID`, `ASC_ISSUER_ID`,
 
 ## What it does
 
+**First launch** — three short questions on a fresh install, each skippable:
+your name for the sheets you hand in, your working week, and whether your breaks
+are paid. Then straight to today's editor or a new site. Anyone updating from an
+earlier version is never asked.
+
 **Calendar** — the main screen. A month or week grid, colour-washed by day type,
 with the totals for the period underneath and the selected day summarised inline.
 A working day in the past with nothing recorded gets a quiet dashed outline, so
@@ -52,6 +57,11 @@ than sitting greyed out.
 **Insights** — today, this week, this month, this year: worked, expected,
 balance, averages, day counts, and a running balance that is always recomputed
 from the days rather than stored.
+
+**Sites** — a site's crew is entered once and the day's times once for all of
+them. A new site, or a crew screen, offers the people from your other crews to
+tick rather than type again. On the 1st, a note per site you worked on last
+month says its sheet is ready for the director, and opens it.
 
 **Settings** — the contracted week (hours per weekday, not one number for all of
 them), calculation rules, which fields exist, day types, holidays, calendar
