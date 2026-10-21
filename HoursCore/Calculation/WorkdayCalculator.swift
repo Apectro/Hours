@@ -9,11 +9,22 @@ struct WorkdayCalculator: Sendable {
     let settings: AppSettings
     let calendar: Calendar
     private let catalog: DayTypeCatalog
+    /// Each job's break rule, and the primary job's for shifts that name no
+    /// job or a job that no longer exists. Resolved once here rather than
+    /// through `settings.job(_:)` per shift, which sorts the job list every
+    /// time it is asked.
+    private let paidBreaksByJob: [UUID: Bool]
+    private let primaryPaysBreaks: Bool
 
     init(settings: AppSettings, calendar: Calendar) {
         self.settings = settings
         self.calendar = calendar
         self.catalog = settings.dayTypeCatalog
+        self.paidBreaksByJob = Dictionary(
+            settings.resolvedJobs.map { ($0.id, $0.breaksArePaid) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        self.primaryPaysBreaks = settings.primaryJob.breaksArePaid
     }
 
     // MARK: - Entry point
@@ -188,7 +199,11 @@ struct WorkdayCalculator: Sendable {
                 warnings.append(.breakLongerThanShift)
             }
 
-            let worked = max(0, gross - breakTotal)
+            // A paid break is worked time. It is still measured, kept and
+            // reported as a break; it just is not taken off. Decided per shift,
+            // because a split day can be one employer in the morning and
+            // another in the evening.
+            let worked = breaksArePaid(forJob: shift.jobID) ? gross : max(0, gross - breakTotal)
             total.workedMinutes += worked
             total.breakMinutes += breakTotal
             total.grossMinutes += gross
@@ -225,6 +240,14 @@ struct WorkdayCalculator: Sendable {
         }
 
         return total
+    }
+
+    /// Whether a shift's job pays for its breaks. Resolves the way
+    /// `AppSettings.job(_:)` does: no job, or a job since deleted, is the
+    /// primary one. An archived job keeps its rule, so its history keeps
+    /// adding up to what it did.
+    func breaksArePaid(forJob id: UUID?) -> Bool {
+        id.flatMap { paidBreaksByJob[$0] } ?? primaryPaysBreaks
     }
 
     /// Length of the shift before breaks.

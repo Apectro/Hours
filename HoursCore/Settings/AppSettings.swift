@@ -31,6 +31,11 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Places you work. Empty means the single-job case, where the primary job
     /// is synthesised from `schedule`; see `resolvedJobs`.
     var jobs: [Job]
+    /// Whether the primary job pays for breaks while it is synthesised —
+    /// `schedule`'s companion, and like it only read while `jobs` is empty.
+    /// Once there are jobs each carries its own; read it through `job(_:)`
+    /// rather than from here.
+    var primaryBreaksArePaid: Bool
 
     /// Nudges about days with nothing recorded.
     var reminders: ReminderPreferences
@@ -66,6 +71,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         displayDurationStyle: DurationStyle = .hoursAndMinutes,
         customDayTypes: [DayTypeDefinition] = [],
         jobs: [Job] = [],
+        primaryBreaksArePaid: Bool = false,
         reminders: ReminderPreferences = ReminderPreferences(),
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil,
@@ -84,6 +90,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.displayDurationStyle = displayDurationStyle
         self.customDayTypes = customDayTypes
         self.jobs = jobs
+        self.primaryBreaksArePaid = primaryBreaksArePaid
         self.reminders = reminders
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
@@ -146,7 +153,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case schemaVersion, features, schedule, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
-        case customDayTypes, jobs, reminders, openingBalanceMinutes, balanceStartDate
+        case customDayTypes, jobs, primaryBreaksArePaid, reminders, openingBalanceMinutes, balanceStartDate
         case carryOver, yearCloses, monthLock
     }
 
@@ -165,6 +172,7 @@ struct AppSettings: Hashable, Codable, Sendable {
             displayDurationStyle: container.lenient(.displayDurationStyle, defaults.displayDurationStyle),
             customDayTypes: container.lenient(.customDayTypes, defaults.customDayTypes),
             jobs: container.lenient(.jobs, defaults.jobs),
+            primaryBreaksArePaid: container.lenient(.primaryBreaksArePaid, defaults.primaryBreaksArePaid),
             reminders: container.lenient(.reminders, defaults.reminders),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
             balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self),

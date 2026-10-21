@@ -101,6 +101,80 @@ final class SiteDayCalculatorTests: XCTestCase {
         XCTAssertEqual(result.crewTotalMinutes, 1005)
     }
 
+    // MARK: - Paid breaks
+
+    private func calculator(primaryPaid: Bool, sitePaid: Bool) -> SiteDayCalculator {
+        var settings = Fixture.settings()
+        settings.jobs = [
+            Job(id: Job.primaryID, name: "Main", breaksArePaid: primaryPaid, sortOrder: 0),
+            Job(id: siteJobID, name: "Builder", breaksArePaid: sitePaid, sortOrder: 1)
+        ]
+        return SiteDayCalculator(settings: settings, calendar: Fixture.calendar())
+    }
+
+    private let siteJobID = UUID(uuidString: "00000000-0000-4000-8000-0000000000CC")!
+
+    func testAPaidBreakJobCountsTheBreakForEveryone() {
+        var siteDay = day(present: [Attendance(memberID: CrewMember.youID), Attendance(memberID: UUID())])
+        siteDay.jobID = siteJobID
+        let result = calculator(primaryPaid: false, sitePaid: true).compute(siteDay)
+
+        XCTAssertEqual(result.people.map(\.workedMinutes), [540, 540], "07:00–16:00 is nine hours")
+        XCTAssertEqual(result.people.map(\.breakMinutes), [30, 30], "the break is still on the sheet")
+        XCTAssertEqual(result.crewTotalMinutes, 1080)
+    }
+
+    func testAPaidBreakJobAppliesToExceptionsToo() {
+        let early = UUID()
+        let longBreak = UUID()
+        var siteDay = day(present: [
+            Attendance(memberID: early, end: Fixture.time(13)),
+            Attendance(memberID: longBreak, breakMinutes: 60)
+        ])
+        siteDay.jobID = siteJobID
+        let result = calculator(primaryPaid: false, sitePaid: true).compute(siteDay)
+
+        XCTAssertEqual(result.people.first { $0.memberID == early }?.workedMinutes, 360)
+        XCTAssertEqual(result.people.first { $0.memberID == longBreak }?.workedMinutes, 540)
+        XCTAssertEqual(result.people.first { $0.memberID == longBreak }?.breakMinutes, 60)
+    }
+
+    func testAnUnpaidSiteJobStillSubtractsTheBreak() {
+        var siteDay = day(present: [Attendance(memberID: UUID())])
+        siteDay.jobID = siteJobID
+        let result = calculator(primaryPaid: true, sitePaid: false).compute(siteDay)
+
+        XCTAssertEqual(result.people.first?.workedMinutes, 510)
+    }
+
+    /// A day freezes its site's job when it is written, so no job on the day
+    /// means the site had none, and its hours count towards the primary job.
+    func testASiteWithoutAJobFollowsThePrimaryJob() {
+        let siteDay = day(present: [Attendance(memberID: UUID())])
+
+        XCTAssertEqual(calculator(primaryPaid: true, sitePaid: false).compute(siteDay).people.first?.workedMinutes, 540)
+        XCTAssertEqual(calculator(primaryPaid: false, sitePaid: true).compute(siteDay).people.first?.workedMinutes, 510)
+    }
+
+    /// Your row on the site and your own calendar day are worked out from the
+    /// same job, so they cannot disagree.
+    func testYourSiteRowAgreesWithYourCalendar() {
+        var siteDay = day(present: [Attendance(memberID: CrewMember.youID)])
+        siteDay.jobID = siteJobID
+        var settings = Fixture.settings()
+        settings.jobs = [
+            Job(id: Job.primaryID, name: "Main", sortOrder: 0),
+            Job(id: siteJobID, name: "Builder", breaksArePaid: true, sortOrder: 1)
+        ]
+
+        let site = SiteDayCalculator(settings: settings, calendar: Fixture.calendar()).compute(siteDay)
+        let record = SiteCalendarSync.merged(personal: nil, siteDays: [siteDay], on: date)
+        let calendarDay = Fixture.calculator(settings: settings).compute(record: record, on: date)
+
+        XCTAssertEqual(site.people.first?.workedMinutes, 540)
+        XCTAssertEqual(calendarDay.workedMinutes, 540)
+    }
+
     func testYouComeFirst() {
         let other = UUID()
         let result = calculator().compute(

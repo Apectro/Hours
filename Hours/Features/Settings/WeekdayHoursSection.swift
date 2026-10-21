@@ -78,6 +78,8 @@ struct ShiftDefaultsSection: View {
     @Binding var schedule: WorkSchedule
     let calendar: Calendar
     var tracksBreaks: Bool = true
+    /// The job's rule, so the footer's total is the one the day will show.
+    var breaksArePaid: Bool = false
     var durationFormatting: DurationFormatting = .display
 
     var body: some View {
@@ -116,9 +118,16 @@ struct ShiftDefaultsSection: View {
             Text("Defaults for a new day")
         } footer: {
             Text(String(
-                localized: "These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(schedule.defaultShiftMinutes)) worked.",
+                localized: "These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(defaultWorkedMinutes)) worked.",
                 comment: "Under the default start and end times; the value is the resulting length"
             ))
         }
+    }
+
+    /// With breaks switched off the engine takes nothing off a day, so the
+    /// footer does not either. It used to subtract a default break that no
+    /// day it described would ever lose.
+    private var defaultWorkedMinutes: Int {
+        schedule.defaultShiftMinutes(breaksArePaid: breaksArePaid || !tracksBreaks)
     }
 }

@@ -11,6 +11,11 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
     var name: String
     var tint: TypeTint
     var schedule: WorkSchedule
+    /// Whether this employer pays for breaks. When it does, a shift's break is
+    /// still recorded and reported, but it counts as worked time rather than
+    /// being taken off it. A property of the job rather than of the app,
+    /// because two employers seldom agree on it.
+    var breaksArePaid: Bool
     /// Archived jobs keep their history but stop contributing expected hours
     /// and stop appearing when you record new work.
     var isArchived: Bool
@@ -21,6 +26,7 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
         name: String,
         tint: TypeTint = .blue,
         schedule: WorkSchedule = WorkSchedule(),
+        breaksArePaid: Bool = false,
         isArchived: Bool = false,
         sortOrder: Int = 0
     ) {
@@ -28,6 +34,7 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
         self.name = name
         self.tint = tint
         self.schedule = schedule
+        self.breaksArePaid = breaksArePaid
         self.isArchived = isArchived
         self.sortOrder = sortOrder
     }
@@ -37,14 +44,14 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
     /// existed — which carry no job id at all — resolve to it forever.
     static let primaryID = UUID(uuidString: "00000000-0000-4000-8000-000000000001")!
 
-    static func primary(schedule: WorkSchedule, name: String = "Work") -> Job {
-        Job(id: Job.primaryID, name: name, tint: .blue, schedule: schedule, sortOrder: 0)
+    static func primary(schedule: WorkSchedule, breaksArePaid: Bool = false, name: String = "Work") -> Job {
+        Job(id: Job.primaryID, name: name, tint: .blue, schedule: schedule, breaksArePaid: breaksArePaid, sortOrder: 0)
     }
 
     var isPrimary: Bool { id == Job.primaryID }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, tint, schedule, isArchived, sortOrder
+        case id, name, tint, schedule, breaksArePaid, isArchived, sortOrder
     }
 
     init(from decoder: Decoder) throws {
@@ -54,6 +61,9 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
             name: container.lenient(.name, "Work"),
             tint: container.lenient(.tint, .blue),
             schedule: container.lenient(.schedule, WorkSchedule()),
+            // Absent from every job written before the switch existed, and
+            // those employers were all being treated as not paying.
+            breaksArePaid: container.lenient(.breaksArePaid, false),
             isArchived: container.lenient(.isArchived, false),
             sortOrder: container.lenient(.sortOrder, 0)
         )
@@ -67,7 +77,7 @@ extension AppSettings {
     /// synthesised from the top-level schedule, so nothing has to be migrated
     /// and the app behaves exactly as it did before jobs existed.
     var resolvedJobs: [Job] {
-        guard !jobs.isEmpty else { return [Job.primary(schedule: schedule)] }
+        guard !jobs.isEmpty else { return [Job.primary(schedule: schedule, breaksArePaid: primaryBreaksArePaid)] }
         return jobs.sorted { lhs, rhs in
             lhs.sortOrder == rhs.sortOrder ? lhs.name < rhs.name : lhs.sortOrder < rhs.sortOrder
         }
@@ -109,10 +119,22 @@ extension AppSettings {
         }
     }
 
+    /// Writes the primary job's break rule back to whichever place holds it,
+    /// the same way `setPrimarySchedule` does for its week.
+    mutating func setPrimaryBreaksArePaid(_ newValue: Bool) {
+        if let index = jobs.firstIndex(where: { $0.isPrimary }) {
+            jobs[index].breaksArePaid = newValue
+        } else if jobs.isEmpty {
+            primaryBreaksArePaid = newValue
+        } else {
+            jobs[0].breaksArePaid = newValue
+        }
+    }
+
     /// Adds a job, materialising the implicit primary one first so the list is
     /// complete the moment there is more than one thing in it.
     mutating func addJob(_ job: Job) {
-        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule)] }
+        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule, breaksArePaid: primaryBreaksArePaid)] }
         var appended = job
         appended.sortOrder = (jobs.map(\.sortOrder).max() ?? 0) + 1
         jobs.append(appended)
@@ -125,12 +147,13 @@ extension AppSettings {
         jobs.removeAll { $0.id == id }
         if jobs.count <= 1 {
             schedule = jobs.first?.schedule ?? schedule
+            primaryBreaksArePaid = jobs.first?.breaksArePaid ?? primaryBreaksArePaid
             jobs = []
         }
     }
 
     mutating func updateJob(id: UUID, _ transform: (inout Job) -> Void) {
-        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule)] }
+        if jobs.isEmpty { jobs = [Job.primary(schedule: schedule, breaksArePaid: primaryBreaksArePaid)] }
         guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
         transform(&jobs[index])
     }

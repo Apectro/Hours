@@ -100,6 +100,25 @@ balance = (worked + credited) - expected + adjustment
 - Public holiday during vacation → one day, one type, no double count
 - Worked 2 h on a public holiday → credited 8 h + worked 2 h − expected 8 h → +2 h
 
+**Worked time** is measured per shift in `WorkdayCalculator` and then added
+up: the shift's length less its breaks, unless the shift's job pays for breaks
+(`Job.breaksArePaid`), in which case it is the whole length. A paid break is
+still recorded and reported as a break — the break column and totals do not
+change — it is only not taken off. The rule is the job's because employers
+differ, and it is decided per shift because one day can hold two of them. A
+shift with no job, or a job since deleted, follows the primary job; an
+archived job keeps its rule for its history. While there is only one job its
+rule lives beside the top-level `schedule`, as `primaryBreaksArePaid`.
+
+Nothing else subtracts a break. The day editor's preview, the time clock, bulk
+edits, site days and every total read worked minutes from that one place, so
+they follow the rule without knowing it exists. A site day decides by its
+frozen `SiteDay.jobID` for everyone on it — the crew work for the same employer
+there — which is the same job your own calendar shift from that site carries.
+The one figure computed outside the calculator, the "that comes to … worked"
+under the default start and end, is `WorkSchedule.defaultShiftMinutes`, which
+takes the job's rule as an argument.
+
 Worked time and credited absence are reported separately everywhere, so a
 month reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather
 than silently inflating hours nobody worked.
