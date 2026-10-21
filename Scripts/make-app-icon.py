@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Draws Hours' app icon.
+"""Draws Zeitkonto's app icon.
 
-A script rather than a checked-in binary nobody can edit: the mark is four
-rules of a timesheet, one of them run long and picked out in amber — the day
-that went over, which is the whole point of the app. Change the numbers below
-and run it; the PNG is the output, not the source.
+A script rather than a checked-in binary nobody can edit: the mark is a clock
+whose amber wedge, sweeping from twelve, is the time banked so far — a
+Zeitkonto is literally a time account — with the hand at its leading edge.
+Change the numbers below and run it; the PNG is the output, not the source.
 
 iOS app icons must be fully opaque — an alpha channel is rejected at upload —
 so this writes 8-bit RGB with no transparency and lets the system apply its own
@@ -19,106 +19,96 @@ import zlib
 from pathlib import Path
 
 SIZE = 1024
-SUBSAMPLES = 4  # vertical oversampling, for edges that are not stepped
+SUBSAMPLES = 3  # per axis, so 9 samples a pixel: edges that are not stepped
 
-TOP = (0x17, 0x22, 0x4A)
-BOTTOM = (0x2B, 0x4A, 0x93)
-RULE = (0xF2, 0xF4, 0xF9)
-OVER = (0xF0, 0xA8, 0x3C)
+TOP = (0x16, 0x20, 0x4E)
+BOTTOM = (0x2C, 0x4A, 0x94)
+FACE = (0x18, 0x24, 0x56)
+RING_COLOUR = (0xF4, 0xF5, 0xF9)
+BANKED = (0xF0, 0xA8, 0x3E)
 
-# left, right, colour — laid out top to bottom, evenly spaced.
-BARS = [
-    (224, 656, RULE),
-    (224, 560, RULE),
-    (224, 800, OVER),
-    (224, 608, RULE),
-]
-BAR_HEIGHT = 96
-BAR_GAP = 52
+CENTRE = SIZE / 2
+RING_OUTER = 352          # outer radius of the white ring
+RING_WIDTH = 62
+WEDGE_GAP = 26            # face showing between the ring and the wedge
+SWEEP_DEGREES = 125       # how far the wedge has filled, clockwise from twelve
+HAND_LENGTH = 178
+HAND_WIDTH = 50
+HUB_RADIUS = 44
 
-
-def bar_rows():
-    """Vertical centres, with the stack centred in the canvas."""
-    count = len(BARS)
-    total = count * BAR_HEIGHT + (count - 1) * BAR_GAP
-    top = (SIZE - total) / 2
-    return [top + index * (BAR_HEIGHT + BAR_GAP) + BAR_HEIGHT / 2 for index in range(count)]
+RING_INNER = RING_OUTER - RING_WIDTH
+WEDGE_RADIUS = RING_INNER - WEDGE_GAP
+HAND_ANGLE = math.radians(SWEEP_DEGREES)          # clockwise from twelve
+HAND_TIP = (CENTRE + HAND_LENGTH * math.sin(HAND_ANGLE),
+            CENTRE - HAND_LENGTH * math.cos(HAND_ANGLE))
 
 
-def coverage(row, centre, left, right):
-    """How much of each pixel in `row` a pill-shaped bar covers, 0...1.
+def background(y):
+    t = y / (SIZE - 1)
+    return tuple(a + (b - a) * t for a, b in zip(TOP, BOTTOM))
 
-    The ends are semicircles, so at a given height the bar is inset by
-    r - sqrt(r^2 - dy^2). Returned as (start, end, inset) rather than a list:
-    the caller fills the span, and only the two edge pixels are fractional.
-    """
-    radius = BAR_HEIGHT / 2
-    dy = abs(row - centre)
-    if dy >= radius:
-        return None
-    inset = radius - math.sqrt(radius * radius - dy * dy)
-    return left + inset, right - inset
+
+def near_segment(x, y, ax, ay, bx, by, radius):
+    """Within `radius` of the segment a–b: a line with round caps."""
+    dx, dy = bx - ax, by - ay
+    t = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)))
+    px, py = ax + t * dx - x, ay + t * dy - y
+    return px * px + py * py <= radius * radius
+
+
+def colour_at(x, y):
+    """The colour of one sample point, painted back to front."""
+    dx, dy = x - CENTRE, y - CENTRE
+    distance = math.hypot(dx, dy)
+    if distance > RING_OUTER:
+        return None                                   # background
+    if near_segment(x, y, CENTRE, CENTRE, *HAND_TIP, HAND_WIDTH / 2) or distance <= HUB_RADIUS:
+        return RING_COLOUR
+    if distance > RING_INNER:
+        return RING_COLOUR
+    if distance <= WEDGE_RADIUS:
+        # Angle clockwise from twelve, 0...360.
+        angle = math.degrees(math.atan2(dx, -dy)) % 360
+        if angle <= SWEEP_DEGREES:
+            return BANKED
+    return FACE
 
 
 def render():
-    centres = bar_rows()
-    rows = []
-    for y in range(SIZE):
-        # The ground, sampled once per row: a vertical gradient has no
-        # horizontal variation to resolve.
-        t = y / (SIZE - 1)
-        ground = tuple(round(TOP[i] + (BOTTOM[i] - TOP[i]) * t) for i in range(3))
-
-        # Accumulated coverage per pixel, per bar colour.
-        cover = [0.0] * SIZE
-        colour = [None] * SIZE
-        for step in range(SUBSAMPLES):
-            sample = y + (step + 0.5) / SUBSAMPLES
-            for (left, right, rgb), centre in zip(BARS, centres):
-                span = coverage(sample, centre, left, right)
-                if span is None:
-                    continue
-                start, end = span
-                first, last = int(math.floor(start)), int(math.ceil(end))
-                for x in range(max(0, first), min(SIZE, last)):
-                    overlap = min(x + 1.0, end) - max(float(x), start)
-                    if overlap <= 0:
-                        continue
-                    cover[x] += overlap / SUBSAMPLES
-                    colour[x] = rgb
-
-        row = bytearray()
-        row.append(0)  # PNG filter type 0: none
-        for x in range(SIZE):
-            alpha = min(1.0, cover[x])
-            if alpha <= 0 or colour[x] is None:
-                row.extend(ground)
-            else:
-                row.extend(
-                    round(ground[i] + (colour[x][i] - ground[i]) * alpha) for i in range(3)
-                )
-        rows.append(bytes(row))
-    return b"".join(rows)
+    rows = bytearray()
+    step = 1 / SUBSAMPLES
+    offsets = [(i + 0.5) * step for i in range(SUBSAMPLES)]
+    samples = SUBSAMPLES * SUBSAMPLES
+    for py in range(SIZE):
+        rows.append(0)  # PNG filter type: none
+        fill = background(py + 0.5)
+        far = abs(py + 0.5 - CENTRE) > RING_OUTER + 1
+        for px in range(SIZE):
+            if far or abs(px + 0.5 - CENTRE) > RING_OUTER + 1:
+                rows.extend(round(c) for c in fill)
+                continue
+            total = [0.0, 0.0, 0.0]
+            for oy in offsets:
+                for ox in offsets:
+                    colour = colour_at(px + ox, py + oy) or fill
+                    total[0] += colour[0]
+                    total[1] += colour[1]
+                    total[2] += colour[2]
+            rows.extend(round(c / samples) for c in total)
+    return bytes(rows)
 
 
-def chunk(kind, payload):
-    body = kind + payload
-    return struct.pack(">I", len(payload)) + body + struct.pack(">I", zlib.crc32(body))
+def png(raw):
+    def chunk(kind, data):
+        body = kind + data
+        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
 
-
-def write(path):
-    header = struct.pack(">IIBBBBB", SIZE, SIZE, 8, 2, 0, 0, 0)  # 8-bit truecolour, no alpha
-    png = (
-        b"\x89PNG\r\n\x1a\n"
-        + chunk(b"IHDR", header)
-        + chunk(b"IDAT", zlib.compress(render(), 9))
-        + chunk(b"IEND", b"")
-    )
-    path.write_bytes(png)
-    return len(png)
+    header = struct.pack(">IIBBBBB", SIZE, SIZE, 8, 2, 0, 0, 0)  # 8-bit RGB, no alpha
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header)
+            + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
 if __name__ == "__main__":
-    destination = Path(__file__).resolve().parent.parent / "Hours/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
-    size = write(destination)
-    print(f"{destination.relative_to(Path.cwd()) if destination.is_relative_to(Path.cwd()) else destination} — {size:,} bytes")
+    out = Path(__file__).resolve().parent.parent / "Hours/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+    out.write_bytes(png(render()))
+    print(f"wrote {out.relative_to(Path.cwd()) if out.is_relative_to(Path.cwd()) else out}")
