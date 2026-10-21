@@ -54,29 +54,32 @@ struct ExportTableMaker {
 
     /// The balance carried into the range, so a running-balance column starts
     /// from the truth rather than from zero.
+    ///
+    /// Through the engine's `balanceCarried`, the same rule as the running
+    /// balance on the statistics screen and closing a year. This used to
+    /// count from the balance start date with the opening balance and ignore
+    /// a closed year, so the column for January after a capped close started
+    /// from the uncapped total.
+    ///
+    /// Worked out only when something prints it: the running-balance column,
+    /// or the summary's "balance carried forward", which appears when an
+    /// opening balance is set. That line used to print the opening balance
+    /// plus the range, leaving out every month in between.
     private func carriedBalance(
         before range: CalendarDateRange,
         repository: WorkdayRepository,
         holidays: [HolidayRule],
         engine: PeriodEngine
     ) -> Int {
-        let opening = settings.openingBalanceMinutes
-        guard settings.effectiveExportColumns.contains(.cumulativeBalance) else { return opening }
-
-        let earliest = settings.balanceStartDate ?? repository.recordedDateBounds()?.first
-        guard let earliest, earliest < range.start else { return opening }
-
-        let priorRange = CalendarDateRange(start: earliest, end: range.start.adding(days: -1, in: calendar))
-        let priorDays = engine.days(
-            in: priorRange,
-            records: repository.records(in: priorRange),
-            holidays: holidays
-        )
-        return BalanceLedger.cumulative(
-            over: priorDays,
-            openingMinutes: opening,
-            startDate: settings.balanceStartDate,
-            countingThrough: CalendarDate.today(in: calendar)
+        guard settings.effectiveExportColumns.contains(.cumulativeBalance) || settings.openingBalanceMinutes != 0 else {
+            return 0
+        }
+        return engine.balanceCarried(
+            into: range,
+            firstRecorded: repository.recordedDateBounds()?.first,
+            holidays: holidays,
+            countingThrough: CalendarDate.today(in: calendar),
+            records: { repository.records(in: $0) }
         )
     }
 

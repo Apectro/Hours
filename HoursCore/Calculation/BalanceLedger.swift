@@ -86,3 +86,83 @@ enum BalanceLedger {
         }
     }
 }
+
+extension PeriodEngine {
+    /// The running balance at the end of `end`: where it starts, which days
+    /// it counts, and what they add up to.
+    ///
+    /// One answer for every place that shows a running balance. There were
+    /// three, each choosing its own first day: the statistics card started at
+    /// the first recorded day; the export started at the balance start date
+    /// and ignored a closed year, so January's running-balance column began
+    /// from the uncapped total of every year before; and closing a year
+    /// started four years back, so every working day before the person began
+    /// using the app went into the close as a full day short.
+    ///
+    /// The rule is the statistics card's: the origin a closed year or an
+    /// opening balance gives, and from the later of its start date and the
+    /// first day anything was recorded — a day before then is a day the app
+    /// was not in use, not a day nobody turned up.
+    ///
+    /// - Parameter records: the stored records for a range; asked once, for
+    ///   the range the balance covers, so a caller can read just that much.
+    func runningBalance(
+        through end: CalendarDate,
+        firstRecorded: CalendarDate?,
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate?,
+        records: (CalendarDateRange) -> [Int: DayRecord]
+    ) -> Int {
+        balance(
+            through: end,
+            origin: settings.balanceOrigin(for: end),
+            firstRecorded: firstRecorded,
+            holidays: holidays,
+            countingThrough: countingThrough,
+            records: records
+        )
+    }
+
+    /// The balance carried into `range`: everything before its first day.
+    ///
+    /// Read from the origin of the range's own first day, so a range that
+    /// opens a year after a close starts from what the close carried rather
+    /// than from the closing balance before its cap.
+    func balanceCarried(
+        into range: CalendarDateRange,
+        firstRecorded: CalendarDate?,
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate?,
+        records: (CalendarDateRange) -> [Int: DayRecord]
+    ) -> Int {
+        balance(
+            through: range.start.adding(days: -1, in: calendar),
+            origin: settings.balanceOrigin(for: range.start),
+            firstRecorded: firstRecorded,
+            holidays: holidays,
+            countingThrough: countingThrough,
+            records: records
+        )
+    }
+
+    private func balance(
+        through end: CalendarDate,
+        origin: (openingMinutes: Int, startDate: CalendarDate?),
+        firstRecorded: CalendarDate?,
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate?,
+        records: (CalendarDateRange) -> [Int: DayRecord]
+    ) -> Int {
+        guard let firstRecorded else { return origin.openingMinutes }
+        let start = origin.startDate.map { Swift.max($0, firstRecorded) } ?? firstRecorded
+        guard start <= end else { return origin.openingMinutes }
+
+        let span = CalendarDateRange(start: start, end: end)
+        return BalanceLedger.cumulative(
+            over: days(in: span, records: records(span), holidays: holidays),
+            openingMinutes: origin.openingMinutes,
+            startDate: origin.startDate,
+            countingThrough: countingThrough
+        )
+    }
+}
