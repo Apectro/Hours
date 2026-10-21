@@ -1,0 +1,112 @@
+name: App Store
+
+# Uploads the store listing and screenshots, and creates the Pro products, in
+# App Store Connect. Started by hand from the Actions tab; submits nothing for
+# review and uploads no build — that is the TestFlight workflow's job.
+#
+#   listing   fastlane/metadata (both languages, the age rating, the
+#             categories, the review notes) and the screenshots from the
+#             latest run of "Build and test", taken from the screenshots
+#             branch.
+#   products  the subscription group, the monthly and yearly subscriptions
+#             and the lifetime purchase, with their prices. Skips whatever
+#             already exists, so it is safe to run again.
+#
+# Secrets reach fastlane only as environment variables and are never printed
+# or written to a file: the same App Store Connect API key the TestFlight
+# workflow uses (ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_CONTENT).
+
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "What to upload"
+        type: choice
+        options:
+          - listing
+          - products
+          - both
+        default: listing
+
+permissions:
+  contents: read
+
+concurrency:
+  # Two uploads to the same App Store Connect record at once would overwrite
+  # each other's screenshots half way through.
+  group: app-store
+  cancel-in-progress: false
+
+jobs:
+  app-store:
+    name: Upload to App Store Connect
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+      # fastlane warns, and some of its tools misbehave, without a UTF-8 locale.
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      FASTLANE_SKIP_UPDATE_CHECK: "1"
+      FASTLANE_HIDE_CHANGELOG: "1"
+      FASTLANE_OPT_OUT_USAGE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The same check the TestFlight workflow starts with: the key works,
+      # the Bundle ID is registered, the app exists. Each failure says how to
+      # fix it, which beats deliver's version of the same news.
+      - name: Preflight — check the Apple account
+        run: fastlane ios preflight
+
+      - name: Toolchain
+        run: fastlane --version
+
+      # Cheap, and the same check CI runs: a field over its limit is refused
+      # by App Store Connect half way through the upload otherwise.
+      - name: The listing fits
+        if: inputs.what != 'products'
+        run: python3 Scripts/check-store-metadata.py
+
+      # "Build and test" lays the listing's shots out for deliver under
+      # app-store/<locale>/ on the screenshots branch, already checked for a
+      # size App Store Connect accepts. A missing set stops the upload here
+      # rather than replacing good screenshots with none.
+      - name: Fetch the screenshots
+        if: inputs.what != 'products'
+        run: |
+          set -o pipefail
+          git fetch --depth 1 origin screenshots || {
+            echo "::error::There is no screenshots branch yet. Run Actions › Build and test › Run workflow on main first."
+            exit 1
+          }
+          DIR="$RUNNER_TEMP/store-screenshots"
+          rm -rf "$DIR"
+          mkdir -p "$DIR"
+          git archive FETCH_HEAD app-store | tar -x -C "$DIR" || {
+            echo "::error::The screenshots branch has no app-store/ folder. It comes from a run of Build and test made after this workflow was added."
+            exit 1
+          }
+          git log -1 --format='screenshots from %s (%cr)' FETCH_HEAD
+          WANTED=$(grep -cvE '^(#|$)' fastlane/screenshots.txt)
+          for LOCALE in en-US de-DE; do
+            PHONE=$(find "$DIR/app-store/$LOCALE" -name 'iphone-*.png' | wc -l | tr -d ' ')
+            echo "$LOCALE: $PHONE iPhone (of $WANTED)"
+            if [ "$PHONE" -lt "$WANTED" ]; then
+              echo "::error::$LOCALE has $PHONE of $WANTED iPhone screenshots. Run Build and test on main again and check its screenshot steps."
+              exit 1
+            fi
+          done
+          echo "SCREENSHOTS_DIR=$DIR/app-store" >> "$GITHUB_ENV"
+
+      - name: Upload the listing
+        if: inputs.what != 'products'
+        run: fastlane ios listing
+
+      - name: Create the Pro products
+        if: inputs.what != 'listing'
+        run: fastlane ios products

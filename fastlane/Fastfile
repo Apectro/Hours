@@ -1,4 +1,6 @@
-# Builds Zeitkonto on a GitHub-hosted Mac and uploads it to TestFlight.
+# Builds Zeitkonto on a GitHub-hosted Mac and uploads it to TestFlight
+# (`beta`), and fills in its App Store Connect record: the listing and
+# screenshots (`listing`) and the Pro products with their prices (`products`).
 #
 # Nothing here needs a Mac of your own. Everything secret arrives as an
 # environment variable from the repository's secrets and is never written to a
@@ -65,6 +67,64 @@ APP_GROUP_FIX = <<~TEXT.freeze
        tick #{APP_GROUP}, Continue, then Save. Confirm the dialog about profiles.
     4. Do the same for #{WIDGET_ID}.
     5. Run the workflow again. It makes new signing profiles by itself.
+TEXT
+
+# The repository root, wherever fastlane was started from. A Fastfile's own
+# Ruby runs inside fastlane/ while its actions run from the root, so a path
+# built by hand here has to be absolute to mean the same thing to both.
+ROOT = [Dir.pwd, File.dirname(Dir.pwd)].find { |dir| File.exist?(File.join(dir, PROJECT)) } || Dir.pwd
+
+# The Pro products, exactly as SubscriptionStore.ProductID and Hours.storekit
+# name them. Prices are in euros in Germany, the base territory; App Store
+# Connect works out every other territory's price from it.
+SUBSCRIPTION_GROUP = "Hours Pro"
+PRO_NAME = "Zeitkonto Pro"
+BASE_TERRITORY = "DEU"
+SUBSCRIPTIONS = [
+  {
+    product_id: "app.zeitkonto.pro.monthly",
+    reference_name: "Pro monthly",
+    period: "ONE_MONTH",
+    price: "2.99",
+    localizations: {
+      "en-US" => ["Zeitkonto Pro, monthly", "Exports, widgets and more sites."],
+      "de-DE" => ["Zeitkonto Pro, monatlich", "Exporte, Widgets und mehr Baustellen."]
+    }
+  },
+  {
+    product_id: "app.zeitkonto.pro.yearly",
+    reference_name: "Pro yearly",
+    period: "ONE_YEAR",
+    price: "19.99",
+    localizations: {
+      "en-US" => ["Zeitkonto Pro, yearly", "Exports, widgets and more sites."],
+      "de-DE" => ["Zeitkonto Pro, jährlich", "Exporte, Widgets und mehr Baustellen."]
+    }
+  }
+].freeze
+LIFETIME = {
+  product_id: "app.zeitkonto.pro.lifetime",
+  reference_name: "Pro lifetime",
+  price: "39.99",
+  localizations: {
+    "en-US" => ["Zeitkonto Pro, for good", "One payment: exports, widgets, more sites."],
+    "de-DE" => ["Zeitkonto Pro, dauerhaft", "Einmal zahlen: Exporte, Widgets, Baustellen."]
+  }
+}.freeze
+
+PRODUCTS_BY_HAND = <<~TEXT.freeze
+  What to do instead, by hand (App Store Connect → Apps → Zeitkonto → Monetization):
+    1. Subscriptions → create a group with the reference name "#{SUBSCRIPTION_GROUP}",
+       localized name "#{PRO_NAME}" in English (U.S.) and German.
+    2. In it, two auto-renewable subscriptions:
+         app.zeitkonto.pro.monthly  "Pro monthly"  1 month  €2.99 (Germany)
+         app.zeitkonto.pro.yearly   "Pro yearly"   1 year   €19.99 (Germany)
+    3. In-App Purchases → a non-consumable:
+         app.zeitkonto.pro.lifetime "Pro lifetime" €39.99 (Germany)
+    4. For each: display name and description in English (U.S.) and German, all
+       territories available, and a review screenshot of the paywall.
+  Or give the API key the Admin or App Manager role and run the workflow again —
+  everything already made is skipped.
 TEXT
 
 platform :ios do
@@ -225,4 +285,351 @@ platform :ios do
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
   end
+
+  # ---------------------------------------------------------------------------
+  # The App Store listing
+  # ---------------------------------------------------------------------------
+
+  desc "Uploads the listing text and screenshots for the version in the project, without submitting anything"
+  lane :listing do
+    load_api_key
+
+    screenshots = ENV["SCREENSHOTS_DIR"].to_s
+    if screenshots.empty? || !Dir.exist?(screenshots)
+      UI.user_error!("SCREENSHOTS_DIR must name a folder laid out as <dir>/<locale>/*.png (got #{screenshots.inspect}).")
+    end
+    screenshots = File.expand_path(screenshots, ROOT)
+
+    deliver(
+      app_identifier: APP_ID,
+      app_version: marketing_version,
+      platform: "ios",
+      metadata_path: File.join(ROOT, "fastlane/metadata"),
+      screenshots_path: screenshots,
+      overwrite_screenshots: true,
+      app_rating_config_path: File.join(ROOT, "fastlane/age-rating.json"),
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      force: true,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false
+      # No price_tier: pricing lives with the products, and the app is free.
+      # No app_review_information beyond the notes file: the review contact
+      # is entered in App Store Connect by hand and never lives in the
+      # repository, and deliver leaves fields it is not given as they are.
+    )
+  end
+
+  # MARKETING_VERSION, read from the project rather than through agvtool,
+  # which needs a target with an Info.plist key to read. Every target carries
+  # the same value; two different ones would be a mistake worth stopping on.
+  def marketing_version
+    project = File.read(File.join(ROOT, PROJECT, "project.pbxproj"))
+    versions = project.scan(/MARKETING_VERSION = ([^;]+);/).flatten.map(&:strip).uniq
+    UI.user_error!("The targets disagree on MARKETING_VERSION: #{versions.join(', ')}") unless versions.count == 1
+    versions.first
+  end
+
+  # ---------------------------------------------------------------------------
+  # The Pro products
+  #
+  # Spaceship has models for apps and versions but none for subscriptions or
+  # the newer in-app purchase endpoints, so these are App Store Connect API
+  # requests made through Spaceship's own client, which carries the key.
+  # Everything is looked up before it is made, so running this again only
+  # fills in what is missing.
+  # ---------------------------------------------------------------------------
+
+  desc "Creates the Pro subscription group, the two subscriptions and the lifetime purchase, with prices; skips what exists"
+  lane :products do
+    load_api_key
+    app = Spaceship::ConnectAPI::App.find(APP_ID)
+    UI.user_error!("There is no app with the Bundle ID #{APP_ID} in App Store Connect.\n#{APP_MISSING_FIX}") unless app
+
+    @product_log = []
+    territories = asc_step("list the App Store territories") do
+      asc_all("v1/territories").map { |territory| territory["id"] }
+    end
+
+    group = asc_step("find or create the subscription group") { subscription_group(app.id) }
+    SUBSCRIPTIONS.each do |product|
+      asc_step("set up #{product[:product_id]}") { subscription(group, product, territories) }
+    end
+    asc_step("set up #{LIFETIME[:product_id]}") { lifetime(app.id, territories) }
+
+    UI.header("What happened")
+    @product_log.each { |line| UI.message(line) }
+    UI.important("Subscription group id (Apple's, not ours): #{group}")
+    UI.important("Still by hand: a review screenshot for each product, and submitting them with the first version.")
+  end
+
+  # Runs one step and turns an API refusal into a plain sentence.
+  def asc_step(what)
+    yield
+  rescue Spaceship::AccessForbiddenError, Spaceship::UnauthorizedAccessError => error
+    UI.user_error!("App Store Connect refused to #{what} with this API key.\nApple said: #{error.message}\n\n#{PRODUCTS_BY_HAND}")
+  rescue Spaceship::UnexpectedResponse => error
+    UI.user_error!("Could not #{what}.\nApple said: #{error.message}\n\n#{PRODUCTS_BY_HAND}")
+  end
+
+  def asc
+    Spaceship::ConnectAPI.client.tunes_request_client
+  end
+
+  # Every page of a list, following Apple's `next` links. Each element is the
+  # raw resource hash; `included` resources are collected alongside when asked.
+  def asc_all(path, params = {}, included: nil)
+    results = []
+    response = asc.get(path, params.merge(limit: 200))
+    loop do
+      body = response.nil? ? {} : response.body
+      results.concat(Array(body["data"]))
+      included&.concat(Array(body["included"]))
+      following = body.dig("links", "next")
+      break if following.nil?
+      response = asc.get(following)
+    end
+    results
+  end
+
+  # Whether a to-one relationship (an availability, say) has been set. Apple
+  # answers an unset one with either an empty `data` or a not-found, and
+  # this treats both the same; any other refusal then fails loudly on the
+  # create that follows.
+  def asc_exists?(path)
+    response = asc.get(path)
+    !(response.nil? || response.body["data"].nil?)
+  rescue Spaceship::UnexpectedResponse
+    false
+  end
+
+  def asc_create(path, type, attributes, relationships = {}, included = nil)
+    data = { type: type }
+    data[:attributes] = attributes unless attributes.empty?
+    data[:relationships] = relationships.transform_values { |value| { data: value } } unless relationships.empty?
+    body = { data: data }
+    body[:included] = included if included
+    asc.post(path, body).body["data"]
+  end
+
+  def created(line)
+    @product_log << "+ created  #{line}"
+    UI.success("created #{line}")
+  end
+
+  def skipped(line)
+    @product_log << "= skipped  #{line} (already there)"
+    UI.message("skipped #{line}: already there")
+  end
+
+  # The price point in Germany whose customer price is `price` euros.
+  def price_point(path, price)
+    points = asc_all(path, { filter: { territory: BASE_TERRITORY } })
+    point = points.find { |item| format("%.2f", item.dig("attributes", "customerPrice").to_f) == price }
+    UI.user_error!("No price point of €#{price} in Germany at #{path}.\n#{PRODUCTS_BY_HAND}") unless point
+    point
+  end
+
+  def subscription_group(app_id)
+    existing = asc_all("v1/apps/#{app_id}/subscriptionGroups").find do |item|
+      item.dig("attributes", "referenceName") == SUBSCRIPTION_GROUP
+    end
+    if existing
+      skipped("subscription group \"#{SUBSCRIPTION_GROUP}\"")
+      group = existing["id"]
+    else
+      group = asc_create(
+        "v1/subscriptionGroups", "subscriptionGroups",
+        { referenceName: SUBSCRIPTION_GROUP },
+        { app: { type: "apps", id: app_id } }
+      )["id"]
+      created("subscription group \"#{SUBSCRIPTION_GROUP}\"")
+    end
+
+    have = asc_all("v1/subscriptionGroups/#{group}/subscriptionGroupLocalizations").map { |item| item.dig("attributes", "locale") }
+    %w[en-US de-DE].each do |locale|
+      if have.include?(locale)
+        skipped("group name in #{locale}")
+      else
+        asc_create(
+          "v1/subscriptionGroupLocalizations", "subscriptionGroupLocalizations",
+          { name: PRO_NAME, locale: locale },
+          { subscriptionGroup: { type: "subscriptionGroups", id: group } }
+        )
+        created("group name \"#{PRO_NAME}\" in #{locale}")
+      end
+    end
+    group
+  end
+
+  def subscription(group, product, territories)
+    id = product[:product_id]
+    existing = asc_all("v1/subscriptionGroups/#{group}/subscriptions").find do |item|
+      item.dig("attributes", "productId") == id
+    end
+    if existing
+      skipped(id)
+      subscription = existing["id"]
+    else
+      subscription = asc_create(
+        "v1/subscriptions", "subscriptions",
+        {
+          name: product[:reference_name],
+          productId: id,
+          subscriptionPeriod: product[:period],
+          familySharable: false,
+          # Both on one level: the same Pro for a different length, so
+          # switching between them is a crossgrade, not an upgrade.
+          groupLevel: 1
+        },
+        { group: { type: "subscriptionGroups", id: group } }
+      )["id"]
+      created("#{id} (#{product[:period].downcase.tr('_', ' ')})")
+    end
+
+    have = asc_all("v1/subscriptions/#{subscription}/subscriptionLocalizations").map { |item| item.dig("attributes", "locale") }
+    product[:localizations].each do |locale, (name, description)|
+      if have.include?(locale)
+        skipped("#{id} name in #{locale}")
+      else
+        asc_create(
+          "v1/subscriptionLocalizations", "subscriptionLocalizations",
+          { name: name, description: description, locale: locale },
+          { subscription: { type: "subscriptions", id: subscription } }
+        )
+        created("#{id} name \"#{name}\" in #{locale}")
+      end
+    end
+
+    if asc_exists?("v1/subscriptions/#{subscription}/subscriptionAvailability")
+      skipped("#{id} availability")
+    else
+      asc_create(
+        "v1/subscriptionAvailabilities", "subscriptionAvailabilities",
+        { availableInNewTerritories: true },
+        {
+          subscription: { type: "subscriptions", id: subscription },
+          availableTerritories: territories.map { |territory| { type: "territories", id: territory } }
+        }
+      )
+      created("#{id} availability in #{territories.count} territories")
+    end
+
+    if asc_all("v1/subscriptions/#{subscription}/prices").any?
+      skipped("#{id} prices")
+      return
+    end
+
+    # A subscription has no base territory of its own the way a one-off
+    # purchase does: every territory gets a price. Apple's equalizations of
+    # the German price point are the prices App Store Connect itself offers
+    # when a price is set in one territory and "all" is chosen for the rest.
+    base = price_point("v1/subscriptions/#{subscription}/pricePoints", product[:price])
+    points = [base] + asc_all("v1/subscriptionPricePoints/#{base['id']}/equalizations", { include: "territory" })
+    failed = []
+    points.each do |point|
+      territory = point.dig("relationships", "territory", "data", "id") || BASE_TERRITORY
+      begin
+        asc_create(
+          "v1/subscriptionPrices", "subscriptionPrices",
+          {},
+          {
+            subscription: { type: "subscriptions", id: subscription },
+            subscriptionPricePoint: { type: "subscriptionPricePoints", id: point["id"] }
+          }
+        )
+      rescue Spaceship::UnexpectedResponse => error
+        failed << "#{territory} (#{error.message.lines.first.to_s.strip})"
+      end
+    end
+    created("#{id} at €#{product[:price]} in Germany, equalized to #{points.count - failed.count} territories")
+    UI.important("#{id}: no price set in #{failed.join(', ')} — set those by hand") unless failed.empty?
+  end
+
+  def lifetime(app_id, territories)
+    id = LIFETIME[:product_id]
+    existing = asc_all("v1/apps/#{app_id}/inAppPurchasesV2", { filter: { productId: id } }).first
+    if existing
+      skipped(id)
+      purchase = existing["id"]
+    else
+      purchase = asc_create(
+        "v2/inAppPurchases", "inAppPurchases",
+        {
+          name: LIFETIME[:reference_name],
+          productId: id,
+          inAppPurchaseType: "NON_CONSUMABLE",
+          familySharable: false
+        },
+        { app: { type: "apps", id: app_id } }
+      )["id"]
+      created("#{id} (non-consumable)")
+    end
+
+    have = asc_all("v2/inAppPurchases/#{purchase}/inAppPurchaseLocalizations").map { |item| item.dig("attributes", "locale") }
+    LIFETIME[:localizations].each do |locale, (name, description)|
+      if have.include?(locale)
+        skipped("#{id} name in #{locale}")
+      else
+        asc_create(
+          "v1/inAppPurchaseLocalizations", "inAppPurchaseLocalizations",
+          { name: name, description: description, locale: locale },
+          { inAppPurchaseV2: { type: "inAppPurchases", id: purchase } }
+        )
+        created("#{id} name \"#{name}\" in #{locale}")
+      end
+    end
+
+    if asc_exists?("v2/inAppPurchases/#{purchase}/inAppPurchaseAvailability")
+      skipped("#{id} availability")
+    else
+      asc_create(
+        "v1/inAppPurchaseAvailabilities", "inAppPurchaseAvailabilities",
+        { availableInNewTerritories: true },
+        {
+          inAppPurchase: { type: "inAppPurchases", id: purchase },
+          availableTerritories: territories.map { |territory| { type: "territories", id: territory } }
+        }
+      )
+      created("#{id} availability in #{territories.count} territories")
+    end
+
+    # A purchase's price schedule shares its id. Before one is made, asking
+    # for its prices is a not-found rather than an empty list.
+    prices = begin
+      asc_all("v1/inAppPurchasePriceSchedules/#{purchase}/manualPrices")
+    rescue Spaceship::UnexpectedResponse
+      []
+    end
+    if prices.any?
+      skipped("#{id} price")
+      return
+    end
+
+    # One manual price in the base territory; Apple equalizes the rest and
+    # keeps them in step with exchange rates and taxes.
+    point = price_point("v2/inAppPurchases/#{purchase}/pricePoints", LIFETIME[:price])
+    asc_create(
+      "v1/inAppPurchasePriceSchedules", "inAppPurchasePriceSchedules",
+      {},
+      {
+        inAppPurchase: { type: "inAppPurchases", id: purchase },
+        baseTerritory: { type: "territories", id: BASE_TERRITORY },
+        manualPrices: [{ type: "inAppPurchasePrices", id: "${base}" }]
+      },
+      [{
+        type: "inAppPurchasePrices",
+        id: "${base}",
+        attributes: { startDate: nil },
+        relationships: {
+          inAppPurchasePricePoint: { data: { type: "inAppPurchasePricePoints", id: point["id"] } }
+        }
+      }]
+    )
+    created("#{id} at €#{LIFETIME[:price]} in Germany, other territories equalized by Apple")
+  end
+
 end

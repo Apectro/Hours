@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found — Zeitkonto</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+  /*
+    Cloudflare Pages serves this for any path that is not a file. Without it,
+    Pages treats the site as a single-page app and answers every typo with the
+    home page and a 200, which tells a crawler every misspelling is a page.
+    Standalone, with the site's tokens, like the privacy page.
+  */
+  :root { --ink: #191c19; --ink-soft: #474e48; --ground: #e9ece4; --accent: #1b5b8e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #e8eae4; --ink-soft: #adb4ac; --ground: #121412; --accent: #8fbde8; }
+  }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: var(--ground); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding: 0 16px;
+  }
+  main { max-width: 32rem; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  p { color: var(--ink-soft); line-height: 1.6; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Nothing here</h1>
+  <p>This page does not exist. <a href="/">Zeitkonto</a> · <a href="/support/">Support</a> · <a href="/privacy/">Privacy</a></p>
+  <p lang="de">Diese Seite gibt es nicht. <a href="/de/">Zeitkonto auf Deutsch</a> · <a href="/support/de/">Support</a> · <a href="/privacy/de/">Datenschutz</a></p>
+</main>
+</body>
+</html>

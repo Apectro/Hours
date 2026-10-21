@@ -2,8 +2,8 @@
  * Fail if docs/ is not what web/ currently builds.
  *
  * The site is deployed by committing its build output into docs/, because
- * Pages serves main:/docs and the privacy policy's URL is already in App Store
- * Connect. The cost of that choice is this failure mode: edit web/src, forget
+ * Cloudflare Pages serves main:/docs as it stands and the privacy policy's URL
+ * is already in App Store Connect. The cost of that choice is this failure mode: edit web/src, forget
  * `npm run publish`, and the live site keeps serving the old build silently.
  * Nothing errors. Nobody finds out.
  *
@@ -139,15 +139,28 @@ if (headingCounts.length === 2 && headingCounts[0][1] !== headingCounts[1][1]) {
 }
 
 /*
- * Without CNAME, Pages drops the custom domain and serves the site back at
- * apectro.github.io/Hours/ — where every rooted asset path 404s, so the page
- * would come up unstyled rather than not at all.
+ * The support pages are hand-written like the policy, and the English one is
+ * the support URL in App Store Connect.
  */
-const cname = join(docs, "CNAME");
-if (!existsSync(cname)) {
-  problems.push("docs/CNAME is missing — Pages would drop zeitkonto.app");
-} else if (readFileSync(cname, "utf8").trim() !== "zeitkonto.app") {
-  problems.push(`docs/CNAME says "${readFileSync(cname, "utf8").trim()}", not zeitkonto.app`);
+for (const page of ["support/index.html", "support/de/index.html"]) {
+  if (!existsSync(join(docs, page))) problems.push(`docs/${page} has gone — the store listing and the footer link it`);
+}
+
+/*
+ * Cloudflare Pages reads three files from the root of what it serves, and
+ * without each one the site still comes up, quietly worse: no security
+ * headers or long caching without _headers, the working notes served as
+ * pages without _redirects, and every typo answered with the home page and a
+ * 200 without 404.html. They come from web/public, so a publish brings them;
+ * this says so when one has gone.
+ */
+for (const file of ["_headers", "_redirects", "404.html"]) {
+  const published = join(docs, file);
+  if (!existsSync(published)) {
+    problems.push(`docs/${file} is missing — Cloudflare Pages needs it`);
+  } else if (readFileSync(published, "utf8") !== readFileSync(join(web, "public", file), "utf8")) {
+    problems.push(`docs/${file} is not web/public/${file} — run \`npm run publish\``);
+  }
 }
 
 if (problems.length > 0) {

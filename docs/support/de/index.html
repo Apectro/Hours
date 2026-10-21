@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support — Zeitkonto</title>
+<meta name="description" content="So erreichst du uns, und Antworten zu Sicherungen, einem neuen iPhone, wo deine Daten liegen, und was die App kostet.">
+<meta name="theme-color" content="#1b5b8e">
+<link rel="icon" href="../../icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Courier+Prime:wght@400;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /*
+    Hand-written, and deliberately standalone: this page has to keep resolving
+    at /support/de/ even if the site around it is rebuilt or replaced, so it
+    carries its own copy of the tokens rather than linking the built stylesheet.
+    They are the same tokens; if the site's palette moves, move these with it.
+  */
+  :root {
+    --ink: #191c19;
+    --ink-soft: #474e48;
+    --ink-faint: #5f665f;
+    --paper: #fbfaf7;
+    --ground: #e9ece4;
+    --rule: #c6ccc0;
+    --rule-faint: #dbdfd5;
+    --accent: #1b5b8e;
+    --on-accent: #ffffff;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --type: "Courier Prime", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e8eae4;
+      --ink-soft: #adb4ac;
+      --ink-faint: #98a097;
+      --paper: #1b1e1c;
+      --ground: #121412;
+      --rule: #343a35;
+      --rule-faint: #262a27;
+      --accent: #8fbde8;
+      --on-accent: #10161b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8eae4;
+    --ink-soft: #adb4ac;
+    --ink-faint: #98a097;
+    --paper: #1b1e1c;
+    --ground: #121412;
+    --rule: #343a35;
+    --rule-faint: #262a27;
+    --accent: #8fbde8;
+    --on-accent: #10161b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+  :where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 20;
+    background: var(--accent); color: var(--on-accent);
+    padding: 12px 18px; font-weight: 600; text-decoration: none;
+  }
+  .skip:focus { left: 12px; top: 12px; }
+
+  /* The same masthead as the site, so arriving here from the footer does not
+     feel like landing on a different website with no way back. */
+  .masthead {
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 13px clamp(20px, 5vw, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .wordmark {
+    display: inline-flex; align-items: center; gap: 11px;
+    font-family: var(--display); font-weight: 800;
+    font-variation-settings: "opsz" 24;
+    font-size: 21px; letter-spacing: -0.02em;
+    color: var(--ink); text-decoration: none;
+  }
+  .mark {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    background: var(--accent); color: var(--on-accent);
+    border-radius: 5px; font-size: 17px;
+  }
+  .masthead a.back { font-size: 15px; color: var(--ink-soft); text-decoration: none; }
+  .masthead a.back:hover { color: var(--ink); text-decoration: underline; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(38px, 6vw, 66px) clamp(20px, 5vw, 44px) 0;
+    background: var(--paper);
+  }
+
+  h1 {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(32px, 4.6vw, 44px);
+    font-variation-settings: "opsz" 48;
+    letter-spacing: -0.026em; line-height: 1.08;
+    margin: 0;
+  }
+
+  h2 {
+    font-family: var(--display); font-weight: 700;
+    font-size: 21px; font-variation-settings: "opsz" 24;
+    letter-spacing: -0.015em;
+    margin: 40px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule-faint);
+  }
+
+  p { margin: 12px 0 0; }
+  p, li { color: var(--ink-soft); }
+  strong { color: var(--ink); }
+
+  .updated {
+    font-family: var(--type);
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+
+  /* The summary, ruled off the way the site rules off its balance line. */
+  .lede {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 2px solid var(--ink);
+    font-size: 18.5px;
+  }
+
+  ul { margin: 12px 0 0; padding-left: 0; list-style: none; }
+  li { padding: 9px 0; border-bottom: 1px solid var(--rule-faint); }
+  li:last-child { border-bottom: 0; }
+
+  main > footer {
+    margin-top: 46px;
+    padding: 20px 0 clamp(38px, 6vw, 60px);
+    border-top: 1px solid var(--rule);
+    font-size: 15px;
+    color: var(--ink-faint);
+  }
+  main > footer p:first-child { margin-top: 0; }
+
+  /* The one thing a support page is for, set apart from the answers. */
+  .contact {
+    margin-top: 26px;
+    padding: 18px 20px;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+  }
+  .contact p:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+<a class="skip" href="#support">Zu den Antworten springen</a>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="../../de/"><span class="mark" aria-hidden="true">z</span>Zeitkonto</a>
+    <a class="back" href="../../de/">Zurück zur Website</a>
+  </div>
+</header>
+
+<main id="support">
+
+  <h1>Support</h1>
+  <p class="updated">Zeitkonto für iOS</p>
+
+  <div class="contact">
+    <!-- Die einzige Stelle, an der diese Seite eine Kontaktadresse nennt. -->
+    <p><strong>Schreib uns</strong> an <a href="mailto:marijomiksa@pm.me">marijomiksa@pm.me</a>. Sag dazu, welches iPhone und welche iOS-Version du hast und was du erwartet hättest. Jede Nachricht liest ein Mensch.</p>
+    <p>Zeitkonto hat kein Konto und keinen Server, wir können deine Daten also nicht sehen — schick bitte keine Sicherungsdatei, solange wir nicht danach fragen, und nimm heraus, was wir nicht lesen sollen.</p>
+  </div>
+
+  <h2>Wo sind meine Stunden gespeichert?</h2>
+  <p>Auf deinem iPhone, in der App, und sonst nirgends. Es gibt kein Konto und keinen Server von uns. Deine Tage, Baustellen, Mannschaften und dein Lohn sind wie bei jeder App in der Sicherung deines Geräts enthalten (iCloud-Backup oder Sicherung auf einem Computer). Mehr dazu in der <a href="../../privacy/de/">Datenschutzerklärung</a>.</p>
+
+  <h2>Wie mache ich eine Sicherung, und wie stelle ich sie wieder her?</h2>
+  <p>Einstellungen › Sicherung und Daten › <strong>Sicherung teilen</strong> schreibt eine lesbare JSON-Datei mit jedem Tag, Feiertag, jeder Baustelle und allen Einstellungen. Leg sie ab, wo du willst — in Dateien, in iCloud Drive, als E-Mail an dich selbst.</p>
+  <p>Zum Wiederherstellen öffne Einstellungen › Sicherung und Daten › <strong>Aus Sicherung wiederherstellen</strong> und wähle die Datei. Das Wiederherstellen <strong>ersetzt</strong> alles auf dem Telefon durch den Inhalt der Datei und fragt vorher nach.</p>
+
+  <h2>Ich habe ein neues iPhone. Wie nehme ich meine Stunden mit?</h2>
+  <p>Wenn du das neue iPhone aus einem iCloud-Backup, aus einer Computer-Sicherung oder mit dem Schnellstart einrichtest, kommen die Daten von Zeitkonto mit. Richtest du es neu ein, mach auf dem alten eine Sicherung (siehe oben), schick dir die Datei, installiere Zeitkonto auf dem neuen iPhone und stelle sie dort wieder her.</p>
+
+  <h2>Was kostet die App?</h2>
+  <p>Nichts. Zeitkonto ist kostenlos, mit allem: Baustellen und Mannschaften, die Monatsliste für die Bauleitung, Stundenzettel als PDF, Excel oder CSV, der Verdienst, die Widgets und die Live-Aktivität. Es gibt keine In-App-Käufe und keine Abos.</p>
+
+  <h2>Wer sieht die Namen meiner Mannschaft und meinen Lohn?</h2>
+  <p>Niemand außer dir, solange du keine Datei exportierst. Die Liste einer Baustelle enthält Namen und Stunden der Mannschaft, nie Geld; dein Verdienst steht nur auf einem persönlichen Stundenzettel, den du mit eingeschaltetem Verdienst exportierst.</p>
+
+  <footer>
+    <p>Zeitkonto ist ein privater Arbeitszeitkalender für iOS. <a href="../../privacy/de/">Datenschutzerklärung</a> · <a href="../">English</a></p>
+  </footer>
+
+</main>
+</body>
+</html>

@@ -78,8 +78,11 @@ struct RootView: View {
             // passes, and it writes into the in-memory store those tests use,
             // so it cannot reach anyone's real hours.
             if SampleData.isRequested {
+                // The rate first, so the first figures drawn are earnings.
+                settingsStore.update { SampleData.applyPay(to: &$0) }
                 SampleData.seed(
-                    into: HoursStack.repository,
+                    workdays: HoursStack.repository,
+                    sites: SiteRepository(context: HoursStack.container.mainContext),
                     calendar: HoursStack.calendar,
                     today: CalendarDate.today(in: HoursStack.calendar)
                 )

@@ -13,7 +13,6 @@ import { hasGermanShots } from "./content";
  */
 const SHOTS = language === "de" && hasGermanShots ? "/shots/de" : "/shots";
 
-const REPO = "https://github.com/Apectro/Hours";
 // Absolute, because the German page sits at /de/ and a relative link from
 // there would resolve to /de/privacy/. One policy per language now: a German
 // page linking an English privacy policy is the half-translated state the
@@ -21,6 +20,9 @@ const REPO = "https://github.com/Apectro/Hours";
 // The English URL stays at /privacy/ — that is the one App Store Connect
 // holds, and it must not move.
 const PRIVACY = language === "de" ? "/privacy/de/" : "/privacy/";
+// The support page, hand-written beside the policy and absolute for the same
+// reason.
+const SUPPORT = language === "de" ? "/support/de/" : "/support/";
 
 /**
  * One screenshot, at the several widths scripts/images.mjs writes. `sizes` has
@@ -201,9 +203,6 @@ function Hero() {
               ) : null}
               <a className={`button ${appStore ? "secondary" : "primary"}`} href="#pricing">
                 {copy.hero.costAction}
-              </a>
-              <a className="button secondary" href={REPO}>
-                {copy.hero.sourceAction}
               </a>
             </div>
             <p className="hero-note">
@@ -490,8 +489,7 @@ function Footer() {
         <p>{copy.footer.line}</p>
         <nav aria-label={copy.nav.elsewhere}>
           <a href={PRIVACY}>{copy.footer.privacy}</a>
-          <a href={REPO}>{copy.footer.source}</a>
-          <a href={`${REPO}/issues`}>{copy.footer.support}</a>
+          <a href={SUPPORT}>{copy.footer.support}</a>
         </nav>
       </div>
     </footer>

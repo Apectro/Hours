@@ -29,6 +29,9 @@ ROUTES = [
     # The two that are in App Store Connect and in the German page's footer.
     ("/privacy/", 200, "collects nothing"),
     ("/privacy/de/", 200, "erhebt nichts"),
+    # The support URL in App Store Connect, and its German twin.
+    ("/support/", 200, "Write to us"),
+    ("/support/de/", 200, "Schreib uns"),
     ("/icon.svg", 200, None),
     ("/og.png", 200, None),
     ("/og-de.png", 200, None),
@@ -37,7 +40,7 @@ ROUTES = [
     # this server does not, and that is deliberate rather than accidental.
     ("/app-store-listing.md", 404, None),
     ("/README.md", 404, None),
-    ("/CNAME", 404, None),
+    ("/_headers", 404, None),
     # A path that has never existed must not resolve to the homepage. The site
     # is four static pages, not an app with a client-side router, and serving
     # index.html for everything would tell a crawler every typo is a page.
@@ -46,7 +49,10 @@ ROUTES = [
 
 # Directory paths redirect to their trailing-slash form. Losing this turns
 # every link written without the slash into a 404.
-REDIRECTS = [("/privacy", "/privacy/"), ("/de", "/de/"), ("/privacy/de", "/privacy/de/")]
+REDIRECTS = [
+    ("/privacy", "/privacy/"), ("/de", "/de/"), ("/privacy/de", "/privacy/de/"),
+    ("/support", "/support/"), ("/support/de", "/support/de/"),
+]
 
 
 def fetch(url: str) -> tuple[int, bytes, str]:

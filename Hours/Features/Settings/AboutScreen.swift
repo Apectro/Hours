@@ -2,6 +2,8 @@ import SwiftUI
 
 /// What the app does with your data — which is nothing beyond keeping it.
 struct AboutScreen: View {
+    @Environment(SubscriptionStore.self) private var subscriptions
+
     var body: some View {
         List {
             Section {
@@ -39,11 +41,13 @@ struct AboutScreen: View {
                     title: String(localized: "No location access"),
                     detail: String(localized: "The optional location field is a text note you type. The app never asks the system where you are.")
                 )
-                PrivacyPoint(
-                    symbol: "creditcard",
-                    title: String(localized: "Buying Zeitkonto Pro"),
-                    detail: String(localized: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Zeitkonto is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.")
-                )
+                if subscriptions.offersPurchases {
+                    PrivacyPoint(
+                        symbol: "creditcard",
+                        title: String(localized: "Buying Zeitkonto Pro"),
+                        detail: String(localized: "Payment is handled entirely by the App Store, the way every purchase on your phone is. Zeitkonto is told one thing in return — whether it has been paid for — and never sees your name, your email or your card. There is still nothing to sign into.")
+                    )
+                }
             }
 
             Section("Keeping your data safe") {

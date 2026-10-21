@@ -12,44 +12,49 @@ struct SettingsScreen: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    Button {
-                        isShowingPaywall = true
-                    } label: {
-                        SettingsRow(
-                            // The product name does not translate; the verb
-                            // in front of it does.
-                            title: subscriptions.isPro
-                                ? AppIdentity.proName
-                                : String(localized: "Unlock Zeitkonto Pro"),
-                            value: subscriptions.isPro ? String(localized: "Active") : nil,
-                            systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
-                        )
-                    }
-                    .tint(.primary)
-                } footer: {
-                    if !subscriptions.isPro {
-                        Text("Timesheets, widgets, a second job, range editing and iCloud sync. Recording your hours is free and stays free.")
-                    }
-                }
-
-                // Only in a TestFlight install, where Pro is unlocked without
-                // paying (see `TesterAccess`). The switch is how a tester sees
-                // the paywall and tries a purchase as a customer would.
-                if subscriptions.isTestFlightInstall {
+                // Nothing is sold while the first release is free
+                // (`FreeLaunch`); the row and the tester switch return with
+                // payments.
+                if subscriptions.offersPurchases {
                     Section {
-                        Toggle("Pro unlocked for testing", isOn: Binding(
-                            get: { !subscriptions.testerLocksPro },
-                            set: {
-                                subscriptions.setTesterLocksPro(!$0)
-                                HoursStack.refreshWidget()
-                            }
-                        ))
-                        .accessibilityIdentifier("settings-tester-pro")
-                    } header: {
-                        Text("TestFlight")
+                        Button {
+                            isShowingPaywall = true
+                        } label: {
+                            SettingsRow(
+                                // The product name does not translate; the verb
+                                // in front of it does.
+                                title: subscriptions.isPro
+                                    ? AppIdentity.proName
+                                    : String(localized: "Unlock Zeitkonto Pro"),
+                                value: subscriptions.isPro ? String(localized: "Active") : nil,
+                                systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
+                            )
+                        }
+                        .tint(.primary)
                     } footer: {
-                        Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
+                        if !subscriptions.isPro {
+                            Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
+                        }
+                    }
+
+                    // Only in a TestFlight install, where Pro is unlocked without
+                    // paying (see `TesterAccess`). The switch is how a tester sees
+                    // the paywall and tries a purchase as a customer would.
+                    if subscriptions.isTestFlightInstall {
+                        Section {
+                            Toggle("Pro unlocked for testing", isOn: Binding(
+                                get: { !subscriptions.testerLocksPro },
+                                set: {
+                                    subscriptions.setTesterLocksPro(!$0)
+                                    HoursStack.refreshWidget()
+                                }
+                            ))
+                            .accessibilityIdentifier("settings-tester-pro")
+                        } header: {
+                            Text("TestFlight")
+                        } footer: {
+                            Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
+                        }
                     }
                 }
 

@@ -247,65 +247,71 @@ cancel, expire and refund all work locally.
 
 ## Putting it on the App Store
 
-Everything here needs an Apple account, so none of it can be done from a
-repository. It is written down so that the sequence is not something to work
-out under pressure.
+The listing, the screenshots and the Pro products are uploaded from this
+repository; what is left needs a person in App Store Connect.
 
-**Screenshots are already made for you, at both sizes.** `ScreenshotTests`
-drives the app in a simulator with a month of sample data and captures the
-calendar, a day, the insights, settings, the privacy screen and the export
-sheet. It runs twice — on the largest iPhone the runner has, and again on a
-smaller one — and the two sets land in a folder each, named after the
-simulator. The larger is the 6.9-inch set App Store Connect asks for; the
-smaller is a second size to choose from, not a required one. A true 6.5-inch
-device (an iPhone 11 Pro Max) is not installed on the runner image, so if you
-specifically need that size it has to be taken by hand. They are attached to the run
-as `app-store-screenshots` and pushed to the `screenshots` branch.
-The branch is usually the easier one to reach for: artifacts are served from a
-storage host that some networks cannot get to at all.
+**The listing** is `fastlane/metadata/`, in English (U.S.) and German — name,
+subtitle, description, keywords, URLs, categories, review notes, and the age
+rating in `fastlane/age-rating.json`. `notes/app-store-listing.md` explains it,
+and CI fails when a field is over the store's limit.
+
+**Screenshots are made for you.** `ScreenshotTests` drives the app with a
+sample month — a site with a crew of five, a month of site days, a pay rate —
+and takes seven shots: the calendar with the month's earnings, a site, the
+director's sheet, the day editor, Insights, Pay and Privacy. The full
+simulator job takes them on the largest iPhone the runner has (the 6.9-inch
+slot), in English and German, and lays the set out for upload under
+`app-store/` on the `screenshots` branch. The app is iPhone-only, so no iPad
+set is needed.
 
 That happens in the full simulator job, which does **not** run on every push:
 macOS minutes bill at ten times the Linux rate, so it runs on pull requests and
-on demand — Actions › Build and test › Run workflow.
+on demand — Actions › Build and test › Run workflow, on `main` (only a run on
+`main` updates the branch).
 
 A push runs the Linux engine job, in about a minute, and — only when it touched
-something outside `HoursCore`, `Scripts` or the prose — a build-only macOS job
-that compiles the app and the test bundles without running them. That second
-job exists because moving the full one off pushes left nothing compiling the
-app target at all: app-only changes reached `main` green, having never been
-through a compiler. Roughly a quarter of the cost of the full job, and skipped
-entirely on the engine-only pushes that make up most of the history.
+something outside `HoursCore`, `Scripts`, the listing or the prose — a
+build-only macOS job that compiles the app and the test bundles without
+running them. That second job exists because moving the full one off pushes
+left nothing compiling the app target at all.
 
-**The rest, in order:**
+**Uploading.** Actions › *App Store* › Run workflow, with `what`:
 
-1. **Apple Developer Program** — $99 a year, at developer.apple.com. Nothing
-   below is possible without it, and the widgets and iCloud sync need it too.
-2. **Bundle identifier** — `app.zeitkonto.hours` for the app and
-   `app.zeitkonto.hours.widget` for the widget, registered under Identifiers.
-3. **Capabilities** — App Groups (`group.app.zeitkonto`) on both targets for
-   the widgets; iCloud with CloudKit and Key-value storage, and a container, for
-   sync. Both are optional: without them the app runs and says so.
-4. **Paid Applications agreement** — App Store Connect › Business. Until this is
-   signed and your bank and tax details are accepted, purchases fail with no
-   useful error, which is a confusing afternoon if you have not been warned.
-5. **The three products**, matching `SubscriptionStore.ProductID` exactly:
-   - `app.zeitkonto.pro.monthly` — auto-renewable, group `zeitkonto.pro`
-   - `app.zeitkonto.pro.yearly` — auto-renewable, same group
-   - `app.zeitkonto.pro.lifetime` — non-consumable
+- `listing` — the metadata and the latest screenshots from the branch. Nothing
+  is submitted and no build is uploaded.
+- `products` — the subscription group (*Hours Pro*, shown as *Zeitkonto Pro*),
+  the two subscriptions and the lifetime purchase, with names and descriptions
+  in both languages and their prices: €2.99 a month, €19.99 a year, €39.99
+  outright, set in Germany and equalized by Apple everywhere else. Whatever
+  exists is skipped, so it is safe to run again.
+- `both`.
 
-   Each needs a display name, a description and a price. `Hours.storekit`
-   carries placeholders; the real ones live only in App Store Connect.
-6. **Privacy nutrition label** — "Data Not Collected", every category. That is
-   unusually easy to fill in here because it is true: no analytics, no
-   third-party code, no account, and nothing sent anywhere but the user's own
-   iCloud if they ask for it.
-7. **App Review notes** — say that Zeitkonto Pro can be exercised with a sandbox
-   account, and that the app is fully functional unpaid. Reviewers reject
-   paywalls they cannot get behind.
+It uses the same `ASC_*` secrets as TestFlight; the key needs the Admin or App
+Manager role to create products.
 
-**One thing worth deciding before you submit:** the prices in `Hours.storekit`
-(£1.99 monthly, £12.99 yearly, £24.99 outright) are placeholders chosen to make
-the paywall render, not a recommendation.
+**Still by hand, in order:**
+
+1. **Apple Developer Program** — $99 a year. Nothing here works without it.
+2. **Bundle identifiers and App Group** — see *Widgets* above; the TestFlight
+   preflight checks them.
+3. **Paid Applications agreement** — App Store Connect › Business. Until it is
+   signed and the bank and tax details are accepted, purchases fail with no
+   useful error.
+4. **App Privacy** — "Data Not Collected". True here: no analytics, no
+   third-party code, no account, nothing sent anywhere.
+5. **App Review contact** — name, phone and email under App Review
+   Information. Deliberately not in this repository.
+6. **A review screenshot for each product** — a picture of the paywall, on each
+   of the three products' pages.
+7. **The build** — run TestFlight with *Unlock Pro for testers* **off**, pick
+   that build on the version page, and add the three products to the version
+   (the first in-app purchases have to be submitted with an app version).
+8. **The owner's name** in `fastlane/metadata/copyright.txt`, and the contact
+   email on the privacy and support pages (`notes/app-store-listing.md` says
+   where).
+
+`Hours.storekit`'s prices (£1.99, £12.99, £24.99) are only for the simulator;
+the real ones are the ones above, and live in App Store Connect.
 
 ## Backups
 

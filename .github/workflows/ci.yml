@@ -113,11 +113,12 @@ jobs:
       - name: Every writing path carries the month lock
         run: python3 Scripts/check-repository-lock.py
 
-      # The listing states each field's limit and nothing was enforcing them,
-      # so the description reached 5,025 characters against a 4,000 cap — the
-      # kind of thing you discover with the App Store Connect form open.
-      - name: The App Store listing fits its own limits
-        run: python3 Scripts/check-listing-limits.py
+      # The listing is fastlane/metadata, uploaded as it stands by the App
+      # Store workflow. Nothing used to enforce the store's limits, so the
+      # description reached 5,025 characters against a 4,000 cap — the kind of
+      # thing you discover with the upload half done.
+      - name: The App Store listing fits the store's limits
+        run: python3 Scripts/check-store-metadata.py
 
       - name: The catalogues are what the generator writes
         run: |
@@ -234,7 +235,7 @@ jobs:
           # rest of this pattern is not code. Everything else — the app target,
           # the widget, the shared layer, the Apple-only tests, the project file
           # — has no compiler anywhere else in this workflow.
-          UNCOVERED=$(echo "$CHANGED" | grep -vE '^(HoursCore/|Scripts/|[^/]*\.md$|\.gitignore$)' || true)
+          UNCOVERED=$(echo "$CHANGED" | grep -vE '^(HoursCore/|Scripts/|fastlane/metadata/|[^/]*\.md$|\.gitignore$)' || true)
           if [ -n "$UNCOVERED" ]; then
             echo "needs Xcode, because of:"
             echo "$UNCOVERED"
@@ -409,7 +410,9 @@ jobs:
       # because the swift:6.0 container has no python3 — which is how the first
       # attempt at running these failed.
       - name: Screenshot renamer
-        run: python3 Scripts/test_name_screenshots.py
+        run: |
+          python3 Scripts/test_name_screenshots.py
+          python3 Scripts/test_store_screenshots.py
 
       # Building first gives a clean compile-error list without the test
       # bundle's output interleaved, which matters on a first green-field build.
@@ -650,6 +653,14 @@ jobs:
           # sets never collide on identical filenames.
           harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
 
+          # The listing's shots and nothing else, laid out for fastlane
+          # deliver (app-store/<locale>/), which is what the App Store
+          # workflow uploads. Checked for a size App Store Connect has a slot
+          # for here, where the run that made them can still say so.
+          python3 Scripts/store-screenshots.py "$OUT" fastlane/screenshots.txt \
+            "$(slug "$PRIMARY_NAME")" \
+            || echo "::warning::the App Store set is incomplete — see the warnings above"
+
           # The walkthrough video, if this run recorded one. Its own folder:
           # the device folders go to App Store Connect as they are and a stray
           # MP4 in one of them is a rejected upload.
@@ -662,21 +673,22 @@ jobs:
           # The German run is continue-on-error, which reports success even
           # when it fails — that is how an empty German folder went unnoticed
           # once already. Count the files rather than trust the step.
-          GERMAN=$(find "$OUT" -path '*-de/*' -name '*.png' | wc -l | tr -d ' ')
-          echo "german screenshots: $GERMAN"
-          if [ "$GERMAN" -lt 6 ]; then
-            echo "::warning::the German capture produced $GERMAN screenshots, expected at least 6 — see the \"Screenshots in German\" step"
+          GERMAN=$(find "$OUT/$(slug "$PRIMARY_NAME")-de" -name '*.png' 2>/dev/null | wc -l | tr -d ' ')
+          WANTED=$(grep -cvE '^(#|$)' fastlane/screenshots.txt)
+          echo "german screenshots: $GERMAN of $WANTED"
+          if [ "$GERMAN" -lt "$WANTED" ]; then
+            echo "::warning::the German capture produced $GERMAN screenshots, expected $WANTED — see the \"Screenshots in German\" step"
           fi
 
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
           FILES=$(find "$OUT" -type f ! -name '*.png' ! -name '*.mp4' ! -name 'README.md' | wc -l | tr -d ' ')
           echo "screenshots: $SHOTS   export artifacts: $FILES"
           find "$OUT" -type f | sort
-          # Six app screens plus up to four PDF pages; the CSV and the workbook
+          # Seven app screens plus the PDF pages; the CSV and the workbook
           # are the two non-images. A count below this means an attachment was
           # dropped, which has happened twice and looked green both times.
-          if [ "$SHOTS" -lt 6 ]; then
-            echo "::warning::expected at least 6 screenshots, got $SHOTS"
+          if [ "$SHOTS" -lt "$WANTED" ]; then
+            echo "::warning::expected at least $WANTED screenshots, got $SHOTS"
           fi
           if [ "$FILES" -lt 2 ]; then
             echo "::warning::expected the CSV and the workbook, got $FILES files"

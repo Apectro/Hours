@@ -8,7 +8,7 @@
 
 **Tech Stack:** Swift 5 language mode, SwiftUI, SwiftData + CloudKit mirroring, XCTest, iOS 18; engine also builds with SwiftPM on Linux (Swift 6.0 toolchain).
 
-**Spec:** `docs/superpowers/specs/2026-10-20-baustelle-design.md`. Mockups: https://claude.ai/artifact/EeWFcyrveYmq5EwBBt3DKv
+**Spec:** `notes/superpowers/specs/2026-10-20-baustelle-design.md`. Mockups: https://claude.ai/artifact/EeWFcyrveYmq5EwBBt3DKv
 
 ## Global Constraints
 

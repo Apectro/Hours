@@ -36,9 +36,8 @@ export const en = {
     lede: "Tap a day, put your hours in, and the month adds itself up. When payroll wants a timesheet you export one, in whatever language they read. There's no account to make and nowhere for any of it to go.",
     appStoreAction: "Get it on the App Store",
     costAction: "What it costs",
-    sourceAction: "Read the source",
     notYet: "It isn't on the App Store yet. ",
-    note: "Recording your hours is free and stays free. Needs iOS 18.",
+    note: "Free, with everything included. Needs iOS 18.",
     shotAlt: "Zeitkonto on an iPhone, showing a month of days coloured by type with totals beneath",
   },
 
@@ -126,37 +125,30 @@ export const en = {
   },
 
   privacy: {
-    heading: "Every promise here, and where to check it",
-    lede: "The app is a file on your phone. There's no account to make and no server to send anything to, and the source is public, so you don't have to take any of this on trust.",
+    heading: "Every promise here, and what keeps it",
+    lede: "The app is a file on your phone. There's no account to make and no server to send anything to. Each promise below is how the app is built, not a setting somebody could turn off later.",
     claims: [
       { claim: "No account, no sign-up", evidence: "there is no auth layer anywhere in the app" },
-      { claim: "No analytics, no tracking", evidence: "Package.swift declares no external packages" },
-      { claim: "Nothing leaves the device", evidence: "unless you export a file or switch on iCloud" },
-      { claim: "iCloud is your own", evidence: "CloudKit private database, off by default" },
+      { claim: "No analytics, no tracking", evidence: "no third-party code of any kind in the app" },
+      { claim: "Nothing leaves the device", evidence: "unless you export a file and send it yourself" },
+      { claim: "Your crew and your pay stay yours", evidence: "sites, names and rates are stored on the phone; money never goes on a site's sheet" },
       { claim: "It never asks where you are", evidence: "no CoreLocation import; the field is a text box" },
       { claim: "Reminders are local", evidence: "UNCalendarNotificationTrigger, scheduled on the device" },
     ],
   },
 
   pricing: {
-    heading: "Recording is free. You pay to make documents.",
-    lede: "Nothing you've recorded ever gets locked up. If a subscription lapses every figure is still there and the backup still writes. What you're paying for is turning it into a file somebody else can read.",
+    heading: "Free. All of it.",
+    lede: "No subscription, no trial, no account. Everything Zeitkonto does is included, and nothing you record is ever locked up.",
     plans: [
-      { name: "Free, and staying that way", price: "Nothing to sign up for", highlight: false,
+      { name: "Everything", price: "Free", highlight: true,
         items: [
           "The calendar, the day editor and every field",
-          "Breaks, overtime, adjustments and the balance",
-          "Insights for the day, week, month and year",
-          "A nudge when a working day has no hours on it",
-          "A JSON backup holding every day you ever entered",
-        ] },
-      { name: "Zeitkonto Pro", price: "Monthly, yearly, or bought outright once", highlight: true,
-        items: [
+          "Sites and crews, and the director's monthly sheet",
           "Timesheets as CSV, Excel or PDF, in ten languages",
-          "Home Screen and Lock Screen widgets",
-          "A second job, with its own contracted week",
-          "Editing a whole range of days in one pass",
-          "iCloud sync between your own devices",
+          "What you earned, with your rate and surcharges",
+          "Home Screen and Lock Screen widgets, and the clock as a Live Activity",
+          "A JSON backup holding every day you ever entered",
         ] },
     ],
   },
@@ -164,7 +156,6 @@ export const en = {
   footer: {
     line: "Zeitkonto is made by one person. No company behind it, and nothing in it that phones home.",
     privacy: "Privacy",
-    source: "Source",
     support: "Support",
   },
 };
