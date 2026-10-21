@@ -41,15 +41,26 @@ struct ReportBuilder: Sendable {
     ///   totals. Every day in the range still gets a row; only the summary
     ///   block stops at this date, so exporting a month in progress does not
     ///   report a deficit for days that have not happened yet.
+    /// - Parameter earnings: what the range earned, written as a last column,
+    ///   a tile and a total — only when Earnings is switched on in Export
+    ///   options, and only for a personal timesheet: nothing else passes it.
     func makeTable(
         days: [DayComputation],
         range: CalendarDateRange,
         title: String,
         period: String = "",
         openingBalanceMinutes: Int = 0,
-        countingThrough: CalendarDate? = nil
+        countingThrough: CalendarDate? = nil,
+        earnings: EarningsSummary? = nil,
+        currencyCode: String = ""
     ) -> ReportTable {
-        let columns = settings.effectiveExportColumns
+        // Off by default, and with no rate there is nothing to write.
+        let earnings = settings.export.includeEarnings ? earnings : nil
+        let earnedByDay = Dictionary(
+            (earnings?.days ?? []).map { ($0.date.key, $0.totalCents) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let columns = settings.effectiveExportColumns + (earnings == nil ? [] : [.earnings])
         func isShown(_ day: DayComputation) -> Bool {
             settings.export.includeEmptyDays || day.hasEntry || day.workedMinutes > 0 || day.creditedMinutes > 0
         }
@@ -66,7 +77,7 @@ struct ReportBuilder: Sendable {
         for day in days {
             if day.counts(through: countingThrough) { running += day.balanceMinutes }
             guard isShown(day) else { continue }
-            rows.append(makeRow(day: day, columns: columns, runningBalance: running))
+            rows.append(makeRow(day: day, columns: columns, runningBalance: running, earnedCents: earnedByDay[day.date.key]))
         }
 
         let summary = PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough)
@@ -82,26 +93,51 @@ struct ReportBuilder: Sendable {
             rows: rows,
             totals: makeTotals(summary: summary, runningBalance: running, openingBalance: openingBalanceMinutes)
         )
+        if let earnings {
+            // The currency goes in the heading so every cell under it can be
+            // a plain number a spreadsheet adds up.
+            table.headingOverrides = columns.map { column in
+                column == .earnings ? "\(language(.earnings)) (\(currencyCode))" : column.heading(in: language)
+            }
+            table.totals.insert(
+                ReportTotal(label: language(.earnings), value: "\(amount(earnings.totalCents)) \(currencyCode)", isEmphasised: true),
+                at: min(1, table.totals.count)
+            )
+        }
         table.kind = .timesheet
         table.eyebrow = language(.timesheet)
         if !owner.isEmpty && !period.isEmpty {
             table.detail = "\(period) · \(dates)"
         }
         table.tiles = makeTiles(summary: summary)
+        if let earnings {
+            let money = MoneyFormatting(currencyCode: currencyCode, locale: language.locale)
+            table.tiles.insert(ReportTile(label: language(.earnings), value: money.string(earnings.totalCents)), at: 1)
+        }
         table.totalRow = makeTotalRow(columns: columns, summary: summary, runningBalance: running)
+        if let earnings, let index = columns.firstIndex(of: .earnings), table.totalRow != nil {
+            table.totalRow?.values[index] = amount(earnings.totalCents)
+        }
         table.signatures = [language(.employeeSignature), language(.employerSignature)]
         return table
     }
 
     // MARK: - Rows
 
-    private func makeRow(day: DayComputation, columns: [ReportColumn], runningBalance: Int) -> ReportRow {
+    private func makeRow(day: DayComputation, columns: [ReportColumn], runningBalance: Int, earnedCents: Int?) -> ReportRow {
         var values: [String] = []
         var minutes: [Int?] = []
         values.reserveCapacity(columns.count)
         minutes.reserveCapacity(columns.count)
 
         for column in columns {
+            // Money is not minutes, so it never goes in `minutes`: the
+            // workbook would write it as a length of time.
+            if column == .earnings {
+                values.append(earnedCents.map { $0 > 0 ? amount($0) : emptyPlaceholder } ?? emptyPlaceholder)
+                minutes.append(nil)
+                continue
+            }
             let cell = value(for: column, day: day, runningBalance: runningBalance)
             values.append(cell.text)
             minutes.append(cell.minutes)
@@ -171,7 +207,15 @@ struct ReportBuilder: Sendable {
         case .times:
             guard day.start != nil || day.end != nil else { return (emptyPlaceholder, nil) }
             return (timesText(start: day.start, end: day.end, crossesMidnight: day.crossesMidnight), nil)
+        case .earnings:
+            // Written by `makeRow`, which has the day's earnings.
+            return (emptyPlaceholder, nil)
         }
+    }
+
+    /// An amount as a plain number with the file's decimal separator.
+    private func amount(_ cents: Int) -> String {
+        MoneyFormatting.plain(cents, decimalSeparator: settings.export.decimalSeparator.character)
     }
 
     /// "07:00–16:00", for a cell that holds both ends of a day.

@@ -170,6 +170,9 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           nl: "Labels", pl: "Etykiety")
         case .notes:          return pick(en: "Notes", de: "Notizen", hr: "Bilješke", sl: "Opombe", it: "Note",
                                           fr: "Notes", es: "Notas", pt: "Notas", nl: "Notities", pl: "Notatki")
+        case .earnings:       return pick(en: "Earnings", de: "Verdienst", hr: "Zarada", sl: "Zaslužek",
+                                          it: "Compenso", fr: "Rémunération", es: "Remuneración",
+                                          pt: "Remuneração", nl: "Verdiensten", pl: "Zarobek")
 
         // The day types that ship with the app. A type the user made is not
         // in here, and is written as they named it.
@@ -442,7 +445,7 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
 /// in step. Anything the user typed is deliberately absent.
 enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case date, weekday, dayType, job, start, end, breakTime, worked, paidAbsence, expected
-    case overtime, balance, runningBalance, holiday, location, tags, notes
+    case overtime, balance, runningBalance, holiday, location, tags, notes, earnings
 
     case work, weekend, publicHoliday, vacation, sickLeave, personalDay, dayOff
     case otherDayType
