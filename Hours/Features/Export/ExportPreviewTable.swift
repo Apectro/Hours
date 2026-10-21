@@ -1,6 +1,7 @@
 import SwiftUI
+import UIKit
 
-/// The report, on screen, laid out exactly as it will be in the file.
+/// The report, on screen, laid out as it will be in the file.
 ///
 /// Scrolls horizontally rather than shrinking to fit: a preview that is too
 /// small to read is not a preview.
@@ -8,31 +9,32 @@ struct ExportPreviewTable: View {
     let table: ReportTable
     var rowLimit: Int = 12
 
-    private static let columnWidths: [ReportColumn: CGFloat] = [
-        .date: 92, .weekday: 46, .dayType: 96, .job: 96, .start: 60, .end: 68,
-        .breakTime: 60, .worked: 70, .credited: 84, .expected: 74,
-        .overtime: 74, .balance: 74, .cumulativeBalance: 96,
-        .holiday: 120, .location: 110, .tags: 110, .note: 160
-    ]
+    /// Read so the widths are measured again when the text size changes.
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        let widths = columnWidths
+        let widths = ExportPreviewWidths.measure(table)
         ScrollView(.horizontal, showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
-                headerRow(widths)
+                if table.validGroups.isEmpty {
+                    flatHeadings(widths)
+                } else {
+                    groupHeadings(widths)
+                    subHeadings(widths)
+                }
                 ForEach(Array(dayRows.prefix(rowLimit))) { row in
-                    dataRow(row, widths: widths)
+                    ExportPreviewRow(table: table, row: row, widths: widths, isSummary: false)
                     Divider()
                 }
                 // The director's sheet ends with its own month total and days
                 // worked. They are the point of the sheet, so they are shown
                 // even when the days above them are cut short.
                 ForEach(Array(summaryRows)) { row in
-                    dataRow(row, widths: widths, isSummary: true)
+                    ExportPreviewRow(table: table, row: row, widths: widths, isSummary: true)
                     Divider()
                 }
                 if !table.totals.isEmpty {
-                    totalsRow
+                    totalsBlock
                 }
             }
             .padding(.horizontal, Metrics.large)
@@ -43,43 +45,66 @@ struct ExportPreviewTable: View {
         ))
     }
 
-    private func headerRow(_ widths: [CGFloat]) -> some View {
+    // MARK: - Headings
+
+    private func flatHeadings(_ widths: [CGFloat]) -> some View {
         HStack(spacing: 0) {
-            // By index: the director's sheet repeats `.worked` once per person,
-            // so a column is not a unique identity here.
+            // By index: a column is not a unique identity on the director's
+            // sheet, which repeats its columns once per person.
             ForEach(table.columns.indices, id: \.self) { index in
-                let column = table.columns[index]
-                Text(table.heading(at: index))
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: widths[index], alignment: column.isNumeric ? .trailing : .leading)
+                headingText(table.heading(at: index))
+                    .frame(width: widths[index], alignment: table.columns[index].isNumeric ? .trailing : .leading)
                     .accessibilityIdentifier("export-preview-heading")
             }
         }
         .padding(.vertical, Metrics.small)
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Color.hoursHairline).frame(height: 1)
-        }
+        .overlay(alignment: .bottom) { hairline }
     }
 
-    private func dataRow(_ row: ReportRow, widths: [CGFloat], isSummary: Bool = false) -> some View {
+    /// A person's name across both of their columns.
+    private func groupHeadings(_ widths: [CGFloat]) -> some View {
         HStack(spacing: 0) {
-            ForEach(table.columns.indices, id: \.self) { index in
-                let column = table.columns[index]
-                Text(index < row.values.count ? row.values[index] : "")
-                    .font(isSummary ? .caption.weight(.semibold) : .caption)
-                    .monospacedDigit()
-                    .foregroundStyle(row.hasEntry ? .primary : .secondary)
-                    .lineLimit(1)
-                    .frame(width: widths[index], alignment: column.isNumeric ? .trailing : .leading)
-                    .accessibilityIdentifier(isSummary ? "export-preview-summary" : "")
+            ForEach(Array(table.groupRanges.enumerated()), id: \.offset) { item in
+                headingText(table.validGroups[item.offset].title)
+                    .frame(width: ExportPreviewWidths.span(item.element, in: widths), alignment: .leading)
+                    .accessibilityIdentifier("export-preview-heading")
             }
         }
-        .padding(.vertical, 5)
-        .background(row.isWorkingDay ? Color.clear : Color.hoursSubdued.opacity(0.08))
+        .padding(.top, Metrics.small)
     }
 
-    private var totalsRow: some View {
+    /// What each column of a pair holds, under the name.
+    private func subHeadings(_ widths: [CGFloat]) -> some View {
+        let titles = table.columnHeadings()
+        let grouped = Set(table.groupRanges.filter { $0.count > 1 }.flatMap { Array($0) })
+        return HStack(spacing: 0) {
+            ForEach(table.columns.indices, id: \.self) { index in
+                Text(grouped.contains(index) ? titles[index] : "")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .frame(width: widths[index], alignment: table.columns[index].isNumeric ? .trailing : .leading)
+                    .accessibilityIdentifier("export-preview-subheading")
+            }
+        }
+        .padding(.bottom, Metrics.tiny)
+        .overlay(alignment: .bottom) { hairline }
+    }
+
+    private func headingText(_ title: String) -> some View {
+        Text(title)
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+    }
+
+    private var hairline: some View {
+        Rectangle().fill(Color.hoursHairline).frame(height: 1)
+    }
+
+    // MARK: - Summary
+
+    private var totalsBlock: some View {
         VStack(alignment: .leading, spacing: Metrics.tiny) {
             Text(table.language(.summary))
                 .font(.caption2.weight(.semibold))
@@ -95,11 +120,14 @@ struct ExportPreviewTable: View {
                         .font(.caption.weight(total.isEmphasised ? .semibold : .regular))
                         .monospacedDigit()
                 }
-                .frame(width: 260, alignment: .leading)
+                .frame(minWidth: 260, alignment: .leading)
+                .fixedSize()
             }
         }
         .padding(.bottom, Metrics.small)
     }
+
+    // MARK: - Rows
 
     /// The days, without the summary rows a builder wrote at the end.
     private var dayRows: ArraySlice<ReportRow> {
@@ -113,31 +141,139 @@ struct ExportPreviewTable: View {
     private var summaryCount: Int {
         min(max(table.trailingSummaryRows, 0), table.rows.count)
     }
+}
 
-    /// One width per column, by position.
-    ///
-    /// A timesheet's columns are kinds of figure and get the fixed widths
-    /// above. The director's sheet's are people, each holding "07:00–16:00 ·
-    /// 8:30" under a name of any length, so those are sized to what they hold:
-    /// 70 points cut every cell in half. Its first column is sized the same
-    /// way, never narrower than the date column's usual width.
-    private var columnWidths: [CGFloat] {
-        table.columns.indices.map { (index: Int) -> CGFloat in
-            let column = table.columns[index]
-            let isSheet = table.headingOverrides != nil
-            // The sheet's first column is the date, but its summary rows write
-            // "Month total" and "Days worked" there, which 92 points cuts off
-            // in Croatian, Slovenian and Polish.
-            guard isSheet, column == .worked || index == 0 else {
-                return ExportPreviewTable.columnWidths[column] ?? 80
+/// One row of the preview.
+private struct ExportPreviewRow: View {
+    let table: ReportTable
+    let row: ReportRow
+    let widths: [CGFloat]
+    let isSummary: Bool
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(segments, id: \.columns.lowerBound) { segment in
+                cell(segment)
             }
-            let minimum = index == 0 ? (ExportPreviewTable.columnWidths[column] ?? 80) : 70
-            let longest = table.rows.reduce(table.heading(at: index).count) { widest, row in
-                index < row.values.count ? max(widest, row.values[index].count) : widest
-            }
-            // About seven points a character at caption size, plus a gap
-            // before the next column.
-            return min(max(CGFloat(longest) * 7 + 12, minimum), 240)
         }
+        .padding(.vertical, 5)
+        .background(rowBackground)
+    }
+
+    /// A cell, or a whole group drawn as one: the dash for someone who was
+    /// not there that day.
+    private struct Segment {
+        var columns: Range<Int>
+        var isMerged: Bool
+    }
+
+    private var segments: [Segment] {
+        let ranges = table.groupRanges
+        var merged: [Int: Range<Int>] = [:]
+        for group in row.mergedGroups where group < ranges.count {
+            merged[ranges[group].lowerBound] = ranges[group]
+        }
+        var result: [Segment] = []
+        var index = 0
+        while index < table.columns.count {
+            if let range = merged[index] {
+                result.append(Segment(columns: range, isMerged: true))
+                index = range.upperBound
+            } else {
+                result.append(Segment(columns: index..<(index + 1), isMerged: false))
+                index += 1
+            }
+        }
+        return result
+    }
+
+    @ViewBuilder
+    private func cell(_ segment: Segment) -> some View {
+        let index = segment.columns.lowerBound
+        let value = index < row.values.count ? row.values[index] : ""
+        let width = ExportPreviewWidths.span(segment.columns, in: widths)
+        if segment.isMerged {
+            Text(value.isEmpty ? "—" : value)
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .frame(width: width, alignment: .center)
+        } else {
+            let column = table.columns[index]
+            Text(value)
+                .font(font(for: column))
+                .monospacedDigit()
+                .foregroundStyle(color(index: index, column: column))
+                .lineLimit(1)
+                .frame(width: width, alignment: column.isNumeric ? .trailing : .leading)
+                .accessibilityIdentifier(isSummary ? "export-preview-summary" : "")
+        }
+    }
+
+    private func font(for column: ReportColumn) -> Font {
+        isSummary || column == .worked ? .caption.weight(.semibold) : .caption
+    }
+
+    /// Someone who came late or left early is in the same amber as on the
+    /// printed page; their times are quieter than their hours, as there.
+    private func color(index: Int, column: ReportColumn) -> Color {
+        if row.flagged.contains(index) { return ExportPreviewWidths.accent }
+        if column == .times || row.role == .count || !row.hasEntry { return .secondary }
+        return .primary
+    }
+
+    private var rowBackground: Color {
+        if row.isAbsence { return ExportPreviewWidths.accent.opacity(0.08) }
+        return row.isWorkingDay ? Color.clear : Color.hoursSubdued.opacity(0.08)
+    }
+}
+
+/// Column widths for the preview, measured from what each column holds.
+///
+/// They were fixed per kind of column once, and the director's sheet put
+/// "07:00–16:00 · 8:30" into a column drawn seventy points wide. Measured,
+/// in the font the preview draws at its current size, a column is as wide as
+/// its widest value and no wider — except free text, which is capped so one
+/// long note does not push the rest of the table off the screen.
+enum ExportPreviewWidths {
+    static let accent = Color(red: 0.878, green: 0.482, blue: 0.071)
+
+    static func measure(_ table: ReportTable) -> [CGFloat] {
+        let base = UIFont.preferredFont(forTextStyle: .caption1)
+        let bold = UIFont.systemFont(ofSize: base.pointSize, weight: .semibold)
+        let grouped = Set(table.groupRanges.filter { $0.count > 1 }.flatMap { Array($0) })
+        let headings = table.columnHeadings()
+        let flat = table.headerTitles()
+
+        var widths = table.columns.indices.map { index -> CGFloat in
+            let column = table.columns[index]
+            let heading = grouped.contains(index) ? headings[index] : flat[index]
+            var widest = textWidth(heading, font: bold)
+            for row in table.rows where index < row.values.count {
+                let font = row.role != .day || column == .worked ? bold : base
+                widest = max(widest, textWidth(row.values[index], font: font))
+            }
+            let cap: CGFloat = column.mayTruncate ? 220 : 360
+            return min(widest, cap) + Metrics.large
+        }
+
+        // A name must fit across the pair of columns it heads.
+        for (group, range) in zip(table.validGroups, table.groupRanges) where range.count > 1 {
+            let needed = textWidth(group.title, font: bold) + Metrics.large
+            let have = span(range, in: widths)
+            if have < needed, let last = range.last {
+                widths[last] += needed - have
+            }
+        }
+        return widths
+    }
+
+    static func span(_ range: Range<Int>, in widths: [CGFloat]) -> CGFloat {
+        range.reduce(CGFloat(0)) { $0 + ($1 < widths.count ? widths[$1] : 0) }
+    }
+
+    private static func textWidth(_ text: String, font: UIFont) -> CGFloat {
+        // Tabular digits run a little wider than the proportional ones
+        // measured here, hence the rounding up and the padding beside it.
+        ceil((text as NSString).size(withAttributes: [.font: font]).width) + 2
     }
 }

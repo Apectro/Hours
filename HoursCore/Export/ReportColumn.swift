@@ -23,6 +23,10 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     case location
     case tags
     case note
+    /// "07:00–16:00": one person's arrival and departure in a single cell,
+    /// for the director's sheet. Never offered for a timesheet, which has a
+    /// start and an end column of its own and lets the person choose them.
+    case times
 
     var id: String { rawValue }
 
@@ -53,6 +57,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         case .location: return .location
         case .tags: return .tags
         case .note: return .notes
+        case .times: return .fromTo
         }
     }
 
@@ -77,6 +82,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     var mayTruncate: Bool {
         switch self {
         case .note, .location, .tags, .job, .holiday: return true
+        // A clock time cut short is a wrong time, as a date is a wrong date.
         default: return false
         }
     }

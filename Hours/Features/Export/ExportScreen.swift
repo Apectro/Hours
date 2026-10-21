@@ -1,25 +1,39 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
-/// Choose a range and a format, see exactly what will be produced, then share.
+/// Choose whose hours and which days, see exactly what will be produced, then
+/// share it.
 ///
-/// The preview is the same `ReportTable` the file is built from, so what is on
-/// screen is what lands in the file — not an approximation of it.
+/// One screen for your own timesheet and for a site's month: opened from the
+/// calendar it starts on your hours, opened from a site on that site, and
+/// when there are sites a switch at the top moves between them. The preview
+/// is the same `ReportTable` the file is built from — for a PDF, the real
+/// first page — so what is on screen is what lands in the file.
 struct ExportScreen: View {
     let initialRange: CalendarDateRange
+    private let initialTarget: ExportTarget
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
 
+    // Every site rather than the active ones: a site opened from its own
+    // screen may be archived, and its months are still the director's.
+    @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
+
+    @State private var target: ExportTarget
     @State private var rangeKind: ExportRangeKind = .month
     @State private var anchor: CalendarDate
     @State private var customStart: CalendarDate
     @State private var customEnd: CalendarDate
-    @State private var format: ExportFormat = .csv
+    /// `nil` until stepped: a site's sheet opens on last month, because that
+    /// is the month the director asks for at the start of this one.
+    @State private var siteMonth: YearMonth?
+    @State private var format: ExportFormat = .pdf
 
-    /// What the file will be called, without its extension.
+    /// What the timesheet file will be called, without its extension.
     ///
     /// Follows the range until somebody types over it, and stops following
     /// the moment they do — changing the month after naming a file should not
@@ -27,13 +41,31 @@ struct ExportScreen: View {
     @State private var fileName: String = ""
     @State private var fileNameEdited = false
 
-    @State private var previewTable: ReportTable?
+    @State private var tables: ExportTables?
+    @State private var pdfData: Data?
+    @State private var pageImage: UIImage?
     @State private var fileURL: URL?
     @State private var failureMessage: String?
     @State private var paywallReason: ProFeature?
+    @State private var showsFullPage = false
 
-    init(initialRange: CalendarDateRange) {
+    /// The sheet carries your name, so it is asked for once when it is
+    /// missing — at the share button, never in front of the preview. "Not
+    /// now" is an answer too: the sheet then goes without.
+    @State private var asksForName = false
+    @State private var typedName = ""
+    @State private var nameAnswered = false
+
+    /// - Parameters:
+    ///   - initialRange: the days your own timesheet starts on.
+    ///   - site: the site to open on, when opened from one.
+    ///   - month: the site month to open on; last month when `nil`.
+    init(initialRange: CalendarDateRange, site: Site? = nil, month: YearMonth? = nil) {
         self.initialRange = initialRange
+        let target: ExportTarget = site.map { .site($0.id) } ?? .personal
+        self.initialTarget = target
+        _target = State(initialValue: target)
+        _siteMonth = State(initialValue: month)
         _anchor = State(initialValue: initialRange.start)
         _customStart = State(initialValue: initialRange.start)
         _customEnd = State(initialValue: initialRange.end)
@@ -41,98 +73,115 @@ struct ExportScreen: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                rangeSection
-                formatSection
-                previewSection
-                shareSection
-            }
-            .navigationTitle("Export")
-            // A screen the UI tests wait for. The title beside it is translated.
-            .accessibilityIdentifier("screen-export")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+            form
+                .navigationTitle("Export")
+                // A screen the UI tests wait for. The title beside it is translated.
+                .accessibilityIdentifier(selectedSite == nil ? "screen-export" : "screen-site-export")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Done") { dismiss() }
+                    }
                 }
-            }
-            .task {
-                // Clear anything a previous export left in the temporary
-                // directory before writing a new file into it.
-                ExportFileFactory.clearPreviousExports()
-                rangeKind = settingsStore.settings.export.defaultRange
-                regenerate()
-            }
-            .onChange(of: regenerationKey) { _, _ in regenerate() }
-            // A new name is a rename, not a re-export: the file already on
-            // disk is the right one, and rebuilding it per keystroke is work
-            // that arrives back where it started.
-            .onChange(of: fileBaseName) { _, newName in
-                guard let url = fileURL else { return }
-                fileURL = (try? ExportFileFactory.rename(url, to: newName)) ?? url
-            }
-            .paywall(for: $paywallReason)
+                .safeAreaInset(edge: .bottom) {
+                    ExportShareBar(
+                        format: format,
+                        state: shareState,
+                        onLocked: { paywallReason = .fileExport },
+                        onNeedsName: askForName
+                    )
+                }
+                .task {
+                    // Clear anything a previous export left in the temporary
+                    // directory before writing a new file into it.
+                    ExportFileFactory.clearPreviousExports()
+                    rangeKind = settings.export.defaultRange
+                    regenerate()
+                }
+                .onChange(of: regenerationKey) { _, _ in regenerate() }
+                // A new name is a rename, not a re-export: the file already on
+                // disk is the right one, and rebuilding it per keystroke is work
+                // that arrives back where it started.
+                .onChange(of: fileBaseName) { _, newName in
+                    guard let url = fileURL else { return }
+                    fileURL = (try? ExportFileFactory.rename(url, to: newName)) ?? url
+                }
+                .alert("Your name on the sheet", isPresented: $asksForName) {
+                    TextField("Name and surname", text: $typedName)
+                        .textInputAutocapitalization(.words)
+                    Button("Save") { saveName() }
+                    Button("Not now", role: .cancel) { nameAnswered = true }
+                } message: {
+                    nameMessage
+                }
+                .sheet(isPresented: $showsFullPage) {
+                    ExportFullPageSheet(data: pdfData ?? Data())
+                }
+                .paywall(for: $paywallReason)
         }
     }
 
     // MARK: - Sections
 
-    private var rangeSection: some View {
-        Section {
-            Picker("Range", selection: $rangeKind) {
-                ForEach(ExportRangeKind.allCases) { kind in
-                    Text(kind.title).tag(kind)
-                }
+    private var form: some View {
+        Form {
+            if !pickableSites.isEmpty {
+                ExportTargetPicker(target: $target, sites: pickableSites)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
             }
-            .pickerStyle(.segmented)
-
-            if rangeKind == .custom {
-                DatePicker("From", selection: dateBinding($customStart), displayedComponents: .date)
-                DatePicker("To", selection: dateBinding($customEnd), displayedComponents: .date)
+            if let site = selectedSite {
+                siteMonthSection(site)
             } else {
-                LabeledContent(rangeKind.title) {
-                    Text(rangeDescription)
-                        .foregroundStyle(.secondary)
-                }
+                ExportRangeSection(
+                    rangeKind: $rangeKind,
+                    customStart: dateBinding($customStart),
+                    customEnd: dateBinding($customEnd),
+                    description: rangeDescription,
+                    footer: "\(dayCountText) · \(entryCountText)"
+                )
             }
-        } header: {
-            Text("Range")
-        } footer: {
-            Text("\(dayCountText) · \(entryCountText)")
+            previewSection
+            Section {
+                ExportFormatCards(selection: $format)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
+            nameSection
+            if selectedSite == nil {
+                fileSection
+            }
         }
     }
 
-    private var formatSection: some View {
+    private func siteMonthSection(_ site: Site) -> some View {
         Section {
-            Picker("Format", selection: $format) {
-                // Plain text, not labels: a segmented control shows one or the
-                // other, and the words are what identify a file format.
-                ForEach(ExportFormat.allCases) { option in
-                    Text(option.title).tag(option)
-                }
-            }
-            .pickerStyle(.segmented)
-        } header: {
-            Text("Format")
-        } footer: {
-            Text(format.explanation)
+            ExportMonthStepper(
+                month: monthBinding,
+                latest: currentMonth,
+                title: formatting.monthTitle(month),
+                caption: siteCaption
+            )
         }
     }
 
     @ViewBuilder
     private var previewSection: some View {
         Section("Preview") {
-            if let previewTable, !previewTable.isEmpty {
-                ExportPreviewTable(table: previewTable, rowLimit: 12)
-                    .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
-                if previewTable.rows.count > 12 {
-                    Text(String(
-                            localized: "Showing the first 12 of \(previewTable.rows.count) rows.",
-                            comment: "Under the export preview when the range is longer than the preview"
-                        ))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            if let tables, tables.hasContent {
+                if format == .pdf {
+                    ExportPagePreview(image: pageImage) { showsFullPage = pdfData != nil }
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                } else {
+                    tablePreview(tables.preview)
                 }
+            } else if selectedSite != nil {
+                ContentUnavailableView(
+                    "Nothing recorded this month",
+                    systemImage: "tray",
+                    description: Text("Choose another month to see its days.")
+                )
             } else {
                 ContentUnavailableView(
                     "Nothing in this range",
@@ -143,58 +192,68 @@ struct ExportScreen: View {
         }
     }
 
+    /// The table the workbook or the CSV will hold. A site's month is shown
+    /// whole — never more than 31 days, and a director's sheet missing its
+    /// last week is not a preview of it — and a timesheet's first dozen days.
     @ViewBuilder
-    private var shareSection: some View {
+    private func tablePreview(_ table: ReportTable) -> some View {
+        let limit = table.kind == .siteSheet ? 31 : 12
+        ExportPreviewTable(table: table, rowLimit: limit)
+            .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
+        if table.kind == .timesheet && table.rows.count > limit {
+            Text(String(
+                    localized: "Showing the first 12 of \(table.rows.count) rows.",
+                    comment: "Under the export preview when the range is longer than the preview"
+                ))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var nameSection: some View {
+        Section {
+            ExportNameRow(name: ownerName) {
+                typedName = ownerName
+                asksForName = true
+            }
+        } footer: {
+            if !subscriptions.allows(.fileExport) {
+                if selectedSite == nil {
+                    Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
+                } else {
+                    Text("The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.")
+                }
+            }
+        }
+    }
+
+    private var fileSection: some View {
         Section {
             HStack {
                 TextField(suggestedFileName, text: fileNameBinding)
                     .autocorrectionDisabled()
                     .submitLabel(.done)
-                Text(".\(format.fileExtension)")
+                Text(verbatim: ".\(format.fileExtension)")
                     .foregroundStyle(.secondary)
                     .monospaced()
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("File name")
 
-            if !subscriptions.allows(.fileExport) {
-                // Stopped at the file, not at the door. Everything above —
-                // the range, the columns, the preview — is what the person
-                // needs in order to know what they would be buying.
-                Button {
-                    paywallReason = .fileExport
-                } label: {
-                    Label("Share timesheet", systemImage: "square.and.arrow.up")
-                        .frame(maxWidth: .infinity)
-                }
-                .proLock(true)
-            } else if let fileURL {
-                ShareLink(item: fileURL) {
-                    Label(String(
-                    localized: "Share \(fileURL.lastPathComponent)",
-                    comment: "The share button; the value is a file name"
-                ), systemImage: "square.and.arrow.up")
-                        .frame(maxWidth: .infinity)
-                }
-                .disabled(previewTable?.isEmpty ?? true)
-            } else if let failureMessage {
-                Label(failureMessage, systemImage: "exclamationmark.triangle")
-                    .foregroundStyle(Color.hoursNegative)
-                    .font(.footnote)
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-            }
-
             NavigationLink {
                 ExportSettingsScreen()
             } label: {
                 Label("Export options", systemImage: "slider.horizontal.3")
             }
-        } footer: {
-            if !subscriptions.allows(.fileExport) {
-                Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
-            }
+        }
+    }
+
+    @ViewBuilder
+    private var nameMessage: some View {
+        if selectedSite == nil {
+            Text("Printed on every sheet you export, and kept in Settings › Export options.")
+        } else {
+            Text("Printed above your column instead of “You”, and kept in Settings › Export options.")
         }
     }
 
@@ -203,6 +262,56 @@ struct ExportScreen: View {
     private var settings: AppSettings { settingsStore.settings }
     private var calendar: Calendar { settingsStore.workCalendar }
     private var formatting: CalendarFormatting { settingsStore.dateFormatting }
+    private var currentMonth: YearMonth { CalendarDate.today(in: calendar).yearMonth }
+    private var ownerName: String { settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    /// For display only, so a duplicate row left by sync just means the first
+    /// of the two is shown; `SiteRepository` collapses it on the next read.
+    private var allSites: [Site] {
+        var seen = Set<UUID>()
+        return siteEntries.map(\.site).filter { seen.insert($0.id).inserted }
+    }
+
+    /// The active sites, and the one the screen was opened from even if it
+    /// has been archived since.
+    private var pickableSites: [Site] {
+        allSites.filter { !$0.isArchived || $0.id == initialTarget.siteID }
+    }
+
+    private var selectedSite: Site? {
+        guard let id = target.siteID else { return nil }
+        return allSites.first { $0.id == id }
+    }
+
+    private var month: YearMonth { siteMonth ?? currentMonth.adding(months: -1) }
+
+    private var monthBinding: Binding<YearMonth> {
+        Binding(get: { month }, set: { siteMonth = $0 })
+    }
+
+    /// "21 days · 5 people", read off the sheet itself.
+    private var siteCaption: String {
+        guard let table = tables?.preview, table.kind == .siteSheet, tables?.hasContent == true else { return "" }
+        let days = table.rows.count - table.trailingSummaryRows
+        let people = max(table.validGroups.count - 2, 0)
+        // Two counts joined rather than one sentence: each agrees with its
+        // own number, and the dot between them needs no translating.
+        return [
+            String(inflected: "^[\(days) day](inflect: true)"),
+            String(inflected: "^[\(people) person](inflect: true)")
+        ].joined(separator: " · ")
+    }
+
+    private var needsName: Bool { !nameAnswered && ownerName.isEmpty }
+
+    private var shareState: ExportShareState {
+        guard let tables, tables.hasContent else { return tables == nil ? .preparing : .empty }
+        if !subscriptions.allows(.fileExport) { return .locked }
+        if needsName { return .needsName }
+        if let fileURL { return .ready(fileURL) }
+        if let failureMessage { return .failed(failureMessage) }
+        return .preparing
+    }
 
     private var resolvedRange: CalendarDateRange {
         switch rangeKind {
@@ -227,61 +336,22 @@ struct ExportScreen: View {
     }
 
     private var entryCountText: String {
-        let count = previewTable?.rows.filter(\.hasEntry).count ?? 0
+        let count = tables?.preview.rows.filter(\.hasEntry).count ?? 0
         return String(
             localized: "\(count) with hours recorded",
             comment: "How many days in the range actually have hours on them"
         )
     }
 
-    /// The language the file is written in. The preview on screen is the
-    /// file, so it follows it too — seeing an English preview and sharing a
-    /// German document would be the preview lying about its own subject.
-    private var exportLanguage: ExportLanguage { settings.export.language }
-
-    /// Months and weekdays inside the report's own title come from the export
-    /// language; everything else on this screen stays in the app's.
-    private var exportFormatting: CalendarFormatting {
-        CalendarFormatting(locale: exportLanguage.locale, calendar: calendar)
+    private var exportNaming: ExportNaming {
+        ExportNaming(settings: settings, calendar: calendar)
     }
 
-    private var reportTitle: String {
-        let word = exportLanguage(.hours)
-        switch rangeKind {
-        case .day: return "\(word) — \(exportFormatting.mediumDate(anchor))"
-        case .week: return "\(word) — \(exportLanguage(.weekOf)) \(exportFormatting.mediumDate(resolvedRange.start))"
-        case .month: return "\(word) — \(exportFormatting.monthTitle(anchor.yearMonth))"
-        case .year: return "\(word) — \(anchor.year)"
-        case .custom:
-            let range = resolvedRange
-            let described = range.start == range.end
-                ? exportFormatting.mediumDate(range.start)
-                : "\(exportFormatting.mediumDate(range.start)) – \(exportFormatting.mediumDate(range.end))"
-            return "\(word) — \(described)"
-        }
-    }
-
-    /// What the file is called when nobody has said otherwise.
-    ///
-    /// Led by the person's name when they have given one, because a folder of
-    /// timesheets from several people sorts by whose they are before it sorts
-    /// by when.
+    /// The file's name when nobody has typed one: a timesheet's follows its
+    /// range, a site's is the site and the month.
     private var suggestedFileName: String {
-        let range = resolvedRange
-        let period: String
-        switch rangeKind {
-        case .day: period = "\(range.start)"
-        case .month: period = String(format: "%04d-%02d", range.start.year, range.start.month)
-        case .year: period = "\(range.start.year)"
-        default: period = "\(range.start) to \(range.end)"
-        }
-
-        let name = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let word = exportLanguage(.hours)
-        // A plain hyphen, not an em dash: the sanitiser replaces anything a
-        // file name cannot hold, and the field should show the name the file
-        // will actually be given.
-        return name.isEmpty ? "\(word) \(period)" : "\(name) - \(word) \(period)"
+        if let site = selectedSite { return exportNaming.siteFileName(site, month: month) }
+        return exportNaming.timesheetFileName(rangeKind: rangeKind, range: resolvedRange)
     }
 
     /// Typing marks the name as the person's own; clearing the field hands it
@@ -300,13 +370,17 @@ struct ExportScreen: View {
     }
 
     private var fileBaseName: String {
+        guard selectedSite == nil else { return suggestedFileName }
         let typed = fileName.trimmingCharacters(in: .whitespaces)
         return typed.isEmpty ? suggestedFileName : typed
     }
 
-    /// Everything that changes what the file contains.
+    /// Everything that changes what the file contains, or whether one is
+    /// written yet.
     private var regenerationKey: String {
-        "\(resolvedRange.start.key)-\(resolvedRange.end.key)-\(format.rawValue)-\(settings.export.hashValue)"
+        let range = resolvedRange
+        let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
+        return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -321,49 +395,50 @@ struct ExportScreen: View {
     private func regenerate() {
         if !fileNameEdited { fileName = suggestedFileName }
 
-        let repository = WorkdayRepository(context: modelContext)
-        let range = resolvedRange
-        let holidays = repository.holidayRules()
-        let engine = PeriodEngine(settings: settings, calendar: calendar)
-        let days = engine.days(in: range, records: repository.records(in: range), holidays: holidays)
-        let opening = carriedBalance(before: range, repository: repository, holidays: holidays, engine: engine)
-
-        // Two builds of the same table: files want empty cells, the preview
-        // reads better with a dash.
-        let today = CalendarDate.today(in: calendar)
-        let fileTable = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
-            .makeTable(
-                days: days,
-                range: range,
-                title: reportTitle,
-                openingBalanceMinutes: opening,
-                countingThrough: today
+        let maker = ExportTableMaker(context: modelContext, settings: settings, calendar: calendar)
+        let built: ExportTables
+        if let site = selectedSite {
+            built = maker.site(site, month: month)
+        } else {
+            built = maker.personal(
+                range: resolvedRange,
+                title: exportNaming.reportTitle(rangeKind: rangeKind, anchor: anchor, range: resolvedRange),
+                period: exportNaming.period(rangeKind: rangeKind, anchor: anchor, range: resolvedRange)
             )
-        previewTable = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
-            .makeTable(
-                days: days,
-                range: range,
-                title: reportTitle,
-                openingBalanceMinutes: opening,
-                countingThrough: today
-            )
+        }
+        tables = built
 
-        // The preview is built for everyone; the file is not. Writing one that
-        // only the paywall stands between would be work done for nothing, and
-        // a copy of the timesheet sitting in the temporary directory.
-        guard subscriptions.allows(.fileExport) else {
+        // The PDF is drawn for the preview whether or not it can be shared:
+        // seeing the page is free. The same bytes become the file.
+        if format == .pdf && built.hasContent {
+            let data = PDFReportRenderer.data(for: built.file)
+            pdfData = data
+            pageImage = ExportPagePreview.thumbnail(of: data)
+        } else {
+            pdfData = nil
+            pageImage = nil
+        }
+
+        // No file for the paywall to stand in front of, none for an empty
+        // range, and none before the name is settled — it would only be
+        // written again with the name in it.
+        guard subscriptions.allows(.fileExport), built.hasContent, !needsName else {
             fileURL = nil
             failureMessage = nil
             return
         }
 
         do {
-            fileURL = try ExportFileFactory.write(
-                table: fileTable,
-                format: format,
-                preferences: settings.export,
-                baseName: fileBaseName
-            )
+            if let pdfData, format == .pdf {
+                fileURL = try ExportFileFactory.write(data: pdfData, format: .pdf, baseName: fileBaseName)
+            } else {
+                fileURL = try ExportFileFactory.write(
+                    table: built.file,
+                    format: format,
+                    preferences: settings.export,
+                    baseName: fileBaseName
+                )
+            }
             failureMessage = nil
         } catch {
             fileURL = nil
@@ -374,31 +449,16 @@ struct ExportScreen: View {
         }
     }
 
-    /// The balance carried into the range, so a running-balance column starts
-    /// from the truth rather than from zero.
-    private func carriedBalance(
-        before range: CalendarDateRange,
-        repository: WorkdayRepository,
-        holidays: [HolidayRule],
-        engine: PeriodEngine
-    ) -> Int {
-        let opening = settings.openingBalanceMinutes
-        guard settings.effectiveExportColumns.contains(.cumulativeBalance) else { return opening }
+    private func askForName() {
+        typedName = ""
+        asksForName = true
+    }
 
-        let earliest = settings.balanceStartDate ?? repository.recordedDateBounds()?.first
-        guard let earliest, earliest < range.start else { return opening }
-
-        let priorRange = CalendarDateRange(start: earliest, end: range.start.adding(days: -1, in: calendar))
-        let priorDays = engine.days(
-            in: priorRange,
-            records: repository.records(in: priorRange),
-            holidays: holidays
-        )
-        return BalanceLedger.cumulative(
-            over: priorDays,
-            openingMinutes: opening,
-            startDate: settings.balanceStartDate,
-            countingThrough: CalendarDate.today(in: calendar)
-        )
+    private func saveName() {
+        let name = typedName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !name.isEmpty {
+            settingsStore.update { $0.export.ownerName = name }
+        }
+        nameAnswered = true
     }
 }
