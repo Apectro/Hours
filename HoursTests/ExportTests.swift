@@ -238,10 +238,10 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("s=\"1\""), "no cell uses the duration format")
         XCTAssertTrue(package.contains("numFmtId=\"164\""), "no duration format is declared")
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""), "no whole-number format")
-        // Seven formats are declared and Style indexes them 0...6; a cell
-        // asking for an eighth renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"16\">"))
-        XCTAssertFalse(package.contains("s=\"16\""), "a cell points past the end of cellXfs")
+        // Twenty-five formats are declared and Style indexes them 0...24; a
+        // cell asking for another renders with nobody's formatting.
+        XCTAssertTrue(package.contains("<cellXfs count=\"25\">"))
+        XCTAssertFalse(package.contains("s=\"25\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are

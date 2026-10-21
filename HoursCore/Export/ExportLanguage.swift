@@ -273,6 +273,75 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           pl: "Suma miesiąca")
         case .you:            return pick(en: "You", de: "Du", hr: "Ti", sl: "Ti", it: "Tu", fr: "Vous",
                                           es: "Tú", pt: "Você", nl: "Jij", pl: "Ty")
+        case .fromTo:         return pick(en: "From–to", de: "Von–bis", hr: "Od–do", sl: "Od–do", it: "Dalle–alle",
+                                          fr: "De–à", es: "De–a", pt: "Das–às", nl: "Van–tot", pl: "Od–do")
+        case .siteHours:      return pick(en: "Site hours", de: "Baustellenstunden", hr: "Sati na gradilištu",
+                                          sl: "Ure na gradbišču", it: "Ore in cantiere", fr: "Heures de chantier",
+                                          es: "Horas de obra", pt: "Horas de obra", nl: "Bouwplaatsuren",
+                                          pl: "Godziny na budowie")
+        case .recordedBy:     return pick(en: "Recorded by", de: "Erfasst von", hr: "Evidenciju vodi",
+                                          sl: "Evidenco vodi", it: "Registrato da", fr: "Saisi par",
+                                          es: "Registrado por", pt: "Registado por", nl: "Bijgehouden door",
+                                          pl: "Prowadzone przez")
+        case .daysOnSite:     return pick(en: "Days on site", de: "Tage auf der Baustelle", hr: "Dani na gradilištu",
+                                          sl: "Dnevi na gradbišču", it: "Giorni in cantiere",
+                                          fr: "Jours sur le chantier", es: "Días en obra", pt: "Dias em obra",
+                                          nl: "Dagen op de bouwplaats", pl: "Dni na budowie")
+        case .crewHours:      return pick(en: "Crew hours", de: "Stunden der Mannschaft", hr: "Sati ekipe",
+                                          sl: "Ure ekipe", it: "Ore della squadra", fr: "Heures de l’équipe",
+                                          es: "Horas de la cuadrilla", pt: "Horas da equipa",
+                                          nl: "Uren van de ploeg", pl: "Godziny ekipy")
+        case .people:         return pick(en: "People", de: "Personen", hr: "Osobe", sl: "Osebe", it: "Persone",
+                                          fr: "Personnes", es: "Personas", pt: "Pessoas", nl: "Personen",
+                                          pl: "Osoby")
+        case .siteLegend:     return pick(
+            en: "Each person: on site – off site, then hours after the break. Orange = came late or left early. "
+                + "— = not on this site that day.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Stunden nach Abzug der Pause. Orange = später gekommen "
+                + "oder früher gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim sati nakon pauze. Narančasto = došao kasnije ili otišao "
+                + "ranije. — = taj dan nije bio na ovom gradilištu.",
+            sl: "Za vsako osebo: prihod – odhod, nato ure po odmoru. Oranžno = prišel pozneje ali odšel prej. "
+                + "— = ta dan ni bil na tem gradbišču.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore al netto della pausa. Arancione = arrivato tardi o "
+                + "uscito prima. — = quel giorno non era in questo cantiere.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures après la pause. Orange = arrivé en retard "
+                + "ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
+            es: "Para cada persona: llegada – salida y después las horas descontada la pausa. Naranja = llegó tarde "
+                + "o se fue antes. — = no estuvo en esta obra ese día.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas descontada a pausa. Laranja = chegou mais tarde "
+                + "ou saiu mais cedo. — = não esteve nesta obra nesse dia.",
+            nl: "Per persoon: aankomst – vertrek, daarna de uren na de pauze. Oranje = later gekomen of eerder "
+                + "vertrokken. — = die dag niet op deze bouwplaats.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem godziny po odjęciu przerwy. Pomarańczowy = przyszedł "
+                + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+        )
+
+        // The printed page around the table
+        case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
+                                          sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
+                                          es: "Hoja de horas", pt: "Folha de horas", nl: "Urenstaat",
+                                          pl: "Karta czasu pracy")
+        case .employeeSignature:
+            return pick(en: "Employee · date, signature", de: "Arbeitnehmer · Datum, Unterschrift",
+                        hr: "Zaposlenik · datum, potpis", sl: "Zaposleni · datum, podpis",
+                        it: "Dipendente · data, firma", fr: "Salarié · date, signature",
+                        es: "Empleado · fecha, firma", pt: "Trabalhador · data, assinatura",
+                        nl: "Werknemer · datum, handtekening", pl: "Pracownik · data, podpis")
+        case .employerSignature:
+            return pick(en: "Employer · date, signature", de: "Arbeitgeber · Datum, Unterschrift",
+                        hr: "Poslodavac · datum, potpis", sl: "Delodajalec · datum, podpis",
+                        it: "Datore di lavoro · data, firma", fr: "Employeur · date, signature",
+                        es: "Empleador · fecha, firma", pt: "Empregador · data, assinatura",
+                        nl: "Werkgever · datum, handtekening", pl: "Pracodawca · data, podpis")
+        case .checkedSignature:
+            return pick(en: "Checked · date, signature", de: "Geprüft · Datum, Unterschrift",
+                        hr: "Provjereno · datum, potpis", sl: "Preverjeno · datum, podpis",
+                        it: "Verificato · data, firma", fr: "Vérifié · date, signature",
+                        es: "Revisado · fecha, firma", pt: "Verificado · data, assinatura",
+                        nl: "Gecontroleerd · datum, handtekening", pl: "Sprawdzono · data, podpis")
+        case .of:             return pick(en: "of", de: "von", hr: "od", sl: "od", it: "di", fr: "sur", es: "de",
+                                          pt: "de", nl: "van", pl: "z")
         }
     }
 
@@ -339,5 +408,8 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case summary, total, name, page, generated, hours, weekOf
 
     /// The director's sheet for a site.
-    case day, monthTotal, you
+    case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
+
+    /// The printed page around the table.
+    case timesheet, employeeSignature, employerSignature, checkedSignature, of
 }
