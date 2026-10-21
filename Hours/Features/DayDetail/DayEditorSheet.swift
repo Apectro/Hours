@@ -20,6 +20,9 @@ struct DayEditorSheet: View {
     @State private var draft: DayRecord
     @State private var storedRecord: DayRecord?
     @State private var hasLoaded = false
+    /// The stored days of this day's week, read once on opening: a day's
+    /// overtime after the contracted week depends on the days before it.
+    @State private var weekRecords: [Int: DayRecord] = [:]
     @State private var isConfirmingDelete = false
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
@@ -44,7 +47,8 @@ struct DayEditorSheet: View {
                 calendar: settingsStore.workCalendar,
                 formatting: settingsStore.dateFormatting,
                 siteNames: siteNames,
-                onOpenSite: { path.append(SiteRoute(siteID: $0)) }
+                onOpenSite: { path.append(SiteRoute(siteID: $0)) },
+                earnings: earnings
             )
             .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
@@ -107,6 +111,17 @@ struct DayEditorSheet: View {
         settingsStore.engine.day(date, record: draft, holidays: holidays)
     }
 
+    /// What the day as drafted earns, while earnings are the main figure.
+    /// The rest of the week is as stored; this day is the draft.
+    private var earnings: DayEarnings? {
+        guard settingsStore.settings.showsEarnings else { return nil }
+        var records = weekRecords
+        records[date.key] = draft
+        return settingsStore.engine
+            .earnings(in: CalendarDateRange(single: date), records: records, holidays: holidays)?
+            .days.first
+    }
+
     private var siteNames: [UUID: String] {
         Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
     }
@@ -142,6 +157,9 @@ struct DayEditorSheet: View {
         hasLoaded = true
         let stored = repository.record(on: date)
         storedRecord = stored
+        if settingsStore.settings.showsEarnings {
+            weekRecords = repository.records(in: settingsStore.engine.earningsRange(covering: CalendarDateRange(single: date)))
+        }
         draft = stored ?? settingsStore.engine.draftRecord(for: date, holidays: holidays)
     }
 

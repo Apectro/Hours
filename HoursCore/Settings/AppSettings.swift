@@ -38,6 +38,14 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Once there are jobs each carries its own; read it through `job(_:)`
     /// rather than from here.
     var primaryBreaksArePaid: Bool
+    /// The primary job's pay while it is synthesised, like
+    /// `primaryBreaksArePaid`. Read it through `job(_:)`.
+    var primaryPay: PayHistory?
+    /// Whether earnings or the hours balance lead, once a rate is set.
+    var mainFigure: MainFigure
+    /// An ISO 4217 code. Nil follows the phone's region, which the engine
+    /// cannot read on every platform it builds on, so the app supplies it.
+    var currencyCode: String?
 
     /// Nudges about days with nothing recorded.
     var reminders: ReminderPreferences
@@ -75,6 +83,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         customDayTypes: [DayTypeDefinition] = [],
         jobs: [Job] = [],
         primaryBreaksArePaid: Bool = false,
+        primaryPay: PayHistory? = nil,
+        mainFigure: MainFigure = .earnings,
+        currencyCode: String? = nil,
         reminders: ReminderPreferences = ReminderPreferences(),
         openingBalanceMinutes: Int = 0,
         balanceStartDate: CalendarDate? = nil,
@@ -94,6 +105,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.customDayTypes = customDayTypes
         self.jobs = jobs
         self.primaryBreaksArePaid = primaryBreaksArePaid
+        self.primaryPay = primaryPay
+        self.mainFigure = mainFigure
+        self.currencyCode = currencyCode
         self.reminders = reminders
         self.openingBalanceMinutes = openingBalanceMinutes
         self.balanceStartDate = balanceStartDate
@@ -163,7 +177,7 @@ struct AppSettings: Hashable, Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case schemaVersion, features, schedule, scheduleVersions, calendar, export, appearance
         case durationPolicy, rounding, displayDurationStyle
-        case customDayTypes, jobs, primaryBreaksArePaid, reminders, openingBalanceMinutes, balanceStartDate
+        case customDayTypes, jobs, primaryBreaksArePaid, primaryPay, mainFigure, currencyCode, reminders, openingBalanceMinutes, balanceStartDate
         case carryOver, yearCloses, monthLock
     }
 
@@ -183,6 +197,11 @@ struct AppSettings: Hashable, Codable, Sendable {
             customDayTypes: container.lenient(.customDayTypes, defaults.customDayTypes),
             jobs: container.lenient(.jobs, defaults.jobs),
             primaryBreaksArePaid: container.lenient(.primaryBreaksArePaid, defaults.primaryBreaksArePaid),
+            // All three absent from settings written before earnings existed,
+            // which read as no rate set: the hours balance, as before.
+            primaryPay: container.lenientOptional(.primaryPay, PayHistory.self),
+            mainFigure: container.lenient(.mainFigure, defaults.mainFigure),
+            currencyCode: container.lenientOptional(.currencyCode, String.self),
             reminders: container.lenient(.reminders, defaults.reminders),
             openingBalanceMinutes: container.lenient(.openingBalanceMinutes, defaults.openingBalanceMinutes),
             balanceStartDate: container.lenientOptional(.balanceStartDate, CalendarDate.self),
@@ -214,6 +233,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(customDayTypes, forKey: .customDayTypes)
         try container.encode(jobs, forKey: .jobs)
         try container.encode(primaryBreaksArePaid, forKey: .primaryBreaksArePaid)
+        try container.encodeIfPresent(primaryPay, forKey: .primaryPay)
+        try container.encode(mainFigure, forKey: .mainFigure)
+        try container.encodeIfPresent(currencyCode, forKey: .currencyCode)
         try container.encode(reminders, forKey: .reminders)
         try container.encode(openingBalanceMinutes, forKey: .openingBalanceMinutes)
         try container.encodeIfPresent(balanceStartDate, forKey: .balanceStartDate)

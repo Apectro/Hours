@@ -147,6 +147,18 @@ struct JobEditor: View {
                     PaidBreaksSection(breaksArePaid: $draft.breaksArePaid)
                 }
 
+                // Its own screen, which saves as the working week does — from
+                // a date — so a job has to exist before it can be paid.
+                if !isNew {
+                    Section {
+                        NavigationLink {
+                            PaySettingsScreen(jobID: draft.id, showsGeneralSettings: false)
+                        } label: {
+                            SettingsRow(title: String(localized: "Pay"), value: paySummary, systemImage: "banknote")
+                        }
+                    }
+                }
+
                 ScheduleHistorySection(
                     history: draft.schedules,
                     today: today,
@@ -205,6 +217,19 @@ struct JobEditor: View {
 
     private var today: CalendarDate { CalendarDate.today(in: settingsStore.workCalendar) }
 
+    /// Read from the store rather than the draft: pay is saved by its own
+    /// screen, and the draft was taken before that.
+    private var paySummary: String {
+        let settings = settingsStore.settings
+        guard let rules = settings.job(draft.id).pay?.value(on: today) else {
+            return String(localized: "Not set")
+        }
+        return String(
+            localized: "\(settings.money.string(rules.hourlyRateCents)) an hour",
+            comment: "Settings, the hourly rate; the value is an amount of money"
+        )
+    }
+
     /// Today's week, edited in place until Save.
     private var editedWeek: Binding<WorkSchedule> {
         Binding(
@@ -244,7 +269,13 @@ struct JobEditor: View {
                 settings.primarySchedules = job.schedules
                 settings.setPrimaryBreaksArePaid(job.breaksArePaid)
             } else {
-                settings.updateJob(id: job.id) { $0 = job }
+                // Pay is saved by its own screen while this sheet is open, so
+                // the stored pay wins over the draft's copy of it.
+                settings.updateJob(id: job.id) { stored in
+                    let pay = stored.pay
+                    stored = job
+                    stored.pay = pay
+                }
             }
         }
         dismiss()

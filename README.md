@@ -63,8 +63,15 @@ them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
 month says its sheet is ready for the director, and opens it.
 
+**Earnings** — set an hourly rate in Settings › Pay and the app leads with what
+you earned rather than the hours balance: overtime at the same rate or with a
+surcharge after your normal day or your week, Saturday, Sunday and holiday and
+night surcharges, and paid days off at the rate. A raise starts from a date, so
+the months before it keep the rate they were worked at. The balance is a setting
+away, and money never appears on a site, its sheet or anywhere about your crew.
+
 **Settings** — the contracted week (hours per weekday, not one number for all of
-them), calculation rules, which fields exist, day types, holidays, calendar
+them), pay, calculation rules, which fields exist, day types, holidays, calendar
 appearance, theme, export options, and backup.
 
 **Export** — CSV, XLSX and PDF, for a day, week, month, year or any custom range,
@@ -100,6 +107,12 @@ Totals for a period in progress stop at today, so the days still to come in this
 month do not read as a growing deficit. A future day you deliberately recorded —
 booked leave, a shift entered in advance — still counts.
 
+Earnings are whole cents worked out from whole minutes: each worked minute pays
+the rate, plus every surcharge that covers it added together, so an hour of
+overtime on a Sunday night pays the rate and the overtime, Sunday and night
+percentages. A day is rounded to the cent once, and a month is exactly the sum of
+its days. Money is never a floating-point number anywhere in the app.
+
 `ARCHITECTURE.md` covers the layering, the data model, the migration strategy and
 the reasoning behind each decision.
 
@@ -128,11 +141,13 @@ Four of them, drawn in the app icon's navy and amber:
 
 - **Today** (small and medium): worked so far against what was expected, in an
   amber ring, with the running clock, its site or job, and when the day is due
-  to end.
-- **This month** (small and medium): the balance, ahead of or behind plan, and a
-  square for each working day of the month — done, short, today, to come.
+  to end — and, with a rate set, what today has earned.
+- **This month** (small and medium): what the month has earned, or the balance,
+  ahead of or behind plan, and a square for each working day of the month —
+  done, short, today, to come.
 - **This week** (medium): the week's total against its target, and a bar for
-  each day starting on your own first weekday.
+  each day starting on your own first weekday, with the week's earnings or the
+  month's balance beneath.
 - **Site** (medium): the site you worked on most recently, whether today is
   written yet, who was there on the last day, and two buttons — **Same as
   yesterday** and **Open site**.

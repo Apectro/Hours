@@ -27,6 +27,11 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     /// for the director's sheet. Never offered for a timesheet, which has a
     /// start and an end column of its own and lets the person choose them.
     case times
+    /// What each day earned, in the currency named in its heading. Never
+    /// offered among the columns to choose: it is added at the end of a
+    /// personal timesheet when Earnings is switched on in Export options, and
+    /// a director's sheet never has it.
+    case earnings
 
     var id: String { rawValue }
 
@@ -58,6 +63,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         case .tags: return .tags
         case .note: return .notes
         case .times: return .fromTo
+        case .earnings: return .earnings
         }
     }
 
@@ -65,12 +71,13 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     /// XLSX when a decimal duration style is selected.
     var isNumeric: Bool {
         switch self {
-        case .worked, .credited, .expected, .overtime, .balance, .cumulativeBalance: return true
+        case .worked, .credited, .expected, .overtime, .balance, .cumulativeBalance, .earnings: return true
         default: return false
         }
     }
 
-    var isDuration: Bool { isNumeric || self == .breakTime }
+    /// An amount of money is a figure but not a length of time.
+    var isDuration: Bool { (isNumeric && self != .earnings) || self == .breakTime }
 
     /// Whether cutting this column's values short is untidy or wrong.
     ///

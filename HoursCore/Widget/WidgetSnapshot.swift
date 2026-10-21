@@ -50,6 +50,10 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     var todayDefaultEnd: TimeOfDay?
     /// The site card, or nil when there is no active site.
     var site: WidgetSite?
+    /// What you earned, present only while earnings are what the app leads
+    /// with — a rate is set and the main figure is earnings — so its presence
+    /// is that choice, and an older file reads as hours.
+    var earnings: WidgetEarnings?
 
     static let empty = WidgetSnapshot(
         generatedAt: .distantPast,
@@ -211,12 +215,42 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         describesDay(of: instant, calendar: calendar) ? todayDefaultEnd : nil
     }
 
+    // MARK: - Earnings
+
+    /// Whether the widgets lead with money rather than the hours balance.
+    var showsEarnings: Bool { earnings != nil }
+
+    /// Today's earnings as recorded — nil when the widgets show hours, and
+    /// nothing yet once the file is about an earlier day. The running clock
+    /// is not in it: what an hour pays depends on surcharges only the app
+    /// works out, so the figure moves when the shift is saved.
+    func todayEarnings(at instant: Date, calendar: Calendar) -> Int? {
+        guard let earnings else { return nil }
+        return describesDay(of: instant, calendar: calendar) ? earnings.todayCents : 0
+    }
+
+    /// The week's earnings, by the same rule as its bars: nothing once the
+    /// week is over.
+    func weekEarnings(at instant: Date, calendar: Calendar) -> Int? {
+        guard let earnings else { return nil }
+        return weekBars(at: instant, calendar: calendar) == nil ? 0 : earnings.weekCents
+    }
+
+    func monthEarnings(at instant: Date, calendar: Calendar) -> Int? {
+        guard let earnings else { return nil }
+        return describesMonth(of: instant, calendar: calendar) ? earnings.monthCents : 0
+    }
+
+    var money: MoneyFormatting? {
+        earnings.map { MoneyFormatting(currencyCode: $0.currencyCode) }
+    }
+
     private enum CodingKeys: String, CodingKey {
         case generatedAt, isClockRunning, clockStartedAt, clockJobName
         case todayWorkedMinutes, todayExpectedMinutes
         case monthWorkedMinutes, monthExpectedMinutes, monthBalanceMinutes
         case showsBalance, unrecordedDayCount, durationStyle, isUnlocked
-        case week, monthMarks, clockSiteName, todayDefaultEnd, site
+        case week, monthMarks, clockSiteName, todayDefaultEnd, site, earnings
     }
 
     init(from decoder: Decoder) throws {
@@ -239,7 +273,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
             monthMarks: container.lenient(.monthMarks, []),
             clockSiteName: container.lenientOptional(.clockSiteName, String.self),
             todayDefaultEnd: container.lenientOptional(.todayDefaultEnd, TimeOfDay.self),
-            site: container.lenientOptional(.site, WidgetSite.self)
+            site: container.lenientOptional(.site, WidgetSite.self),
+            earnings: container.lenientOptional(.earnings, WidgetEarnings.self)
         )
     }
 
@@ -261,7 +296,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         monthMarks: [WidgetDayMark] = [],
         clockSiteName: String? = nil,
         todayDefaultEnd: TimeOfDay? = nil,
-        site: WidgetSite? = nil
+        site: WidgetSite? = nil,
+        earnings: WidgetEarnings? = nil
     ) {
         self.generatedAt = generatedAt
         self.isClockRunning = isClockRunning
@@ -281,5 +317,39 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         self.clockSiteName = clockSiteName
         self.todayDefaultEnd = todayDefaultEnd
         self.site = site
+        self.earnings = earnings
+    }
+}
+
+/// The earnings the widgets show, in cents, worked out by the app's engine.
+struct WidgetEarnings: Codable, Hashable, Sendable {
+    var currencyCode: String
+    var todayCents: Int
+    /// The week of the snapshot's `week`, through today.
+    var weekCents: Int
+    /// The month through today.
+    var monthCents: Int
+
+    init(currencyCode: String, todayCents: Int, weekCents: Int, monthCents: Int) {
+        self.currencyCode = currencyCode
+        self.todayCents = todayCents
+        self.weekCents = weekCents
+        self.monthCents = monthCents
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case currencyCode, todayCents, weekCents, monthCents
+    }
+
+    /// Strict about the currency, which a guess would get wrong, and lenient
+    /// about the figures.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            currencyCode: try container.decode(String.self, forKey: .currencyCode),
+            todayCents: container.lenient(.todayCents, 0),
+            weekCents: container.lenient(.weekCents, 0),
+            monthCents: container.lenient(.monthCents, 0)
+        )
     }
 }

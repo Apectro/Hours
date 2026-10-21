@@ -320,7 +320,10 @@ jobs:
     # account cannot schedule fails the job before any step runs, with no logs
     # to explain why.
     runs-on: macos-latest
-    timeout-minutes: 30
+    # The suite has grown to 25–29 minutes on a clean run; at 30 a single
+    # slow simulator start or failing test was cut off before it could say
+    # which test failed.
+    timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v4

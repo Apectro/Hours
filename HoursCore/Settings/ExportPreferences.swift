@@ -25,6 +25,10 @@ struct ExportPreferences: Hashable, Codable, Sendable {
     /// has no account and does not otherwise know who you are — and an empty
     /// name prints nothing rather than a blank line.
     var ownerName: String
+    /// Whether a personal timesheet carries what each day earned. Off by
+    /// default: a timesheet is usually handed to someone, and what you earn
+    /// is yours to choose to show. The director's sheet never has it.
+    var includeEarnings: Bool
 
     init(
         dateStyle: ExportDateStyle = .iso,
@@ -38,7 +42,8 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         columns: [ReportColumn] = ReportColumn.defaultSelection,
         defaultRange: ExportRangeKind = .month,
         language: ExportLanguage = .device,
-        ownerName: String = ""
+        ownerName: String = "",
+        includeEarnings: Bool = false
     ) {
         self.dateStyle = dateStyle
         self.timeStyle = timeStyle
@@ -52,12 +57,13 @@ struct ExportPreferences: Hashable, Codable, Sendable {
         self.defaultRange = defaultRange
         self.language = language
         self.ownerName = ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.includeEarnings = includeEarnings
     }
 
     private enum CodingKeys: String, CodingKey {
         case dateStyle, timeStyle, durationStyle, fieldSeparator, decimalSeparator
         case includeByteOrderMark, includeSummaryRows, includeEmptyDays, columns, defaultRange
-        case ownerName, language
+        case ownerName, language, includeEarnings
     }
 
     init(from decoder: Decoder) throws {
@@ -75,7 +81,8 @@ struct ExportPreferences: Hashable, Codable, Sendable {
             columns: container.lenient(.columns, defaults.columns),
             defaultRange: container.lenient(.defaultRange, defaults.defaultRange),
             language: container.lenient(.language, defaults.language),
-            ownerName: container.lenient(.ownerName, defaults.ownerName)
+            ownerName: container.lenient(.ownerName, defaults.ownerName),
+            includeEarnings: container.lenient(.includeEarnings, defaults.includeEarnings)
         )
     }
 }

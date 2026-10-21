@@ -202,8 +202,9 @@ struct WorkdayCalculator: Sendable {
                 warnings.append(.zeroLengthShift)
             }
 
+            var timedBreaks: [Range<Int>] = []
             let breakTotal = settings.features.trackBreaks
-                ? breakMinutes(shift: shift, start: start, grossMinutes: gross, warnings: &warnings)
+                ? breakMinutes(shift: shift, start: start, grossMinutes: gross, timed: &timedBreaks, warnings: &warnings)
                 : 0
 
             if breakTotal > gross && gross > 0 && !warnings.contains(.breakLongerThanShift) {
@@ -227,7 +228,8 @@ struct WorkdayCalculator: Sendable {
                     workedMinutes: worked,
                     breakMinutes: breakTotal,
                     crossesMidnight: crossesMidnight,
-                    jobID: shift.jobID
+                    jobID: shift.jobID,
+                    timedBreaks: timedBreaks
                 )
             )
         }
@@ -303,11 +305,12 @@ struct WorkdayCalculator: Sendable {
 
     /// Total break time, with timed breaks normalised into shift-relative
     /// minutes, clipped to the shift, and merged so overlaps are not deducted
-    /// twice.
+    /// twice. The timed ones also come back in `timed`, where they fell.
     func breakMinutes(
         shift: Shift,
         start: TimeOfDay,
         grossMinutes: Int,
+        timed: inout [Range<Int>],
         warnings: inout [DayWarning]
     ) -> Int {
         var intervals: [(Int, Int)] = []
@@ -345,6 +348,8 @@ struct WorkdayCalculator: Sendable {
         let merged = WorkdayCalculator.merge(intervals)
         if merged.count < intervals.count { warnings.append(.overlappingBreaksMerged) }
         let timedTotal = merged.reduce(0) { $0 + ($1.1 - $1.0) }
+        // The earnings need to know which minutes of a night were a break.
+        timed = merged.map { $0.0..<$0.1 }
 
         return max(0, timedTotal + explicitTotal)
     }

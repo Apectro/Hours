@@ -52,7 +52,7 @@ struct StatisticsScreen: View {
 
                     periodStepper
 
-                    PeriodDataProvider(range: range) { data in
+                    PeriodDataProvider(range: fetchedRange) { data in
                         StatisticsContent(
                             range: range,
                             scope: scope,
@@ -83,6 +83,15 @@ struct StatisticsScreen: View {
 
     private var calendar: Calendar { settingsStore.workCalendar }
     private var range: CalendarDateRange { scope.range(around: anchor, in: calendar) }
+
+    /// The whole weeks around the period, which earnings need: overtime
+    /// after the contracted week is counted from the week's first day.
+    private var fetchedRange: CalendarDateRange {
+        CalendarDateRange(
+            start: CalendarDateRange.week(containing: range.start, in: calendar).start,
+            end: CalendarDateRange.week(containing: range.end, in: calendar).end
+        )
+    }
 
     private var periodStepper: some View {
         HStack {

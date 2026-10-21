@@ -8,6 +8,8 @@ struct PeriodSummaryBar: View {
     let summary: PeriodSummary
     let settings: AppSettings
     let catalog: DayTypeCatalog
+    /// When set, what was earned takes the balance's place.
+    var earnings: EarningsSummary? = nil
 
     private var formatting: DurationFormatting { settings.displayFormatting }
 
@@ -22,7 +24,14 @@ struct PeriodSummaryBar: View {
                         : nil
                 )
 
-                if settings.features.showsBalance {
+                if let earnings {
+                    Divider().frame(height: 34)
+                    StatTile(
+                        label: String(localized: "Earned"),
+                        value: settings.money.string(earnings.totalCents, showsCents: false),
+                        caption: earnedCaption
+                    )
+                } else if settings.features.showsBalance {
                     Divider().frame(height: 34)
                     StatTile(
                         label: String(localized: "Balance"),
@@ -47,6 +56,16 @@ struct PeriodSummaryBar: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    /// The balance, small, under the money, for someone who still wants it
+    /// at a glance.
+    private var earnedCaption: String? {
+        guard settings.features.showsBalance else { return nil }
+        return String(
+            localized: "balance \(formatting.signedString(summary.balanceMinutes))",
+            comment: "Under the month's earnings; the value is the hours balance"
+        )
     }
 
     private var balanceCaption: String? {

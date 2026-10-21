@@ -36,7 +36,16 @@ struct WeekWidgetView: View {
                 if entry.hasData {
                     totals
                     Spacer(minLength: 4)
-                    if snapshot.showsBalance {
+                    if let earned = snapshot.weekEarnings(at: entry.date, calendar: calendar), let money = snapshot.money {
+                        WidgetChip(
+                            text: String(
+                                localized: "\(money.string(earned, showsCents: false)) this week",
+                                comment: "Widget, the week's earnings in a chip"
+                            ),
+                            foreground: WidgetPalette.amber,
+                            background: WidgetPalette.amber.opacity(0.18)
+                        )
+                    } else if snapshot.showsBalance {
                         WidgetChip(
                             text: String(
                                 localized: "\(snapshot.formatting.signedString(monthBalance)) month",

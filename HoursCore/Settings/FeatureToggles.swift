@@ -72,6 +72,8 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             case .job: return true
             // The director's sheet's own column; a timesheet has start and end.
             case .times: return false
+            // Added by the earnings switch, never chosen; see `ReportColumn`.
+            case .earnings: return false
             default: return true
             }
         }
