@@ -175,7 +175,15 @@ struct SiteSheetBuilder: Sendable {
             ReportTile(label: language(.crewHours), value: duration.string(crewMinutes)),
             ReportTile(label: language(.people), value: "\(people.count)")
         ]
-        table.legend = language(.siteLegend)
+        // "Hours after the break" is only true where the break is unpaid. A
+        // site follows the job frozen on each day, so a month can hold both.
+        let payRule = WorkdayCalculator(settings: settings, calendar: calendar)
+        let paid = Set(byDate.values.map { payRule.breaksArePaid(forJob: $0.day.jobID) })
+        switch paid {
+        case [true]: table.legend = language(.siteLegendPaidBreaks)
+        case [true, false]: table.legend = language(.siteLegendMixedBreaks)
+        default: table.legend = language(.siteLegend)
+        }
         table.signatures = [language(.checkedSignature)]
         return table
     }

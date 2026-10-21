@@ -222,6 +222,50 @@ final class SiteSheetTests: XCTestCase {
         XCTAssertTrue(t.legend.hasPrefix("Each person: on site – off site"), t.legend)
     }
 
+    // MARK: - Legend and paid breaks
+
+    private let paidJobID = UUID(uuidString: "00000000-0000-4000-8000-0000000000DD")!
+
+    /// The primary job keeps its breaks unpaid; a second job pays them.
+    private func settingsWithAPaidJob() -> AppSettings {
+        var settings = settings()
+        settings.jobs = [
+            Job(id: Job.primaryID, name: "Main", breaksArePaid: false, sortOrder: 0),
+            Job(id: paidJobID, name: "Builder", breaksArePaid: true, sortOrder: 1)
+        ]
+        return settings
+    }
+
+    private func onPaidJob(_ siteDay: SiteDay) -> SiteDay {
+        var siteDay = siteDay
+        siteDay.jobID = paidJobID
+        return siteDay
+    }
+
+    func testTheLegendSaysAfterTheBreakWhenBreaksAreUnpaid() {
+        let t = table(crew: [], days: [day(3, present: [CrewMember.youID])], settings: settingsWithAPaidJob())
+        XCTAssertEqual(t.legend, ExportLanguage.english(.siteLegend))
+    }
+
+    func testTheLegendSaysTheBreakIsIncludedWhenEveryDayPaysIt() {
+        let t = table(
+            crew: [],
+            days: [onPaidJob(day(3, present: [CrewMember.youID])), onPaidJob(day(4, present: [CrewMember.youID]))],
+            settings: settingsWithAPaidJob()
+        )
+        XCTAssertEqual(t.legend, ExportLanguage.english(.siteLegendPaidBreaks))
+        XCTAssertEqual(t.rows[0].minutes[2], 540, "07:00–16:00 with the break paid is nine hours")
+    }
+
+    func testTheLegendStaysNeutralWhenAMonthMixesPaidAndUnpaidDays() {
+        let t = table(
+            crew: [],
+            days: [onPaidJob(day(3, present: [CrewMember.youID])), day(4, present: [CrewMember.youID])],
+            settings: settingsWithAPaidJob()
+        )
+        XCTAssertEqual(t.legend, ExportLanguage.english(.siteLegendMixedBreaks))
+    }
+
     func testWithoutANameTheBylineLeavesOutWhoRecordedIt() {
         let t = table(crew: [], days: [day(3, present: [CrewMember.youID])], settings: settings(owner: ""))
         XCTAssertEqual(t.byline, "1 person · 1 day on site")
