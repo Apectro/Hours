@@ -114,6 +114,99 @@ final class AuditDayTests: XCTestCase {
             XCTAssertEqual(day.breakMinutes, inside, "shift \(start)+\(length), break \(breakStart)+\(breakLength)")
         }
     }
+
+    /// Paid breaks: worked is the whole shift, the break is still reported.
+    func testAPaidBreakIsReportedButNotDeductedForAnyShift() {
+        var settings = Fixture.settings()
+        settings.primaryBreaksArePaid = true
+        var generator = SeededGenerator(seed: 0xB4E4)
+        for _ in 0..<500 {
+            let start = Int.random(in: 0..<1440, using: &generator)
+            let length = Int.random(in: 1..<1440, using: &generator)
+            let breakMinutes = Int.random(in: 0...120, using: &generator)
+            let day = compute(
+                Fixture.record(
+                    on: Fixture.workingTuesday,
+                    start: TimeOfDay(minutes: start),
+                    end: TimeOfDay(minutes: (start + length) % 1440),
+                    breaks: [.duration(breakMinutes)]
+                ),
+                settings: settings
+            )
+            XCTAssertEqual(day.workedMinutes, length)
+            XCTAssertEqual(day.breakMinutes, breakMinutes)
+        }
+    }
+
+    /// Two jobs on one day, one paying for breaks and one not: each shift
+    /// follows its own job and the day is their sum.
+    func testASplitDayAcrossAPaidAndAnUnpaidJobAddsEachShiftByItsOwnRule() {
+        var settings = Fixture.settings()
+        let paying = Job(name: "Paying", breaksArePaid: true)
+        settings.addJob(paying)
+        let record = DayRecord(
+            date: Fixture.workingTuesday,
+            shifts: [
+                Shift(start: Fixture.time(7), end: Fixture.time(12), breaks: [.duration(30)], jobID: Job.primaryID),
+                Shift(start: Fixture.time(13), end: Fixture.time(17), breaks: [.duration(15)], jobID: paying.id)
+            ]
+        )
+        let day = compute(record, settings: settings)
+        XCTAssertEqual(day.workedMinutes, (5 * 60 - 30) + 4 * 60)
+        XCTAssertEqual(day.breakMinutes, 45)
+        XCTAssertEqual(day.shifts.map(\.workedMinutes).reduce(0, +), day.workedMinutes)
+    }
+
+    // MARK: - Absence and manual figures
+
+    /// The balance identity from ARCHITECTURE.md, for every built-in day type
+    /// on a weekday and a weekend, with and without time worked.
+    func testTheBalanceIsPaidLessExpectedPlusAdjustmentForEveryDayType() {
+        var features = FeatureToggles()
+        features.allowManualAdjustments = true
+        let settings = Fixture.settings(features: features)
+        for type in DayTypeCatalog.standard.all.map(\.id) {
+            for date in [Fixture.workingTuesday, Fixture.saturday] {
+                for worked in [false, true] {
+                    var record = Fixture.record(
+                        on: date,
+                        start: worked ? Fixture.time(9) : nil,
+                        end: worked ? Fixture.time(11) : nil,
+                        type: type
+                    )
+                    record.adjustmentMinutes = 7
+                    let day = compute(record, settings: settings)
+                    XCTAssertEqual(
+                        day.balanceMinutes,
+                        day.workedMinutes + day.creditedMinutes - day.expectedMinutes + 7,
+                        "\(type) on \(date)"
+                    )
+                    if day.dayType.expectation == .creditedAbsence {
+                        XCTAssertEqual(day.creditedMinutes, day.expectedMinutes, "\(type) on \(date)")
+                    } else {
+                        XCTAssertEqual(day.creditedMinutes, 0, "\(type) on \(date)")
+                    }
+                }
+            }
+        }
+    }
+
+    /// Rounding is applied to the day's total once, never to a negative.
+    func testRoundingIsAppliedToTheDayTotal() {
+        for (rule, raw, expected) in [
+            (RoundingRule.nearestQuarterHour, 7 * 60 + 52, 7 * 60 + 45),
+            (.nearestQuarterHour, 7 * 60 + 53, 8 * 60),
+            (.nearestFiveMinutes, 7 * 60 + 57, 7 * 60 + 55),
+            (.nearestFiveMinutes, 7 * 60 + 58, 8 * 60),
+            (.exact, 7 * 60 + 58, 7 * 60 + 58)
+        ] {
+            let day = compute(
+                Fixture.record(on: Fixture.workingTuesday, start: Fixture.time(8), end: TimeOfDay(minutes: 8 * 60 + raw)),
+                settings: Fixture.settings(rounding: rule)
+            )
+            XCTAssertEqual(day.workedMinutes, expected, "\(rule) of \(raw)")
+        }
+    }
 }
 
 /// A small deterministic generator, so a failing property names a case that

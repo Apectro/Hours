@@ -135,4 +135,81 @@ final class AuditExportTests: XCTestCase {
         let carried = table.totals.first { $0.label == settings.export.language(.carriedForward) }
         XCTAssertEqual(carried?.minutes, 120 + summary.balanceMinutes)
     }
+
+    // MARK: - Every place a figure is printed agrees
+
+    /// The tiles, the total row and the summary block are three printings of
+    /// one summary, in every duration style; the CSV prints the summary block.
+    func testTilesTotalRowAndSummaryBlockAgreeInEveryStyle() {
+        for style in DurationStyle.allCases {
+            let (table, summary, settings) = monthInProgress(durationStyle: style)
+            let format = DurationFormatting.export(style: style, decimalSeparator: ".")
+            let language = settings.export.language
+
+            func tile(_ key: ExportTerm) -> String? { table.tiles.first { $0.label == language(key) }?.value }
+            func total(_ key: ExportTerm) -> ReportTotal? { table.totals.first { $0.label == language(key) } }
+            let row = table.totalRow!
+            func cell(_ column: ReportColumn) -> String { row.values[table.columns.firstIndex(of: column)!] }
+
+            XCTAssertEqual(tile(.worked), format.string(summary.workedMinutes), "\(style)")
+            XCTAssertEqual(tile(.expected), format.string(summary.expectedMinutes), "\(style)")
+            XCTAssertEqual(tile(.balance), format.signedString(summary.balanceMinutes), "\(style)")
+            XCTAssertEqual(tile(.daysWorked), "\(summary.daysWorked)")
+
+            XCTAssertEqual(total(.totalWorked)?.minutes, summary.workedMinutes)
+            XCTAssertEqual(total(.totalExpected)?.minutes, summary.expectedMinutes)
+            XCTAssertEqual(total(.balance)?.minutes, summary.balanceMinutes)
+            XCTAssertEqual(total(.paidAbsence)?.minutes, summary.creditedMinutes)
+            XCTAssertEqual(total(.totalPaid)?.minutes, summary.paidMinutes)
+            XCTAssertEqual(total(.carriedForward)?.minutes, 60 + summary.balanceMinutes)
+            for item in table.totals {
+                if let minutes = item.minutes {
+                    let printed = [format.string(minutes), format.signedString(minutes)]
+                    XCTAssertTrue(printed.contains(item.value), "\(item.label) \(item.value) in \(style)")
+                }
+            }
+
+            XCTAssertEqual(cell(.worked), tile(.worked))
+            XCTAssertEqual(cell(.expected), tile(.expected))
+            XCTAssertEqual(cell(.balance), tile(.balance))
+            XCTAssertEqual(cell(.cumulativeBalance), total(.carriedForward)?.value)
+
+            let csv = CSVExporter.string(for: table, preferences: settings.export)
+            for item in table.totals {
+                XCTAssertTrue(csv.contains("\(item.label),\(CSVExporter.escape(item.value, separator: ","))"), "\(item.label) in \(style)")
+            }
+        }
+    }
+
+    /// Decimal hours are rounded once, at the total, rather than summed from
+    /// rounded cells. Twenty days of 7:50 are 7.83 each, which add up to
+    /// 156.60 — but the month is 156 h 40 m, and the total says 156.67. The
+    /// file is right and a hand-added column is 0.07 out; recorded here so
+    /// the choice is deliberate rather than discovered.
+    func testDecimalTotalsAreTheRoundedSumNotTheSumOfRoundedCells() {
+        let format = DurationFormatting.export(style: .decimal, decimalSeparator: ".")
+        XCTAssertEqual(format.string(470), "7.83")
+        XCTAssertEqual(format.string(20 * 470), "156.67")
+        // Never more than half a hundredth per row apart.
+        for minutes in 0..<1440 {
+            let cell = Double(format.string(minutes))!
+            XCTAssertLessThanOrEqual(abs(cell - Double(minutes) / 60), 0.005 + 1e-9, "\(minutes)")
+            XCTAssertEqual(XLSXWriter.dayFraction(minutes: minutes) * 1440, Double(minutes), accuracy: 1e-9)
+        }
+    }
+
+    /// The total row's SUMs cover exactly the day rows: from the row under
+    /// the column titles to the last day, never the title or anything after.
+    func testTheWorkbookSumsCoverExactlyTheDayRows() {
+        let (table, _, settings) = monthInProgress()
+        let package = String(
+            decoding: XLSXWriter.data(for: table, preferences: settings.export),
+            as: UTF8.self
+        )
+        let header = (1...80).first { package.contains("<c r=\"A\($0)\" t=\"inlineStr\" s=\"5\">") }!
+        let breaks = XLSXWriter.columnName(table.columns.firstIndex(of: .breakTime)!)
+        XCTAssertTrue(package.contains("<f>SUM(\(breaks)\(header + 1):\(breaks)\(header + table.rows.count))</f>"))
+        XCTAssertTrue(package.contains("<c r=\"A\(header + table.rows.count + 1)\" t=\"inlineStr\" s=\"14\">"),
+                      "the total row is not directly under the last day")
+    }
 }
