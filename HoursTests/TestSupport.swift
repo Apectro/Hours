@@ -46,11 +46,17 @@ enum Fixture {
         WorkdayCalculator(settings: settings, calendar: calendar)
     }
 
+    /// Recording since 2000 unless a test says otherwise, so a day with
+    /// nothing on it is a day short rather than a day before the balance
+    /// started.
+    static let longAgo = CalendarDate(year: 2000, month: 1, day: 1)
+
     static func engine(
         settings: AppSettings = Fixture.settings(),
-        calendar: Calendar = Fixture.calendar()
+        calendar: Calendar = Fixture.calendar(),
+        firstRecorded: CalendarDate? = Fixture.longAgo
     ) -> PeriodEngine {
-        PeriodEngine(settings: settings, calendar: calendar)
+        PeriodEngine(settings: settings, calendar: calendar, firstRecorded: firstRecorded)
     }
 
     static func date(_ year: Int, _ month: Int, _ day: Int) -> CalendarDate {

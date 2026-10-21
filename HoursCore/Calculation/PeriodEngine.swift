@@ -9,32 +9,70 @@ import Foundation
 struct PeriodEngine: Sendable {
     let settings: AppSettings
     let calendar: Calendar
+    /// The earliest day anything was recorded on — a day, a site day — or
+    /// nil when nothing has been. The app reads it from the store; it is an
+    /// input rather than something worked out here because finding it means
+    /// looking at every day ever recorded, and the store can answer that with
+    /// one sorted fetch.
+    let firstRecorded: CalendarDate?
 
     private let calculator: WorkdayCalculator
 
-    init(settings: AppSettings, calendar: Calendar) {
+    init(settings: AppSettings, calendar: Calendar, firstRecorded: CalendarDate?) {
         self.settings = settings
         self.calendar = calendar
+        self.firstRecorded = firstRecorded
         self.calculator = WorkdayCalculator(settings: settings, calendar: calendar)
     }
 
+    /// The first day the balance counts: the start date when one is set,
+    /// otherwise the first day anything was recorded. Nil when there is
+    /// neither, and then no day counts at all.
+    ///
+    /// A start date wins in both directions. Earlier than the first entry, it
+    /// says the days in between were owed — the job began before the app
+    /// did. Later, it says the days before it are settled.
+    var balanceStart: CalendarDate? {
+        settings.balanceStartDate ?? firstRecorded
+    }
+
+    /// `balanceStart`, moved back to any day in `records` that has something
+    /// on it. The first recorded day is read before a save can add an earlier
+    /// one, and a day the person has just written must never be the day that
+    /// is left out.
+    private func balanceStart(covering records: [Int: DayRecord]) -> CalendarDate? {
+        if let explicit = settings.balanceStartDate { return explicit }
+        let earliestHere = records.values.filter { !$0.isBlank }.map(\.date).min()
+        switch (firstRecorded, earliestHere) {
+        case let (first?, here?): return Swift.min(first, here)
+        case let (first, here): return first ?? here
+        }
+    }
+
     /// Every day in the range, in ascending order, whether or not it has an
-    /// entry — a day with no data still has expected hours and still counts.
+    /// entry — a day with no data still has expected hours and still counts,
+    /// from the day the balance starts.
     func days(
         in range: CalendarDateRange,
         records: [Int: DayRecord],
         holidays: [HolidayRule]
     ) -> [DayComputation] {
         let resolver = HolidayResolver(rules: holidays, calendar: calendar, covering: range)
+        let start = balanceStart(covering: records)
         return range.days(in: calendar).map { date in
-            calculator.compute(
+            var day = calculator.compute(
                 record: records[date.key],
                 on: date,
                 holiday: resolver.primaryHoliday(on: date)
             )
+            day.precedesBalanceStart = start.map { date < $0 } ?? true
+            return day
         }
     }
 
+    /// One day on its own, for the day editor and the site screen. Where it
+    /// falls against the balance start is a question about a span, so it is
+    /// not asked here.
     func day(
         _ date: CalendarDate,
         record: DayRecord?,
@@ -103,8 +141,7 @@ struct PeriodEngine: Sendable {
         var expected: [UUID: Int] = [:]
         var daysWorked: [UUID: Set<Int>] = [:]
 
-        for day in days where day.isIncluded {
-            if let countingThrough, day.date > countingThrough, !day.hasEntry { continue }
+        for day in days where day.counts(through: countingThrough) {
 
             for shift in day.shifts where shift.workedMinutes > 0 {
                 let id = shift.jobID ?? Job.primaryID

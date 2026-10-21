@@ -86,6 +86,27 @@ struct WorkdayRepository {
         return (firstDate, lastDate)
     }
 
+    /// The first day anything was recorded on: the earliest day in the
+    /// calendar or on a site. Unless a start date is set, the balance starts
+    /// here, so the weeks before the app was installed are neither short nor
+    /// missing. A site day counts even with you not on it — writing up a
+    /// crew is using the app.
+    ///
+    /// Two sorted fetches of one row each, cheap enough to ask on every
+    /// refresh. Duplicates do not matter to a minimum, so nothing is
+    /// collapsed and nothing is written.
+    func firstRecordedDate() -> CalendarDate? {
+        var day = FetchDescriptor<DayEntry>(sortBy: [SortDescriptor(\DayEntry.dateKey, order: .forward)])
+        day.fetchLimit = 1
+        var site = FetchDescriptor<SiteDayEntry>(sortBy: [SortDescriptor(\SiteDayEntry.dateKey, order: .forward)])
+        site.fetchLimit = 1
+        let keys = [
+            (try? context.fetch(day))?.first?.dateKey,
+            (try? context.fetch(site))?.first?.dateKey,
+        ]
+        return keys.compactMap { $0 }.min().flatMap { CalendarDate(key: $0) }
+    }
+
     // MARK: - Writing days
 
     /// Creates, updates, or deletes the day so that storage always reflects the

@@ -25,7 +25,7 @@ struct WidgetSnapshotWriter {
 
     func snapshot(at instant: Date = Date()) -> WidgetSnapshot {
         let today = CalendarDate.today(in: calendar, now: instant)
-        let engine = PeriodEngine(settings: settings, calendar: calendar)
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
         let holidays = repository.holidayRules()
 
         let month = today.yearMonth.range(in: calendar)

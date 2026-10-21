@@ -62,7 +62,7 @@ final class AdjustmentTests: XCTestCase {
         let settings = Fixture.settings()
         let range = CalendarDateRange(single: Fixture.workingTuesday)
         let record = day(Fixture.workingTuesday, minutes: -600, reason: .payout)
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: [record.date.key: record], holidays: [])
         let table = ReportBuilder(settings: settings, calendar: calendar)
             .makeTable(days: days, range: range, title: "One day", countingThrough: Fixture.date(2026, 12, 31))

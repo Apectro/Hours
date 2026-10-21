@@ -8,6 +8,7 @@ struct StatisticsContent: View {
     let calendar: Calendar
     let formatting: CalendarFormatting
 
+    private let engine: PeriodEngine
     private let days: [DayComputation]
     private let summary: PeriodSummary
     private var duration: DurationFormatting { settings.displayFormatting }
@@ -26,7 +27,8 @@ struct StatisticsContent: View {
         self.calendar = calendar
         self.formatting = formatting
 
-        let engine = PeriodEngine(settings: settings, calendar: calendar)
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
+        self.engine = engine
         let resolved = engine.resolve(
             in: range,
             records: data.records,
@@ -236,7 +238,7 @@ struct StatisticsContent: View {
     @ViewBuilder
     private var jobBreakdown: some View {
         if settings.tracksMultipleJobs {
-            let totals = PeriodEngine(settings: settings, calendar: calendar)
+            let totals = engine
                 .jobTotals(for: days, countingThrough: CalendarDate.today(in: calendar))
             if !totals.isEmpty {
                 SurfaceCard {

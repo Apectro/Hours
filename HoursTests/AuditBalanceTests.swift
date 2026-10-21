@@ -27,7 +27,6 @@ final class AuditBalanceTests: XCTestCase {
     ) -> Int {
         engine.runningBalance(
             through: end,
-            firstRecorded: records.keys.min().flatMap(CalendarDate.init(key:)),
             holidays: [],
             countingThrough: countingThrough,
             records: { range in records.filter { range.dayKeys.contains($0.key) } }
@@ -40,7 +39,7 @@ final class AuditBalanceTests: XCTestCase {
     /// started using the app went in as eight hours short.
     func testClosingAYearCountsFromTheFirstRecordedDayLikeTheRunningBalance() {
         let records = halfYear()
-        let engine = Fixture.engine(calendar: calendar)
+        let engine = Fixture.engine(calendar: calendar, firstRecorded: Fixture.date(2026, 6, 1))
         let workingDays = records.count
 
         let closing = balance(engine, through: Fixture.date(2026, 12, 31), records: records)
@@ -53,7 +52,7 @@ final class AuditBalanceTests: XCTestCase {
         var records = halfYear()
         var settings = Fixture.settings()
         settings.carryOver = CarryOverPolicy(isEnabled: true, capMinutes: 20 * 60, surplusAbove: .paidOut)
-        let before = Fixture.engine(settings: settings, calendar: calendar)
+        let before = Fixture.engine(settings: settings, calendar: calendar, firstRecorded: Fixture.date(2026, 6, 1))
         let close = CarryOver.close(
             year: 2026,
             balance: balance(before, through: Fixture.date(2026, 12, 31), records: records),
@@ -67,11 +66,10 @@ final class AuditBalanceTests: XCTestCase {
             let date = Fixture.date(2027, 1, day)
             records[date.key] = DayRecord(date: date, start: Fixture.time(8), end: Fixture.time(16, 30), breaks: [.duration(30)])
         }
-        let engine = Fixture.engine(settings: settings, calendar: calendar)
+        let engine = Fixture.engine(settings: settings, calendar: calendar, firstRecorded: Fixture.date(2026, 6, 1))
         let january = YearMonth(year: 2027, month: 1).range(in: calendar)
         let carried = engine.balanceCarried(
             into: january,
-            firstRecorded: Fixture.date(2026, 6, 1),
             holidays: [],
             countingThrough: Fixture.date(2027, 1, 8),
             records: { range in records.filter { range.dayKeys.contains($0.key) } }
@@ -90,7 +88,7 @@ final class AuditBalanceTests: XCTestCase {
         var generator = SeededGenerator(seed: 0xBA1A)
         var settings = Fixture.settings(openingBalanceMinutes: 95)
         settings.balanceStartDate = Fixture.date(2026, 3, 2)
-        let engine = Fixture.engine(settings: settings, calendar: calendar)
+        let engine = Fixture.engine(settings: settings, calendar: calendar, firstRecorded: Fixture.date(2026, 1, 5))
 
         var records: [Int: DayRecord] = [:]
         for date in CalendarDateRange(start: Fixture.date(2026, 1, 5), end: Fixture.date(2026, 9, 30)).days(in: calendar)
@@ -115,7 +113,6 @@ final class AuditBalanceTests: XCTestCase {
 
             let carried = engine.balanceCarried(
                 into: range,
-                firstRecorded: Fixture.date(2026, 1, 5),
                 holidays: [],
                 countingThrough: today,
                 records: lookup
@@ -126,7 +123,6 @@ final class AuditBalanceTests: XCTestCase {
             )
             let atEnd = engine.runningBalance(
                 through: end,
-                firstRecorded: Fixture.date(2026, 1, 5),
                 holidays: [],
                 countingThrough: today,
                 records: lookup

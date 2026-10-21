@@ -123,6 +123,25 @@ Worked time and credited absence are reported separately everywhere, so a
 month reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather
 than silently inflating hours nobody worked.
 
+**The balance starts on your first day.** Someone who installs the app on
+19 October did not spend 1 to 16 October eight hours short every day. The
+balance starts at `AppSettings.balanceStartDate` when one is set — in either
+direction: earlier than the first entry says the days in between were owed,
+later says the days before it are settled — and otherwise at the first day
+anything was recorded, a calendar day or a site day. `PeriodEngine` takes that
+first day as an input (`firstRecorded`, read by the repository with two
+one-row sorted fetches) and marks every day before the start
+`precedesBalanceStart`. Such a day does not count (`counts(through:)`) and is
+not a gap (`isUnrecordedWorkingDay`), so the month, the statistics, the
+exports, the running balance, closing a year, the reminder, the calendar's
+dashed outlines and the widget all start in the same place without knowing the
+rule exists. With nothing recorded and no start date, nothing counts: the
+balance is zero and nothing is missing. A day with something on it is never
+before the start, even if the first recorded day was read a moment before it
+was written. The engine the day editor uses resolves one day at a time and is
+not told, because a single day's figures do not depend on where the balance
+starts.
+
 Day type precedence when nothing is set explicitly: holiday rule → weekly
 schedule (0 contracted hours means weekend) → ordinary working day. An explicit
 choice on the day always wins.

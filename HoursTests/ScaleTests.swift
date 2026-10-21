@@ -87,7 +87,7 @@ final class ScaleTests: XCTestCase {
     func testADecadeExportsWithoutFallingOver() throws {
         let (range, records) = decade()
         let settings = Fixture.settings()
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: records, holidays: [])
 
         let table = ReportBuilder(settings: settings, calendar: calendar)

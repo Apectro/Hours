@@ -58,11 +58,13 @@ struct CalculationSettingsScreen: View {
                         selection: balanceStartBinding(start),
                         displayedComponents: .date
                     )
+                } else {
+                    LabeledContent("Balance counts from", value: firstEntryDescription)
                 }
             } header: {
                 Text("Balance")
             } footer: {
-                Text("The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.")
+                Text("The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.")
             }
 
             carryOverSection
@@ -202,9 +204,12 @@ struct CalculationSettingsScreen: View {
     /// count every working day before the app was in use as a day short.
     private func balance(of year: Int) -> Int {
         let repository = self.repository
-        return PeriodEngine(settings: settingsStore.settings, calendar: settingsStore.workCalendar).runningBalance(
+        return PeriodEngine(
+            settings: settingsStore.settings,
+            calendar: settingsStore.workCalendar,
+            firstRecorded: repository.firstRecordedDate()
+        ).runningBalance(
             through: CalendarDate(year: year, month: 12, day: 31),
-            firstRecorded: repository.recordedDateBounds()?.first,
             holidays: repository.holidayRules(),
             countingThrough: nil,
             records: { repository.records(in: $0) }
@@ -272,12 +277,26 @@ struct CalculationSettingsScreen: View {
         )
     }
 
+    /// "19 Oct 2026 (your first entry)": where the balance starts while no
+    /// start date is set, so a month that began halfway through is explained
+    /// rather than discovered.
+    private var firstEntryDescription: String {
+        guard let first = repository.firstRecordedDate() else {
+            return String(localized: "Your first entry", comment: "Settings, where the balance starts before anything is recorded")
+        }
+        let date = settingsStore.dateFormatting.dateWithYear(first)
+        return String(localized: "\(date) (your first entry)", comment: "Settings, where the balance starts; the value is a date")
+    }
+
     private var balanceStartToggle: Binding<Bool> {
         Binding(
             get: { settingsStore.settings.balanceStartDate != nil },
             set: { isOn in
+                // Switched on, it starts where the balance already starts, so
+                // turning it on changes nothing until a date is picked.
+                let start = repository.firstRecordedDate() ?? CalendarDate.today(in: settingsStore.workCalendar)
                 settingsStore.update {
-                    $0.balanceStartDate = isOn ? CalendarDate.today(in: settingsStore.workCalendar) : nil
+                    $0.balanceStartDate = isOn ? start : nil
                 }
             }
         )

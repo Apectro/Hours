@@ -118,7 +118,7 @@ struct RootView: View {
             calendar: calendar
         )
         let repository = WorkdayRepository(context: modelContext)
-        let days = PeriodEngine(settings: settings, calendar: calendar).days(
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate()).days(
             in: window,
             records: repository.records(in: window),
             holidays: repository.holidayRules()

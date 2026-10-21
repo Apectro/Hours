@@ -256,4 +256,15 @@ final class CalendarMathTests: XCTestCase {
         XCTAssertTrue(title.contains("Aug"), title)
         XCTAssertFalse(title.contains("2026"), "the year belongs to the month above: \(title)")
     }
+
+    /// A date that can be years away, such as where the balance starts or
+    /// when a schedule changed: day, month and year, and no weekday.
+    func testDateWithYearCarriesTheYearAndNoWeekday() {
+        let formatting = CalendarFormatting(locale: Locale(identifier: "en_GB"), calendar: calendar)
+        let text = formatting.dateWithYear(Fixture.date(2026, 10, 19))
+        XCTAssertTrue(text.contains("19"), text)
+        XCTAssertTrue(text.contains("Oct"), text)
+        XCTAssertTrue(text.contains("2026"), text)
+        XCTAssertFalse(text.contains("Mon"), "no weekday: \(text)")
+    }
 }

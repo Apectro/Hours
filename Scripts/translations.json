@@ -4126,17 +4126,6 @@
       "Het enige wat het aan het netwerk vraagt is of Zeitkonto Pro betaald is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag.",
       "Jedyne, o co pyta sieć, to czy opłacono Zeitkonto Pro — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
     ],
-    "The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.": [
-      "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Tage vor dem Startdatum bleiben im laufenden Saldo unberücksichtigt.",
-      "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Dani prije datuma početka ne ulaze u tekući saldo.",
-      "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Dnevi pred datumom začetka niso vključeni v tekoči saldo.",
-      "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. I giorni precedenti alla data di inizio restano fuori dal saldo progressivo.",
-      "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Les jours antérieurs à la date de début sont exclus du solde cumulé.",
-      "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Los días anteriores a la fecha de inicio quedan fuera del saldo acumulado.",
-      "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Os dias anteriores à data de início ficam de fora do saldo acumulado.",
-      "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Dagen vóór de startdatum tellen niet mee in het doorlopende saldo.",
-      "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Dni sprzed daty początkowej nie wchodzą do salda narastającego."
-    ],
     "The optional location field is a text note you type. The app never asks the system where you are.": [
       "Das optionale Ortsfeld ist eine Textnotiz, die du eintippst. Die App fragt das System nie nach deinem Standort.",
       "Neobavezno polje mjesta je tekstualna bilješka koju upišeš. Aplikacija nikad ne pita sustav gdje si.",
@@ -5786,6 +5775,50 @@
       "desde as %@",
       "sinds %@",
       "od %@"
+    ],
+    "Balance counts from": [
+      "Saldo zählt ab",
+      "Saldo se broji od",
+      "Saldo se šteje od",
+      "Il saldo parte dal",
+      "Le solde compte à partir du",
+      "El saldo cuenta desde",
+      "O saldo conta a partir de",
+      "Saldo telt vanaf",
+      "Saldo liczone od"
+    ],
+    "Your first entry": [
+      "Dein erster Eintrag",
+      "Tvoj prvi unos",
+      "Tvoj prvi vnos",
+      "La tua prima voce",
+      "Votre première saisie",
+      "Tu primera entrada",
+      "O teu primeiro registo",
+      "Je eerste invoer",
+      "Twój pierwszy wpis"
+    ],
+    "%@ (your first entry)": [
+      "%@ (dein erster Eintrag)",
+      "%@ (tvoj prvi unos)",
+      "%@ (tvoj prvi vnos)",
+      "%@ (la tua prima voce)",
+      "%@ (votre première saisie)",
+      "%@ (tu primera entrada)",
+      "%@ (o teu primeiro registo)",
+      "%@ (je eerste invoer)",
+      "%@ (twój pierwszy wpis)"
+    ],
+    "The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.": [
+      "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Ohne Startdatum zählt der Saldo ab dem ersten Tag, an dem du etwas erfasst hast. Tage vor dem Start bleiben in allen Summen unberücksichtigt.",
+      "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Bez datuma početka saldo se broji od prvog dana kad si nešto zabilježio. Dani prije početka ne ulaze ni u jedan zbroj.",
+      "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Brez datuma začetka se saldo šteje od prvega dne, ko si kaj zabeležil. Dnevi pred začetkom niso vključeni v noben seštevek.",
+      "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. Senza una data di inizio, il saldo parte dal primo giorno in cui hai registrato qualcosa. I giorni precedenti restano fuori da ogni totale.",
+      "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Sans date de début, le solde compte à partir du premier jour où vous avez saisi quelque chose. Les jours antérieurs sont exclus de tous les totaux.",
+      "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Sin fecha de inicio, el saldo cuenta desde el primer día en que registraste algo. Los días anteriores quedan fuera de todos los totales.",
+      "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais.",
+      "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee.",
+      "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
     ]
   },
   "sameAsEnglishOnPurpose": [

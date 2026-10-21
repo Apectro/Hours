@@ -61,7 +61,7 @@ final class ExportCaptureTests: XCTestCase {
             }
         }
 
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: records, holidays: [])
         return ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
             .makeTable(
@@ -163,7 +163,7 @@ final class ExportCaptureTests: XCTestCase {
     func testAnEmptyReportStillCarriesItsSummary() throws {
         let settings = Fixture.settings()
         let range = CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 1))
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: [:], holidays: [])
         let table = ReportBuilder(settings: settings, calendar: calendar)
             .makeTable(days: days, range: range, title: "Empty", countingThrough: range.end)

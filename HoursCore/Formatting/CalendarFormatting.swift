@@ -73,6 +73,12 @@ struct CalendarFormatting: Sendable {
         formatter("EEEEdMMM").string(from: date.date(in: calendar))
     }
 
+    /// "19 Oct 2026": a date that may be years away, where the weekday would
+    /// be noise and the year is the point.
+    func dateWithYear(_ date: CalendarDate) -> String {
+        formatter("dMMMy").string(from: date.date(in: calendar))
+    }
+
     /// "4 Aug"
     func shortDate(_ date: CalendarDate) -> String {
         formatter("dMMM").string(from: date.date(in: calendar))

@@ -33,7 +33,7 @@ struct ExportTableMaker {
     func personal(range: CalendarDateRange, title: String, period: String) -> ExportTables {
         let repository = WorkdayRepository(context: context)
         let holidays = repository.holidayRules()
-        let engine = PeriodEngine(settings: settings, calendar: calendar)
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
         let days = engine.days(in: range, records: repository.records(in: range), holidays: holidays)
         let opening = carriedBalance(before: range, repository: repository, holidays: holidays, engine: engine)
         let today = CalendarDate.today(in: calendar)
@@ -76,7 +76,6 @@ struct ExportTableMaker {
         }
         return engine.balanceCarried(
             into: range,
-            firstRecorded: repository.recordedDateBounds()?.first,
             holidays: holidays,
             countingThrough: CalendarDate.today(in: calendar),
             records: { repository.records(in: $0) }

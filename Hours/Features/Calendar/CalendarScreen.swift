@@ -323,7 +323,7 @@ private struct CalendarPeriodView: View {
         self.onEdit = onEdit
         self.onClockIn = onClockIn
 
-        let engine = PeriodEngine(settings: settings, calendar: calendar)
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
         // The grid can show days from neighbouring months, and the selected day
         // can be one of them, so resolve the union of both spans in one pass.
         let span = CalendarDateRange(

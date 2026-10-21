@@ -26,7 +26,7 @@ final class ExportTests: XCTestCase {
                 note: "Release, said \"finally\""
             )
         ]
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: records, holidays: [])
         return ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
             .makeTable(
@@ -147,7 +147,7 @@ final class ExportTests: XCTestCase {
             )
         ]
         let range = CalendarDateRange(single: date)
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: range, records: records, holidays: [])
         let table = ReportBuilder(settings: settings, calendar: calendar)
             .makeTable(days: days, range: range, title: "Split", countingThrough: date)
@@ -997,7 +997,7 @@ final class ExportTests: XCTestCase {
         let date = Fixture.workingMonday
         let records = [date.key: DayRecord(date: date, start: Fixture.time(22), end: Fixture.time(6))]
         let settings = Fixture.settings()
-        let days = PeriodEngine(settings: settings, calendar: calendar)
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
             .days(in: CalendarDateRange(single: date), records: records, holidays: [])
         let table = ReportBuilder(settings: settings, calendar: calendar)
             .makeTable(days: days, range: CalendarDateRange(single: date), title: "One day")

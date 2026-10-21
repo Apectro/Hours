@@ -60,6 +60,65 @@
         }
       }
     },
+    "%@ (your first entry)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (dein erster Eintrag)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tu primera entrada)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (votre première saisie)"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tvoj prvi unos)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (la tua prima voce)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (je eerste invoer)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (twój pierwszy wpis)"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (o teu primeiro registo)"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (tvoj prvi vnos)"
+          }
+        }
+      }
+    },
     "%@ and %@ have no hours recorded.": {
       "extractionState": "manual",
       "localizations": {
@@ -4777,6 +4836,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saldo po mesecih"
+          }
+        }
+      }
+    },
+    "Balance counts from": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo zählt ab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El saldo cuenta desde"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le solde compte à partir du"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo se broji od"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il saldo parte dal"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo telt vanaf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo liczone od"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O saldo conta a partir de"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo se šteje od"
           }
         }
       }
@@ -25972,61 +26090,61 @@
         }
       }
     },
-    "The opening balance is the overtime you were already carrying before you started using the app. Days before the start date are left out of the running balance.": {
+    "The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Tage vor dem Startdatum bleiben im laufenden Saldo unberücksichtigt."
+            "value": "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Ohne Startdatum zählt der Saldo ab dem ersten Tag, an dem du etwas erfasst hast. Tage vor dem Start bleiben in allen Summen unberücksichtigt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Los días anteriores a la fecha de inicio quedan fuera del saldo acumulado."
+            "value": "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Sin fecha de inicio, el saldo cuenta desde el primer día en que registraste algo. Los días anteriores quedan fuera de todos los totales."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Les jours antérieurs à la date de début sont exclus du solde cumulé."
+            "value": "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Sans date de début, le solde compte à partir du premier jour où vous avez saisi quelque chose. Les jours antérieurs sont exclus de tous les totaux."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Dani prije datuma početka ne ulaze u tekući saldo."
+            "value": "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Bez datuma početka saldo se broji od prvog dana kad si nešto zabilježio. Dani prije početka ne ulaze ni u jedan zbroj."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. I giorni precedenti alla data di inizio restano fuori dal saldo progressivo."
+            "value": "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. Senza una data di inizio, il saldo parte dal primo giorno in cui hai registrato qualcosa. I giorni precedenti restano fuori da ogni totale."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Dagen vóór de startdatum tellen niet mee in het doorlopende saldo."
+            "value": "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Dni sprzed daty początkowej nie wchodzą do salda narastającego."
+            "value": "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Os dias anteriores à data de início ficam de fora do saldo acumulado."
+            "value": "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Dnevi pred datumom začetka niso vključeni v tekoči saldo."
+            "value": "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Brez datuma začetka se saldo šteje od prvega dne, ko si kaj zabeležil. Dnevi pred začetkom niso vključeni v noben seštevek."
           }
         }
       }
@@ -30472,6 +30590,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore."
+          }
+        }
+      }
+    },
+    "Your first entry": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein erster Eintrag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu primera entrada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre première saisie"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj prvi unos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua prima voce"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je eerste invoer"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twój pierwszy wpis"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O teu primeiro registo"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoj prvi vnos"
           }
         }
       }

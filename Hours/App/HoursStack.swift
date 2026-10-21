@@ -106,6 +106,6 @@ enum HoursStack {
     }
 
     static var engine: PeriodEngine {
-        PeriodEngine(settings: settings.settings, calendar: calendar)
+        PeriodEngine(settings: settings.settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
     }
 }
