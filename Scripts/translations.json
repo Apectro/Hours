@@ -3774,17 +3774,6 @@
       "Back-up delen",
       "Udostępnij kopię"
     ],
-    "Share timesheet": [
-      "Stundenzettel teilen",
-      "Podijeli evidenciju",
-      "Deli evidenco",
-      "Condividi il foglio ore",
-      "Partager la feuille d’heures",
-      "Compartir la hoja de horas",
-      "Partilhar a folha de horas",
-      "Urenstaat delen",
-      "Udostępnij ewidencję"
-    ],
     "Short": [
       "Kurz",
       "Kratko",
@@ -5182,17 +5171,6 @@
       "Kies een andere maand om de dagen te zien.",
       "Wybierz inny miesiąc, aby zobaczyć jego dni."
     ],
-    "Share site hours": [
-      "Baustellenstunden teilen",
-      "Podijeli sate s gradilišta",
-      "Deli ure z gradbišča",
-      "Condividi le ore del cantiere",
-      "Partager les heures du chantier",
-      "Compartir horas de la obra",
-      "Partilhar horas da obra",
-      "Uren bouwplaats delen",
-      "Udostępnij godziny z budowy"
-    ],
     "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": [
       "Die Stundenliste für die Bauleitung gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung.",
       "Lista za voditelja dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji.",
@@ -5434,6 +5412,105 @@
       "Apenas nas versões TestFlight. Desativa para ver o ecrã de compra e experimentar comprar como um cliente. A versão da App Store pede sempre o pagamento.",
       "Alleen in TestFlight-builds. Zet uit om het betaalscherm te zien en een aankoop te proberen zoals een klant. De App Store-versie vraagt altijd om te betalen.",
       "Tylko w wersjach TestFlight. Wyłącz, aby zobaczyć ekran zakupu i wypróbować zakup jak klient. Wersja z App Store zawsze prosi o zapłatę."
+    ],
+    "My hours": [
+      "Meine Stunden",
+      "Moji sati",
+      "Moje ure",
+      "Le mie ore",
+      "Mes heures",
+      "Mis horas",
+      "As minhas horas",
+      "Mijn uren",
+      "Moje godziny"
+    ],
+    "To print or send": [
+      "Zum Drucken oder Versenden",
+      "Za ispis ili slanje",
+      "Za tisk ali pošiljanje",
+      "Da stampare o inviare",
+      "À imprimer ou à envoyer",
+      "Para imprimir o enviar",
+      "Para imprimir ou enviar",
+      "Om te printen of te versturen",
+      "Do druku lub wysłania"
+    ],
+    "For payroll": [
+      "Für die Lohnabrechnung",
+      "Za obračun plaće",
+      "Za obračun plač",
+      "Per le buste paga",
+      "Pour la paie",
+      "Para las nóminas",
+      "Para o processamento salarial",
+      "Voor de salarisadministratie",
+      "Do rozliczenia płac"
+    ],
+    "Plain data": [
+      "Reine Daten",
+      "Čisti podaci",
+      "Surovi podatki",
+      "Dati semplici",
+      "Données brutes",
+      "Datos sin formato",
+      "Dados simples",
+      "Kale gegevens",
+      "Surowe dane"
+    ],
+    "Name on the sheet": [
+      "Name auf der Liste",
+      "Ime na listi",
+      "Ime na listu",
+      "Nome sul foglio",
+      "Nom sur la feuille",
+      "Nombre en la hoja",
+      "Nome na folha",
+      "Naam op het blad",
+      "Imię na arkuszu"
+    ],
+    "Add your name": [
+      "Namen hinzufügen",
+      "Dodaj svoje ime",
+      "Dodaj svoje ime",
+      "Aggiungi il tuo nome",
+      "Ajouter votre nom",
+      "Añade tu nombre",
+      "Adiciona o teu nome",
+      "Voeg je naam toe",
+      "Dodaj swoje imię"
+    ],
+    "Tap to open full size": [
+      "Tippen für volle Größe",
+      "Dodirni za punu veličinu",
+      "Tapni za polno velikost",
+      "Tocca per aprire a grandezza intera",
+      "Touchez pour ouvrir en taille réelle",
+      "Toca para abrir a tamaño completo",
+      "Toca para abrir em tamanho real",
+      "Tik om op volle grootte te openen",
+      "Stuknij, aby otworzyć w pełnym rozmiarze"
+    ],
+    "First page of the PDF": [
+      "Erste Seite des PDF",
+      "Prva stranica PDF-a",
+      "Prva stran PDF-ja",
+      "Prima pagina del PDF",
+      "Première page du PDF",
+      "Primera página del PDF",
+      "Primeira página do PDF",
+      "Eerste pagina van de pdf",
+      "Pierwsza strona pliku PDF"
+    ],
+    "Printed on every sheet you export, and kept in Settings › Export options.": [
+      "Steht auf jeder Liste, die du exportierst, und wird in Einstellungen › Exportoptionen gespeichert.",
+      "Ispisuje se na svakoj listi koju izvezeš i sprema u Postavke › Postavke izvoza.",
+      "Izpiše se na vsakem listu, ki ga izvoziš, in se shrani v Nastavitve › Možnosti izvoza.",
+      "Compare su ogni foglio che esporti e resta in Impostazioni › Opzioni di esportazione.",
+      "Imprimé sur chaque feuille que vous exportez, et conservé dans Réglages › Options d’export.",
+      "Aparece en cada hoja que exportas y se guarda en Ajustes › Opciones de exportación.",
+      "Aparece em cada folha que exportas e fica guardado em Definições › Opções de exportação.",
+      "Staat op elk blad dat je exporteert en wordt bewaard in Instellingen › Exportopties.",
+      "Pojawia się na każdym eksportowanym arkuszu i zostaje zapisane w Ustawienia › Opcje eksportu."
     ]
   },
   "sameAsEnglishOnPurpose": [

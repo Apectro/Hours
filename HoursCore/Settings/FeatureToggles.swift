@@ -70,6 +70,8 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             // Filtered again by AppSettings, which knows whether a second job
             // exists; the toggles alone cannot tell.
             case .job: return true
+            // The director's sheet's own column; a timesheet has start and end.
+            case .times: return false
             default: return true
             }
         }

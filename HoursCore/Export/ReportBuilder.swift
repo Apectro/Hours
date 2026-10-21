@@ -34,6 +34,9 @@ struct ReportBuilder: Sendable {
         CalendarFormatting(locale: language.locale, calendar: calendar)
     }
 
+    /// - Parameter period: the range in words — "August 2026" — for the line
+    ///   under a name on the printed page. The title says it already, so it
+    ///   is only printed when the name has taken the title's place.
     /// - Parameter countingThrough: the last day that counts towards the
     ///   totals. Every day in the range still gets a row; only the summary
     ///   block stops at this date, so exporting a month in progress does not
@@ -42,6 +45,7 @@ struct ReportBuilder: Sendable {
         days: [DayComputation],
         range: CalendarDateRange,
         title: String,
+        period: String = "",
         openingBalanceMinutes: Int = 0,
         countingThrough: CalendarDate? = nil
     ) -> ReportTable {
@@ -62,16 +66,27 @@ struct ReportBuilder: Sendable {
         }
 
         let summary = PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough)
+        let owner = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dates = subtitle(for: range)
 
-        return ReportTable(
+        var table = ReportTable(
             title: title,
-            subtitle: subtitle(for: range),
-            ownerName: settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines),
+            subtitle: dates,
+            ownerName: owner,
             language: language,
             columns: columns,
             rows: rows,
             totals: makeTotals(summary: summary, runningBalance: running, openingBalance: openingBalanceMinutes)
         )
+        table.kind = .timesheet
+        table.eyebrow = language(.timesheet)
+        if !owner.isEmpty && !period.isEmpty {
+            table.detail = "\(period) · \(dates)"
+        }
+        table.tiles = makeTiles(summary: summary)
+        table.totalRow = makeTotalRow(columns: columns, summary: summary, runningBalance: running)
+        table.signatures = [language(.employeeSignature), language(.employerSignature)]
+        return table
     }
 
     // MARK: - Rows
@@ -94,8 +109,16 @@ struct ReportBuilder: Sendable {
             minutes: minutes,
             isWorkingDay: day.isScheduledWorkingDay,
             balanceMinutes: day.balanceMinutes,
-            hasEntry: day.hasEntry
+            hasEntry: day.hasEntry,
+            isAbsence: isAbsence(day)
         )
+    }
+
+    /// Paid absence, and public holidays whether or not they are credited:
+    /// both are days somebody was entitled to be away, which is not what a
+    /// weekend is.
+    private func isAbsence(_ day: DayComputation) -> Bool {
+        day.dayType.expectation == .creditedAbsence || day.dayType.id == .holiday
     }
 
     private func value(for column: ReportColumn, day: DayComputation, runningBalance: Int) -> (text: String, minutes: Int?) {
@@ -141,7 +164,15 @@ struct ReportBuilder: Sendable {
             return (day.tags.isEmpty ? emptyPlaceholder : day.tags.joined(separator: ", "), nil)
         case .note:
             return (day.note.isEmpty ? emptyPlaceholder : day.note, nil)
+        case .times:
+            guard day.start != nil || day.end != nil else { return (emptyPlaceholder, nil) }
+            return (timesText(start: day.start, end: day.end, crossesMidnight: day.crossesMidnight), nil)
         }
+    }
+
+    /// "07:00–16:00", for a cell that holds both ends of a day.
+    func timesText(start: TimeOfDay?, end: TimeOfDay?, crossesMidnight: Bool) -> String {
+        "\(startText(start))–\(endText(end, crossesMidnight: crossesMidnight))"
     }
 
     /// How a start time is written, shared with the director's sheet so the
@@ -154,6 +185,69 @@ struct ReportBuilder: Sendable {
     func endText(_ end: TimeOfDay?, crossesMidnight: Bool) -> String {
         guard let end else { return emptyPlaceholder }
         return settings.export.timeStyle.string(for: end) + (crossesMidnight ? " (+1)" : "")
+    }
+
+    // MARK: - The printed page's figures
+
+    /// The boxes at the top of the page: what was worked, what was owed, the
+    /// difference, and on how many days. A figure the person does not track
+    /// has no box, rather than a zero that means nothing.
+    private func makeTiles(summary: PeriodSummary) -> [ReportTile] {
+        var tiles = [ReportTile(label: language(.worked), value: duration.string(summary.workedMinutes))]
+        if settings.features.trackExpectedHours {
+            tiles.append(ReportTile(label: language(.expected), value: duration.string(summary.expectedMinutes)))
+        }
+        if settings.features.showsBalance {
+            tiles.append(ReportTile(
+                label: language(.balance),
+                value: duration.signedString(summary.balanceMinutes),
+                isNegative: summary.balanceMinutes < 0
+            ))
+        }
+        tiles.append(ReportTile(label: language(.daysWorked), value: "\(summary.daysWorked)"))
+        return tiles
+    }
+
+    /// The ruled total under the days.
+    ///
+    /// Made from the summary rather than by adding up the column, so it says
+    /// what the tiles and the summary say. The two differ on a month still in
+    /// progress: the rows include days not yet reached, with their expected
+    /// hours, and a total that counted those would report a deficit for days
+    /// that have not happened — the thing `countingThrough` exists to stop.
+    private func makeTotalRow(columns: [ReportColumn], summary: PeriodSummary, runningBalance: Int) -> ReportRow {
+        var values: [String] = []
+        var minutes: [Int?] = []
+        for column in columns {
+            let figure: (text: String, minutes: Int)?
+            switch column {
+            case .breakTime: figure = (duration.string(summary.breakMinutes), summary.breakMinutes)
+            case .worked: figure = (duration.string(summary.workedMinutes), summary.workedMinutes)
+            case .credited: figure = (duration.string(summary.creditedMinutes), summary.creditedMinutes)
+            case .expected: figure = (duration.string(summary.expectedMinutes), summary.expectedMinutes)
+            case .overtime: figure = (duration.string(summary.overtimeMinutes), summary.overtimeMinutes)
+            case .balance: figure = (duration.signedString(summary.balanceMinutes), summary.balanceMinutes)
+            case .cumulativeBalance: figure = (duration.signedString(runningBalance), runningBalance)
+            default: figure = nil
+            }
+            values.append(figure?.text ?? "")
+            minutes.append(figure?.minutes)
+        }
+        // The label goes in the first column, unless the person put a figure
+        // there — a total is worth more than the word for it.
+        if !values.isEmpty, minutes[0] == nil {
+            values[0] = language(.total)
+        }
+        // Id -1 cannot collide with a date key.
+        return ReportRow(
+            id: -1,
+            values: values,
+            minutes: minutes,
+            isWorkingDay: true,
+            balanceMinutes: summary.balanceMinutes,
+            hasEntry: true,
+            role: .total
+        )
     }
 
     // MARK: - Totals
