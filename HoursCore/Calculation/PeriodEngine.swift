@@ -110,6 +110,45 @@ struct PeriodEngine: Sendable {
         return (days, PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough))
     }
 
+    /// The whole weeks around `range`, which is what earnings need records
+    /// for: overtime after the contracted week is counted from the week's
+    /// first day, so a month starting on a Thursday needs that Monday.
+    func earningsRange(covering range: CalendarDateRange) -> CalendarDateRange {
+        CalendarDateRange(
+            start: CalendarDateRange.week(containing: range.start, in: calendar).start,
+            end: CalendarDateRange.week(containing: range.end, in: calendar).end
+        )
+    }
+
+    /// What the days in `range` earned, or nil when no job has a rate.
+    ///
+    /// `records` should cover `earningsRange(covering:)`. The weeks are
+    /// worked out whole and only then cut to `range`, so a week split by the
+    /// start of a month puts its overtime on the same days whichever month
+    /// is being looked at. Days after `countingThrough` earn nothing yet.
+    func earnings(
+        in range: CalendarDateRange,
+        records: [Int: DayRecord],
+        holidays: [HolidayRule],
+        countingThrough: CalendarDate? = nil
+    ) -> EarningsSummary? {
+        guard settings.earningsAreSetUp else { return nil }
+        let weeks = earningsRange(covering: range)
+        let days = days(in: weeks, records: records, holidays: holidays)
+        // A day longer, for a shift that runs past midnight into a holiday.
+        let resolver = HolidayResolver(
+            rules: holidays,
+            calendar: calendar,
+            covering: CalendarDateRange(start: weeks.start, end: weeks.end.adding(days: 1, in: calendar))
+        )
+        let earned = EarningsCalculator(settings: settings, calendar: calendar, holidays: resolver)
+            .earnings(for: days)
+        let counted = zip(days, earned)
+            .filter { day, _ in range.contains(day.date) && EarningsSummary.counts(day, through: countingThrough) }
+            .map(\.1)
+        return EarningsSummary(range: range, days: counted)
+    }
+
     /// What one job contributed over a period.
     struct JobTotals: Identifiable, Hashable, Sendable {
         var job: Job

@@ -90,4 +90,8 @@ struct ShiftPeriod: Identifiable, Hashable, Sendable {
     var breakMinutes: Int
     var crossesMidnight: Bool
     var jobID: UUID?
+    /// The timed breaks, as minutes after the start, clipped to the shift and
+    /// merged. What earnings need to know which minutes of a night were worked;
+    /// a break with no times has no place, and is only in `breakMinutes`.
+    var timedBreaks: [Range<Int>] = []
 }
