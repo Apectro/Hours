@@ -5830,6 +5830,61 @@
       "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha.",
       "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen.",
       "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
+    ],
+    "Add": [
+      "Hinzufügen",
+      "Dodaj",
+      "Dodaj",
+      "Aggiungi",
+      "Ajouter",
+      "Añadir",
+      "Adicionar",
+      "Toevoegen",
+      "Dodaj"
+    ],
+    "Add from other sites": [
+      "Von anderen Baustellen hinzufügen",
+      "Dodaj s drugih gradilišta",
+      "Dodaj z drugih gradbišč",
+      "Aggiungi da altri cantieri",
+      "Ajouter depuis d’autres chantiers",
+      "Añadir de otras obras",
+      "Adicionar de outras obras",
+      "Toevoegen van andere bouwplaatsen",
+      "Dodaj z innych budów"
+    ],
+    "Each site keeps its own crew, so they are added to this one as new names. Their days on other sites stay where they are.": [
+      "Jede Baustelle hat ihre eigene Mannschaft, deshalb kommen sie hier als neue Namen dazu. Ihre Tage auf anderen Baustellen bleiben, wo sie sind.",
+      "Svako gradilište ima svoju ekipu, pa se ovdje dodaju kao nova imena. Njihovi dani na drugim gradilištima ostaju gdje jesu.",
+      "Vsako gradbišče ima svojo ekipo, zato so tukaj dodani kot nova imena. Njihovi dnevi na drugih gradbiščih ostanejo, kjer so.",
+      "Ogni cantiere ha la sua squadra, quindi vengono aggiunti qui come nuovi nomi. I loro giorni sugli altri cantieri restano dove sono.",
+      "Chaque chantier a sa propre équipe : ils sont donc ajoutés ici comme nouveaux noms. Leurs jours sur les autres chantiers restent où ils sont.",
+      "Cada obra tiene su propia cuadrilla, así que se añaden aquí como nombres nuevos. Sus días en otras obras se quedan donde están.",
+      "Cada obra tem a sua própria equipa, por isso são adicionados aqui como nomes novos. Os seus dias noutras obras ficam onde estão.",
+      "Elke bouwplaats heeft een eigen ploeg, dus ze komen hier als nieuwe namen bij. Hun dagen op andere bouwplaatsen blijven waar ze zijn.",
+      "Każda budowa ma własną ekipę, więc zostaną tu dodani jako nowe nazwiska. Ich dni na innych budowach zostają tam, gdzie są."
+    ],
+    "Crew from your other sites": [
+      "Mannschaft von deinen anderen Baustellen",
+      "Ekipa s tvojih drugih gradilišta",
+      "Ekipa s tvojih drugih gradbišč",
+      "Squadra dai tuoi altri cantieri",
+      "Équipe de vos autres chantiers",
+      "Cuadrilla de tus otras obras",
+      "Equipa das tuas outras obras",
+      "Ploeg van je andere bouwplaatsen",
+      "Ekipa z twoich innych budów"
+    ],
+    "Tick the people who come along. Anyone else can be added from the site's crew later.": [
+      "Hake die Leute an, die mitkommen. Alle anderen kannst du später in der Mannschaft der Baustelle hinzufügen.",
+      "Označi ljude koji dolaze s tobom. Ostale možeš dodati kasnije u ekipi gradilišta.",
+      "Označi ljudi, ki pridejo s tabo. Ostale lahko dodaš pozneje v ekipi gradbišča.",
+      "Spunta le persone che vengono con te. Gli altri si possono aggiungere più tardi dalla squadra del cantiere.",
+      "Cochez les personnes qui viennent avec vous. Les autres pourront être ajoutées plus tard depuis l’équipe du chantier.",
+      "Marca a las personas que vienen contigo. A los demás puedes añadirlos más tarde desde la cuadrilla de la obra.",
+      "Marca as pessoas que vêm contigo. As outras podem ser adicionadas mais tarde na equipa da obra.",
+      "Vink de mensen aan die meegaan. Anderen kun je later toevoegen bij de ploeg van de bouwplaats.",
+      "Zaznacz osoby, które idą z tobą. Pozostałych możesz dodać później w ekipie budowy."
     ]
   },
   "sameAsEnglishOnPurpose": [

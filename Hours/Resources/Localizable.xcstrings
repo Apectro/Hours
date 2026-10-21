@@ -2204,6 +2204,65 @@
         }
       }
     },
+    "Add": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj"
+          }
+        }
+      }
+    },
     "Add a column": {
       "extractionState": "manual",
       "localizations": {
@@ -2672,6 +2731,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dodaj odmor"
+          }
+        }
+      }
+    },
+    "Add from other sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von anderen Baustellen hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir de otras obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter depuis d’autres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj s drugih gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi da altri cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen van andere bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj z innych budów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar de outras obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj z drugih gradbišč"
           }
         }
       }
@@ -8302,6 +8420,65 @@
         }
       }
     },
+    "Crew from your other sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft von deinen anderen Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuadrilla de tus otras obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Équipe de vos autres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa s tvojih drugih gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squadra dai tuoi altri cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg van je andere bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa z twoich innych budów"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipa das tuas outras obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekipa s tvojih drugih gradbišč"
+          }
+        }
+      }
+    },
     "Crew hours": {
       "extractionState": "manual",
       "localizations": {
@@ -11091,6 +11268,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsako delo ima svoj pogodbeni teden, zato imata dve deli z različnimi urami vsako svoj saldo namesto skupnega."
+          }
+        }
+      }
+    },
+    "Each site keeps its own crew, so they are added to this one as new names. Their days on other sites stay where they are.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede Baustelle hat ihre eigene Mannschaft, deshalb kommen sie hier als neue Namen dazu. Ihre Tage auf anderen Baustellen bleiben, wo sie sind."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada obra tiene su propia cuadrilla, así que se añaden aquí como nombres nuevos. Sus días en otras obras se quedan donde están."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque chantier a sa propre équipe : ils sont donc ajoutés ici comme nouveaux noms. Leurs jours sur les autres chantiers restent où ils sont."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svako gradilište ima svoju ekipu, pa se ovdje dodaju kao nova imena. Njihovi dani na drugim gradilištima ostaju gdje jesu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni cantiere ha la sua squadra, quindi vengono aggiunti qui come nuovi nomi. I loro giorni sugli altri cantieri restano dove sono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke bouwplaats heeft een eigen ploeg, dus ze komen hier als nieuwe namen bij. Hun dagen op andere bouwplaatsen blijven waar ze zijn."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każda budowa ma własną ekipę, więc zostaną tu dodani jako nowe nazwiska. Ich dni na innych budowach zostają tam, gdzie są."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada obra tem a sua própria equipa, por isso são adicionados aqui como nomes novos. Os seus dias noutras obras ficam onde estão."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsako gradbišče ima svojo ekipo, zato so tukaj dodani kot nova imena. Njihovi dnevi na drugih gradbiščih ostanejo, kjer so."
           }
         }
       }
@@ -27207,6 +27443,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Do %@"
+          }
+        }
+      }
+    },
+    "Tick the people who come along. Anyone else can be added from the site's crew later.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hake die Leute an, die mitkommen. Alle anderen kannst du später in der Mannschaft der Baustelle hinzufügen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca a las personas que vienen contigo. A los demás puedes añadirlos más tarde desde la cuadrilla de la obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cochez les personnes qui viennent avec vous. Les autres pourront être ajoutées plus tard depuis l’équipe du chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi ljude koji dolaze s tobom. Ostale možeš dodati kasnije u ekipi gradilišta."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spunta le persone che vengono con te. Gli altri si possono aggiungere più tardi dalla squadra del cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vink de mensen aan die meegaan. Anderen kun je later toevoegen bij de ploeg van de bouwplaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaznacz osoby, które idą z tobą. Pozostałych możesz dodać później w ekipie budowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca as pessoas que vêm contigo. As outras podem ser adicionadas mais tarde na equipa da obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi ljudi, ki pridejo s tabo. Ostale lahko dodaš pozneje v ekipi gradbišča."
           }
         }
       }

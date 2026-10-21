@@ -14,6 +14,10 @@ struct SiteEditorSheet: View {
 
     @State private var draft: Site
     @State private var paywallReason: ProFeature?
+    /// A new site can start with people from your other crews, ticked here
+    /// and added when it is saved.
+    @State private var candidates: [CrewCandidate] = []
+    @State private var chosenCrew: Set<String> = []
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -60,6 +64,20 @@ struct SiteEditorSheet: View {
                     }
                 }
 
+                if isNew && !candidates.isEmpty {
+                    Section {
+                        ForEach(candidates) { candidate in
+                            CrewCandidateRow(candidate: candidate, isSelected: chosenCrew.contains(candidate.id)) {
+                                toggle(candidate)
+                            }
+                        }
+                    } header: {
+                        Text("Crew from your other sites")
+                    } footer: {
+                        Text("Tick the people who come along. Anyone else can be added from the site's crew later.")
+                    }
+                }
+
                 if !isNew {
                     Section {
                         Toggle("Archived", isOn: $draft.isArchived)
@@ -82,6 +100,31 @@ struct SiteEditorSheet: View {
                 }
             }
             .paywall(for: $paywallReason)
+            .task { loadCandidates() }
+        }
+    }
+
+    private var repository: SiteRepository {
+        SiteRepository(context: modelContext, lock: settingsStore.settings.monthLock)
+    }
+
+    /// In a task rather than in `body`: the repository's reads collapse
+    /// duplicates, which writes.
+    private func loadCandidates() {
+        guard isNew else { return }
+        let calendar = settingsStore.workCalendar
+        candidates = repository.crewCandidates(
+            for: draft.id,
+            today: CalendarDate.today(in: calendar),
+            calendar: calendar
+        )
+    }
+
+    private func toggle(_ candidate: CrewCandidate) {
+        if chosenCrew.contains(candidate.id) {
+            chosenCrew.remove(candidate.id)
+        } else {
+            chosenCrew.insert(candidate.id)
         }
     }
 
@@ -122,7 +165,11 @@ struct SiteEditorSheet: View {
             return
         }
 
-        SiteRepository(context: modelContext, lock: settingsStore.settings.monthLock).upsert(site)
+        let store = repository
+        store.upsert(site)
+        if isNew {
+            store.addCrew(candidates.filter { chosenCrew.contains($0.id) }, to: site.id)
+        }
         // A renamed or archived site changes which card the widget shows.
         HoursStack.refreshWidget()
         // And what the note on the 1st says, or whether there is one.
