@@ -87,12 +87,12 @@ struct DayTypeBadge: View {
                 .frame(width: size, height: size)
                 .background(definition.tint.color.opacity(0.15), in: Circle())
             if showsLabel {
-                Text(definition.name)
+                Text(definition.displayName())
                     .font(.subheadline)
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(definition.name)
+        .accessibilityLabel(definition.displayName())
     }
 }
 

@@ -309,7 +309,7 @@ struct StatisticsContent: View {
                     ForEach(entries) { entry in
                         HStack(spacing: Metrics.medium) {
                             DayTypeBadge(definition: entry.definition, size: 26)
-                            Text(entry.definition.name)
+                            Text(entry.definition.displayName())
                                 .font(.subheadline)
                             Spacer(minLength: Metrics.small)
                             Text("\(entry.count)")

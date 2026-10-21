@@ -3089,6 +3089,124 @@
         }
       }
     },
+    "Add hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir horas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir des heures"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši sate"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi ore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren invoeren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar horas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši ure"
+          }
+        }
+      }
+    },
+    "Add hours by hand": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden von Hand eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir horas a mano"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir les heures à la main"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ručno upiši sate"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi ore a mano"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren handmatig invoeren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj godziny ręcznie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar horas à mão"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ročno vpiši ure"
+          }
+        }
+      }
+    },
     "Add the days that apply where you work. A recurring holiday only has to be entered once.": {
       "extractionState": "manual",
       "localizations": {
@@ -3262,6 +3380,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dodaj gradbišče, na katerem delaš, nato njegovo ekipo. Vsak dan se časi vnesejo enkrat, za vse, ki so bili tam."
+          }
+        }
+      }
+    },
+    "Add work times": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arbeitszeiten eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir horario de trabajo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir les heures de travail"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši radno vrijeme"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi orari di lavoro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werktijden invoeren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj godziny pracy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar horário de trabalho"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši delovni čas"
           }
         }
       }
@@ -5721,6 +5898,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saldo se šteje od"
+          }
+        }
+      }
+    },
+    "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › Backup and data.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weil nichts synchronisiert wird, ist eine Sicherungsdatei die einzige Kopie, die den Verlust des Geräts übersteht. Einstellungen › Sicherung und Daten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como nada se sincroniza, un archivo de copia es lo único que sobrevive a perder el dispositivo. Ajustes › Copia de seguridad y datos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comme rien n'est synchronisé, un fichier de sauvegarde est la seule copie qui survit à la perte de l'appareil. Réglages › Sauvegarde et données."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budući da se ništa ne sinkronizira, datoteka sigurnosne kopije jedina je kopija koja preživi gubitak uređaja. Postavke › Sigurnosna kopija i podaci."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poiché nulla viene sincronizzato, un file di backup è l'unica copia che sopravvive alla perdita del dispositivo. Impostazioni › Backup e dati."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omdat er niets wordt gesynchroniseerd, is een back-upbestand de enige kopie die het verlies van je apparaat overleeft. Instellingen › Back-up en gegevens."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponieważ nic nie jest synchronizowane, plik kopii zapasowej to jedyna kopia, która przetrwa utratę urządzenia. Ustawienia › Kopia zapasowa i dane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como nada é sincronizado, um ficheiro de cópia é a única cópia que sobrevive à perda do dispositivo. Definições › Cópia de segurança e dados."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ker se nič ne sinhronizira, je datoteka varnostne kopije edina kopija, ki preživi izgubo naprave. Nastavitve › Varnostna kopija in podatki."
           }
         }
       }
@@ -9482,6 +9718,124 @@
         }
       }
     },
+    "Create a backup": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sicherung erstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear una copia de seguridad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer une sauvegarde"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Napravi sigurnosnu kopiju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea un backup"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back-up maken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utwórz kopię zapasową"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar uma cópia de segurança"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustvari varnostno kopijo"
+          }
+        }
+      }
+    },
+    "Create a fresh backup": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Sicherung erstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear una copia de seguridad nueva"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer une nouvelle sauvegarde"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Napravi novu sigurnosnu kopiju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea un nuovo backup"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieuwe back-up maken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utwórz nową kopię zapasową"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criar uma nova cópia de segurança"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustvari novo varnostno kopijo"
+          }
+        }
+      }
+    },
     "Create a site": {
       "extractionState": "manual",
       "localizations": {
@@ -13042,6 +13396,65 @@
         }
       }
     },
+    "Edit day": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag bearbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier le jour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uredi dan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica giorno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dag bewerken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edytuj dzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar dia"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uredi dan"
+          }
+        }
+      }
+    },
     "Edited": {
       "extractionState": "manual",
       "localizations": {
@@ -13451,6 +13864,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vse zabeleženo do %@."
+          }
+        }
+      }
+    },
+    "Everything stays on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles bleibt auf diesem Gerät."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo se queda en este dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout reste sur cet appareil."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve ostaje na ovom uređaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto resta su questo dispositivo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles blijft op dit apparaat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystko zostaje na tym urządzeniu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo fica neste dispositivo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse ostane na tej napravi."
           }
         }
       }
@@ -18883,6 +19355,65 @@
         }
       }
     },
+    "Next week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semana siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine suivante"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sljedeći tjedan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settimana successiva"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volgende week"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Następny tydzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semana seguinte"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslednji teden"
+          }
+        }
+      }
+    },
     "Night": {
       "extractionState": "manual",
       "localizations": {
@@ -20181,6 +20712,65 @@
         }
       }
     },
+    "Nothing is deleted from this device, and nothing is deleted from iCloud either — it simply stops being updated.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts wird von diesem Gerät gelöscht und auch nichts aus iCloud – es wird einfach nicht mehr aktualisiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se borra nada de este dispositivo ni de iCloud: simplemente deja de actualizarse."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n'est supprimé de cet appareil, ni d'iCloud — la copie cesse simplement d'être mise à jour."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ništa se ne briše s ovog uređaja, a ni iz iClouda — samo se prestaje ažurirati."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non viene eliminato nulla da questo dispositivo, né da iCloud: semplicemente smette di aggiornarsi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er wordt niets van dit apparaat verwijderd en ook niets uit iCloud — het wordt gewoon niet meer bijgewerkt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic nie zostanie usunięte z tego urządzenia ani z iCloud — po prostu przestanie być aktualizowane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada é apagado deste dispositivo nem do iCloud — simplesmente deixa de ser atualizado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nič se ne izbriše s te naprave in nič iz iClouda — preprosto se neha posodabljati."
+          }
+        }
+      }
+    },
     "Nothing is recorded and the clock stops.": {
       "extractionState": "manual",
       "localizations": {
@@ -20964,6 +21554,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Še nič ni vpisano"
+          }
+        }
+      }
+    },
+    "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen sind für Zeitkonto in der Einstellungen-App ausgeschaltet. Schalte sie dort ein, dann funktioniert das hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notificaciones de Zeitkonto están desactivadas en la app Ajustes. Actívalas allí y esto empezará a funcionar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications de Zeitkonto sont désactivées dans l'app Réglages. Activez-les là-bas et ceci fonctionnera."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obavijesti za Zeitkonto isključene su u aplikaciji Postavke. Uključi ih ondje i ovo će početi raditi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le notifiche di Zeitkonto sono disattivate nell'app Impostazioni. Attivale lì e questo inizierà a funzionare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldingen voor Zeitkonto staan uit in de app Instellingen. Zet ze daar aan en dit gaat werken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powiadomienia Zeitkonto są wyłączone w aplikacji Ustawienia. Włącz je tam, a to zacznie działać."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As notificações do Zeitkonto estão desligadas na app Definições. Liga-as lá e isto vai começar a funcionar."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obvestila za Zeitkonto so v aplikaciji Nastavitve izklopljena. Vklopi jih tam in to bo začelo delovati."
           }
         }
       }
@@ -22970,6 +23619,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prejšnji mesec"
+          }
+        }
+      }
+    },
+    "Previous week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorherige Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semana anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine précédente"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prethodni tjedan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settimana precedente"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorige week"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poprzedni tydzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semana anterior"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prejšnji teden"
           }
         }
       }
@@ -28731,6 +29439,183 @@
         }
       }
     },
+    "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › Backup and data.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync ist keine Sicherung: Ein Tag, den du löschst, ist auf jedem Gerät gelöscht. Eine Sicherungsdatei ist die Kopie, die das übersteht. Einstellungen › Sicherung und Daten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización no es una copia de seguridad: un día que borras se borra en todos los dispositivos. Un archivo de copia es lo que sobrevive a eso. Ajustes › Copia de seguridad y datos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation n'est pas une sauvegarde : un jour que vous supprimez l'est sur tous les appareils. Un fichier de sauvegarde est la copie qui y survit. Réglages › Sauvegarde et données."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija nije sigurnosna kopija: dan koji obrišeš briše se na svakom uređaju. Datoteka sigurnosne kopije je kopija koja to preživi. Postavke › Sigurnosna kopija i podaci."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronizzazione non è un backup: un giorno che elimini viene eliminato su ogni dispositivo. Un file di backup è la copia che sopravvive. Impostazioni › Backup e dati."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie is geen back-up: een dag die je verwijdert, is op elk apparaat verwijderd. Een back-upbestand is de kopie die dat overleeft. Instellingen › Back-up en gegevens."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizacja to nie kopia zapasowa: dzień, który usuniesz, znika na każdym urządzeniu. Plik kopii zapasowej to kopia, która to przetrwa. Ustawienia › Kopia zapasowa i dane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronização não é uma cópia de segurança: um dia que apagas é apagado em todos os dispositivos. Um ficheiro de cópia é o que sobrevive a isso. Definições › Cópia de segurança e dados."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacija ni varnostna kopija: dan, ki ga izbrišeš, je izbrisan na vsaki napravi. Datoteka varnostne kopije je kopija, ki to preživi. Nastavitve › Varnostna kopija in podatki."
+          }
+        }
+      }
+    },
+    "Sync starts the next time you open Zeitkonto.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync startet beim nächsten Öffnen von Zeitkonto."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización empieza la próxima vez que abras Zeitkonto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation démarre la prochaine fois que vous ouvrez Zeitkonto."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija počinje sljedeći put kad otvoriš Zeitkonto."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronizzazione parte la prossima volta che apri Zeitkonto."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie start de volgende keer dat je Zeitkonto opent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizacja ruszy przy następnym otwarciu Zeitkonto."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronização começa da próxima vez que abrires o Zeitkonto."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacija se začne, ko naslednjič odpreš Zeitkonto."
+          }
+        }
+      }
+    },
+    "Sync stops the next time you open Zeitkonto.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync endet beim nächsten Öffnen von Zeitkonto."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización se detiene la próxima vez que abras Zeitkonto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation s'arrête la prochaine fois que vous ouvrez Zeitkonto."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija prestaje sljedeći put kad otvoriš Zeitkonto."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronizzazione si ferma la prossima volta che apri Zeitkonto."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie stopt de volgende keer dat je Zeitkonto opent."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizacja zatrzyma się przy następnym otwarciu Zeitkonto."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronização para da próxima vez que abrires o Zeitkonto."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacija se ustavi, ko naslednjič odpreš Zeitkonto."
+          }
+        }
+      }
+    },
     "Sync with iCloud": {
       "extractionState": "manual",
       "localizations": {
@@ -28786,6 +29671,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sinhroniziraj z iCloudom"
+          }
+        }
+      }
+    },
+    "Syncing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisiert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation active"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizira se"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzazione attiva"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchroniseert"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizacja włączona"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronizar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizira se"
           }
         }
       }
@@ -29925,6 +30869,65 @@
         }
       }
     },
+    "The calendar already marks a working day with nothing on it. This tells you without having to look.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kalender markiert schon einen Arbeitstag ohne Eintrag. Das hier sagt es dir, ohne dass du nachsehen musst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El calendario ya marca un día laborable vacío. Esto te avisa sin tener que mirar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le calendrier signale déjà un jour ouvré sans rien dedans. Ceci vous prévient sans avoir à regarder."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalendar već označava radni dan bez upisa. Ovo ti to javi i bez gledanja."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il calendario segna già un giorno lavorativo vuoto. Questo te lo dice senza che tu debba guardare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De kalender markeert al een werkdag zonder invoer. Dit laat het je weten zonder dat je hoeft te kijken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalendarz już zaznacza pusty dzień pracy. To powie ci o tym bez zaglądania."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O calendário já marca um dia de trabalho vazio. Isto avisa-te sem teres de ir ver."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koledar že označi delovni dan brez vpisa. To ti pove, ne da bi moral pogledati."
+          }
+        }
+      }
+    },
     "The clock could not be started.": {
       "extractionState": "manual",
       "localizations": {
@@ -29980,6 +30983,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ure ni bilo mogoče zagnati."
+          }
+        }
+      }
+    },
+    "The day is paid absence: your contracted hours are credited, so the balance is unchanged.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Tag ist bezahlte Abwesenheit: Deine Vertragsstunden werden gutgeschrieben, der Saldo bleibt also gleich."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El día es una ausencia pagada: se acreditan tus horas de contrato, así que el saldo no cambia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le jour est une absence payée : vos heures contractuelles sont créditées, le solde ne change donc pas."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dan je plaćeno odsustvo: ugovoreni sati se priznaju, pa se saldo ne mijenja."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il giorno è un'assenza retribuita: le ore contrattuali vengono accreditate, quindi il saldo non cambia."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De dag is betaald verlof: je contracturen worden meegeteld, dus het saldo verandert niet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dzień to płatna nieobecność: godziny z umowy są zaliczane, więc saldo się nie zmienia."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O dia é uma ausência paga: as tuas horas contratadas são creditadas, por isso o saldo não muda."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dan je plačana odsotnost: pogodbene ure se priznajo, zato se saldo ne spremeni."
+          }
+        }
+      }
+    },
+    "The day keeps its contracted hours and is expected to be worked. Only the name is carried through.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Tag behält seine Vertragsstunden und wird gearbeitet. Nur der Name wird übernommen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El día mantiene sus horas de contrato y se espera que se trabaje. Solo se conserva el nombre."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le jour garde ses heures contractuelles et doit être travaillé. Seul le nom est repris."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dan zadržava ugovorene sate i očekuje se rad. Prenosi se samo naziv."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il giorno mantiene le ore contrattuali ed è lavorativo. Viene riportato solo il nome."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De dag houdt zijn contracturen en er wordt gewerkt. Alleen de naam wordt overgenomen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dzień zachowuje godziny z umowy i jest dniem pracy. Przenoszona jest tylko nazwa."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O dia mantém as horas contratadas e espera-se que seja trabalhado. Só o nome é mantido."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dan obdrži pogodbene ure in se pričakuje delo. Prenese se samo ime."
           }
         }
       }
@@ -30216,6 +31337,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Datoteke ni bilo mogoče pripraviti. %@"
+          }
+        }
+      }
+    },
+    "The hours already on this device are uploaded then, and nothing is lost if you change your mind before.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Stunden auf diesem Gerät werden dann hochgeladen, und nichts geht verloren, wenn du es dir vorher anders überlegst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas que ya están en este dispositivo se suben entonces, y no se pierde nada si cambias de idea antes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures déjà sur cet appareil sont alors envoyées, et rien n'est perdu si vous changez d'avis avant."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati koji su već na ovom uređaju tada se šalju, i ništa se ne gubi ako se prije toga predomisliš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ore già su questo dispositivo vengono caricate allora, e non si perde nulla se cambi idea prima."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De uren die al op dit apparaat staan, worden dan geüpload, en er gaat niets verloren als je je eerder bedenkt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny, które są już na tym urządzeniu, zostaną wtedy wysłane, i nic nie przepadnie, jeśli wcześniej zmienisz zdanie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas que já estão neste dispositivo são enviadas nessa altura, e nada se perde se mudares de ideias antes."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure, ki so že na tej napravi, se takrat naložijo, in nič se ne izgubi, če si prej premisliš."
           }
         }
       }
@@ -31278,6 +32458,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta vrsta dneva je še v uporabi"
+          }
+        }
+      }
+    },
+    "This device only": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur dieses Gerät"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo este dispositivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet appareil uniquement"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo ovaj uređaj"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo questo dispositivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen dit apparaat"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko to urządzenie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só este dispositivo"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo ta naprava"
           }
         }
       }
@@ -35664,6 +36903,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore."
+          }
+        }
+      }
+    },
+    "Your data goes to your iCloud and nowhere else.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten gehen in deine iCloud und nirgendwo sonst hin."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus datos van a tu iCloud y a ningún otro sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données vont dans votre iCloud et nulle part ailleurs."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji podaci idu u tvoj iCloud i nikamo drugamo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi dati vanno nel tuo iCloud e da nessun'altra parte."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je gegevens gaan naar je iCloud en nergens anders heen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje dane trafiają do twojego iCloud i nigdzie indziej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os teus dados vão para o teu iCloud e para mais lado nenhum."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji podatki gredo v tvoj iCloud in nikamor drugam."
+          }
+        }
+      }
+    },
+    "Your data lives in this app's own storage and is included in an encrypted device backup if you make one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten liegen im eigenen Speicher dieser App und sind in einer verschlüsselten Gerätesicherung enthalten, wenn du eine machst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus datos están en el almacenamiento propio de esta app y se incluyen en una copia cifrada del dispositivo si haces una."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données restent dans le stockage propre à cette app et sont incluses dans une sauvegarde chiffrée de l'appareil si vous en faites une."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji podaci nalaze se u vlastitoj pohrani ove aplikacije i uključeni su u šifriranu sigurnosnu kopiju uređaja ako je napraviš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi dati restano nella memoria di questa app e sono inclusi in un backup cifrato del dispositivo, se ne fai uno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je gegevens staan in de eigen opslag van deze app en zitten in een versleutelde back-up van je apparaat als je die maakt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje dane są w pamięci tej aplikacji i trafiają do zaszyfrowanej kopii zapasowej urządzenia, jeśli ją zrobisz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os teus dados ficam no armazenamento próprio desta app e são incluídos numa cópia de segurança encriptada do dispositivo, se fizeres uma."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji podatki so v lastnem pomnilniku te aplikacije in so vključeni v šifrirano varnostno kopijo naprave, če jo narediš."
           }
         }
       }

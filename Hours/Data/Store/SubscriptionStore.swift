@@ -330,9 +330,11 @@ final class SubscriptionStore {
 
     /// A store that will keep saying what it was told, whatever StoreKit
     /// thinks. For UI tests, which drive an app with no transactions in it.
-    static func pinned(_ entitlement: Entitlement) -> SubscriptionStore {
+    static func pinned(_ entitlement: Entitlement, paymentsEnabled: Bool = true) -> SubscriptionStore {
         let defaults = UserDefaults(suiteName: "hours.uitest.\(UUID().uuidString)") ?? .standard
-        let store = SubscriptionStore(defaults: defaults, cacheKey: "hours.entitlement", pinned: true)
+        let store = SubscriptionStore(
+            defaults: defaults, cacheKey: "hours.entitlement", pinned: true, paymentsEnabled: paymentsEnabled
+        )
         store.storeAnswer = entitlement
         store.entitlement = entitlement
         return store

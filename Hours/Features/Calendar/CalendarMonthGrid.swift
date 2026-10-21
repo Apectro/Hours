@@ -139,7 +139,7 @@ struct DayCell: View {
         let duration = DurationFormatting(style: .hoursAndMinutes)
         var parts: [String] = ["\(date.day)"]
         if let computation {
-            parts.append(computation.dayType.name)
+            parts.append(computation.dayType.displayName())
             if computation.workedMinutes > 0 {
                 parts.append(duration.string(computation.workedMinutes) + " worked")
             }

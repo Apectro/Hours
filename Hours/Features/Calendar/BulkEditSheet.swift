@@ -69,7 +69,7 @@ struct BulkEditSheet: View {
                     if actionKind == .dayType {
                         Picker("Type", selection: $dayTypeID) {
                             ForEach(settings.dayTypeCatalog.all) { definition in
-                                Label(definition.name, systemImage: definition.symbolName)
+                                Label(definition.displayName(), systemImage: definition.symbolName)
                                     .tag(definition.id)
                             }
                         }
@@ -206,7 +206,7 @@ struct BulkEditSheet: View {
     private var actionDescription: String {
         switch actionKind {
         case .dayType:
-            let name = settings.dayTypeCatalog.definition(for: dayTypeID).name.lowercased()
+            let name = settings.dayTypeCatalog.definition(for: dayTypeID).nameInRunningText()
             return String(localized: "Marks each day as \(name). Any hours on those days are removed if the type does not use times.")
         case .workingPattern:
             return String(localized: "Fills each day with your usual start, end and break. Public holidays in the range are left alone.")

@@ -33,6 +33,12 @@ SEARCHED = ["Hours", "HoursWidget", "HoursShared"]
 # Both localizing initializers, across line breaks: these calls wrap.
 CALL = re.compile(r'(?:localized|inflected):\s*"((?:[^"\\]|\\.)*)"', re.S)
 
+# `Text(flag ? "One" : "Other")` and the same inside a Label or Button: SwiftUI
+# looks both literals up, and Xcode's extraction never saw them, so they are
+# lookups too. Only the capitalised ones — the lower-case literals in that
+# position are SF Symbol names and accessibility identifiers.
+TERNARY = re.compile(r'\?\s*"((?:[^"\\]|\\.)*)"\s*:\s*"((?:[^"\\]|\\.)*)"')
+
 
 def strip_comments(source: str) -> str:
     source = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
@@ -91,12 +97,18 @@ def main() -> int:
             if "Tests" in path.name:
                 continue
             source = strip_comments(path.read_text(encoding="utf-8"))
-            for match in CALL.finditer(source):
-                literal = match.group(1)
+            lookups = [(m.start(), m.group(1)) for m in CALL.finditer(source)]
+            lookups += [
+                (m.start(i), m.group(i))
+                for m in TERNARY.finditer(source)
+                for i in (1, 2)
+                if m.group(i)[:1].isupper()
+            ]
+            for start, literal in lookups:
                 shapes = key_shapes(literal)
                 if any(shape in known for shape in shapes):
                     continue
-                line = source[: match.start()].count("\n") + 1
+                line = source[:start].count("\n") + 1
                 missing.append((path.relative_to(ROOT), line, shapes[0]))
 
     if missing:
