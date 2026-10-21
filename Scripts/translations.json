@@ -5885,6 +5885,193 @@
       "Marca as pessoas que vêm contigo. As outras podem ser adicionadas mais tarde na equipa da obra.",
       "Vink de mensen aan die meegaan. Anderen kun je later toevoegen bij de ploeg van de bouwplaats.",
       "Zaznacz osoby, które idą z tobą. Pozostałych możesz dodać później w ekipie budowy."
+    ],
+    "Back": [
+      "Zurück",
+      "Natrag",
+      "Nazaj",
+      "Indietro",
+      "Retour",
+      "Atrás",
+      "Voltar",
+      "Terug",
+      "Wstecz"
+    ],
+    "Continue": [
+      "Weiter",
+      "Nastavi",
+      "Naprej",
+      "Continua",
+      "Continuer",
+      "Continuar",
+      "Continuar",
+      "Doorgaan",
+      "Dalej"
+    ],
+    "Skip": [
+      "Überspringen",
+      "Preskoči",
+      "Preskoči",
+      "Salta",
+      "Passer",
+      "Omitir",
+      "Saltar",
+      "Overslaan",
+      "Pomiń"
+    ],
+    "What's your name?": [
+      "Wie heißt du?",
+      "Kako se zoveš?",
+      "Kako ti je ime?",
+      "Come ti chiami?",
+      "Comment vous appelez-vous ?",
+      "¿Cómo te llamas?",
+      "Como te chamas?",
+      "Hoe heet je?",
+      "Jak masz na imię?"
+    ],
+    "It goes on the sheets you hand in. Nothing else uses it.": [
+      "Er steht auf den Listen, die du abgibst. Sonst wird er nirgends verwendet.",
+      "Stoji na listama koje predaješ. Ništa ga drugo ne koristi.",
+      "Piše na seznamih, ki jih oddaš. Nič drugega ga ne uporablja.",
+      "Compare sui fogli che consegni. Non viene usato per altro.",
+      "Il figure sur les feuilles que vous remettez. Rien d’autre ne l’utilise.",
+      "Aparece en las hojas que entregas. No se usa para nada más.",
+      "Aparece nas folhas que entregas. Não é usado para mais nada.",
+      "Hij staat op de lijsten die je inlevert. Verder wordt hij nergens gebruikt.",
+      "Pojawia się na arkuszach, które oddajesz. Nic innego z niego nie korzysta."
+    ],
+    "Your name": [
+      "Dein Name",
+      "Tvoje ime",
+      "Tvoje ime",
+      "Il tuo nome",
+      "Votre nom",
+      "Tu nombre",
+      "O teu nome",
+      "Je naam",
+      "Twoje imię"
+    ],
+    "Your working week": [
+      "Deine Arbeitswoche",
+      "Tvoj radni tjedan",
+      "Tvoj delovni teden",
+      "La tua settimana lavorativa",
+      "Votre semaine de travail",
+      "Tu semana laboral",
+      "A tua semana de trabalho",
+      "Je werkweek",
+      "Twój tydzień pracy"
+    ],
+    "The days you normally work and your usual hours. A day you leave empty is then a day short.": [
+      "Die Tage, an denen du normalerweise arbeitest, und deine üblichen Zeiten. Ein Tag, den du leer lässt, fehlt dann.",
+      "Dani kad obično radiš i tvoje uobičajeno vrijeme. Dan koji ostaviš prazan tada ti nedostaje.",
+      "Dnevi, ko običajno delaš, in tvoj običajni čas. Dan, ki ga pustiš praznega, ti potem manjka.",
+      "I giorni in cui lavori di solito e il tuo orario abituale. Un giorno lasciato vuoto risulta poi mancante.",
+      "Les jours où vous travaillez d’habitude et vos horaires habituels. Un jour laissé vide compte alors comme manquant.",
+      "Los días que trabajas normalmente y tu horario habitual. Un día que dejes vacío cuenta entonces como que falta.",
+      "Os dias em que trabalhas normalmente e o teu horário habitual. Um dia que deixes vazio conta então como em falta.",
+      "De dagen waarop je normaal werkt en je gebruikelijke tijden. Een dag die je leeg laat, komt dan tekort.",
+      "Dni, w które zwykle pracujesz, i twoje zwykłe godziny. Dzień zostawiony pusty liczy się wtedy jako brakujący."
+    ],
+    "That comes to %@ a day.": [
+      "Das sind %@ pro Tag.",
+      "To je %@ dnevno.",
+      "To je %@ na dan.",
+      "Fanno %@ al giorno.",
+      "Cela fait %@ par jour.",
+      "Son %@ al día.",
+      "São %@ por dia.",
+      "Dat is %@ per dag.",
+      "To daje %@ dziennie."
+    ],
+    "Are your breaks paid?": [
+      "Werden deine Pausen bezahlt?",
+      "Jesu li ti pauze plaćene?",
+      "Ali so tvoji odmori plačani?",
+      "Le tue pause sono retribuite?",
+      "Vos pauses sont-elles rémunérées ?",
+      "¿Te pagan los descansos?",
+      "As tuas pausas são pagas?",
+      "Worden je pauzes betaald?",
+      "Czy twoje przerwy są płatne?"
+    ],
+    "A paid break is still written down, but it counts as worked time instead of being taken off the day.": [
+      "Eine bezahlte Pause wird trotzdem eingetragen, zählt aber als Arbeitszeit, statt vom Tag abgezogen zu werden.",
+      "Plaćena pauza se i dalje upisuje, ali se računa kao radno vrijeme umjesto da se oduzme od dana.",
+      "Plačan odmor se še vedno zapiše, vendar šteje kot delovni čas, namesto da bi se odštel od dneva.",
+      "Una pausa retribuita viene comunque annotata, ma conta come tempo lavorato invece di essere tolta dalla giornata.",
+      "Une pause rémunérée est quand même notée, mais elle compte comme temps travaillé au lieu d’être retirée de la journée.",
+      "Un descanso pagado se anota igualmente, pero cuenta como tiempo trabajado en lugar de restarse del día.",
+      "Uma pausa paga continua a ser registada, mas conta como tempo trabalhado em vez de ser descontada do dia.",
+      "Een betaalde pauze wordt nog steeds genoteerd, maar telt als gewerkte tijd in plaats van van de dag af te gaan.",
+      "Płatna przerwa nadal jest zapisywana, ale liczy się jako czas pracy, zamiast być odejmowana od dnia."
+    ],
+    "Yes, they're paid": [
+      "Ja, sie werden bezahlt",
+      "Da, plaćene su",
+      "Da, plačani so",
+      "Sì, sono retribuite",
+      "Oui, elles sont rémunérées",
+      "Sí, me los pagan",
+      "Sim, são pagas",
+      "Ja, ze worden betaald",
+      "Tak, są płatne"
+    ],
+    "No, they're taken off": [
+      "Nein, sie werden abgezogen",
+      "Ne, oduzimaju se",
+      "Ne, odštejejo se",
+      "No, vengono tolte",
+      "Non, elles sont retirées",
+      "No, se descuentan",
+      "Não, são descontadas",
+      "Nee, ze gaan eraf",
+      "Nie, są odejmowane"
+    ],
+    "You're set": [
+      "Alles bereit",
+      "Spremno je",
+      "Pripravljeno",
+      "Tutto pronto",
+      "Tout est prêt",
+      "Todo listo",
+      "Está tudo pronto",
+      "Je bent klaar",
+      "Gotowe"
+    ],
+    "All of this can be changed in Settings whenever you like.": [
+      "Das alles kannst du jederzeit in den Einstellungen ändern.",
+      "Sve ovo možeš promijeniti u Postavkama kad god želiš.",
+      "Vse to lahko kadar koli spremeniš v Nastavitvah.",
+      "Puoi cambiare tutto questo nelle Impostazioni quando vuoi.",
+      "Vous pouvez modifier tout cela dans Réglages quand vous le souhaitez.",
+      "Puedes cambiar todo esto en Ajustes cuando quieras.",
+      "Podes alterar tudo isto nas Definições quando quiseres.",
+      "Je kunt dit allemaal wijzigen in Instellingen wanneer je wilt.",
+      "Wszystko to możesz zmienić w Ustawieniach, kiedy tylko chcesz."
+    ],
+    "Write today": [
+      "Heute eintragen",
+      "Upiši danas",
+      "Vpiši danes",
+      "Scrivi oggi",
+      "Saisir aujourd’hui",
+      "Anotar hoy",
+      "Registar hoje",
+      "Vandaag invullen",
+      "Wpisz dzisiaj"
+    ],
+    "Create a site": [
+      "Baustelle anlegen",
+      "Stvori gradilište",
+      "Ustvari gradbišče",
+      "Crea un cantiere",
+      "Créer un chantier",
+      "Crear una obra",
+      "Criar uma obra",
+      "Bouwplaats aanmaken",
+      "Utwórz budowę"
     ]
   },
   "sameAsEnglishOnPurpose": [

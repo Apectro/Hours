@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Four tabs, calendar first.
 ///
@@ -13,6 +14,11 @@ struct RootView: View {
     /// A widget's or a notification's link, waiting for the Sites tab to
     /// follow it.
     @State private var siteLink: AppLink?
+    /// The first-run setup, shown once on a fresh install.
+    @State private var showsSetup = false
+    /// Where the setup's last screen asked to go, followed once it has gone.
+    @State private var setupFinish: FirstRunFinish?
+    @State private var afterSetup: FirstRunFinish?
 
     enum Destination: Hashable {
         case calendar
@@ -48,7 +54,26 @@ struct RootView: View {
             HoursStack.notificationLinks.pending = nil
             follow(link)
         }
+        .fullScreenCover(isPresented: $showsSetup, onDismiss: setupDismissed) {
+            FirstRunSetupView { finish in
+                setupFinish = finish
+                showsSetup = false
+            }
+        }
+        // From the root rather than from a tab, so neither tab needs to know
+        // the setup exists. One sheet, chosen by value.
+        .sheet(item: $afterSetup) { finish in
+            switch finish {
+            case .writeToday:
+                DayEditorSheet(date: CalendarDate.today(in: settingsStore.workCalendar))
+            case .createSite:
+                SiteEditorSheet(site: Site(name: ""), isNew: true)
+            }
+        }
         .task {
+            // Before anything below writes to the store, which would make a
+            // fresh install look like an existing one.
+            decideFirstRun()
             // Only ever true behind a launch argument the UI test target
             // passes, and it writes into the in-memory store those tests use,
             // so it cannot reach anyone's real hours.
@@ -101,6 +126,55 @@ struct RootView: View {
                 HoursStack.refreshWidget()
             }
         }
+    }
+
+    /// Shows the setup on a fresh install, and remembers that anyone else
+    /// has no need of it (see `FirstRunSetup`).
+    private func decideFirstRun() {
+        if FirstRunPreference.isForced {
+            showsSetup = true
+            return
+        }
+        // The UI tests start from exactly what a fresh install looks like.
+        // They are not shown it, and they do not write the flag on the
+        // machine running them.
+        guard !HoursStack.isRunningUITests else { return }
+
+        switch FirstRunSetup.decide(
+            isDone: FirstRunPreference.isDone,
+            hasStoredData: hasStoredData,
+            settings: settingsStore.settings
+        ) {
+        case .show:
+            showsSetup = true
+        case .skip:
+            FirstRunPreference.isDone = true
+        case .nothing:
+            break
+        }
+    }
+
+    /// Any day, holiday or site at all. Sync being on counts too: it is only
+    /// ever switched on by someone already using the app, and their days may
+    /// not have arrived yet.
+    private var hasStoredData: Bool {
+        if SyncPreference.isEnabled { return true }
+        let days = (try? modelContext.fetchCount(FetchDescriptor<DayEntry>())) ?? 0
+        let holidays = (try? modelContext.fetchCount(FetchDescriptor<HolidayRecord>())) ?? 0
+        let sites = (try? modelContext.fetchCount(FetchDescriptor<SiteEntry>())) ?? 0
+        return days + holidays + sites > 0
+    }
+
+    /// Done whichever way it ended, so it is never shown again. Then on to
+    /// the tab the last screen asked for, with its sheet over it.
+    private func setupDismissed() {
+        if !HoursStack.isRunningUITests {
+            FirstRunPreference.isDone = true
+        }
+        guard let finish = setupFinish else { return }
+        setupFinish = nil
+        selection = finish == .writeToday ? .calendar : .sites
+        afterSetup = finish
     }
 
     /// Every link the app follows is a place on the Sites tab.
