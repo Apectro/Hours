@@ -179,6 +179,45 @@ month never leaves the screen. Sites lists each active job site with its crew
 and this month's figures, and leads to the site and its crew list. Export is
 reachable from the calendar toolbar and from Settings.
 
+## Widgets and the Live Activity
+
+A widget runs in its own process with a hard memory limit, so it never opens
+the store. The app writes a small `WidgetSnapshot` into the App Group's
+container whenever something it shows could have changed, and the widget reads
+that. Every figure in it comes from the engine: `WidgetSnapshotWriter` only
+fetches, `PeriodEngine` resolves the days, and `WidgetSnapshotBuilder` turns
+them into the week's bars, the month's squares and the site card. A square's
+state is read from the day's own balance and a bar counts exactly when the day
+counts towards the app's own week total, so the widget cannot show a different
+answer from the calendar. All of it is tested on Linux with the rest of the
+engine.
+
+The file outlives the moment it was written. Glanced at after midnight it
+still describes yesterday, so each figure has an accessor that takes the
+instant being drawn: yesterday's total is not shown as today's, last week's
+bars are not shown under THIS WEEK, and yesterday's "written" is not today's.
+It decodes leniently, as settings do, so a widget updated before the app has
+run once reads the old file and leaves the new parts out.
+
+**A widget cannot write, so its buttons are links.** The store lives in the
+app's own container, not the shared one. "Same as yesterday" on the site
+widget is `zeitkonto://site/<id>/same-as-last`; the app follows it by pushing a
+`SiteRoute` value onto the Sites tab's path, and the site screen then does what
+its own "Same as last day" button does, only where that button is offered.
+`AppLink` in the engine is the one spelling of these links for both sides. The
+scheme is the one thing in `Hours-Info.plist`, because a URL type has no
+build-setting form and the rest of the app's Info.plist is generated.
+
+**The Live Activity follows the snapshot.** Five paths start or stop the clock
+— the clock card, discarding, Siri, Shortcuts and the Live Activity's own stop
+button — and every one already refreshes the widget, so the refresh is where
+`ClockActivityController` brings the activity in line: a running clock that has
+been paid for has exactly one, and anything else has none. That also ends a
+stale one on the next launch. The stop button is a `LiveActivityIntent`, which
+iOS runs in the app's process; the widget extension compiles the same type, in
+`HoursShared`, only to put it on the button, and its `perform` is compiled out
+there by the `WIDGET_EXTENSION` condition only that target sets.
+
 ## Export
 
 One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,

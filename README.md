@@ -114,15 +114,31 @@ UIKit, SwiftUI or SwiftData to accidentally import.
 
 ## Widgets
 
-Two of them, in every size iOS offers: **Today** (worked so far, against what
-was expected, with the running clock counting up live) and **This month**
-(worked against expected, and the balance). Both work on the Lock Screen as
-well as the Home Screen.
+Four of them, drawn in the app icon's navy and amber:
+
+- **Today** (small and medium): worked so far against what was expected, in an
+  amber ring, with the running clock, its site or job, and when the day is due
+  to end.
+- **This month** (small and medium): the balance, ahead of or behind plan, and a
+  square for each working day of the month — done, short, today, to come.
+- **This week** (medium): the week's total against its target, and a bar for
+  each day starting on your own first weekday.
+- **Site** (medium): the site you worked on most recently, whether today is
+  written yet, who was there on the last day, and two buttons — **Same as
+  yesterday** and **Open site**.
+
+Today and This month also work on the Lock Screen, with the hard-hat mark. All
+of them follow the tinted and clear Home Screen styles.
+
+While the clock runs, a **Live Activity** shows it on the Lock Screen and in the
+Dynamic Island, ticking by itself, with a button that stops it.
 
 A widget runs in its own process and cannot open the app's database, so the app
 writes a small JSON snapshot into a shared container and the widget reads that.
-It is refreshed whenever anything it shows changes — a day saved, the clock
-started or stopped, the app closed.
+It is refreshed whenever anything it shows changes — a day or a site day saved,
+the clock started or stopped, the app closed — and every figure in it comes
+from the engine the app itself uses, so a widget can never disagree with the
+calendar.
 
 **The shared container is an App Group, `group.app.zeitkonto`, and App Groups
 need a paid Apple Developer account.** Both targets carry it in their
@@ -142,11 +158,14 @@ from the targets' build settings. If the container is ever missing at run time,
 the app writes nothing and the widgets say so instead of showing a convincing
 screenful of zeroes.
 
-Tapping a widget opens the app. There are no buttons on it: an interactive
-widget runs its action inside the widget's own process, which cannot reach the
-database either, so a "clock in" button there could only pretend to work. Siri
-and the Shortcuts app can start and stop the clock instead, and those run in
-the app.
+Tapping a widget opens the app. The site widget's buttons are links that open
+it at the site (`zeitkonto://site/<id>`, and `…/same-as-last` to fill today from
+the last day), because a widget runs in its own process and cannot write the
+database; the app does the work, under the same month lock as the button on the
+site screen. The Live Activity's stop button is different: it is a
+`LiveActivityIntent`, which iOS runs in the app's own process, so it records the
+shift exactly as the clock card would. Siri and the Shortcuts app can start and
+stop the clock as well. The widgets and the Live Activity are both part of Pro.
 
 ## iCloud
 
