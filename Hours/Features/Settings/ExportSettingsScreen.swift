@@ -79,6 +79,16 @@ struct ExportSettingsScreen: View {
                 Text("Including empty days keeps every date in the range on its own row, which is what most timesheets expect.")
             }
 
+            // Only once there is a rate: without one there is nothing to add.
+            if settingsStore.settings.earningsAreSetUp {
+                Section {
+                    Toggle("Earnings", isOn: settingsStore.binding(\.export.includeEarnings))
+                        .accessibilityIdentifier("export-include-earnings")
+                } footer: {
+                    Text("Adds what each day earned as a last column, with the total in the summary. Off unless you turn it on, since a timesheet is usually handed to someone. A site's sheet never shows money.")
+                }
+            }
+
             columnSections
         }
         .navigationTitle("Export options")

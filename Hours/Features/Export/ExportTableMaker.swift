@@ -37,6 +37,16 @@ struct ExportTableMaker {
         let days = engine.days(in: range, records: repository.records(in: range), holidays: holidays)
         let opening = carriedBalance(before: range, repository: repository, holidays: holidays, engine: engine)
         let today = CalendarDate.today(in: calendar)
+        // Read only when the file will carry them; whole weeks, so a week cut
+        // by the range keeps its overtime where it fell.
+        let earnings = settings.export.includeEarnings
+            ? engine.earnings(
+                in: range,
+                records: repository.records(in: engine.earningsRange(covering: range)),
+                holidays: holidays,
+                countingThrough: today
+            )
+            : nil
 
         func build(_ placeholder: String) -> ReportTable {
             ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
@@ -46,7 +56,9 @@ struct ExportTableMaker {
                     title: title,
                     period: period,
                     openingBalanceMinutes: opening,
-                    countingThrough: today
+                    countingThrough: today,
+                    earnings: earnings,
+                    currencyCode: settings.money.currencyCode
                 )
         }
         return ExportTables(file: build(""), preview: build("—"))

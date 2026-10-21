@@ -227,6 +227,7 @@ struct PDFReportLayout {
         case .tags: return 1.3
         case .note: return 2.2
         case .times: return 1.0
+        case .earnings: return 0.9
         }
     }
 }
