@@ -34,6 +34,13 @@ names two nameservers; at the registrar, replace the domain's nameservers with
 those two (the registration stays where it is). Wait for the email saying the
 domain is active.
 
+**As it is actually set up:** the project was created as a Cloudflare
+**Worker** named `hours` (Workers & Pages › Workers), connected to this repo,
+not as a Pages project. That works the same, as long as `wrangler.jsonc` at the
+repository root stays: it names the Worker and points its static assets at
+`docs/`, which both the production deploy and the pull-request preview uploads
+read. Without it the previews fail ("Workers Builds: hours" red on a PR).
+
 **2. Create the Pages project.** dash.cloudflare.com › **Workers & Pages** ›
 **Create** › **Pages** › **Connect to Git** › authorise GitHub for this
 repository only › pick it, then:

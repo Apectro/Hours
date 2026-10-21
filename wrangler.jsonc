@@ -1,0 +1,14 @@
+// The website, as Cloudflare serves it: a Worker with static assets and no
+// script. The production deploy and the preview uploads Cloudflare runs for
+// pull requests both read this, so neither depends on a flag typed into the
+// dashboard (the previews run `wrangler versions upload`, which a dashboard
+// `--assets` flag on the deploy command never reached).
+{
+  "name": "hours",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./docs",
+    // docs/404.html for any path that is not a file.
+    "not_found_handling": "404-page"
+  }
+}
