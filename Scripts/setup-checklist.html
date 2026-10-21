@@ -675,14 +675,14 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
       <li class="step">
         <input type="checkbox" class="tick" id="s8" aria-labelledby="s8-t">
         <div class="step-body">
-          <div class="chips"><span class="chip chip--paid">Needs step 7</span><span class="chip">10 minutes</span><span class="chip">Turns on widgets</span></div>
-          <label class="step-title" id="s8-t" for="s8">Add the App Group — on both targets</label>
-          <p class="step-where">Signing &amp; Capabilities › + Capability › App Groups</p>
-          <p>A widget runs in its own process and cannot open the app's database, so the app writes a small snapshot into a shared container and the widget reads that. The container is the App Group. Add the capability to the <strong>Hours</strong> target and to the <strong>HoursWidgetExtension</strong> target, ticking the same group on each:</p>
+          <div class="chips"><span class="chip chip--paid">Needs step 7</span><span class="chip">5 minutes</span><span class="chip">Turns on widgets</span></div>
+          <label class="step-title" id="s8-t" for="s8">Create the App Group and tick it on both identifiers</label>
+          <p class="step-where">developer.apple.com › Certificates, Identifiers &amp; Profiles › Identifiers</p>
+          <p>A widget runs in its own process and cannot open the app's database, so the app writes a small snapshot into a shared container and the widget reads that. The container is the App Group. The app and the widget already ask for it in their entitlements; Apple only grants it once the group exists in your account. Click <strong>+</strong> › App Groups and register:</p>
           <ul class="literals">
             <li><span class="what">Group</span> <button class="copy">group.app.zeitkonto</button></li>
           </ul>
-          <p>That exact string is already in the code, at <code>WidgetSnapshotStore.appGroupIdentifier</code>. Use a different one if you prefer, and change it there to match. Until this is done the widgets say so on their face rather than showing a convincing screenful of zeroes.</p>
+          <p>Then open the identifier <code>app.zeitkonto.hours</code>, tick <strong>App Groups</strong>, configure it, tick the group and save. Do the same for <code>app.zeitkonto.hours.widget</code>. The TestFlight workflow checks this before it builds and makes new signing profiles on its own afterwards. Until it is done the widgets say so on their face rather than showing a convincing screenful of zeroes.</p>
         </div>
       </li>
 
