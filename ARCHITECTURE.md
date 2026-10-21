@@ -170,6 +170,67 @@ Day type precedence when nothing is set explicitly: holiday rule → the weekly
 schedule in force that day (0 contracted hours means weekend) → ordinary
 working day. An explicit choice on the day always wins.
 
+The history is a `DatedHistory`, generic over what it dates, because pay
+changes the same way (below). `ScheduleHistory` is its week, stored exactly
+as before.
+
+## Earnings
+
+**Pay belongs to a job and changes from a date.** Each job carries an optional
+`PayHistory` — `DatedHistory<PayRules>` — and, while there is one job, it lives
+beside the top-level schedule as `primaryPay`, the way `primaryBreaksArePaid`
+does. A raise asks when it starts, with the same prompt as the week; the first
+rate a job is given applies since always, since nothing earned anything before
+it. No pay at all means earnings are not set up, which is what every older
+settings file and backup reads as, and then everything shows the hours balance
+as before. `AppSettings.mainFigure` chooses between the two once a rate is set;
+`showsEarnings` is the one question the screens ask.
+
+**Money is whole cents; percentages are whole percents.** `EarningsCalculator`
+works from days `PeriodEngine` has already resolved and never measures a shift
+again. It places each shift's worked minutes on the clock — unpaid timed breaks
+where they were, an untimed break out of the middle of the shift, a paid break
+left in — and then makes them agree with the worked minutes the day already
+has, putting any difference from rounding or a typed-in figure on the end of
+the day. Each minute pays the rate, and every surcharge covering it adds its
+percentage of the rate: Saturday, Sunday or public holiday (judged by the
+calendar day the minute falls on, so a Saturday night shift turns into Sunday
+at midnight; a holiday on a Saturday pays the holiday rate alone), night (the
+window may cross midnight), and overtime. Because the surcharges simply add,
+which minutes are overtime only decides which day they belong to. Credited
+paid absence earns its credited hours at the rate, with no surcharge. With
+several jobs each shift is paid by its own job, and credited hours split as
+`jobTotals` splits them.
+
+Overtime after the normal day is the minutes past the day's threshold — the
+week in force that day expects, unless one is set by hand. Overtime after the
+week counts minutes in date order from the first day of the user's week;
+credited hours fill the threshold first but are never overtime themselves. So
+a week cut in half by the start of a month still puts its overtime on the
+same days: `PeriodEngine.earnings` widens any range to whole weeks
+(`earningsRange(covering:)`, which is also what the callers fetch), works the
+weeks out whole, and only then cuts them to the range.
+
+A day is worked out exactly — in hundredths of a cent-minute — and rounded to
+the cent once, half up. Its parts are rounded through a running total, as
+`WorkSchedule` spreads a weekly target, so they add up to the day's total to
+the cent, and an `EarningsSummary` is a sum of days, so a month is exactly what
+its days say. Days before the balance starts and excluded days earn nothing,
+and a day after today earns nothing yet, even with something recorded on it:
+booked leave is owed hours, but it is not money earned.
+
+The currency is a code in settings, nil until chosen, which follows the
+phone's region; the engine stores the code and the cents and nothing else.
+`MoneyFormatting` is the one place cents become text, for the app, the widgets
+and the exports.
+
+**Money never reaches anyone else.** The site screens, the site widget card,
+the director's sheet and the crew lists are built without it — the site
+sheet's builder is never handed earnings, and the earnings column is never
+offered among the columns to choose. A personal timesheet carries an earnings
+column, tile and total only when Export options says so, which it does not by
+default.
+
 ## Holidays
 
 The app ships with **no** holidays and never guesses a country. Public holidays
@@ -260,6 +321,14 @@ instant being drawn: yesterday's total is not shown as today's, last week's
 bars are not shown under THIS WEEK, and yesterday's "written" is not today's.
 It decodes leniently, as settings do, so a widget updated before the app has
 run once reads the old file and leaves the new parts out.
+
+Earnings travel the same way: the writer runs `PeriodEngine.earnings` for the
+month and the week and writes today's, the week's and the month's cents with
+the currency code, and only while earnings are the main figure — so the
+block's presence is that choice, and an older file reads as hours. Each figure
+lapses with its day, week or month like the hours beside it. The running clock
+is not added to them: what its minutes pay depends on surcharges only the app
+works out, so the figure moves when the shift is saved.
 
 **A widget cannot write, so its buttons are links.** The store lives in the
 app's own container, not the shared one. "Same as yesterday" on the site
