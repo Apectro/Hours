@@ -18,6 +18,14 @@ final class FirstRunTests: XCTestCase {
         return app
     }
 
+    private func hittable(_ element: XCUIElement, timeout: TimeInterval = 10) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == true AND hittable == true"),
+            object: element
+        )
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
     /// Without the argument it is never shown: what the rest of the suite
     /// relies on.
     func testTheOtherTestsNeverSeeIt() {
@@ -46,9 +54,14 @@ final class FirstRunTests: XCTestCase {
         XCTAssertTrue(name.waitForExistence(timeout: 10), "the setup was not shown")
         name.tap()
         name.typeText("Marijo")
-        app.buttons["setup-continue"].tap()
+        // The keyboard is still sliding up when typing ends; a tap on
+        // Continue in that moment can land on nothing. Wait until it can
+        // actually be hit.
+        let next = app.buttons["setup-continue"]
+        XCTAssertTrue(hittable(next), "Continue could not be tapped with the keyboard up")
+        next.tap()
 
-        XCTAssertTrue(app.screen("screen-setup-week").waitForExistence(timeout: 5), "the week was not asked")
+        XCTAssertTrue(app.screen("screen-setup-week").waitForExistence(timeout: 10), "the week was not asked")
         // Saturday on, as someone who works six days would.
         app.buttons["setup-weekday-7"].tap()
         app.buttons["setup-continue"].tap()
