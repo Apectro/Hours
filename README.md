@@ -84,6 +84,16 @@ weather type. At month end each crew member checks their hours on your phone and
 signs with a finger; a signature whose hours change afterwards says so. The
 director's sheet can carry the diary and the signatures.
 
+**Extra work** (Regie) — what the crew did beyond the contract, written down so
+the boss can invoice it: "8 emergency lights and 10 lamps". Each job on a site
+day has what was done, material with −/+ steppers (or a typed 12.5 m), the items
+used before offered as chips, optional hours per person, photos and the
+client's optional finger signature. The site's Report button sums the material
+over the jobs not sent yet, this week or picked dates, takes an optional
+signature under the lot, and sends a PDF (or a workbook, or a CSV) in the
+export language; the jobs are marked sent once the share goes through, and
+invoiced when you say so. Quantities only — never a price.
+
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what
 you earned rather than the hours balance: overtime at the same rate or with a
 surcharge after your normal day or your week, Saturday, Sunday and holiday and
