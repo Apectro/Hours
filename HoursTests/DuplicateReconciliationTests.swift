@@ -174,4 +174,81 @@ final class DuplicateReconciliationTests: XCTestCase {
         XCTAssertEqual(repository.holidayRules().count, 1)
         XCTAssertEqual((try? context.fetchCount(FetchDescriptor<HolidayRecord>())) ?? 0, 1)
     }
+
+    /// The same holiday added on two devices before they synced: two ids,
+    /// one holiday. The older rule stays.
+    func testTheSameHolidayMadeOnTwoDevicesCollapsesToTheOlderRule() {
+        let (repository, context) = makeRepository()
+        let phone = HolidayRecord(rule: HolidayRule(name: "Christmas Day", recurrence: .annual(month: 12, day: 25)))
+        phone.createdAt = Date(timeIntervalSince1970: 100)
+        let iPad = HolidayRecord(rule: HolidayRule(name: "Christmas Day", recurrence: .annual(month: 12, day: 25)))
+        iPad.createdAt = Date(timeIntervalSince1970: 200)
+        let other = HolidayRecord(rule: HolidayRule(name: "Christtag", recurrence: .annual(month: 12, day: 25)))
+        context.insert(phone)
+        context.insert(iPad)
+        context.insert(other)
+        try? context.save()
+        let survivor = phone.identifier
+
+        let rules = repository.holidayRules()
+        XCTAssertEqual(rules.count, 2, "a differently named rule on the same date is the person's to keep")
+        XCTAssertTrue(rules.contains { $0.id == survivor })
+        XCTAssertEqual((try? context.fetchCount(FetchDescriptor<HolidayRecord>())) ?? 0, 2)
+    }
+
+    // MARK: - The site diary, its photos and the signatures
+
+    func testDuplicateDiariesCollapseToTheNewest() {
+        let context = ModelContext(HoursModelContainer.ephemeral())
+        let site = UUID()
+        let older = SiteDiaryEntry(diary: SiteDiary(siteID: site, date: date, workDone: "formwork"))
+        older.updatedAt = Date(timeIntervalSince1970: 100)
+        let newer = SiteDiaryEntry(diary: SiteDiary(siteID: site, date: date, workDone: "formwork, rebar"))
+        newer.updatedAt = Date(timeIntervalSince1970: 200)
+        context.insert(older)
+        context.insert(newer)
+        try? context.save()
+
+        XCTAssertEqual(SiteDiaryRepository(context: context).diary(siteID: site, on: date)?.workDone, "formwork, rebar")
+        XCTAssertEqual((try? context.fetchCount(FetchDescriptor<SiteDiaryEntry>())) ?? 0, 1)
+    }
+
+    func testOnePhotoStoredTwiceIsReadOnce() {
+        let context = ModelContext(HoursModelContainer.ephemeral())
+        let site = UUID()
+        let photo = DiaryPhoto(siteID: site, date: date, sortOrder: 0, jpegData: Data([0xFF, 0xD8, 0xFF]))
+        let first = SiteDiaryPhotoEntry(photo: photo)
+        first.updatedAt = Date(timeIntervalSince1970: 100)
+        let second = SiteDiaryPhotoEntry(photo: photo)
+        second.updatedAt = Date(timeIntervalSince1970: 200)
+        context.insert(first)
+        context.insert(second)
+        try? context.save()
+
+        XCTAssertEqual(SiteDiaryRepository(context: context).photos(siteID: site, on: date).map(\.id), [photo.id])
+        XCTAssertEqual((try? context.fetchCount(FetchDescriptor<SiteDiaryPhotoEntry>())) ?? 0, 1)
+    }
+
+    func testTwoSignaturesForOnePersonAndMonthCollapseToTheNewest() {
+        let context = ModelContext(HoursModelContainer.ephemeral())
+        let site = UUID()
+        let member = UUID()
+        let month = YearMonth(year: 2026, month: 8)
+        func signature(_ fingerprint: String) -> CrewSignature {
+            CrewSignature(
+                siteID: site, memberID: member, month: month, signedOn: date,
+                fingerprint: fingerprint, strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]]
+            )
+        }
+        let older = CrewSignatureEntry(signature: signature("before"))
+        older.updatedAt = Date(timeIntervalSince1970: 100)
+        let newer = CrewSignatureEntry(signature: signature("after"))
+        newer.updatedAt = Date(timeIntervalSince1970: 200)
+        context.insert(older)
+        context.insert(newer)
+        try? context.save()
+
+        XCTAssertEqual(SiteDiaryRepository(context: context).signatures(siteID: site, month: month).map(\.fingerprint), ["after"])
+        XCTAssertEqual((try? context.fetchCount(FetchDescriptor<CrewSignatureEntry>())) ?? 0, 1)
+    }
 }

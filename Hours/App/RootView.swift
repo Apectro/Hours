@@ -127,6 +127,7 @@ struct RootView: View {
             // without every screen in the app having to remember to.
             if phase == .background {
                 HoursStack.refreshWidget()
+                HoursStack.syncMonitor.appWentToBackground()
             }
         }
     }

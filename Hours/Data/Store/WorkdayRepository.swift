@@ -234,9 +234,18 @@ struct WorkdayRepository {
 
     private func deduplicatedHolidays(_ records: [HolidayRecord]) -> [HolidayRecord] {
         // Holiday rules carry no updatedAt, so creation is all there is.
-        context.collapseDuplicates(records, by: \.identifier) {
+        let kept = context.collapseDuplicates(records, by: \.identifier) {
             Freshness(updatedAt: $0.createdAt, createdAt: $0.createdAt)
         }.kept
+        // Then the same holiday made separately on two devices, which has two
+        // ids and so is not caught above. See `HolidayDuplicates`.
+        let redundant = HolidayDuplicates.redundant(kept.map { .init(rule: $0.rule, createdAt: $0.createdAt) })
+        guard !redundant.isEmpty else { return kept }
+        // Every survivor is chosen before anything is deleted, as above.
+        let survivors = kept.filter { !redundant.contains($0.identifier) }
+        for record in kept where redundant.contains(record.identifier) { context.delete(record) }
+        persist()
+        return survivors
     }
 
     // MARK: - Saving

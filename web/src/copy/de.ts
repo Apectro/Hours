@@ -134,7 +134,7 @@ export const de: Copy = {
     claims: [
       { claim: "Kein Konto, keine Anmeldung", evidence: "in der ganzen App gibt es keine Anmeldeschicht" },
       { claim: "Keine Analyse, kein Tracking", evidence: "keinerlei Code von Dritten in der App" },
-      { claim: "Nichts verlässt das Gerät", evidence: "außer du exportierst eine Datei und schickst sie selbst" },
+      { claim: "Nichts verlässt das Gerät", evidence: "außer du exportierst eine Datei und schickst sie selbst, oder schaltest die Synchronisierung in deine eigene private iCloud ein (ab 1.1)" },
       { claim: "Mannschaft und Lohn bleiben bei dir", evidence: "Baustellen, Namen und Stundenlöhne liegen auf dem Telefon; Geld steht nie auf einer Baustellenliste" },
       { claim: "Fragt nie, wo du bist", evidence: "kein CoreLocation-Import; das Feld ist ein Textfeld" },
       { claim: "Erinnerungen sind lokal", evidence: "UNCalendarNotificationTrigger, auf dem Gerät geplant" },

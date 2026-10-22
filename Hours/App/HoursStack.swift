@@ -16,32 +16,60 @@ enum HoursStack {
     static let isRunningUITests = ProcessInfo.processInfo.arguments.contains("-hours-ui-testing")
 
     /// Built once, on first use.
+    ///
+    /// Which store opens is decided by `SyncLaunch.plan`, in the engine, so
+    /// that no build can crash at launch because of sync: one not signed for
+    /// iCloud never opens the syncing store, a launch that died opening it is
+    /// not repeated, and a store that throws falls back to this device's own.
+    /// This only carries the plan out.
     private static let opened: (container: ModelContainer, failure: String?, isSyncing: Bool) = {
-        if isRunningUITests {
-            return (HoursModelContainer.ephemeral(), nil, false)
+        #if DEBUG || CLOUDKIT_SCHEMA_TOOLS
+        // Before the real stack, on a scratch store: see `CloudKitSchema`.
+        if !isRunningUITests, CloudKitSchema.isRequested {
+            CloudKitSchema.initialize()
+        }
+        #endif
+        let plan = SyncLaunch.plan(
+            isUITesting: isRunningUITests,
+            wantsSync: SyncPreference.isEnabled,
+            isCompiledIn: SyncPreference.isCompiledIn,
+            // Not even read in a UI test run, which never syncs.
+            entitlement: isRunningUITests ? .missing : SyncPreference.entitlement,
+            wasOpeningICloudStoreLastLaunch: !isRunningUITests && SyncLaunchMark.isSet
+        )
+        return open(following: plan)
+    }()
+
+    private static func open(following plan: SyncLaunchPlan) -> (container: ModelContainer, failure: String?, isSyncing: Bool) {
+        if !isRunningUITests {
+            // Set before the iCloud store is opened and cleared once it has
+            // proven itself (`SyncMonitor`); any other plan clears a stale one.
+            if plan.marksOpening { SyncLaunchMark.set() } else { SyncLaunchMark.clear() }
+            if plan.switchesSyncOff { SyncPreference.isEnabled = false }
+            if let problem = plan.problem { SyncPreference.problem = problem }
+        }
+        // Said once, on the launch that stopped sync; Settings › iCloud keeps
+        // saying why until it is turned on again.
+        let stopped = plan.problem.map { _ in
+            String(localized: "iCloud sync could not be started, so this device is using its own copy. Everything you enter is still saved here.")
         }
 
-        let wantsSync = SyncPreference.isEnabled
+        switch plan.store {
+        case .temporary:
+            return (HoursModelContainer.ephemeral(), nil, false)
 
-        if wantsSync {
+        case .iCloud:
             do {
                 return (try HoursModelContainer.make(syncsWithICloud: true), nil, true)
             } catch {
-                // Almost always the iCloud capability not being enabled in the
-                // build, or no iCloud account on the device. Falling back to
-                // the local store is right either way: the hours are on this
-                // device and readable, they are simply not being sent anywhere.
-                if let local = try? HoursModelContainer.make(syncsWithICloud: false) {
-                    return (
-                        local,
-                        "iCloud sync could not be started, so this device is using its own copy. Everything you enter is still saved here.",
-                        false
-                    )
-                }
+                // The hours are the same file either way: they are on this
+                // device and readable, simply not being sent anywhere.
+                return open(following: SyncLaunch.planAfterICloudStoreRefused)
             }
-        } else {
+
+        case .local:
             if let local = try? HoursModelContainer.make(syncsWithICloud: false) {
-                return (local, nil, false)
+                return (local, stopped, false)
             }
         }
 
@@ -49,10 +77,10 @@ enum HoursStack {
         // banner says so, which beats a blank screen over data nobody can reach.
         return (
             HoursModelContainer.ephemeral(),
-            "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved.",
+            String(localized: "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved."),
             false
         )
-    }()
+    }
 
     static var container: ModelContainer { opened.container }
     static var storeFailure: String? { opened.failure }
@@ -62,15 +90,18 @@ enum HoursStack {
     static var isSyncing: Bool { opened.isSyncing }
 
     /// Settings live in `UserDefaults`, not in the SwiftData store, so they
-    /// need their own way across. The key-value store is only reached once
-    /// a syncing container has opened, which is the proof that this build
-    /// actually carries the iCloud entitlement.
+    /// need their own way across (`SettingsSync`). The key-value store is only
+    /// reached once a syncing container has opened, which is the proof that
+    /// this build actually carries the iCloud entitlement.
     static let settings: SettingsStore = {
         // Defaults, and a suite nothing else reads: a UI test asserting on
         // "8h 30m" must not fail because the person running it prefers 8.50.
         if isRunningUITests { return SettingsStore.ephemeral() }
         return SettingsStore(shared: isSyncing ? NSUbiquitousKeyValueStore.default : nil)
     }()
+
+    /// What the syncing store has been doing. Started in the app's `init`.
+    static let syncMonitor = SyncMonitor()
 
     static let clock: ActiveShiftStore = isRunningUITests
         ? ActiveShiftStore.ephemeral()
