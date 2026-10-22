@@ -63,6 +63,15 @@ them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
 month says its sheet is ready for the director, and opens it.
 
+**Site diary, bad weather and sign-off** — under each site day, a short diary
+(Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
+problems and visitors, and up to six photos, stripped of their location. A
+"Rained off" button stops the whole crew for bad weather (Schlechtwetter), with
+no hours or keeping the hours until the stop, and gives your own day the Bad
+weather type. At month end each crew member checks their hours on your phone and
+signs with a finger; a signature whose hours change afterwards says so. The
+director's sheet can carry the diary and the signatures.
+
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what
 you earned rather than the hours balance: overtime at the same rate or with a
 surcharge after your normal day or your week, Saturday, Sunday and holiday and

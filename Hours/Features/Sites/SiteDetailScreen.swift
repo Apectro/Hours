@@ -25,6 +25,7 @@ struct SiteDetailScreen: View {
 
     @State private var editing: Site?
     @State private var exporting: Site?
+    @State private var readingDiary: Site?
     /// The month the export opens on; `nil` is last month, as the menu does.
     @State private var exportingMonth: YearMonth?
     /// The link's export is opened once. Coming back to the site from the
@@ -63,6 +64,16 @@ struct SiteDetailScreen: View {
                     // test can tap is the button.
                     .accessibilityIdentifier("site-crew")
 
+                    // A sheet rather than a push: the diary is read here and
+                    // written on the day screen underneath.
+                    Button {
+                        readingDiary = site
+                    } label: {
+                        Label("Site diary", systemImage: "text.book.closed")
+                    }
+                    .disabled(site == nil)
+                    .accessibilityIdentifier("site-diary-list")
+
                     // Open on a read-only site too: an archived site's months
                     // are still the director's to ask for.
                     Button {
@@ -100,6 +111,9 @@ struct SiteDetailScreen: View {
         // not have it yet the first time the screen is drawn.
         .onChange(of: site?.id, initial: true) { _, _ in
             openLinkedExport()
+        }
+        .sheet(item: $readingDiary) { site in
+            SiteDiaryListSheet(site: site)
         }
         .sheet(item: $editing) { site in
             SiteEditorSheet(

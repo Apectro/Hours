@@ -24,6 +24,21 @@ struct BackupArchive: Codable, Sendable {
     var crew: [CrewMember]?
     var siteDays: [SiteDay]?
 
+    /// The site diary, its photos and the crew's signatures (1.1).
+    ///
+    /// Optional for the reason sites are: nil is a file from before they
+    /// existed. The format version stays 1 because these are additions an
+    /// older app can skip — it reads its hours and ignores keys it does not
+    /// know — while raising it would make 1.0 refuse the whole file.
+    ///
+    /// Photos go in as base64, inside this one JSON file, so a backup stays a
+    /// single file that restores through the same door as ever. The cost is
+    /// size: a stored photo is roughly 200–500 KB, a third more as base64, so
+    /// a month with three photos on twenty days adds about 15–30 MB.
+    var diaries: [SiteDiary]?
+    var diaryPhotos: [DiaryPhoto]?
+    var signatures: [CrewSignature]?
+
     /// Days that were in the file and could not be read.
     ///
     /// Damage is rarely total. One day mangled by a bad edit, a truncated
@@ -48,6 +63,9 @@ struct BackupArchive: Codable, Sendable {
         sites: [Site]? = nil,
         crew: [CrewMember]? = nil,
         siteDays: [SiteDay]? = nil,
+        diaries: [SiteDiary]? = nil,
+        diaryPhotos: [DiaryPhoto]? = nil,
+        signatures: [CrewSignature]? = nil,
         damagedDays: [DamagedDay] = []
     ) {
         self.formatVersion = formatVersion
@@ -58,6 +76,9 @@ struct BackupArchive: Codable, Sendable {
         self.sites = sites
         self.crew = crew
         self.siteDays = siteDays
+        self.diaries = diaries
+        self.diaryPhotos = diaryPhotos
+        self.signatures = signatures
         self.damagedDays = damagedDays
     }
 
@@ -76,6 +97,7 @@ struct BackupArchive: Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case formatVersion, exportedAt, settings, days, holidays, sites, crew, siteDays
+        case diaries, diaryPhotos, signatures
     }
 
     /// Written out rather than synthesised, so that `damagedDays` being absent
@@ -92,6 +114,28 @@ struct BackupArchive: Codable, Sendable {
         try container.encodeIfPresent(sites, forKey: .sites)
         try container.encodeIfPresent(crew, forKey: .crew)
         try container.encodeIfPresent(siteDays, forKey: .siteDays)
+        try container.encodeIfPresent(diaries, forKey: .diaries)
+        try container.encodeIfPresent(diaryPhotos, forKey: .diaryPhotos)
+        try container.encodeIfPresent(signatures, forKey: .signatures)
+    }
+
+    /// What a restore leaves of a kind of site record the file may not know
+    /// about — diaries, photos, signatures.
+    ///
+    /// A file that carries the list replaces what is on the device. A file
+    /// from before the list existed keeps the device's, but only for sites the
+    /// file restores: a diary whose site the restore removed would belong to
+    /// nothing. A file with no site data at all (`restoredSiteIDs == nil`)
+    /// leaves the sites alone, and so leaves these alone too.
+    static func restoredItems<Item>(
+        fromFile: [Item]?,
+        onDevice: [Item],
+        restoredSiteIDs: Set<UUID>?,
+        siteID: KeyPath<Item, UUID>
+    ) -> [Item] {
+        if let fromFile { return fromFile }
+        guard let restoredSiteIDs else { return onDevice }
+        return onDevice.filter { restoredSiteIDs.contains($0[keyPath: siteID]) }
     }
 
     /// A day that was in the file and could not be read.
@@ -192,6 +236,9 @@ struct BackupArchive: Codable, Sendable {
             sites: container.lenientOptional(.sites),
             crew: container.lenientOptional(.crew),
             siteDays: container.lenientOptional(.siteDays),
+            diaries: container.lenientOptional(.diaries),
+            diaryPhotos: container.lenientOptional(.diaryPhotos),
+            signatures: container.lenientOptional(.signatures),
             damagedDays: damaged
         )
     }

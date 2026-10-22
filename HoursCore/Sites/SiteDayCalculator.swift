@@ -63,6 +63,8 @@ struct SiteDayCalculator: Sendable {
         let definition = settings.dayTypeCatalog.definition(for: .work)
         var warnings: [DayWarning] = []
         let shift = calculator.shiftMinutes(record: record, on: day.date, definition: definition, warnings: &warnings)
+        // Rained off before anyone started: no times is the answer, not a gap.
+        if day.isFullStop(for: attendance.memberID) { warnings.removeAll() }
 
         return PersonDay(
             memberID: attendance.memberID,

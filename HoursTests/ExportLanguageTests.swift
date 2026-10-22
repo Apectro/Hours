@@ -39,14 +39,14 @@ final class ExportLanguageTests: XCTestCase {
     /// Correction, Total and page. So they are enumerated, and anything else
     /// that matches is a translation nobody did.
     private static let sharedWithEnglish: [ExportLanguage: Set<ExportTerm>] = [
-        .german: [.name],
+        .german: [.name, .weatherFrost, .weatherWind],
         .croatian: [],
         .slovenian: [],
         .italian: [],
         .french: [.date, .dayType, .notes, .correction, .total, .page],
         .spanish: [.total],
         .portuguese: [.total],
-        .dutch: [.dayType, .weekend],
+        .dutch: [.dayType, .weekend, .weatherWind],
         .polish: [.weekend]
     ]
 

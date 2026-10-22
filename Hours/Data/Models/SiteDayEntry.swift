@@ -28,6 +28,9 @@ final class SiteDayEntry {
     /// `SiteDay.jobID`, as `uuidString`: the job frozen on the day when it was
     /// written. `nil` means the default job.
     var jobID: String?
+    /// `SiteDay.isBadWeatherStop`. Added in schema V4 with a default, so a
+    /// row written before it reads as an ordinary day.
+    var isBadWeatherStop: Bool = false
 
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
@@ -57,7 +60,8 @@ extension SiteDayEntry {
             breakMinutes: breakMinutes,
             present: SiteDayEntry.decodePresent(presentData),
             note: note,
-            jobID: jobID.flatMap(UUID.init(uuidString:))
+            jobID: jobID.flatMap(UUID.init(uuidString:)),
+            isBadWeatherStop: isBadWeatherStop
         )
     }
 
@@ -71,6 +75,7 @@ extension SiteDayEntry {
         presentData = SiteDayEntry.encodePresent(day.present)
         note = day.note
         jobID = day.jobID?.uuidString
+        isBadWeatherStop = day.isBadWeatherStop
         updatedAt = Date()
     }
 
