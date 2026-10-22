@@ -69,6 +69,17 @@ struct SettingsScreen: View {
                         )
                     }
                     NavigationLink {
+                        LeaveSettingsScreen()
+                    } label: {
+                        // The allowance, as a bare number like the day types' count.
+                        SettingsRow(
+                            title: String(localized: "Leave"),
+                            value: HalfDays(days: settings.leave.allowanceDays).localized,
+                            systemImage: "beach.umbrella"
+                        )
+                    }
+                    .accessibilityIdentifier("settings-leave")
+                    NavigationLink {
                         PaySettingsScreen(jobID: settings.primaryJob.id)
                     } label: {
                         SettingsRow(

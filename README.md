@@ -58,6 +58,18 @@ than sitting greyed out.
 balance, averages, day counts, and a running balance that is always recomputed
 from the days rather than stored.
 
+**Leave** — set your yearly vacation allowance, when your leave year starts,
+and any days carried over (and when they expire) in Settings › Leave. Insights
+shows "18 of 25 left · 2 planned", and the day editor says what a vacation day
+would leave. A built-in *Time off in lieu* day (Zeitausgleich) spends overtime:
+the day's hours come off the balance, and Insights says how many days off the
+balance is worth.
+
+**Your year** — from Insights' year view, and once in late December, a
+full-screen set of cards: hours, days on sites, the busiest month, the longest
+day, the year's balance, leave taken, and earnings when a rate is set. Share
+turns it into a picture; nothing about anybody else's hours is in it.
+
 **Sites** — a site's crew is entered once and the day's times once for all of
 them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
@@ -101,6 +113,7 @@ balance = (worked + credited) − expected + adjustment
 - Vacation on a Tuesday → 8 h credited against 8 h expected → 0
 - Vacation on a Saturday → nothing expected, nothing credited → 0
 - Two hours worked on a public holiday → +2 h
+- Time off in lieu on a Tuesday → nothing worked, 8 h expected → −8 h
 
 Worked time and credited paid absence are always reported separately, so a month
 reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather than

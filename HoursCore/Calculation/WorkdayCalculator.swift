@@ -229,7 +229,8 @@ struct WorkdayCalculator: Sendable {
                     breakMinutes: breakTotal,
                     crossesMidnight: crossesMidnight,
                     jobID: shift.jobID,
-                    timedBreaks: timedBreaks
+                    timedBreaks: timedBreaks,
+                    siteID: shift.siteID
                 )
             )
         }

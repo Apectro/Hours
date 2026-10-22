@@ -35,11 +35,19 @@ struct CumulativeBalanceCard: View {
                     .textCase(.uppercase)
                     .tracking(0.4)
 
+                let balance = self.balance
                 BalanceText(
                     minutes: balance,
                     formatting: settings.displayFormatting,
                     font: .hoursFigure(.largeTitle)
                 )
+
+                if let available = overtimeAvailable(balance) {
+                    Text(available)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.hoursPositive)
+                        .accessibilityIdentifier("insights-overtime-available")
+                }
 
                 Text(caption)
                     .font(.footnote)
@@ -71,6 +79,31 @@ struct CumulativeBalanceCard: View {
             countingThrough: CalendarDate.today(in: calendar),
             records: { _ in records }
         )
+    }
+
+    /// "Overtime available: +12h 30m · about 1.5 days off", from the week in
+    /// force on the last day the balance covers, or today if that is later.
+    private func overtimeAvailable(_ balance: Int) -> String? {
+        let day = min(through, CalendarDate.today(in: calendar))
+        guard let available = OvertimeAvailable(balanceMinutes: balance, on: day, settings: settings) else { return nil }
+        let amount = settings.displayFormatting.signedString(available.minutes)
+        switch available.daysOff {
+        case .some(let days) where days == HalfDays(days: 1):
+            return String(
+                localized: "Overtime available: \(amount) · about 1 day off",
+                comment: "Insights, under the running balance; the value is a duration"
+            )
+        case .some(let days) where days > .zero:
+            return String(
+                localized: "Overtime available: \(amount) · about \(days.localized) days off",
+                comment: "Insights, under the running balance; a duration, then a number of days such as 1.5"
+            )
+        default:
+            return String(
+                localized: "Overtime available: \(amount)",
+                comment: "Insights, under the running balance; the value is a duration"
+            )
+        }
     }
 
     private var caption: String {
