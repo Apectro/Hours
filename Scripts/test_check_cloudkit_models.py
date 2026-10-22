@@ -10,6 +10,7 @@ Run: python3 Scripts/test_check_cloudkit_models.py
 """
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -49,9 +50,26 @@ class CloudKitModelCheckTests(unittest.TestCase):
         with open(os.path.join(self.root, MODELS, name), "w", encoding="utf-8") as handle:
             handle.write(source)
 
+    def newest_version(self):
+        """The highest HoursSchemaV<n> in the copied schema: the live one.
+
+        Read rather than written down, so these tests keep planting into the
+        live version when the next one is added.
+        """
+        with open(os.path.join(self.root, SCHEMA), encoding="utf-8") as handle:
+            source = handle.read()
+        return max(int(n) for n in re.findall(r"enum\s+HoursSchemaV(\d+)\s*:\s*VersionedSchema", source))
+
     def list_in_schema(self, *names):
-        anchor = "SiteDiaryEntry.self, SiteDiaryPhotoEntry.self, CrewSignatureEntry.self"
-        self.replace(SCHEMA, anchor, anchor + "".join(f", {name}.self" for name in names))
+        """Adds models to the live version's list, the last thing in its array."""
+        path = os.path.join(self.root, SCHEMA)
+        with open(path, encoding="utf-8") as handle:
+            source = handle.read()
+        start = source.index(f"enum HoursSchemaV{self.newest_version()}")
+        close = source.index("\n        ]", source.index("static var models", start))
+        extra = "".join(f", {name}.self" for name in names)
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(source[:close] + extra + source[close:])
 
     def assertFails(self, *needles):
         code, output = self.run_check()
@@ -201,15 +219,16 @@ final class Forgotten {
     var name: String = ""
 }
 """)
-        self.assertFails("Forgotten", "HoursSchemaV4")
+        self.assertFails("Forgotten", f"HoursSchemaV{self.newest_version()}")
 
     def test_a_listed_model_that_cannot_be_found_fails(self):
         self.list_in_schema("Ghost")
         self.assertFails("Ghost")
 
     def test_the_newest_version_is_the_one_checked(self):
-        # Freeze V4 the way the Persistence rules ask and add a V5 listing a
-        # model with a unique constraint: V5 is now what CloudKit sees.
+        # Add a version after the live one listing a model with a unique
+        # constraint: that newer version is now what CloudKit sees.
+        later = self.newest_version() + 1
         self.add_model_file("Planted.swift", """
 import SwiftData
 
@@ -219,19 +238,19 @@ final class Newcomer {
 }
 """)
         with open(os.path.join(self.root, SCHEMA), "a", encoding="utf-8") as handle:
-            handle.write("""
-enum HoursSchemaV5: VersionedSchema {
-    static var versionIdentifier: Schema.Version { Schema.Version(5, 0, 0) }
+            handle.write(f"""
+enum HoursSchemaV{later}: VersionedSchema {{
+    static var versionIdentifier: Schema.Version {{ Schema.Version({later}, 0, 0) }}
 
-    static var models: [any PersistentModel.Type] {
+    static var models: [any PersistentModel.Type] {{
         [
             DayEntry.self, HolidayRecord.self, SiteEntry.self, CrewMemberEntry.self, SiteDayEntry.self,
             SiteDiaryEntry.self, SiteDiaryPhotoEntry.self, CrewSignatureEntry.self, Newcomer.self
         ]
-    }
-}
+    }}
+}}
 """)
-        self.assertFails("Newcomer.code", "HoursSchemaV5")
+        self.assertFails("Newcomer.code", f"HoursSchemaV{later}")
 
 
 if __name__ == "__main__":
