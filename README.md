@@ -255,7 +255,10 @@ directly.
 The watch app (`app.zeitkonto.hours.watchkitapp`) and its complications
 (`…watchkitapp.complications`) carry the same App Group, on the watch, for the
 complications to read what the app last heard; tick it on both identifiers as
-above. They build on their own with the *HoursWatch* scheme.
+above. The iPhone app embeds the watch app, so the *Hours* scheme, CI and the
+TestFlight workflow build it too; the TestFlight preflight registers the two
+identifiers itself, and match makes their profiles. They also build on their
+own with the *HoursWatch* scheme.
 
 ## iCloud
 
@@ -371,7 +374,10 @@ Manager role to create products.
 7. **The build** — run TestFlight with *Unlock Pro for testers* **off**, pick
    that build on the version page, and add the three products to the version
    (the first in-app purchases have to be submitted with an app version).
-8. **The owner's name** in `fastlane/metadata/copyright.txt`, and the contact
+8. **Apple Watch screenshots** — a build that carries a watch app cannot be
+   submitted without at least one, on the version page under Apple Watch.
+   `ScreenshotTests` takes iPhone shots only.
+9. **The owner's name** in `fastlane/metadata/copyright.txt`, and the contact
    email on the privacy and support pages (`notes/app-store-listing.md` says
    where).
 

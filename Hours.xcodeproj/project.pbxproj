@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AA000000000000000000006A /* HoursWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000061 /* HoursWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AA000000000000000000009A /* HoursWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000A1 /* HoursWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA00000000000000000000B2 /* HoursWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000091 /* HoursWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +33,17 @@
 				AA000000000000000000009A /* HoursWatchWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000B3 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				AA00000000000000000000B2 /* HoursWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -185,11 +197,13 @@
 				AA0000000000000000000014 /* Frameworks */,
 				AA0000000000000000000015 /* Resources */,
 				AA0000000000000000000069 /* Embed Foundation Extensions */,
+				AA00000000000000000000B3 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				AA000000000000000000006B /* PBXTargetDependency */,
+				AA00000000000000000000B4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000050 /* HoursCore */,
@@ -499,6 +513,11 @@
 			target = AA00000000000000000000A0 /* HoursWatchWidgetExtension */;
 			targetProxy = AA000000000000000000009C /* PBXContainerItemProxy */;
 		};
+		AA00000000000000000000B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000090 /* HoursWatch */;
+			targetProxy = AA00000000000000000000B5 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXContainerItemProxy section */
@@ -529,6 +548,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AA00000000000000000000A0;
 			remoteInfo = HoursWatchWidgetExtension;
+		};
+		AA00000000000000000000B5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000090;
+			remoteInfo = HoursWatch;
 		};
 /* End PBXContainerItemProxy section */
 
