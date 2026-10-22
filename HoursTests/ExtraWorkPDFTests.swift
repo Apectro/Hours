@@ -34,14 +34,16 @@ final class ExtraWorkPDFTests: XCTestCase {
 
     private func pages(_ document: ExtraWorkDocument) throws -> [String] {
         let pdf = try XCTUnwrap(PDFDocument(data: ExtraWorkPDFRenderer.data(for: document)))
-        return (0..<pdf.pageCount).map { pdf.page(at: $0)?.string ?? "" }
+        // PDFKit may hand back "š" as "s" and a combining caron; compare the
+        // composed form, which is the same text.
+        return (0..<pdf.pageCount).map { (pdf.page(at: $0)?.string ?? "").precomposedStringWithCanonicalMapping }
     }
 
     func testTheGermanPageSaysItInGerman() throws {
         let text = try pages(document(.german)).joined(separator: "\n")
         XCTAssertTrue(text.contains("REGIEARBEITEN"), text)
         XCTAssertTrue(text.contains("Trg Pravde Zagreb"))
-        XCTAssertTrue(text.contains("Erfasst von Marijo Mikša"))
+        XCTAssertTrue(text.contains("Erfasst von Marijo Mikša"), text)
         XCTAssertTrue(text.contains("MATERIAL GESAMT"))
         XCTAssertTrue(text.contains("Stk"))
         XCTAssertTrue(text.contains("Emergency light"), "the user's own words")

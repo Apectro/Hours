@@ -235,7 +235,9 @@ enum ExtraWorkPDFRenderer {
         )
         PDFReportStyle.drawWrapping(
             document.byline,
-            in: CGRect(x: margin, y: y + 43, width: textWidth, height: 24),
+            // Under the tiles, which end above it, so it has the full width:
+            // squeezed beside four tiles it broke in the middle of a name.
+            in: CGRect(x: margin, y: y + 43, width: width, height: 24),
             font: PDFReportStyle.bylineFont,
             color: PDFReportStyle.secondary
         )
