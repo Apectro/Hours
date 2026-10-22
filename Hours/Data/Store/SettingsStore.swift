@@ -33,19 +33,29 @@ final class SettingsStore {
 
         let local = SettingsStore.load(from: defaults, key: storageKey)
         let remote = shared.flatMap { SettingsStore.decode($0.data(forKey: storageKey)) }
-        // On a device joining an existing sync, the remote copy is the one the
-        // other devices are already computing from; a device with settings of
-        // its own has already written them up, so the two agree. Preferring
-        // local here would mean a new phone's defaults overwriting a schedule
-        // set up months ago.
-        self.settings = remote ?? local ?? AppSettings()
+        // Which copy wins, and what a device joining keeps of its own, is
+        // decided in the engine; see `SettingsSync`. Without sync this is
+        // simply the local copy, or the defaults.
+        let outcome = SettingsSync.atLaunch(
+            local: local,
+            remote: remote,
+            hasJoined: shared == nil || defaults.bool(forKey: SettingsStore.joinedKey)
+        )
+        self.settings = outcome.settings
 
-        // A copy taken from iCloud is written down here as well. Without this
-        // it would live only in the key-value store, and switching sync off
-        // would drop the device back to whatever stale settings it had before
-        // — or to defaults, on a device that had never had any.
-        if remote != nil, remote != local {
-            persistLocally()
+        if let shared {
+            // A copy taken from iCloud is written down here as well. Without
+            // this it would live only in the key-value store, and switching
+            // sync off would drop the device back to whatever stale settings
+            // it had before — or to defaults, on a device that had never had
+            // any.
+            if outcome.writesLocally { persistLocally() }
+            // The first device uploads what it has now rather than at its next
+            // change, so a second device joining finds it.
+            if outcome.pushes, let data = try? JSONEncoder().encode(settings) {
+                shared.set(data, forKey: storageKey)
+            }
+            defaults.set(outcome.hasJoined, forKey: SettingsStore.joinedKey)
         }
 
         if let shared {
@@ -109,9 +119,20 @@ final class SettingsStore {
             let incoming = SettingsStore.decode(shared.data(forKey: storageKey)),
             incoming != settings
         else { return }
-        settings = incoming
-        persistLocally()
+        let outcome = SettingsSync.incoming(incoming, current: settings, hasJoined: defaults.bool(forKey: SettingsStore.joinedKey))
+        settings = outcome.settings
+        if outcome.writesLocally { persistLocally() }
+        if outcome.pushes, let data = try? JSONEncoder().encode(settings) {
+            shared.set(data, forKey: storageKey)
+        }
+        defaults.set(outcome.hasJoined, forKey: SettingsStore.joinedKey)
     }
+
+    /// Whether this installation has joined the copy in iCloud (see
+    /// `SettingsSync`). The installation's, like the sync preference, and
+    /// forgotten when sync is switched off, so turning it on again joins
+    /// afresh.
+    static let joinedKey = "hours.settingsJoinedICloud"
 
     private static func decode(_ data: Data?) -> AppSettings? {
         guard let data else { return nil }

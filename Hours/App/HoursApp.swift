@@ -11,6 +11,9 @@ struct HoursApp: App {
         // Here rather than in a view: a message from the watch launches the
         // app in the background, where no window — and no view — appears.
         PhoneWatchLink.shared.activate()
+        // Before the store opens, so CloudKit's first setup report is heard
+        // and the launch mark cleared by it (see `SyncLaunch`).
+        HoursStack.syncMonitor.start()
     }
 
     var body: some Scene {

@@ -181,7 +181,9 @@ struct SettingsScreen: View {
                 }
 
                 Section("Data") {
-                    if SyncPreference.isAvailable {
+                    // Shown in every build compiled with sync, even one not
+                    // signed for it, where the screen says why it cannot.
+                    if SyncPreference.offer != .hidden {
                         NavigationLink {
                             SyncSettingsScreen()
                         } label: {

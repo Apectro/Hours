@@ -263,30 +263,58 @@ own with the *HoursWatch* scheme.
 ## iCloud
 
 Off by default, and the app is designed to be complete without it. Turn it on
-in Settings › iCloud and your days and holidays go into **your own** private
-iCloud storage, which only your devices can read — no account to make, no
-server of ours, nothing that any third party sees. Your settings travel with
-them, through iCloud's key-value storage, because a second device computing
-expected hours from a different contracted week would produce wrong figures
-rather than merely different ones.
+in Settings › iCloud and your days, holidays, sites, crews, site diaries and
+signatures go into **your own** private iCloud database, which only your
+devices can read — no account to make, no server of ours, nothing that any
+third party sees. Your settings travel with them, through iCloud's key-value
+storage, because a second device computing expected hours from a different
+contracted week would produce wrong figures rather than merely different ones.
 
 A store's iCloud setting is fixed at the moment it opens, so the switch takes
 effect the next time the app is opened, and says so rather than pretending
-otherwise.
+otherwise. Turning it on mirrors the store already on the phone — the same
+file — so months of hours go up with it; a second device's own days merge in.
 
 Two devices can each record the same Tuesday while offline, and CloudKit has no
 idea the two rows mean the same day — it merges both in. The last one edited
-wins and the other is removed the moment the day is next read. Hours are not
-meaningfully mergeable: a start time from one device and an end time from
-another would invent a shift nobody worked.
+wins and the other is removed the moment the day is next read, or as soon as
+the import lands. Hours are not meaningfully mergeable: a start time from one
+device and an end time from another would invent a shift nobody worked. The
+same holiday added separately on two devices collapses to one.
 
-**iCloud needs a paid Apple Developer account**, like the widgets. It is not
-wired into the entitlements for the same reason, so a free-account build still
-installs. To enable it: select the **Hours** target, Signing & Capabilities,
-add **iCloud**, tick **CloudKit** and **Key-value storage**, and create the
-container `iCloud.app.zeitkonto`. If the switch is on but the entitlement is
-missing, the app opens its local store instead and says so; it never refuses to
-start.
+**It can never stop the app from opening.** 1.0 in TestFlight crashed at every
+launch once sync was on, because that build was not signed for iCloud. Now the
+app reads its own code signature before it opens anything, and a build without
+the iCloud entitlement keeps sync off and says why in Settings › iCloud; a
+launch that dies while connecting is not repeated; and a store that refuses
+falls back to the phone's own. See ARCHITECTURE.md, *Persistence*.
+
+**Setting it up needs a paid Apple Developer account**, once, in this order:
+
+1. developer.apple.com › Certificates, Identifiers & Profiles › Identifiers ›
+   **+** › **iCloud Containers**: description *Zeitkonto*, identifier
+   `iCloud.app.zeitkonto`.
+2. Open the identifier `app.zeitkonto.hours`: tick **iCloud** (*Include
+   CloudKit support*), **Configure**, tick `iCloud.app.zeitkonto`; tick **Push
+   Notifications** (no certificate needed). Save, and confirm the dialog about
+   profiles. (The TestFlight preflight switches iCloud and Push on by itself if
+   it can; only the container needs the website.)
+3. Run *TestFlight* with **CloudKit development** ticked. It makes new signing
+   profiles by itself, and stops before building, with these steps, if the
+   profile still lacks the container. Install that build, open Settings ›
+   iCloud and tap **Initialise the CloudKit schema (Development)** once. (With a
+   Mac instead: run the Debug build from Xcode with the launch argument
+   `-hours-initialize-cloudkit-schema`.)
+4. icloud.developer.apple.com › CloudKit Console › `iCloud.app.zeitkonto` ›
+   Schema: the `CD_…` record types are in Development. **Deploy Schema
+   Changes…** to Production.
+5. Run *TestFlight* again **without** CloudKit development: that is the build
+   for testers and App Review. Never submit a CloudKit development build.
+
+Until step 4, sync in a TestFlight build opens but uploads nothing, and
+Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new
+schema version adds or changes stored models. A simulator or free-account build
+is not signed for iCloud: the row is there, switched off, and says why.
 
 Sync is not a backup. A day you delete is deleted everywhere.
 
@@ -360,13 +388,15 @@ Manager role to create products.
 **Still by hand, in order:**
 
 1. **Apple Developer Program** — $99 a year. Nothing here works without it.
-2. **Bundle identifiers and App Group** — see *Widgets* above; the TestFlight
-   preflight checks them.
+2. **Bundle identifiers, App Group and iCloud** — see *Widgets* and *iCloud*
+   above; the TestFlight preflight checks them.
 3. **Paid Applications agreement** — App Store Connect › Business. Until it is
    signed and the bank and tax details are accepted, purchases fail with no
    useful error.
 4. **App Privacy** — "Data Not Collected". True here: no analytics, no
-   third-party code, no account, nothing sent anywhere.
+   third-party code, no account, nothing sent to us or anyone else; sync goes to
+   the user's own private iCloud, which Apple does not count as collection by
+   the developer.
 5. **App Review contact** — name, phone and email under App Review
    Information. Deliberately not in this repository.
 6. **A review screenshot for each product** — a picture of the paywall, on each
@@ -386,6 +416,7 @@ the real ones are the ones above, and live in App Store Connect.
 
 ## Backups
 
-Nothing is synced anywhere, so a backup file is the only copy that survives
-losing the device. Settings › Backup and data writes plain, readable JSON
+Unless sync is on, nothing is kept anywhere else, so a backup file is the only
+copy that survives losing the device — and even with sync on, it is the only
+copy a deletion cannot reach. Settings › Backup and data writes plain, readable JSON
 containing every day, every holiday and all your settings, and restores it.

@@ -1,7 +1,7 @@
 Zeitkonto is free, with every feature unlocked. This version sells nothing: there are no in-app purchases, no subscriptions and no paywall. (The app contains StoreKit code for a later paid version; in this build it is switched off and never offers a purchase.)
 
-NO ACCOUNT, NO NETWORK
-There is no account and no login, so no demo account is needed. The app makes no network requests of its own. This version does not offer iCloud sync. There is no analytics, no tracking, no ads and no third-party code.
+NO ACCOUNT, NO SERVER
+There is no account and no login, so no demo account is needed. The app makes no network requests of its own. iCloud sync is optional and off by default (Settings > iCloud): when the user turns it on, the app's data is mirrored by SwiftData/CloudKit into the user's own private iCloud database, which only their devices can read; nothing is sent to us or to anyone else. There is no analytics, no tracking, no ads and no third-party code.
 
 PERMISSIONS
 Notifications only, and only when the user turns a reminder on. The optional "location" field on a day is text the user types: the app never asks for location permission and links no location framework.

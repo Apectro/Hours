@@ -22659,6 +22659,65 @@
         }
       }
     },
+    "No iCloud account is signed in on this device, so nothing is being synced. Sign in in the Settings app and sync starts by itself.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Gerät ist kein iCloud-Account angemeldet, deshalb wird nichts synchronisiert. Melde dich in der Einstellungen-App an, dann startet Sync von selbst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay ninguna cuenta de iCloud en este dispositivo, así que no se sincroniza nada. Inicia sesión en la app Ajustes y la sincronización empezará sola."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun compte iCloud n'est connecté sur cet appareil, rien n'est donc synchronisé. Connectez-vous dans l'app Réglages et la synchronisation démarrera d'elle-même."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na ovom uređaju nije prijavljen iCloud račun pa se ništa ne sinkronizira. Prijavi se u aplikaciji Postavke i sinkronizacija će krenuti sama."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su questo dispositivo non c'è nessun account iCloud, quindi non si sincronizza nulla. Accedi nell'app Impostazioni e la sincronizzazione partirà da sola."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op dit apparaat is geen iCloud-account ingelogd, dus er wordt niets gesynchroniseerd. Log in via de app Instellingen en de synchronisatie start vanzelf."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na tym urządzeniu nie jest zalogowane żadne konto iCloud, więc nic nie jest synchronizowane. Zaloguj się w aplikacji Ustawienia, a synchronizacja ruszy sama."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há nenhuma conta iCloud com sessão iniciada neste dispositivo, por isso nada está a ser sincronizado. Inicia sessão na app Definições e a sincronização começa sozinha."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V tej napravi ni prijavljen noben račun iCloud, zato se nič ne sinhronizira. Prijavi se v aplikaciji Nastavitve in sinhronizacija se bo začela sama."
+          }
+        }
+      }
+    },
     "No location access": {
       "extractionState": "manual",
       "localizations": {
@@ -29287,6 +29346,65 @@
         }
       }
     },
+    "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernt jeden erfassten Tag, Feiertag und jede Baustelle von diesem Gerät und, weil Sync an ist, auch von deinen anderen Geräten. Einstellungen bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina cada día, festivo y obra registrados de este dispositivo y, como la sincronización está activada, también de tus otros dispositivos. Los ajustes se conservan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprime chaque jour, jour férié et chantier enregistré de cet appareil et, comme la synchronisation est activée, de vos autres appareils aussi. Les réglages sont conservés."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uklanja svaki zabilježeni dan, praznik i gradilište s ovog uređaja i, jer je sinkronizacija uključena, i s tvojih drugih uređaja. Postavke ostaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuove ogni giorno, festività e cantiere registrati da questo dispositivo e, poiché la sincronizzazione è attiva, anche dagli altri tuoi dispositivi. Le impostazioni restano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijdert elke vastgelegde dag, feestdag en bouwplaats van dit apparaat en, omdat synchronisatie aan staat, ook van je andere apparaten. Instellingen blijven behouden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuwa każdy zapisany dzień, święto i budowę z tego urządzenia, a ponieważ synchronizacja jest włączona, także z twoich innych urządzeń. Ustawienia pozostają."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove todos os dias, feriados e obras registados deste dispositivo e, como a sincronização está ligada, também dos teus outros dispositivos. As definições são mantidas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstrani vsak zabeležen dan, praznik in gradbišče iz te naprave in, ker je sinhronizacija vklopljena, tudi iz tvojih drugih naprav. Nastavitve ostanejo."
+          }
+        }
+      }
+    },
     "Removes every recorded day, holiday and site from this device. Settings are kept.": {
       "extractionState": "manual",
       "localizations": {
@@ -29755,6 +29873,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zamenjaj dneve, ki že imajo ure"
+          }
+        }
+      }
+    },
+    "Replace everything on this device and your other devices with the backup?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles auf diesem Gerät und deinen anderen Geräten durch die Sicherung ersetzen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Sustituir todo lo de este dispositivo y de tus otros dispositivos por la copia?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacer tout le contenu de cet appareil et de vos autres appareils par la sauvegarde ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamijeniti sve na ovom uređaju i tvojim drugim uređajima sadržajem kopije?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituire tutto su questo dispositivo e sugli altri tuoi dispositivi con il backup?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles op dit apparaat en je andere apparaten vervangen door de back-up?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zastąpić wszystko na tym urządzeniu i twoich innych urządzeniach kopią zapasową?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substituir tudo neste dispositivo e nos teus outros dispositivos pela cópia?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamenjam vse v tej napravi in tvojih drugih napravah z varnostno kopijo?"
           }
         }
       }
@@ -35217,6 +35394,301 @@
           "stringUnit": {
             "state": "translated",
             "value": "Simbol"
+          }
+        }
+      }
+    },
+    "Sync couldn't start: Zeitkonto couldn't confirm that this copy may use iCloud.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync konnte nicht starten: Zeitkonto konnte nicht bestätigen, dass diese Kopie iCloud nutzen darf."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la sincronización: Zeitkonto no pudo confirmar que esta copia pueda usar iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation n'a pas pu démarrer : Zeitkonto n'a pas pu confirmer que cette copie peut utiliser iCloud."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija se nije mogla pokrenuti: Zeitkonto nije mogao potvrditi da ova kopija smije koristiti iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare la sincronizzazione: Zeitkonto non ha potuto confermare che questa copia possa usare iCloud."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie kon niet starten: Zeitkonto kon niet bevestigen dat deze kopie iCloud mag gebruiken."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się uruchomić synchronizacji: Zeitkonto nie mógł potwierdzić, że ta kopia może używać iCloud."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a sincronização: o Zeitkonto não conseguiu confirmar que esta cópia pode usar o iCloud."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacije ni bilo mogoče zagnati: Zeitkonto ni mogel potrditi, da ta kopija sme uporabljati iCloud."
+          }
+        }
+      }
+    },
+    "Sync couldn't start: Zeitkonto stopped while connecting to iCloud last time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync konnte nicht starten: Zeitkonto wurde beim letzten Mal beim Verbinden mit iCloud beendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la sincronización: la última vez Zeitkonto se cerró mientras se conectaba a iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation n'a pas pu démarrer : la dernière fois, Zeitkonto s'est arrêté pendant la connexion à iCloud."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija se nije mogla pokrenuti: Zeitkonto se prošli put zaustavio dok se povezivao s iCloudom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare la sincronizzazione: l'ultima volta Zeitkonto si è chiuso mentre si collegava a iCloud."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie kon niet starten: Zeitkonto stopte de vorige keer tijdens het verbinden met iCloud."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się uruchomić synchronizacji: ostatnim razem Zeitkonto zamknął się podczas łączenia z iCloud."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a sincronização: da última vez, o Zeitkonto fechou enquanto se ligava ao iCloud."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacije ni bilo mogoče zagnati: Zeitkonto se je zadnjič ustavil med povezovanjem z iCloudom."
+          }
+        }
+      }
+    },
+    "Sync couldn't start: iCloud wouldn't open the data on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync konnte nicht starten: iCloud wollte die Daten auf diesem Gerät nicht öffnen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la sincronización: iCloud no quiso abrir los datos de este dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation n'a pas pu démarrer : iCloud n'a pas voulu ouvrir les données de cet appareil."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija se nije mogla pokrenuti: iCloud nije htio otvoriti podatke na ovom uređaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare la sincronizzazione: iCloud non ha aperto i dati su questo dispositivo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie kon niet starten: iCloud wilde de gegevens op dit apparaat niet openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się uruchomić synchronizacji: iCloud nie chciał otworzyć danych na tym urządzeniu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a sincronização: o iCloud não quis abrir os dados deste dispositivo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacije ni bilo mogoče zagnati: iCloud ni hotel odpreti podatkov v tej napravi."
+          }
+        }
+      }
+    },
+    "Sync couldn't start: this copy of Zeitkonto isn't signed for iCloud.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync konnte nicht starten: Diese Kopie von Zeitkonto ist nicht für iCloud signiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la sincronización: esta copia de Zeitkonto no está firmada para iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation n'a pas pu démarrer : cette copie de Zeitkonto n'est pas signée pour iCloud."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija se nije mogla pokrenuti: ova kopija Zeitkonta nije potpisana za iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile avviare la sincronizzazione: questa copia di Zeitkonto non è firmata per iCloud."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie kon niet starten: deze kopie van Zeitkonto is niet ondertekend voor iCloud."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się uruchomić synchronizacji: ta kopia Zeitkonto nie jest podpisana do iCloud."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a sincronização: esta cópia do Zeitkonto não está assinada para o iCloud."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacije ni bilo mogoče zagnati: ta kopija Zeitkonta ni podpisana za iCloud."
+          }
+        }
+      }
+    },
+    "Sync has been switched off, and everything is still saved on this device. Turn it on again to try once more.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync wurde ausgeschaltet, und alles ist weiter auf diesem Gerät gespeichert. Schalte es wieder ein, um es noch einmal zu versuchen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización se ha desactivado y todo sigue guardado en este dispositivo. Vuelve a activarla para intentarlo otra vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation a été désactivée, et tout reste enregistré sur cet appareil. Réactivez-la pour réessayer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija je isključena, a sve je i dalje spremljeno na ovom uređaju. Ponovno je uključi da pokušaš još jednom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronizzazione è stata disattivata e tutto resta salvato su questo dispositivo. Riattivala per riprovare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisatie is uitgezet en alles staat nog op dit apparaat. Zet het weer aan om het opnieuw te proberen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizacja została wyłączona, a wszystko nadal jest zapisane na tym urządzeniu. Włącz ją ponownie, aby spróbować jeszcze raz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronização foi desligada e tudo continua guardado neste dispositivo. Volta a ligá-la para tentares outra vez."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacija je izklopljena, vse pa je še vedno shranjeno v tej napravi. Znova jo vklopi, da poskusiš še enkrat."
           }
         }
       }
@@ -43633,61 +44105,61 @@
         }
       }
     },
-    "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.": {
+    "You turned sync on, so your days, holidays, sites and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du hast die Synchronisierung eingeschaltet, also liegen deine Tage, Feiertage und Einstellungen in deinem privaten iCloud-Speicher. Nur deine Geräte, mit deinem Konto angemeldet, können sie lesen. Ausschalten unter Einstellungen › iCloud."
+            "value": "Du hast die Synchronisierung eingeschaltet, also liegen deine Tage, Feiertage, Baustellen und Einstellungen in deinem privaten iCloud-Speicher. Nur deine Geräte, mit deinem Konto angemeldet, können sie lesen. Ausschalten unter Einstellungen › iCloud."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Has activado la sincronización, así que tus días, festivos y ajustes se guardan en tu almacenamiento privado de iCloud. Solo tus dispositivos, con tu sesión iniciada, pueden leerlos. Desactívala en Ajustes › iCloud."
+            "value": "Has activado la sincronización, así que tus días, festivos, obras y ajustes se guardan en tu almacenamiento privado de iCloud. Solo tus dispositivos, con tu sesión iniciada, pueden leerlos. Desactívala en Ajustes › iCloud."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous avez activé la synchronisation : vos jours, jours fériés et réglages sont conservés dans votre espace iCloud privé. Seuls vos appareils, connectés avec votre compte, peuvent les lire. Désactivez-la dans Réglages › iCloud."
+            "value": "Vous avez activé la synchronisation : vos jours, jours fériés, chantiers et réglages sont conservés dans votre espace iCloud privé. Seuls vos appareils, connectés avec votre compte, peuvent les lire. Désactivez-la dans Réglages › iCloud."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uključio si sinkronizaciju pa se tvoji dani, praznici i postavke čuvaju u tvom privatnom iCloud prostoru. Čitati ih mogu samo tvoji uređaji prijavljeni kao ti. Isključi u Postavke › iCloud."
+            "value": "Uključio si sinkronizaciju pa se tvoji dani, praznici, gradilišta i postavke čuvaju u tvom privatnom iCloud prostoru. Čitati ih mogu samo tvoji uređaji prijavljeni kao ti. Isključi u Postavke › iCloud."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hai attivato la sincronizzazione, quindi giorni, festività e impostazioni sono nel tuo spazio iCloud privato. Solo i tuoi dispositivi, con il tuo account, possono leggerli. Disattivala in Impostazioni › iCloud."
+            "value": "Hai attivato la sincronizzazione, quindi giorni, festività, cantieri e impostazioni sono nel tuo spazio iCloud privato. Solo i tuoi dispositivi, con il tuo account, possono leggerli. Disattivala in Impostazioni › iCloud."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Je hebt synchronisatie aangezet, dus je dagen, feestdagen en instellingen staan in je eigen iCloud-opslag. Alleen je eigen apparaten, ingelogd als jij, kunnen ze lezen. Zet het uit bij Instellingen › iCloud."
+            "value": "Je hebt synchronisatie aangezet, dus je dagen, feestdagen, bouwplaatsen en instellingen staan in je eigen iCloud-opslag. Alleen je eigen apparaten, ingelogd als jij, kunnen ze lezen. Zet het uit bij Instellingen › iCloud."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Włączyłeś synchronizację, więc twoje dni, święta i ustawienia są w twoim prywatnym magazynie iCloud. Odczytać je mogą tylko twoje urządzenia zalogowane jako ty. Wyłącz w Ustawienia › iCloud."
+            "value": "Włączyłeś synchronizację, więc twoje dni, święta, budowy i ustawienia są w twoim prywatnym magazynie iCloud. Odczytać je mogą tylko twoje urządzenia zalogowane jako ty. Wyłącz w Ustawienia › iCloud."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ligaste a sincronização, por isso os teus dias, feriados e definições ficam no teu armazenamento privado do iCloud. Só os teus dispositivos, com a tua sessão iniciada, os podem ler. Desliga em Definições › iCloud."
+            "value": "Ligaste a sincronização, por isso os teus dias, feriados, obras e definições ficam no teu armazenamento privado do iCloud. Só os teus dispositivos, com a tua sessão iniciada, os podem ler. Desliga em Definições › iCloud."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vklopil si sinhronizacijo, zato so tvoji dnevi, prazniki in nastavitve v tvojem zasebnem prostoru iCloud. Berejo jih lahko samo tvoje naprave, prijavljene kot ti. Izklopi v Nastavitve › iCloud."
+            "value": "Vklopil si sinhronizacijo, zato so tvoji dnevi, prazniki, gradbišča in nastavitve v tvojem zasebnem prostoru iCloud. Berejo jih lahko samo tvoje naprave, prijavljene kot ti. Izklopi v Nastavitve › iCloud."
           }
         }
       }
@@ -43924,6 +44396,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odmor se še vedno zabeleži, a šteje kot delovni čas. Vklopi to, če ti delodajalec plača odmore."
+          }
+        }
+      }
+    },
+    "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten konnten nicht geöffnet werden, deshalb ist diese Sitzung nur vorübergehend. Was du jetzt einträgst, wird nicht gespeichert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron abrir tus datos, así que esta sesión es temporal. Nada de lo que introduzcas ahora se guardará."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données n'ont pas pu être ouvertes, cette session est donc temporaire. Rien de ce que vous saisissez maintenant ne sera enregistré."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji podaci nisu se mogli otvoriti pa je ova sesija privremena. Ništa što sada uneseš neće se spremiti."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile aprire i tuoi dati, quindi questa sessione è temporanea. Nulla di ciò che inserisci ora verrà salvato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je gegevens konden niet worden geopend, dus deze sessie is tijdelijk. Wat je nu invoert, wordt niet bewaard."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się otworzyć twoich danych, więc ta sesja jest tymczasowa. Nic, co teraz wpiszesz, nie zostanie zapisane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir os teus dados, por isso esta sessão é temporária. Nada do que introduzires agora será guardado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvojih podatkov ni bilo mogoče odpreti, zato je ta seja začasna. Nič, kar zdaj vneseš, ne bo shranjeno."
           }
         }
       }
@@ -48307,6 +48838,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "iCloud"
+          }
+        }
+      }
+    },
+    "iCloud can't be reached right now. Sync carries on by itself when it can.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud ist gerade nicht erreichbar. Sync macht von selbst weiter, sobald es geht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora mismo no se puede acceder a iCloud. La sincronización seguirá sola en cuanto pueda."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud est injoignable pour le moment. La synchronisation reprendra d'elle-même dès que possible."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud trenutačno nije dostupan. Sinkronizacija će se sama nastaviti čim bude moguće."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud non è raggiungibile in questo momento. La sincronizzazione riprende da sola appena possibile."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud is nu niet bereikbaar. De synchronisatie gaat vanzelf verder zodra het kan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud jest teraz niedostępny. Synchronizacja wznowi się sama, gdy będzie to możliwe."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O iCloud não está acessível neste momento. A sincronização continua sozinha assim que puder."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud trenutno ni dosegljiv. Sinhronizacija se bo sama nadaljevala, ko bo mogoče."
+          }
+        }
+      }
+    },
+    "iCloud is restricted on this device, so nothing is being synced.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud ist auf diesem Gerät eingeschränkt, deshalb wird nichts synchronisiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud está restringido en este dispositivo, así que no se sincroniza nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud est restreint sur cet appareil, rien n'est donc synchronisé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud je na ovom uređaju ograničen pa se ništa ne sinkronizira."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud è limitato su questo dispositivo, quindi non si sincronizza nulla."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud is beperkt op dit apparaat, dus er wordt niets gesynchroniseerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud jest ograniczony na tym urządzeniu, więc nic nie jest synchronizowane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O iCloud está restrito neste dispositivo, por isso nada está a ser sincronizado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud je v tej napravi omejen, zato se nič ne sinhronizira."
+          }
+        }
+      }
+    },
+    "iCloud sync could not be started, so this device is using its own copy. Everything you enter is still saved here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die iCloud-Synchronisierung konnte nicht starten, deshalb nutzt dieses Gerät seine eigene Kopie. Alles, was du einträgst, wird hier weiter gespeichert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la sincronización con iCloud, así que este dispositivo usa su propia copia. Todo lo que introduzcas se sigue guardando aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation iCloud n'a pas pu démarrer, cet appareil utilise donc sa propre copie. Tout ce que vous saisissez reste enregistré ici."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkronizacija s iCloudom nije se mogla pokrenuti pa ovaj uređaj koristi vlastitu kopiju. Sve što uneseš i dalje se sprema ovdje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile avviare la sincronizzazione con iCloud, quindi questo dispositivo usa la sua copia. Tutto ciò che inserisci viene comunque salvato qui."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud-synchronisatie kon niet starten, dus dit apparaat gebruikt zijn eigen kopie. Alles wat je invoert, wordt hier nog steeds bewaard."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się uruchomić synchronizacji z iCloud, więc to urządzenie używa własnej kopii. Wszystko, co wpiszesz, nadal zapisuje się tutaj."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a sincronização com o iCloud, por isso este dispositivo usa a sua própria cópia. Tudo o que introduzires continua a ser guardado aqui."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinhronizacije z iCloudom ni bilo mogoče zagnati, zato ta naprava uporablja svojo kopijo. Vse, kar vneseš, se še vedno shrani tukaj."
           }
         }
       }
