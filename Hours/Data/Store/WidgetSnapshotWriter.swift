@@ -156,6 +156,9 @@ struct WidgetSnapshotWriter {
         guard WidgetSnapshotStore.isConfigured else { return }
         WidgetSnapshotStore.write(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
+        // The Clock in and out control shows whether the clock is running,
+        // and Same as yesterday which site it opens; both read this file.
+        ControlCenter.shared.reloadAllControls()
     }
 }
 

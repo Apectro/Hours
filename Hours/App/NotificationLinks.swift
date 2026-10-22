@@ -4,6 +4,9 @@ import UserNotifications
 
 /// The link a tapped notification carries, waiting for the root to follow it.
 ///
+/// The Same as yesterday and Write today shortcuts leave theirs here too:
+/// they run in the app as it opens, also outside any view.
+///
 /// A notification is tapped outside any view, often before there is one, so
 /// the delegate leaves the link here and `RootView` follows it the way it
 /// follows a widget's: through `AppLink`, by value, onto the Sites tab.
