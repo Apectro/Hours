@@ -145,6 +145,9 @@ struct ReportTable: Hashable, Sendable {
     /// a sheet of its own in the workbook, and nothing in a CSV, which is one
     /// table by nature. `nil` or empty adds nothing.
     var diary: SiteDiaryReport? = nil
+    /// A box per person with their signature, on the director's sheet once
+    /// anyone has signed. Empty prints nothing.
+    var signOff: [ReportSignOff] = []
 
     var isEmpty: Bool { rows.isEmpty }
 

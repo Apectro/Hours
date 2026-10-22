@@ -413,6 +413,21 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .weatherHeat:    return pick(en: "Heat", de: "Hitze", hr: "Vrućina", sl: "Vročina", it: "Caldo",
                                           fr: "Chaleur", es: "Calor", pt: "Calor", nl: "Hitte", pl: "Upał")
 
+        // Crew sign-off
+        case .signOff:        return pick(en: "Sign-off", de: "Bestätigung der Stunden", hr: "Potvrda sati",
+                                          sl: "Potrditev ur", it: "Conferma delle ore", fr: "Validation des heures",
+                                          es: "Conformidad de horas", pt: "Confirmação das horas",
+                                          nl: "Akkoord uren", pl: "Potwierdzenie godzin")
+        case .signedOn:       return pick(en: "signed", de: "unterschrieben am", hr: "potpisano", sl: "podpisano",
+                                          it: "firmato il", fr: "signé le", es: "firmado el", pt: "assinado em",
+                                          nl: "ondertekend op", pl: "podpisano")
+        case .changedAfterSigning:
+            return pick(en: "changed after signing", de: "nach der Unterschrift geändert",
+                        hr: "promijenjeno nakon potpisa", sl: "spremenjeno po podpisu",
+                        it: "modificato dopo la firma", fr: "modifié après signature",
+                        es: "modificado después de firmar", pt: "alterado depois da assinatura",
+                        nl: "gewijzigd na ondertekening", pl: "zmieniono po podpisaniu")
+
         // The printed page around the table
         case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
                                           sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
@@ -510,6 +525,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// The site diary.
     case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors
     case weatherSunny, weatherCloudy, weatherRain, weatherSnow, weatherFrost, weatherWind, weatherHeat
+
+    /// Crew sign-off on the director's sheet.
+    case signOff, signedOn, changedAfterSigning
 
     /// The printed page around the table.
     case timesheet, employeeSignature, employerSignature, checkedSignature, of
