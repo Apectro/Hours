@@ -237,4 +237,84 @@ final class SiteRestoreTests: XCTestCase {
         XCTAssertTrue(sites.siteDays(siteID: nil, in: CalendarDateRange(single: date)).isEmpty)
         XCTAssertNil(WorkdayRepository(context: context).record(on: date))
     }
+
+    // MARK: - The diary, its photos and signatures
+
+    private func populateDiary(_ context: ModelContext) {
+        let diary = SiteDiaryRepository(context: context)
+        diary.store(SiteDiary(siteID: site.id, date: date, weather: .rain, workDone: "Formwork"))
+        diary.addPhoto(Data([0xFF, 0xD8, 0xFF, 0xD9]), siteID: site.id, on: date)
+        diary.storeSignature(CrewSignature(
+            siteID: site.id, memberID: ivan, month: date.yearMonth, signedOn: date,
+            fingerprint: "v1:x", strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]]
+        ))
+    }
+
+    func testTheDiaryPhotosAndSignaturesRoundTripThroughRestore() throws {
+        let source = makeContext()
+        try populate(source)
+        populateDiary(source)
+        let data = try BackupRestorer(context: source).makeArchive(settings: Fixture.settings()).encoded()
+
+        let target = makeContext()
+        BackupRestorer(context: target).restore(try BackupArchive.decoded(from: data))
+
+        let diary = SiteDiaryRepository(context: target)
+        XCTAssertEqual(diary.diary(siteID: site.id, on: date)?.workDone, "Formwork")
+        XCTAssertEqual(diary.photos(siteID: site.id, on: date).map(\.jpegData), [Data([0xFF, 0xD8, 0xFF, 0xD9])])
+        XCTAssertEqual(diary.signatures(siteID: site.id, month: date.yearMonth).count, 1)
+    }
+
+    func testABackupFromBeforeTheDiaryKeepsTheDiaryOfSitesItRestores() throws {
+        let context = makeContext()
+        try populate(context)
+        populateDiary(context)
+        let old = BackupArchive(settings: Fixture.settings(), days: [], holidays: [], sites: [site], crew: [], siteDays: [])
+
+        BackupRestorer(context: context).restore(old)
+
+        XCTAssertNotNil(SiteDiaryRepository(context: context).diary(siteID: site.id, on: date))
+    }
+
+    func testDeleteEverythingTakesTheDiaryWithTheSites() throws {
+        let context = makeContext()
+        try populate(context)
+        populateDiary(context)
+
+        BackupRestorer(context: context).deleteEverything()
+
+        let diary = SiteDiaryRepository(context: context)
+        XCTAssertNil(diary.diary(siteID: site.id, on: date))
+        XCTAssertTrue(diary.photos(siteID: site.id, on: date).isEmpty)
+        XCTAssertTrue(diary.signatures(siteID: site.id, month: date.yearMonth).isEmpty)
+    }
+
+    func testABlankDiaryStoresNothing() {
+        let context = makeContext()
+        let diary = SiteDiaryRepository(context: context)
+        diary.store(SiteDiary(siteID: site.id, date: date, workDone: "x"))
+        diary.store(SiteDiary(siteID: site.id, date: date))
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<SiteDiaryEntry>()), 0)
+    }
+
+    func testADayTakesNoMoreThanSixPhotos() {
+        let diary = SiteDiaryRepository(context: makeContext())
+        for _ in 0..<6 { XCTAssertTrue(diary.addPhoto(Data([1]), siteID: site.id, on: date)) }
+        XCTAssertFalse(diary.addPhoto(Data([1]), siteID: site.id, on: date))
+        XCTAssertEqual(diary.photos(siteID: site.id, on: date).map(\.sortOrder), [0, 1, 2, 3, 4, 5])
+    }
+
+    /// The repository half of a rained-off day: the type goes on your day
+    /// with the stop, and comes off when the stop is lifted.
+    func testLiftingAStopInTheRepositoryTakesTheBadWeatherTypeOff() throws {
+        let context = makeContext()
+        let sites = SiteRepository(context: context)
+        sites.upsert(site)
+        let stopped = crewDay().stoppedForBadWeather(at: nil)
+        try sites.save(stopped)
+        XCTAssertEqual(WorkdayRepository(context: context).record(on: date)?.dayTypeID, .badWeather)
+
+        try sites.save(stopped.liftingBadWeatherStop())
+        XCTAssertNil(WorkdayRepository(context: context).record(on: date)?.dayTypeID)
+    }
 }

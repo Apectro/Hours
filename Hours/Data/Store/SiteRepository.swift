@@ -202,6 +202,7 @@ struct SiteRepository {
             on: day.date,
             personal: personal,
             siteDays: inSiteOrder(others + [day]),
+            previous: firstOfEach(onThatDate, by: \.identity).map(\.siteDay),
             through: workdays,
             afterWriting: {
                 if let existing = onThatDate.first(where: { $0.siteID == id }) {
@@ -230,6 +231,7 @@ struct SiteRepository {
             on: date,
             personal: personal,
             siteDays: others,
+            previous: firstOfEach(onThatDate, by: \.identity).map(\.siteDay),
             through: workdays,
             afterWriting: {
                 // Every row for the site, including one tied with the
@@ -260,14 +262,19 @@ struct SiteRepository {
     /// day that comes out unchanged is not written at all, so saving a day you
     /// were not on does not stamp your calendar day as edited and send it
     /// round sync for nothing.
+    ///
+    /// `previous` is every site day on the date as it stood before this
+    /// write, which is how a lifted bad-weather stop takes the Bad weather
+    /// type it put on your day back off (see `SiteCalendarSync.merged`).
     private func carryIntoCalendar(
         on date: CalendarDate,
         personal: DayRecord?,
         siteDays: [SiteDay],
+        previous: [SiteDay] = [],
         through workdays: WorkdayRepository,
         afterWriting write: () -> Void
     ) throws {
-        let merged = SiteCalendarSync.merged(personal: personal, siteDays: siteDays, on: date)
+        let merged = SiteCalendarSync.merged(personal: personal, siteDays: siteDays, on: date, previousSiteDays: previous)
         write()
         guard merged != personal else { return }
         if let merged {
