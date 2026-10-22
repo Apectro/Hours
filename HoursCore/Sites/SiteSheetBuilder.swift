@@ -96,7 +96,7 @@ struct SiteSheetBuilder: Sendable {
                 values.append(duration.string(entry.workedMinutes))
                 minutes += [nil, entry.workedMinutes]
             }
-            values.append(result.day.note)
+            values.append(noteText(for: result.day, language: language))
             minutes.append(nil)
             rows.append(ReportRow(
                 id: date.key,
@@ -175,6 +175,12 @@ struct SiteSheetBuilder: Sendable {
             ReportTile(label: language(.crewHours), value: duration.string(crewMinutes)),
             ReportTile(label: language(.people), value: "\(people.count)")
         ]
+        // Counted apart, and only when there were any: a month without a stop
+        // has nothing to say about the weather.
+        let badWeatherDays = byDate.values.filter(\.day.isBadWeatherStop).count
+        if badWeatherDays > 0 {
+            table.tiles.append(ReportTile(label: language(.badWeatherDays), value: "\(badWeatherDays)"))
+        }
         // "Hours after the break" is only true where the break is unpaid. A
         // site follows the job frozen on each day, so a month can hold both.
         let payRule = WorkdayCalculator(settings: settings, calendar: calendar)
@@ -186,6 +192,14 @@ struct SiteSheetBuilder: Sendable {
         }
         table.signatures = [language(.checkedSignature)]
         return table
+    }
+
+    /// The day's note, led by "Bad weather" on a day the crew was rained
+    /// off, so a director scanning the notes sees why the hours stop short.
+    private func noteText(for day: SiteDay, language: ExportLanguage) -> String {
+        guard day.isBadWeatherStop else { return day.note }
+        let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
     }
 
     /// The same test the timesheet's end column uses for "(+1)".

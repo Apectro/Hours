@@ -231,4 +231,62 @@ final class BadWeatherTests: XCTestCase {
         let merged = SiteCalendarSync.merged(personal: personal, siteDays: [day], on: day.date, previousSiteDays: [day])
         XCTAssertEqual(merged?.dayTypeID, .badWeather)
     }
+
+    // MARK: - Counting them
+
+    private func sheet(_ days: [SiteDay], language: ExportLanguage = .english) -> ReportTable {
+        let settings = Fixture.settings(export: ExportPreferences(language: language, ownerName: "Marijo"))
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        return SiteSheetBuilder(settings: settings, calendar: calendar)
+            .makeTable(
+                site: site,
+                crew: [CrewMember(id: ivan, siteID: site.id, name: "Ivan")],
+                results: days.map(calculator.compute),
+                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
+            )
+    }
+
+    private func onDay(_ day: Int, _ build: (SiteDay) -> SiteDay = { $0 }) -> SiteDay {
+        var siteDay = self.siteDay()
+        siteDay.date = Fixture.date(2026, 8, day)
+        return build(siteDay)
+    }
+
+    func testTheSiteMonthCountsBadWeatherDaysApart() {
+        let days = [
+            onDay(3),
+            onDay(4) { $0.stoppedForBadWeather(at: nil) },
+            onDay(5) { $0.stoppedForBadWeather(at: Fixture.time(11)) },
+            // Another month's stop is not this month's.
+            { var d = self.siteDay().stoppedForBadWeather(at: nil); d.date = Fixture.date(2026, 9, 1); return d }()
+        ]
+        let figures = SiteMonthFigures(
+            days: days,
+            month: YearMonth(year: 2026, month: 8),
+            calculator: SiteDayCalculator(settings: Fixture.settings(), calendar: calendar)
+        )
+        XCTAssertEqual(figures.daysWritten, 3)
+        XCTAssertEqual(figures.badWeatherDays, 2)
+        // 8h on the 3rd, nothing on the 4th, 3h 30m on the 5th; twice, for two people.
+        XCTAssertEqual(figures.yourMinutes, 510 + 210)
+        XCTAssertEqual(figures.crewMinutes, (510 + 210) * 2)
+    }
+
+    func testTheSheetCountsBadWeatherDaysInItsSummary() {
+        let table = sheet([onDay(3), onDay(4) { $0.stoppedForBadWeather(at: nil) }])
+        XCTAssertEqual(table.tiles.first { $0.label == "Bad-weather days" }?.value, "1")
+    }
+
+    func testASheetWithoutBadWeatherHasNoTileForIt() {
+        let table = sheet([onDay(3)])
+        XCTAssertFalse(table.tiles.contains { $0.label == "Bad-weather days" })
+    }
+
+    func testTheSheetSaysWhichDaysWereRainedOff() {
+        var stopped = onDay(4) { $0.stoppedForBadWeather(at: Fixture.time(11)) }
+        stopped.note = "Storm"
+        let table = sheet([onDay(3), stopped], language: .german)
+        let notes = table.rows.filter { $0.role == .day }.map { $0.values.last ?? "" }
+        XCTAssertEqual(notes, ["", "Schlechtwetter · Storm"])
+    }
 }

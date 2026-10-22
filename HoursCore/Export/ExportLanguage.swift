@@ -370,6 +370,12 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                 + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
         )
 
+        case .badWeatherDays: return pick(en: "Bad-weather days", de: "Schlechtwettertage",
+                                          hr: "Dani lošeg vremena", sl: "Dnevi slabega vremena",
+                                          it: "Giorni di maltempo", fr: "Jours d’intempéries",
+                                          es: "Días de mal tiempo", pt: "Dias de mau tempo",
+                                          nl: "Slechtweerdagen", pl: "Dni niepogody")
+
         // The printed page around the table
         case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
                                           sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
@@ -462,7 +468,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
 
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
-    case siteLegendPaidBreaks, siteLegendMixedBreaks
+    case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
 
     /// The printed page around the table.
     case timesheet, employeeSignature, employerSignature, checkedSignature, of
