@@ -8,6 +8,9 @@ struct DaySummaryCard: View {
     let settings: AppSettings
     let formatting: CalendarFormatting
     let onEdit: () -> Void
+    /// "I worked" on a public holiday off: opens the editor with the day's
+    /// times filled in, and the holiday still paid.
+    var onWorkedHoliday: (() -> Void)? = nil
     /// Present only on today, and only when no clock is already running.
     var onClockIn: (() -> Void)? = nil
 
@@ -18,7 +21,9 @@ struct DaySummaryCard: View {
             VStack(alignment: .leading, spacing: Metrics.medium) {
                 header
 
-                if computation.hasEntry || computation.workedMinutes > 0 {
+                if isPublicHolidayOff {
+                    publicHolidayChoice
+                } else if computation.hasEntry || computation.workedMinutes > 0 {
                     Divider()
                     figures
                 } else {
@@ -68,6 +73,48 @@ struct DaySummaryCard: View {
         }
     }
 
+    // MARK: - Public holidays
+
+    /// A holiday rule's paid day off, whether worked or not.
+    private var isPublicHoliday: Bool {
+        computation.holidayName != nil && computation.dayType.id == .holiday
+    }
+
+    /// Nothing worked on it: the choice between leaving it and "I worked".
+    private var isPublicHolidayOff: Bool {
+        isPublicHoliday && computation.workedMinutes == 0 && !computation.hasEntry && onWorkedHoliday != nil
+    }
+
+    private var publicHolidayChoice: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Label {
+                Text("Day off (paid)")
+            } icon: {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.accentColor)
+            }
+            .font(.subheadline)
+            .accessibilityIdentifier("day-card-holiday-off")
+            if computation.creditedMinutes > 0 {
+                Text(String(
+                    localized: "\(duration.string(computation.creditedMinutes)) credited.",
+                    comment: "A paid day off: the hours credited for it, e.g. 8 h credited."
+                ))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            Button {
+                onWorkedHoliday?()
+            } label: {
+                Label("I worked", systemImage: "hammer")
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityHint(Text("Opens the day with your usual times filled in. The holiday stays paid."))
+            .accessibilityIdentifier("day-card-holiday-worked")
+        }
+    }
+
     // MARK: - Pieces
 
     private var header: some View {
@@ -77,10 +124,17 @@ struct DaySummaryCard: View {
                 Text(formatting.fullDate(computation.date))
                     .font(.headline)
                 HStack(spacing: Metrics.tiny) {
-                    Text(computation.dayType.displayName())
-                    if let holidayName = computation.holidayName {
-                        Text("·")
+                    if isPublicHoliday, let holidayName = computation.holidayName {
+                        // "Christmas Day · public holiday"
                         Text(holidayName)
+                        Text("·")
+                        Text("public holiday")
+                    } else {
+                        Text(computation.dayType.displayName())
+                        if let holidayName = computation.holidayName {
+                            Text("·")
+                            Text(holidayName)
+                        }
                     }
                 }
                 .font(.subheadline)
@@ -186,7 +240,10 @@ struct DaySummaryCard: View {
         case .zero:
             return String(localized: "Not a working day.")
         case .creditedAbsence:
-            return "\(duration.string(computation.creditedMinutes)) credited."
+            return String(
+                localized: "\(duration.string(computation.creditedMinutes)) credited.",
+                comment: "A paid day off: the hours credited for it, e.g. 8 h credited."
+            )
         }
     }
 }

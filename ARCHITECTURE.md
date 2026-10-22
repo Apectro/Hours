@@ -296,10 +296,59 @@ empty list. Rules are user-created and can recur:
 - `once` — a single date
 - `annual` — same month and day every year, optionally bounded by year
 - `nthWeekday` — e.g. the fourth Thursday in November, or the last Monday in May
+- `easter` (1.1) — days from Easter Sunday in `offset` (Good Friday −2, Easter
+  Monday +1, Ascension +39, Whit Monday +50, Corpus Christi +60), by the
+  anonymous Gregorian computus
+- `weekdayOnOrAfter` (1.1) — the first weekday on or after a date: Buß- und
+  Bettag (Wednesday on or after 16 Nov), the Swiss fast Monday (Monday on or
+  after 16 Sep), the Jeûne genevois (Thursday on or after 5 Sep)
+- `annualOffSunday` (1.1) — a date moved by `offset` when it is a Sunday:
+  Dutch King's Day
+
+The last three are not built by hand (`Kind.handMade` is what the editor
+offers); they come from a country's list.
 
 A 29 February rule simply does not occur in common years rather than being
 silently moved. A holiday can be marked "counts as a normal working day", in
 which case it keeps its contracted hours and only its name is carried through.
+
+**1.0 reading 1.1's movable rules.** 1.0 decodes `kind` strictly in a backup —
+an unknown kind fails the list of holidays and with it the whole restore — and
+in the store reads an unknown kind string as `annual` on the stored month and
+day. So a movable rule is written as an annual **31 February**, which no year
+has, with its real shape beside it where 1.0 does not look: a `movable` object
+in the backup JSON, and in the store the kind string itself
+(`easter:1:1:2:39` — kind, month, day, weekday, offset; no new column, so no
+schema version). The worst 1.0 does with one is list it without a date; it
+never puts a holiday on a wrong day. 1.1 in turn reads a kind it does not know
+(from a later version) as a rule that never occurs rather than failing the
+file. See `HolidayRecurrence+Coding.swift`.
+
+**Public holidays by country (1.1).** `PublicHolidayCatalog` holds pure Swift
+tables, one `PublicHolidaySet` per country or per German state / Swiss canton,
+each with the year it was checked for and its source. A holiday that applies
+only in part of a region, or by custom or collective agreement, carries a
+`note` and is offered unticked; a day that could not be confirmed is left out
+and named in the table's comment. Picking is one tap — Settings › Holidays ›
+Add public holidays, the first-run "Where do you work?" step, or a one-time
+card on the calendar for someone with no holidays — but still never automatic.
+`PublicHolidayImport` turns the ticked holidays into ordinary `HolidayRule`s,
+skipping any an existing rule (enabled or not) already covers on every date of
+the next five years; `AppSettings.publicHolidays` remembers the set and the
+rule ids it created, for "Remove these holidays", and whether the card was
+answered. The stored name is the one for the phone's language: local on a phone
+in the set's language, English on an English phone, otherwise the local name
+(which is what the employer's calendar and the payslip say).
+
+**Working a public holiday.** The day stays a holiday: its contracted hours are
+credited and every hour worked comes on top (`balance = worked + credited −
+expected`), and those hours earn the Sunday & holiday surcharge — the usual
+arrangement in Germany and Austria (Feiertagsentgelt plus pay for the work).
+"I worked" therefore prefills the week's times without setting the day type
+(`PeriodEngine.draftRecord(…, working: true)`); choosing Work explicitly would
+drop the credit. `DayComputation.isWorkedPublicHoliday` marks the calendar cell.
+A site's month does not outline a public holiday as unwritten, and the evening
+site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
 
 ## Persistence
 

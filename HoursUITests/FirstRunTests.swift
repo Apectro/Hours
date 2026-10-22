@@ -57,6 +57,10 @@ final class FirstRunTests: XCTestCase {
         app.buttons["setup-breaks-paid"].tap()
         app.buttons["setup-continue"].tap()
 
+        // No country chosen: nothing is added, and nothing is guessed.
+        XCTAssertTrue(app.screen("screen-setup-holidays").waitForExistence(timeout: 5), "the country was not asked")
+        app.buttons["setup-continue"].tap()
+
         XCTAssertTrue(app.screen("screen-setup-finish").waitForExistence(timeout: 5), "the last screen did not come")
         app.buttons["setup-write-today"].tap()
 
@@ -68,10 +72,10 @@ final class FirstRunTests: XCTestCase {
     func testTheLastScreenCanOpenANewSite() {
         let app = launchWithSetup()
 
-        // Each step waited for before the next tap: three taps in a row can
+        // Each step waited for before the next tap: four taps in a row can
         // land while a step is still sliding in, and a lost tap leaves the
         // test a screen short of where it thinks it is.
-        for step in ["screen-setup-name", "screen-setup-week", "screen-setup-breaks"] {
+        for step in ["screen-setup-name", "screen-setup-week", "screen-setup-breaks", "screen-setup-holidays"] {
             XCTAssertTrue(app.screen(step).waitForExistence(timeout: 10), "\(step) did not come")
             app.buttons["setup-continue"].tap()
         }

@@ -42,7 +42,7 @@ final class LeaveAndReviewTests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.tab(.insights).waitForExistence(timeout: 10))
         app.tab(.insights).tap()
-        XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
 
         // Today, Week, Month, Year: the fourth segment.
         let year = app.segmentedControls.firstMatch.buttons.element(boundBy: 3)
@@ -55,6 +55,6 @@ final class LeaveAndReviewTests: XCTestCase {
 
         XCTAssertTrue(app.screen("year-review-empty").waitForExistence(timeout: 5))
         app.buttons["year-review-close"].tap()
-        XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
     }
 }

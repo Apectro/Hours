@@ -95,6 +95,16 @@ away, and money never appears on a site, its sheet or anywhere about your crew.
 them), pay, calculation rules, which fields exist, day types, holidays, calendar
 appearance, theme, export options, and backup.
 
+**Public holidays** — never guessed, but one tap away: Settings › Holidays ›
+Add public holidays (or the first-run setup, or a one-time card on the
+calendar) → country → state or canton where it matters → the list with next
+dates → Add. Germany (all 16 states), Austria, Switzerland (12 cantons and the
+days all cantons share), Croatia, Slovenia, Italy, France, Spain (national),
+Portugal, the Netherlands and Poland, from tables inside the app — nothing is
+looked up online. They become ordinary holidays you can edit, switch off or
+remove again as a set. On a public holiday, "I worked" opens the day with your
+usual times: the holiday stays paid and every hour worked comes on top.
+
 **Export** — CSV, XLSX and PDF, for a day, week, month, year or any custom range,
 with a preview of the exact table before you share it. Columns are configurable
 and reorderable.
@@ -112,7 +122,8 @@ balance = (worked + credited) − expected + adjustment
 - 08:00–18:00 less a 30 min break on an 8 h day → +1 h 30 m
 - Vacation on a Tuesday → 8 h credited against 8 h expected → 0
 - Vacation on a Saturday → nothing expected, nothing credited → 0
-- Two hours worked on a public holiday → +2 h
+- Two hours worked on a public holiday → +2 h (the holiday's 8 h are still
+  credited, and the Sunday & holiday surcharge applies to the 2 h)
 - Time off in lieu on a Tuesday → nothing worked, 8 h expected → −8 h
 
 Worked time and credited paid absence are always reported separately, so a month

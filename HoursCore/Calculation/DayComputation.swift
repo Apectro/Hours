@@ -86,6 +86,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
 
     var id: Int { date.key }
 
+    /// A public holiday that was paid as one and worked as well: the hours
+    /// are on top of the holiday's credit, and the calendar marks the day.
+    var isWorkedPublicHoliday: Bool {
+        holidayName != nil && dayType.id == .holiday && workedMinutes > 0
+    }
+
     /// Everything the day pays: worked time plus credited absence.
     var paidMinutes: Int { workedMinutes + creditedMinutes }
 

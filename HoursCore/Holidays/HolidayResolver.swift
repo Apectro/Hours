@@ -47,6 +47,15 @@ struct HolidayResolver: Sendable {
 
     var allRules: [HolidayRule] { rules }
 
+    /// Date keys in `range` that are a holiday off — paid absence, not a
+    /// holiday that counts as a working day. What a site's month and its
+    /// evening reminders leave alone.
+    func daysOffKeys(in range: CalendarDateRange, calendar: Calendar) -> Set<Int> {
+        Set(range.days(in: calendar).filter { date in
+            holidays(on: date).contains { !$0.countsAsWorkingDay }
+        }.map(\.key))
+    }
+
     static func empty(calendar: Calendar) -> HolidayResolver {
         HolidayResolver(rules: [], calendar: calendar, years: [])
     }

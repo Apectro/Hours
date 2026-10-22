@@ -68,6 +68,7 @@ struct DayCell: View {
         .frame(maxWidth: .infinity)
         .frame(height: cellHeight)
         .background { DayCellBackground(wash: washColor, isMissing: isMissingData) }
+        .overlay(alignment: .topTrailing) { workedHolidayMark }
         .opacity(isInMonth ? 1 : 0.35)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
@@ -78,6 +79,20 @@ struct DayCell: View {
     }
 
     // MARK: - Pieces
+
+    /// A public holiday that was worked as well as paid: the holiday's wash
+    /// stays, and a small hammer in the corner says the hours are on top.
+    @ViewBuilder
+    private var workedHolidayMark: some View {
+        if let computation, computation.isWorkedPublicHoliday {
+            Image(systemName: "hammer.fill")
+                .font(.system(.caption2, design: .rounded))
+                .imageScale(.small)
+                .foregroundStyle(computation.dayType.tint.color)
+                .padding(3)
+                .accessibilityHidden(true)
+        }
+    }
 
     @ViewBuilder
     private var detailLabel: some View {
@@ -154,6 +169,10 @@ struct DayCell: View {
                              comment: "VoiceOver, a day worked longer than expected")
                     : String(localized: "\(magnitude) short",
                              comment: "VoiceOver, a day worked less than expected"))
+            }
+            if computation.isWorkedPublicHoliday {
+                parts.append(String(localized: "worked on a public holiday",
+                                    comment: "VoiceOver, a calendar day that is a public holiday and was worked"))
             }
             if isMissingData { parts.append("no hours recorded") }
         }

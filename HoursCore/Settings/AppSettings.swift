@@ -71,6 +71,9 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// The vacation allowance and its leave year. Absent from anything
     /// written before 1.1, which reads as the defaults.
     var leave: LeavePolicy
+    /// The country's public holidays added from the catalog, if any, and
+    /// whether the calendar's offer of them was answered (1.1).
+    var publicHolidays: PublicHolidayPreferences
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -95,7 +98,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         carryOver: CarryOverPolicy = CarryOverPolicy(),
         yearCloses: [YearClose] = [],
         monthLock: MonthLock = .unlocked,
-        leave: LeavePolicy = LeavePolicy()
+        leave: LeavePolicy = LeavePolicy(),
+        publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences()
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -119,6 +123,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.yearCloses = yearCloses
         self.monthLock = monthLock
         self.leave = leave
+        self.publicHolidays = publicHolidays
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -185,6 +190,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case customDayTypes, jobs, primaryBreaksArePaid, primaryPay, mainFigure, currencyCode, reminders, openingBalanceMinutes, balanceStartDate
         case carryOver, yearCloses, monthLock
         case leave
+        case publicHolidays
     }
 
     init(from decoder: Decoder) throws {
@@ -217,7 +223,8 @@ struct AppSettings: Hashable, Codable, Sendable {
             carryOver: container.lenient(.carryOver, defaults.carryOver),
             yearCloses: container.lenient(.yearCloses, defaults.yearCloses),
             monthLock: container.lenient(.monthLock, defaults.monthLock),
-            leave: container.lenient(.leave, defaults.leave)
+            leave: container.lenient(.leave, defaults.leave),
+            publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays)
         )
     }
 
@@ -250,5 +257,6 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(yearCloses, forKey: .yearCloses)
         try container.encode(monthLock, forKey: .monthLock)
         try container.encode(leave, forKey: .leave)
+        try container.encode(publicHolidays, forKey: .publicHolidays)
     }
 }

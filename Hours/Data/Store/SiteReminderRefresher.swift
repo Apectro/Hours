@@ -29,11 +29,17 @@ enum SiteReminderRefresher {
             end: today
         )
         let siteDays = SiteRepository(context: context).siteDays(siteID: nil, in: window)
+        // No evening nudge on a public holiday off.
+        let ahead = CalendarDateRange(start: today, end: today.adding(days: 7, in: calendar))
+        let rules = (try? context.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
+        let holidays = HolidayResolver(rules: rules, calendar: calendar, covering: ahead)
+            .daysOffKeys(in: ahead, calendar: calendar)
         let dates = SiteReminderPlan.dates(
             siteDays: siteDays,
             today: today,
             calendar: calendar,
-            lookBackDays: lookBackDays
+            lookBackDays: lookBackDays,
+            holidays: holidays
         )
         await scheduler.scheduleSiteReminders(
             dates: dates,
