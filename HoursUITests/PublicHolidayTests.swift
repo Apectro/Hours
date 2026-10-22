@@ -30,7 +30,9 @@ final class PublicHolidayTests: XCTestCase {
 
         let add = app.buttons["public-holidays-add"]
         XCTAssertTrue(add.waitForExistence(timeout: 5), "the preview did not open")
-        XCTAssertTrue(app.buttons["public-holidays-item-christmas"].exists)
+        // The first row: a List only creates the rows on screen, and
+        // Christmas sits at the bottom of Austria's thirteen.
+        XCTAssertTrue(app.buttons["public-holidays-item-newYear"].exists)
         add.tap()
 
         XCTAssertFalse(
