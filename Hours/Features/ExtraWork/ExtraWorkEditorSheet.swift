@@ -36,7 +36,10 @@ struct ExtraWorkEditorSheet: View {
     @State private var isAddingPhotos = false
     @State private var showsCamera = false
     @State private var photoToRemove: PhotoReference?
-    @State private var typing: TypedQuantity?
+    /// The line whose number was tapped, and what is being typed for it.
+    /// Kept apart from the alert's own flag, which the alert clears itself.
+    @State private var typedIndex: Int?
+    @State private var showsQuantityAlert = false
     @State private var typedText = ""
     @State private var sheet: EditorSheet?
     @State private var confirmsDelete = false
@@ -45,11 +48,6 @@ struct ExtraWorkEditorSheet: View {
     private enum EditorSheet: String, Identifiable {
         case newItem, signature
         var id: String { rawValue }
-    }
-
-    private struct TypedQuantity: Identifiable {
-        let index: Int
-        var id: Int { index }
     }
 
     private struct PendingPhoto: Identifiable {
@@ -132,15 +130,15 @@ struct ExtraWorkEditorSheet: View {
                 }
             }
         }
-        .alert("Quantity", isPresented: Binding(get: { typing != nil }, set: { if !$0 { typing = nil } })) {
+        .alert("Quantity", isPresented: $showsQuantityAlert) {
             TextField(String(localized: "Quantity"), text: $typedText)
                 .keyboardType(.decimalPad)
                 .accessibilityIdentifier("extra-work-quantity-field")
-            Button("Cancel", role: .cancel) { typing = nil }
+            Button("Cancel", role: .cancel) {}
             Button("OK") { applyTypedQuantity() }
         } message: {
-            if let typing, draft.items.indices.contains(typing.index) {
-                Text(verbatim: draft.items[typing.index].name)
+            if let typedIndex, draft.items.indices.contains(typedIndex) {
+                Text(verbatim: draft.items[typedIndex].name)
             }
         }
         .confirmationDialog("Remove this photo?", isPresented: Binding(
@@ -264,7 +262,8 @@ struct ExtraWorkEditorSheet: View {
 
             Button {
                 typedText = ExtraWorkFormatting.quantity(item.quantity)
-                typing = TypedQuantity(index: index)
+                typedIndex = index
+                showsQuantityAlert = true
             } label: {
                 Text(verbatim: ExtraWorkFormatting.quantity(item.quantity))
                     .font(.title3.weight(.bold))
@@ -600,9 +599,8 @@ struct ExtraWorkEditorSheet: View {
     }
 
     private func applyTypedQuantity() {
-        defer { typing = nil }
-        guard let typing, draft.items.indices.contains(typing.index), let value = ExtraWorkQuantity.parse(typedText) else { return }
-        draft.items[typing.index].quantity = value
+        guard let typedIndex, draft.items.indices.contains(typedIndex), let value = ExtraWorkQuantity.parse(typedText) else { return }
+        draft.items[typedIndex].quantity = value
     }
 
     private func addPicked(_ items: [PhotosPickerItem]) {
