@@ -97,6 +97,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
         dayType.expectation == .scheduled && expectedMinutes > 0
     }
 
+    /// A working day taken off against overtime. It is expected like any
+    /// working day — that is what takes it off the balance — but nobody is
+    /// due at work, so the widget neither draws it as short nor says when it
+    /// ends.
+    var isTimeOffInLieu: Bool { dayType.id == .timeOffInLieu }
+
     /// Whether this day counts towards a total at all.
     ///
     /// One definition, because there were three: the period aggregator and

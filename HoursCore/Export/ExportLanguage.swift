@@ -197,6 +197,15 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .dayOff:         return pick(en: "Day off", de: "Freier Tag", hr: "Slobodan dan", sl: "Prost dan",
                                           it: "Giorno libero", fr: "Jour de repos", es: "Día libre",
                                           pt: "Dia de folga", nl: "Vrije dag", pl: "Dzień wolny")
+        // The day type, one day of it. Not `timeOffInLieu` below, which is
+        // the reason for an adjustment and in several languages a plural
+        // ("Zamjenski slobodni dani"); German uses the Austrian word here,
+        // as the day is called on an Austrian site.
+        case .timeOffInLieuDay: return pick(en: "Time off in lieu", de: "Zeitausgleich",
+                                          hr: "Slobodan dan za prekovremene", sl: "Prosti dan za nadure",
+                                          it: "Giorno di recupero", fr: "Jour de récupération",
+                                          es: "Día de compensación", pt: "Folga compensatória",
+                                          nl: "Compensatiedag", pl: "Dzień wolny za nadgodziny")
         case .otherDayType:   return pick(en: "Other", de: "Sonstiges", hr: "Ostalo", sl: "Drugo", it: "Altro",
                                           fr: "Autre", es: "Otro", pt: "Outro", nl: "Overig", pl: "Inne")
 
@@ -448,7 +457,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case overtime, balance, runningBalance, holiday, location, tags, notes, earnings
 
     case work, weekend, publicHoliday, vacation, sickLeave, personalDay, dayOff
-    case otherDayType
+    case otherDayType, timeOffInLieuDay
 
     case correction, paidOut, timeOffInLieu
 
