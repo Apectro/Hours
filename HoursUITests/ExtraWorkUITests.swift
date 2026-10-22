@@ -52,7 +52,9 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
         XCTAssertTrue(app.descendants(matching: .any)["extra-work-total-0"].waitForExistence(timeout: 5),
                       "the report should sum the material")
-        XCTAssertTrue(app.buttons["extra-work-report-share-pdf"].isEnabled)
+        let share = app.buttons["extra-work-report-share-pdf"]
+        XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send to boss · PDF")
+        XCTAssertTrue(share.isEnabled, "a report with a job can be sent")
         app.buttons["extra-work-report-done"].tap()
     }
 }

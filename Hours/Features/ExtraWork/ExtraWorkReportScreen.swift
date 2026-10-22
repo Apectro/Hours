@@ -101,10 +101,13 @@ struct ExtraWorkReportScreen: View {
                 .padding(.vertical, Metrics.medium)
             }
             .background(Color.hoursCanvas)
+            // On the scroll view alone, before the inset: set on a modifier
+            // that wraps the share bar too, it is handed down to the bar's
+            // buttons and replaces their own identifiers.
+            .accessibilityIdentifier("screen-extra-work-report")
             .safeAreaInset(edge: .bottom) { shareBar }
             .navigationTitle("Extra work report")
             .navigationBarTitleDisplayMode(.inline)
-            .accessibilityIdentifier("screen-extra-work-report")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
