@@ -55,7 +55,12 @@ struct DataSettingsScreen: View {
                     isConfirmingDelete = true
                 }
             } footer: {
-                Text("Removes every recorded day, holiday and site from this device. Settings are kept.")
+                // With sync on, a deletion is mirrored like any other change.
+                Text(
+                    HoursStack.isSyncing
+                        ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
+                        : "Removes every recorded day, holiday and site from this device. Settings are kept."
+                )
             }
 
             if let message {
@@ -88,7 +93,9 @@ struct DataSettingsScreen: View {
         // An alert rather than a second confirmation dialog: two dialogs of the
         // same kind on one view is undefined behaviour.
         .alert(
-            "Replace everything on this device with the backup?",
+            HoursStack.isSyncing
+                ? "Replace everything on this device and your other devices with the backup?"
+                : "Replace everything on this device with the backup?",
             isPresented: restoreConfirmationBinding,
             presenting: pendingRestore
         ) { archive in

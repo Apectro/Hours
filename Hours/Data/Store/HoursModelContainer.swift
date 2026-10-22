@@ -7,6 +7,14 @@ enum HoursModelContainer {
     /// `HoursMigrationPlan`, which is what gets a store from there to here.
     static let schema = Schema(versionedSchema: HoursSchemaV4.self)
 
+    /// Synced or not, this is the same store file: the configuration's name,
+    /// and so its URL, does not depend on `cloudKitDatabase`. That is what
+    /// makes turning sync on mirror the months already recorded rather than
+    /// start an empty store beside them — CloudKit mirroring exports every row
+    /// a store holds the first time it is set up on it — and what makes
+    /// turning it off keep everything. Only call this with `syncsWithICloud`
+    /// as `SyncLaunch.plan` decides: a build not signed for iCloud that opens
+    /// a syncing store is killed, not thrown at.
     static func make(inMemory: Bool = false, syncsWithICloud: Bool = false) throws -> ModelContainer {
         let configuration = ModelConfiguration(
             schema: schema,

@@ -8429,6 +8429,138 @@
       "Escolher país",
       "Land kiezen",
       "Wybierz kraj"
+    ],
+    "iCloud sync could not be started, so this device is using its own copy. Everything you enter is still saved here.": [
+      "Die iCloud-Synchronisierung konnte nicht starten, deshalb nutzt dieses Gerät seine eigene Kopie. Alles, was du einträgst, wird hier weiter gespeichert.",
+      "Sinkronizacija s iCloudom nije se mogla pokrenuti pa ovaj uređaj koristi vlastitu kopiju. Sve što uneseš i dalje se sprema ovdje.",
+      "Sinhronizacije z iCloudom ni bilo mogoče zagnati, zato ta naprava uporablja svojo kopijo. Vse, kar vneseš, se še vedno shrani tukaj.",
+      "Non è stato possibile avviare la sincronizzazione con iCloud, quindi questo dispositivo usa la sua copia. Tutto ciò che inserisci viene comunque salvato qui.",
+      "La synchronisation iCloud n'a pas pu démarrer, cet appareil utilise donc sa propre copie. Tout ce que vous saisissez reste enregistré ici.",
+      "No se pudo iniciar la sincronización con iCloud, así que este dispositivo usa su propia copia. Todo lo que introduzcas se sigue guardando aquí.",
+      "Não foi possível iniciar a sincronização com o iCloud, por isso este dispositivo usa a sua própria cópia. Tudo o que introduzires continua a ser guardado aqui.",
+      "iCloud-synchronisatie kon niet starten, dus dit apparaat gebruikt zijn eigen kopie. Alles wat je invoert, wordt hier nog steeds bewaard.",
+      "Nie udało się uruchomić synchronizacji z iCloud, więc to urządzenie używa własnej kopii. Wszystko, co wpiszesz, nadal zapisuje się tutaj."
+    ],
+    "Your data could not be opened, so this session is temporary. Nothing you enter now will be saved.": [
+      "Deine Daten konnten nicht geöffnet werden, deshalb ist diese Sitzung nur vorübergehend. Was du jetzt einträgst, wird nicht gespeichert.",
+      "Tvoji podaci nisu se mogli otvoriti pa je ova sesija privremena. Ništa što sada uneseš neće se spremiti.",
+      "Tvojih podatkov ni bilo mogoče odpreti, zato je ta seja začasna. Nič, kar zdaj vneseš, ne bo shranjeno.",
+      "Non è stato possibile aprire i tuoi dati, quindi questa sessione è temporanea. Nulla di ciò che inserisci ora verrà salvato.",
+      "Vos données n'ont pas pu être ouvertes, cette session est donc temporaire. Rien de ce que vous saisissez maintenant ne sera enregistré.",
+      "No se pudieron abrir tus datos, así que esta sesión es temporal. Nada de lo que introduzcas ahora se guardará.",
+      "Não foi possível abrir os teus dados, por isso esta sessão é temporária. Nada do que introduzires agora será guardado.",
+      "Je gegevens konden niet worden geopend, dus deze sessie is tijdelijk. Wat je nu invoert, wordt niet bewaard.",
+      "Nie udało się otworzyć twoich danych, więc ta sesja jest tymczasowa. Nic, co teraz wpiszesz, nie zostanie zapisane."
+    ],
+    "Sync couldn't start: this copy of Zeitkonto isn't signed for iCloud.": [
+      "Sync konnte nicht starten: Diese Kopie von Zeitkonto ist nicht für iCloud signiert.",
+      "Sinkronizacija se nije mogla pokrenuti: ova kopija Zeitkonta nije potpisana za iCloud.",
+      "Sinhronizacije ni bilo mogoče zagnati: ta kopija Zeitkonta ni podpisana za iCloud.",
+      "Impossibile avviare la sincronizzazione: questa copia di Zeitkonto non è firmata per iCloud.",
+      "La synchronisation n'a pas pu démarrer : cette copie de Zeitkonto n'est pas signée pour iCloud.",
+      "No se pudo iniciar la sincronización: esta copia de Zeitkonto no está firmada para iCloud.",
+      "Não foi possível iniciar a sincronização: esta cópia do Zeitkonto não está assinada para o iCloud.",
+      "Synchronisatie kon niet starten: deze kopie van Zeitkonto is niet ondertekend voor iCloud.",
+      "Nie udało się uruchomić synchronizacji: ta kopia Zeitkonto nie jest podpisana do iCloud."
+    ],
+    "Sync couldn't start: Zeitkonto couldn't confirm that this copy may use iCloud.": [
+      "Sync konnte nicht starten: Zeitkonto konnte nicht bestätigen, dass diese Kopie iCloud nutzen darf.",
+      "Sinkronizacija se nije mogla pokrenuti: Zeitkonto nije mogao potvrditi da ova kopija smije koristiti iCloud.",
+      "Sinhronizacije ni bilo mogoče zagnati: Zeitkonto ni mogel potrditi, da ta kopija sme uporabljati iCloud.",
+      "Impossibile avviare la sincronizzazione: Zeitkonto non ha potuto confermare che questa copia possa usare iCloud.",
+      "La synchronisation n'a pas pu démarrer : Zeitkonto n'a pas pu confirmer que cette copie peut utiliser iCloud.",
+      "No se pudo iniciar la sincronización: Zeitkonto no pudo confirmar que esta copia pueda usar iCloud.",
+      "Não foi possível iniciar a sincronização: o Zeitkonto não conseguiu confirmar que esta cópia pode usar o iCloud.",
+      "Synchronisatie kon niet starten: Zeitkonto kon niet bevestigen dat deze kopie iCloud mag gebruiken.",
+      "Nie udało się uruchomić synchronizacji: Zeitkonto nie mógł potwierdzić, że ta kopia może używać iCloud."
+    ],
+    "Sync couldn't start: Zeitkonto stopped while connecting to iCloud last time.": [
+      "Sync konnte nicht starten: Zeitkonto wurde beim letzten Mal beim Verbinden mit iCloud beendet.",
+      "Sinkronizacija se nije mogla pokrenuti: Zeitkonto se prošli put zaustavio dok se povezivao s iCloudom.",
+      "Sinhronizacije ni bilo mogoče zagnati: Zeitkonto se je zadnjič ustavil med povezovanjem z iCloudom.",
+      "Impossibile avviare la sincronizzazione: l'ultima volta Zeitkonto si è chiuso mentre si collegava a iCloud.",
+      "La synchronisation n'a pas pu démarrer : la dernière fois, Zeitkonto s'est arrêté pendant la connexion à iCloud.",
+      "No se pudo iniciar la sincronización: la última vez Zeitkonto se cerró mientras se conectaba a iCloud.",
+      "Não foi possível iniciar a sincronização: da última vez, o Zeitkonto fechou enquanto se ligava ao iCloud.",
+      "Synchronisatie kon niet starten: Zeitkonto stopte de vorige keer tijdens het verbinden met iCloud.",
+      "Nie udało się uruchomić synchronizacji: ostatnim razem Zeitkonto zamknął się podczas łączenia z iCloud."
+    ],
+    "Sync couldn't start: iCloud wouldn't open the data on this device.": [
+      "Sync konnte nicht starten: iCloud wollte die Daten auf diesem Gerät nicht öffnen.",
+      "Sinkronizacija se nije mogla pokrenuti: iCloud nije htio otvoriti podatke na ovom uređaju.",
+      "Sinhronizacije ni bilo mogoče zagnati: iCloud ni hotel odpreti podatkov v tej napravi.",
+      "Impossibile avviare la sincronizzazione: iCloud non ha aperto i dati su questo dispositivo.",
+      "La synchronisation n'a pas pu démarrer : iCloud n'a pas voulu ouvrir les données de cet appareil.",
+      "No se pudo iniciar la sincronización: iCloud no quiso abrir los datos de este dispositivo.",
+      "Não foi possível iniciar a sincronização: o iCloud não quis abrir os dados deste dispositivo.",
+      "Synchronisatie kon niet starten: iCloud wilde de gegevens op dit apparaat niet openen.",
+      "Nie udało się uruchomić synchronizacji: iCloud nie chciał otworzyć danych na tym urządzeniu."
+    ],
+    "Sync has been switched off, and everything is still saved on this device. Turn it on again to try once more.": [
+      "Sync wurde ausgeschaltet, und alles ist weiter auf diesem Gerät gespeichert. Schalte es wieder ein, um es noch einmal zu versuchen.",
+      "Sinkronizacija je isključena, a sve je i dalje spremljeno na ovom uređaju. Ponovno je uključi da pokušaš još jednom.",
+      "Sinhronizacija je izklopljena, vse pa je še vedno shranjeno v tej napravi. Znova jo vklopi, da poskusiš še enkrat.",
+      "La sincronizzazione è stata disattivata e tutto resta salvato su questo dispositivo. Riattivala per riprovare.",
+      "La synchronisation a été désactivée, et tout reste enregistré sur cet appareil. Réactivez-la pour réessayer.",
+      "La sincronización se ha desactivado y todo sigue guardado en este dispositivo. Vuelve a activarla para intentarlo otra vez.",
+      "A sincronização foi desligada e tudo continua guardado neste dispositivo. Volta a ligá-la para tentares outra vez.",
+      "Synchronisatie is uitgezet en alles staat nog op dit apparaat. Zet het weer aan om het opnieuw te proberen.",
+      "Synchronizacja została wyłączona, a wszystko nadal jest zapisane na tym urządzeniu. Włącz ją ponownie, aby spróbować jeszcze raz."
+    ],
+    "No iCloud account is signed in on this device, so nothing is being synced. Sign in in the Settings app and sync starts by itself.": [
+      "Auf diesem Gerät ist kein iCloud-Account angemeldet, deshalb wird nichts synchronisiert. Melde dich in der Einstellungen-App an, dann startet Sync von selbst.",
+      "Na ovom uređaju nije prijavljen iCloud račun pa se ništa ne sinkronizira. Prijavi se u aplikaciji Postavke i sinkronizacija će krenuti sama.",
+      "V tej napravi ni prijavljen noben račun iCloud, zato se nič ne sinhronizira. Prijavi se v aplikaciji Nastavitve in sinhronizacija se bo začela sama.",
+      "Su questo dispositivo non c'è nessun account iCloud, quindi non si sincronizza nulla. Accedi nell'app Impostazioni e la sincronizzazione partirà da sola.",
+      "Aucun compte iCloud n'est connecté sur cet appareil, rien n'est donc synchronisé. Connectez-vous dans l'app Réglages et la synchronisation démarrera d'elle-même.",
+      "No hay ninguna cuenta de iCloud en este dispositivo, así que no se sincroniza nada. Inicia sesión en la app Ajustes y la sincronización empezará sola.",
+      "Não há nenhuma conta iCloud com sessão iniciada neste dispositivo, por isso nada está a ser sincronizado. Inicia sessão na app Definições e a sincronização começa sozinha.",
+      "Op dit apparaat is geen iCloud-account ingelogd, dus er wordt niets gesynchroniseerd. Log in via de app Instellingen en de synchronisatie start vanzelf.",
+      "Na tym urządzeniu nie jest zalogowane żadne konto iCloud, więc nic nie jest synchronizowane. Zaloguj się w aplikacji Ustawienia, a synchronizacja ruszy sama."
+    ],
+    "iCloud is restricted on this device, so nothing is being synced.": [
+      "iCloud ist auf diesem Gerät eingeschränkt, deshalb wird nichts synchronisiert.",
+      "iCloud je na ovom uređaju ograničen pa se ništa ne sinkronizira.",
+      "iCloud je v tej napravi omejen, zato se nič ne sinhronizira.",
+      "iCloud è limitato su questo dispositivo, quindi non si sincronizza nulla.",
+      "iCloud est restreint sur cet appareil, rien n'est donc synchronisé.",
+      "iCloud está restringido en este dispositivo, así que no se sincroniza nada.",
+      "O iCloud está restrito neste dispositivo, por isso nada está a ser sincronizado.",
+      "iCloud is beperkt op dit apparaat, dus er wordt niets gesynchroniseerd.",
+      "iCloud jest ograniczony na tym urządzeniu, więc nic nie jest synchronizowane."
+    ],
+    "iCloud can't be reached right now. Sync carries on by itself when it can.": [
+      "iCloud ist gerade nicht erreichbar. Sync macht von selbst weiter, sobald es geht.",
+      "iCloud trenutačno nije dostupan. Sinkronizacija će se sama nastaviti čim bude moguće.",
+      "iCloud trenutno ni dosegljiv. Sinhronizacija se bo sama nadaljevala, ko bo mogoče.",
+      "iCloud non è raggiungibile in questo momento. La sincronizzazione riprende da sola appena possibile.",
+      "iCloud est injoignable pour le moment. La synchronisation reprendra d'elle-même dès que possible.",
+      "Ahora mismo no se puede acceder a iCloud. La sincronización seguirá sola en cuanto pueda.",
+      "O iCloud não está acessível neste momento. A sincronização continua sozinha assim que puder.",
+      "iCloud is nu niet bereikbaar. De synchronisatie gaat vanzelf verder zodra het kan.",
+      "iCloud jest teraz niedostępny. Synchronizacja wznowi się sama, gdy będzie to możliwe."
+    ],
+    "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept.": [
+      "Entfernt jeden erfassten Tag, Feiertag und jede Baustelle von diesem Gerät und, weil Sync an ist, auch von deinen anderen Geräten. Einstellungen bleiben erhalten.",
+      "Uklanja svaki zabilježeni dan, praznik i gradilište s ovog uređaja i, jer je sinkronizacija uključena, i s tvojih drugih uređaja. Postavke ostaju.",
+      "Odstrani vsak zabeležen dan, praznik in gradbišče iz te naprave in, ker je sinhronizacija vklopljena, tudi iz tvojih drugih naprav. Nastavitve ostanejo.",
+      "Rimuove ogni giorno, festività e cantiere registrati da questo dispositivo e, poiché la sincronizzazione è attiva, anche dagli altri tuoi dispositivi. Le impostazioni restano.",
+      "Supprime chaque jour, jour férié et chantier enregistré de cet appareil et, comme la synchronisation est activée, de vos autres appareils aussi. Les réglages sont conservés.",
+      "Elimina cada día, festivo y obra registrados de este dispositivo y, como la sincronización está activada, también de tus otros dispositivos. Los ajustes se conservan.",
+      "Remove todos os dias, feriados e obras registados deste dispositivo e, como a sincronização está ligada, também dos teus outros dispositivos. As definições são mantidas.",
+      "Verwijdert elke vastgelegde dag, feestdag en bouwplaats van dit apparaat en, omdat synchronisatie aan staat, ook van je andere apparaten. Instellingen blijven behouden.",
+      "Usuwa każdy zapisany dzień, święto i budowę z tego urządzenia, a ponieważ synchronizacja jest włączona, także z twoich innych urządzeń. Ustawienia pozostają."
+    ],
+    "Replace everything on this device and your other devices with the backup?": [
+      "Alles auf diesem Gerät und deinen anderen Geräten durch die Sicherung ersetzen?",
+      "Zamijeniti sve na ovom uređaju i tvojim drugim uređajima sadržajem kopije?",
+      "Zamenjam vse v tej napravi in tvojih drugih napravah z varnostno kopijo?",
+      "Sostituire tutto su questo dispositivo e sugli altri tuoi dispositivi con il backup?",
+      "Remplacer tout le contenu de cet appareil et de vos autres appareils par la sauvegarde ?",
+      "¿Sustituir todo lo de este dispositivo y de tus otros dispositivos por la copia?",
+      "Substituir tudo neste dispositivo e nos teus outros dispositivos pela cópia?",
+      "Alles op dit apparaat en je andere apparaten vervangen door de back-up?",
+      "Zastąpić wszystko na tym urządzeniu i twoich innych urządzeniach kopią zapasową?"
     ]
   },
   "sameAsEnglishOnPurpose": [
