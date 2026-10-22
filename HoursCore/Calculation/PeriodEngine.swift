@@ -220,7 +220,10 @@ struct PeriodEngine: Sendable {
 
     /// The record a brand-new day should start from, pre-filled from the
     /// schedule so the common case is "open, glance, save".
-    func draftRecord(for date: CalendarDate, holidays: [HolidayRule]) -> DayRecord {
+    /// `working` is the "I worked" answer on a public holiday (or any day
+    /// whose type hides the times): the type stays as it resolves — so a
+    /// public holiday is still paid — and the times come from the week.
+    func draftRecord(for date: CalendarDate, holidays: [HolidayRule], working: Bool = false) -> DayRecord {
         // The week in force on that day, not today's: a day in October is
         // pre-filled with October's hours after a change in November.
         let schedule = settings.primarySchedule(on: date)
@@ -233,7 +236,7 @@ struct PeriodEngine: Sendable {
         let typeID = calculator.resolveDayTypeID(record: nil, date: date, holiday: holiday)
         let definition = settings.dayTypeCatalog.definition(for: typeID)
 
-        guard definition.showsTimesByDefault, definition.expectation == .scheduled else {
+        guard working || (definition.showsTimesByDefault && definition.expectation == .scheduled) else {
             return DayRecord(date: date, dayTypeID: typeID)
         }
 
