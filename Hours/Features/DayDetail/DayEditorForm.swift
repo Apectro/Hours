@@ -16,6 +16,9 @@ struct DayEditorForm: View {
     var onOpenSite: ((UUID) -> Void)? = nil
     /// What the day earns, when earnings are the main figure.
     var earnings: DayEarnings? = nil
+    /// Vacation left in the leave year with this day as drafted; nil unless
+    /// the day is a vacation day.
+    var vacationLeft: HalfDays? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
@@ -47,7 +50,7 @@ struct DayEditorForm: View {
     // MARK: - Day type
 
     private var dayTypeSection: some View {
-        Section("Day type") {
+        Section {
             DayTypeMenu(
                 selection: $draft.dayTypeID,
                 catalog: settings.dayTypeCatalog,
@@ -55,6 +58,16 @@ struct DayEditorForm: View {
             )
             if let holidayName = computation.holidayName {
                 LabeledContent("Holiday", value: holidayName)
+            }
+        } header: {
+            Text("Day type")
+        } footer: {
+            if let vacationLeft {
+                Text(String(
+                    localized: "Vacation left after this: \(vacationLeft.localized)",
+                    comment: "Day editor, under the day type when it is Vacation; a number of days such as 17 or 17.5"
+                ))
+                .accessibilityIdentifier("day-editor-vacation-left")
             }
         }
     }

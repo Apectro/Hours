@@ -38,11 +38,28 @@ struct StatisticsScreen: View {
 
     @State private var scope: StatisticsScope = .month
     @State private var anchor = CalendarDate.today(in: .current)
+    /// The year whose review is open, full screen.
+    @State private var review: ReviewedYear?
+    /// The last year the late-December card was opened or put away for. A
+    /// convenience of this installation, not data: losing it shows the card
+    /// once more.
+    @AppStorage("yearReview.dismissedYear") private var dismissedReviewYear = 0
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Metrics.large) {
+                    if let year = offeredReviewYear {
+                        YearReviewInvitation(
+                            year: year,
+                            open: {
+                                dismissedReviewYear = year
+                                review = ReviewedYear(year: year)
+                            },
+                            dismiss: { dismissedReviewYear = year }
+                        )
+                    }
+
                     Picker("Period", selection: $scope) {
                         ForEach(StatisticsScope.allCases) { option in
                             Text(option.title).tag(option)
@@ -70,11 +87,37 @@ struct StatisticsScreen: View {
                             calendar: calendar
                         )
                     }
+
+                    if scope != .today {
+                        LeaveBalanceCard(
+                            date: min(range.end, CalendarDate.today(in: calendar)),
+                            settings: settingsStore.settings,
+                            calendar: calendar
+                        )
+                    }
+
+                    if scope == .year {
+                        Button {
+                            review = ReviewedYear(year: anchor.year)
+                        } label: {
+                            Label(
+                                String(localized: "Your \(String(anchor.year))", comment: "Opens the year in review; the value is a year"),
+                                systemImage: "sparkles"
+                            )
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(YearReviewPalette.amberDeep)
+                        .accessibilityIdentifier("insights-year-review")
+                    }
                 }
                 .padding(.horizontal, Metrics.large)
                 .padding(.bottom, Metrics.extraLarge)
             }
             .background(Color.hoursCanvas)
+            .fullScreenCover(item: $review) { reviewed in
+                YearReviewScreen(year: reviewed.year)
+            }
             .navigationTitle("Insights")
             // A screen the UI tests wait for. The title beside it is translated.
             .accessibilityIdentifier("screen-insights")
@@ -82,6 +125,14 @@ struct StatisticsScreen: View {
     }
 
     private var calendar: Calendar { settingsStore.workCalendar }
+
+    private var offeredReviewYear: Int? {
+        YearReview.yearToOffer(
+            today: CalendarDate.today(in: calendar),
+            dismissedYear: dismissedReviewYear == 0 ? nil : dismissedReviewYear
+        )
+    }
+
     private var range: CalendarDateRange { scope.range(around: anchor, in: calendar) }
 
     /// The whole weeks around the period, which earnings need: overtime
