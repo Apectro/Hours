@@ -99,6 +99,7 @@ balance = (worked + credited) - expected + adjustment
 - Vacation on a Saturday → credited 0, expected 0 → 0
 - Public holiday during vacation → one day, one type, no double count
 - Worked 2 h on a public holiday → credited 8 h + worked 2 h − expected 8 h → +2 h
+- Time off in lieu on a Tuesday → nothing worked, nothing credited, expected 8 h → −8 h
 
 **Worked time** is measured per shift in `WorkdayCalculator` and then added
 up: the shift's length less its breaks, unless the shift's job pays for breaks
@@ -230,6 +231,59 @@ sheet's builder is never handed earnings, and the earnings column is never
 offered among the columns to choose. A personal timesheet carries an earnings
 column, tile and total only when Export options says so, which it does not by
 default.
+
+## Leave, time off in lieu, and the year in review
+
+**Time off in lieu** (Zeitausgleich) is a built-in day type, id
+`timeOffInLieu`, with the `scheduled` policy: exactly an ordinary working day
+with nothing worked, so it takes the day's contracted hours — from the week in
+force — off the balance and nothing else. Because it is chosen on the day, the
+day has an entry and is never a gap; the widget leaves it out of the month's
+squares and does not say when it ends, as it does for leave. A new built-in
+needs nothing written: the catalogue merges built-ins with the stored custom
+types at read time, custom types have UUID ids, and an older version reading a
+day of this type shows it as Unknown. Its export term (`timeOffInLieuDay`) is
+separate from the adjustment reason `timeOffInLieu`, which is a plural in some
+languages; German uses the Austrian *Zeitausgleich* for the day.
+
+**Leave** is `AppSettings.leave`, a `LeavePolicy` for the primary job:
+allowance in days (halves allowed), the day the leave year starts, days carried
+over *into a named leave year* — so last year's figure is not quietly carried
+into every year after — and an optional expiry for the carry-over. It decodes
+leniently, so 1.0 settings and backups read as the defaults (25 days from
+1 January), and it travels in a backup with the rest of the settings.
+
+`LeaveCalculator` counts days `PeriodEngine` has already resolved, in
+`HalfDays` so nothing is ever 17.4999. Only the built-in Vacation type takes
+leave, and only on a day something is contracted; an excluded day takes none.
+There is no half-day type, but a vacation day can have its expected hours set
+lower by hand, which credits fewer hours: up to half the day's contracted hours
+is half a day of leave, more is a day, nothing credited is nothing taken. Used
+is through today, planned is after it, and remaining subtracts both. Carried
+days are spent first, in date order, so leave taken or booked by the expiry
+keeps the carry-over it uses and whatever is left after the expiry is lost.
+Insights shows the leave year containing the period on screen (fetched on its
+own, since a leave year from April does not line up with a month), once the
+policy has been changed or any leave is taken, booked or carried; the day
+editor shows what would be left while the day is a vacation day.
+
+**Overtime available** reads a positive running balance as days off:
+`OvertimeAvailable` divides it by the average working day of the weeks every
+active job has in force, rounded to the nearest half day.
+
+**The year in review** is `YearReview`, made from `PeriodEngine`,
+`PeriodAggregator`, `BalanceLedger` and `LeaveCalculator` — the calculators
+Insights reads — and nothing else. It stops at today, as earnings do, rather
+than counting days already entered for later. Days on sites come from the site
+shifts in your own calendar (`ShiftPeriod.siteID`), so nothing about anyone
+else's hours is an input, and money appears only with a rate. A bad-weather
+card appears only when a type with id `badWeather` exists — built in or
+custom — and has days, so the review works with or without that type. The
+screen is a full-screen cover from Insights, never a push; the late-December
+invitation is a card on Insights from the 20th, put away for the year once
+opened or dismissed (`@AppStorage`, a convenience of the installation). Share
+renders the summary with `ImageRenderer` and hands the picture to the share
+sheet; nothing leaves the phone otherwise.
 
 ## Holidays
 
