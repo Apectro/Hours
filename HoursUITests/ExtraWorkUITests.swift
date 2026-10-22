@@ -1,7 +1,8 @@
 import XCTest
 
 /// Extra work, end to end on the seeded site: a job written with a new item
-/// counted up, listed under the day, and summed in the report.
+/// counted up, listed under the day in progress, left out of the report to
+/// the boss until it is ticked finished, then in it and summed.
 final class ExtraWorkUITests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -48,13 +49,38 @@ final class ExtraWorkUITests: XCTestCase {
         let job = app.buttons["extra-work-job-0"]
         XCTAssertTrue(job.waitForExistence(timeout: 5), "the job should be listed under the day")
 
+        // A new job is in progress: its checkmark is not ticked.
+        let tick = app.buttons["extra-work-tick-0"]
+        XCTAssertTrue(tick.waitForExistence(timeout: 5), "the job should have its checkmark")
+        XCTAssertFalse(tick.isSelected, "a new job starts in progress")
+
+        // In progress, it is easy to find on the report, and not in it.
         app.buttons["site-extra-work-report"].tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
+        XCTAssertTrue(app.buttons["extra-work-in-progress-0"].waitForExistence(timeout: 5),
+                      "a job in progress is listed at the top")
+        XCTAssertFalse(app.buttons["extra-work-report-job-0"].exists, "the report leaves out jobs in progress")
+        let share = app.buttons["extra-work-report-share-pdf"]
+        XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send report · PDF")
+        XCTAssertFalse(share.isEnabled, "nothing finished, nothing to send")
+        app.buttons["extra-work-report-done"].tap()
+
+        // Ticked, it is finished.
+        XCTAssertTrue(tick.waitForExistence(timeout: 5))
+        for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
+        tick.tap()
+        let ticked = NSPredicate(format: "isSelected == true")
+        expectation(for: ticked, evaluatedWith: app.buttons["extra-work-tick-0"])
+        waitForExpectations(timeout: 5)
+
+        // And now it is in the report, its material summed.
+        app.buttons["site-extra-work-report"].tap()
+        XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
+        XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 5), "a finished job is reported")
+        XCTAssertFalse(app.buttons["extra-work-in-progress-0"].exists, "nothing is in progress any more")
         XCTAssertTrue(app.descendants(matching: .any)["extra-work-total-0"].waitForExistence(timeout: 5),
                       "the report should sum the material")
-        let share = app.buttons["extra-work-report-share-pdf"]
-        XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send to boss · PDF")
-        XCTAssertTrue(share.isEnabled, "a report with a job can be sent")
+        XCTAssertTrue(share.isEnabled, "a report with a finished job can be sent")
         app.buttons["extra-work-report-done"].tap()
     }
 }

@@ -1,10 +1,13 @@
 import Foundation
 
-/// The extra-work report as the boss gets it, every word the app writes
-/// already in the export language: the PDF lays out these strings, the
-/// workbook writes `materialTable()` and `jobsTable()`, the CSV
-/// `linesTable()`. What the user typed — jobs, items, a typed unit, names —
-/// is passed through untouched, and there is no money anywhere in it.
+/// The extra-work report as the boss gets it — what is done, day by day with
+/// its photos; then, if the user included them, the jobs still in progress;
+/// then the material used, as a summary — every word the app writes already
+/// in the export language. The PDF lays out these strings, the workbook
+/// writes `jobsTable()` and `materialTable()`, the CSV `linesTable()`. What
+/// the user typed — jobs, items, a typed unit, names — is passed through
+/// untouched. It tells the boss what is done; it is not a bill: there is no
+/// money anywhere in it, and no empty lines for anyone to sign on.
 struct ExtraWorkDocument: Hashable, Sendable {
     struct MaterialRow: Hashable, Sendable {
         var name: String
@@ -29,46 +32,62 @@ struct ExtraWorkDocument: Hashable, Sendable {
         var hours: String
         var minutes: Int?
         var photoIDs: [UUID]
-        /// "signed" or "open".
-        var client: String
-        /// Drawn plain when signed for, in the accent colour when not.
-        var isConfirmed: Bool
+        var isDone: Bool
+        /// "Confirmed on site by Ing. M. Horvat, 22 Oct 2026" when the client
+        /// signed the job; empty, and nothing printed, when they did not.
+        var confirmation: String
+        /// The same without its words, for the workbook's column:
+        /// "Ing. M. Horvat, 22 Oct 2026".
+        var confirmedBy: String
+        /// The job's own signature, drawn beside its confirmation.
+        var signature: ExtraWorkSignature?
     }
 
     var language: ExportLanguage
     /// The site's name: the headline.
     var title: String
-    /// "Extra work · 19 – 22 October 2026".
+    /// "Extra work done · 19 – 22 October 2026".
     var eyebrow: String
     /// The period alone, "19 – 22 October 2026".
     var period: String
-    /// "Recorded by Marijo Mikša · Extra work report".
+    /// "Recorded by Marijo Mikša"; empty without a name in Settings.
     var byline: String
     var tiles: [ReportTile]
+
+    /// "Work done, day by day": the finished jobs, newest day first.
+    var jobsHeading: String
+    var jobHeadings: [String]
+    var jobs: [JobRow]
+    /// "Still in progress": only there when the user included such jobs.
+    var inProgressHeading: String
+    var inProgressJobs: [JobRow]
+    var hasHours: Bool
 
     var materialHeading: String
     var materialHeadings: [String]
     var material: [MaterialRow]
 
-    var jobsHeading: String
-    var jobHeadings: [String]
-    var jobs: [JobRow]
-    var hasHours: Bool
-
     var legend: String
-    /// The client's signature under the whole report, drawn in the footer.
+    /// The client's signature under the whole report, drawn at its foot
+    /// when there is one; nothing is drawn when there is not.
     var clientSignature: ExtraWorkSignature?
-    /// "Client · Ing. M. Horvat · 22 Oct 2026", under that signature.
+    /// "Confirmed on site by Ing. M. Horvat, 22 Oct 2026"; empty unsigned.
     var clientSignatureLabel: String
-    /// Labels under the empty lines left to sign on.
-    var signatureLines: [String]
 
-    /// "Extra work report — Trg Pravde Zagreb", for the file's metadata.
+    /// "Extra work done — Trg Pravde Zagreb", for the file's metadata.
     var documentTitle: String
-    /// "Trg Pravde Zagreb - Extra work 2026-10-19 to 2026-10-22".
+    /// "Trg Pravde Zagreb - Extra work done 2026-10-19 to 2026-10-22".
     var fileName: String
 
-    var isEmpty: Bool { jobs.isEmpty }
+    var isEmpty: Bool { jobs.isEmpty && inProgressJobs.isEmpty }
+
+    /// Done first, then those still in progress: the order of every table.
+    var allJobs: [JobRow] { jobs + inProgressJobs }
+
+    /// A column saying done or in progress, only when both are there.
+    private var showsProgress: Bool { !inProgressJobs.isEmpty }
+    /// A column of who confirmed what, only when somebody did.
+    private var showsConfirmation: Bool { allJobs.contains { !$0.confirmedBy.isEmpty } }
 
     // MARK: - Tables
 
@@ -83,7 +102,7 @@ struct ExtraWorkDocument: Hashable, Sendable {
             headingOverrides: headings
         )
         table.kind = .extraWork
-        table.eyebrow = language(.extraWork)
+        table.eyebrow = language(.extraWorkDone)
         table.detail = byline
         table.legend = legend
         return table
@@ -102,7 +121,25 @@ struct ExtraWorkDocument: Hashable, Sendable {
         return row
     }
 
-    /// The workbook's first sheet: a row per item and unit.
+    private func progressText(_ job: JobRow) -> String {
+        job.isDone ? language(.progressDone) : language(.progressInProgress)
+    }
+
+    /// The trailing columns every job table shares: status, then who
+    /// confirmed it, each only when it has something to say.
+    private var trailingHeadings: [String] {
+        (showsProgress ? [language(.progress)] : []) + (showsConfirmation ? [language(.confirmedOnSite)] : [])
+    }
+
+    private var trailingColumns: [ReportColumn] {
+        Array(repeating: .note, count: trailingHeadings.count)
+    }
+
+    private func trailingValues(_ job: JobRow) -> [String] {
+        (showsProgress ? [progressText(job)] : []) + (showsConfirmation ? [job.confirmedBy] : [])
+    }
+
+    /// The workbook's material sheet: a row per item and unit.
     func materialTable() -> ReportTable {
         let rows = material.enumerated().map { index, line in
             row(index, values: [line.name, line.quantity, line.unit], numbers: [nil, line.quantityValue, nil])
@@ -110,21 +147,23 @@ struct ExtraWorkDocument: Hashable, Sendable {
         return table(columns: [.note, .note, .note], headings: materialHeadings, rows: rows)
     }
 
-    /// The workbook's second sheet: a row per job, hours as durations.
+    /// The workbook's first sheet: a row per job, done first, hours as
+    /// durations.
     func jobsTable() -> ReportTable {
-        let headings = [language(.date), language(ExtraWorkTerm.job), language(ExtraWorkTerm.workAndMaterial)]
+        let headings = [language(.date), language(ExtraWorkTerm.job), language(.workAndMaterial)]
             + (hasHours ? [language(.hours)] : [])
-            + [language(.client)]
-        let columns: [ReportColumn] = [.date, .note, .note] + (hasHours ? [.worked] : []) + [.note]
-        let rows = jobs.enumerated().map { index, job -> ReportRow in
+            + trailingHeadings
+        let columns: [ReportColumn] = [.date, .note, .note] + (hasHours ? [.worked] : []) + trailingColumns
+        let rows = allJobs.enumerated().map { index, job -> ReportRow in
             var values = [job.dateText, job.description, job.material]
             var minutes: [Int?] = [nil, nil, nil]
             if hasHours {
                 values.append(job.hours.isEmpty ? "" : durationText(job.minutes))
                 minutes.append(job.minutes)
             }
-            values.append(job.client)
-            minutes.append(nil)
+            let trailing = trailingValues(job)
+            values += trailing
+            minutes += Array(repeating: nil, count: trailing.count)
             return row(index, values: values, minutes: minutes)
         }
         return table(columns: columns, headings: headings, rows: rows)
@@ -135,10 +174,10 @@ struct ExtraWorkDocument: Hashable, Sendable {
     func linesTable() -> ReportTable {
         let headings = [language(.date), language(ExtraWorkTerm.job), language(.item), language(.quantity), language(.unit)]
             + (hasHours ? [language(.hours)] : [])
-            + [language(.client)]
-        let columns: [ReportColumn] = [.date, .note, .note, .note, .note] + (hasHours ? [.worked] : []) + [.note]
+            + trailingHeadings
+        let columns: [ReportColumn] = [.date, .note, .note, .note, .note] + (hasHours ? [.worked] : []) + trailingColumns
         var rows: [ReportRow] = []
-        for job in jobs {
+        for job in allJobs {
             let lines: [ExtraWorkItem?] = job.items.isEmpty ? [nil] : job.items
             for (offset, item) in lines.enumerated() {
                 var values = [
@@ -154,18 +193,19 @@ struct ExtraWorkDocument: Hashable, Sendable {
                     values.append(first ? durationText(job.minutes) : "")
                     minutes.append(first ? job.minutes : nil)
                 }
-                values.append(job.client)
-                minutes.append(nil)
+                let trailing = trailingValues(job)
+                values += trailing
+                minutes += Array(repeating: nil, count: trailing.count)
                 rows.append(row(rows.count, values: values, minutes: minutes))
             }
         }
         return table(columns: columns, headings: headings, rows: rows)
     }
 
-    /// Both sheets, as one workbook.
+    /// Both sheets, as one workbook: the jobs first, the material after.
     func workbook(preferences: ExportPreferences, generatedOn: Date? = nil) -> Data {
         XLSXWriter.data(
-            sheets: [(materialHeading, materialTable()), (language(.jobs), jobsTable())],
+            sheets: [(language(.jobs), jobsTable()), (materialHeading, materialTable())],
             preferences: preferences,
             generatedOn: generatedOn
         )
@@ -203,7 +243,7 @@ struct ExtraWorkDocumentBuilder: Sendable {
         let owner = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let period = report.period.map { periodText($0, language: language) } ?? ""
-        let reportTitle = language(.extraWorkReport)
+        let word = language(.extraWorkDone)
 
         let material = report.totals.map { total in
             ExtraWorkDocument.MaterialRow(
@@ -214,10 +254,20 @@ struct ExtraWorkDocumentBuilder: Sendable {
             )
         }
 
-        let jobs = report.jobs.map { job -> ExtraWorkDocument.JobRow in
+        func confirmedBy(_ signature: ExtraWorkSignature) -> (sentence: String, short: String) {
+            let name = signature.signerName.trimmingCharacters(in: .whitespacesAndNewlines)
+            let day = formatting.dateWithYear(CalendarDate(signature.signedAt, calendar: calendar))
+            if name.isEmpty { return ("\(language(.confirmedOnSite)), \(day)", day) }
+            return ("\(language(.confirmedOnSiteBy)) \(name), \(day)", "\(name), \(day)")
+        }
+
+        func row(_ job: ExtraWorkJob) -> ExtraWorkDocument.JobRow {
             let cleaned = job.cleaned()
-            let confirmed = report.isConfirmed(job)
             let hours = cleaned.hours.map { "\($0.name) \(duration.string($0.minutes))" }.joined(separator: " · ")
+            // The job's own signature; one under the report is drawn once,
+            // at its foot, and its name goes in the workbook's column.
+            let own = job.clientSignature.map(confirmedBy)
+            let covering = report.clientSignature.map(confirmedBy)
             return ExtraWorkDocument.JobRow(
                 id: job.id,
                 date: job.date,
@@ -229,39 +279,30 @@ struct ExtraWorkDocumentBuilder: Sendable {
                 hours: hours,
                 minutes: cleaned.hasHours ? cleaned.totalMinutes : nil,
                 photoIDs: photoIDs[job.id] ?? [],
-                client: confirmed ? language(.confirmed) : language(.notConfirmed),
-                isConfirmed: confirmed
+                isDone: job.isDone,
+                confirmation: own?.sentence ?? "",
+                confirmedBy: own?.short ?? covering?.short ?? "",
+                signature: job.clientSignature
             )
         }
 
-        var tiles = [
-            ReportTile(label: language(.jobs), value: "\(report.jobs.count)"),
-            ReportTile(label: language(.items), value: "\(report.totals.count)"),
-            ReportTile(
-                label: language(.clientSigned),
-                value: "\(report.confirmedCount) \(language(.of)) \(report.jobs.count)"
-            )
-        ]
-        // Hours only where some were noted: most extra work bills material.
+        let done = report.done.map(row)
+        let inProgress = report.inProgress.map(row)
+
+        // Useful numbers only: what is done, what is not yet, what there is
+        // to see, and hours where some were noted. Never money.
+        var tiles = [ReportTile(label: language(.jobsDone), value: "\(done.count)")]
+        if !inProgress.isEmpty {
+            tiles.append(ReportTile(label: language(.inProgress), value: "\(inProgress.count)"))
+        }
+        let photoCount = report.jobs.reduce(0) { $0 + (photoIDs[$1.id]?.count ?? 0) }
+        if photoCount > 0 {
+            tiles.append(ReportTile(label: language(.photos), value: "\(photoCount)"))
+        }
         if report.hasHours {
             tiles.append(ReportTile(label: language(.hours), value: duration.string(report.totalMinutes)))
         }
 
-        var clientLabel = ""
-        var lines: [String] = []
-        if let signature = report.clientSignature {
-            let signedOn = CalendarDate(signature.signedAt, calendar: calendar)
-            clientLabel = [language(.client), signature.signerName.trimmingCharacters(in: .whitespacesAndNewlines),
-                           formatting.dateWithYear(signedOn)]
-                .filter { !$0.isEmpty }
-                .joined(separator: " · ")
-        } else {
-            lines.append(language(.clientSignatureLine))
-        }
-        lines.append(language(.supervisorSignature))
-
-        let recorded = owner.isEmpty ? [] : ["\(language(.recordedBy)) \(owner)"]
-        let word = language(.extraWork)
         let fileName: String
         if let range = report.period {
             fileName = range.start == range.end
@@ -276,20 +317,21 @@ struct ExtraWorkDocumentBuilder: Sendable {
             title: siteName,
             eyebrow: period.isEmpty ? word : "\(word) · \(period)",
             period: period,
-            byline: (recorded + [reportTitle]).joined(separator: " · "),
+            byline: owner.isEmpty ? "" : "\(language(.recordedBy)) \(owner)",
             tiles: tiles,
-            materialHeading: language(.materialInTotal),
+            jobsHeading: language(.workDoneDayByDay),
+            jobHeadings: [language(.day), language(.workAndMaterial), language(.photos)],
+            jobs: done,
+            inProgressHeading: language(.stillInProgress),
+            inProgressJobs: inProgress,
+            hasHours: report.hasHours,
+            materialHeading: language(.materialUsed),
             materialHeadings: [language(.item), language(.quantity), language(.unit)],
             material: material,
-            jobsHeading: language(.jobsDayByDay),
-            jobHeadings: [language(.day), language(.workAndMaterial), language(.photos), language(.client)],
-            jobs: jobs,
-            hasHours: report.hasHours,
             legend: report.hasHours ? language(.legend) : language(.legendWithoutHours),
             clientSignature: report.clientSignature,
-            clientSignatureLabel: clientLabel,
-            signatureLines: lines,
-            documentTitle: "\(reportTitle) — \(siteName)",
+            clientSignatureLabel: report.clientSignature.map { confirmedBy($0).sentence } ?? "",
+            documentTitle: "\(word) — \(siteName)",
             fileName: fileName,
             durationFormatting: duration,
             decimalSeparator: decimal
@@ -322,10 +364,11 @@ struct ExtraWorkDocumentBuilder: Sendable {
             startTemplate = "d"
         }
         var start = formatter(startTemplate, language: language).string(from: range.start.date(in: calendar))
-        // A day alone loses the full stop German, Croatian and Slovenian
-        // write after it ("19. – 22. Oktober"); the full date shows whether
-        // the language has one.
-        if startTemplate == "d", end.hasPrefix("\(range.end.day).") {
+        // A day alone can lose the full stop German writes after it
+        // ("19. – 22. Oktober"); the full date shows whether the language has
+        // one. Croatian and Slovenian already keep it on the day alone, so it
+        // is added only when missing — never "19.. – 22."
+        if startTemplate == "d", end.hasPrefix("\(range.end.day)."), !start.hasSuffix(".") {
             start += "."
         }
         return "\(start) – \(end)"

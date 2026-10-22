@@ -3685,7 +3685,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Regiearbeit hinzufügen"
+            "value": "Zusatzarbeit hinzufügen"
           }
         },
         "es": {
@@ -3703,7 +3703,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dodaj izvanugovorni rad"
+            "value": "Dodaj dodatni rad"
           }
         },
         "it": {
@@ -14759,7 +14759,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Regiearbeit löschen"
+            "value": "Diese Zusatzarbeit löschen"
           }
         },
         "es": {
@@ -14777,7 +14777,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izbriši ovaj izvanugovorni rad"
+            "value": "Izbriši ovaj dodatni rad"
           }
         },
         "it": {
@@ -14818,7 +14818,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Regiearbeit löschen?"
+            "value": "Diese Zusatzarbeit löschen?"
           }
         },
         "es": {
@@ -14836,7 +14836,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izbrisati ovaj izvanugovorni rad?"
+            "value": "Izbrisati ovaj dodatni rad?"
           }
         },
         "it": {
@@ -17237,7 +17237,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Regiearbeiten"
+            "value": "Zusatzarbeiten"
           }
         },
         "es": {
@@ -17255,7 +17255,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvanugovorni radovi"
+            "value": "Dodatni radovi"
           }
         },
         "it": {
@@ -17296,7 +17296,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foto der Regiearbeit"
+            "value": "Foto der Zusatzarbeit"
           }
         },
         "es": {
@@ -17314,7 +17314,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fotografija izvanugovornog rada"
+            "value": "Fotografija dodatnog rada"
           }
         },
         "it": {
@@ -17345,65 +17345,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fotografija dodatnega dela"
-          }
-        }
-      }
-    },
-    "Extra work report": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Regiebericht"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Informe de trabajos adicionales"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rapport de travaux supplémentaires"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izvješće o izvanugovornim radovima"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rapporto lavori extra"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Meerwerkrapport"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Raport prac dodatkowych"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Relatório de trabalhos adicionais"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Poročilo o dodatnih delih"
           }
         }
       }
@@ -17817,6 +17758,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "Končaj delo v ${applicationName}"
+          }
+        }
+      }
+    },
+    "Finished": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Završeno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finito"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukończone"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concluído"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končano"
+          }
+        }
+      }
+    },
+    "Finished jobs go in the report to the boss.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertige Arbeiten kommen in den Bericht an den Chef."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los trabajos terminados van en el informe al jefe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les travaux terminés vont dans le rapport au patron."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Završeni radovi idu u izvješće šefu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I lavori finiti vanno nel rapporto al capo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klaar werk gaat in het rapport aan de baas."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukończone prace trafiają do raportu dla szefa."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os trabalhos concluídos vão no relatório ao chefe."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končana dela gredo v poročilo šefu."
+          }
+        }
+      }
+    },
+    "Finished: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminado: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé : %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Završeno: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finito: %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klaar: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukończone: %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concluído: %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Končano: %@"
           }
         }
       }
@@ -20299,6 +20417,301 @@
         }
       }
     },
+    "In progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Arbeit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En curso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U tijeku"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In corso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W toku"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em curso"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V teku"
+          }
+        }
+      }
+    },
+    "In progress on this site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf dieser Baustelle in Arbeit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En curso en esta obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours sur ce chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U tijeku na ovom gradilištu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In corso in questo cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig op deze bouwplaats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W toku na tej budowie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em curso nesta obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V teku na tem gradbišču"
+          }
+        }
+      }
+    },
+    "In progress until you tick it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Arbeit, bis du sie abhakst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En curso hasta que lo marques."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours jusqu’à ce que vous le cochiez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U tijeku dok ga ne označiš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In corso finché non lo spunti."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig tot je het afvinkt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W toku, dopóki go nie odhaczysz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em curso até o marcares."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V teku, dokler ga ne označiš."
+          }
+        }
+      }
+    },
+    "In progress: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Arbeit: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En curso: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours : %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U tijeku: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In corso: %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W toku: %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em curso: %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V teku: %@"
+          }
+        }
+      }
+    },
+    "In progress: %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Arbeit: %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En curso: %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours : %lld"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U tijeku: %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In corso: %lld"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezig: %lld"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W toku: %lld"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em curso: %lld"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V teku: %lld"
+          }
+        }
+      }
+    },
     "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.": {
       "extractionState": "manual",
       "localizations": {
@@ -20535,6 +20948,65 @@
         }
       }
     },
+    "Include jobs still in progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auch laufende Arbeiten aufnehmen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir trabajos aún en curso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclure les travaux encore en cours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uključi radove koji su još u tijeku"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Includi i lavori ancora in corso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werk dat nog bezig is meenemen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uwzględnij prace wciąż w toku"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir trabalhos ainda em curso"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vključi dela, ki so še v teku"
+          }
+        }
+      }
+    },
     "Include site diary": {
       "extractionState": "manual",
       "localizations": {
@@ -20767,65 +21239,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pregled"
-          }
-        }
-      }
-    },
-    "Invoiced": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verrechnet"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Facturado"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Facturé"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fakturirano"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fatturato"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gefactureerd"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zafakturowane"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Faturado"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zaračunano"
           }
         }
       }
@@ -22187,61 +22600,120 @@
         }
       }
     },
-    "Mark as invoiced": {
+    "Mark as finished": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Als verrechnet markieren"
+            "value": "Als fertig markieren"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcar como facturado"
+            "value": "Marcar como terminado"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marquer comme facturé"
+            "value": "Marquer comme terminé"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Označi kao fakturirano"
+            "value": "Označi kao završeno"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Segna come fatturato"
+            "value": "Segna come finito"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markeren als gefactureerd"
+            "value": "Markeren als klaar"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oznacz jako zafakturowane"
+            "value": "Oznacz jako ukończone"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcar como faturado"
+            "value": "Marcar como concluído"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Označi kot zaračunano"
+            "value": "Označi kot končano"
+          }
+        }
+      }
+    },
+    "Mark as in progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als in Arbeit markieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcar como en curso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme en cours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi kao u tijeku"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segna come in corso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markeren als bezig"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oznacz jako w toku"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcar como em curso"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi kot v teku"
           }
         }
       }
@@ -22301,65 +22773,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Označi praznike"
-          }
-        }
-      }
-    },
-    "Mark the sent ones as invoiced (%lld)": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gesendete als verrechnet markieren (%lld)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marcar los enviados como facturados (%lld)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marquer les envoyés comme facturés (%lld)"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Označi poslane kao fakturirane (%lld)"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Segna gli inviati come fatturati (%lld)"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verstuurde markeren als gefactureerd (%lld)"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oznacz wysłane jako zafakturowane (%lld)"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marcar os enviados como faturados (%lld)"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Označi poslana kot zaračunana (%lld)"
           }
         }
       }
@@ -22541,6 +22954,124 @@
         }
       }
     },
+    "Marks it in progress again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiert sie wieder als in Arbeit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo marca de nuevo como en curso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le marque de nouveau comme en cours."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno ga označava kao u tijeku."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo segna di nuovo come in corso."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markeert het weer als bezig."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oznacza je znowu jako w toku."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca-o de novo como em curso."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno ga označi kot v teku."
+          }
+        }
+      }
+    },
+    "Marks the work as finished.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiert die Arbeit als fertig."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca el trabajo como terminado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marque le travail comme terminé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označava rad kao završen."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segna il lavoro come finito."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markeert het werk als klaar."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oznacza pracę jako ukończoną."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca o trabalho como concluído."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označi delo kot končano."
+          }
+        }
+      }
+    },
     "Material": {
       "extractionState": "manual",
       "localizations": {
@@ -22600,61 +23131,61 @@
         }
       }
     },
-    "Material in total": {
+    "Material used": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Material gesamt"
+            "value": "Verwendetes Material"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Material total"
+            "value": "Material utilizado"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Total du matériel"
+            "value": "Matériel utilisé"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ukupno materijala"
+            "value": "Utrošeni materijal"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Materiale totale"
+            "value": "Materiale utilizzato"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Materiaal totaal"
+            "value": "Gebruikt materiaal"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Materiał łącznie"
+            "value": "Zużyty materiał"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Material total"
+            "value": "Material utilizado"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Material skupaj"
+            "value": "Porabljen material"
           }
         }
       }
@@ -24258,7 +24789,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "An diesem Tag keine Regiearbeiten."
+            "value": "An diesem Tag keine Zusatzarbeiten."
           }
         },
         "es": {
@@ -24276,7 +24807,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ovaj dan nema izvanugovornih radova."
+            "value": "Ovaj dan nema dodatnih radova."
           }
         },
         "it": {
@@ -25428,65 +25959,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odsotnost"
-          }
-        }
-      }
-    },
-    "Not invoiced after all": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doch nicht verrechnet"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Al final no facturado"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finalement pas facturé"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ipak nije fakturirano"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non ancora fatturato"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toch niet gefactureerd"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jednak niezafakturowane"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afinal não faturado"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vendarle ni zaračunano"
           }
         }
       }
@@ -28166,65 +28638,6 @@
         }
       }
     },
-    "Open": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abierto"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvert"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otvoreno"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aperto"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otwarte"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aberto"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odprto"
-          }
-        }
-      }
-    },
     "Open Zeitkonto": {
       "extractionState": "manual",
       "localizations": {
@@ -28815,61 +29228,61 @@
         }
       }
     },
-    "Optional — leave it out when only material is billed": {
+    "Optional — leave it out when the material says it all": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Optional – weglassen, wenn nur Material verrechnet wird"
+            "value": "Optional – weglassen, wenn das Material alles sagt"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional: déjalo fuera si solo se factura el material"
+            "value": "Opcional: déjalo fuera si el material lo dice todo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Facultatif – à omettre si seul le matériel est facturé"
+            "value": "Facultatif – à omettre si le matériel suffit"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neobavezno – izostavi kad se naplaćuje samo materijal"
+            "value": "Neobavezno – izostavi kad materijal govori sve"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Facoltativo – tralascia se si fattura solo il materiale"
+            "value": "Facoltativo – tralascialo se il materiale dice tutto"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Optioneel – weglaten als alleen materiaal wordt gefactureerd"
+            "value": "Optioneel – weglaten als het materiaal alles zegt"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcjonalnie – pomiń, gdy fakturowany jest tylko materiał"
+            "value": "Opcjonalnie – pomiń, gdy materiał mówi wszystko"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional – deixa de fora quando só se fatura material"
+            "value": "Opcional – deixa de fora quando o material diz tudo"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neobvezno – izpusti, ko se zaračuna le material"
+            "value": "Neobvezno – izpusti, ko material pove vse"
           }
         }
       }
@@ -33378,6 +33791,65 @@
         }
       }
     },
+    "Report to boss": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bericht an den Chef"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informe al jefe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapport au patron"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvješće šefu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporto al capo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapport aan de baas"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raport dla szefa"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relatório ao chefe"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poročilo šefu"
+          }
+        }
+      }
+    },
     "Reset to default": {
       "extractionState": "manual",
       "localizations": {
@@ -34926,61 +35398,61 @@
         }
       }
     },
-    "Send to boss · PDF": {
+    "Send report · PDF": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "An den Chef senden · PDF"
+            "value": "Bericht senden · PDF"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enviar al jefe · PDF"
+            "value": "Enviar informe · PDF"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyer au patron · PDF"
+            "value": "Envoyer le rapport · PDF"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošalji šefu · PDF"
+            "value": "Pošalji izvješće · PDF"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invia al capo · PDF"
+            "value": "Invia rapporto · PDF"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Naar de baas sturen · PDF"
+            "value": "Rapport versturen · PDF"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wyślij szefowi · PDF"
+            "value": "Wyślij raport · PDF"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enviar ao chefe · PDF"
+            "value": "Enviar relatório · PDF"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošlji šefu · PDF"
+            "value": "Pošlji poročilo · PDF"
           }
         }
       }
@@ -35044,7 +35516,7 @@
         }
       }
     },
-    "Sent to the boss on %@": {
+    "Sent to boss on %@": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -36466,7 +36938,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unterschreiben, um diese Regiearbeit zu bestätigen"
+            "value": "Unterschreiben, um diese Zusatzarbeit zu bestätigen"
           }
         },
         "es": {
@@ -36484,7 +36956,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Potpiši za potvrdu ovog izvanugovornog rada"
+            "value": "Potpiši za potvrdu ovog dodatnog rada"
           }
         },
         "it": {
@@ -38285,6 +38757,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Še vedno prijavljen"
+          }
+        }
+      }
+    },
+    "Still in progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch in Arbeit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todavía en curso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toujours en cours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Još u tijeku"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancora in corso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nog bezig"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wciąż w toku"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ainda em curso"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Še v teku"
           }
         }
       }
@@ -46795,6 +47326,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delo"
+          }
+        }
+      }
+    },
+    "Work done": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erledigte Arbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabajos realizados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travaux réalisés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvršeni radovi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lavori eseguiti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitgevoerd werk"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wykonane prace"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabalhos realizados"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opravljena dela"
+          }
+        }
+      }
+    },
+    "Work finished": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arbeit fertig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabajo terminado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travail terminé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rad završen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lavoro finito"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werk klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Praca ukończona"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabalho concluído"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delo končano"
           }
         }
       }

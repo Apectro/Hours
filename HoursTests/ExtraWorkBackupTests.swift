@@ -19,6 +19,8 @@ final class ExtraWorkBackupTests: XCTestCase {
             ],
             hours: [ExtraWorkHours(memberID: CrewMember.youID, name: "Marijo", minutes: 90)],
             clientSignature: ExtraWorkSignature(signerName: "Ing. Horvat", signedAt: moment, strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]]),
+            isDone: true,
+            doneAt: moment,
             status: .sent,
             sentAt: moment,
             sentReportID: UUID(),
@@ -51,6 +53,57 @@ final class ExtraWorkBackupTests: XCTestCase {
         XCTAssertEqual(decoded.extraWorkPhotos, original.extraWorkPhotos)
         XCTAssertEqual(decoded.extraWorkReports, original.extraWorkReports)
         XCTAssertEqual(decoded.extraWorkItems, original.extraWorkItems)
+    }
+
+    func testDoneAndInProgressRoundTrip() throws {
+        var original = archive()
+        let underWay = ExtraWorkJob(siteID: site.id, date: Fixture.date(2026, 10, 23), description: "Cable trays",
+                                    createdAt: moment, updatedAt: moment)
+        original.extraWorkJobs?.append(underWay)
+        let decoded = try BackupArchive.decoded(from: original.encoded())
+        XCTAssertEqual(decoded.extraWorkJobs?.map(\.isDone), [true, false])
+        XCTAssertEqual(decoded.extraWorkJobs?.first?.doneAt, moment)
+        XCTAssertNil(decoded.extraWorkJobs?.last?.doneAt)
+    }
+
+    /// A backup from 1.1 before a job could be in progress: every job in it
+    /// was written as finished work, so it restores as done.
+    func testJobsFromABackupWithoutDoneRestoreAsDone() throws {
+        let json = """
+        {"formatVersion": 1, "settings": {}, "days": [], "holidays": [],
+         "extraWorkJobs": [{"id": "\(UUID().uuidString)", "siteID": "\(site.id.uuidString)", "date": 20261022,
+                            "description": "Lamps", "items": [], "hours": [], "status": "invoiced",
+                            "createdAt": "2026-10-22T08:00:00Z", "updatedAt": "2026-10-22T08:00:00Z"}]}
+        """
+        let job = try XCTUnwrap(BackupArchive.decoded(from: Data(json.utf8)).extraWorkJobs?.first)
+        XCTAssertTrue(job.isDone)
+        XCTAssertNil(job.doneAt)
+        XCTAssertEqual(job.status, .sent, "invoiced, a step there is no more, was sent")
+    }
+
+    /// The job as 1.1 decoded it before done existed: its own keys, and the
+    /// status as one of the words it knew. A newer backup must still read.
+    private struct JobBeforeDone: Decodable {
+        var id: UUID
+        var siteID: UUID
+        var description: String
+        var status: String
+    }
+
+    private struct ArchiveBeforeDone: Decodable {
+        var formatVersion: Int
+        var extraWorkJobs: [JobBeforeDone]?
+    }
+
+    func testABuildFromBeforeDoneStillReadsANewBackup() throws {
+        var original = archive()
+        original.extraWorkJobs?.append(ExtraWorkJob(siteID: site.id, date: Fixture.date(2026, 10, 23), description: "Cable trays"))
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let old = try decoder.decode(ArchiveBeforeDone.self, from: original.encoded())
+        XCTAssertEqual(old.extraWorkJobs?.map(\.description), ["Emergency lighting, stairwell", "Cable trays"])
+        XCTAssertTrue(old.extraWorkJobs?.allSatisfy { ["open", "sent"].contains($0.status) } == true,
+                      "only words it knew: no new status is written")
     }
 
     func testPhotosAreBase64AndQuantitiesAreText() throws {

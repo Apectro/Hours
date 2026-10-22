@@ -1,9 +1,9 @@
 import Foundation
 
-// Extra work (Regie, izvanugovorni radovi): what a crew did on a site beyond
-// the contract, written down so it can be invoiced — "8 emergency lights and
-// 10 lamps". Quantities only: there is no price anywhere in this feature, and
-// none is ever printed. Hours on a job are optional, as is the client's
+// Extra work (Zusatzarbeiten, dodatni radovi): what a crew did on a site
+// beyond the contract, written down so the boss knows what is done — "8
+// emergency lights and 10 lamps". A progress report, not a bill: quantities
+// only, there is no price anywhere in this feature, and none is ever printed. Hours on a job are optional, as is the client's
 // signature. None of it is hours of anyone's own day, so it is never on the
 // personal timesheet and not under the month lock (see `ExtraWorkRepository`).
 
@@ -264,20 +264,45 @@ struct ExtraWorkSignature: Hashable, Codable, Sendable {
     }
 }
 
-/// Where a job is on its way to an invoice.
-enum ExtraWorkStatus: String, Codable, CaseIterable, Sendable {
+/// Whether the boss has the job: written down, or in a report that was
+/// shared. Separate from whether the work is finished (`ExtraWorkJob.isDone`).
+enum ExtraWorkStatus: String, CaseIterable, Sendable {
     /// Written down, not yet sent to the boss.
     case open
     /// In a report that was shared.
     case sent
-    /// The boss has invoiced it; marked by hand.
-    case invoiced
+
+    /// Reads a stored value. Builds of 1.1 before it shipped had a third
+    /// step, "invoiced", marked by hand on a sent job; that is a job the boss
+    /// had, so it reads as sent. Anything else unknown is open.
+    init(storedValue: String) {
+        switch storedValue {
+        case "sent", "invoiced": self = .sent
+        default: self = .open
+        }
+    }
 }
 
-/// The chip on a job in the app: its status, with "Signed" for an open job
-/// the client has signed.
+extension ExtraWorkStatus: Codable {
+    init(from decoder: Decoder) throws {
+        self.init(storedValue: try decoder.singleValueContainer().decode(String.self))
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+/// Whether the work itself is finished: the first chip on every job.
+enum ExtraWorkProgress: String, Hashable, Sendable {
+    case inProgress, done
+}
+
+/// The second, optional chip on a job: "Sent" once the boss has it as it
+/// stands, otherwise "Signed" when the client has signed it.
 enum ExtraWorkChip: String, Hashable, Sendable {
-    case open, signed, sent, invoiced
+    case signed, sent
 }
 
 /// One job of extra work on one site and day.
@@ -291,6 +316,12 @@ struct ExtraWorkJob: Identifiable, Hashable, Sendable {
     /// Empty unless hours were added to the job.
     var hours: [ExtraWorkHours]
     var clientSignature: ExtraWorkSignature?
+    /// The work is finished. A job can run over several days and is in
+    /// progress until it is ticked done.
+    var isDone: Bool
+    /// When it was ticked done; `nil` while in progress, and for jobs written
+    /// before there was a tick (they read as done).
+    var doneAt: Date?
     var status: ExtraWorkStatus
     var sentAt: Date?
     /// The `ExtraWorkReportRecord` it was last sent in.
@@ -306,6 +337,8 @@ struct ExtraWorkJob: Identifiable, Hashable, Sendable {
         items: [ExtraWorkItem] = [],
         hours: [ExtraWorkHours] = [],
         clientSignature: ExtraWorkSignature? = nil,
+        isDone: Bool = false,
+        doneAt: Date? = nil,
         status: ExtraWorkStatus = .open,
         sentAt: Date? = nil,
         sentReportID: UUID? = nil,
@@ -319,6 +352,8 @@ struct ExtraWorkJob: Identifiable, Hashable, Sendable {
         self.items = items
         self.hours = hours
         self.clientSignature = clientSignature
+        self.isDone = isDone
+        self.doneAt = isDone ? doneAt : nil
         self.status = status
         self.sentAt = sentAt
         self.sentReportID = sentReportID
@@ -357,60 +392,70 @@ struct ExtraWorkJob: Identifiable, Hashable, Sendable {
         return copy
     }
 
-    var chip: ExtraWorkChip {
-        switch status {
-        case .invoiced: return .invoiced
-        case .sent: return .sent
-        case .open: return isSigned ? .signed : .open
-        }
+    var progress: ExtraWorkProgress { isDone ? .done : .inProgress }
+
+    /// Sent while still in progress and finished since: the boss has heard
+    /// it was under way, not that it is done.
+    var finishedSinceSent: Bool {
+        guard isDone, status == .sent, let doneAt, let sentAt else { return false }
+        return doneAt > sentAt
     }
 
-    // MARK: - Status
+    /// The boss does not have it as it stands: never sent, or finished since.
+    var awaitsReport: Bool { status == .open || finishedSinceSent }
 
-    /// In a report that was shared. A job already invoiced stays invoiced; a
-    /// job sent before records the report it was sent in last.
+    /// At most one chip beside In progress / Done.
+    var chip: ExtraWorkChip? {
+        if status == .sent && !finishedSinceSent { return .sent }
+        return isSigned ? .signed : nil
+    }
+
+    // MARK: - Done
+
+    /// The work is finished. Ticking a done job again keeps when it was done.
+    func markingDone(at moment: Date) -> ExtraWorkJob {
+        guard !isDone else { return self }
+        var copy = self
+        copy.isDone = true
+        copy.doneAt = moment
+        return copy
+    }
+
+    /// Not finished after all.
+    func markingInProgress() -> ExtraWorkJob {
+        var copy = self
+        copy.isDone = false
+        copy.doneAt = nil
+        return copy
+    }
+
+    /// The row's checkmark.
+    func togglingDone(at moment: Date) -> ExtraWorkJob {
+        isDone ? markingInProgress() : markingDone(at: moment)
+    }
+
+    // MARK: - Sent to the boss
+
+    /// In a report that was shared. A job sent before records the report it
+    /// was sent in last.
     func markingSent(at moment: Date, reportID: UUID) -> ExtraWorkJob {
-        guard status != .invoiced else { return self }
         var copy = self
         copy.status = .sent
         copy.sentAt = moment
         copy.sentReportID = reportID
         return copy
     }
-
-    /// The boss has invoiced it. Only a job that was sent can be.
-    func markingInvoiced() -> ExtraWorkJob {
-        guard status == .sent else { return self }
-        var copy = self
-        copy.status = .invoiced
-        return copy
-    }
-
-    /// One step back: invoiced to sent, sent to open.
-    func reopening() -> ExtraWorkJob {
-        var copy = self
-        switch status {
-        case .invoiced:
-            copy.status = .sent
-        case .sent:
-            copy.status = .open
-            copy.sentAt = nil
-            copy.sentReportID = nil
-        case .open:
-            break
-        }
-        return copy
-    }
 }
 
 extension ExtraWorkJob: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, siteID, date, description, items, hours, clientSignature, status, sentAt, sentReportID
+        case id, siteID, date, description, items, hours, clientSignature, isDone, doneAt, status, sentAt, sentReportID
         case createdAt, updatedAt
     }
 
     /// Lenient, as everything in a backup is: a damaged field costs that
-    /// field, never the job.
+    /// field, never the job. A job without `isDone` was written before a job
+    /// could be in progress, as finished work, so it reads as done.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init(
@@ -421,6 +466,8 @@ extension ExtraWorkJob: Codable {
             items: container.lenient(.items, []),
             hours: container.lenient(.hours, []),
             clientSignature: container.lenientOptional(.clientSignature),
+            isDone: container.lenient(.isDone, true),
+            doneAt: container.lenientOptional(.doneAt),
             status: container.lenient(.status, .open),
             sentAt: container.lenientOptional(.sentAt),
             sentReportID: container.lenientOptional(.sentReportID),
@@ -438,6 +485,8 @@ extension ExtraWorkJob: Codable {
         try container.encode(items, forKey: .items)
         try container.encode(hours, forKey: .hours)
         try container.encodeIfPresent(clientSignature, forKey: .clientSignature)
+        try container.encode(isDone, forKey: .isDone)
+        try container.encodeIfPresent(doneAt, forKey: .doneAt)
         try container.encode(status, forKey: .status)
         try container.encodeIfPresent(sentAt, forKey: .sentAt)
         try container.encodeIfPresent(sentReportID, forKey: .sentReportID)
@@ -518,8 +567,7 @@ enum ExtraWorkShareOutcome: Hashable, Sendable {
 
 enum ExtraWorkSending {
     /// The jobs of a report as they stand after sharing it: marked sent only
-    /// when the share went through, and then all of them (an invoiced one is
-    /// left as it is). Returns only the jobs that change, so nothing is
+    /// when the share went through, and then all of them. Returns only the jobs that change, so nothing is
     /// written for a share that was cancelled.
     static func marked(
         _ jobs: [ExtraWorkJob],

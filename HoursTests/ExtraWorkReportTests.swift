@@ -1,8 +1,8 @@
 import XCTest
 @testable import Hours
 
-/// The report for the boss: which jobs it carries, the material in total,
-/// and who confirmed what.
+/// The report for the boss: which jobs it carries, done or still in
+/// progress, the material used, and who confirmed what.
 final class ExtraWorkReportTests: XCTestCase {
     private let site = UUID()
     private let otherSite = UUID()
@@ -20,6 +20,7 @@ final class ExtraWorkReportTests: XCTestCase {
         _ items: [ExtraWorkItem] = [],
         site: UUID? = nil,
         status: ExtraWorkStatus = .open,
+        done: Bool = true,
         createdOffset: TimeInterval = 0
     ) -> ExtraWorkJob {
         let moment = base.addingTimeInterval(TimeInterval(day) * 86_400 + createdOffset)
@@ -28,6 +29,8 @@ final class ExtraWorkReportTests: XCTestCase {
             date: Fixture.date(2026, 10, day),
             description: description,
             items: items,
+            isDone: done,
+            doneAt: done ? moment : nil,
             status: status,
             createdAt: moment,
             updatedAt: moment
@@ -138,12 +141,10 @@ final class ExtraWorkReportTests: XCTestCase {
 
     // MARK: - Confirmation
 
-    func testConfirmedCountsJobsTheClientSigned() {
+    func testAJobIsConfirmedWhenTheClientSignedIt() {
         var jobs = week
         jobs[4].clientSignature = signature
-        jobs[2].clientSignature = signature
         let report = ExtraWorkReport(siteID: site, jobs: jobs)
-        XCTAssertEqual(report.confirmedCount, 2)
         XCTAssertTrue(report.isConfirmed(jobs[4]))
         XCTAssertFalse(report.isConfirmed(jobs[0]))
     }
@@ -151,18 +152,35 @@ final class ExtraWorkReportTests: XCTestCase {
     /// A signature under the report confirms every job in it.
     func testASignatureOnTheReportConfirmsEveryJob() {
         let report = ExtraWorkReport(siteID: site, jobs: week, clientSignature: signature)
-        XCTAssertEqual(report.confirmedCount, 5)
+        XCTAssertTrue(report.jobs.allSatisfy(report.isConfirmed))
+    }
+
+    // MARK: - Done and in progress
+
+    func testTheReportKeepsDoneAndInProgressApart() {
+        var jobs = week
+        jobs[3] = jobs[3].markingInProgress()
+        let report = ExtraWorkReport(siteID: site, jobs: jobs)
+        XCTAssertEqual(report.done.map(\.description), [
+            "Ceiling lamps, corridor B",
+            "Extra sockets, office 1.04",
+            "Emergency lights, basement garage",
+            "Ceiling lamps, staff kitchen"
+        ])
+        XCTAssertEqual(report.inProgress.map(\.description), ["Emergency lighting, stairwell 2nd floor"])
+        XCTAssertEqual(report.jobs.count, 5, "the material counts both")
     }
 
     // MARK: - Choosing the jobs
 
     private let today = Fixture.date(2026, 10, 22)
 
-    func testNotSentYetIsEveryOpenJobWhateverItsDate() {
+    func testNotSentYetIsEveryDoneJobNotSentWhateverItsDate() {
         var jobs = week
         jobs[0].status = .sent
-        jobs[1].status = .invoiced
+        jobs[1].status = .sent
         jobs.append(job(2, "Last month, forgotten"))
+        jobs.append(job(22, "Still at it", done: false))
         let chosen = ExtraWorkRange.notSentYet.select(jobs, siteID: site, today: today, calendar: calendar)
         XCTAssertEqual(Set(chosen.map(\.description)), [
             "Extra sockets, office 1.04",
@@ -170,6 +188,29 @@ final class ExtraWorkReportTests: XCTestCase {
             "Ceiling lamps, corridor B",
             "Last month, forgotten"
         ])
+    }
+
+    func testJobsStillInProgressComeOnlyWhenAskedFor() {
+        var jobs = week
+        jobs.append(job(22, "Still at it", done: false))
+        jobs.append(job(21, "Sent while under way", status: .sent, done: false))
+        let without = ExtraWorkRange.notSentYet.select(jobs, siteID: site, today: today, calendar: calendar)
+        XCTAssertFalse(without.contains { $0.description == "Still at it" })
+        let with = ExtraWorkRange.notSentYet.select(jobs, siteID: site, today: today, calendar: calendar, includeInProgress: true)
+        XCTAssertTrue(with.contains { $0.description == "Still at it" })
+        XCTAssertFalse(with.contains { $0.description == "Sent while under way" }, "the boss has it as it stands")
+
+        let week = ExtraWorkRange.thisWeek.select(jobs, siteID: site, today: today, calendar: calendar)
+        XCTAssertEqual(week.count, 5, "done jobs only")
+        XCTAssertEqual(ExtraWorkRange.thisWeek.select(jobs, siteID: site, today: today, calendar: calendar, includeInProgress: true).count, 7)
+    }
+
+    func testAJobFinishedAfterItWasSentIsNotSentYet() {
+        let sentUnderWay = job(21, "Sent while under way", done: false)
+            .markingSent(at: base, reportID: UUID())
+            .markingDone(at: base.addingTimeInterval(86_400 * 30))
+        let chosen = ExtraWorkRange.notSentYet.select([sentUnderWay], siteID: site, today: today, calendar: calendar)
+        XCTAssertEqual(chosen.map(\.description), ["Sent while under way"])
     }
 
     func testThisWeekIsTheCalendarWeekWhateverWasSent() {
@@ -194,9 +235,12 @@ final class ExtraWorkReportTests: XCTestCase {
     func testCountsForTheDayScreen() {
         var jobs = week
         jobs[0].status = .sent
+        jobs[1] = jobs[1].markingInProgress()
+        jobs.append(job(2, "Last month, still at it", done: false))
         let counts = ExtraWorkReport.counts(jobs, on: today)
         XCTAssertEqual(counts.onDay, 2)
-        XCTAssertEqual(counts.notSent, 4)
+        XCTAssertEqual(counts.notSent, 3, "done and not sent")
+        XCTAssertEqual(counts.inProgress, 2, "whatever their date")
     }
 
     func testDaysWithJobsForTheMonthGrid() {

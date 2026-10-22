@@ -1,8 +1,8 @@
 import XCTest
 @testable import Hours
 
-/// Extra work (Regie): the jobs written down on a site after the contract's
-/// work is done, so they can be invoiced. Quantities only, never money.
+/// Extra work: the jobs done on a site beyond the contract, written down so
+/// the boss knows what is done. Quantities only, never money.
 final class ExtraWorkTests: XCTestCase {
     private let site = UUID()
     private let date = Fixture.date(2026, 10, 22)
@@ -128,38 +128,60 @@ final class ExtraWorkTests: XCTestCase {
         XCTAssertEqual(ExtraWorkJob.photoSlotsLeft(existing: 9), 0)
     }
 
-    // MARK: - Status
+    // MARK: - Done
 
-    func testTheChipFollowsStatusThenSignature() {
-        var work = job()
-        XCTAssertEqual(work.chip, .open)
-        work.clientSignature = ExtraWorkSignature(signerName: "Ing. Horvat", signedAt: moment, strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]])
-        XCTAssertEqual(work.chip, .signed)
-        work.status = .sent
-        XCTAssertEqual(work.chip, .sent)
-        work.status = .invoiced
-        XCTAssertEqual(work.chip, .invoiced)
+    func testANewJobIsInProgress() {
+        let fresh = ExtraWorkJob(siteID: site, date: date)
+        XCTAssertFalse(fresh.isDone)
+        XCTAssertNil(fresh.doneAt)
+        XCTAssertEqual(fresh.progress, .inProgress)
     }
 
-    func testOpenGoesToSentThenInvoiced() {
+    func testMarkingDoneRecordsWhenAndCanBeTakenBack() {
+        let done = job().markingDone(at: moment)
+        XCTAssertTrue(done.isDone)
+        XCTAssertEqual(done.doneAt, moment)
+        XCTAssertEqual(done.progress, .done)
+        XCTAssertEqual(done.markingDone(at: moment.addingTimeInterval(60)).doneAt, moment, "done twice keeps the first time")
+
+        let back = done.markingInProgress()
+        XCTAssertFalse(back.isDone)
+        XCTAssertNil(back.doneAt)
+    }
+
+    func testTogglingFlipsDone() {
+        let toggled = job().togglingDone(at: moment)
+        XCTAssertTrue(toggled.isDone)
+        XCTAssertFalse(toggled.togglingDone(at: moment).isDone)
+    }
+
+    /// Done is the work, not the report: it never touches whether the boss
+    /// has it.
+    func testDoneLeavesTheSentMarkAlone() {
+        let sent = job().markingSent(at: moment, reportID: UUID())
+        let done = sent.markingDone(at: moment.addingTimeInterval(60))
+        XCTAssertEqual(done.status, .sent)
+        XCTAssertEqual(done.sentAt, moment)
+    }
+
+    // MARK: - Sent to the boss
+
+    func testTheChipsAreProgressAndAtMostOneMore() {
+        var work = job()
+        XCTAssertEqual(work.progress, .inProgress)
+        XCTAssertNil(work.chip, "nothing to say beyond In progress")
+        work.clientSignature = ExtraWorkSignature(signerName: "Ing. Horvat", signedAt: moment, strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]])
+        XCTAssertEqual(work.chip, .signed)
+        work = work.markingSent(at: moment, reportID: UUID())
+        XCTAssertEqual(work.chip, .sent)
+    }
+
+    func testSendingMarksSentWithTheReport() {
         let report = UUID()
         let sent = job().markingSent(at: moment, reportID: report)
         XCTAssertEqual(sent.status, .sent)
         XCTAssertEqual(sent.sentAt, moment)
         XCTAssertEqual(sent.sentReportID, report)
-
-        let invoiced = sent.markingInvoiced()
-        XCTAssertEqual(invoiced.status, .invoiced)
-        XCTAssertEqual(invoiced.sentAt, moment, "invoicing keeps when it was sent")
-    }
-
-    func testOnlyASentJobCanBeInvoiced() {
-        XCTAssertEqual(job().markingInvoiced().status, .open)
-    }
-
-    func testSendingAgainDoesNotTakeAnInvoiceBack() {
-        let invoiced = job().markingSent(at: moment, reportID: UUID()).markingInvoiced()
-        XCTAssertEqual(invoiced.markingSent(at: moment.addingTimeInterval(60), reportID: UUID()), invoiced)
     }
 
     func testSendingAgainRecordsTheLatestReport() {
@@ -171,26 +193,48 @@ final class ExtraWorkTests: XCTestCase {
         XCTAssertEqual(resent.sentAt, later)
     }
 
-    func testInvoicedCanBeTakenBackToSentAndSentToOpen() {
-        let invoiced = job().markingSent(at: moment, reportID: UUID()).markingInvoiced()
-        XCTAssertEqual(invoiced.reopening().status, .sent)
-        let reopened = invoiced.reopening().reopening()
-        XCTAssertEqual(reopened.status, .open)
-        XCTAssertNil(reopened.sentAt)
-        XCTAssertNil(reopened.sentReportID)
+    /// Sent while still in progress, then finished: the boss has heard it
+    /// was under way, not that it is done, so it waits for the next report.
+    func testAJobFinishedAfterItWasSentWaitsForTheNextReport() {
+        let sentInProgress = job().markingSent(at: moment, reportID: UUID())
+        XCTAssertFalse(sentInProgress.awaitsReport)
+        let finished = sentInProgress.markingDone(at: moment.addingTimeInterval(3600))
+        XCTAssertTrue(finished.awaitsReport)
+        XCTAssertNil(finished.chip, "not Sent: the boss does not know it is done")
+        let reported = finished.markingSent(at: moment.addingTimeInterval(7200), reportID: UUID())
+        XCTAssertFalse(reported.awaitsReport)
+        XCTAssertEqual(reported.chip, .sent)
+    }
+
+    func testAJobSentDoneNeedsNoOtherReport() {
+        let done = job().markingDone(at: moment)
+        XCTAssertTrue(done.awaitsReport)
+        XCTAssertFalse(done.markingSent(at: moment.addingTimeInterval(60), reportID: UUID()).awaitsReport)
     }
 
     /// The rule the report screen follows: only a share that went through
     /// marks anything, and then every job in the report.
     func testOnlyACompletedShareMarksTheJobsAsSent() {
-        let jobs = [job("a"), job("b", status: .sent), job("c").markingSent(at: moment, reportID: UUID()).markingInvoiced()]
+        let jobs = [job("a"), job("b", status: .sent)]
         let report = UUID()
         XCTAssertTrue(ExtraWorkSending.marked(jobs, after: .cancelled, reportID: report, at: moment).isEmpty)
         XCTAssertTrue(ExtraWorkSending.marked(jobs, after: .failed, reportID: report, at: moment).isEmpty)
 
         let marked = ExtraWorkSending.marked(jobs, after: .completed, reportID: report, at: moment)
-        XCTAssertEqual(marked.map(\.description), ["a", "b"], "an invoiced job is left alone")
+        XCTAssertEqual(marked.map(\.description), ["a", "b"])
         XCTAssertTrue(marked.allSatisfy { $0.status == .sent && $0.sentReportID == report && $0.sentAt == moment })
+    }
+
+    /// Before 1.1 shipped, a sent job could be marked invoiced. There is no
+    /// such step any more: what was invoiced had been sent.
+    func testAnInvoicedJobReadsAsSent() throws {
+        XCTAssertEqual(ExtraWorkStatus(storedValue: "invoiced"), .sent)
+        XCTAssertEqual(ExtraWorkStatus(storedValue: "sent"), .sent)
+        XCTAssertEqual(ExtraWorkStatus(storedValue: "open"), .open)
+        XCTAssertEqual(ExtraWorkStatus(storedValue: "nonsense"), .open)
+        XCTAssertEqual(ExtraWorkStatus.allCases, [.open, .sent])
+        let json = #"{"id":"\#(UUID().uuidString)","siteID":"\#(site.uuidString)","date":20261022,"status":"invoiced"}"#
+        XCTAssertEqual(try JSONDecoder().decode(ExtraWorkJob.self, from: Data(json.utf8)).status, .sent)
     }
 
     // MARK: - Coding
@@ -199,7 +243,7 @@ final class ExtraWorkTests: XCTestCase {
         var original = job(items: [
             ExtraWorkItem(name: "Cable", quantity: Decimal(string: "12.5")!, unit: .metres),
             ExtraWorkItem(name: "Tape", quantity: 2, unit: .custom("Rolle"))
-        ]).markingSent(at: moment, reportID: UUID())
+        ]).markingSent(at: moment, reportID: UUID()).markingDone(at: moment.addingTimeInterval(60))
         original.hours = [ExtraWorkHours(memberID: UUID(), name: "Ivan", minutes: 150)]
         original.clientSignature = ExtraWorkSignature(
             signerName: "Ing. M. Horvat", signedAt: moment, strokes: [[SignaturePoint(x: 0.1, y: 0.2), SignaturePoint(x: 1, y: 0.5)]]
@@ -231,6 +275,24 @@ final class ExtraWorkTests: XCTestCase {
         XCTAssertEqual(decoded.items, [])
         XCTAssertEqual(decoded.status, .open)
         XCTAssertEqual(decoded.siteID, site)
+    }
+
+    /// Written before a job could be in progress, so written as finished
+    /// work: a job without the field is done.
+    func testAJobFromBeforeDoneReadsAsDone() throws {
+        let json = #"{"id":"\#(UUID().uuidString)","siteID":"\#(site.uuidString)","date":20261022,"description":"Lamps","status":"open"}"#
+        let decoded = try JSONDecoder().decode(ExtraWorkJob.self, from: Data(json.utf8))
+        XCTAssertTrue(decoded.isDone)
+        XCTAssertNil(decoded.doneAt)
+        XCTAssertTrue(decoded.awaitsReport)
+    }
+
+    func testAJobInProgressRoundTripsAsInProgress() throws {
+        let original = job()
+        let text = String(decoding: try JSONEncoder().encode(original), as: UTF8.self)
+        XCTAssertTrue(text.contains(#""isDone":false"#), text)
+        XCTAssertFalse(text.contains("doneAt"), "no date until it is done")
+        XCTAssertFalse(try JSONDecoder().decode(ExtraWorkJob.self, from: Data(text.utf8)).isDone)
     }
 }
 

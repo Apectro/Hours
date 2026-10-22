@@ -60,7 +60,7 @@ struct SiteDetailScreen: View {
                         .labelStyle(.titleAndIcon)
                 }
                 .disabled(site == nil)
-                .accessibilityLabel(String(localized: "Extra work report"))
+                .accessibilityLabel(String(localized: "Report to boss"))
                 .accessibilityIdentifier("site-extra-work-report")
             }
             ToolbarItem(placement: .topBarTrailing) {

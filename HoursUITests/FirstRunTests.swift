@@ -56,10 +56,15 @@ final class FirstRunTests: XCTestCase {
         name.typeText("Marijo")
         // The keyboard is still sliding up when typing ends; a tap on
         // Continue in that moment can land on nothing. Wait until it can
-        // actually be hit.
+        // actually be hit. On a smaller simulator the keyboard covers it
+        // outright, and then Return, which continues just the same, is
+        // what a person would press.
         let next = app.buttons["setup-continue"]
-        XCTAssertTrue(hittable(next), "Continue could not be tapped with the keyboard up")
-        next.tap()
+        if hittable(next, timeout: 5) {
+            next.tap()
+        } else {
+            name.typeText("\n")
+        }
 
         XCTAssertTrue(app.screen("screen-setup-week").waitForExistence(timeout: 10), "the week was not asked")
         // Saturday on, as someone who works six days would.

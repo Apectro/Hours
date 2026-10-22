@@ -453,16 +453,267 @@ enum HoursSchemaV4: VersionedSchema {
     }
 }
 
-/// The stored shape now: V4's eight entities and extra work — jobs, their
-/// photos, the reports that were sent and the remembered items — each with a
-/// default or an optional on every property, nothing unique and no
-/// relationships, so a CloudKit-mirrored store accepts them.
+/// The stored shape from extra work until a job could be in progress: V4's
+/// eight entities and extra work — jobs, their photos, the reports that were
+/// sent and the remembered items — each with a default or an optional on
+/// every property, nothing unique and no relationships, so a CloudKit-mirrored
+/// store accepts them.
 ///
-/// The models themselves stay at the top level rather than nested in here, so
-/// that the rest of the app says `DayEntry` and not `HoursSchemaV5.DayEntry`.
-/// When V6 comes, this gets frozen copies the way V4 did.
+/// Frozen, for the reason V2, V3 and V4 are: until V6 these were the live
+/// top-level classes. Copies of the twelve classes as they stood, column for
+/// column, the photos' external storage included. The extra-work copies take
+/// only their id in `init`; what they convert to is the live classes'
+/// business.
 enum HoursSchemaV5: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(5, 0, 0) }
+
+    static var models: [any PersistentModel.Type] {
+        [
+            DayEntry.self, HolidayRecord.self, SiteEntry.self, CrewMemberEntry.self, SiteDayEntry.self,
+            SiteDiaryEntry.self, SiteDiaryPhotoEntry.self, CrewSignatureEntry.self,
+            ExtraWorkJobEntry.self, ExtraWorkPhotoEntry.self, ExtraWorkReportEntry.self, ExtraWorkItemEntry.self
+        ]
+    }
+
+    @Model
+    final class DayEntry {
+        var dateKey: Int = 0
+
+        var dayTypeRawValue: String?
+        var shiftsData: Data?
+        var startMinutes: Int?
+        var endMinutes: Int?
+        var breaksData: Data?
+
+        var manualWorkedMinutes: Int?
+        var expectedOverrideMinutes: Int?
+        var manualBalanceMinutes: Int?
+        var adjustmentMinutes: Int = 0
+        var adjustmentReasonRawValue: String = "correction"
+
+        var note: String = ""
+        var locationName: String = ""
+        var tagsJoined: String = ""
+
+        var isIncluded: Bool = true
+        var timeZoneIdentifier: String?
+
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(dateKey: Int) {
+            self.dateKey = dateKey
+        }
+    }
+
+    @Model
+    final class HolidayRecord {
+        var identifier: UUID = UUID()
+        var name: String = ""
+
+        var kindRawValue: String = "annual"
+        var year: Int = 2000
+        var month: Int = 1
+        var day: Int = 1
+        var weekday: Int = 2
+        var ordinal: Int = 1
+        var startYear: Int?
+        var endYear: Int?
+
+        var countsAsWorkingDay: Bool = false
+        var isEnabled: Bool = true
+        var notes: String = ""
+        var createdAt: Date = Date()
+
+        init(identifier: UUID) {
+            self.identifier = identifier
+        }
+    }
+
+    @Model
+    final class SiteEntry {
+        var siteID: String = ""
+        var name: String = ""
+        var jobID: String?
+        var isArchived: Bool = false
+        var sortOrder: Int = 0
+        var updatedAt: Date = Date()
+
+        init(siteID: String) {
+            self.siteID = siteID
+        }
+    }
+
+    @Model
+    final class CrewMemberEntry {
+        var memberID: String = ""
+        var siteID: String = ""
+        var name: String = ""
+        var isHidden: Bool = false
+        var sortOrder: Int = 0
+        var updatedAt: Date = Date()
+
+        init(memberID: String) {
+            self.memberID = memberID
+        }
+    }
+
+    @Model
+    final class SiteDayEntry {
+        var siteID: String = ""
+        var dateKey: Int = 0
+
+        var startMinutes: Int?
+        var endMinutes: Int?
+        var breakMinutes: Int = 0
+
+        var presentData: Data?
+
+        var note: String = ""
+        var jobID: String?
+        var isBadWeatherStop: Bool = false
+
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(siteID: String, dateKey: Int) {
+            self.siteID = siteID
+            self.dateKey = dateKey
+        }
+    }
+
+    @Model
+    final class SiteDiaryEntry {
+        var siteID: String = ""
+        var dateKey: Int = 0
+        var weatherRawValue: String?
+        var temperatureCelsius: Int?
+        var workDone: String = ""
+        var deliveries: String = ""
+        var problems: String = ""
+        var visitors: String = ""
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(siteID: String, dateKey: Int) {
+            self.siteID = siteID
+            self.dateKey = dateKey
+        }
+    }
+
+    @Model
+    final class SiteDiaryPhotoEntry {
+        var photoID: String = ""
+        var siteID: String = ""
+        var dateKey: Int = 0
+        var sortOrder: Int = 0
+        @Attribute(.externalStorage) var jpegData: Data?
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(photoID: String) {
+            self.photoID = photoID
+        }
+    }
+
+    @Model
+    final class CrewSignatureEntry {
+        var siteID: String = ""
+        var memberID: String = ""
+        var monthKey: Int = 0
+        var signedOnKey: Int = 0
+        var fingerprint: String = ""
+        var strokesData: Data?
+        var aspectRatio: Double = 3
+        var updatedAt: Date = Date()
+
+        init(siteID: String, memberID: String, monthKey: Int) {
+            self.siteID = siteID
+            self.memberID = memberID
+            self.monthKey = monthKey
+        }
+    }
+
+    @Model
+    final class ExtraWorkJobEntry {
+        var jobID: String = ""
+        var siteID: String = ""
+        var dateKey: Int = 0
+        var workDescription: String = ""
+        var itemsData: Data?
+        var hoursData: Data?
+        var clientSignatureData: Data?
+        var statusRawValue: String = "open"
+        var sentAt: Date?
+        var sentReportID: String?
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(jobID: String) {
+            self.jobID = jobID
+        }
+    }
+
+    @Model
+    final class ExtraWorkPhotoEntry {
+        var photoID: String = ""
+        var jobID: String = ""
+        var siteID: String = ""
+        var sortOrder: Int = 0
+        @Attribute(.externalStorage) var jpegData: Data?
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(photoID: String) {
+            self.photoID = photoID
+        }
+    }
+
+    @Model
+    final class ExtraWorkReportEntry {
+        var reportID: String = ""
+        var siteID: String = ""
+        var sentAt: Date = Date()
+        var jobIDsData: Data?
+        var clientSignatureData: Data?
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(reportID: String) {
+            self.reportID = reportID
+        }
+    }
+
+    @Model
+    final class ExtraWorkItemEntry {
+        var itemID: String = ""
+        var name: String = ""
+        var unitCode: String = "pcs"
+        var useCount: Int = 0
+        var lastUsed: Date = Date()
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(itemID: String) {
+            self.itemID = itemID
+        }
+    }
+}
+
+/// The stored shape now: V5's twelve entities, and on the extra-work job
+/// whether the work is finished (`isDone`, `doneAt`).
+///
+/// `isDone` is stored with the default `true`, and that is deliberate: a
+/// lightweight migration fills an added column with its default, and every
+/// job a V5 store holds was written as finished work, before a job could be
+/// in progress. The app writes `false` itself for a new job. `doneAt` is
+/// optional, so migrated jobs have none.
+///
+/// The models themselves stay at the top level rather than nested in here, so
+/// that the rest of the app says `DayEntry` and not `HoursSchemaV6.DayEntry`.
+/// When V7 comes, this gets frozen copies the way V5 did.
+enum HoursSchemaV6: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(6, 0, 0) }
 
     static var models: [any PersistentModel.Type] {
         [
@@ -480,7 +731,9 @@ enum HoursSchemaV5: VersionedSchema {
 /// V2 to V3 only adds three entities, each with a default on every property;
 /// V3 to V4 adds one column with a default to the site day, and three
 /// entities with a default on every property; V4 to V5 adds four entities
-/// with a default on every property.
+/// with a default on every property; V5 to V6 adds two columns to the
+/// extra-work job, one with a default (`isDone`, true: old jobs are done) and
+/// one optional (`doneAt`).
 /// There is nothing to transform, and a custom stage would only be somewhere
 /// for a bug to live.
 ///
@@ -491,11 +744,11 @@ enum HoursSchemaV5: VersionedSchema {
 /// what `MigrationTests` does.
 enum HoursMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [HoursSchemaV1.self, HoursSchemaV2.self, HoursSchemaV3.self, HoursSchemaV4.self, HoursSchemaV5.self]
+        [HoursSchemaV1.self, HoursSchemaV2.self, HoursSchemaV3.self, HoursSchemaV4.self, HoursSchemaV5.self, HoursSchemaV6.self]
     }
 
     static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3, migrateV3toV4, migrateV4toV5]
+        [migrateV1toV2, migrateV2toV3, migrateV3toV4, migrateV4toV5, migrateV5toV6]
     }
 
     static let migrateV1toV2 = MigrationStage.lightweight(
@@ -516,5 +769,10 @@ enum HoursMigrationPlan: SchemaMigrationPlan {
     static let migrateV4toV5 = MigrationStage.lightweight(
         fromVersion: HoursSchemaV4.self,
         toVersion: HoursSchemaV5.self
+    )
+
+    static let migrateV5toV6 = MigrationStage.lightweight(
+        fromVersion: HoursSchemaV5.self,
+        toVersion: HoursSchemaV6.self
     )
 }
