@@ -4,17 +4,35 @@ import SwiftData
 /// The holiday list.
 ///
 /// Empty to begin with, and deliberately so: public holidays differ by country,
-/// region, employer and year, and a wrong guess is worse than nothing.
+/// region, employer and year, and a wrong guess is worse than nothing. Since
+/// 1.1 a country's public holidays are one tap away ("Add public holidays"),
+/// but still only when picked.
 struct HolidaySettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
 
     @Query(sort: \HolidayRecord.name) private var records: [HolidayRecord]
 
-    @State private var editingRule: HolidayRule?
+    @State private var activeSheet: ActiveSheet?
+    @State private var isConfirmingRemoval = false
 
+    /// One sheet at a time, chosen by value: two `.sheet` modifiers on one
+    /// view is undefined behaviour.
+    private enum ActiveSheet: Identifiable {
+        case edit(HolidayRule)
+        case publicHolidays
+
+        var id: String {
+            switch self {
+            case let .edit(rule): return "edit-\(rule.id.uuidString)"
+            case .publicHolidays: return "public-holidays"
+            }
+        }
+    }
     var body: some View {
         List {
+            publicHolidaysSection
+
             if records.isEmpty {
                 Section {
                     ContentUnavailableView {
@@ -22,15 +40,15 @@ struct HolidaySettingsScreen: View {
                     } description: {
                         Text("Add the days that apply where you work. A recurring holiday only has to be entered once.")
                     } actions: {
-                        Button("Add a holiday") { editingRule = newRule() }
-                            .buttonStyle(.borderedProminent)
+                        Button("Add a holiday") { activeSheet = .edit(newRule()) }
+                            .buttonStyle(.bordered)
                     }
                 }
             } else {
                 Section {
                     ForEach(records) { record in
                         Button {
-                            editingRule = record.rule
+                            activeSheet = .edit(record.rule)
                         } label: {
                             HolidayRow(
                                 rule: record.rule,
@@ -46,7 +64,7 @@ struct HolidaySettingsScreen: View {
 
             Section {
                 Button {
-                    editingRule = newRule()
+                    activeSheet = .edit(newRule())
                 } label: {
                     Label("Add a holiday", systemImage: "plus.circle")
                 }
@@ -54,8 +72,57 @@ struct HolidaySettingsScreen: View {
         }
         .navigationTitle("Holidays")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $editingRule) { rule in
-            HolidayEditor(rule: rule)
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case let .edit(rule):
+                HolidayEditor(rule: rule)
+            case .publicHolidays:
+                PublicHolidayPicker {}
+            }
+        }
+        .confirmationDialog(
+            "Remove the public holidays that were added? Holidays you added yourself stay.",
+            isPresented: $isConfirmingRemoval,
+            titleVisibility: .visible
+        ) {
+            Button("Remove these holidays", role: .destructive) {
+                PublicHolidayActions.removeAdded(context: modelContext, settingsStore: settingsStore)
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    /// The country's set: one tap to add, and while one is added, which one
+    /// and the way back out.
+    @ViewBuilder
+    private var publicHolidaysSection: some View {
+        Section {
+            if let added = settingsStore.settings.publicHolidays.addedSet {
+                Label {
+                    Text(String(
+                        localized: "\(PublicHolidayActions.title(of: added)) · added",
+                        comment: "Settings › Holidays: which country's public holidays were added, e.g. Austria · added"
+                    ))
+                } icon: {
+                    Image(systemName: "checkmark.seal")
+                }
+                .accessibilityIdentifier("public-holidays-added")
+                Button("Remove these holidays", role: .destructive) { isConfirmingRemoval = true }
+                    .frame(minHeight: 44)
+                    .accessibilityIdentifier("public-holidays-remove")
+            } else {
+                Button {
+                    activeSheet = .publicHolidays
+                } label: {
+                    Label("Add public holidays", systemImage: "globe.europe.africa")
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("public-holidays-open")
+            }
+        } footer: {
+            if settingsStore.settings.publicHolidays.addedSet == nil {
+                Text("Pick your country, and your state or canton where it matters. You see the list before anything is added.")
+            }
         }
     }
 
@@ -147,39 +214,50 @@ struct HolidayEditor: View {
                 }
 
                 Section("Repeats") {
-                    Picker("Repeats", selection: $draft.recurrence.kind) {
-                        ForEach(HolidayRecurrence.Kind.allCases) { kind in
-                            Text(kind.title).tag(kind)
-                        }
-                    }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-                }
-
-                Section("Date") {
-                    switch draft.recurrence.kind {
-                    case .once:
-                        DatePicker("Date", selection: onceDateBinding, displayedComponents: .date)
-                    case .annual:
-                        monthPicker
-                        Stepper(String(
-            localized: "Day \(draft.recurrence.day)",
-            comment: "Day of the month a holiday falls on"
-        ), value: $draft.recurrence.day, in: 1...31)
-                    case .nthWeekday:
-                        Picker("Which", selection: $draft.recurrence.ordinal) {
-                            Text("First").tag(1)
-                            Text("Second").tag(2)
-                            Text("Third").tag(3)
-                            Text("Fourth").tag(4)
-                            Text("Last").tag(-1)
-                        }
-                        Picker("Weekday", selection: $draft.recurrence.weekday) {
-                            ForEach(1...7, id: \.self) { weekday in
-                                Text(formatting.weekdayName(for: weekday)).tag(weekday)
+                    if draft.recurrence.kind.isMovable {
+                        // Easter-based and the like come from a country's
+                        // list and are not built by hand; the dates below
+                        // show where they fall.
+                        Text(draft.recurrence.kind.title)
+                    } else {
+                        Picker("Repeats", selection: $draft.recurrence.kind) {
+                            ForEach(HolidayRecurrence.Kind.handMade) { kind in
+                                Text(kind.title).tag(kind)
                             }
                         }
-                        monthPicker
+                        .pickerStyle(.inline)
+                        .labelsHidden()
+                    }
+                }
+
+                if !draft.recurrence.kind.isMovable {
+                    Section("Date") {
+                        switch draft.recurrence.kind {
+                        case .once:
+                            DatePicker("Date", selection: onceDateBinding, displayedComponents: .date)
+                        case .annual:
+                            monthPicker
+                            Stepper(String(
+                localized: "Day \(draft.recurrence.day)",
+                comment: "Day of the month a holiday falls on"
+            ), value: $draft.recurrence.day, in: 1...31)
+                        case .nthWeekday:
+                            Picker("Which", selection: $draft.recurrence.ordinal) {
+                                Text("First").tag(1)
+                                Text("Second").tag(2)
+                                Text("Third").tag(3)
+                                Text("Fourth").tag(4)
+                                Text("Last").tag(-1)
+                            }
+                            Picker("Weekday", selection: $draft.recurrence.weekday) {
+                                ForEach(1...7, id: \.self) { weekday in
+                                    Text(formatting.weekdayName(for: weekday)).tag(weekday)
+                                }
+                            }
+                            monthPicker
+                        case .easter, .weekdayOnOrAfter, .annualOffSunday:
+                            EmptyView()
+                        }
                     }
                 }
 

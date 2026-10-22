@@ -19,6 +19,12 @@ struct SiteMonthGrid: View {
     let formatting: CalendarFormatting
     let onSelect: (CalendarDate) -> Void
     let onStep: (Int) -> Void
+    /// Date keys with a site diary or diary photo.
+    var diaryDateKeys: Set<Int> = []
+    /// Date keys the weather stopped work on.
+    var badWeatherDateKeys: Set<Int> = []
+    /// Date keys of public holidays off, which are never unwritten.
+    var holidayDateKeys: Set<Int> = []
 
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: Metrics.tiny), count: max(layout.columnCount, 1))
@@ -38,7 +44,9 @@ struct SiteMonthGrid: View {
                         isInMonth: layout.isInMonth(date),
                         isSelected: date == selectedDate,
                         isToday: date == today,
-                        isUnwritten: isUnwritten(date)
+                        isUnwritten: isUnwritten(date),
+                        hasDiary: diaryDateKeys.contains(date.key),
+                        isBadWeather: badWeatherDateKeys.contains(date.key)
                     )
                     .contentShape(Rectangle())
                     .onTapGesture { onSelect(date) }
@@ -80,14 +88,17 @@ struct SiteMonthGrid: View {
         .buttonStyle(.borderless)
     }
 
-    /// A weekday of the shown month, before today, with nothing written for
-    /// this site. Monday to Friday by the calendar's own weekday numbers and
-    /// nothing cleverer: the site has no schedule of its own to consult, and
-    /// guessing one would put outlines on days nobody was meant to work.
+    /// See `SiteUnwrittenDay`: a past weekday of the month with nothing
+    /// written, and not a public holiday.
     private func isUnwritten(_ date: CalendarDate) -> Bool {
-        guard layout.isInMonth(date), date < today, presentCounts[date.key] == nil else { return false }
-        let weekday = date.weekday(in: calendar)
-        return weekday != 1 && weekday != 7
+        SiteUnwrittenDay.isUnwritten(
+            date,
+            isInMonth: layout.isInMonth(date),
+            today: today,
+            isWritten: presentCounts[date.key] != nil,
+            calendar: calendar,
+            holidays: holidayDateKeys
+        )
     }
 }
 
@@ -104,6 +115,8 @@ struct SiteDayCell: View {
     let isSelected: Bool
     let isToday: Bool
     let isUnwritten: Bool
+    var hasDiary: Bool = false
+    var isBadWeather: Bool = false
 
     var body: some View {
         VStack(spacing: 2) {
@@ -128,11 +141,18 @@ struct SiteDayCell: View {
 
     @ViewBuilder
     private var detailLabel: some View {
-        if let presentCount, presentCount > 0 {
-            HStack(spacing: 2) {
+        HStack(spacing: 2) {
+            if isBadWeather {
+                // Rained off: a cloud where the dot would be.
+                Image(systemName: "cloud.rain.fill")
+                    .font(.system(size: 7, weight: .semibold))
+                    .foregroundStyle(Color.hoursNegative)
+            } else if let presentCount, presentCount > 0 {
                 Circle()
                     .fill(Color.accentColor)
                     .frame(width: 5, height: 5)
+            }
+            if let presentCount, presentCount > 0 {
                 Text(verbatim: "\(presentCount)")
                     .font(.system(.caption2, design: .rounded, weight: .medium))
                     .monospacedDigit()
@@ -140,8 +160,14 @@ struct SiteDayCell: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-        } else {
-            Color.clear.frame(width: 5, height: 5)
+            if hasDiary {
+                Image(systemName: "text.book.closed.fill")
+                    .font(.system(size: 7, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            if !isBadWeather && (presentCount ?? 0) == 0 && !hasDiary {
+                Color.clear.frame(width: 5, height: 5)
+            }
         }
     }
 
@@ -155,6 +181,8 @@ struct SiteDayCell: View {
         } else if isUnwritten {
             parts.append(String(localized: "Not written"))
         }
+        if isBadWeather { parts.append(String(localized: "Rained off")) }
+        if hasDiary { parts.append(String(localized: "Site diary")) }
         if isToday { parts.append(String(localized: "Today")) }
         return parts.joined(separator: ", ")
     }

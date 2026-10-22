@@ -203,6 +203,72 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<SiteDayEntry>()), 0)
     }
 
+    // MARK: - The site diary (V3 to V4)
+
+    /// Writes a store as 1.0 left one: the five V3 entities. Written with
+    /// V3's frozen copies, since the live site day has moved on; they were
+    /// copied column for column from the classes 1.0 shipped.
+    private func writeVersionThreeStore(siteDayKey: Int) throws -> UUID {
+        let schema = Schema(versionedSchema: HoursSchemaV3.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV3.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Hauptstraße 12"
+        context.insert(site)
+        let day = HoursSchemaV3.SiteDayEntry(siteID: siteID.uuidString, dateKey: siteDayKey)
+        day.startMinutes = 7 * 60
+        day.endMinutes = 16 * 60
+        day.note = "Concrete"
+        context.insert(day)
+        context.insert(HoursSchemaV3.DayEntry(dateKey: siteDayKey))
+        try context.save()
+        return siteID
+    }
+
+    /// A 1.0 store opens as V4: its site day intact and not rained off, and
+    /// the diary, photo and signature entities there, empty, ready to write.
+    func testAVersionThreeStoreOpensAsVersionFour() throws {
+        let siteID = try writeVersionThreeStore(siteDayKey: 20_260_804)
+
+        let container = try HoursModelContainer.make(at: storeURL)
+        let context = ModelContext(container)
+        let days = try context.fetch(FetchDescriptor<SiteDayEntry>())
+        XCTAssertEqual(days.count, 1)
+        XCTAssertEqual(days.first?.siteDay.note, "Concrete")
+        XCTAssertEqual(days.first?.siteDay.isBadWeatherStop, false)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<SiteDiaryEntry>()), 0)
+
+        context.insert(SiteDiaryEntry(diary: SiteDiary(siteID: siteID, date: Fixture.date(2026, 8, 4), workDone: "Rebar")))
+        context.insert(SiteDiaryPhotoEntry(photo: DiaryPhoto(siteID: siteID, date: Fixture.date(2026, 8, 4), sortOrder: 0, jpegData: Data([1, 2, 3]))))
+        XCTAssertNoThrow(try context.save())
+    }
+
+    /// The oldest stores go the whole way, V1 to V4, in one open.
+    func testAVersionOneStoreReachesVersionFour() throws {
+        try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        XCTAssertEqual(WorkdayRepository(context: context).allEntries().count, 1)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<SiteDiaryEntry>()), 0)
+    }
+
+    func testDiaryPhotoAndSignatureEntriesRoundTrip() {
+        let siteID = UUID()
+        let diary = SiteDiary(siteID: siteID, date: Fixture.date(2026, 8, 4), weather: .wind, temperatureCelsius: 3, problems: "Gusts")
+        XCTAssertEqual(SiteDiaryEntry(diary: diary).diary, diary)
+        let photo = DiaryPhoto(siteID: siteID, date: Fixture.date(2026, 8, 4), sortOrder: 1, jpegData: Data([9, 9]))
+        XCTAssertEqual(SiteDiaryPhotoEntry(photo: photo).photo, photo)
+        let signature = CrewSignature(
+            siteID: siteID, memberID: CrewMember.youID, month: YearMonth(year: 2026, month: 8),
+            signedOn: Fixture.date(2026, 8, 31), fingerprint: "v1:x",
+            strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]], aspectRatio: 2.5
+        )
+        XCTAssertEqual(CrewSignatureEntry(signature: signature).signature, signature)
+        let stopped = SiteDay(siteID: siteID, date: Fixture.date(2026, 8, 4), isBadWeatherStop: true)
+        XCTAssertEqual(SiteDayEntry(day: stopped).siteDay, stopped)
+    }
+
     /// Everything a site day holds comes back out of the store as it went in,
     /// including per-person exceptions and a job frozen on the day.
     func testSiteDayEntryRoundTripsSiteDay() throws {
@@ -296,18 +362,22 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 3)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 2)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 4)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 3)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
+        XCTAssertEqual(HoursSchemaV4.versionIdentifier, Schema.Version(4, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is
     /// missing from it would be a crash the first time anything inserts one.
     func testTheContainerKnowsEveryModel() {
         let names = Set(HoursModelContainer.schema.entities.map(\.name))
-        XCTAssertEqual(names, ["DayEntry", "HolidayRecord", "SiteEntry", "CrewMemberEntry", "SiteDayEntry"])
+        XCTAssertEqual(names, [
+            "DayEntry", "HolidayRecord", "SiteEntry", "CrewMemberEntry", "SiteDayEntry",
+            "SiteDiaryEntry", "SiteDiaryPhotoEntry", "CrewSignatureEntry"
+        ])
     }
 
     /// A fresh install has no migrating to do and must not be slowed or broken

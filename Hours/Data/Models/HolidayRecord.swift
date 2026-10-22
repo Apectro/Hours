@@ -10,7 +10,8 @@ final class HolidayRecord {
     var identifier: UUID = UUID()
     var name: String = ""
 
-    /// `HolidayRecurrence.Kind` raw value.
+    /// `HolidayRecurrence.Kind` raw value, or for a movable rule its packed
+    /// shape (`easter:1:1:2:39`).
     var kindRawValue: String = HolidayRecurrence.Kind.annual.rawValue
     var year: Int = 2000
     var month: Int = 1
@@ -37,8 +38,8 @@ extension HolidayRecord {
         HolidayRule(
             id: identifier,
             name: name,
-            recurrence: HolidayRecurrence(
-                kind: HolidayRecurrence.Kind(rawValue: kindRawValue) ?? .annual,
+            recurrence: HolidayRecurrence(stored: StoredHolidayRecurrence(
+                kindRawValue: kindRawValue,
                 year: year,
                 month: month,
                 day: day,
@@ -46,7 +47,7 @@ extension HolidayRecord {
                 ordinal: ordinal,
                 startYear: startYear,
                 endYear: endYear
-            ),
+            )),
             countsAsWorkingDay: countsAsWorkingDay,
             isEnabled: isEnabled,
             notes: notes
@@ -55,14 +56,18 @@ extension HolidayRecord {
 
     func apply(_ rule: HolidayRule) {
         name = rule.name
-        kindRawValue = rule.recurrence.kind.rawValue
-        year = rule.recurrence.year
-        month = rule.recurrence.month
-        day = rule.recurrence.day
-        weekday = rule.recurrence.weekday
-        ordinal = rule.recurrence.ordinal
-        startYear = rule.recurrence.startYear
-        endYear = rule.recurrence.endYear
+        // Movable rules (Easter and the like) pack their shape into the kind
+        // string, so 1.0 sees a rule that never occurs. See
+        // `HolidayRecurrence.storedColumns`.
+        let stored = rule.recurrence.storedColumns
+        kindRawValue = stored.kindRawValue
+        year = stored.year
+        month = stored.month
+        day = stored.day
+        weekday = stored.weekday
+        ordinal = stored.ordinal
+        startYear = stored.startYear
+        endYear = stored.endYear
         countsAsWorkingDay = rule.countsAsWorkingDay
         isEnabled = rule.isEnabled
         notes = rule.notes

@@ -30,9 +30,15 @@ extension DayTypeID {
     static let dayOff = DayTypeID("dayOff")
     static let personal = DayTypeID("personal")
     static let other = DayTypeID("other")
+    /// Zeitausgleich: a working day taken off against overtime. Added in 1.1;
+    /// an older version reading a day of this type shows it as Unknown.
+    static let timeOffInLieu = DayTypeID("timeOffInLieu")
+    /// A day the weather stopped work (Schlechtwetter). Added in 1.1; being
+    /// built in, it appears for everyone with nothing stored or migrated.
+    static let badWeather = DayTypeID("badWeather")
 
     static let builtInOrder: [DayTypeID] = [
-        .work, .weekend, .holiday, .vacation, .sick, .dayOff, .personal, .other
+        .work, .weekend, .holiday, .vacation, .sick, .dayOff, .personal, .timeOffInLieu, .badWeather, .other
     ]
 }
 
@@ -134,6 +140,8 @@ extension DayTypeDefinition {
         case .personal: return .personalDay
         case .dayOff: return .dayOff
         case .other: return .otherDayType
+        case .timeOffInLieu: return .timeOffInLieuDay
+        case .badWeather: return .badWeather
         default: return nil
         }
     }
@@ -163,9 +171,25 @@ extension DayTypeDefinition {
             id: .personal, name: "Personal day", symbolName: "person.fill", tint: .indigo,
             expectation: .creditedAbsence, showsTimesByDefault: false, isBuiltIn: true, sortOrder: 50
         ),
+        // A working day taken off against overtime. `scheduled`, exactly
+        // like an ordinary working day with nothing worked: the day's hours
+        // are expected and none are credited, so the balance goes down by
+        // what the week in force expects of that day — and, because the day
+        // is chosen explicitly, it is recorded rather than a gap.
+        DayTypeDefinition(
+            id: .timeOffInLieu, name: "Time off in lieu", symbolName: "clock.arrow.circlepath", tint: .orange,
+            expectation: .scheduled, showsTimesByDefault: false, isBuiltIn: true, sortOrder: 55
+        ),
         DayTypeDefinition(
             id: .dayOff, name: "Day off", symbolName: "figure.walk", tint: .brown,
             expectation: .zero, showsTimesByDefault: false, isBuiltIn: true, sortOrder: 60
+        ),
+        // Paid, like a holiday, because that is how a stop for weather is
+        // usually settled on a German or Austrian site; editable like every
+        // other built-in for an employer that settles it differently.
+        DayTypeDefinition(
+            id: .badWeather, name: "Bad weather", symbolName: "cloud.rain.fill", tint: .yellow,
+            expectation: .creditedAbsence, showsTimesByDefault: false, isBuiltIn: true, sortOrder: 65
         ),
         DayTypeDefinition(
             id: .other, name: "Other", symbolName: "square.dashed", tint: .gray,

@@ -25,20 +25,33 @@ enum XLSXWriter {
         generatedOn: Date? = nil
     ) -> Data {
         let sheetName = sheetName ?? table.language(.hours)
+        // A site's diary, when it has one, is a sheet of its own after the
+        // hours: a row per day, which is what a diary is in a spreadsheet.
+        var tables = [(name: sheetName, table: table)]
+        if let diary = table.diary, !diary.isEmpty {
+            var diaryTable = diary.table(language: table.language)
+            diaryTable.subtitle = table.subtitle
+            diaryTable.detail = [table.title, table.subtitle].filter { !$0.isEmpty }.joined(separator: " · ")
+            tables.append((diary.title, diaryTable))
+        }
+
         var archive = ZIPArchive()
-        archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes.utf8))
+        archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes(sheets: tables.count).utf8))
         archive.addFile(name: "_rels/.rels", contents: Data(rootRelationships.utf8))
-        // The sheet reports back which row its column titles landed on: the
+        // Each sheet reports back which rows its column titles landed on: the
         // summary above them is a variable number of lines, and the workbook
-        // has to name that row for the print repeat.
-        let worksheet = sheet(for: table, preferences: preferences, generatedOn: generatedOn)
+        // has to name those rows for the print repeat.
+        let worksheets = tables.map { sheet(for: $0.table, preferences: preferences, generatedOn: generatedOn) }
         archive.addFile(
             name: "xl/workbook.xml",
-            contents: Data(workbook(sheetName: sheetName, headerRows: worksheet.headerRows).utf8)
+            contents: Data(workbook(sheets: zip(tables, worksheets).map { ($0.name, $1.headerRows) }).utf8)
         )
-        archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships.utf8))
+        archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships(sheets: tables.count).utf8))
         archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
-        archive.addFile(name: "xl/worksheets/sheet1.xml", contents: Data(worksheet.xml.utf8))
+        for (index, worksheet) in worksheets.enumerated() {
+            // A part name, not prose.
+            archive.addFile(name: "xl/worksheets/sheet" + String(index + 1) + ".xml", contents: Data(worksheet.xml.utf8))
+        }
         return archive.finalized()
     }
 
@@ -79,7 +92,8 @@ enum XLSXWriter {
         }
 
         let columns = max(1, table.columns.count)
-        let isSiteSheet = table.kind == .siteSheet
+        // The diary's sheet is headed the way the director's sheet is.
+        let isSiteSheet = table.kind != .timesheet
 
         // The title block, as the PDF opens. The director's sheet says which
         // month of which site in one line, and who kept it in the next, where
@@ -207,7 +221,7 @@ enum XLSXWriter {
         // has always had. Written as SUM over the days rather than as the
         // number they happen to add up to, so correcting a Tuesday corrects
         // the total too.
-        if lastDataRow > headerRow && table.trailingSummaryRows == 0 {
+        if lastDataRow > headerRow && table.trailingSummaryRows == 0 && table.kind != .siteDiary {
             let durationColumns = Set(table.rows.flatMap { reportRow in
                 reportRow.minutes.enumerated().compactMap { $0.element == nil ? nil : $0.offset }
             })
@@ -582,28 +596,44 @@ enum XLSXWriter {
 
     // MARK: - Fixed parts
 
-    private static let contentTypes = """
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>
-    """
+    private static func contentTypes(sheets: Int) -> String {
+        let overrides = (1...max(1, sheets)).map {
+            "<Override PartName=\"/xl/worksheets/sheet\($0).xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+        }.joined()
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>\(overrides)<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>
+        """
+    }
 
     private static let rootRelationships = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>
     """
 
-    private static let workbookRelationships = """
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>
-    """
-
-    private static func workbook(sheetName: String, headerRows: ClosedRange<Int>) -> String {
-        let name = escape(String(sheetName.prefix(31)))
-        let first = headerRows.lowerBound
-        let last = headerRows.upperBound
+    /// The sheets are rId1…rIdN, and the styles come after them.
+    private static func workbookRelationships(sheets: Int) -> String {
+        let count = max(1, sheets)
+        let worksheets = (1...count).map {
+            "<Relationship Id=\"rId\($0)\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet\($0).xml\"/>"
+        }.joined()
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr date1904="1"/><sheets><sheet name="\(name)" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm.Print_Titles" localSheetId="0">\'\(name)\'!$\(first):$\(last)</definedName></definedNames></workbook>
+        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\(worksheets)<Relationship Id="rId\(count + 1)" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>
+        """
+    }
+
+    private static func workbook(sheets: [(name: String, headerRows: ClosedRange<Int>)]) -> String {
+        var entries = ""
+        var titles = ""
+        for (index, sheet) in sheets.enumerated() {
+            let name = escape(String(sheet.name.prefix(31)))
+            entries += "<sheet name=\"\(name)\" sheetId=\"\(index + 1)\" r:id=\"rId\(index + 1)\"/>"
+            titles += "<definedName name=\"_xlnm.Print_Titles\" localSheetId=\"\(index)\">\'\(name)\'!$\(sheet.headerRows.lowerBound):$\(sheet.headerRows.upperBound)</definedName>"
+        }
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr date1904="1"/><sheets>\(entries)</sheets><definedNames>\(titles)</definedNames></workbook>
         """
     }
 

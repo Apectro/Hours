@@ -58,10 +58,31 @@ than sitting greyed out.
 balance, averages, day counts, and a running balance that is always recomputed
 from the days rather than stored.
 
+**Leave** — set your yearly vacation allowance, when your leave year starts,
+and any days carried over (and when they expire) in Settings › Leave. Insights
+shows "18 of 25 left · 2 planned", and the day editor says what a vacation day
+would leave. A built-in *Time off in lieu* day (Zeitausgleich) spends overtime:
+the day's hours come off the balance, and Insights says how many days off the
+balance is worth.
+
+**Your year** — from Insights' year view, and once in late December, a
+full-screen set of cards: hours, days on sites, the busiest month, the longest
+day, the year's balance, leave taken, and earnings when a rate is set. Share
+turns it into a picture; nothing about anybody else's hours is in it.
+
 **Sites** — a site's crew is entered once and the day's times once for all of
 them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
 month says its sheet is ready for the director, and opens it.
+
+**Site diary, bad weather and sign-off** — under each site day, a short diary
+(Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
+problems and visitors, and up to six photos, stripped of their location. A
+"Rained off" button stops the whole crew for bad weather (Schlechtwetter), with
+no hours or keeping the hours until the stop, and gives your own day the Bad
+weather type. At month end each crew member checks their hours on your phone and
+signs with a finger; a signature whose hours change afterwards says so. The
+director's sheet can carry the diary and the signatures.
 
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what
 you earned rather than the hours balance: overtime at the same rate or with a
@@ -73,6 +94,16 @@ away, and money never appears on a site, its sheet or anywhere about your crew.
 **Settings** — the contracted week (hours per weekday, not one number for all of
 them), pay, calculation rules, which fields exist, day types, holidays, calendar
 appearance, theme, export options, and backup.
+
+**Public holidays** — never guessed, but one tap away: Settings › Holidays ›
+Add public holidays (or the first-run setup, or a one-time card on the
+calendar) → country → state or canton where it matters → the list with next
+dates → Add. Germany (all 16 states), Austria, Switzerland (12 cantons and the
+days all cantons share), Croatia, Slovenia, Italy, France, Spain (national),
+Portugal, the Netherlands and Poland, from tables inside the app — nothing is
+looked up online. They become ordinary holidays you can edit, switch off or
+remove again as a set. On a public holiday, "I worked" opens the day with your
+usual times: the holiday stays paid and every hour worked comes on top.
 
 **Export** — CSV, XLSX and PDF, for a day, week, month, year or any custom range,
 with a preview of the exact table before you share it. Columns are configurable
@@ -91,7 +122,9 @@ balance = (worked + credited) − expected + adjustment
 - 08:00–18:00 less a 30 min break on an 8 h day → +1 h 30 m
 - Vacation on a Tuesday → 8 h credited against 8 h expected → 0
 - Vacation on a Saturday → nothing expected, nothing credited → 0
-- Two hours worked on a public holiday → +2 h
+- Two hours worked on a public holiday → +2 h (the holiday's 8 h are still
+  credited, and the Sunday & holiday surcharge applies to the 2 h)
+- Time off in lieu on a Tuesday → nothing worked, 8 h expected → −8 h
 
 Worked time and credited paid absence are always reported separately, so a month
 reads "worked 152 h, paid absence 16 h, expected 168 h, balance 0" rather than

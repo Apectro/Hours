@@ -9,6 +9,10 @@ import SwiftData
 /// it rather than storing an empty row.
 struct DayEditorSheet: View {
     let date: CalendarDate
+    /// "I worked" on a public holiday: a day with nothing typed in opens
+    /// with the week's times, its type left as it resolves so the holiday
+    /// is still paid.
+    var startsWorking = false
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -23,6 +27,9 @@ struct DayEditorSheet: View {
     /// The stored days of this day's week, read once on opening: a day's
     /// overtime after the contracted week depends on the days before it.
     @State private var weekRecords: [Int: DayRecord] = [:]
+    /// The stored days of this day's leave year, read once on opening, for
+    /// the "vacation left" line under the day type.
+    @State private var leaveYearRecords: [Int: DayRecord] = [:]
     @State private var isConfirmingDelete = false
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
@@ -33,8 +40,9 @@ struct DayEditorSheet: View {
     /// is what hung the site screen when it was opened from the Sites tab.
     @State private var path = NavigationPath()
 
-    init(date: CalendarDate) {
+    init(date: CalendarDate, startsWorking: Bool = false) {
         self.date = date
+        self.startsWorking = startsWorking
         _draft = State(initialValue: DayRecord(date: date))
     }
 
@@ -48,7 +56,8 @@ struct DayEditorSheet: View {
                 formatting: settingsStore.dateFormatting,
                 siteNames: siteNames,
                 onOpenSite: { path.append(SiteRoute(siteID: $0)) },
-                earnings: earnings
+                earnings: earnings,
+                vacationLeft: vacationLeft
             )
             .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
@@ -122,6 +131,29 @@ struct DayEditorSheet: View {
             .days.first
     }
 
+    /// Vacation left in the leave year once this day is saved as drafted.
+    /// Only while the day is a vacation day: the line is about that choice.
+    private var vacationLeft: HalfDays? {
+        guard computation.dayType.id == .vacation else { return nil }
+        let settings = settingsStore.settings
+        let calendar = settingsStore.workCalendar
+        let leaveYear = settings.leave.leaveYear(containing: date, calendar: calendar)
+        var records = leaveYearRecords
+        records[date.key] = draft
+        let days = settingsStore.engine.days(
+            in: settings.leave.range(ofLeaveYear: leaveYear, calendar: calendar),
+            records: records,
+            holidays: holidays
+        )
+        return LeaveCalculator.balance(
+            leaveYear: leaveYear,
+            days: days,
+            settings: settings,
+            calendar: calendar,
+            today: CalendarDate.today(in: calendar)
+        ).remaining
+    }
+
     private var siteNames: [UUID: String] {
         Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
     }
@@ -160,7 +192,15 @@ struct DayEditorSheet: View {
         if settingsStore.settings.showsEarnings {
             weekRecords = repository.records(in: settingsStore.engine.earningsRange(covering: CalendarDateRange(single: date)))
         }
-        draft = stored ?? settingsStore.engine.draftRecord(for: date, holidays: holidays)
+        let calendar = settingsStore.workCalendar
+        let leave = settingsStore.settings.leave
+        leaveYearRecords = repository.records(
+            in: leave.range(ofLeaveYear: leave.leaveYear(containing: date, calendar: calendar), calendar: calendar)
+        )
+        draft = stored ?? settingsStore.engine.draftRecord(for: date, holidays: holidays, working: startsWorking)
+        if startsWorking, !draft.shifts.contains(where: { $0.siteID == nil }), draft.manualWorkedMinutes == nil {
+            draft.shifts.append(settingsStore.settings.prefilledShift(on: date))
+        }
     }
 
     private func save() {

@@ -17,13 +17,16 @@ struct FirstRunSetupView: View {
     let onFinish: (FirstRunFinish?) -> Void
 
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.modelContext) private var modelContext
 
     @State private var step: Step = .name
     @State private var answers = FirstRunAnswers(settings: AppSettings())
     @State private var hasLoaded = false
+    @State private var holidayCountry: HolidayCountry?
+    @State private var holidayRegion: String?
 
     enum Step: Int {
-        case name, week, breaks, finish
+        case name, week, breaks, holidays, finish
     }
 
     var body: some View {
@@ -37,6 +40,8 @@ struct FirstRunSetupView: View {
                     SetupWeekStep(answers: $answers)
                 case .breaks:
                     SetupBreaksStep(breaksArePaid: $answers.breaksArePaid)
+                case .holidays:
+                    SetupHolidaysStep(country: $holidayCountry, region: $holidayRegion)
                 case .finish:
                     SetupFinishStep(onFinish: onFinish)
                 }
@@ -69,7 +74,7 @@ struct FirstRunSetupView: View {
 
     private var topBar: some View {
         HStack {
-            if step == .week || step == .breaks {
+            if step == .week || step == .breaks || step == .holidays {
                 Button("Back", action: goBack)
                     .frame(minHeight: 44)
                     .accessibilityIdentifier("setup-back")
@@ -87,8 +92,28 @@ struct FirstRunSetupView: View {
     private func advance() {
         let answers = answers
         settingsStore.update { answers.apply(to: &$0) }
+        if step == .holidays { applyHolidayChoice() }
         guard let next = Step(rawValue: step.rawValue + 1) else { return }
         withAnimation(.snappy) { step = next }
+    }
+
+    /// The country's holidays as the preview would tick them. Coming back
+    /// and choosing again replaces the earlier choice; choosing none adds
+    /// nothing, and is an answer, so the calendar does not ask again.
+    private func applyHolidayChoice() {
+        let chosen = holidayCountry.flatMap { PublicHolidayCatalog.set(country: $0, region: holidayRegion) }
+        let added = settingsStore.settings.publicHolidays.addedSetID
+        guard chosen?.id != added else { return }
+        if added != nil {
+            PublicHolidayActions.removeAdded(context: modelContext, settingsStore: settingsStore)
+        }
+        if let chosen {
+            PublicHolidayActions.add(
+                chosen, selection: chosen.defaultSelection, context: modelContext, settingsStore: settingsStore
+            )
+        } else {
+            settingsStore.update { $0.publicHolidays.offerDismissed = true }
+        }
     }
 
     private func goBack() {

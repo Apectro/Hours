@@ -62,6 +62,9 @@ enum ReportKind: String, Hashable, Sendable {
     case timesheet
     /// A site's month, one group of columns per person, from `SiteSheetBuilder`.
     case siteSheet
+    /// A site's diary as a table, the workbook's second sheet; from
+    /// `SiteDiaryReport.table(language:)`.
+    case siteDiary
 }
 
 /// A labelled figure in the totals block.
@@ -138,6 +141,13 @@ struct ReportTable: Hashable, Sendable {
     var legend: String = ""
     /// The labels under the lines left to sign on.
     var signatures: [String] = []
+    /// The site diary that follows the hours: pages of their own in the PDF,
+    /// a sheet of its own in the workbook, and nothing in a CSV, which is one
+    /// table by nature. `nil` or empty adds nothing.
+    var diary: SiteDiaryReport? = nil
+    /// A box per person with their signature, on the director's sheet once
+    /// anyone has signed. Empty prints nothing.
+    var signOff: [ReportSignOff] = []
 
     var isEmpty: Bool { rows.isEmpty }
 

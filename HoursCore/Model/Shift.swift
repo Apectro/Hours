@@ -94,4 +94,7 @@ struct ShiftPeriod: Identifiable, Hashable, Sendable {
     /// merged. What earnings need to know which minutes of a night were worked;
     /// a break with no times has no place, and is only in `breakMinutes`.
     var timedBreaks: [Range<Int>] = []
+    /// The site a shift written from a site day belongs to; nil for one
+    /// typed into the calendar.
+    var siteID: UUID? = nil
 }

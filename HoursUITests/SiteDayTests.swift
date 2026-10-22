@@ -125,6 +125,54 @@ final class SiteDayTests: XCTestCase {
         wait(for: app.buttons["site-person-Ivan"], selected: false)
     }
 
+    // MARK: - Diary and bad weather
+
+    /// The diary under a day keeps what was typed, with no Save button, and
+    /// the day is marked in the month.
+    func testDiaryKeepsWhatWasWritten() {
+        let app = launch()
+        openSite(app)
+
+        let work = app.descendants(matching: .any)["site-diary-work"]
+        for _ in 0..<3 where !work.isHittable { app.swipeUp() }
+        XCTAssertTrue(work.waitForExistence(timeout: 5), "the site diary should be under the day")
+        work.tap()
+        work.typeText("Formwork")
+        // Leaving the field writes it.
+        app.descendants(matching: .any)["site-diary-visitors"].tap()
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
+        app.buttons["site-card"].firstMatch.tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
+        let again = app.descendants(matching: .any)["site-diary-work"]
+        for _ in 0..<3 where !again.isHittable { app.swipeUp() }
+        XCTAssertTrue(again.waitForExistence(timeout: 5))
+        XCTAssertEqual(again.value as? String, "Formwork", "the diary should keep what was typed")
+    }
+
+    /// Rained off on a written day: the stop shows, and can be taken back.
+    func testRainedOffCanBeMarkedAndUndone() {
+        let app = launch()
+        openSite(app)
+        select(app, daysFromToday: -1)
+
+        let menu = app.buttons["site-weather-menu"]
+        for _ in 0..<3 where !menu.isHittable { app.swipeUp() }
+        XCTAssertTrue(menu.waitForExistence(timeout: 5), "a written day should offer Rained off")
+        menu.tap()
+        let all = app.buttons["site-weather-stop-all"]
+        XCTAssertTrue(all.waitForExistence(timeout: 5))
+        all.tap()
+
+        XCTAssertTrue(app.descendants(matching: .any)["site-weather-stopped"].waitForExistence(timeout: 5),
+                      "the day should say it was rained off")
+        let lift = app.buttons["site-weather-lift"]
+        XCTAssertTrue(lift.waitForExistence(timeout: 5))
+        lift.tap()
+        XCTAssertTrue(app.buttons["site-weather-menu"].waitForExistence(timeout: 5), "undo should bring the menu back")
+    }
+
     // MARK: - Helpers
 
     /// Taps a day's cell in the site's month and returns it. A day outside

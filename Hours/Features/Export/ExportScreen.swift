@@ -56,6 +56,16 @@ struct ExportScreen: View {
     @State private var typedName = ""
     @State private var nameAnswered = false
 
+    /// A site's diary follows its hours unless switched off here. The switch
+    /// is only offered for a month that has a diary, so "on" is the default
+    /// exactly when there is something to include.
+    @State private var includesDiary = true
+    /// Diary photos already made small for the PDF, kept between previews so
+    /// stepping months or formats does not re-encode them every time.
+    @State private var printPhotos: [UUID: Data] = [:]
+    /// Moved on by the sign-off screen, so a new signature redraws the preview.
+    @State private var signOffRevision = 0
+
     /// - Parameters:
     ///   - initialRange: the days your own timesheet starts on.
     ///   - site: the site to open on, when opened from one.
@@ -163,6 +173,22 @@ struct ExportScreen: View {
                 title: formatting.monthTitle(month),
                 caption: siteCaption
             )
+            if tables?.hasDiary == true {
+                Toggle("Include site diary", isOn: $includesDiary)
+                    .accessibilityIdentifier("export-include-diary")
+            }
+            // A link with its destination inline, as Export options below:
+            // a value pushed onto this sheet's own stack.
+            NavigationLink {
+                SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
+            } label: {
+                Label("Crew sign-off", systemImage: "signature")
+            }
+            .accessibilityIdentifier("export-sign-off")
+        } footer: {
+            if tables?.hasDiary == true && includesDiary {
+                Text("The diary follows the hours: on pages of its own in the PDF, on a second sheet in Excel. A CSV holds the hours only.")
+            }
         }
     }
 
@@ -382,6 +408,7 @@ struct ExportScreen: View {
         let range = resolvedRange
         let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
         return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
+            + "-\(includesDiary)-\(signOffRevision)"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -399,7 +426,7 @@ struct ExportScreen: View {
         let maker = ExportTableMaker(context: modelContext, settings: settings, calendar: calendar)
         let built: ExportTables
         if let site = selectedSite {
-            built = maker.site(site, month: month)
+            built = maker.site(site, month: month, includeDiary: includesDiary)
         } else {
             built = maker.personal(
                 range: resolvedRange,
@@ -412,7 +439,12 @@ struct ExportScreen: View {
         // The PDF is drawn for the preview whether or not it can be shared:
         // seeing the page is free. The same bytes become the file.
         if format == .pdf && built.hasContent {
-            let data = PDFReportRenderer.data(for: built.file)
+            var photos: [UUID: Data] = [:]
+            if let site = selectedSite, !built.photoIDs.isEmpty {
+                photos = maker.printPhotos(ids: built.photoIDs, site: site, month: month, cache: printPhotos)
+                printPhotos.merge(photos) { _, new in new }
+            }
+            let data = PDFReportRenderer.data(for: built.file, photos: photos)
             pdfData = data
             pageImage = ExportPagePreview.thumbnail(of: data)
         } else {

@@ -44,6 +44,10 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// The job these hours count towards, frozen when the day is written so
     /// that later changes to the site never move recorded hours between jobs.
     var jobID: UUID?
+    /// The crew was rained off: a bad-weather stop (Schlechtwetter). Either
+    /// no hours at all, or the hours up to the stop; see
+    /// `stoppedForBadWeather(at:)`.
+    var isBadWeatherStop: Bool
 
     init(
         siteID: UUID,
@@ -53,7 +57,8 @@ struct SiteDay: Hashable, Codable, Sendable {
         breakMinutes: Int = 0,
         present: [Attendance] = [],
         note: String = "",
-        jobID: UUID? = nil
+        jobID: UUID? = nil,
+        isBadWeatherStop: Bool = false
     ) {
         self.siteID = siteID
         self.date = date
@@ -63,6 +68,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         self.present = present
         self.note = note
         self.jobID = jobID
+        self.isBadWeatherStop = isBadWeatherStop
     }
 
     func attendance(for memberID: UUID) -> Attendance? {
@@ -89,7 +95,8 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// note does, because "rain, nobody came" is worth keeping and dropping
     /// typed text would be a save that silently did nothing.
     var isBlank: Bool {
-        present.isEmpty
+        !isBadWeatherStop
+            && present.isEmpty
             && start == nil
             && end == nil
             && note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -102,8 +109,56 @@ struct SiteDay: Hashable, Codable, Sendable {
         return attendance.start != nil || attendance.end != nil || attendance.breakMinutes != nil
     }
 
+    // MARK: - Bad weather
+
+    /// The day as a bad-weather stop for the whole crew.
+    ///
+    /// With no time, nobody worked: the site's times, its break and
+    /// everyone's own times go, and who was there stays, because "the crew turned up and was
+    /// sent home" is the fact the director needs. With a time — "stopped at
+    /// 11:00" — the hours until then stand: the site's end becomes the stop,
+    /// and anyone whose own end was later stops with everyone else, while
+    /// someone who had already left keeps the time they left.
+    ///
+    /// A stop before the day's start, or on a day running past midnight, is
+    /// taken at its word only for the site's end; nobody's start is moved.
+    func stoppedForBadWeather(at stop: TimeOfDay?) -> SiteDay {
+        var day = self
+        day.isBadWeatherStop = true
+        guard let stop else {
+            day.start = nil
+            day.end = nil
+            day.breakMinutes = 0
+            day.present = present.map { Attendance(memberID: $0.memberID) }
+            return day
+        }
+        day.end = stop
+        day.present = present.map { attendance in
+            var stopped = attendance
+            if let own = attendance.end, own.minutes > stop.minutes {
+                stopped.end = stop
+            }
+            return stopped
+        }
+        return day
+    }
+
+    /// The stop taken back. The times stay as they are, to be corrected by hand.
+    func liftingBadWeatherStop() -> SiteDay {
+        var day = self
+        day.isBadWeatherStop = false
+        return day
+    }
+
+    /// Whether this day was a full stop for `memberID`: rained off, present,
+    /// and no hours to show for it.
+    func isFullStop(for memberID: UUID) -> Bool {
+        guard isBadWeatherStop, let mine = resolved(for: memberID) else { return false }
+        return mine.start == nil || mine.end == nil
+    }
+
     private enum CodingKeys: String, CodingKey {
-        case siteID, date, start, end, breakMinutes, present, note, jobID
+        case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop
     }
 
     init(from decoder: Decoder) throws {
@@ -116,7 +171,8 @@ struct SiteDay: Hashable, Codable, Sendable {
             breakMinutes: container.lenient(.breakMinutes, 0),
             present: container.lenient(.present, []),
             note: container.lenient(.note, ""),
-            jobID: container.lenientOptional(.jobID)
+            jobID: container.lenientOptional(.jobID),
+            isBadWeatherStop: container.lenient(.isBadWeatherStop, false)
         )
     }
 }

@@ -14,7 +14,20 @@ enum SiteCalendarSync {
     ///
     /// Each shift's id is its site's id, and so is its break's, so merging the
     /// result again yields an equal record and storage and sync see no change.
-    static func merged(personal: DayRecord?, siteDays: [SiteDay], on date: CalendarDate) -> DayRecord? {
+    ///
+    /// A bad-weather stop with no hours for you gives your day the Bad
+    /// weather type, but only when nothing else is written on it: no type you
+    /// chose, and no hours of your own or from another site. `previousSiteDays`
+    /// is what was stored on that date before this change. When a stop that
+    /// would have typed your day is no longer there — lifted, unticked or
+    /// deleted — the type goes again. That is the one way to tell the type
+    /// this put on from one you chose, which stays.
+    static func merged(
+        personal: DayRecord?,
+        siteDays: [SiteDay],
+        on date: CalendarDate,
+        previousSiteDays: [SiteDay] = []
+    ) -> DayRecord? {
         var record = personal ?? DayRecord(date: date)
         record.shifts.removeAll { $0.siteID != nil }
 
@@ -35,6 +48,16 @@ enum SiteCalendarSync {
                     siteID: day.siteID
                 )
             )
+        }
+
+        let onDate = siteDays.filter { $0.date == date }
+        let stopped = onDate.contains { $0.isFullStop(for: CrewMember.youID) }
+        let wasStopped = previousSiteDays.contains { $0.date == date && $0.isFullStop(for: CrewMember.youID) }
+        if record.dayTypeID == .badWeather, wasStopped, !stopped {
+            record.dayTypeID = nil
+        }
+        if record.dayTypeID == nil, stopped, record.shifts.allSatisfy(\.isEmpty) {
+            record.dayTypeID = .badWeather
         }
 
         return record.isBlank ? nil : record

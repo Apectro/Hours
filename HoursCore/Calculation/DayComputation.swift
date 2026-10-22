@@ -86,6 +86,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
 
     var id: Int { date.key }
 
+    /// A public holiday that was paid as one and worked as well: the hours
+    /// are on top of the holiday's credit, and the calendar marks the day.
+    var isWorkedPublicHoliday: Bool {
+        holidayName != nil && dayType.id == .holiday && workedMinutes > 0
+    }
+
     /// Everything the day pays: worked time plus credited absence.
     var paidMinutes: Int { workedMinutes + creditedMinutes }
 
@@ -96,6 +102,12 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     var isScheduledWorkingDay: Bool {
         dayType.expectation == .scheduled && expectedMinutes > 0
     }
+
+    /// A working day taken off against overtime. It is expected like any
+    /// working day — that is what takes it off the balance — but nobody is
+    /// due at work, so the widget neither draws it as short nor says when it
+    /// ends.
+    var isTimeOffInLieu: Bool { dayType.id == .timeOffInLieu }
 
     /// Whether this day counts towards a total at all.
     ///

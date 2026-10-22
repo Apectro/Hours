@@ -16,6 +16,9 @@ struct DayEditorForm: View {
     var onOpenSite: ((UUID) -> Void)? = nil
     /// What the day earns, when earnings are the main figure.
     var earnings: DayEarnings? = nil
+    /// Vacation left in the leave year with this day as drafted; nil unless
+    /// the day is a vacation day.
+    var vacationLeft: HalfDays? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
@@ -47,14 +50,39 @@ struct DayEditorForm: View {
     // MARK: - Day type
 
     private var dayTypeSection: some View {
-        Section("Day type") {
+        Section {
             DayTypeMenu(
                 selection: $draft.dayTypeID,
                 catalog: settings.dayTypeCatalog,
                 resolved: computation.dayType
             )
             if let holidayName = computation.holidayName {
-                LabeledContent("Holiday", value: holidayName)
+                if isPublicHolidayOff {
+                    // "Christmas Day · public holiday", and whether it was
+                    // worked. Worked hours come on top of the paid holiday.
+                    LabeledContent("Holiday", value: String(
+                        localized: "\(holidayName) · public holiday",
+                        comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
+                    ))
+                    Picker("Public holiday", selection: workedHolidayBinding) {
+                        Text("Day off (paid)").tag(false)
+                        Text("I worked").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("day-editor-holiday-worked")
+                } else {
+                    LabeledContent("Holiday", value: holidayName)
+                }
+            }
+        } header: {
+            Text("Day type")
+        } footer: {
+            if let vacationLeft {
+                Text(String(
+                    localized: "Vacation left after this: \(vacationLeft.localized)",
+                    comment: "Day editor, under the day type when it is Vacation; a number of days such as 17 or 17.5"
+                ))
+                .accessibilityIdentifier("day-editor-vacation-left")
             }
         }
     }
@@ -236,6 +264,29 @@ struct DayEditorForm: View {
             // Carry the previous block's job forward: a split shift is usually
             // two halves of the same day at the same place.
             jobID: manualShifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
+        )
+    }
+
+    /// A public holiday off, as a holiday rule resolves it: the place for
+    /// "Day off (paid)" or "I worked".
+    private var isPublicHolidayOff: Bool {
+        computation.holidayName != nil
+            && computation.dayType.id == .holiday
+            && settings.features.autoCalculateWorkedHours
+    }
+
+    /// Worked means times on the day; the type stays a holiday either way,
+    /// so the holiday's credit is kept and the hours come on top.
+    private var workedHolidayBinding: Binding<Bool> {
+        Binding(
+            get: { !manualShifts.isEmpty },
+            set: { worked in
+                if worked {
+                    if manualShifts.isEmpty { draft.shifts.append(settings.prefilledShift(on: draft.date)) }
+                } else {
+                    draft.shifts = draft.shifts.filter { $0.siteID != nil }
+                }
+            }
         )
     }
 

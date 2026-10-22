@@ -117,6 +117,26 @@ SECTIONS = [
             es="Cada año, n-ésimo día de la semana",
             pt="Todos os anos, n-ésimo dia da semana",
             nl="Elk jaar, n-de weekdag", pl="Co roku, n-ty dzień tygodnia")),
+        ("holidayEaster", dict(
+            en="Every year, counted from Easter", de="Jedes Jahr, ab Ostern gezählt",
+            hr="Svake godine, računano od Uskrsa", sl="Vsako leto, šteto od velike noči",
+            it="Ogni anno, contato dalla Pasqua", fr="Chaque année, compté depuis Pâques",
+            es="Cada año, contado desde Pascua", pt="Todos os anos, contado a partir da Páscoa",
+            nl="Elk jaar, gerekend vanaf Pasen", pl="Co roku, liczone od Wielkanocy")),
+        ("holidayWeekdayOnOrAfter", dict(
+            en="Every year, weekday from a date", de="Jedes Jahr, Wochentag ab einem Datum",
+            hr="Svake godine, dan u tjednu od datuma", sl="Vsako leto, dan v tednu od datuma",
+            it="Ogni anno, giorno della settimana da una data",
+            fr="Chaque année, jour de la semaine à partir d'une date",
+            es="Cada año, día de la semana desde una fecha",
+            pt="Todos os anos, dia da semana a partir de uma data",
+            nl="Elk jaar, weekdag vanaf een datum", pl="Co roku, dzień tygodnia od daty")),
+        ("holidayAnnualOffSunday", dict(
+            en="Every year, moved off Sunday", de="Jedes Jahr, vom Sonntag verschoben",
+            hr="Svake godine, pomaknuto s nedjelje", sl="Vsako leto, premaknjeno z nedelje",
+            it="Ogni anno, spostato dalla domenica", fr="Chaque année, décalé du dimanche",
+            es="Cada año, movido del domingo", pt="Todos os anos, movido do domingo",
+            nl="Elk jaar, verschoven van zondag", pl="Co roku, przeniesione z niedzieli")),
     ]),
     ("Separators", [
         ("separatorComma", dict(

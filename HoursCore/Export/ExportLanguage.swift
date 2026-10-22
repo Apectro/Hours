@@ -197,6 +197,18 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .dayOff:         return pick(en: "Day off", de: "Freier Tag", hr: "Slobodan dan", sl: "Prost dan",
                                           it: "Giorno libero", fr: "Jour de repos", es: "Día libre",
                                           pt: "Dia de folga", nl: "Vrije dag", pl: "Dzień wolny")
+        // The day type, one day of it. Not `timeOffInLieu` below, which is
+        // the reason for an adjustment and in several languages a plural
+        // ("Zamjenski slobodni dani"); German uses the Austrian word here,
+        // as the day is called on an Austrian site.
+        case .timeOffInLieuDay: return pick(en: "Time off in lieu", de: "Zeitausgleich",
+                                          hr: "Slobodan dan za prekovremene", sl: "Prosti dan za nadure",
+                                          it: "Giorno di recupero", fr: "Jour de récupération",
+                                          es: "Día de compensación", pt: "Folga compensatória",
+                                          nl: "Compensatiedag", pl: "Dzień wolny za nadgodziny")
+        case .badWeather:     return pick(en: "Bad weather", de: "Schlechtwetter", hr: "Loše vrijeme",
+                                          sl: "Slabo vreme", it: "Maltempo", fr: "Intempéries", es: "Mal tiempo",
+                                          pt: "Mau tempo", nl: "Slecht weer", pl: "Niepogoda")
         case .otherDayType:   return pick(en: "Other", de: "Sonstiges", hr: "Ostalo", sl: "Drugo", it: "Altro",
                                           fr: "Autre", es: "Otro", pt: "Outro", nl: "Overig", pl: "Inne")
 
@@ -367,6 +379,64 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                 + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
         )
 
+        case .badWeatherDays: return pick(en: "Bad-weather days", de: "Schlechtwettertage",
+                                          hr: "Dani lošeg vremena", sl: "Dnevi slabega vremena",
+                                          it: "Giorni di maltempo", fr: "Jours d’intempéries",
+                                          es: "Días de mal tiempo", pt: "Dias de mau tempo",
+                                          nl: "Slechtweerdagen", pl: "Dni niepogody")
+
+        // The site diary
+        case .siteDiary:      return pick(en: "Site diary", de: "Bautagebuch", hr: "Građevinski dnevnik",
+                                          sl: "Gradbeni dnevnik", it: "Giornale dei lavori",
+                                          fr: "Journal de chantier", es: "Diario de obra", pt: "Diário de obra",
+                                          nl: "Bouwdagboek", pl: "Dziennik budowy")
+        case .weather:        return pick(en: "Weather", de: "Wetter", hr: "Vrijeme", sl: "Vreme", it: "Meteo",
+                                          fr: "Météo", es: "Tiempo", pt: "Tempo", nl: "Weer", pl: "Pogoda")
+        case .diaryWorkDone:  return pick(en: "Work done", de: "Ausgeführte Arbeiten", hr: "Izvedeni radovi",
+                                          sl: "Opravljena dela", it: "Lavori eseguiti", fr: "Travaux réalisés",
+                                          es: "Trabajos realizados", pt: "Trabalhos realizados",
+                                          nl: "Uitgevoerd werk", pl: "Wykonane prace")
+        case .diaryDeliveries: return pick(en: "Deliveries", de: "Lieferungen", hr: "Isporuke", sl: "Dobave",
+                                           it: "Forniture", fr: "Livraisons", es: "Entregas", pt: "Entregas",
+                                           nl: "Leveringen", pl: "Dostawy")
+        case .diaryProblems:  return pick(en: "Problems / delays", de: "Behinderungen / Verzögerungen",
+                                          hr: "Problemi / kašnjenja", sl: "Težave / zamude",
+                                          it: "Problemi / ritardi", fr: "Problèmes / retards",
+                                          es: "Problemas / retrasos", pt: "Problemas / atrasos",
+                                          nl: "Problemen / vertraging", pl: "Problemy / opóźnienia")
+        case .diaryVisitors:  return pick(en: "Visitors", de: "Besucher", hr: "Posjetitelji", sl: "Obiskovalci",
+                                          it: "Visitatori", fr: "Visiteurs", es: "Visitas", pt: "Visitas",
+                                          nl: "Bezoekers", pl: "Odwiedzający")
+        case .weatherSunny:   return pick(en: "Sunny", de: "Sonnig", hr: "Sunčano", sl: "Sončno", it: "Soleggiato",
+                                          fr: "Ensoleillé", es: "Soleado", pt: "Sol", nl: "Zonnig", pl: "Słonecznie")
+        case .weatherCloudy:  return pick(en: "Cloudy", de: "Bewölkt", hr: "Oblačno", sl: "Oblačno", it: "Nuvoloso",
+                                          fr: "Nuageux", es: "Nublado", pt: "Nublado", nl: "Bewolkt", pl: "Pochmurno")
+        case .weatherRain:    return pick(en: "Rain", de: "Regen", hr: "Kiša", sl: "Dež", it: "Pioggia",
+                                          fr: "Pluie", es: "Lluvia", pt: "Chuva", nl: "Regen", pl: "Deszcz")
+        case .weatherSnow:    return pick(en: "Snow", de: "Schnee", hr: "Snijeg", sl: "Sneg", it: "Neve",
+                                          fr: "Neige", es: "Nieve", pt: "Neve", nl: "Sneeuw", pl: "Śnieg")
+        case .weatherFrost:   return pick(en: "Frost", de: "Frost", hr: "Mraz", sl: "Mraz", it: "Gelo",
+                                          fr: "Gel", es: "Helada", pt: "Geada", nl: "Vorst", pl: "Mróz")
+        case .weatherWind:    return pick(en: "Wind", de: "Wind", hr: "Vjetar", sl: "Veter", it: "Vento",
+                                          fr: "Vent", es: "Viento", pt: "Vento", nl: "Wind", pl: "Wiatr")
+        case .weatherHeat:    return pick(en: "Heat", de: "Hitze", hr: "Vrućina", sl: "Vročina", it: "Caldo",
+                                          fr: "Chaleur", es: "Calor", pt: "Calor", nl: "Hitte", pl: "Upał")
+
+        // Crew sign-off
+        case .signOff:        return pick(en: "Sign-off", de: "Bestätigung der Stunden", hr: "Potvrda sati",
+                                          sl: "Potrditev ur", it: "Conferma delle ore", fr: "Validation des heures",
+                                          es: "Conformidad de horas", pt: "Confirmação das horas",
+                                          nl: "Akkoord uren", pl: "Potwierdzenie godzin")
+        case .signedOn:       return pick(en: "signed", de: "unterschrieben am", hr: "potpisano", sl: "podpisano",
+                                          it: "firmato il", fr: "signé le", es: "firmado el", pt: "assinado em",
+                                          nl: "ondertekend op", pl: "podpisano")
+        case .changedAfterSigning:
+            return pick(en: "changed after signing", de: "nach der Unterschrift geändert",
+                        hr: "promijenjeno nakon potpisa", sl: "spremenjeno po podpisu",
+                        it: "modificato dopo la firma", fr: "modifié après signature",
+                        es: "modificado después de firmar", pt: "alterado depois da assinatura",
+                        nl: "gewijzigd na ondertekening", pl: "zmieniono po podpisaniu")
+
         // The printed page around the table
         case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
                                           sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
@@ -448,7 +518,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case overtime, balance, runningBalance, holiday, location, tags, notes, earnings
 
     case work, weekend, publicHoliday, vacation, sickLeave, personalDay, dayOff
-    case otherDayType
+    case otherDayType, timeOffInLieuDay, badWeather
 
     case correction, paidOut, timeOffInLieu
 
@@ -459,7 +529,14 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
 
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
-    case siteLegendPaidBreaks, siteLegendMixedBreaks
+    case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
+
+    /// The site diary.
+    case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors
+    case weatherSunny, weatherCloudy, weatherRain, weatherSnow, weatherFrost, weatherWind, weatherHeat
+
+    /// Crew sign-off on the director's sheet.
+    case signOff, signedOn, changedAfterSigning
 
     /// The printed page around the table.
     case timesheet, employeeSignature, employerSignature, checkedSignature, of

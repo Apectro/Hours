@@ -101,6 +101,7 @@ balance = (worked + credited) - expected + adjustment
 - Vacation on a Saturday → credited 0, expected 0 → 0
 - Public holiday during vacation → one day, one type, no double count
 - Worked 2 h on a public holiday → credited 8 h + worked 2 h − expected 8 h → +2 h
+- Time off in lieu on a Tuesday → nothing worked, nothing credited, expected 8 h → −8 h
 
 **Worked time** is measured per shift in `WorkdayCalculator` and then added
 up: the shift's length less its breaks, unless the shift's job pays for breaks
@@ -233,6 +234,59 @@ offered among the columns to choose. A personal timesheet carries an earnings
 column, tile and total only when Export options says so, which it does not by
 default.
 
+## Leave, time off in lieu, and the year in review
+
+**Time off in lieu** (Zeitausgleich) is a built-in day type, id
+`timeOffInLieu`, with the `scheduled` policy: exactly an ordinary working day
+with nothing worked, so it takes the day's contracted hours — from the week in
+force — off the balance and nothing else. Because it is chosen on the day, the
+day has an entry and is never a gap; the widget leaves it out of the month's
+squares and does not say when it ends, as it does for leave. A new built-in
+needs nothing written: the catalogue merges built-ins with the stored custom
+types at read time, custom types have UUID ids, and an older version reading a
+day of this type shows it as Unknown. Its export term (`timeOffInLieuDay`) is
+separate from the adjustment reason `timeOffInLieu`, which is a plural in some
+languages; German uses the Austrian *Zeitausgleich* for the day.
+
+**Leave** is `AppSettings.leave`, a `LeavePolicy` for the primary job:
+allowance in days (halves allowed), the day the leave year starts, days carried
+over *into a named leave year* — so last year's figure is not quietly carried
+into every year after — and an optional expiry for the carry-over. It decodes
+leniently, so 1.0 settings and backups read as the defaults (25 days from
+1 January), and it travels in a backup with the rest of the settings.
+
+`LeaveCalculator` counts days `PeriodEngine` has already resolved, in
+`HalfDays` so nothing is ever 17.4999. Only the built-in Vacation type takes
+leave, and only on a day something is contracted; an excluded day takes none.
+There is no half-day type, but a vacation day can have its expected hours set
+lower by hand, which credits fewer hours: up to half the day's contracted hours
+is half a day of leave, more is a day, nothing credited is nothing taken. Used
+is through today, planned is after it, and remaining subtracts both. Carried
+days are spent first, in date order, so leave taken or booked by the expiry
+keeps the carry-over it uses and whatever is left after the expiry is lost.
+Insights shows the leave year containing the period on screen (fetched on its
+own, since a leave year from April does not line up with a month), once the
+policy has been changed or any leave is taken, booked or carried; the day
+editor shows what would be left while the day is a vacation day.
+
+**Overtime available** reads a positive running balance as days off:
+`OvertimeAvailable` divides it by the average working day of the weeks every
+active job has in force, rounded to the nearest half day.
+
+**The year in review** is `YearReview`, made from `PeriodEngine`,
+`PeriodAggregator`, `BalanceLedger` and `LeaveCalculator` — the calculators
+Insights reads — and nothing else. It stops at today, as earnings do, rather
+than counting days already entered for later. Days on sites come from the site
+shifts in your own calendar (`ShiftPeriod.siteID`), so nothing about anyone
+else's hours is an input, and money appears only with a rate. A bad-weather
+card appears only when a type with id `badWeather` exists — built in or
+custom — and has days, so the review works with or without that type. The
+screen is a full-screen cover from Insights, never a push; the late-December
+invitation is a card on Insights from the 20th, put away for the year once
+opened or dismissed (`@AppStorage`, a convenience of the installation). Share
+renders the summary with `ImageRenderer` and hands the picture to the share
+sheet; nothing leaves the phone otherwise.
+
 ## Holidays
 
 The app ships with **no** holidays and never guesses a country. Public holidays
@@ -242,17 +296,68 @@ empty list. Rules are user-created and can recur:
 - `once` — a single date
 - `annual` — same month and day every year, optionally bounded by year
 - `nthWeekday` — e.g. the fourth Thursday in November, or the last Monday in May
+- `easter` (1.1) — days from Easter Sunday in `offset` (Good Friday −2, Easter
+  Monday +1, Ascension +39, Whit Monday +50, Corpus Christi +60), by the
+  anonymous Gregorian computus
+- `weekdayOnOrAfter` (1.1) — the first weekday on or after a date: Buß- und
+  Bettag (Wednesday on or after 16 Nov), the Swiss fast Monday (Monday on or
+  after 16 Sep), the Jeûne genevois (Thursday on or after 5 Sep)
+- `annualOffSunday` (1.1) — a date moved by `offset` when it is a Sunday:
+  Dutch King's Day
+
+The last three are not built by hand (`Kind.handMade` is what the editor
+offers); they come from a country's list.
 
 A 29 February rule simply does not occur in common years rather than being
 silently moved. A holiday can be marked "counts as a normal working day", in
 which case it keeps its contracted hours and only its name is carried through.
 
+**1.0 reading 1.1's movable rules.** 1.0 decodes `kind` strictly in a backup —
+an unknown kind fails the list of holidays and with it the whole restore — and
+in the store reads an unknown kind string as `annual` on the stored month and
+day. So a movable rule is written as an annual **31 February**, which no year
+has, with its real shape beside it where 1.0 does not look: a `movable` object
+in the backup JSON, and in the store the kind string itself
+(`easter:1:1:2:39` — kind, month, day, weekday, offset; no new column, so no
+schema version). The worst 1.0 does with one is list it without a date; it
+never puts a holiday on a wrong day. 1.1 in turn reads a kind it does not know
+(from a later version) as a rule that never occurs rather than failing the
+file. See `HolidayRecurrence+Coding.swift`.
+
+**Public holidays by country (1.1).** `PublicHolidayCatalog` holds pure Swift
+tables, one `PublicHolidaySet` per country or per German state / Swiss canton,
+each with the year it was checked for and its source. A holiday that applies
+only in part of a region, or by custom or collective agreement, carries a
+`note` and is offered unticked; a day that could not be confirmed is left out
+and named in the table's comment. Picking is one tap — Settings › Holidays ›
+Add public holidays, the first-run "Where do you work?" step, or a one-time
+card on the calendar for someone with no holidays — but still never automatic.
+`PublicHolidayImport` turns the ticked holidays into ordinary `HolidayRule`s,
+skipping any an existing rule (enabled or not) already covers on every date of
+the next five years; `AppSettings.publicHolidays` remembers the set and the
+rule ids it created, for "Remove these holidays", and whether the card was
+answered. The stored name is the one for the phone's language: local on a phone
+in the set's language, English on an English phone, otherwise the local name
+(which is what the employer's calendar and the payslip say).
+
+**Working a public holiday.** The day stays a holiday: its contracted hours are
+credited and every hour worked comes on top (`balance = worked + credited −
+expected`), and those hours earn the Sunday & holiday surcharge — the usual
+arrangement in Germany and Austria (Feiertagsentgelt plus pay for the work).
+"I worked" therefore prefills the week's times without setting the day type
+(`PeriodEngine.draftRecord(…, working: true)`); choosing Work explicitly would
+drop the credit. `DayComputation.isWorkedPublicHoliday` marks the calendar cell.
+A site's month does not outline a public holiday as unwritten, and the evening
+site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
+
 ## Persistence
 
 - **SwiftData** for entities: `DayEntry` (one per `dateKey`) and
   `HolidayRecord`, and for job sites `SiteEntry`, `CrewMemberEntry` and
-  `SiteDayEntry` (one per site and `dateKey`). These are records the user
-  creates, queries and exports.
+  `SiteDayEntry` (one per site and `dateKey`), and since 1.1 the site diary:
+  `SiteDiaryEntry` (one per site and `dateKey`), `SiteDiaryPhotoEntry` and
+  `CrewSignatureEntry` (one per site, person and month). These are records
+  the user creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -267,6 +372,16 @@ lightweight migration. Settings decode leniently: every field falls back to its
 default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
+
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4, every
+stage lightweight. The live classes are always the newest version; the moment
+a new version is added, the previous one gets frozen copies of the classes
+column for column (V2 and V3 hold theirs), because a version must keep
+describing exactly what stores written by it hold. V4 (1.1) adds
+`SiteDayEntry.isBadWeatherStop` with a default, and the three diary entities
+with a default on every property. Diary photos are `@Attribute(.externalStorage)`
+JPEGs: the database file stays small, a fetch of the rows (the month grid's
+marks) never reads an image, and with sync on they travel as CloudKit assets.
 
 **Uniqueness is a rule, not a constraint.** `dateKey` used to carry
 `@Attribute(.unique)`. It does not any more, for two reasons that arrive
@@ -289,6 +404,28 @@ It also writes your own calendar day in the same save as the site day, through
 `WorkdayRepository` and under the same month lock, and when duplicate site days
 collapse it rewrites the calendar day for that date, so the site and your
 calendar never keep different hours.
+
+**The diary is not under the month lock.** `SiteDiaryRepository` writes the
+diary, its photos and the crew's signatures without consulting `MonthLock`.
+The lock keeps a closed month's hours as they were handed in, and none of this
+is hours: a diary written up the next morning or a crew signing their month —
+which happens after the month ends, usually after it is closed — must still be
+possible. Its methods avoid the names `save` and `delete` so
+`check-repository-lock.py` does not take them for the hours' writes. A rained-off
+stop *is* hours, so it goes through `SiteRepository` and the lock like any
+other change to a site day.
+
+**Backups.** The diary, its photos and the signatures are three optional lists
+in the backup JSON (`diaries`, `diaryPhotos`, `signatures`). The format version
+stays 1: they are additions 1.0 skips without complaint, where a new version
+number would make 1.0 refuse the whole file. Photos go in as base64 inside the
+one file, so a backup is still a single file through a single door. The price
+is size: a stored photo is about 200–500 KB, a third more as base64, so a month
+with three photos on twenty days adds roughly 15–30 MB. A file that carries the
+lists replaces what is on the device; a file from before them keeps the
+device's diary for the sites it restores and drops it for sites it removes
+(`BackupArchive.restoredItems`). Deleting everything takes the diary with the
+sites.
 
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
@@ -439,12 +576,51 @@ The flag lives in its own `UserDefaults` key, like the sync preference, because
 it belongs to the installation rather than to the data. UI tests start from what
 a fresh install looks like, so they see it only when `-hours-first-run` asks.
 
+## Sites: bad weather, the diary and sign-off
+
+**Bad weather** (Schlechtwetter) is a built-in day type, `.badWeather`, paid
+like a holiday by default and editable like the other built-ins. Being built in,
+it appears for everyone who updates with nothing stored or migrated; a custom
+type with the same id overrides it, as with every built-in. A site day can be
+stopped for the whole crew (`SiteDay.stoppedForBadWeather(at:)`): with no time,
+nobody worked and the times go but who was there stays; with a time ("stopped at
+11:00") the hours up to it stand. A full stop gives your own day the Bad weather
+type when nothing else is on it — no type you chose, no other hours. A partial
+stop does not: the type credits the contracted day, and on top of the hours
+already worked that would count them twice, so that day stays hours worked.
+`SiteCalendarSync.merged` is told the site days as they stood before the change,
+which is how lifting, unticking or deleting a stop takes the type it put on back
+off without touching a Bad weather day you chose yourself. Bad-weather days are
+counted on the site's month header and as a tile on the director's sheet, whose
+note column leads with "Bad weather" on those days.
+
+**The site diary** (Bautagebuch) is one `SiteDiary` per site and day — weather,
+a temperature typed by hand, and four texts — plus up to six `DiaryPhoto`s. It
+is independent of the hours: it can exist with none, and deleting the hours
+leaves it. A blank diary is not stored. The weather is picked, never fetched.
+
+**Crew sign-off.** Each person reads their month on your phone and signs with a
+finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
+few hundred numbers in a backup) and a fingerprint of that person's hours at the
+moment of signing (`SignatureFingerprint`, FNV-1a over their days' start, end,
+break and minutes — Linux-safe and stable across devices). When the hours change
+afterwards the fingerprint no longer matches and the sign-off and the sheet say
+"changed after signing". Signing again replaces the old signature.
+
 ## Export
 
 One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,
 totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
+
+A director's sheet can carry the site diary and the crew's sign-off. In the PDF
+they are pages of their own after the table (`PDFAppendix`), laid out before
+drawing so the footer's page count includes them; with nobody signed and no
+diary included the sheet prints exactly as before. Diary photos are drawn from
+small JPEGs (900 px) so the PDF keeps the compressed bytes instead of every
+pixel. In the workbook the diary is a second sheet, a row per day. The CSV
+stays one table, which is what a CSV importer expects: no diary there.
 
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and
@@ -478,6 +654,16 @@ The preference deliberately lives outside `AppSettings`, in its own
 taken on a synced device onto a different phone must not quietly start
 uploading someone's hours. Sync is a property of an installation, not of the
 data.
+
+**The camera and photos.** The diary's photo picker is `PhotosPicker`, which
+runs out of process and needs no photo-library permission: the app only ever
+sees the pictures chosen. The camera is `UIImagePickerController` and asks for
+camera access with a purpose string, the first and only permission the diary
+adds. Every photo, picked or taken, is decoded and written again as a new JPEG
+with no metadata at all (`DiaryPhotoProcessor`), which is what takes the GPS
+coordinates out: the app does not access location, and keeping it in a picture
+handed to a director would break that by the back door. The weather is picked by
+hand; there is no weather service.
 
 The privacy screen is written from `HoursStack.isSyncing` rather than from what
 the app intends in general — it reports the store that actually opened. A

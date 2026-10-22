@@ -32,7 +32,8 @@ struct SiteSheetBuilder: Sendable {
         site: Site,
         crew: [CrewMember],
         results: [SiteDayResult],
-        range: CalendarDateRange
+        range: CalendarDateRange,
+        signatures: [CrewSignature] = []
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -96,7 +97,7 @@ struct SiteSheetBuilder: Sendable {
                 values.append(duration.string(entry.workedMinutes))
                 minutes += [nil, entry.workedMinutes]
             }
-            values.append(result.day.note)
+            values.append(noteText(for: result.day, language: language))
             minutes.append(nil)
             rows.append(ReportRow(
                 id: date.key,
@@ -175,6 +176,12 @@ struct SiteSheetBuilder: Sendable {
             ReportTile(label: language(.crewHours), value: duration.string(crewMinutes)),
             ReportTile(label: language(.people), value: "\(people.count)")
         ]
+        // Counted apart, and only when there were any: a month without a stop
+        // has nothing to say about the weather.
+        let badWeatherDays = byDate.values.filter(\.day.isBadWeatherStop).count
+        if badWeatherDays > 0 {
+            table.tiles.append(ReportTile(label: language(.badWeatherDays), value: "\(badWeatherDays)"))
+        }
         // "Hours after the break" is only true where the break is unpaid. A
         // site follows the job frozen on each day, so a month can hold both.
         let payRule = WorkdayCalculator(settings: settings, calendar: calendar)
@@ -185,7 +192,66 @@ struct SiteSheetBuilder: Sendable {
         default: table.legend = language(.siteLegend)
         }
         table.signatures = [language(.checkedSignature)]
+        table.signOff = signOff(
+            people: people.enumerated().map { ($0.element.id, $0.element.heading, duration.string(totalMinutes[$0.offset])) },
+            site: site,
+            results: Array(byDate.values),
+            range: range,
+            signatures: signatures,
+            language: language,
+            formatting: formatting
+        )
         return table
+    }
+
+    /// A box for everyone on the sheet, once anyone has signed for this
+    /// month: their hours, their signature or a blank line, and a mark where
+    /// their hours changed after they signed. With nobody signed the sheet
+    /// keeps its one "checked" line, as before.
+    private func signOff(
+        people: [(id: UUID, name: String, hours: String)],
+        site: Site,
+        results: [SiteDayResult],
+        range: CalendarDateRange,
+        signatures: [CrewSignature],
+        language: ExportLanguage,
+        formatting: CalendarFormatting
+    ) -> [ReportSignOff] {
+        let month = range.start.yearMonth
+        let relevant = signatures.filter { $0.siteID == site.id && $0.month == month }
+        guard !relevant.isEmpty else { return [] }
+        return people.map { person in
+            let latest = SignOff.latest(for: person.id, in: relevant, month: month)
+            let state = SignOff.state(for: person.id, signatures: relevant, results: results, month: month)
+            let status: String
+            switch state {
+            case .unsigned:
+                status = ""
+            case let .signed(date):
+                status = "\(language(.signedOn)) \(formatting.dateWithYear(date))"
+            case let .changedAfterSigning(date):
+                status = "\(language(.changedAfterSigning)) · \(language(.signedOn)) \(formatting.dateWithYear(date))"
+            }
+            var isChanged = false
+            if case .changedAfterSigning = state { isChanged = true }
+            return ReportSignOff(
+                memberID: person.id,
+                name: person.name,
+                hours: person.hours,
+                status: status,
+                isChanged: isChanged,
+                strokes: latest?.strokes ?? [],
+                aspectRatio: latest?.aspectRatio ?? 3
+            )
+        }
+    }
+
+    /// The day's note, led by "Bad weather" on a day the crew was rained
+    /// off, so a director scanning the notes sees why the hours stop short.
+    private func noteText(for day: SiteDay, language: ExportLanguage) -> String {
+        guard day.isBadWeatherStop else { return day.note }
+        let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
     }
 
     /// The same test the timesheet's end column uses for "(+1)".

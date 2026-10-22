@@ -390,4 +390,13 @@ final class PersistenceCodingTests: XCTestCase {
         let record = HolidayRecord(rule: rule)
         XCTAssertEqual(record.rule, rule)
     }
+
+    func testAnEasterHolidayRecordRoundTrips() {
+        let rule = HolidayRule(name: "Ostermontag", recurrence: .easter(offset: 1))
+        let record = HolidayRecord(rule: rule)
+        XCTAssertEqual(record.rule, rule)
+        XCTAssertNil(HolidayRecurrence.Kind(rawValue: record.kindRawValue), "1.0 reads it as annual 31 February")
+        XCTAssertEqual(record.month, 2)
+        XCTAssertEqual(record.day, 31)
+    }
 }

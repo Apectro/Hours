@@ -14,7 +14,10 @@ enum PDFReportRenderer {
     /// short comes out narrower than the text it draws.
     static var margin: CGFloat { PDFReportStyle.margin }
 
-    static func data(for table: ReportTable, generatedOn date: Date = Date()) -> Data {
+    /// - Parameter photos: the site diary's photos by id, as small JPEGs
+    ///   (`DiaryPhotoProcessor.printJPEG`); only a director's sheet with its
+    ///   diary included has any.
+    static func data(for table: ReportTable, photos: [UUID: Data] = [:], generatedOn date: Date = Date()) -> Data {
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = [
             kCGPDFContextTitle as String: table.title,
@@ -30,12 +33,23 @@ enum PDFReportRenderer {
             layout: layout,
             widths: layout.columnWidths(availableWidth: PDFReportStyle.contentWidth)
         )
-        let decorations = PDFPageDecorations(table: table, layout: layout, generatedOn: date, pageCount: plans.count)
+        // The sign-off and the diary follow the table on pages of their own,
+        // and count in the footer's "of".
+        let appendix = PDFAppendix(table: table, photos: photos.compactMapValues { DiaryPhotoProcessor.printableImage(from: $0) })
+        let extra = appendix.pages()
+        let decorations = PDFPageDecorations(
+            table: table, layout: layout, generatedOn: date, pageCount: plans.count + extra.count
+        )
 
         return renderer.pdfData { context in
             for plan in plans {
                 context.beginPage()
                 draw(plan, table: table, painter: painter, decorations: decorations)
+            }
+            for (index, page) in extra.enumerated() {
+                context.beginPage()
+                autoreleasepool { appendix.draw(page) }
+                decorations.drawFooter(page: plans.count + index + 1, isLast: false)
             }
         }
     }
