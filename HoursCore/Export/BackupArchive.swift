@@ -39,6 +39,16 @@ struct BackupArchive: Codable, Sendable {
     var diaryPhotos: [DiaryPhoto]?
     var signatures: [CrewSignature]?
 
+    /// Extra work (1.1): the jobs, their photos, the reports that were sent
+    /// and the remembered items. Optional, and outside the format version,
+    /// for the reasons the diary is: nil is a file from before them, and 1.0
+    /// skips keys it does not know. Set after `init`, so the initialiser
+    /// every caller uses is unchanged.
+    var extraWorkJobs: [ExtraWorkJob]? = nil
+    var extraWorkPhotos: [ExtraWorkPhoto]? = nil
+    var extraWorkReports: [ExtraWorkReportRecord]? = nil
+    var extraWorkItems: [ExtraWorkCatalogItem]? = nil
+
     /// Days that were in the file and could not be read.
     ///
     /// Damage is rarely total. One day mangled by a bad edit, a truncated
@@ -98,6 +108,7 @@ struct BackupArchive: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case formatVersion, exportedAt, settings, days, holidays, sites, crew, siteDays
         case diaries, diaryPhotos, signatures
+        case extraWorkJobs, extraWorkPhotos, extraWorkReports, extraWorkItems
     }
 
     /// Written out rather than synthesised, so that `damagedDays` being absent
@@ -117,6 +128,10 @@ struct BackupArchive: Codable, Sendable {
         try container.encodeIfPresent(diaries, forKey: .diaries)
         try container.encodeIfPresent(diaryPhotos, forKey: .diaryPhotos)
         try container.encodeIfPresent(signatures, forKey: .signatures)
+        try container.encodeIfPresent(extraWorkJobs, forKey: .extraWorkJobs)
+        try container.encodeIfPresent(extraWorkPhotos, forKey: .extraWorkPhotos)
+        try container.encodeIfPresent(extraWorkReports, forKey: .extraWorkReports)
+        try container.encodeIfPresent(extraWorkItems, forKey: .extraWorkItems)
     }
 
     /// What a restore leaves of a kind of site record the file may not know
@@ -136,6 +151,13 @@ struct BackupArchive: Codable, Sendable {
         if let fromFile { return fromFile }
         guard let restoredSiteIDs else { return onDevice }
         return onDevice.filter { restoredSiteIDs.contains($0[keyPath: siteID]) }
+    }
+
+    /// The remembered extra-work items belong to the user rather than to a
+    /// site: a file that carries them replaces the device's, and one from
+    /// before them keeps the device's.
+    static func restoredCatalog(fromFile: [ExtraWorkCatalogItem]?, onDevice: [ExtraWorkCatalogItem]) -> [ExtraWorkCatalogItem] {
+        fromFile ?? onDevice
     }
 
     /// A day that was in the file and could not be read.
@@ -241,6 +263,10 @@ struct BackupArchive: Codable, Sendable {
             signatures: container.lenientOptional(.signatures),
             damagedDays: damaged
         )
+        extraWorkJobs = container.lenientOptional(.extraWorkJobs)
+        extraWorkPhotos = container.lenientOptional(.extraWorkPhotos)
+        extraWorkReports = container.lenientOptional(.extraWorkReports)
+        extraWorkItems = container.lenientOptional(.extraWorkItems)
     }
 }
 
