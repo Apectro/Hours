@@ -43,13 +43,17 @@ struct BackupRestorer {
         let workdays = WorkdayRepository(context: context)
         let siteRepository = SiteRepository(context: context)
         let sites = siteRepository.sites(includeArchived: true)
+        let diary = SiteDiaryRepository(context: context).everything()
         return BackupArchive(
             settings: settings,
             days: workdays.allEntries().map(\.record),
             holidays: workdays.holidayRules(),
             sites: sites,
             crew: sites.flatMap { siteRepository.crew(for: $0.id, includeHidden: true) },
-            siteDays: siteRepository.siteDays(siteID: nil, in: Self.everything)
+            siteDays: siteRepository.siteDays(siteID: nil, in: Self.everything),
+            diaries: diary.diaries,
+            diaryPhotos: diary.photos,
+            signatures: diary.signatures
         )
     }
 
@@ -92,11 +96,34 @@ struct BackupRestorer {
                 siteDays: archive.siteDays ?? []
             )
         }
+        restoreDiary(from: archive)
 
         rebuildSiteShifts(workdays: workdays, siteRepository: siteRepository)
     }
 
-    /// Removes every day, holiday, site, crew member and site day.
+    /// The diary, its photos and the signatures: replaced by the file's when
+    /// it has them; from a file older than them, the device's are kept for the
+    /// sites the file restores and dropped for the sites it removed
+    /// (`BackupArchive.restoredItems`).
+    private func restoreDiary(from archive: BackupArchive) {
+        let diaryRepository = SiteDiaryRepository(context: context)
+        let onDevice = diaryRepository.everything()
+        let restoredSites = archive.sites.map { Set($0.map(\.id)) }
+        diaryRepository.replaceAll(
+            diaries: BackupArchive.restoredItems(
+                fromFile: archive.diaries, onDevice: onDevice.diaries, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            photos: BackupArchive.restoredItems(
+                fromFile: archive.diaryPhotos, onDevice: onDevice.photos, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            signatures: BackupArchive.restoredItems(
+                fromFile: archive.signatures, onDevice: onDevice.signatures, restoredSiteIDs: restoredSites, siteID: \.siteID
+            )
+        )
+    }
+
+    /// Removes every day, holiday, site, crew member and site day, and every
+    /// diary, photo and signature.
     ///
     /// Sites go with the days because the calendar's site shifts are made from
     /// them: keeping one without the other would leave the two disagreeing.
@@ -105,6 +132,8 @@ struct BackupRestorer {
         workdays.deleteAllDays()
         workdays.deleteAllHolidays()
         SiteRepository(context: context, lock: .unlocked).replaceAll(sites: [], crew: [], siteDays: [])
+        // A site's diary, photos and signatures go with it.
+        SiteDiaryRepository(context: context).replaceAll(diaries: [], photos: [], signatures: [])
     }
 
     /// Brings the calendar's site shifts into line with the site days now in

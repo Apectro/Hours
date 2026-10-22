@@ -156,25 +156,150 @@ enum HoursSchemaV2: VersionedSchema {
     }
 }
 
-/// The stored shape now: V2's two entities unchanged, plus sites, their crews
-/// and the days worked on them.
+/// The stored shape from sites until the site diary: V2's two entities,
+/// plus sites, their crews and the days worked on them.
 ///
-/// The models themselves stay at the top level rather than nested in here, so
-/// that the rest of the app says `DayEntry` and not `HoursSchemaV3.DayEntry`.
-/// When V4 comes, this gets frozen copies the way V2 did.
+/// Frozen, for the reason V2 is: until V4 these were the live top-level
+/// classes, and a version must keep describing exactly what stores written
+/// by it hold. Copies of the five classes as they stood, column for column.
 enum HoursSchemaV3: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(3, 0, 0) }
 
     static var models: [any PersistentModel.Type] {
         [DayEntry.self, HolidayRecord.self, SiteEntry.self, CrewMemberEntry.self, SiteDayEntry.self]
     }
+
+    @Model
+    final class DayEntry {
+        var dateKey: Int = 0
+
+        var dayTypeRawValue: String?
+        var shiftsData: Data?
+        var startMinutes: Int?
+        var endMinutes: Int?
+        var breaksData: Data?
+
+        var manualWorkedMinutes: Int?
+        var expectedOverrideMinutes: Int?
+        var manualBalanceMinutes: Int?
+        var adjustmentMinutes: Int = 0
+        var adjustmentReasonRawValue: String = "correction"
+
+        var note: String = ""
+        var locationName: String = ""
+        var tagsJoined: String = ""
+
+        var isIncluded: Bool = true
+        var timeZoneIdentifier: String?
+
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(dateKey: Int) {
+            self.dateKey = dateKey
+        }
+    }
+
+    @Model
+    final class HolidayRecord {
+        var identifier: UUID = UUID()
+        var name: String = ""
+
+        var kindRawValue: String = "annual"
+        var year: Int = 2000
+        var month: Int = 1
+        var day: Int = 1
+        var weekday: Int = 2
+        var ordinal: Int = 1
+        var startYear: Int?
+        var endYear: Int?
+
+        var countsAsWorkingDay: Bool = false
+        var isEnabled: Bool = true
+        var notes: String = ""
+        var createdAt: Date = Date()
+
+        init(identifier: UUID) {
+            self.identifier = identifier
+        }
+    }
+
+    @Model
+    final class SiteEntry {
+        var siteID: String = ""
+        var name: String = ""
+        var jobID: String?
+        var isArchived: Bool = false
+        var sortOrder: Int = 0
+        var updatedAt: Date = Date()
+
+        init(siteID: String) {
+            self.siteID = siteID
+        }
+    }
+
+    @Model
+    final class CrewMemberEntry {
+        var memberID: String = ""
+        var siteID: String = ""
+        var name: String = ""
+        var isHidden: Bool = false
+        var sortOrder: Int = 0
+        var updatedAt: Date = Date()
+
+        init(memberID: String) {
+            self.memberID = memberID
+        }
+    }
+
+    @Model
+    final class SiteDayEntry {
+        var siteID: String = ""
+        var dateKey: Int = 0
+
+        var startMinutes: Int?
+        var endMinutes: Int?
+        var breakMinutes: Int = 0
+
+        var presentData: Data?
+
+        var note: String = ""
+        var jobID: String?
+
+        var createdAt: Date = Date()
+        var updatedAt: Date = Date()
+
+        init(siteID: String, dateKey: Int) {
+            self.siteID = siteID
+            self.dateKey = dateKey
+        }
+    }
+}
+
+/// The stored shape now: V3's five entities, a bad-weather flag on the site
+/// day, and the site diary, its photos and the crew's signatures.
+///
+/// The models themselves stay at the top level rather than nested in here, so
+/// that the rest of the app says `DayEntry` and not `HoursSchemaV4.DayEntry`.
+/// When V5 comes, this gets frozen copies the way V3 did.
+enum HoursSchemaV4: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(4, 0, 0) }
+
+    static var models: [any PersistentModel.Type] {
+        [
+            DayEntry.self, HolidayRecord.self, SiteEntry.self, CrewMemberEntry.self, SiteDayEntry.self,
+            SiteDiaryEntry.self, SiteDiaryPhotoEntry.self, CrewSignatureEntry.self
+        ]
+    }
 }
 
 /// How a store gets from one version to the next.
 ///
-/// Both stages are lightweight, because nothing about existing data changes.
+/// Every stage is lightweight, because nothing about existing data changes.
 /// V1 to V2 keeps every column's name and type and only drops a constraint;
-/// V2 to V3 only adds three entities, each with a default on every property.
+/// V2 to V3 only adds three entities, each with a default on every property;
+/// V3 to V4 adds one column with a default to the site day, and three
+/// entities with a default on every property.
 /// There is nothing to transform, and a custom stage would only be somewhere
 /// for a bug to live.
 ///
@@ -185,11 +310,11 @@ enum HoursSchemaV3: VersionedSchema {
 /// what `MigrationTests` does.
 enum HoursMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [HoursSchemaV1.self, HoursSchemaV2.self, HoursSchemaV3.self]
+        [HoursSchemaV1.self, HoursSchemaV2.self, HoursSchemaV3.self, HoursSchemaV4.self]
     }
 
     static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3]
+        [migrateV1toV2, migrateV2toV3, migrateV3toV4]
     }
 
     static let migrateV1toV2 = MigrationStage.lightweight(
@@ -200,5 +325,10 @@ enum HoursMigrationPlan: SchemaMigrationPlan {
     static let migrateV2toV3 = MigrationStage.lightweight(
         fromVersion: HoursSchemaV2.self,
         toVersion: HoursSchemaV3.self
+    )
+
+    static let migrateV3toV4 = MigrationStage.lightweight(
+        fromVersion: HoursSchemaV3.self,
+        toVersion: HoursSchemaV4.self
     )
 }

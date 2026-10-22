@@ -37,6 +37,8 @@ struct SiteDayScreen: View {
     @State private var stored: SiteDay?
     /// Every stored day under the grid, borrowed neighbouring days included.
     @State private var monthDays: [SiteDay] = []
+    /// Date keys under the grid with a diary or a diary photo.
+    @State private var diaryDateKeys: Set<Int> = []
     /// What "Same as last day" would fill in, if there is an earlier day.
     @State private var lastDay: SiteDay?
     /// The date "Same as last day" copies from. Kept apart from `lastDay`,
@@ -65,11 +67,13 @@ struct SiteDayScreen: View {
     private enum ActiveSheet: Identifiable {
         case person(PersonReference)
         case siteTimes
+        case weatherStop
 
         var id: String {
             switch self {
             case let .person(person): return "person-\(person.id.uuidString)"
             case .siteTimes: return "site-times"
+            case .weatherStop: return "weather-stop"
             }
         }
     }
@@ -101,12 +105,30 @@ struct SiteDayScreen: View {
                     calendar: calendar,
                     formatting: formatting,
                     onSelect: select,
-                    onStep: step
+                    onStep: step,
+                    diaryDateKeys: diaryDateKeys,
+                    badWeatherDateKeys: badWeatherDateKeys
                 )
 
                 monthSummary
 
                 dayCard
+
+                if !showsUnwrittenChoice {
+                    SiteWeatherStopRow(
+                        day: day,
+                        canEdit: canEdit,
+                        onStopAll: { commit(day.stoppedForBadWeather(at: nil)) },
+                        onStopAt: { activeSheet = .weatherStop },
+                        onLift: { commit(day.liftingBadWeatherStop()) }
+                    )
+                }
+
+                // Not under the month lock (see `SiteDiaryRepository`): only a
+                // read-only site stops the diary. Rebuilt per date, so a draft
+                // never lands on another day.
+                SiteDiaryCard(siteID: site.id, date: date, canEdit: !isReadOnly, onChange: reloadDiaryMarks)
+                    .id(date.key)
             }
             .padding(.horizontal, Metrics.large)
             .padding(.bottom, Metrics.extraLarge)
@@ -141,6 +163,12 @@ struct SiteDayScreen: View {
                     defaultEnd: settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: commit
                 )
+            case .weatherStop:
+                WeatherStopSheet(
+                    day: day,
+                    suggested: day.end ?? settings.primarySchedule(on: day.date).defaultEnd,
+                    onSave: { stop in commit(stoppedAt(stop)) }
+                )
             }
         }
         .alert(
@@ -162,21 +190,25 @@ struct SiteDayScreen: View {
     }
 
     private var monthSummary: some View {
-        let written = monthDays.filter { month.contains($0.date) }
-        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
-        let results = written.map { calculator.compute($0) }
-        let crewMinutes = results.reduce(0) { $0 + $1.crewTotalMinutes }
-        let yourMinutes = results.reduce(0) { total, result in
-            total + (result.people.first(where: { $0.memberID == CrewMember.youID })?.workedMinutes ?? 0)
-        }
+        let figures = SiteMonthFigures(
+            days: monthDays,
+            month: month,
+            calculator: SiteDayCalculator(settings: settings, calendar: calendar)
+        )
 
         return SurfaceCard {
             HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(label: String(localized: "Days written"), value: "\(written.count)")
+                StatTile(label: String(localized: "Days written"), value: "\(figures.daysWritten)")
                 Divider().frame(height: 34)
-                StatTile(label: String(localized: "Crew hours"), value: formatter.string(crewMinutes))
+                StatTile(label: String(localized: "Crew hours"), value: formatter.string(figures.crewMinutes))
                 Divider().frame(height: 34)
-                StatTile(label: String(localized: "You"), value: formatter.string(yourMinutes))
+                StatTile(label: String(localized: "You"), value: formatter.string(figures.yourMinutes))
+                // Only in a month the weather stopped work.
+                if figures.badWeatherDays > 0 {
+                    Divider().frame(height: 34)
+                    StatTile(label: String(localized: "Bad weather"), value: "\(figures.badWeatherDays)")
+                        .accessibilityIdentifier("site-month-bad-weather")
+                }
             }
         }
     }
@@ -271,6 +303,18 @@ struct SiteDayScreen: View {
         MonthLayout.make(month: month, calendar: calendar, includesWeekends: true)
     }
 
+    private var badWeatherDateKeys: Set<Int> {
+        Set(monthDays.filter(\.isBadWeatherStop).map(\.date.key))
+    }
+
+    /// "Stopped at" on the selected day, with the site's start kept, or the
+    /// schedule's when the day had none yet.
+    private func stoppedAt(_ stop: TimeOfDay) -> SiteDay {
+        var next = day
+        if next.start == nil { next.start = settings.primarySchedule(on: day.date).defaultStart }
+        return next.stoppedForBadWeather(at: stop)
+    }
+
     private var presentCounts: [Int: Int] {
         Dictionary(monthDays.map { ($0.date.key, $0.present.count) }, uniquingKeysWith: { first, _ in first })
     }
@@ -302,6 +346,15 @@ struct SiteDayScreen: View {
 
     private func reloadMonth() {
         monthDays = repository.siteDays(siteID: site.id, in: layout.coveredRange)
+        reloadDiaryMarks()
+    }
+
+    private func reloadDiaryMarks() {
+        diaryDateKeys = Set(
+            SiteDiaryRepository(context: modelContext)
+                .datesWithEntries(siteID: site.id, in: layout.coveredRange)
+                .map(\.key)
+        )
     }
 
     /// A tap in the grid. A day borrowed from a neighbouring month moves the
