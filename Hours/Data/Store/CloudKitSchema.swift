@@ -17,7 +17,7 @@ import SwiftData
 /// Compiled into Debug builds, started with the launch argument below from
 /// Xcode, and into TestFlight builds made with the workflow's "CloudKit
 /// development" switch, started from a button in Settings › iCloud. The
-/// owner's steps are in ARCHITECTURE.md (Persistence, iCloud sync).
+/// owner's steps are in README.md, *iCloud*.
 enum CloudKitSchema {
     static let launchArgument = "-hours-initialize-cloudkit-schema"
 

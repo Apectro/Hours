@@ -70,8 +70,8 @@ This is what makes the awkward cases fall out for free:
 - Travelling across time zones cannot move an entry to a different day.
 - A DST transition cannot shift a stored time.
 - Editing a day recorded three years ago behaves identically to editing today.
-- `@Attribute(.unique)` on the date key makes duplicate entries impossible at
-  the storage layer rather than by convention.
+- One entry per date is a rule the repository keeps (see *Uniqueness is a
+  rule* under Persistence), so it holds across synced devices too.
 
 The cost is that "how long was the shift" needs an explicit answer on the two
 clock-change days a year, so it is a setting: `DurationPolicy.wallClock`
@@ -399,6 +399,18 @@ Last edit wins rather than a merge. Hours are not meaningfully mergeable: a
 start time from one device and an end time from another would invent a shift
 nobody worked.
 
+Every synced record has a natural key both devices agree on, or an id only one
+device ever makes: a day by `dateKey`; a site day and a diary by site and
+`dateKey`; a signature by site, person and month; sites, crew members and
+photos by their ids. Holiday rules are the exception — the same "Christmas Day"
+added on two phones before they synced has two ids — so after the id collapse
+`HolidayDuplicates` removes rules that say exactly what an older rule says
+(recurrence, name ignoring case, working day, enabled, notes). There the tie
+*can* break on the id, because the id travels with the rule and every device
+picks the same survivor. Sites and crew made separately on two devices are not
+merged: attendances point at their ids, and two sites with one name may be two
+sites.
+
 `SiteRepository` holds the same rule for sites, crew members and site days.
 It also writes your own calendar day in the same save as the site day, through
 `WorkdayRepository` and under the same month lock, and when duplicate site days
@@ -426,6 +438,81 @@ lists replaces what is on the device; a file from before them keeps the
 device's diary for the sites it restores and drops it for sites it removes
 (`BackupArchive.restoredItems`). Deleting everything takes the diary with the
 sites.
+
+**iCloud sync.** Off by default, per installation, and the same store file
+with or without it: `HoursModelContainer.make` changes only `cloudKitDatabase`,
+so turning sync on mirrors every row already there (CloudKit mirroring exports
+a store's existing rows the first time it is set up on it) and turning it off
+keeps everything. `Scripts/check-cloudkit-models.py` holds the newest schema
+version to what CloudKit accepts — every attribute optional or defaulted, no
+unique constraint, relationships optional with an inverse and no `.deny` — on
+every push; V4 passed as it stood, so no V5 was needed.
+
+*No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
+launch: it opened a syncing store without being signed for iCloud, CloudKit
+raised an Objective-C exception Swift cannot catch, and the remembered choice
+did it again next time. `SyncLaunch.plan` (engine, tested exhaustively) now
+decides each launch's store from the UI-test flag, the preference, the
+`ICLOUD_SYNC` flag, the entitlement and a mark:
+
+1. **The signature.** iOS has no public "do I have this entitlement" call, but
+   `codesign` writes the entitlements plist into the code signature at the end
+   of the executable. `CodeSignatureEntitlements` reads the app's own
+   (memory-mapped; Mach-O, `LC_CODE_SIGNATURE`, SuperBlob slot 5, every offset
+   bounds-checked) and `ICloudEntitlement` says whether CloudKit in
+   `iCloud.app.zeitkonto` is allowed. Not allowed, or unreadable: the local
+   store, sync switched off, and the reason. That is the 1.0 crash, prevented
+   before anything opens.
+2. **The mark.** A file (`SyncLaunchMark`, written before the iCloud store
+   opens, because a `UserDefaults` write may not reach the disk before a kill)
+   is cleared by `SyncMonitor` when CloudKit reports its setup finished, after
+   20 seconds alive, or on going to the background. A launch that finds it
+   still there opens locally and switches sync off: one crash, never a loop.
+3. **The fallback.** A store that throws opens locally, sync off.
+
+Whatever stops it, `SyncPreference.problem` remembers why and Settings › iCloud
+says "Sync couldn't start: …" until it is turned on again; a build compiled with
+sync but not signed for it shows the switch disabled with the reason. UI tests
+(`-hours-ui-testing`) always get the in-memory store and never read, touch or
+change any of this. The preference moved to a new key in 1.1, so the choice
+saved by the 1.0 builds that crashed does not start uploading by itself.
+
+`SyncMonitor` also collapses duplicates as soon as an import lands, and the
+screen shows a missing or restricted iCloud account (asked of CloudKit only
+while syncing, i.e. only once the build is proven to be allowed) and
+CloudKit's last error.
+
+*Settings* go through `NSUbiquitousKeyValueStore`, decided by `SettingsSync`
+(engine): iCloud's copy, last write wins, except when a device first joins it,
+when its own custom day types (its days carry their ids) and its rule ids for
+the same country's public holidays are kept beside iCloud's and written back.
+The first device uploads its settings at launch rather than at its next change.
+Restoring a backup on a syncing device replaces the settings and the data on
+every device; Backup and data says so.
+
+*Entitlements and builds.* `Hours.entitlements` carries the container, CloudKit,
+push (`aps-environment`; mirroring is told of changes by silent pushes, with
+`remote-notification` in `Hours-Info.plist`) and the key-value store.
+`aps-environment` and the CloudKit environment are build settings
+(`ZEITKONTO_APS_ENVIRONMENT`, `ZEITKONTO_CLOUDKIT_ENVIRONMENT`): development /
+Development in Debug, production / Production in Release, which this project
+only signs for distribution. Simulator CI builds (`CODE_SIGNING_ALLOWED=NO`)
+carry no entitlements and say so.
+
+*The CloudKit schema.* TestFlight and App Store builds use the Production
+environment, which cannot create record types on the fly; until the schema is
+deployed there, sync opens and uploads nothing. `CloudKitSchema` runs
+`initializeCloudKitSchema` on a scratch store with the same models (Apple's
+route for SwiftData): from the launch argument
+`-hours-initialize-cloudkit-schema` in Debug, or from a button in Settings ›
+iCloud in a TestFlight build made with the workflow's *CloudKit development*
+switch (`CLOUDKIT_SCHEMA_TOOLS`, Development environment — never one to submit).
+The schema is then deployed to Production in the CloudKit Console. The steps,
+including the container and the App ID, are in README.md, *iCloud*, and the
+TestFlight lane prints them; its preflight switches on the iCloud and Push
+capabilities with the API key, and the beta lane stops before building if the
+signing profile lacks the container, CloudKit or production push — the parts
+the API cannot do.
 
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
@@ -475,8 +562,9 @@ widget is `zeitkonto://site/<id>/same-as-last`; the app follows it by pushing a
 `SiteRoute` value onto the Sites tab's path, and the site screen then does what
 its own "Same as last day" button does, only where that button is offered.
 `AppLink` in the engine is the one spelling of these links for both sides. The
-scheme is the one thing in `Hours-Info.plist`, because a URL type has no
-build-setting form and the rest of the app's Info.plist is generated.
+scheme and the `remote-notification` background mode CloudKit needs are the
+only things in `Hours-Info.plist`, because neither has a build-setting form and
+the rest of the app's Info.plist is generated.
 
 **The Live Activity follows the snapshot.** Five paths start or stop the clock
 — the clock card, discarding, Siri, Shortcuts and the Live Activity's own stop
@@ -640,12 +728,15 @@ The Apple Watch app does not change that: WatchConnectivity carries the
 snapshot from the phone to the user's own paired watch directly, with no
 account and no server, and the watch keeps it on the watch.
 
-iCloud sync is off by default and opt-in. When it is on, the days and holidays
-go through SwiftData's own CloudKit mirroring into the user's private database,
-and the settings blob through `NSUbiquitousKeyValueStore` — settings are not in
-the SwiftData store, and a second device computing expected hours from a
-different contracted week would be wrong rather than merely different. Both are
-the user's own iCloud; neither we nor anyone else can read them.
+iCloud sync is off by default and opt-in. When it is on, everything in the
+store — days, holidays, sites, crews, the diary with its photos, signatures —
+goes through SwiftData's own CloudKit mirroring into the user's private
+database, and the settings blob through `NSUbiquitousKeyValueStore` — settings
+are not in the SwiftData store, and a second device computing expected hours
+from a different contracted week would be wrong rather than merely different.
+Both are the user's own iCloud; neither we nor anyone else can read them, so
+the App Store's "Data Not Collected" stays true. The privacy policy says so,
+and how to delete the iCloud copy.
 
 The preference deliberately lives outside `AppSettings`, in its own
 `UserDefaults` key. Settings travel in a backup file, and restoring a backup

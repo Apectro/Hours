@@ -87,7 +87,7 @@ ICLOUD_FIX = <<~TEXT.freeze
        no certificate is needed). Click Save and confirm the dialog about profiles.
     5. Run the workflow again. It makes new signing profiles by itself.
   Then, once, before testers turn sync on: the CloudKit schema (see "CloudKit schema" in the run's
-  output, or ARCHITECTURE.md → Persistence → iCloud sync).
+  output, or README.md → iCloud).
 TEXT
 
 CLOUDKIT_SCHEMA_STEPS = <<~TEXT.freeze
