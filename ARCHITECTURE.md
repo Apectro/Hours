@@ -375,8 +375,8 @@ default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
-**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5, every
-stage lightweight. The live classes are always the newest version; the moment
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6,
+every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
 describing exactly what stores written by it hold. V4 (1.1) adds
@@ -384,7 +384,12 @@ describing exactly what stores written by it hold. V4 (1.1) adds
 with a default on every property. Diary photos are `@Attribute(.externalStorage)`
 JPEGs: the database file stays small, a fetch of the rows (the month grid's
 marks) never reads an image, and with sync on they travel as CloudKit assets.
-V5 (1.1) adds the four extra-work entities and freezes V4's eight classes. Every
+V5 (1.1) adds the four extra-work entities and freezes V4's eight classes. V6
+(1.1) adds whether an extra-work job is finished — `isDone` and an optional
+`doneAt` — and freezes V5's twelve classes. `isDone` is stored with the default
+`true` on purpose: a lightweight stage fills an added column with its default,
+and every job a V5 store holds was written as finished work, before a job could
+be in progress; the app writes `false` itself for a new job. Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -438,7 +443,10 @@ other change to a site day.
 in the backup JSON (`diaries`, `diaryPhotos`, `signatures`), and extra work four
 more (`extraWorkJobs`, `extraWorkPhotos`, `extraWorkReports`, `extraWorkItems`),
 set after `init` so the initialiser stays as it was. Quantities are written as
-text ("12.5"), exact on every platform. The format version
+text ("12.5"), exact on every platform. A job's `isDone` and `doneAt` are
+optional keys: missing, the job is done (it was written before a job could be
+in progress); a decoder from before them skips them, and the status written is
+still only "open" or "sent". The format version
 stays 1: they are additions 1.0 skips without complaint, where a new version
 number would make 1.0 refuse the whole file. Photos go in as base64 inside the
 one file, so a backup is still a single file through a single door. The price
@@ -457,7 +465,9 @@ a store's existing rows the first time it is set up on it) and turning it off
 keeps everything. `Scripts/check-cloudkit-models.py` holds the newest schema
 version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
-every push; V4 passed as it stood, so no V5 was needed.
+every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
+initialises the live version's models; each version that adds a column (V6
+does) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -708,43 +718,66 @@ afterwards the fingerprint no longer matches and the sign-off and the sheet say
 
 ## Extra work
 
-**Extra work** (Regie, izvanugovorni radovi) is what a crew did beyond the
-contract, written down so the boss can invoice it. An `ExtraWorkJob` belongs to
-a site and a day: what was done, material lines (`ExtraWorkItem`: the user's
+**Extra work** (Zusatzarbeiten, dodatni radovi) is what a crew did beyond the
+contract, written down so the boss knows what is done. An `ExtraWorkJob` belongs
+to a site and a day: what was done, material lines (`ExtraWorkItem`: the user's
 own name, a `Decimal` quantity, an `ExtraWorkUnit` — pcs, m, m², m³, kg, h, set,
 or a unit typed in and kept as typed), optional hours per person, up to six
 photos (the diary's `DiaryPhotoProcessor`, so no metadata), and the client's
-optional signature (the crew sign-off's `SignatureCanvas` and points). **There
-is no money anywhere in it**, and it is never on the personal timesheet.
+optional signature (the crew sign-off's `SignaturePoint`s and canvas). **There
+is no money anywhere in it**, it is never on the personal timesheet, and the
+report is a progress report, not a bill: no invoice step, no invoicing words in
+any language (`ExtraWorkExportTests` checks), no empty lines to sign on.
 
-Its status is open → sent → invoiced. Sent is set by one rule,
-`ExtraWorkSending.marked`: only when the share sheet reports a completed share
-(`ShareSheetPresenter` uses `UIActivityViewController`, since `ShareLink` does
-not say), and then for every job in the report, recorded with an
-`ExtraWorkReportRecord`; a cancelled share changes nothing, and sharing a CSV
-marks nothing, since it is data rather than the report. Invoiced is marked by
-hand, from a sent job, and can be taken back.
+Two things are tracked, separately. **Is the work finished?** A job can run over
+several days, so `isDone` starts false and is ticked by the user — the 44-point
+checkmark beside the job (and a long-press item, since the day's rows are not a
+`List` and have no swipe), or "Work finished" in the editor; `doneAt` records
+when. A job decoded without the field — a V5 store, a backup from before — is
+done, since it was written as finished work. **Does the boss have it?** Its
+status is open → sent; sent is set by one rule, `ExtraWorkSending.marked`: only
+when the share sheet reports a completed share (`ShareSheetPresenter` uses
+`UIActivityViewController`, since `ShareLink` does not say), and then for every
+job in the report, recorded with an `ExtraWorkReportRecord`; a cancelled share
+changes nothing, and sharing a CSV marks nothing, since it is data rather than
+the report. Builds of 1.1 before it shipped had a third status, invoiced; a
+stored "invoiced" reads as sent. A job sent while in progress and finished since
+(`doneAt` after `sentAt`) is `awaitsReport` again: the boss heard it was under
+way, not that it is done. A job shows at most two chips — In progress / Finished,
+then Sent or Signed.
 
-The report (`ExtraWorkReport`, pure) is one site's jobs — not sent yet (every
-open job, whatever its date), this week, or picked dates — newest day first,
-with the material summed per item and unit: case, accents and spacing do not
+The report (`ExtraWorkReport`, pure) is one site's finished jobs — not sent yet
+(every finished job the boss does not have, whatever its date), this week, or
+picked dates — and those still in progress only when "Include jobs still in
+progress" is on; `ExtraWorkReport` keeps them apart (`done`, `inProgress`).
+Material is summed per item and unit over both: case, accents and spacing do not
 make a new item (`ExtraWorkCatalog.key`), and a line is named as it was most
-recently written. A signature under the report confirms every job in it.
-`ExtraWorkDocument` turns it into the export language's words: the PDF
-(`ExtraWorkPDFRenderer`, A4 portrait in the director's sheet's type, colours and
-signature drawing, jobs running on over pages), a workbook with Material and
-Jobs sheets (`XLSXWriter.data(sheets:)`, quantities as numbers through
-`ReportRow.numbers`), and a CSV of job lines with each job's hours on its first
-line only. Its words are `ExtraWorkTerm`s, kept beside `ExportTerm` in their own
-file with the same one-switch rule.
+recently written. The report screen lists every job on the site still in
+progress at the top, whatever the range, each with its checkmark.
+`ExtraWorkDocument` turns a report into the export language's words — "Extra
+work done · dates", the work done day by day with its photos first, then a
+"Still in progress" section if any, then the material used as a summary; tiles
+for jobs done, in progress, photos and hours, each only where it has something
+to say. A signature the client gave is printed as "Confirmed on site by
+<name>, <date>" with the drawing, on its job or under the report, and nothing is
+printed where there is none. Three renderings: the PDF (`ExtraWorkPDFRenderer`,
+A4 portrait in the director's sheet's type and colours, jobs running on over
+pages), a workbook with Jobs and Material sheets in that order
+(`XLSXWriter.data(sheets:)`, quantities as numbers through `ReportRow.numbers`),
+and a CSV of job lines with each job's hours on its first line only; a Status
+column appears in both only when jobs in progress are included, and a
+"Confirmed on site" column only when somebody confirmed. Its words are
+`ExtraWorkTerm`s, kept beside `ExportTerm` in their own file with the same
+one-switch rule.
 
 The remembered items ("Used before") are one list for the user, not per site:
 saving a job records its items, most recently used offered first.
 
 **Not under the month lock.** `ExtraWorkRepository` writes without
 `MonthLock`, for the diary's reason: none of it is anyone's hours, and the
-30th's extra work is sent after the month is closed. Its methods avoid `save`,
-`delete` and `replaceAll`.
+30th's extra work is finished and sent after the month is closed. The
+checkmark writes through `storeProgress(of:)`, which touches `isDone` and
+`doneAt` alone. Its methods avoid `save`, `delete` and `replaceAll`.
 
 ## Export
 

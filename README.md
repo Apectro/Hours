@@ -84,15 +84,20 @@ weather type. At month end each crew member checks their hours on your phone and
 signs with a finger; a signature whose hours change afterwards says so. The
 director's sheet can carry the diary and the signatures.
 
-**Extra work** (Regie) — what the crew did beyond the contract, written down so
-the boss can invoice it: "8 emergency lights and 10 lamps". Each job on a site
+**Extra work** — what the crew did beyond the contract, written down so the
+boss knows what is done: "8 emergency lights and 10 lamps". Each job on a site
 day has what was done, material with −/+ steppers (or a typed 12.5 m), the items
 used before offered as chips, optional hours per person, photos and the
-client's optional finger signature. The site's Report button sums the material
-over the jobs not sent yet, this week or picked dates, takes an optional
-signature under the lot, and sends a PDF (or a workbook, or a CSV) in the
-export language; the jobs are marked sent once the share goes through, and
-invoiced when you say so. Quantities only — never a price.
+client's optional finger signature. A job can run over several days: it is *in
+progress* until you tick it *finished* — the checkmark beside it, a long press,
+or "Work finished" in the editor — and the site's jobs still in progress are
+listed at the top of its report. The site's Report button tells the boss what
+is done — finished jobs not sent yet, this week or picked dates, and those still
+in progress only if you include them, in a section of their own — with the
+material used after the work, an optional signature under the lot, and sends a
+PDF (or a workbook, or a CSV) in the export language; the jobs are marked sent
+to the boss once the share goes through. It is a progress report, not a bill:
+quantities only, never a price, and no lines to fill in.
 
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what
 you earned rather than the hours balance: overtime at the same rate or with a
@@ -323,7 +328,9 @@ falls back to the phone's own. See ARCHITECTURE.md, *Persistence*.
 
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new
-schema version adds or changes stored models. A simulator or free-account build
+schema version adds or changes stored models. (Schema V6, in 1.1, adds whether an extra-work
+job is done — `isDone` and `doneAt` — so steps 3–4 are needed again before a
+1.1 build syncs it.) A simulator or free-account build
 is not signed for iCloud: the row is there, switched off, and says why.
 
 Sync is not a backup. A day you delete is deleted everywhere.
