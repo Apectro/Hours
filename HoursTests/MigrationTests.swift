@@ -253,6 +253,113 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<SiteDiaryEntry>()), 0)
     }
 
+    // MARK: - Extra work (V4 to V5)
+
+    /// Writes a store as 1.1 before extra work left one: the eight V4
+    /// entities, with V4's frozen copies — a diary, a photo, a signature.
+    private func writeVersionFourStore(siteDayKey: Int) throws -> UUID {
+        let schema = Schema(versionedSchema: HoursSchemaV4.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV4.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        context.insert(site)
+        let day = HoursSchemaV4.SiteDayEntry(siteID: siteID.uuidString, dateKey: siteDayKey)
+        day.startMinutes = 7 * 60
+        day.endMinutes = 16 * 60
+        day.isBadWeatherStop = true
+        context.insert(day)
+        let diary = HoursSchemaV4.SiteDiaryEntry(siteID: siteID.uuidString, dateKey: siteDayKey)
+        diary.workDone = "Cable trays"
+        context.insert(diary)
+        let photo = HoursSchemaV4.SiteDiaryPhotoEntry(photoID: UUID().uuidString)
+        photo.siteID = siteID.uuidString
+        photo.dateKey = siteDayKey
+        photo.jpegData = Data([1, 2, 3])
+        context.insert(photo)
+        context.insert(HoursSchemaV4.CrewSignatureEntry(siteID: siteID.uuidString, memberID: CrewMember.youID.uuidString, monthKey: siteDayKey / 100))
+        context.insert(HoursSchemaV4.DayEntry(dateKey: siteDayKey))
+        try context.save()
+        return siteID
+    }
+
+    /// A store from before extra work opens as V5 with its diary intact and
+    /// the extra-work entities there, empty, ready to write.
+    func testAVersionFourStoreOpensAsVersionFive() throws {
+        let siteID = try writeVersionFourStore(siteDayKey: 20_261_022)
+
+        let container = try HoursModelContainer.make(at: storeURL)
+        let context = ModelContext(container)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDayEntry>()).first?.isBadWeatherStop, true)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDiaryEntry>()).first?.workDone, "Cable trays")
+        XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDiaryPhotoEntry>()).first?.jpegData, Data([1, 2, 3]))
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<CrewSignatureEntry>()), 1)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkJobEntry>()), 0)
+
+        let job = ExtraWorkJob(
+            siteID: siteID, date: Fixture.date(2026, 10, 22), description: "Emergency lights",
+            items: [ExtraWorkItem(name: "Emergency light", quantity: 8, unit: .pieces)]
+        )
+        context.insert(ExtraWorkJobEntry(job: job))
+        context.insert(ExtraWorkPhotoEntry(photo: ExtraWorkPhoto(jobID: job.id, siteID: siteID, sortOrder: 0, jpegData: Data([4]))))
+        context.insert(ExtraWorkReportEntry(record: ExtraWorkReportRecord(siteID: siteID, sentAt: Date(), jobIDs: [job.id])))
+        context.insert(ExtraWorkItemEntry(item: ExtraWorkCatalogItem(name: "Emergency light", unit: .pieces)))
+        XCTAssertNoThrow(try context.save())
+    }
+
+    /// The oldest stores go the whole way, V1 to V5, in one open.
+    func testAVersionOneStoreReachesVersionFive() throws {
+        try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        XCTAssertEqual(WorkdayRepository(context: context).allEntries().count, 1)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkJobEntry>()), 0)
+    }
+
+    func testExtraWorkEntriesRoundTrip() {
+        let siteID = UUID()
+        var job = ExtraWorkJob(
+            siteID: siteID, date: Fixture.date(2026, 10, 22), description: "Lamps",
+            items: [ExtraWorkItem(name: "Cable", quantity: Decimal(string: "12.5")!, unit: .metres),
+                    ExtraWorkItem(name: "Tape", quantity: 2, unit: .custom("Rolle"))],
+            hours: [ExtraWorkHours(memberID: UUID(), name: "Ivan", minutes: 90)],
+            clientSignature: ExtraWorkSignature(signerName: "Horvat", signedAt: Date(timeIntervalSince1970: 1_792_000_000),
+                                                strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]]),
+            createdAt: Date(timeIntervalSince1970: 1_791_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_791_500_000)
+        )
+        job = job.markingSent(at: Date(timeIntervalSince1970: 1_792_000_000), reportID: UUID())
+        XCTAssertEqual(ExtraWorkJobEntry(job: job).job, job)
+
+        let photo = ExtraWorkPhoto(jobID: job.id, siteID: siteID, sortOrder: 2, jpegData: Data([9]))
+        XCTAssertEqual(ExtraWorkPhotoEntry(photo: photo).photo, photo)
+        let record = ExtraWorkReportRecord(siteID: siteID, sentAt: Date(timeIntervalSince1970: 1_792_000_000), jobIDs: [job.id],
+                                           clientSignature: job.clientSignature)
+        XCTAssertEqual(ExtraWorkReportEntry(record: record).record, record)
+        let item = ExtraWorkCatalogItem(name: "Cable", unit: .metres, useCount: 4, lastUsed: Date(timeIntervalSince1970: 1_792_000_000))
+        XCTAssertEqual(ExtraWorkItemEntry(item: item).item, item)
+    }
+
+    /// What a CloudKit-mirrored store demands of every entity, checked on the
+    /// schema the app opens: every attribute optional or with a default,
+    /// nothing unique, every relationship optional with an inverse.
+    func testEveryEntityIsOneCloudKitAccepts() {
+        for entity in HoursModelContainer.schema.entities {
+            for attribute in entity.attributes {
+                XCTAssertTrue(
+                    attribute.isOptional || attribute.defaultValue != nil,
+                    "\(entity.name).\(attribute.name) needs a default or must be optional"
+                )
+                XCTAssertFalse(attribute.isUnique, "\(entity.name).\(attribute.name) must not be unique")
+            }
+            for relationship in entity.relationships {
+                XCTAssertTrue(relationship.isOptional, "\(entity.name).\(relationship.name) must be optional")
+                XCTAssertNotNil(relationship.inverseKeyPath, "\(entity.name).\(relationship.name) needs an inverse")
+            }
+        }
+    }
+
     func testDiaryPhotoAndSignatureEntriesRoundTrip() {
         let siteID = UUID()
         let diary = SiteDiary(siteID: siteID, date: Fixture.date(2026, 8, 4), weather: .wind, temperatureCelsius: 3, problems: "Gusts")
@@ -362,12 +469,13 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 4)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 3)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 5)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 4)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
         XCTAssertEqual(HoursSchemaV4.versionIdentifier, Schema.Version(4, 0, 0))
+        XCTAssertEqual(HoursSchemaV5.versionIdentifier, Schema.Version(5, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is
@@ -376,7 +484,8 @@ final class MigrationTests: XCTestCase {
         let names = Set(HoursModelContainer.schema.entities.map(\.name))
         XCTAssertEqual(names, [
             "DayEntry", "HolidayRecord", "SiteEntry", "CrewMemberEntry", "SiteDayEntry",
-            "SiteDiaryEntry", "SiteDiaryPhotoEntry", "CrewSignatureEntry"
+            "SiteDiaryEntry", "SiteDiaryPhotoEntry", "CrewSignatureEntry",
+            "ExtraWorkJobEntry", "ExtraWorkPhotoEntry", "ExtraWorkReportEntry", "ExtraWorkItemEntry"
         ])
     }
 

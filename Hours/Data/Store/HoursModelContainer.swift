@@ -5,7 +5,7 @@ import SwiftData
 enum HoursModelContainer {
     /// Always the current version's schema. The older ones are reachable through
     /// `HoursMigrationPlan`, which is what gets a store from there to here.
-    static let schema = Schema(versionedSchema: HoursSchemaV4.self)
+    static let schema = Schema(versionedSchema: HoursSchemaV5.self)
 
     static func make(inMemory: Bool = false, syncsWithICloud: Bool = false) throws -> ModelContainer {
         let configuration = ModelConfiguration(

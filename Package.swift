@@ -31,6 +31,7 @@ let package = Package(
                 // Not a source file; the scheme and the StoreKit tests read it.
                 "Hours.storekit",
                 "DuplicateReconciliationTests.swift",
+                "ExtraWorkRepositoryTests.swift",
                 "ExportCaptureTests.swift",
                 // Inflection is a Foundation-on-Apple feature, and the point of
                 // these is what the app bundle renders.
