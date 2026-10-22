@@ -1,19 +1,27 @@
 import Foundation
 
-/// Which jobs a report carries, as the report screen offers them.
+/// Which jobs a report carries, as the report screen offers them. Only
+/// finished jobs, unless the user asks for the ones still in progress too.
 enum ExtraWorkRange: Hashable, Sendable {
-    /// Every job not yet sent, whatever its date: what the boss has not seen.
+    /// Every job the boss does not have as it stands, whatever its date:
+    /// never sent, or finished since it was sent in progress.
     case notSentYet
     /// The calendar week containing today, sent or not.
     case thisWeek
     /// Picked dates, both ends included, sent or not.
     case dates(CalendarDateRange)
 
-    func select(_ jobs: [ExtraWorkJob], siteID: UUID, today: CalendarDate, calendar: Calendar) -> [ExtraWorkJob] {
-        let onSite = jobs.filter { $0.siteID == siteID }
+    func select(
+        _ jobs: [ExtraWorkJob],
+        siteID: UUID,
+        today: CalendarDate,
+        calendar: Calendar,
+        includeInProgress: Bool = false
+    ) -> [ExtraWorkJob] {
+        let onSite = jobs.filter { $0.siteID == siteID && ($0.isDone || includeInProgress) }
         switch self {
         case .notSentYet:
-            return onSite.filter { $0.status == .open }
+            return onSite.filter(\.awaitsReport)
         case .thisWeek:
             let week = CalendarDateRange.week(containing: today, in: calendar)
             return onSite.filter { week.contains($0.date) }
@@ -60,6 +68,12 @@ struct ExtraWorkReport: Hashable, Sendable {
 
     var isEmpty: Bool { jobs.isEmpty }
 
+    /// The finished jobs, newest day first: what the report is about.
+    var done: [ExtraWorkJob] { jobs.filter(\.isDone) }
+    /// Jobs still in progress, when the user included them: a section of
+    /// their own after the finished ones.
+    var inProgress: [ExtraWorkJob] { jobs.filter { !$0.isDone } }
+
     /// From the first job's day to the last's.
     var period: CalendarDateRange? {
         guard let first = jobs.map(\.date).min(), let last = jobs.map(\.date).max() else { return nil }
@@ -73,8 +87,6 @@ struct ExtraWorkReport: Hashable, Sendable {
     func isConfirmed(_ job: ExtraWorkJob) -> Bool {
         clientSignature != nil || job.isSigned
     }
-
-    var confirmedCount: Int { jobs.filter(isConfirmed).count }
 
     // MARK: - Totals
 
@@ -125,9 +137,15 @@ struct ExtraWorkReport: Hashable, Sendable {
 
     // MARK: - The day screen
 
-    /// "2 today · 5 not sent": jobs on a date, and every job still open.
-    static func counts(_ jobs: [ExtraWorkJob], on date: CalendarDate) -> (onDay: Int, notSent: Int) {
-        (jobs.filter { $0.date == date }.count, jobs.filter { $0.status == .open }.count)
+    /// "This day: 2 · In progress: 1 · Not sent: 5": jobs on a date, every
+    /// job on the site still in progress, and every finished job the boss
+    /// does not have yet.
+    static func counts(_ jobs: [ExtraWorkJob], on date: CalendarDate) -> (onDay: Int, notSent: Int, inProgress: Int) {
+        (
+            jobs.filter { $0.date == date }.count,
+            jobs.filter { $0.isDone && $0.awaitsReport }.count,
+            jobs.filter { !$0.isDone }.count
+        )
     }
 
     /// The days the site's month grid marks.
