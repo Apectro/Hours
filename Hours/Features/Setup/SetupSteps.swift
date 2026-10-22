@@ -151,6 +151,59 @@ struct SetupBreaksStep: View {
     }
 }
 
+/// "Where do you work?": a country, and a state or canton where the
+/// holidays depend on it. Nothing is preselected — the app never guesses a
+/// country — and continuing with none adds nothing.
+struct SetupHolidaysStep: View {
+    @Binding var country: HolidayCountry?
+    @Binding var region: String?
+
+    var body: some View {
+        SetupPage(
+            heading: "Where do you work?",
+            message: "For your country's public holidays, so they show in the calendar as paid days off. Skip it to add holidays yourself later.",
+            identifier: "screen-setup-holidays"
+        ) {
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                pickerRow {
+                    Picker("Country", selection: $country) {
+                        Text("None").tag(HolidayCountry?.none)
+                        ForEach(PublicHolidayActions.sortedCountries) { country in
+                            Text(PublicHolidayActions.countryName(country)).tag(Optional(country))
+                        }
+                    }
+                    .accessibilityIdentifier("setup-holidays-country")
+                }
+                if let country, !country.regions.isEmpty {
+                    pickerRow {
+                        Picker("State or canton", selection: $region) {
+                            Text("Choose").tag(String?.none)
+                            ForEach(country.regions) { region in
+                                Text(PublicHolidayActions.regionName(region)).tag(Optional(region.code))
+                            }
+                        }
+                        .accessibilityIdentifier("setup-holidays-region")
+                    }
+                }
+                if country != nil {
+                    Text("You can see, change or remove them later in Settings › Holidays.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .onChange(of: country) { _, _ in region = nil }
+        }
+    }
+
+    private func pickerRow<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            .pickerStyle(.menu)
+            .padding(.horizontal, Metrics.large)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+}
+
 /// One answer of a yes/no question, as a whole-row button.
 struct SetupChoice: View {
     let title: LocalizedStringKey

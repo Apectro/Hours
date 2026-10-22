@@ -14,6 +14,8 @@ struct CalendarScreen: View {
     @State private var anchorDate = CalendarDate.today(in: .current)
     @State private var selectedDate = CalendarDate.today(in: .current)
     @State private var activeSheet: ActiveSheet?
+    /// Only whether there are any, for the one-time public holidays card.
+    @Query private var holidayRecords: [HolidayRecord]
 
     /// One sheet at a time, chosen by value. Stacking several `.sheet`
     /// modifiers on a single view has undefined behaviour.
@@ -21,12 +23,17 @@ struct CalendarScreen: View {
         case day(CalendarDate)
         case export(CalendarDateRange)
         case bulkEdit(CalendarDateRange)
+        case publicHolidays
+        /// "I worked" on a public holiday: the editor, times filled in.
+        case workedHoliday(CalendarDate)
 
         var id: String {
             switch self {
             case let .day(date): return "day-\(date.key)"
             case let .export(range): return "export-\(range.start.key)-\(range.end.key)"
             case let .bulkEdit(range): return "bulk-\(range.start.key)-\(range.end.key)"
+            case .publicHolidays: return "public-holidays"
+            case let .workedHoliday(date): return "worked-holiday-\(date.key)"
             }
         }
     }
@@ -46,6 +53,16 @@ struct CalendarScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
+                if showsPublicHolidayOffer {
+                    PublicHolidayOfferCard(
+                        onChoose: { activeSheet = .publicHolidays },
+                        onDismiss: dismissPublicHolidayOffer
+                    )
+                    .padding(.horizontal, Metrics.large)
+                    .padding(.top, Metrics.small)
+                    .transition(.opacity)
+                }
+
                 PeriodDataProvider(range: fetchedRange) { data in
                     CalendarPeriodView(
                         layout: layout,
@@ -59,6 +76,7 @@ struct CalendarScreen: View {
                         scope: scope,
                         onSelect: select,
                         onEdit: { activeSheet = .day(selectedDate) },
+                        onWorkedHoliday: { activeSheet = .workedHoliday(selectedDate) },
                         onClockIn: showsClockInOnSelectedDay ? clockIn : nil
                     )
                 }
@@ -79,6 +97,10 @@ struct CalendarScreen: View {
                     ExportScreen(initialRange: range)
                 case let .bulkEdit(range):
                     BulkEditSheet(initialRange: range)
+                case .publicHolidays:
+                    PublicHolidayPicker {}
+                case let .workedHoliday(date):
+                    DayEditorSheet(date: date, startsWorking: true)
                 }
             }
         }
@@ -135,6 +157,18 @@ struct CalendarScreen: View {
         case .week:
             let range = summaryRange
             return "\(formatting.shortDate(range.start)) – \(formatting.shortDate(range.end))"
+        }
+    }
+
+    /// Once, to someone with no holidays at all, until added or put away.
+    private var showsPublicHolidayOffer: Bool {
+        settings.features.trackHolidays
+            && settings.publicHolidays.shouldOffer(hasHolidayRules: !holidayRecords.isEmpty)
+    }
+
+    private func dismissPublicHolidayOffer() {
+        withAnimation(.snappy(duration: 0.2)) {
+            settingsStore.update { $0.publicHolidays.offerDismissed = true }
         }
     }
 
@@ -304,6 +338,7 @@ private struct CalendarPeriodView: View {
     let scope: CalendarScope
     let onSelect: (CalendarDate) -> Void
     let onEdit: () -> Void
+    let onWorkedHoliday: () -> Void
     let onClockIn: (() -> Void)?
 
     private let computationsByKey: [Int: DayComputation]
@@ -326,6 +361,7 @@ private struct CalendarPeriodView: View {
         scope: CalendarScope,
         onSelect: @escaping (CalendarDate) -> Void,
         onEdit: @escaping () -> Void,
+        onWorkedHoliday: @escaping () -> Void,
         onClockIn: (() -> Void)? = nil
     ) {
         self.layout = layout
@@ -336,6 +372,7 @@ private struct CalendarPeriodView: View {
         self.scope = scope
         self.onSelect = onSelect
         self.onEdit = onEdit
+        self.onWorkedHoliday = onWorkedHoliday
         self.onClockIn = onClockIn
 
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
@@ -393,6 +430,7 @@ private struct CalendarPeriodView: View {
                 settings: settings,
                 formatting: formatting,
                 onEdit: onEdit,
+                onWorkedHoliday: onWorkedHoliday,
                 onClockIn: onClockIn
             )
 

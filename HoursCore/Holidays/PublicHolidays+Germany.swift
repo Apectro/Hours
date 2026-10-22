@@ -110,7 +110,7 @@ extension PublicHolidayCatalog {
             country: .de,
             region: region,
             language: .german,
-            source: "Feiertagsgesetz des Landes \(region.name); BMI, Gesetzliche Feiertage",
+            source: "Feiertagsgesetze der Länder; BMI, Übersicht der gesetzlichen Feiertage",
             holidays: germanNationwide + extras
         )
     }

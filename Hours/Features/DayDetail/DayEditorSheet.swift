@@ -9,6 +9,10 @@ import SwiftData
 /// it rather than storing an empty row.
 struct DayEditorSheet: View {
     let date: CalendarDate
+    /// "I worked" on a public holiday: a day with nothing typed in opens
+    /// with the week's times, its type left as it resolves so the holiday
+    /// is still paid.
+    var startsWorking = false
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -36,8 +40,9 @@ struct DayEditorSheet: View {
     /// is what hung the site screen when it was opened from the Sites tab.
     @State private var path = NavigationPath()
 
-    init(date: CalendarDate) {
+    init(date: CalendarDate, startsWorking: Bool = false) {
         self.date = date
+        self.startsWorking = startsWorking
         _draft = State(initialValue: DayRecord(date: date))
     }
 
@@ -192,7 +197,10 @@ struct DayEditorSheet: View {
         leaveYearRecords = repository.records(
             in: leave.range(ofLeaveYear: leave.leaveYear(containing: date, calendar: calendar), calendar: calendar)
         )
-        draft = stored ?? settingsStore.engine.draftRecord(for: date, holidays: holidays)
+        draft = stored ?? settingsStore.engine.draftRecord(for: date, holidays: holidays, working: startsWorking)
+        if startsWorking, !draft.shifts.contains(where: { $0.siteID == nil }), draft.manualWorkedMinutes == nil {
+            draft.shifts.append(settingsStore.settings.prefilledShift(on: date))
+        }
     }
 
     private func save() {

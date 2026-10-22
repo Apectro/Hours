@@ -57,7 +57,22 @@ struct DayEditorForm: View {
                 resolved: computation.dayType
             )
             if let holidayName = computation.holidayName {
-                LabeledContent("Holiday", value: holidayName)
+                if isPublicHolidayOff {
+                    // "Christmas Day · public holiday", and whether it was
+                    // worked. Worked hours come on top of the paid holiday.
+                    LabeledContent("Holiday", value: String(
+                        localized: "\(holidayName) · public holiday",
+                        comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
+                    ))
+                    Picker("Public holiday", selection: workedHolidayBinding) {
+                        Text("Day off (paid)").tag(false)
+                        Text("I worked").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("day-editor-holiday-worked")
+                } else {
+                    LabeledContent("Holiday", value: holidayName)
+                }
             }
         } header: {
             Text("Day type")
@@ -249,6 +264,29 @@ struct DayEditorForm: View {
             // Carry the previous block's job forward: a split shift is usually
             // two halves of the same day at the same place.
             jobID: manualShifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
+        )
+    }
+
+    /// A public holiday off, as a holiday rule resolves it: the place for
+    /// "Day off (paid)" or "I worked".
+    private var isPublicHolidayOff: Bool {
+        computation.holidayName != nil
+            && computation.dayType.id == .holiday
+            && settings.features.autoCalculateWorkedHours
+    }
+
+    /// Worked means times on the day; the type stays a holiday either way,
+    /// so the holiday's credit is kept and the hours come on top.
+    private var workedHolidayBinding: Binding<Bool> {
+        Binding(
+            get: { !manualShifts.isEmpty },
+            set: { worked in
+                if worked {
+                    if manualShifts.isEmpty { draft.shifts.append(settings.prefilledShift(on: draft.date)) }
+                } else {
+                    draft.shifts = draft.shifts.filter { $0.siteID != nil }
+                }
+            }
         )
     }
 

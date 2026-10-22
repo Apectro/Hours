@@ -224,9 +224,6 @@ struct PeriodEngine: Sendable {
     /// whose type hides the times): the type stays as it resolves — so a
     /// public holiday is still paid — and the times come from the week.
     func draftRecord(for date: CalendarDate, holidays: [HolidayRule], working: Bool = false) -> DayRecord {
-        // The week in force on that day, not today's: a day in October is
-        // pre-filled with October's hours after a change in November.
-        let schedule = settings.primarySchedule(on: date)
         let resolver = HolidayResolver(
             rules: holidays,
             calendar: calendar,
@@ -240,19 +237,23 @@ struct PeriodEngine: Sendable {
             return DayRecord(date: date, dayTypeID: typeID)
         }
 
-        return DayRecord(
-            date: date,
-            dayTypeID: typeID,
-            shifts: [
-                Shift(
-                    start: schedule.defaultStart,
-                    end: schedule.defaultEnd,
-                    breaks: settings.features.trackBreaks && schedule.defaultBreakMinutes > 0
-                        ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
-                        : [],
-                    jobID: settings.tracksMultipleJobs ? settings.primaryJob.id : nil
-                )
-            ]
+        return DayRecord(date: date, dayTypeID: typeID, shifts: [settings.prefilledShift(on: date)])
+    }
+}
+
+extension AppSettings {
+    /// The shift a new day is pre-filled with: the week in force on that day,
+    /// not today's — a day in October gets October's hours after a change in
+    /// November.
+    func prefilledShift(on date: CalendarDate) -> Shift {
+        let schedule = primarySchedule(on: date)
+        return Shift(
+            start: schedule.defaultStart,
+            end: schedule.defaultEnd,
+            breaks: features.trackBreaks && schedule.defaultBreakMinutes > 0
+                ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
+                : [],
+            jobID: tracksMultipleJobs ? primaryJob.id : nil
         )
     }
 }
