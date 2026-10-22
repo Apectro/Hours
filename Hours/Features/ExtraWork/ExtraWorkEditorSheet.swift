@@ -5,7 +5,8 @@ import PhotosUI
 /// Writing down one job of extra work (mockup 14): what was done, the
 /// material with big −/+ steppers and a number to tap for 12.5 m, the items
 /// used before as chips, optional hours per person, photos, and the client's
-/// optional signature.
+/// optional signature — and "Work finished", since a job can run over
+/// several days and is in progress until it is ticked.
 ///
 /// A sheet with Cancel and Save, unlike the day screen's diary: a job is a
 /// thing written in one go and handed on, and a half-counted job saved on
@@ -67,7 +68,8 @@ struct ExtraWorkEditorSheet: View {
         self.job = job
         self.canEdit = canEdit
         self.onDone = onDone
-        let initial = job ?? ExtraWorkJob(siteID: site.id, date: date)
+        // A new job starts in progress (`isDone` is false by default).
+        let initial = job ?? ExtraWorkJob(siteID: site.id, date: date, isDone: false)
         _draft = State(initialValue: initial)
         _original = State(initialValue: initial)
         _showsHours = State(initialValue: job?.hasHours ?? false)
@@ -78,6 +80,7 @@ struct ExtraWorkEditorSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.extraLarge) {
                     descriptionSection
+                    finishedSection
                     materialSection
                     hoursSection
                     photoSection
@@ -172,6 +175,39 @@ struct ExtraWorkEditorSheet: View {
                 .foregroundStyle(.secondary)
                 .padding(.leading, Metrics.tiny)
         }
+    }
+
+    // MARK: - Finished
+
+    /// Saved with the job, like everything else in the sheet; the day's
+    /// checkmark is the quick way that writes at once.
+    private var finishedSection: some View {
+        Toggle(isOn: Binding(
+            get: { draft.isDone },
+            set: { isOn in
+                draft = isOn ? draft.markingDone(at: Date()) : draft.markingInProgress()
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Work finished")
+                    .font(.body)
+                Group {
+                    if draft.isDone {
+                        Text("Finished jobs go in the report to the boss.")
+                    } else {
+                        Text("In progress until you tick it.")
+                    }
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+        }
+        .tint(.green)
+        .frame(minHeight: 44)
+        .padding(.horizontal, Metrics.large)
+        .padding(.vertical, Metrics.small)
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        .accessibilityIdentifier("extra-work-finished")
     }
 
     // MARK: - Material
@@ -304,7 +340,7 @@ struct ExtraWorkEditorSheet: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Hours on this job")
                         .font(.body)
-                    Text("Optional — leave it out when only material is billed")
+                    Text("Optional — leave it out when the material says it all")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -496,34 +532,21 @@ struct ExtraWorkEditorSheet: View {
 
     // MARK: - Status
 
-    @ViewBuilder
     private var statusSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
             HStack {
                 Text("Status")
                     .font(.body)
                 Spacer()
-                ExtraWorkChipView(chip: draft.chip)
+                ExtraWorkChips(job: draft)
             }
-            if let sentAt = draft.sentAt, draft.status != .open {
+            if let sentAt = draft.sentAt, draft.status == .sent {
                 Text(String(
-                    localized: "Sent to the boss on \(settingsStore.dateFormatting.dateWithYear(CalendarDate(sentAt, calendar: settingsStore.workCalendar)))",
-                    comment: "Extra work: when the job was sent; the value is a date"
+                    localized: "Sent to boss on \(settingsStore.dateFormatting.dateWithYear(CalendarDate(sentAt, calendar: settingsStore.workCalendar)))",
+                    comment: "Extra work: when the job was last reported to the boss; the value is a date"
                 ))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            }
-            switch draft.status {
-            case .sent:
-                Button("Mark as invoiced") { changeStatus(draft.markingInvoiced()) }
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("extra-work-mark-invoiced")
-            case .invoiced:
-                Button("Not invoiced after all") { changeStatus(draft.reopening()) }
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("extra-work-unmark-invoiced")
-            case .open:
-                EmptyView()
             }
             Button("Delete this extra work", role: .destructive) { confirmsDelete = true }
                 .frame(minHeight: 44)
@@ -636,19 +659,6 @@ struct ExtraWorkEditorSheet: View {
             removedPhotoIDs.insert(reference.id)
         }
         photoToRemove = nil
-    }
-
-    private func changeStatus(_ next: ExtraWorkJob) {
-        draft.status = next.status
-        draft.sentAt = next.sentAt
-        draft.sentReportID = next.sentReportID
-        // Written at once: marking an invoice is not part of editing the job,
-        // and Cancel should not take it back.
-        repository.storeStatus(of: [next])
-        original.status = next.status
-        original.sentAt = next.sentAt
-        original.sentReportID = next.sentReportID
-        onDone()
     }
 
     private func save() {

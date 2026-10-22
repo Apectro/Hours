@@ -2,11 +2,14 @@ import SwiftUI
 import SwiftData
 
 /// The selected day's extra work on a site (mockup 13): each job with its
-/// material, who worked on it and its status, and "Add extra work".
+/// material, who worked on it, whether it is finished and whether the boss
+/// has it, and "Add extra work".
 ///
 /// Not under the month lock — extra work is not anyone's hours (see
 /// `ExtraWorkRepository`) — so only a read-only site stops it from being
-/// added to. A job opens in the editor as a sheet; nothing here writes.
+/// added to or ticked done. A job opens in the editor as a sheet; the one
+/// write here is the checkmark beside each job, which ticks it done or back
+/// in progress at once.
 struct ExtraWorkDaySection: View {
     let site: Site
     let date: CalendarDate
@@ -20,6 +23,7 @@ struct ExtraWorkDaySection: View {
 
     @State private var jobs: [ExtraWorkJob] = []
     @State private var notSent = 0
+    @State private var inProgress = 0
     @State private var photoCounts: [UUID: Int] = [:]
     @State private var editing: ExtraWorkEditorRequest?
 
@@ -39,17 +43,28 @@ struct ExtraWorkDaySection: View {
             if !jobs.isEmpty {
                 VStack(spacing: 0) {
                     ForEach(Array(jobs.enumerated()), id: \.element.id) { index, job in
-                        Button {
-                            editing = ExtraWorkEditorRequest(job: job)
-                        } label: {
-                            ExtraWorkJobCard(
-                                job: job,
-                                photoCount: photoCounts[job.id] ?? 0,
-                                durations: settingsStore.settings.displayFormatting
-                            )
+                        HStack(alignment: .top, spacing: 0) {
+                            ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
+                                .accessibilityIdentifier("extra-work-tick-\(index)")
+                                .padding(.leading, Metrics.small)
+                                .padding(.top, Metrics.small)
+                            Button {
+                                editing = ExtraWorkEditorRequest(job: job)
+                            } label: {
+                                ExtraWorkJobCard(
+                                    job: job,
+                                    photoCount: photoCounts[job.id] ?? 0,
+                                    durations: settingsStore.settings.displayFormatting
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            // Rows here are not a List, so there is no swipe:
+                            // a long press offers the same as the checkmark.
+                            .contextMenu {
+                                if canEdit { ExtraWorkDoneMenuItem(job: job) { toggleDone(job) } }
+                            }
+                            .accessibilityIdentifier("extra-work-job-\(index)")
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("extra-work-job-\(index)")
                         if index < jobs.count - 1 {
                             Divider().padding(.leading, Metrics.large)
                         }
@@ -90,13 +105,27 @@ struct ExtraWorkDaySection: View {
         }
     }
 
-    /// "2 today · 5 not sent", without a plural to agree: the two counts
-    /// are labels, as on a tile.
+    /// "This day: 2 · In progress: 1 · Not sent: 5", without a plural to
+    /// agree: the counts are labels, as on a tile. The last two are the
+    /// whole site's, so a job left in progress on another day is not lost.
     private var countsLine: String {
         let today = jobs.count
-        let onDay = String(localized: "This day: \(today)", comment: "Extra work on a site day: how many jobs on the selected day")
-        let open = String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many jobs on the site are not yet sent to the boss")
-        return notSent > 0 ? "\(onDay) · \(open)" : onDay
+        var parts = [String(localized: "This day: \(today)", comment: "Extra work on a site day: how many jobs on the selected day")]
+        if inProgress > 0 {
+            parts.append(String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"))
+        }
+        if notSent > 0 {
+            parts.append(String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"))
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    /// The checkmark: written at once, not under the month lock.
+    private func toggleDone(_ job: ExtraWorkJob) {
+        guard canEdit else { return }
+        ExtraWorkRepository(context: modelContext).storeProgress(of: job.togglingDone(at: Date()))
+        load()
+        onChange()
     }
 
     /// Read outside `body`: the repository's reads collapse duplicates,
@@ -105,7 +134,9 @@ struct ExtraWorkDaySection: View {
         let repository = ExtraWorkRepository(context: modelContext)
         let all = repository.jobs(siteID: site.id)
         jobs = all.filter { $0.date == date }
-        notSent = ExtraWorkReport.counts(all, on: date).notSent
+        let counts = ExtraWorkReport.counts(all, on: date)
+        notSent = counts.notSent
+        inProgress = counts.inProgress
         photoCounts = repository.photoCounts(siteID: site.id)
     }
 }
@@ -117,8 +148,9 @@ struct ExtraWorkEditorRequest: Identifiable {
     let job: ExtraWorkJob?
 }
 
-/// One job in the day's list: what was done, its status, the material as
-/// chips, and who worked on it or who signed.
+/// One job in the day's list: what was done, whether it is finished and
+/// whether the boss has it, the material as chips, and who worked on it or
+/// who signed.
 struct ExtraWorkJobCard: View {
     let job: ExtraWorkJob
     let photoCount: Int
@@ -132,7 +164,7 @@ struct ExtraWorkJobCard: View {
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: Metrics.small)
-                ExtraWorkChipView(chip: job.chip)
+                ExtraWorkChips(job: job)
             }
 
             if !job.items.isEmpty {
@@ -153,7 +185,8 @@ struct ExtraWorkJobCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, Metrics.large)
+        .padding(.leading, Metrics.small)
+        .padding(.trailing, Metrics.large)
         .padding(.vertical, Metrics.medium)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -180,7 +213,59 @@ struct ExtraWorkJobCard: View {
     }
 }
 
-/// Open / Signed / Sent / Invoiced, coloured as in mockup 13.
+/// A job's chips, at most two: In progress (amber) or Finished (green, with
+/// a checkmark), and Sent or Signed when there is one to show.
+struct ExtraWorkChips: View {
+    let job: ExtraWorkJob
+
+    var body: some View {
+        HStack(spacing: Metrics.tiny) {
+            ExtraWorkProgressChip(progress: job.progress)
+            if let chip = job.chip {
+                ExtraWorkChipView(chip: chip)
+            }
+        }
+    }
+}
+
+/// In progress / Finished: whether the work itself is done.
+struct ExtraWorkProgressChip: View {
+    let progress: ExtraWorkProgress
+
+    var body: some View {
+        Group {
+            switch progress {
+            case .inProgress:
+                Text("In progress")
+            case .done:
+                Label("Finished", systemImage: "checkmark")
+                    .labelStyle(ExtraWorkChipLabelStyle())
+            }
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(color)
+        .padding(.horizontal, Metrics.small)
+        .padding(.vertical, Metrics.tiny)
+        .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .fixedSize()
+    }
+
+    private var color: Color {
+        progress == .done ? .green : .orange
+    }
+}
+
+/// A small icon before the word, tighter than a list label.
+private struct ExtraWorkChipLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 3) {
+            configuration.icon.imageScale(.small)
+            configuration.title
+        }
+    }
+}
+
+/// Sent / Signed: whether the boss has it, or the client signed it.
 struct ExtraWorkChipView: View {
     let chip: ExtraWorkChip
 
@@ -192,24 +277,69 @@ struct ExtraWorkChipView: View {
             .padding(.vertical, Metrics.tiny)
             .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .fixedSize()
-            .accessibilityIdentifier("extra-work-chip-\(chip.rawValue)")
     }
 
     private var title: LocalizedStringKey {
         switch chip {
-        case .open: return "Open"
         case .signed: return "Signed"
         case .sent: return "Sent"
-        case .invoiced: return "Invoiced"
         }
     }
 
     private var color: Color {
         switch chip {
-        case .open: return .orange
-        case .signed: return .green
+        case .signed: return .secondary
         case .sent: return .accentColor
-        case .invoiced: return .secondary
+        }
+    }
+}
+
+/// The checkmark beside a job: ticks it finished, or back in progress. 44
+/// points, selected when the job is done, so VoiceOver and the UI tests read
+/// its state without reading its words.
+struct ExtraWorkDoneButton: View {
+    let job: ExtraWorkJob
+    let canEdit: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: job.isDone ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(job.isDone ? Color.green : Color.secondary)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!canEdit)
+        .accessibilityLabel(job.isDone
+            ? String(localized: "Finished: \(title)", comment: "Extra work: VoiceOver, the checkmark of a finished job; the value is what was done")
+            : String(localized: "In progress: \(title)", comment: "Extra work: VoiceOver, the checkmark of a job not finished yet; the value is what was done"))
+        .accessibilityHint(job.isDone
+            ? String(localized: "Marks it in progress again.")
+            : String(localized: "Marks the work as finished."))
+        .accessibilityAddTraits(job.isDone ? .isSelected : [])
+    }
+
+    private var title: String {
+        job.description.isEmpty ? String(localized: "Extra work") : job.description
+    }
+}
+
+/// The same as the checkmark, in a job's long-press menu.
+struct ExtraWorkDoneMenuItem: View {
+    let job: ExtraWorkJob
+    let action: () -> Void
+
+    var body: some View {
+        if job.isDone {
+            Button(action: action) {
+                Label("Mark as in progress", systemImage: "circle")
+            }
+        } else {
+            Button(action: action) {
+                Label("Mark as finished", systemImage: "checkmark.circle")
+            }
         }
     }
 }

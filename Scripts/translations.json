@@ -8420,8 +8420,8 @@
       "Wybierz kraj"
     ],
     "Extra work": [
-      "Regiearbeiten",
-      "Izvanugovorni radovi",
+      "Zusatzarbeiten",
+      "Dodatni radovi",
       "Dodatna dela",
       "Lavori extra",
       "Travaux supplémentaires",
@@ -8431,8 +8431,8 @@
       "Prace dodatkowe"
     ],
     "Add extra work": [
-      "Regiearbeit hinzufügen",
-      "Dodaj izvanugovorni rad",
+      "Zusatzarbeit hinzufügen",
+      "Dodaj dodatni rad",
       "Dodaj dodatno delo",
       "Aggiungi lavoro extra",
       "Ajouter des travaux supplémentaires",
@@ -8440,17 +8440,6 @@
       "Adicionar trabalho adicional",
       "Meerwerk toevoegen",
       "Dodaj pracę dodatkową"
-    ],
-    "Extra work report": [
-      "Regiebericht",
-      "Izvješće o izvanugovornim radovima",
-      "Poročilo o dodatnih delih",
-      "Rapporto lavori extra",
-      "Rapport de travaux supplémentaires",
-      "Informe de trabajos adicionales",
-      "Relatório de trabalhos adicionais",
-      "Meerwerkrapport",
-      "Raport prac dodatkowych"
     ],
     "Report": [
       "Bericht",
@@ -8462,17 +8451,6 @@
       "Relatório",
       "Rapport",
       "Raport"
-    ],
-    "Open": [
-      "Offen",
-      "Otvoreno",
-      "Odprto",
-      "Aperto",
-      "Ouvert",
-      "Abierto",
-      "Aberto",
-      "Open",
-      "Otwarte"
     ],
     "Signed": [
       "Unterschrieben",
@@ -8496,16 +8474,236 @@
       "Verstuurd",
       "Wysłane"
     ],
-    "Invoiced": [
-      "Verrechnet",
-      "Fakturirano",
-      "Zaračunano",
-      "Fatturato",
-      "Facturé",
-      "Facturado",
-      "Faturado",
-      "Gefactureerd",
-      "Zafakturowane"
+    "In progress": [
+      "In Arbeit",
+      "U tijeku",
+      "V teku",
+      "In corso",
+      "En cours",
+      "En curso",
+      "Em curso",
+      "Bezig",
+      "W toku"
+    ],
+    "Finished": [
+      "Fertig",
+      "Završeno",
+      "Končano",
+      "Finito",
+      "Terminé",
+      "Terminado",
+      "Concluído",
+      "Klaar",
+      "Ukończone"
+    ],
+    "Mark as in progress": [
+      "Als in Arbeit markieren",
+      "Označi kao u tijeku",
+      "Označi kot v teku",
+      "Segna come in corso",
+      "Marquer comme en cours",
+      "Marcar como en curso",
+      "Marcar como em curso",
+      "Markeren als bezig",
+      "Oznacz jako w toku"
+    ],
+    "Mark as finished": [
+      "Als fertig markieren",
+      "Označi kao završeno",
+      "Označi kot končano",
+      "Segna come finito",
+      "Marquer comme terminé",
+      "Marcar como terminado",
+      "Marcar como concluído",
+      "Markeren als klaar",
+      "Oznacz jako ukończone"
+    ],
+    "Finished: %@": [
+      "Fertig: %@",
+      "Završeno: %@",
+      "Končano: %@",
+      "Finito: %@",
+      "Terminé : %@",
+      "Terminado: %@",
+      "Concluído: %@",
+      "Klaar: %@",
+      "Ukończone: %@"
+    ],
+    "In progress: %@": [
+      "In Arbeit: %@",
+      "U tijeku: %@",
+      "V teku: %@",
+      "In corso: %@",
+      "En cours : %@",
+      "En curso: %@",
+      "Em curso: %@",
+      "Bezig: %@",
+      "W toku: %@"
+    ],
+    "Marks it in progress again.": [
+      "Markiert sie wieder als in Arbeit.",
+      "Ponovno ga označava kao u tijeku.",
+      "Ponovno ga označi kot v teku.",
+      "Lo segna di nuovo come in corso.",
+      "Le marque de nouveau comme en cours.",
+      "Lo marca de nuevo como en curso.",
+      "Marca-o de novo como em curso.",
+      "Markeert het weer als bezig.",
+      "Oznacza je znowu jako w toku."
+    ],
+    "Marks the work as finished.": [
+      "Markiert die Arbeit als fertig.",
+      "Označava rad kao završen.",
+      "Označi delo kot končano.",
+      "Segna il lavoro come finito.",
+      "Marque le travail comme terminé.",
+      "Marca el trabajo como terminado.",
+      "Marca o trabalho como concluído.",
+      "Markeert het werk als klaar.",
+      "Oznacza pracę jako ukończoną."
+    ],
+    "In progress: %lld": [
+      "In Arbeit: %lld",
+      "U tijeku: %lld",
+      "V teku: %lld",
+      "In corso: %lld",
+      "En cours : %lld",
+      "En curso: %lld",
+      "Em curso: %lld",
+      "Bezig: %lld",
+      "W toku: %lld"
+    ],
+    "Work finished": [
+      "Arbeit fertig",
+      "Rad završen",
+      "Delo končano",
+      "Lavoro finito",
+      "Travail terminé",
+      "Trabajo terminado",
+      "Trabalho concluído",
+      "Werk klaar",
+      "Praca ukończona"
+    ],
+    "Finished jobs go in the report to the boss.": [
+      "Fertige Arbeiten kommen in den Bericht an den Chef.",
+      "Završeni radovi idu u izvješće šefu.",
+      "Končana dela gredo v poročilo šefu.",
+      "I lavori finiti vanno nel rapporto al capo.",
+      "Les travaux terminés vont dans le rapport au patron.",
+      "Los trabajos terminados van en el informe al jefe.",
+      "Os trabalhos concluídos vão no relatório ao chefe.",
+      "Klaar werk gaat in het rapport aan de baas.",
+      "Ukończone prace trafiają do raportu dla szefa."
+    ],
+    "In progress until you tick it.": [
+      "In Arbeit, bis du sie abhakst.",
+      "U tijeku dok ga ne označiš.",
+      "V teku, dokler ga ne označiš.",
+      "In corso finché non lo spunti.",
+      "En cours jusqu’à ce que vous le cochiez.",
+      "En curso hasta que lo marques.",
+      "Em curso até o marcares.",
+      "Bezig tot je het afvinkt.",
+      "W toku, dopóki go nie odhaczysz."
+    ],
+    "Optional — leave it out when the material says it all": [
+      "Optional – weglassen, wenn das Material alles sagt",
+      "Neobavezno – izostavi kad materijal govori sve",
+      "Neobvezno – izpusti, ko material pove vse",
+      "Facoltativo – tralascialo se il materiale dice tutto",
+      "Facultatif – à omettre si le matériel suffit",
+      "Opcional: déjalo fuera si el material lo dice todo",
+      "Opcional – deixa de fora quando o material diz tudo",
+      "Optioneel – weglaten als het materiaal alles zegt",
+      "Opcjonalnie – pomiń, gdy materiał mówi wszystko"
+    ],
+    "Sent to boss on %@": [
+      "Am %@ an den Chef gesendet",
+      "Poslano šefu %@",
+      "Poslano šefu %@",
+      "Inviato al capo il %@",
+      "Envoyé au patron le %@",
+      "Enviado al jefe el %@",
+      "Enviado ao chefe em %@",
+      "Op %@ naar de baas gestuurd",
+      "Wysłano szefowi %@"
+    ],
+    "Include jobs still in progress": [
+      "Auch laufende Arbeiten aufnehmen",
+      "Uključi radove koji su još u tijeku",
+      "Vključi dela, ki so še v teku",
+      "Includi i lavori ancora in corso",
+      "Inclure les travaux encore en cours",
+      "Incluir trabajos aún en curso",
+      "Incluir trabalhos ainda em curso",
+      "Werk dat nog bezig is meenemen",
+      "Uwzględnij prace wciąż w toku"
+    ],
+    "In progress on this site": [
+      "Auf dieser Baustelle in Arbeit",
+      "U tijeku na ovom gradilištu",
+      "V teku na tem gradbišču",
+      "In corso in questo cantiere",
+      "En cours sur ce chantier",
+      "En curso en esta obra",
+      "Em curso nesta obra",
+      "Bezig op deze bouwplaats",
+      "W toku na tej budowie"
+    ],
+    "Work done": [
+      "Erledigte Arbeiten",
+      "Izvršeni radovi",
+      "Opravljena dela",
+      "Lavori eseguiti",
+      "Travaux réalisés",
+      "Trabajos realizados",
+      "Trabalhos realizados",
+      "Uitgevoerd werk",
+      "Wykonane prace"
+    ],
+    "Still in progress": [
+      "Noch in Arbeit",
+      "Još u tijeku",
+      "Še v teku",
+      "Ancora in corso",
+      "Toujours en cours",
+      "Todavía en curso",
+      "Ainda em curso",
+      "Nog bezig",
+      "Wciąż w toku"
+    ],
+    "Material used": [
+      "Verwendetes Material",
+      "Utrošeni materijal",
+      "Porabljen material",
+      "Materiale utilizzato",
+      "Matériel utilisé",
+      "Material utilizado",
+      "Material utilizado",
+      "Gebruikt materiaal",
+      "Zużyty materiał"
+    ],
+    "Report to boss": [
+      "Bericht an den Chef",
+      "Izvješće šefu",
+      "Poročilo šefu",
+      "Rapporto al capo",
+      "Rapport au patron",
+      "Informe al jefe",
+      "Relatório ao chefe",
+      "Rapport aan de baas",
+      "Raport dla szefa"
+    ],
+    "Send report · PDF": [
+      "Bericht senden · PDF",
+      "Pošalji izvješće · PDF",
+      "Pošlji poročilo · PDF",
+      "Invia rapporto · PDF",
+      "Envoyer le rapport · PDF",
+      "Enviar informe · PDF",
+      "Enviar relatório · PDF",
+      "Rapport versturen · PDF",
+      "Wyślij raport · PDF"
     ],
     "This day: %lld": [
       "An diesem Tag: %lld",
@@ -8530,8 +8728,8 @@
       "Niewysłane: %lld"
     ],
     "No extra work on this day.": [
-      "An diesem Tag keine Regiearbeiten.",
-      "Ovaj dan nema izvanugovornih radova.",
+      "An diesem Tag keine Zusatzarbeiten.",
+      "Ovaj dan nema dodatnih radova.",
       "Ta dan ni dodatnih del.",
       "Nessun lavoro extra in questo giorno.",
       "Aucuns travaux supplémentaires ce jour-là.",
@@ -8749,17 +8947,6 @@
       "Uren aan dit werk",
       "Godziny przy tej pracy"
     ],
-    "Optional — leave it out when only material is billed": [
-      "Optional – weglassen, wenn nur Material verrechnet wird",
-      "Neobavezno – izostavi kad se naplaćuje samo materijal",
-      "Neobvezno – izpusti, ko se zaračuna le material",
-      "Facoltativo – tralascia se si fattura solo il materiale",
-      "Facultatif – à omettre si seul le matériel est facturé",
-      "Opcional: déjalo fuera si solo se factura el material",
-      "Opcional – deixa de fora quando só se fatura material",
-      "Optioneel – weglaten als alleen materiaal wordt gefactureerd",
-      "Opcjonalnie – pomiń, gdy fakturowany jest tylko materiał"
-    ],
     "Remove": [
       "Entfernen",
       "Ukloni",
@@ -8827,8 +9014,8 @@
       "Zdjęcia"
     ],
     "Extra work photo": [
-      "Foto der Regiearbeit",
-      "Fotografija izvanugovornog rada",
+      "Foto der Zusatzarbeit",
+      "Fotografija dodatnog rada",
       "Fotografija dodatnega dela",
       "Foto del lavoro extra",
       "Photo des travaux supplémentaires",
@@ -8871,8 +9058,8 @@
       "Opcjonalnie – kierownik budowy potwierdza to na twoim telefonie"
     ],
     "Sign to confirm this extra work": [
-      "Unterschreiben, um diese Regiearbeit zu bestätigen",
-      "Potpiši za potvrdu ovog izvanugovornog rada",
+      "Unterschreiben, um diese Zusatzarbeit zu bestätigen",
+      "Potpiši za potvrdu ovog dodatnog rada",
       "Podpiši za potrditev tega dodatnega dela",
       "Firma per confermare questo lavoro extra",
       "Signez pour confirmer ces travaux supplémentaires",
@@ -8903,42 +9090,9 @@
       "Status",
       "Status"
     ],
-    "Sent to the boss on %@": [
-      "Am %@ an den Chef gesendet",
-      "Poslano šefu %@",
-      "Poslano šefu %@",
-      "Inviato al capo il %@",
-      "Envoyé au patron le %@",
-      "Enviado al jefe el %@",
-      "Enviado ao chefe em %@",
-      "Op %@ naar de baas gestuurd",
-      "Wysłano szefowi %@"
-    ],
-    "Mark as invoiced": [
-      "Als verrechnet markieren",
-      "Označi kao fakturirano",
-      "Označi kot zaračunano",
-      "Segna come fatturato",
-      "Marquer comme facturé",
-      "Marcar como facturado",
-      "Marcar como faturado",
-      "Markeren als gefactureerd",
-      "Oznacz jako zafakturowane"
-    ],
-    "Not invoiced after all": [
-      "Doch nicht verrechnet",
-      "Ipak nije fakturirano",
-      "Vendarle ni zaračunano",
-      "Non ancora fatturato",
-      "Finalement pas facturé",
-      "Al final no facturado",
-      "Afinal não faturado",
-      "Toch niet gefactureerd",
-      "Jednak niezafakturowane"
-    ],
     "Delete this extra work": [
-      "Diese Regiearbeit löschen",
-      "Izbriši ovaj izvanugovorni rad",
+      "Diese Zusatzarbeit löschen",
+      "Izbriši ovaj dodatni rad",
       "Izbriši to dodatno delo",
       "Elimina questo lavoro extra",
       "Supprimer ces travaux supplémentaires",
@@ -8948,8 +9102,8 @@
       "Usuń tę pracę dodatkową"
     ],
     "Delete this extra work?": [
-      "Diese Regiearbeit löschen?",
-      "Izbrisati ovaj izvanugovorni rad?",
+      "Diese Zusatzarbeit löschen?",
+      "Izbrisati ovaj dodatni rad?",
       "Izbrišem to dodatno delo?",
       "Eliminare questo lavoro extra?",
       "Supprimer ces travaux supplémentaires ?",
@@ -9123,17 +9277,6 @@
       "Niets te melden voor deze datums.",
       "Brak pozycji do raportu w tych dniach."
     ],
-    "Material in total": [
-      "Material gesamt",
-      "Ukupno materijala",
-      "Material skupaj",
-      "Materiale totale",
-      "Total du matériel",
-      "Material total",
-      "Material total",
-      "Materiaal totaal",
-      "Materiał łącznie"
-    ],
     "Show %lld more": [
       "%lld weitere anzeigen",
       "Prikaži još %lld",
@@ -9144,17 +9287,6 @@
       "Mostrar mais %lld",
       "Nog %lld tonen",
       "Pokaż jeszcze %lld"
-    ],
-    "Mark the sent ones as invoiced (%lld)": [
-      "Gesendete als verrechnet markieren (%lld)",
-      "Označi poslane kao fakturirane (%lld)",
-      "Označi poslana kot zaračunana (%lld)",
-      "Segna gli inviati come fatturati (%lld)",
-      "Marquer les envoyés comme facturés (%lld)",
-      "Marcar los enviados como facturados (%lld)",
-      "Marcar os enviados como faturados (%lld)",
-      "Verstuurde markeren als gefactureerd (%lld)",
-      "Oznacz wysłane jako zafakturowane (%lld)"
     ],
     "Client confirms": [
       "Auftraggeber bestätigt",
@@ -9188,17 +9320,6 @@
       "O diretor de obra do cliente pode assinar todos estes trabalhos de uma vez. A assinatura é impressa por baixo do relatório.",
       "De bouwleider van de opdrachtgever kan al deze werkzaamheden in één keer aftekenen. De handtekening staat onder het rapport.",
       "Kierownik budowy zleceniodawcy może podpisać wszystkie te prace naraz. Podpis jest drukowany pod raportem."
-    ],
-    "Send to boss · PDF": [
-      "An den Chef senden · PDF",
-      "Pošalji šefu · PDF",
-      "Pošlji šefu · PDF",
-      "Invia al capo · PDF",
-      "Envoyer au patron · PDF",
-      "Enviar al jefe · PDF",
-      "Enviar ao chefe · PDF",
-      "Naar de baas sturen · PDF",
-      "Wyślij szefowi · PDF"
     ],
     "Marked as sent after you share the PDF or the Excel file.": [
       "Wird als gesendet markiert, nachdem du das PDF oder die Excel-Datei geteilt hast.",

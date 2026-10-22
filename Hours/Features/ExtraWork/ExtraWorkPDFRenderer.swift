@@ -1,12 +1,19 @@
 import UIKit
 
 /// Draws the extra-work report as a PDF, in the look of the app's other
-/// exports (mockup 16): the orange eyebrow, the site's name in bold, who
-/// recorded it, grey tiles, grey upper-case column heads over thin rules, a
-/// heavier rule under the last line, orange for what the client has not yet
-/// confirmed, the lines to sign on, and "Zeitkonto · page 1 of 2".
+/// exports (mockup 16): the orange eyebrow ("EXTRA WORK DONE · dates"), the
+/// site's name in bold, who recorded it, grey tiles, grey upper-case column
+/// heads over thin rules, a heavier rule under the last line, and
+/// "Zeitkonto · page 1 of 2".
 ///
-/// A4 portrait, as the mockup is: a report of material and jobs is read
+/// It tells the boss what is done, so the work comes first and big: the
+/// jobs day by day with their photos, then any still in progress under a
+/// heading of their own, then the material used as a summary. Nothing on it
+/// is a form: no empty lines to sign on. A signature the client gave is
+/// drawn with "Confirmed on site by …" — on its job, or under the report —
+/// and nothing is drawn where there is none.
+///
+/// A4 portrait, as the mockup is: a report of jobs and material is read
 /// down the page, unlike a month of hours, which needs the width. Type,
 /// colours, the text helpers and the signature drawing are the director's
 /// sheet's own (`PDFReportStyle`, `PDFAppendix.drawStrokes`). Laid out
@@ -33,23 +40,29 @@ enum ExtraWorkPDFRenderer {
     private static let thumbnail: CGFloat = 32
     private static let thumbnailGap: CGFloat = 4
     private static let closingHeight: CGFloat = 70
+    /// A job's own signature, drawn under its confirmation line.
+    private static let jobSignatureHeight: CGFloat = 26
+    private static let jobSignatureWidth: CGFloat = 90
 
     private static let tileWidth: CGFloat = 76
     private static let tileHeight: CGFloat = 40
     private static let tileGap: CGFloat = 6
 
-    // Job columns: day, work and material, photos, client.
+    // Job columns: day, work and material, photos.
     private static let dayWidth: CGFloat = 56
     private static let photosWidth: CGFloat = thumbnail * 3 + thumbnailGap * 2 + 12
-    private static let clientWidth: CGFloat = 70
-    private static var workWidth: CGFloat { width - dayWidth - photosWidth - clientWidth }
+    private static var workWidth: CGFloat { width - dayWidth - photosWidth }
 
     private enum Block: Hashable {
         case header
-        case materialHead
-        case material(Int)
         case jobsHead
         case job(Int)
+        case progressHead
+        case progressJob(Int)
+        case materialHead
+        case material(Int)
+
+        var isHeading: Bool { self == .jobsHead || self == .progressHead || self == .materialHead }
     }
 
     private struct Page {
@@ -88,21 +101,28 @@ enum ExtraWorkPDFRenderer {
     private static func height(of block: Block, in document: ExtraWorkDocument, images: [UUID: UIImage]) -> CGFloat {
         switch block {
         case .header: return headerHeight(for: document)
-        case .materialHead, .jobsHead: return sectionGap + sectionTitleHeight + columnHeadHeight
+        case .jobsHead, .progressHead, .materialHead: return sectionGap + sectionTitleHeight + columnHeadHeight
         case .material: return materialRowHeight
         case let .job(index): return jobHeight(document.jobs[index], images: images)
+        case let .progressJob(index): return jobHeight(document.inProgressJobs[index], images: images)
         }
     }
 
+    /// The work done first, what is still in progress after it, the
+    /// material last.
     private static func layOut(_ document: ExtraWorkDocument, images: [UUID: UIImage]) -> [Page] {
         var blocks: [Block] = [.header]
-        if !document.material.isEmpty {
-            blocks.append(.materialHead)
-            blocks += document.material.indices.map(Block.material)
-        }
         if !document.jobs.isEmpty {
             blocks.append(.jobsHead)
             blocks += document.jobs.indices.map(Block.job)
+        }
+        if !document.inProgressJobs.isEmpty {
+            blocks.append(.progressHead)
+            blocks += document.inProgressJobs.indices.map(Block.progressJob)
+        }
+        if !document.material.isEmpty {
+            blocks.append(.materialHead)
+            blocks += document.material.indices.map(Block.material)
         }
 
         var pages: [Page] = []
@@ -113,7 +133,7 @@ enum ExtraWorkPDFRenderer {
             let block = blocks[index]
             var needed = height(of: block, in: document, images: images)
             // A heading never ends a page alone: it goes over with its first row.
-            if block == .materialHead || block == .jobsHead, index + 1 < blocks.count {
+            if block.isHeading, index + 1 < blocks.count {
                 needed += height(of: blocks[index + 1], in: document, images: images)
             }
             if y + needed > contentBottom && !page.blocks.isEmpty && !isHeadingOnly(page) {
@@ -124,6 +144,7 @@ enum ExtraWorkPDFRenderer {
                 switch block {
                 case .material: page.blocks.append(.materialHead)
                 case .job: page.blocks.append(.jobsHead)
+                case .progressJob: page.blocks.append(.progressHead)
                 default: break
                 }
                 y += page.blocks.reduce(0) { $0 + height(of: $1, in: document, images: images) }
@@ -132,8 +153,8 @@ enum ExtraWorkPDFRenderer {
             y += height(of: block, in: document, images: images)
             index += 1
         }
-        // The legend and the lines to sign on close the last page, or a page
-        // of their own when the last one is full.
+        // The legend, and the client's signature if there is one, close the
+        // last page, or a page of their own when the last one is full.
         if y + closingHeight <= pageSize.height - bottom - footerLine {
             page.closes = true
             pages.append(page)
@@ -145,7 +166,7 @@ enum ExtraWorkPDFRenderer {
     }
 
     private static func isHeadingOnly(_ page: Page) -> Bool {
-        page.blocks.allSatisfy { $0 == .materialHead || $0 == .jobsHead }
+        page.blocks.allSatisfy(\.isHeading)
     }
 
     // MARK: - Measuring
@@ -165,7 +186,8 @@ enum ExtraWorkPDFRenderer {
         [
             (job.description, PDFReportStyle.cellBoldFont, PDFReportStyle.ink),
             (job.material, PDFReportStyle.cellFont, PDFReportStyle.ink),
-            (job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary)
+            (job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary),
+            (job.confirmation, PDFReportStyle.smallFont, PDFReportStyle.secondary)
         ].filter { !$0.0.isEmpty }
     }
 
@@ -176,7 +198,8 @@ enum ExtraWorkPDFRenderer {
 
     private static func jobHeight(_ job: ExtraWorkDocument.JobRow, images: [UUID: UIImage]) -> CGFloat {
         let inner = workWidth - PDFReportStyle.cellPadding * 2
-        let text = textLines(of: job).reduce(CGFloat(0)) { $0 + textHeight($1.0, font: $1.1, width: inner) + 2 }
+        var text = textLines(of: job).reduce(CGFloat(0)) { $0 + textHeight($1.0, font: $1.1, width: inner) + 2 }
+        if job.signature != nil { text += jobSignatureHeight }
         let rows = photoRows(job, images: images)
         let photos = rows == 0 ? 0 : CGFloat(rows) * thumbnail + CGFloat(rows - 1) * thumbnailGap
         return max(text, photos, PDFReportStyle.cellFont.lineHeight) + rowPadding * 2
@@ -188,6 +211,19 @@ enum ExtraWorkPDFRenderer {
         switch block {
         case .header:
             drawHeader(document, at: y)
+        case .jobsHead, .progressHead:
+            drawSection(
+                block == .jobsHead ? document.jobsHeading : document.inProgressHeading,
+                columns: [(document.jobHeadings[0], dayWidth, .left),
+                          (document.jobHeadings[1], workWidth, .left),
+                          (document.jobHeadings[2], photosWidth, .left)],
+                language: document.language,
+                at: y
+            )
+        case let .job(index):
+            drawJob(document.jobs[index], isLast: index == document.jobs.count - 1, images: images, at: y)
+        case let .progressJob(index):
+            drawJob(document.inProgressJobs[index], isLast: index == document.inProgressJobs.count - 1, images: images, at: y)
         case .materialHead:
             drawSection(
                 document.materialHeading,
@@ -199,18 +235,6 @@ enum ExtraWorkPDFRenderer {
             )
         case let .material(index):
             drawMaterial(document.material[index], isLast: index == document.material.count - 1, at: y)
-        case .jobsHead:
-            drawSection(
-                document.jobsHeading,
-                columns: [(document.jobHeadings[0], dayWidth, .left),
-                          (document.jobHeadings[1], workWidth, .left),
-                          (document.jobHeadings[2], photosWidth, .left),
-                          (document.jobHeadings[3], clientWidth, .left)],
-                language: document.language,
-                at: y
-            )
-        case let .job(index):
-            drawJob(document.jobs[index], isLast: index == document.jobs.count - 1, images: images, at: y)
         }
         return y + height(of: block, in: document, images: images)
     }
@@ -281,7 +305,7 @@ enum ExtraWorkPDFRenderer {
                             width: 2, color: PDFReportStyle.ink)
     }
 
-    /// "MATERIAL IN TOTAL", then the column heads over a thin dark rule.
+    /// "WORK DONE, DAY BY DAY", then the column heads over a thin dark rule.
     private static func drawSection(
         _ title: String,
         columns: [(String, CGFloat, NSTextAlignment)],
@@ -337,6 +361,10 @@ enum ExtraWorkPDFRenderer {
             PDFReportStyle.drawWrapping(text, in: CGRect(x: workX, y: textY, width: inner, height: height + 2), font: font, color: color)
             textY += height + 2
         }
+        if let signature = job.signature {
+            let area = CGRect(x: workX, y: textY, width: jobSignatureWidth, height: jobSignatureHeight - 2)
+            PDFAppendix.drawStrokes(signature.strokes, aspectRatio: signature.aspectRatio, in: area)
+        }
 
         let photosX = margin + dayWidth + workWidth + padding
         let shown = job.photoIDs.compactMap { images[$0] }
@@ -355,10 +383,6 @@ enum ExtraWorkPDFRenderer {
             }
         }
 
-        let clientX = margin + dayWidth + workWidth + photosWidth + padding
-        PDFReportStyle.draw(job.client, in: CGRect(x: clientX, y: y, width: clientWidth - padding * 2, height: 12),
-                            font: PDFReportStyle.cellBoldFont,
-                            color: job.isConfirmed ? PDFReportStyle.ink : PDFReportStyle.accent)
 
         rowRule(at: start + rowHeight, isLast: isLast)
     }
@@ -375,36 +399,30 @@ enum ExtraWorkPDFRenderer {
         UIGraphicsGetCurrentContext()?.restoreGState()
     }
 
-    /// The legend on the left; the client's signature, drawn or to be drawn,
-    /// and the supervisor's line beside it.
+    /// The legend on the left; on the right, the client's signature under
+    /// the whole report with "Confirmed on site by …", when they gave one.
+    /// No empty lines: this is a report, not a form.
     private static func drawClosing(_ document: ExtraWorkDocument) {
         let lineY = pageSize.height - bottom - footerLine - 14
         let areaTop = lineY - closingHeight + 20
-        let signatureWidth: CGFloat = 150
+        let signatureWidth: CGFloat = 220
         let gap: CGFloat = 18
-        let slots = (document.clientSignature == nil ? 0 : 1) + document.signatureLines.count
-        let legendWidth = width - CGFloat(slots) * (signatureWidth + gap)
+        let legendWidth = document.clientSignature == nil ? width : width - signatureWidth - gap
 
         PDFReportStyle.drawWrapping(document.legend, in: CGRect(x: margin, y: lineY - 34, width: max(120, legendWidth), height: 46),
                                     font: PDFReportStyle.smallFont, color: PDFReportStyle.secondary)
 
-        var x = margin + legendWidth + gap
         if let signature = document.clientSignature {
+            let x = margin + legendWidth + gap
             let area = CGRect(x: x, y: areaTop, width: signatureWidth, height: lineY - areaTop - 2)
             PDFAppendix.drawStrokes(signature.strokes, aspectRatio: signature.aspectRatio, in: area)
-            signLine(document.clientSignatureLabel, x: x, y: lineY, width: signatureWidth)
-            x += signatureWidth + gap
+            PDFReportStyle.line(from: CGPoint(x: x, y: lineY), to: CGPoint(x: x + signatureWidth, y: lineY),
+                                width: 0.6, color: PDFReportStyle.signatureRule)
+            // One line, above the page count: 7.5 pt fits "Confirmed on site
+            // by" a long name and a date in this width.
+            PDFReportStyle.draw(document.clientSignatureLabel, in: CGRect(x: x, y: lineY + 1, width: signatureWidth, height: 11),
+                                font: PDFReportStyle.smallFont, color: PDFReportStyle.secondary)
         }
-        for label in document.signatureLines {
-            signLine(label, x: x, y: lineY, width: signatureWidth)
-            x += signatureWidth + gap
-        }
-    }
-
-    private static func signLine(_ label: String, x: CGFloat, y: CGFloat, width: CGFloat) {
-        PDFReportStyle.line(from: CGPoint(x: x, y: y), to: CGPoint(x: x + width, y: y), width: 0.6, color: PDFReportStyle.signatureRule)
-        PDFReportStyle.draw(label, in: CGRect(x: x, y: y + 1, width: width, height: 11),
-                            font: PDFReportStyle.smallFont, color: PDFReportStyle.secondary)
     }
 
     private static func drawPageNumber(_ page: Int, of count: Int, language: ExportLanguage) {
