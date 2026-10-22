@@ -140,8 +140,8 @@ struct WidgetSnapshotWriter {
         )
     }
 
-    /// Writes the snapshot, asks the widget to reload, and brings the clock's
-    /// Live Activity in line with it.
+    /// Writes the snapshot, asks the widget to reload, brings the clock's
+    /// Live Activity in line with it, and sends it to the Apple Watch.
     ///
     /// The Live Activity is kept in step from here because every path that
     /// starts, stops or changes the clock already ends in this call — the
@@ -153,9 +153,14 @@ struct WidgetSnapshotWriter {
     func refresh(at instant: Date = Date()) {
         let snapshot = snapshot(at: instant)
         ClockActivityController.sync(with: snapshot)
+        // The watch cannot read the App Group, so it is sent the same file.
+        PhoneWatchLink.shared.send(snapshot)
         guard WidgetSnapshotStore.isConfigured else { return }
         WidgetSnapshotStore.write(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
+        // The Clock in and out control shows whether the clock is running,
+        // and Same as yesterday which site it opens; both read this file.
+        ControlCenter.shared.reloadAllControls()
     }
 }
 

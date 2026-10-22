@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Where a person reads the result. HoursCore is included: it cannot call
 # String(localized:) — it also builds on Linux — but it has its own word table,
 # and a literal there is the same defect with a different fix.
-SEARCHED = ["Hours", "HoursCore", "HoursWidget", "HoursShared"]
+SEARCHED = ["Hours", "HoursCore", "HoursWidget", "HoursShared", "HoursWatch", "HoursWatchWidget", "HoursWatchShared"]
 
 # Anything whose literal is looked up. Matched against the text leading up to
 # the literal with newlines removed, because these calls wrap:
@@ -69,7 +69,7 @@ ALLOWED = {
     # An AppShortcutPhrase must be a compile-time literal — it cannot take a
     # runtime String, so String(localized:) is not available to it. Apple
     # localizes these through the catalogue instead, keyed on the phrase with
-    # ${applicationName} where \(.applicationName) sits. Those six keys are in
+    # ${applicationName} where \(.applicationName) sits. Those keys are in
     # translations.json and ship in the catalogue. Whether iOS then resolves
     # them is not something this repository can prove: it needs a German phone
     # and Siri. Stated here rather than left looking finished.
@@ -79,6 +79,9 @@ ALLOWED = {
     "Finish work in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "Check my hours in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "How am I doing in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Clock in or out with \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Same as yesterday in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Write today in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     # Looked up, as a LocalizedStringKey: "Since %@ · %@ so far" is in
     # translations.json. It cannot be String(localized:) because the second
     # value is a Text counting up live on the Lock Screen, and a String

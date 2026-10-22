@@ -106,7 +106,16 @@ def png(raw):
             + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
+# The iPhone app's icon, and the Apple Watch app's: the same artwork, which
+# watchOS masks to a circle. The hat sits well inside the circle already.
+OUTPUTS = [
+    "Hours/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+    "HoursWatch/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+]
+
 if __name__ == "__main__":
-    out = Path(__file__).resolve().parent.parent / "Hours/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
-    out.write_bytes(png(render()))
-    print(f"wrote {out.relative_to(Path.cwd()) if out.is_relative_to(Path.cwd()) else out}")
+    image = png(render())
+    for relative in OUTPUTS:
+        out = Path(__file__).resolve().parent.parent / relative
+        out.write_bytes(image)
+        print(f"wrote {out.relative_to(Path.cwd()) if out.is_relative_to(Path.cwd()) else out}")

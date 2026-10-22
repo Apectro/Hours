@@ -11,6 +11,9 @@ import WidgetKit
 ///
 /// The Live Activity is the exception: the system hands it its state
 /// directly, from the app, so it needs no snapshot at all.
+///
+/// The controls (Control Center, the Lock Screen, the Action Button) read the
+/// snapshot like the widgets; see `Controls.swift`.
 @main
 struct HoursWidgetBundle: WidgetBundle {
     var body: some Widget {
@@ -19,5 +22,8 @@ struct HoursWidgetBundle: WidgetBundle {
         WeekWidget()
         SiteWidget()
         ClockLiveActivity()
+        ClockControl()
+        SameAsYesterdayControl()
+        WriteTodayControl()
     }
 }

@@ -8,7 +8,7 @@ final class AppLinkTests: XCTestCase {
 
     func testEveryLinkReadsBackAsItself() {
         let october = YearMonth(year: 2026, month: 10)
-        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id), .siteExport(id, october)] {
+        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id), .siteExport(id, october), .writeToday] {
             XCTAssertEqual(AppLink(url: link.url), link, "\(link.url)")
         }
     }
@@ -24,6 +24,32 @@ final class AppLinkTests: XCTestCase {
             AppLink.siteExport(id, YearMonth(year: 2026, month: 3)).url.absoluteString,
             "zeitkonto://site/\(id.uuidString)/export?month=2026-03"
         )
+    }
+
+    /// The Write today control and shortcut open today's day editor.
+    func testWriteTodayLooksAsDocumented() {
+        XCTAssertEqual(AppLink.writeToday.url.absoluteString, "zeitkonto://today")
+        XCTAssertEqual(AppLink(url: URL(string: "Zeitkonto://TODAY")!), .writeToday)
+        XCTAssertNil(AppLink(url: URL(string: "zeitkonto://today/extra")!))
+    }
+
+    /// The Same as yesterday control follows the site card: the most recent
+    /// active site, filled from its last written day.
+    func testSameAsYesterdayOpensTheSiteOnTheWidgetCard() {
+        var snapshot = WidgetSnapshot.empty
+        snapshot.site = WidgetSite(
+            id: id, name: "Trg Pravde", isTodayWritten: false, lastDay: nil,
+            lastDayPeople: 0, includesYou: true, initials: [], lastStart: nil, lastEnd: nil
+        )
+
+        XCTAssertEqual(AppLink.sameAsYesterday(from: snapshot), .siteSameAsLastDay(id))
+    }
+
+    /// No site, or no snapshot yet: the Sites tab, where one can be added,
+    /// rather than a button that does nothing.
+    func testSameAsYesterdayWithoutASiteOpensTheSites() {
+        XCTAssertEqual(AppLink.sameAsYesterday(from: .empty), .sites)
+        XCTAssertEqual(AppLink.sameAsYesterday(from: nil), .sites)
     }
 
     /// The monthly reminder opens a site's sheet on the month it names, so

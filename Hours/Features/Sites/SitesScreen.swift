@@ -45,7 +45,8 @@ struct SitesScreen: View {
         guard let newLink else { return }
         var next = NavigationPath()
         switch newLink {
-        case .sites:
+        // Today's editor is the calendar's; the root never sends it here.
+        case .sites, .writeToday:
             break
         case let .site(id):
             next.append(SiteRoute(siteID: id))

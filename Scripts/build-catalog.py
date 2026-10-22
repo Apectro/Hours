@@ -25,6 +25,9 @@ import re
 
 APP = "Hours/Resources/Localizable.xcstrings"
 WIDGET = "HoursWidget/Localizable.xcstrings"
+# The Apple Watch app and its complications: one catalogue in the folder both
+# watch targets compile, so each bundle carries it.
+WATCH = "HoursWatchShared/Localizable.xcstrings"
 
 
 def plural(name, arg_num, one, other):
@@ -215,3 +218,4 @@ if __name__ == "__main__":
     data = load_translations()
     write(os.path.join(root, APP), translate(APP_STRINGS, data))
     write(os.path.join(root, WIDGET), translate(WIDGET_STRINGS, data, data["widgetInterface"]))
+    write(os.path.join(root, WATCH), translate({}, data, data["watchInterface"]))
