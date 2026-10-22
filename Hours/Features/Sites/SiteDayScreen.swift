@@ -107,7 +107,8 @@ struct SiteDayScreen: View {
                     onSelect: select,
                     onStep: step,
                     diaryDateKeys: diaryDateKeys,
-                    badWeatherDateKeys: badWeatherDateKeys
+                    badWeatherDateKeys: badWeatherDateKeys,
+                    holidayDateKeys: holidayDateKeys
                 )
 
                 monthSummary
@@ -301,6 +302,16 @@ struct SiteDayScreen: View {
 
     private var layout: MonthLayout {
         MonthLayout.make(month: month, calendar: calendar, includesWeekends: true)
+    }
+
+    /// Public holidays off in the shown month: never outlined as unwritten.
+    private var holidayDateKeys: Set<Int> {
+        guard settings.features.trackHolidays, let first = layout.days.first, let last = layout.days.last else {
+            return []
+        }
+        let range = CalendarDateRange(start: first, end: last)
+        return HolidayResolver(rules: holidayRecords.map(\.rule), calendar: calendar, covering: range)
+            .daysOffKeys(in: range, calendar: calendar)
     }
 
     private var badWeatherDateKeys: Set<Int> {

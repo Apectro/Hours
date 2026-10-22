@@ -10,13 +10,15 @@ enum SiteReminderPlan {
     /// Dates from `today` up to (not including) `today + daysAhead` that some
     /// site is expected on but has no site day for. Sorted, without duplicates.
     /// The look-back window is the `lookBackDays` days before `today`; today
-    /// itself is not history, it is the thing being checked.
+    /// itself is not history, it is the thing being checked. Public holidays
+    /// (`holidays`, date keys) are never a missing site day.
     static func dates(
         siteDays: [SiteDay],
         today: CalendarDate,
         calendar: Calendar,
         lookBackDays: Int = 14,
-        daysAhead: Int = 7
+        daysAhead: Int = 7,
+        holidays: Set<Int> = []
     ) -> [CalendarDate] {
         guard lookBackDays > 0, daysAhead > 0 else { return [] }
         let windowStart = today.adding(days: -lookBackDays, in: calendar)
@@ -33,6 +35,7 @@ enum SiteReminderPlan {
         var result: [CalendarDate] = []
         for offset in 0..<daysAhead {
             let date = today.adding(days: offset, in: calendar)
+            if holidays.contains(date.key) { continue }
             let weekday = date.weekday(in: calendar)
             let missing = weekdaysBySite.contains { siteID, weekdays in
                 weekdays.contains(weekday) && !(recorded[siteID]?.contains(date) ?? false)

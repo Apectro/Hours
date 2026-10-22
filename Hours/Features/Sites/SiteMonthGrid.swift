@@ -23,6 +23,8 @@ struct SiteMonthGrid: View {
     var diaryDateKeys: Set<Int> = []
     /// Date keys the weather stopped work on.
     var badWeatherDateKeys: Set<Int> = []
+    /// Date keys of public holidays off, which are never unwritten.
+    var holidayDateKeys: Set<Int> = []
 
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: Metrics.tiny), count: max(layout.columnCount, 1))
@@ -86,14 +88,17 @@ struct SiteMonthGrid: View {
         .buttonStyle(.borderless)
     }
 
-    /// A weekday of the shown month, before today, with nothing written for
-    /// this site. Monday to Friday by the calendar's own weekday numbers and
-    /// nothing cleverer: the site has no schedule of its own to consult, and
-    /// guessing one would put outlines on days nobody was meant to work.
+    /// See `SiteUnwrittenDay`: a past weekday of the month with nothing
+    /// written, and not a public holiday.
     private func isUnwritten(_ date: CalendarDate) -> Bool {
-        guard layout.isInMonth(date), date < today, presentCounts[date.key] == nil else { return false }
-        let weekday = date.weekday(in: calendar)
-        return weekday != 1 && weekday != 7
+        SiteUnwrittenDay.isUnwritten(
+            date,
+            isInMonth: layout.isInMonth(date),
+            today: today,
+            isWritten: presentCounts[date.key] != nil,
+            calendar: calendar,
+            holidays: holidayDateKeys
+        )
     }
 }
 
