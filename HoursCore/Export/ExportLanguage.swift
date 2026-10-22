@@ -376,6 +376,43 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           es: "Días de mal tiempo", pt: "Dias de mau tempo",
                                           nl: "Slechtweerdagen", pl: "Dni niepogody")
 
+        // The site diary
+        case .siteDiary:      return pick(en: "Site diary", de: "Bautagebuch", hr: "Građevinski dnevnik",
+                                          sl: "Gradbeni dnevnik", it: "Giornale dei lavori",
+                                          fr: "Journal de chantier", es: "Diario de obra", pt: "Diário de obra",
+                                          nl: "Bouwdagboek", pl: "Dziennik budowy")
+        case .weather:        return pick(en: "Weather", de: "Wetter", hr: "Vrijeme", sl: "Vreme", it: "Meteo",
+                                          fr: "Météo", es: "Tiempo", pt: "Tempo", nl: "Weer", pl: "Pogoda")
+        case .diaryWorkDone:  return pick(en: "Work done", de: "Ausgeführte Arbeiten", hr: "Izvedeni radovi",
+                                          sl: "Opravljena dela", it: "Lavori eseguiti", fr: "Travaux réalisés",
+                                          es: "Trabajos realizados", pt: "Trabalhos realizados",
+                                          nl: "Uitgevoerd werk", pl: "Wykonane prace")
+        case .diaryDeliveries: return pick(en: "Deliveries", de: "Lieferungen", hr: "Isporuke", sl: "Dobave",
+                                           it: "Forniture", fr: "Livraisons", es: "Entregas", pt: "Entregas",
+                                           nl: "Leveringen", pl: "Dostawy")
+        case .diaryProblems:  return pick(en: "Problems / delays", de: "Behinderungen / Verzögerungen",
+                                          hr: "Problemi / kašnjenja", sl: "Težave / zamude",
+                                          it: "Problemi / ritardi", fr: "Problèmes / retards",
+                                          es: "Problemas / retrasos", pt: "Problemas / atrasos",
+                                          nl: "Problemen / vertraging", pl: "Problemy / opóźnienia")
+        case .diaryVisitors:  return pick(en: "Visitors", de: "Besucher", hr: "Posjetitelji", sl: "Obiskovalci",
+                                          it: "Visitatori", fr: "Visiteurs", es: "Visitas", pt: "Visitas",
+                                          nl: "Bezoekers", pl: "Odwiedzający")
+        case .weatherSunny:   return pick(en: "Sunny", de: "Sonnig", hr: "Sunčano", sl: "Sončno", it: "Soleggiato",
+                                          fr: "Ensoleillé", es: "Soleado", pt: "Sol", nl: "Zonnig", pl: "Słonecznie")
+        case .weatherCloudy:  return pick(en: "Cloudy", de: "Bewölkt", hr: "Oblačno", sl: "Oblačno", it: "Nuvoloso",
+                                          fr: "Nuageux", es: "Nublado", pt: "Nublado", nl: "Bewolkt", pl: "Pochmurno")
+        case .weatherRain:    return pick(en: "Rain", de: "Regen", hr: "Kiša", sl: "Dež", it: "Pioggia",
+                                          fr: "Pluie", es: "Lluvia", pt: "Chuva", nl: "Regen", pl: "Deszcz")
+        case .weatherSnow:    return pick(en: "Snow", de: "Schnee", hr: "Snijeg", sl: "Sneg", it: "Neve",
+                                          fr: "Neige", es: "Nieve", pt: "Neve", nl: "Sneeuw", pl: "Śnieg")
+        case .weatherFrost:   return pick(en: "Frost", de: "Frost", hr: "Mraz", sl: "Mraz", it: "Gelo",
+                                          fr: "Gel", es: "Helada", pt: "Geada", nl: "Vorst", pl: "Mróz")
+        case .weatherWind:    return pick(en: "Wind", de: "Wind", hr: "Vjetar", sl: "Veter", it: "Vento",
+                                          fr: "Vent", es: "Viento", pt: "Vento", nl: "Wind", pl: "Wiatr")
+        case .weatherHeat:    return pick(en: "Heat", de: "Hitze", hr: "Vrućina", sl: "Vročina", it: "Caldo",
+                                          fr: "Chaleur", es: "Calor", pt: "Calor", nl: "Hitte", pl: "Upał")
+
         // The printed page around the table
         case .timesheet:      return pick(en: "Timesheet", de: "Stundenzettel", hr: "Evidencija radnog vremena",
                                           sl: "Evidenca delovnega časa", it: "Foglio ore", fr: "Feuille de temps",
@@ -469,6 +506,10 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
     case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
+
+    /// The site diary.
+    case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors
+    case weatherSunny, weatherCloudy, weatherRain, weatherSnow, weatherFrost, weatherWind, weatherHeat
 
     /// The printed page around the table.
     case timesheet, employeeSignature, employerSignature, checkedSignature, of
