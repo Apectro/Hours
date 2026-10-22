@@ -44,7 +44,8 @@ struct YearReviewScreen: View {
                 close: { dismiss() }
             )
         }
-        .accessibilityIdentifier("screen-year-review")
+        // No identifier here: on a container it is handed down to every
+        // element inside and replaces theirs, so the pages name themselves.
     }
 
     private var calendar: Calendar { settingsStore.workCalendar }
