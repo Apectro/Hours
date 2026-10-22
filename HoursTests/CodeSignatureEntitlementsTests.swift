@@ -47,6 +47,15 @@ final class CodeSignatureEntitlementsTests: XCTestCase {
         XCTAssertEqual(CodeSignatureEntitlements.read(binary), .signed(entitlements: syncingEntitlements))
     }
 
+    func testOffsetsCountFromTheStartOfTheFileNotOfTheDataIndices() {
+        // A slice of a larger buffer does not start at index 0; reading it
+        // must not copy it first to find out where it starts.
+        let binary = MachOFixture.thin(entitlements: syncingEntitlements)
+        let sliced = (Data(repeating: 0xEE, count: 5) + binary).dropFirst(5)
+        XCTAssertEqual(sliced.startIndex, 5)
+        XCTAssertEqual(CodeSignatureEntitlements.read(sliced), .signed(entitlements: syncingEntitlements))
+    }
+
     func testABinaryWithNoSignatureIsUnsigned() {
         // What `CODE_SIGNING_ALLOWED=NO` produces: the CI simulator builds.
         XCTAssertEqual(CodeSignatureEntitlements.read(MachOFixture.thin(signature: false)), .notSigned)

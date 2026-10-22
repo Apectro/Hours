@@ -97,17 +97,22 @@ enum CodeSignatureEntitlements {
     }
 
     /// Bounds-checked reads, so a short or damaged file is an answer rather
-    /// than a trap.
+    /// than a trap. Offsets are from the start of the file whatever the
+    /// `Data`'s own indices are, and nothing is copied but what is asked
+    /// for: the executable is memory-mapped, and reading the few pages the
+    /// header and the signature live on is all this should cost at launch.
     private struct Bytes {
         let data: Data
-        init(_ data: Data) { self.data = Data(data) }  // rebased to index 0
+        init(_ data: Data) { self.data = data }
 
         func contains(_ start: Int, _ length: Int) -> Bool {
             start >= 0 && length >= 0 && start <= data.count && length <= data.count - start
         }
 
         func slice(_ start: Int, _ length: Int) -> Data? {
-            contains(start, length) ? data.subdata(in: start..<(start + length)) : nil
+            guard contains(start, length) else { return nil }
+            let from = data.startIndex + start
+            return data.subdata(in: from..<(from + length))
         }
 
         func little32(at offset: Int) -> UInt32? {
