@@ -619,7 +619,9 @@ with the phone in the van. The context carries the ids the phone has seen;
 the watch drops those, and anything unanswered after a day. Complications read
 the same two things from the watch's own App Group and draw the same face.
 
-The watch app has its own targets and scheme, `HoursWatch`, and the engine
+The watch app has its own targets and scheme, `HoursWatch`, and is embedded
+in the iPhone app ("Embed Watch Content"), so the iPhone scheme builds it for
+the watchOS simulator and the archive carries it. The engine
 folder is compiled into them as into the widget; `HoursShared` is not, since
 ActivityKit is not on watchOS. Its strings are a third catalogue,
 `HoursWatchShared/Localizable.xcstrings`, generated like the others from the

@@ -15,12 +15,27 @@ default_platform(:ios)
 
 APP_ID = "app.zeitkonto.hours"
 WIDGET_ID = "app.zeitkonto.hours.widget"
+# The Apple Watch app and its complications, embedded in the iPhone app. A
+# watchOS app's identifier is an ordinary iOS-platform App ID, and its App
+# Store profile an iOS one, so match and Spaceship treat them like the widget.
+WATCH_ID = "app.zeitkonto.hours.watchkitapp"
+WATCH_WIDGET_ID = "app.zeitkonto.hours.watchkitapp.complications"
 PROJECT = "Hours.xcodeproj"
 SCHEME = "Hours"
 # Xcode target => the bundle identifier it is signed as.
 TARGETS = {
   "Hours" => APP_ID,
-  "HoursWidgetExtension" => WIDGET_ID
+  "HoursWidgetExtension" => WIDGET_ID,
+  "HoursWatch" => WATCH_ID,
+  "HoursWatchWidgetExtension" => WATCH_WIDGET_ID
+}.freeze
+
+# The identifiers the key registers by itself when they are missing, with the
+# name each is given on the website.
+EXTRA_IDS = {
+  WIDGET_ID => "Zeitkonto Widget",
+  WATCH_ID => "Zeitkonto Watch",
+  WATCH_WIDGET_ID => "Zeitkonto Watch Complications"
 }.freeze
 
 KEY_INVALID_FIX = <<~TEXT.freeze
@@ -65,7 +80,9 @@ APP_GROUP_FIX = <<~TEXT.freeze
     2. Click +, choose "App Groups", continue. Description: Zeitkonto. Identifier: #{APP_GROUP}. Register.
     3. Back in Identifiers, open #{APP_ID}. Tick "App Groups", click "Configure" (or "Edit"),
        tick #{APP_GROUP}, Continue, then Save. Confirm the dialog about profiles.
-    4. Do the same for #{WIDGET_ID}.
+    4. Do the same for #{WIDGET_ID}, #{WATCH_ID} and #{WATCH_WIDGET_ID}
+       (the watch app's complications read what the watch app last heard
+       from the phone through the same group, on the watch).
     5. Run the workflow again. It makes new signing profiles by itself.
 TEXT
 
@@ -211,18 +228,21 @@ platform :ios do
     preflight_failed("the Bundle ID #{APP_ID} is not registered", BUNDLE_ID_MISSING_FIX) unless bundle_id
     UI.success("✓ Bundle ID #{APP_ID} is registered")
 
-    # The widget is signed separately and needs an identifier of its own. The
-    # key can register it; the App Group it shares with the app is ticked on
-    # the website (check d says how).
-    if Spaceship::ConnectAPI::BundleId.find(WIDGET_ID)
-      UI.success("✓ Bundle ID #{WIDGET_ID} (widget) is registered")
-    else
-      Spaceship::ConnectAPI::BundleId.create(
-        name: "Zeitkonto Widget",
-        platform: Spaceship::ConnectAPI::BundleIdPlatform::IOS,
-        identifier: WIDGET_ID
-      )
-      UI.success("✓ Bundle ID #{WIDGET_ID} (widget) was missing and has been registered")
+    # The widget, the watch app and its complications are each signed
+    # separately and need an identifier of their own. The key can register
+    # them; the App Group they share is ticked on the website (check d says
+    # how).
+    EXTRA_IDS.each do |id, name|
+      if Spaceship::ConnectAPI::BundleId.find(id)
+        UI.success("✓ Bundle ID #{id} (#{name}) is registered")
+      else
+        Spaceship::ConnectAPI::BundleId.create(
+          name: name,
+          platform: Spaceship::ConnectAPI::BundleIdPlatform::IOS,
+          identifier: id
+        )
+        UI.success("✓ Bundle ID #{id} (#{name}) was missing and has been registered")
+      end
     end
 
     # c. The app exists in App Store Connect.
@@ -230,7 +250,7 @@ platform :ios do
     preflight_failed("there is no app with the Bundle ID #{APP_ID} in App Store Connect", APP_MISSING_FIX) unless app
     UI.success("✓ App \"#{app.name}\" exists in App Store Connect")
 
-    # d. Both identifiers can use the shared App Group. Without it the widget
+    # d. Every identifier can use the shared App Group. Without it the widget
     # can never see the app's figures, and signing refuses the entitlement.
     TARGETS.each_value do |id|
       capabilities = Spaceship::ConnectAPI::BundleId.find(id).get_capabilities
@@ -238,7 +258,7 @@ platform :ios do
         preflight_failed("the Bundle ID #{id} does not have the App Groups capability", APP_GROUP_FIX)
       end
     end
-    UI.success("✓ App Groups is switched on for both Bundle IDs")
+    UI.success("✓ App Groups is switched on for every Bundle ID")
 
     # e. The app's identifier can use iCloud (CloudKit) and push. The key can
     # switch both on, which it does; what it cannot do is make the container
