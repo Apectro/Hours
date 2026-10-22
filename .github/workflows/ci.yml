@@ -313,6 +313,49 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # The Apple Watch app and its complications, on their own scheme.
+  #
+  # Their own job, so a watch target that does not compile shows up as itself
+  # and leaves the iOS jobs above and below it green: the watch app is not
+  # embedded in the iPhone app yet (see ARCHITECTURE, The Apple Watch app), so
+  # nothing that ships depends on it. Runs wherever the app is compiled — on
+  # a push that touched something Linux cannot build, and on pull requests.
+  watch:
+    name: Watch app compiles (watchOS simulator)
+    needs: scope
+    if: ${{ !cancelled() && (github.event_name != 'push' || needs.scope.outputs.needsXcode == 'true') }}
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the watch app and its complications
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Hours.xcodeproj \
+            -scheme HoursWatch \
+            -destination 'generic/platform=watchOS Simulator' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/watch.log"
+
+      - name: Summarise failures
+        if: failure()
+        run: |
+          DIAGS=$(grep -hE "error:" "$RUNNER_TEMP/watch.log" 2>/dev/null | sort -u | head -40)
+          echo "----- compile errors -----"
+          echo "${DIAGS:-none found — read the full log}"
+          echo "--------------------------"
+          {
+            echo "### Watch compile errors"
+            echo ''
+            echo '```'
+            echo "${DIAGS:-none found — read the full log}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build-and-test:
     name: App and tests (iOS simulator)
     # Not on every push, on purpose.

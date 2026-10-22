@@ -180,8 +180,15 @@ struct RootView: View {
         afterSetup = finish
     }
 
-    /// Every link the app follows is a place on the Sites tab.
+    /// Every link the app follows is a place on the Sites tab, except
+    /// Write today, which opens today's editor over the calendar — the same
+    /// sheet the setup's "Write today" ends on.
     private func follow(_ link: AppLink) {
+        if link == .writeToday {
+            selection = .calendar
+            afterSetup = .writeToday
+            return
+        }
         selection = .sites
         siteLink = link
     }

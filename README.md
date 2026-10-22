@@ -125,7 +125,10 @@ Hours/
   Data/        SwiftData models, repository, settings store
   Features/    one folder per screen
 HoursShared/   Apple-platform code the app and the widget both need
-HoursWidget/   the Home Screen and Lock Screen widgets
+HoursWidget/   the Home Screen and Lock Screen widgets, and the controls
+HoursWatch/    the Apple Watch app
+HoursWatchWidget/  its watch face complications
+HoursWatchShared/  what those two share, and their string catalogue
 HoursTests/    unit tests for the engine, holidays, DST and the exports
 HoursUITests/  launch and end-to-end tests, and the App Store screenshots
 ```
@@ -191,6 +194,35 @@ site screen. The Live Activity's stop button is different: it is a
 `LiveActivityIntent`, which iOS runs in the app's own process, so it records the
 shift exactly as the clock card would. Siri and the Shortcuts app can start and
 stop the clock as well. The widgets and the Live Activity are both part of Pro.
+
+**Controls** (iOS 18) put three of these in Control Center, on the Lock Screen
+and on the Action Button: **Clock in and out**, a toggle that is on while the
+clock runs and records the shift like the Live Activity's button does; **Same
+as yesterday**, which opens the site widget's link for the most recent site;
+and **Write today**, which opens today's day editor (`zeitkonto://today`). The
+same three are App Shortcuts — *Clock in or out*, *Same as yesterday*, *Write
+today* — so the Action Button can run one without a control.
+
+## Apple Watch
+
+A small watchOS 11 app: today's hours against what was expected ("6:42 of
+8:00"), the month's balance or earnings beneath, as the app's main figure has
+it, and one big **Clock in** / **Clock out** button with the site or job and a
+live timer while it runs. Complications for the circular, rectangular, inline
+and corner slots show today's hours and whether the clock is running.
+
+The watch records nothing itself. The phone sends it the widgets' snapshot over
+WatchConnectivity every time it writes one, and the watch asks the phone to
+clock in or out; the phone does it with the same clock as everything else.
+When the phone is out of reach the tap is queued, shown on the watch at once,
+and recorded at the time it was tapped once the two meet again. Nothing goes
+through a server: WatchConnectivity is the phone and the watch talking
+directly.
+
+The watch app (`app.zeitkonto.hours.watchkitapp`) and its complications
+(`…watchkitapp.complications`) carry the same App Group, on the watch, for the
+complications to read what the app last heard; tick it on both identifiers as
+above. They build on their own with the *HoursWatch* scheme.
 
 ## iCloud
 

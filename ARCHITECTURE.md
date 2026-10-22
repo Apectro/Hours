@@ -24,7 +24,9 @@ HoursCore/      pure Swift + Foundation. No SwiftUI, no SwiftData, no UIKit,
 HoursShared/    Apple-platform code the app and the widget both need.
 Hours/Data/     SwiftData models, repository, settings store.
 Hours/Features/ SwiftUI screens, one folder per feature.
-HoursWidget/    the widget extension.
+HoursWidget/    the widget extension: widgets, the Live Activity, controls.
+HoursWatch/     the Apple Watch app; HoursWatchWidget/ its complications;
+                HoursWatchShared/ what those two share.
 ```
 
 `HoursShared` exists because "shared between the app and the extension" and
@@ -349,6 +351,55 @@ iOS runs in the app's process; the widget extension compiles the same type, in
 `HoursShared`, only to put it on the button, and its `perform` is compiled out
 there by the `WIDGET_EXTENSION` condition only that target sets.
 
+**Controls are widgets that act.** Clock in and out is a `ControlWidgetToggle`
+whose state is the snapshot's running clock and whose intent,
+`ToggleClockIntent`, is built exactly as the stop button is: a
+`LiveActivityIntent` (and a `SetValueIntent`, for the state it was flipped to)
+in `HoursShared`, run in the app's process, compiled out of the extension.
+Clocking in from Control Center therefore starts the Live Activity from the
+background, which only such an intent may do. Same as yesterday and Write
+today are `OpenURLIntent` buttons on `AppLink`; which site Same as yesterday
+opens is `AppLink.sameAsYesterday(from:)`, the site card's site. The snapshot
+writer reloads the controls with the widgets. The App Shortcuts that open the
+app — Same as yesterday, Write today — leave their link in
+`HoursStack.notificationLinks`, as a tapped notification does, and the root
+follows it: Write today onto the calendar with today's editor over it.
+
+## The Apple Watch app
+
+The watch is a second, smaller screen for the same snapshot. It cannot read
+the phone's App Group and must never open the store, so `PhoneWatchLink` sends
+it the widgets' `WidgetSnapshot` as the WatchConnectivity application context
+— which keeps only the latest, exactly right for a snapshot — from the same
+`refresh` that writes the file, so the watch hears of every change the widgets
+do. It activates in the app's `init`, because a message from the watch wakes
+the app in the background, where no view appears.
+
+A tap on the watch is a `WatchCommand` with its own id and the instant it was
+tapped: `sendMessage` while the phone is in reach, `transferUserInfo`
+otherwise (delivered in order when the two meet), and both when a message
+fails, since a lost reply is indistinguishable from a lost message. The phone
+decides with `WatchCommandLedger`, in the engine: a command is obeyed once,
+at the time it was tapped — two hours queued in a pocket were still worked —
+never in the future, and a clock-out older than the running clock is refused,
+because it ended a shift the phone has already ended. It then runs the same
+`TimeClock` as everything else and refreshes, which answers the watch. A Live
+Activity cannot be started from that background wake; it appears the next
+time the app comes forward.
+
+The watch shows `WatchFace`, also in the engine: the snapshot's own accessors
+(so yesterday's total is not today's on the wrist either) with the taps the
+phone has not reported handled laid over them, so the button responds at once
+with the phone in the van. The context carries the ids the phone has seen;
+the watch drops those, and anything unanswered after a day. Complications read
+the same two things from the watch's own App Group and draw the same face.
+
+The watch app has its own targets and scheme, `HoursWatch`, and the engine
+folder is compiled into them as into the widget; `HoursShared` is not, since
+ActivityKit is not on watchOS. Its strings are a third catalogue,
+`HoursWatchShared/Localizable.xcstrings`, generated like the others from the
+`watchInterface` list. No Pro gate: it is free, as everything is at launch.
+
 ## Reminders and the links they open
 
 Three kinds of local notification, each planned in the engine and scheduled by
@@ -408,6 +459,10 @@ network calls on its behalf and nothing else does: StoreKit, to ask whether Pro
 has been paid for, and — only when the user turns it on — CloudKit. Neither
 carries a single recorded hour anywhere we can see. The only data that leaves
 deliberately is a file the user exports through the system share sheet.
+
+The Apple Watch app does not change that: WatchConnectivity carries the
+snapshot from the phone to the user's own paired watch directly, with no
+account and no server, and the watch keeps it on the watch.
 
 iCloud sync is off by default and opt-in. When it is on, the days and holidays
 go through SwiftData's own CloudKit mirroring into the user's private database,

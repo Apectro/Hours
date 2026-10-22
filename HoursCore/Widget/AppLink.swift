@@ -1,6 +1,7 @@
 import Foundation
 
-/// The places a widget, or a notification, can open the app at.
+/// The places a widget, a control, a shortcut or a notification can open
+/// the app at.
 ///
 /// A widget runs in its own process and cannot write the app's store — the
 /// store lives in the app's own container, not the one the two share — so a
@@ -21,6 +22,10 @@ enum AppLink: Hashable, Sendable {
     /// A site's sheet for one month, as the director gets it. The monthly
     /// reminder opens this on the month that has just ended.
     case siteExport(UUID, YearMonth)
+    /// Today's day editor, on the calendar: the Write today control and
+    /// shortcut. Today is the phone's today when the link is followed, not
+    /// when it was made, so the link carries no date.
+    case writeToday
 
     static let scheme = "zeitkonto"
 
@@ -34,6 +39,8 @@ enum AppLink: Hashable, Sendable {
         switch self {
         case .sites:
             parts = ["sites"]
+        case .writeToday:
+            parts = ["today"]
         case let .site(id):
             parts = ["site", id.uuidString]
         case let .siteSameAsLastDay(id):
@@ -56,6 +63,8 @@ enum AppLink: Hashable, Sendable {
         switch (host, parts.count) {
         case ("sites", 0):
             self = .sites
+        case ("today", 0):
+            self = .writeToday
         case ("site", 1):
             guard let id = UUID(uuidString: parts[0]) else { return nil }
             self = .site(id)
@@ -77,6 +86,16 @@ enum AppLink: Hashable, Sendable {
         default:
             return nil
         }
+    }
+
+    /// What the Same as yesterday control opens: the site on the site card —
+    /// the most recent active one — filled from its last written day, or
+    /// the Sites tab when there is no site to fill, where one can be added.
+    /// A control cannot ask the store which site that is, so it reads the
+    /// snapshot the widgets read.
+    static func sameAsYesterday(from snapshot: WidgetSnapshot?) -> AppLink {
+        guard let site = snapshot?.site else { return .sites }
+        return .siteSameAsLastDay(site.id)
     }
 
     /// `2026-03`: the same spelling a file name uses, and one that sorts.

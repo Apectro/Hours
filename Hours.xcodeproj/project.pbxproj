@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AA000000000000000000006A /* HoursWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000061 /* HoursWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA000000000000000000009A /* HoursWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA00000000000000000000A1 /* HoursWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -22,6 +23,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000099 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA000000000000000000009A /* HoursWatchWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +43,9 @@
 		AA000000000000000000008A /* Hours-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Hours-Info.plist"; sourceTree = "<group>"; };
 		AA000000000000000000006D /* HoursWidget-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HoursWidget-Info.plist"; sourceTree = "<group>"; };
 		AA0000000000000000000071 /* HoursUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HoursUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000091 /* HoursWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoursWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000000000000A1 /* HoursWatchWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HoursWatchWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000000000000B1 /* HoursWatchWidget-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HoursWatchWidget-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -64,6 +79,21 @@
 			path = HoursShared;
 			sourceTree = "<group>";
 		};
+		AA0000000000000000000092 /* HoursWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HoursWatch;
+			sourceTree = "<group>";
+		};
+		AA00000000000000000000A2 /* HoursWatchWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HoursWatchWidget;
+			sourceTree = "<group>";
+		};
+		AA00000000000000000000B0 /* HoursWatchShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HoursWatchShared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +125,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000094 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -107,6 +151,10 @@
 				AA000000000000000000008A /* Hours-Info.plist */,
 				AA0000000000000000000062 /* HoursWidget */,
 				AA000000000000000000006D /* HoursWidget-Info.plist */,
+				AA0000000000000000000092 /* HoursWatch */,
+				AA00000000000000000000B0 /* HoursWatchShared */,
+				AA00000000000000000000A2 /* HoursWatchWidget */,
+				AA00000000000000000000B1 /* HoursWatchWidget-Info.plist */,
 				AA0000000000000000000022 /* HoursTests */,
 				AA0000000000000000000072 /* HoursUITests */,
 				AA0000000000000000000003 /* Products */,
@@ -120,6 +168,8 @@
 				AA0000000000000000000021 /* HoursTests.xctest */,
 				AA0000000000000000000061 /* HoursWidgetExtension.appex */,
 				AA0000000000000000000071 /* HoursUITests.xctest */,
+				AA0000000000000000000091 /* HoursWatch.app */,
+				AA00000000000000000000A1 /* HoursWatchWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -223,6 +273,56 @@
 			productReference = AA0000000000000000000071 /* HoursUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		AA0000000000000000000090 /* HoursWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000096 /* Build configuration list for PBXNativeTarget "HoursWatch" */;
+			buildPhases = (
+				AA0000000000000000000093 /* Sources */,
+				AA0000000000000000000094 /* Frameworks */,
+				AA0000000000000000000095 /* Resources */,
+				AA0000000000000000000099 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA000000000000000000009B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000050 /* HoursCore */,
+				AA00000000000000000000B0 /* HoursWatchShared */,
+				AA0000000000000000000092 /* HoursWatch */,
+			);
+			name = HoursWatch;
+			packageProductDependencies = (
+			);
+			productName = HoursWatch;
+			productReference = AA0000000000000000000091 /* HoursWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AA00000000000000000000A0 /* HoursWatchWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000A6 /* Build configuration list for PBXNativeTarget "HoursWatchWidgetExtension" */;
+			buildPhases = (
+				AA00000000000000000000A3 /* Sources */,
+				AA00000000000000000000A4 /* Frameworks */,
+				AA00000000000000000000A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000050 /* HoursCore */,
+				AA00000000000000000000B0 /* HoursWatchShared */,
+				AA00000000000000000000A2 /* HoursWatchWidget */,
+			);
+			name = HoursWatchWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HoursWatchWidgetExtension;
+			productReference = AA00000000000000000000A1 /* HoursWatchWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -246,6 +346,12 @@
 					AA0000000000000000000070 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = AA0000000000000000000010;
+					};
+					AA0000000000000000000090 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					AA00000000000000000000A0 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -276,6 +382,8 @@
 				AA0000000000000000000060 /* HoursWidgetExtension */,
 				AA0000000000000000000020 /* HoursTests */,
 				AA0000000000000000000070 /* HoursUITests */,
+				AA0000000000000000000090 /* HoursWatch */,
+				AA00000000000000000000A0 /* HoursWatchWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -303,6 +411,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AA0000000000000000000075 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000095 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000A5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -340,6 +462,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000093 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -357,6 +493,11 @@
 			isa = PBXTargetDependency;
 			target = AA0000000000000000000010 /* Hours */;
 			targetProxy = AA000000000000000000007A /* PBXContainerItemProxy */;
+		};
+		AA000000000000000000009B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA00000000000000000000A0 /* HoursWatchWidgetExtension */;
+			targetProxy = AA000000000000000000009C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -381,6 +522,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AA0000000000000000000010;
 			remoteInfo = Hours;
+		};
+		AA000000000000000000009C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA00000000000000000000A0;
+			remoteInfo = HoursWatchWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -656,6 +804,124 @@
 			};
 			name = Release;
 		};
+		AA0000000000000000000097 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HoursWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.zeitkonto.hours;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000098 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HoursWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.zeitkonto.hours;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
+		AA00000000000000000000A7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = HoursWatchWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HoursWatchWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		AA00000000000000000000A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = HoursWatchWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HoursWatchWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zeitkonto.hours.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -700,6 +966,24 @@
 			buildConfigurations = (
 				AA0000000000000000000077 /* Debug */,
 				AA0000000000000000000078 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000096 /* Build configuration list for PBXNativeTarget "HoursWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000097 /* Debug */,
+				AA0000000000000000000098 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000A6 /* Build configuration list for PBXNativeTarget "HoursWatchWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000000000000A7 /* Debug */,
+				AA00000000000000000000A8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

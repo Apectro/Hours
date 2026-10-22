@@ -8361,6 +8361,124 @@
         }
       }
     },
+    "Clock in or out": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein- oder ausstempeln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichar entrada o salida"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pointer l’arrivée ou le départ"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijava ili odjava"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timbra entrata o uscita"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In- of uitklokken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozpocznij lub zakończ"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar entrada ou saída"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijava prihoda ali odhoda"
+          }
+        }
+      }
+    },
+    "Clock in or out with ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit ${applicationName} ein- oder ausstempeln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichar entrada o salida con ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pointer l’arrivée ou le départ avec ${applicationName}"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi se ili odjavi u ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timbra entrata o uscita con ${applicationName}"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In- of uitklokken met ${applicationName}"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozpocznij lub zakończ pracę w ${applicationName}"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar entrada ou saída com ${applicationName}"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavi prihod ali odhod v ${applicationName}"
+          }
+        }
+      }
+    },
     "Clock in with ${applicationName}": {
       "extractionState": "manual",
       "localizations": {
@@ -8829,6 +8947,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prijavljen prihod · %@"
+          }
+        }
+      }
+    },
+    "Clocked out": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgestempelt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida fichada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Départ pointé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odjavljen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscita timbrata"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitgeklokt"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zakończono"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saída registada"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijavljen odhod"
           }
         }
       }
@@ -22325,6 +22502,65 @@
         }
       }
     },
+    "Open Zeitkonto on your iPhone once to see your hours here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne Zeitkonto einmal auf deinem iPhone, um deine Stunden hier zu sehen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Zeitkonto una vez en tu iPhone para ver aquí tus horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Zeitkonto une fois sur votre iPhone pour voir vos heures ici."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori Zeitkonto jednom na svom iPhoneu da ovdje vidiš svoje sate."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Zeitkonto una volta sul tuo iPhone per vedere qui le tue ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Zeitkonto één keer op je iPhone om je uren hier te zien."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz raz Zeitkonto na iPhonie, aby zobaczyć tu swoje godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre o Zeitkonto uma vez no teu iPhone para veres aqui as tuas horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enkrat odpri Zeitkonto na svojem iPhonu, da tukaj vidiš svoje ure."
+          }
+        }
+      }
+    },
     "Open Zeitkonto once to fill this in": {
       "extractionState": "manual",
       "localizations": {
@@ -22616,6 +22852,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Začetni saldo"
+          }
+        }
+      }
+    },
+    "Opens today on your site, filled in like the last day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet heute auf deiner Baustelle, ausgefüllt wie am letzten Tag."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre hoy en tu obra, rellenado como el último día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre aujourd’hui sur votre chantier, rempli comme le dernier jour."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvara današnji dan na tvom gradilištu, ispunjen kao zadnji dan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apre oggi sul tuo cantiere, compilato come l’ultimo giorno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opent vandaag op je bouwplaats, ingevuld zoals de laatste dag."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwiera dzisiejszy dzień na twojej budowie, wypełniony jak ostatni dzień."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre hoje na tua obra, preenchido como no último dia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpre današnji dan na tvojem gradbišču, izpolnjen kot zadnji dan."
+          }
+        }
+      }
+    },
+    "Opens today's day to write it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet den heutigen Tag zum Eintragen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre el día de hoy para anotarlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre la journée d’aujourd’hui pour la saisir."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvara današnji dan za upis."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apre la giornata di oggi per scriverla."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opent vandaag om het in te vullen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwiera dzisiejszy dzień do wpisania."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre o dia de hoje para o registar."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpre današnji dan za vpis."
           }
         }
       }
@@ -24268,6 +24622,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Beleženje"
+          }
+        }
+      }
+    },
+    "Records on your iPhone when it is in reach.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird auf deinem iPhone erfasst, sobald es in Reichweite ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se registra en tu iPhone cuando esté al alcance."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sera enregistré sur votre iPhone dès qu’il sera à portée."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilježi se na tvom iPhoneu kad bude u dometu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viene registrato sul tuo iPhone quando è a portata."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt op je iPhone vastgelegd zodra die binnen bereik is."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zostanie zapisane na iPhonie, gdy będzie w zasięgu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fica registado no teu iPhone quando estiver ao alcance."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zabeleži se na tvojem iPhonu, ko bo v dosegu."
           }
         }
       }
@@ -26367,6 +26780,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enako kot včeraj"
+          }
+        }
+      }
+    },
+    "Same as yesterday in ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie gestern in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual que ayer en ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comme hier dans ${applicationName}"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto kao jučer u ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come ieri in ${applicationName}"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zelfde als gisteren in ${applicationName}"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak wczoraj w ${applicationName}"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual a ontem no ${applicationName}"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enako kot včeraj v ${applicationName}"
           }
         }
       }
@@ -28727,6 +29199,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Začne se"
+          }
+        }
+      }
+    },
+    "Starts the clock, or stops it and records the hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startet die Uhr oder stoppt sie und erfasst die Stunden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia el fichaje, o lo detiene y registra las horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarre le pointage, ou l’arrête et enregistre les heures."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokreće sat ili ga zaustavlja i bilježi sate."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvia la timbratura oppure la ferma e registra le ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start de klok, of stopt hem en legt de uren vast."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchamia zegar albo go zatrzymuje i zapisuje godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia o registo, ou para-o e regista as horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zažene uro ali jo ustavi in zabeleži ure."
           }
         }
       }
@@ -35644,6 +36175,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vpiši danes"
+          }
+        }
+      }
+    },
+    "Write today in ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heute in ${applicationName} eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotar hoy en ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir aujourd’hui dans ${applicationName}"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši danas u ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi oggi in ${applicationName}"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vandaag invullen in ${applicationName}"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisz dzisiaj w ${applicationName}"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar hoje no ${applicationName}"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši danes v ${applicationName}"
           }
         }
       }
