@@ -92,9 +92,15 @@ final class ScreenshotTests: XCTestCase {
 
         // 2 — the site, which is who the app is for: the site's month and
         // today's card, the crew ticked off once for everyone.
+        // Straight after the first capture a tab tap can be lost on a slow
+        // runner, and then the list never comes. Tap again if it did not open.
         app.tab(.sites).tap()
+        if !app.screen("screen-sites").waitForExistence(timeout: 5) {
+            app.tab(.sites).tap()
+        }
+        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 10), "the Sites tab did not open")
         let card = app.buttons["site-card"].firstMatch
-        XCTAssertTrue(card.waitForExistence(timeout: 10), "the sample site has no card")
+        XCTAssertTrue(card.waitForExistence(timeout: 15), "the sample site has no card")
         card.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10), "the site did not open")
         XCTAssertTrue(app.descendants(matching: .any)["site-day-times"].waitForExistence(timeout: 5), "today's site card is not written")
