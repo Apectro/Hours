@@ -27,7 +27,7 @@ struct AboutScreen: View {
                     PrivacyPoint(
                         symbol: "icloud",
                         title: String(localized: "Your own iCloud"),
-                        detail: String(localized: "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.")
+                        detail: String(localized: "You turned sync on, so your days, holidays, sites and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.")
                     )
                 } else {
                     PrivacyPoint(

@@ -1,6 +1,6 @@
 Zeitkonto is a work-hours calendar for the person who runs the site: write the day once for the whole crew, hand the director a clean monthly sheet, and see what your own hours earned.
 
-No account. No sign-up. No server. Your hours, your sites and your crew's names stay on your phone, and nothing leaves it unless you export it.
+No account. No sign-up. No server. Your hours, your sites and your crew's names stay on your phone, and nothing leaves it unless you export it or turn on sync to your own private iCloud.
 
 ONE ENTRY FOR THE WHOLE CREW
 

@@ -44105,61 +44105,61 @@
         }
       }
     },
-    "You turned sync on, so your days, holidays and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.": {
+    "You turned sync on, so your days, holidays, sites and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du hast die Synchronisierung eingeschaltet, also liegen deine Tage, Feiertage und Einstellungen in deinem privaten iCloud-Speicher. Nur deine Geräte, mit deinem Konto angemeldet, können sie lesen. Ausschalten unter Einstellungen › iCloud."
+            "value": "Du hast die Synchronisierung eingeschaltet, also liegen deine Tage, Feiertage, Baustellen und Einstellungen in deinem privaten iCloud-Speicher. Nur deine Geräte, mit deinem Konto angemeldet, können sie lesen. Ausschalten unter Einstellungen › iCloud."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Has activado la sincronización, así que tus días, festivos y ajustes se guardan en tu almacenamiento privado de iCloud. Solo tus dispositivos, con tu sesión iniciada, pueden leerlos. Desactívala en Ajustes › iCloud."
+            "value": "Has activado la sincronización, así que tus días, festivos, obras y ajustes se guardan en tu almacenamiento privado de iCloud. Solo tus dispositivos, con tu sesión iniciada, pueden leerlos. Desactívala en Ajustes › iCloud."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous avez activé la synchronisation : vos jours, jours fériés et réglages sont conservés dans votre espace iCloud privé. Seuls vos appareils, connectés avec votre compte, peuvent les lire. Désactivez-la dans Réglages › iCloud."
+            "value": "Vous avez activé la synchronisation : vos jours, jours fériés, chantiers et réglages sont conservés dans votre espace iCloud privé. Seuls vos appareils, connectés avec votre compte, peuvent les lire. Désactivez-la dans Réglages › iCloud."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uključio si sinkronizaciju pa se tvoji dani, praznici i postavke čuvaju u tvom privatnom iCloud prostoru. Čitati ih mogu samo tvoji uređaji prijavljeni kao ti. Isključi u Postavke › iCloud."
+            "value": "Uključio si sinkronizaciju pa se tvoji dani, praznici, gradilišta i postavke čuvaju u tvom privatnom iCloud prostoru. Čitati ih mogu samo tvoji uređaji prijavljeni kao ti. Isključi u Postavke › iCloud."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hai attivato la sincronizzazione, quindi giorni, festività e impostazioni sono nel tuo spazio iCloud privato. Solo i tuoi dispositivi, con il tuo account, possono leggerli. Disattivala in Impostazioni › iCloud."
+            "value": "Hai attivato la sincronizzazione, quindi giorni, festività, cantieri e impostazioni sono nel tuo spazio iCloud privato. Solo i tuoi dispositivi, con il tuo account, possono leggerli. Disattivala in Impostazioni › iCloud."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Je hebt synchronisatie aangezet, dus je dagen, feestdagen en instellingen staan in je eigen iCloud-opslag. Alleen je eigen apparaten, ingelogd als jij, kunnen ze lezen. Zet het uit bij Instellingen › iCloud."
+            "value": "Je hebt synchronisatie aangezet, dus je dagen, feestdagen, bouwplaatsen en instellingen staan in je eigen iCloud-opslag. Alleen je eigen apparaten, ingelogd als jij, kunnen ze lezen. Zet het uit bij Instellingen › iCloud."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Włączyłeś synchronizację, więc twoje dni, święta i ustawienia są w twoim prywatnym magazynie iCloud. Odczytać je mogą tylko twoje urządzenia zalogowane jako ty. Wyłącz w Ustawienia › iCloud."
+            "value": "Włączyłeś synchronizację, więc twoje dni, święta, budowy i ustawienia są w twoim prywatnym magazynie iCloud. Odczytać je mogą tylko twoje urządzenia zalogowane jako ty. Wyłącz w Ustawienia › iCloud."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ligaste a sincronização, por isso os teus dias, feriados e definições ficam no teu armazenamento privado do iCloud. Só os teus dispositivos, com a tua sessão iniciada, os podem ler. Desliga em Definições › iCloud."
+            "value": "Ligaste a sincronização, por isso os teus dias, feriados, obras e definições ficam no teu armazenamento privado do iCloud. Só os teus dispositivos, com a tua sessão iniciada, os podem ler. Desliga em Definições › iCloud."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vklopil si sinhronizacijo, zato so tvoji dnevi, prazniki in nastavitve v tvojem zasebnem prostoru iCloud. Berejo jih lahko samo tvoje naprave, prijavljene kot ti. Izklopi v Nastavitve › iCloud."
+            "value": "Vklopil si sinhronizacijo, zato so tvoji dnevi, prazniki, gradbišča in nastavitve v tvojem zasebnem prostoru iCloud. Berejo jih lahko samo tvoje naprave, prijavljene kot ti. Izklopi v Nastavitve › iCloud."
           }
         }
       }

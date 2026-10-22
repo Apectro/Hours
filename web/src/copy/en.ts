@@ -130,7 +130,7 @@ export const en = {
     claims: [
       { claim: "No account, no sign-up", evidence: "there is no auth layer anywhere in the app" },
       { claim: "No analytics, no tracking", evidence: "no third-party code of any kind in the app" },
-      { claim: "Nothing leaves the device", evidence: "unless you export a file and send it yourself" },
+      { claim: "Nothing leaves the device", evidence: "unless you export a file and send it yourself, or turn on sync to your own private iCloud (from 1.1)" },
       { claim: "Your crew and your pay stay yours", evidence: "sites, names and rates are stored on the phone; money never goes on a site's sheet" },
       { claim: "It never asks where you are", evidence: "no CoreLocation import; the field is a text box" },
       { claim: "Reminders are local", evidence: "UNCalendarNotificationTrigger, scheduled on the device" },
