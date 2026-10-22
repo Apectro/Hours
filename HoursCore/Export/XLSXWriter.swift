@@ -34,7 +34,16 @@ enum XLSXWriter {
             diaryTable.detail = [table.title, table.subtitle].filter { !$0.isEmpty }.joined(separator: " · ")
             tables.append((diary.title, diaryTable))
         }
+        return data(sheets: tables, preferences: preferences, generatedOn: generatedOn)
+    }
 
+    /// A workbook of several tables, a sheet each, in order: the extra-work
+    /// report's material and its jobs.
+    static func data(
+        sheets tables: [(name: String, table: ReportTable)],
+        preferences: ExportPreferences,
+        generatedOn: Date? = nil
+    ) -> Data {
         var archive = ZIPArchive()
         archive.addFile(name: "[Content_Types].xml", contents: Data(contentTypes(sheets: tables.count).utf8))
         archive.addFile(name: "_rels/.rels", contents: Data(rootRelationships.utf8))
@@ -221,7 +230,7 @@ enum XLSXWriter {
         // has always had. Written as SUM over the days rather than as the
         // number they happen to add up to, so correcting a Tuesday corrects
         // the total too.
-        if lastDataRow > headerRow && table.trailingSummaryRows == 0 && table.kind != .siteDiary {
+        if lastDataRow > headerRow && table.trailingSummaryRows == 0 && table.kind != .siteDiary && table.kind != .extraWork {
             let durationColumns = Set(table.rows.flatMap { reportRow in
                 reportRow.minutes.enumerated().compactMap { $0.element == nil ? nil : $0.offset }
             })
@@ -359,6 +368,9 @@ enum XLSXWriter {
                 if let count = Int(value) { return .number(Double(count), style: .mutedCount) }
                 return .text(value, style: .summaryLabel)
             case .day:
+                if index < reportRow.numbers.count, let number = reportRow.numbers[index] {
+                    return .number(number, style: .normal)
+                }
                 if let minutes {
                     let style: Style = flagged ? .flaggedDuration : .duration(rest: rest)
                     return .number(dayFraction(minutes: minutes), style: style)
@@ -508,6 +520,9 @@ enum XLSXWriter {
                 switch style {
                 case .count, .summaryCount, .mutedCount:
                     return String(Int(value.magnitude)).count
+                case .normal:
+                    // A quantity, in General format: 12.5 rather than a duration.
+                    return String(value).count
                 default:
                     // A duration is shown through the mask rather than as
                     // the fraction of a day the cell actually holds, so the
