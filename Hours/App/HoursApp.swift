@@ -8,6 +8,9 @@ struct HoursApp: App {
         // Before launch finishes, because a tap that launched the app is
         // handed to the delegate as soon as it does.
         UNUserNotificationCenter.current().delegate = NotificationTapDelegate.shared
+        // Here rather than in a view: a message from the watch launches the
+        // app in the background, where no window — and no view — appears.
+        PhoneWatchLink.shared.activate()
     }
 
     var body: some Scene {

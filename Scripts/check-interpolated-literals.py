@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Where a person reads the result. HoursCore is included: it cannot call
 # String(localized:) — it also builds on Linux — but it has its own word table,
 # and a literal there is the same defect with a different fix.
-SEARCHED = ["Hours", "HoursCore", "HoursWidget", "HoursShared"]
+SEARCHED = ["Hours", "HoursCore", "HoursWidget", "HoursShared", "HoursWatch", "HoursWatchWidget", "HoursWatchShared"]
 
 # Anything whose literal is looked up. Matched against the text leading up to
 # the literal with newlines removed, because these calls wrap:

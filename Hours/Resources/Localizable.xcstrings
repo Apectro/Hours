@@ -22502,6 +22502,65 @@
         }
       }
     },
+    "Open Zeitkonto on your iPhone once to see your hours here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne Zeitkonto einmal auf deinem iPhone, um deine Stunden hier zu sehen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Zeitkonto una vez en tu iPhone para ver aquí tus horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Zeitkonto une fois sur votre iPhone pour voir vos heures ici."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori Zeitkonto jednom na svom iPhoneu da ovdje vidiš svoje sate."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Zeitkonto una volta sul tuo iPhone per vedere qui le tue ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Zeitkonto één keer op je iPhone om je uren hier te zien."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz raz Zeitkonto na iPhonie, aby zobaczyć tu swoje godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre o Zeitkonto uma vez no teu iPhone para veres aqui as tuas horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enkrat odpri Zeitkonto na svojem iPhonu, da tukaj vidiš svoje ure."
+          }
+        }
+      }
+    },
     "Open Zeitkonto once to fill this in": {
       "extractionState": "manual",
       "localizations": {
@@ -24563,6 +24622,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Beleženje"
+          }
+        }
+      }
+    },
+    "Records on your iPhone when it is in reach.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird auf deinem iPhone erfasst, sobald es in Reichweite ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se registra en tu iPhone cuando esté al alcance."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sera enregistré sur votre iPhone dès qu’il sera à portée."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilježi se na tvom iPhoneu kad bude u dometu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viene registrato sul tuo iPhone quando è a portata."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt op je iPhone vastgelegd zodra die binnen bereik is."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zostanie zapisane na iPhonie, gdy będzie w zasięgu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fica registado no teu iPhone quando estiver ao alcance."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zabeleži se na tvojem iPhonu, ko bo v dosegu."
           }
         }
       }

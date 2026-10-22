@@ -23,7 +23,10 @@
     "",
     "widgetInterface names the subset the widget extension uses. The widget",
     "ships its own catalogue, and giving it every app string would bloat an",
-    "extension that needs a few dozen."
+    "extension that needs a few dozen.",
+    "",
+    "watchInterface does the same for the Apple Watch app and its complications,",
+    "which share one catalogue in HoursWatchShared."
   ],
   "languages": [
     "de",
@@ -3311,6 +3314,28 @@
       "Abre o Zeitkonto uma vez para preencher isto",
       "Open Zeitkonto één keer om dit te vullen",
       "Otwórz Zeitkonto raz, aby to uzupełnić"
+    ],
+    "Open Zeitkonto on your iPhone once to see your hours here.": [
+      "Öffne Zeitkonto einmal auf deinem iPhone, um deine Stunden hier zu sehen.",
+      "Otvori Zeitkonto jednom na svom iPhoneu da ovdje vidiš svoje sate.",
+      "Enkrat odpri Zeitkonto na svojem iPhonu, da tukaj vidiš svoje ure.",
+      "Apri Zeitkonto una volta sul tuo iPhone per vedere qui le tue ore.",
+      "Ouvrez Zeitkonto une fois sur votre iPhone pour voir vos heures ici.",
+      "Abre Zeitkonto una vez en tu iPhone para ver aquí tus horas.",
+      "Abre o Zeitkonto uma vez no teu iPhone para veres aqui as tuas horas.",
+      "Open Zeitkonto één keer op je iPhone om je uren hier te zien.",
+      "Otwórz raz Zeitkonto na iPhonie, aby zobaczyć tu swoje godziny."
+    ],
+    "Records on your iPhone when it is in reach.": [
+      "Wird auf deinem iPhone erfasst, sobald es in Reichweite ist.",
+      "Bilježi se na tvom iPhoneu kad bude u dometu.",
+      "Zabeleži se na tvojem iPhonu, ko bo v dosegu.",
+      "Viene registrato sul tuo iPhone quando è a portata.",
+      "Sera enregistré sur votre iPhone dès qu’il sera à portée.",
+      "Se registra en tu iPhone cuando esté al alcance.",
+      "Fica registado no teu iPhone quando estiver ao alcance.",
+      "Wordt op je iPhone vastgelegd zodra die binnen bereik is.",
+      "Zostanie zapisane na iPhonie, gdy będzie w zasięgu."
     ],
     "Open on": [
       "Öffnen mit",
@@ -7234,5 +7259,20 @@
     "this month · %@",
     "%@ this week",
     "EARNED TODAY"
+  ],
+  "watchInterface": [
+    "TODAY",
+    "Today",
+    "of %@",
+    "Not a working day",
+    "Month %@",
+    "%@ month",
+    "Clock in",
+    "Clock out",
+    "Clocked in",
+    "since %@",
+    "What you have worked today, and whether the clock is running.",
+    "Open Zeitkonto on your iPhone once to see your hours here.",
+    "Records on your iPhone when it is in reach."
   ]
 }
