@@ -87,7 +87,7 @@ enum ExtraWorkPDFRenderer {
 
     private static func height(of block: Block, in document: ExtraWorkDocument, images: [UUID: UIImage]) -> CGFloat {
         switch block {
-        case .header: return headerHeight
+        case .header: return headerHeight(for: document)
         case .materialHead, .jobsHead: return sectionGap + sectionTitleHeight + columnHeadHeight
         case .material: return materialRowHeight
         case let .job(index): return jobHeight(document.jobs[index], images: images)
@@ -215,10 +215,31 @@ enum ExtraWorkPDFRenderer {
         return y + height(of: block, in: document, images: images)
     }
 
+    private static func tileRowWidth(_ document: ExtraWorkDocument) -> CGFloat {
+        let count = CGFloat(document.tiles.count)
+        return count == 0 ? 0 : count * tileWidth + (count - 1) * tileGap
+    }
+
+    /// Whether the site's name fits beside the tiles. Four tiles leave under
+    /// 200 points, which cut "Trg Pravde Zagreb" short at the title's size; a
+    /// name that does not fit gets the full width and the tiles a row of their
+    /// own under the byline, rather than an ellipsis in the one word the boss
+    /// files the sheet by.
+    private static func titleFitsBesideTiles(_ document: ExtraWorkDocument) -> Bool {
+        let room = width - tileRowWidth(document) - (document.tiles.isEmpty ? 0 : 12)
+        let needed = (document.title as NSString).size(withAttributes: [.font: PDFReportStyle.titleFont]).width
+        return needed <= room
+    }
+
+    private static func headerHeight(for document: ExtraWorkDocument) -> CGFloat {
+        titleFitsBesideTiles(document) ? headerHeight : headerHeight + tileHeight + 8
+    }
+
     private static func drawHeader(_ document: ExtraWorkDocument, at y: CGFloat) {
         let tiles = document.tiles
-        let tilesWidth = tiles.isEmpty ? 0 : CGFloat(tiles.count) * tileWidth + CGFloat(tiles.count - 1) * tileGap
-        let textWidth = width - tilesWidth - (tiles.isEmpty ? 0 : 12)
+        let besides = titleFitsBesideTiles(document)
+        let tilesWidth = tileRowWidth(document)
+        let textWidth = besides ? width - tilesWidth - (tiles.isEmpty ? 0 : 12) : width
 
         PDFReportStyle.draw(
             document.eyebrow.uppercased(with: document.language.locale),
@@ -242,19 +263,20 @@ enum ExtraWorkPDFRenderer {
             color: PDFReportStyle.secondary
         )
 
-        var x = margin + width - tilesWidth
+        var x = besides ? margin + width - tilesWidth : margin
+        let tilesTop = besides ? y : y + 66
         for tile in tiles {
-            let rect = CGRect(x: x, y: y, width: tileWidth, height: tileHeight)
+            let rect = CGRect(x: x, y: tilesTop, width: tileWidth, height: tileHeight)
             PDFReportStyle.tile.setFill()
             UIBezierPath(roundedRect: rect, cornerRadius: 6).fill()
-            PDFReportStyle.draw(tile.label, in: CGRect(x: x + 8, y: y + 5, width: tileWidth - 16, height: 10),
+            PDFReportStyle.draw(tile.label, in: CGRect(x: x + 8, y: tilesTop + 5, width: tileWidth - 16, height: 10),
                                 font: PDFReportStyle.tileLabelFont, color: PDFReportStyle.secondary)
-            PDFReportStyle.draw(tile.value, in: CGRect(x: x + 8, y: y + 16, width: tileWidth - 16, height: 21),
+            PDFReportStyle.draw(tile.value, in: CGRect(x: x + 8, y: tilesTop + 16, width: tileWidth - 16, height: 21),
                                 font: PDFReportStyle.tileValueFont, color: PDFReportStyle.ink)
             x += tileWidth + tileGap
         }
 
-        let ruleY = y + headerHeight - 6
+        let ruleY = y + headerHeight(for: document) - 6
         PDFReportStyle.line(from: CGPoint(x: margin, y: ruleY), to: CGPoint(x: margin + width, y: ruleY),
                             width: 2, color: PDFReportStyle.ink)
     }

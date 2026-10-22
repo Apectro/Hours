@@ -42,7 +42,7 @@ final class ExtraWorkPDFTests: XCTestCase {
     func testTheGermanPageSaysItInGerman() throws {
         let text = try pages(document(.german)).joined(separator: "\n")
         XCTAssertTrue(text.contains("REGIEARBEITEN"), text)
-        XCTAssertTrue(text.contains("Trg Pravde Zagreb"))
+        XCTAssertTrue(text.contains("Trg Pravde Zagreb"), "the site name was cut short: \(text)")
         XCTAssertTrue(text.contains("Erfasst von Marijo Mikša"), text)
         XCTAssertTrue(text.contains("MATERIAL GESAMT"))
         XCTAssertTrue(text.contains("Stk"))
