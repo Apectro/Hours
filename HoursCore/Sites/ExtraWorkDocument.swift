@@ -364,10 +364,11 @@ struct ExtraWorkDocumentBuilder: Sendable {
             startTemplate = "d"
         }
         var start = formatter(startTemplate, language: language).string(from: range.start.date(in: calendar))
-        // A day alone loses the full stop German, Croatian and Slovenian
-        // write after it ("19. – 22. Oktober"); the full date shows whether
-        // the language has one.
-        if startTemplate == "d", end.hasPrefix("\(range.end.day).") {
+        // A day alone can lose the full stop German writes after it
+        // ("19. – 22. Oktober"); the full date shows whether the language has
+        // one. Croatian and Slovenian already keep it on the day alone, so it
+        // is added only when missing — never "19.. – 22."
+        if startTemplate == "d", end.hasPrefix("\(range.end.day)."), !start.hasSuffix(".") {
             start += "."
         }
         return "\(start) – \(end)"

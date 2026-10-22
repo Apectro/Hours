@@ -175,6 +175,20 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(page.material[0].name, "Emergency light")
     }
 
+    /// A day alone takes the full stop its language writes after it — once.
+    /// Croatian's own format already ends "19.", and adding another printed
+    /// "19.. – 22. listopada" on the PDF.
+    func testThePeriodNeverDoublesTheDaysFullStop() {
+        for language in ExportLanguage.allCases where language != .device {
+            let period = document(language).period
+            XCTAssertFalse(period.contains(".."), "\(language): \(period)")
+        }
+        let german = document(.german).period
+        XCTAssertTrue(german.hasPrefix("19. – 22."), german)
+        let croatian = document(.croatian).period
+        XCTAssertTrue(croatian.hasPrefix("19. – 22."), croatian)
+    }
+
     func testATypedUnitIsPrintedAsTyped() {
         let custom = ExtraWorkReport(siteID: site.id, jobs: [job(20, "Tape", [item("Tape", "2", .custom("Rolle"))])])
         let page = ExtraWorkDocumentBuilder(settings: settings(.croatian), calendar: calendar).make(report: custom, siteName: site.name)

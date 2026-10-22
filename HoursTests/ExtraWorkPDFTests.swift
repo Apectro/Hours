@@ -68,7 +68,13 @@ final class ExtraWorkPDFTests: XCTestCase {
 
     func testTheCroatianPageSaysItInCroatian() throws {
         let text = try pages(document(.croatian)).joined(separator: "\n")
-        XCTAssertTrue(text.contains("IZVRŠENI DODATNI RADOVI"), text)
+        // The heading is drawn letter-spaced, and PDFKit can read a space
+        // into it after a letter with a háček ("IZVRŠ ENI"); compare it
+        // without the spaces. The page itself is the problem only if the
+        // words are missing.
+        let squeezed = text.replacingOccurrences(of: " ", with: "")
+        XCTAssertTrue(squeezed.contains("IZVRŠENIDODATNIRADOVI"), text)
+        XCTAssertFalse(text.contains(".."), "a doubled full stop in the period: \(text)")
         XCTAssertTrue(text.contains("UTROŠENI MATERIJAL"), text)
         XCTAssertTrue(text.contains("kom"))
         XCTAssertTrue(text.contains("Emergency lighting 0"))
