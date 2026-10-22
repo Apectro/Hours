@@ -14,6 +14,14 @@ on:
         description: "Unlock Pro for testers (turn off for the build you submit to App Review)"
         type: boolean
         default: true
+      # Once, to set up iCloud sync: a build that talks to the CloudKit
+      # container's Development environment and can initialise its schema
+      # from Settings › iCloud. Never the build to submit for review. See
+      # CLOUDKIT_SCHEMA_STEPS in fastlane/Fastfile.
+      cloudkit_development:
+        description: "CloudKit development build, for initialising the iCloud schema (never submit it)"
+        type: boolean
+        default: false
 
 permissions:
   # match commits the encrypted certificate and profiles to the
@@ -38,6 +46,7 @@ jobs:
       ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       TESTER_UNLOCK: ${{ inputs.tester_unlock }}
+      CLOUDKIT_DEVELOPMENT: ${{ inputs.cloudkit_development }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # fastlane warns, and some of its tools misbehave, without a UTF-8 locale.
       LANG: en_US.UTF-8
@@ -50,7 +59,9 @@ jobs:
       - uses: actions/checkout@v4
 
       # First, before anything is signed or built: is the API key good, is the
-      # Bundle ID registered, does the app exist? Each failure says how to fix it.
+      # Bundle ID registered, does the app exist, can it use the App Group,
+      # iCloud and push? Each failure says how to fix it. The iCloud container
+      # itself is checked in the signing profile, still before the build.
       - name: Preflight — check the Apple account
         run: fastlane ios preflight
 

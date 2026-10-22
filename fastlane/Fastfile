@@ -69,6 +69,46 @@ APP_GROUP_FIX = <<~TEXT.freeze
     5. Run the workflow again. It makes new signing profiles by itself.
 TEXT
 
+# iCloud sync (1.1): SwiftData mirrors the store into this CloudKit container,
+# in the user's own private database. The code and the entitlements name it
+# too (SyncPreference.containerIdentifier, Hours.entitlements). Only the app
+# syncs; the widget never opens the store.
+ICLOUD_CONTAINER = "iCloud.app.zeitkonto"
+
+ICLOUD_FIX = <<~TEXT.freeze
+  How to fix it (once, on the website — the API key cannot make or assign iCloud containers):
+    1. Open developer.apple.com → Account → Certificates, Identifiers & Profiles → Identifiers.
+    2. Click +, choose "iCloud Containers", continue. Description: Zeitkonto. Identifier: #{ICLOUD_CONTAINER}.
+       Register. (If it says the identifier is taken, it already exists: go on.)
+    3. Back in Identifiers (the list shows App IDs again), open #{APP_ID}.
+       Tick "iCloud" and choose "Include CloudKit support". Click "Configure" (or "Edit"),
+       tick #{ICLOUD_CONTAINER}, Continue.
+    4. Also tick "Push Notifications" (CloudKit uses it to say something changed;
+       no certificate is needed). Click Save and confirm the dialog about profiles.
+    5. Run the workflow again. It makes new signing profiles by itself.
+  Then, once, before testers turn sync on: the CloudKit schema (see "CloudKit schema" in the run's
+  output, or ARCHITECTURE.md → Persistence → iCloud sync).
+TEXT
+
+CLOUDKIT_SCHEMA_STEPS = <<~TEXT.freeze
+  CloudKit schema — once, and again whenever the stored models change (a new schema version):
+    TestFlight and App Store builds use the container's Production environment, where record
+    types cannot be created on the fly. Until the schema is deployed there, sync switched on in
+    such a build opens fine but uploads nothing, and Settings › iCloud shows CloudKit's error.
+    1. Run this workflow with "CloudKit development" ticked. That build talks to the Development
+       environment and has a button in Settings › iCloud: "Initialise the CloudKit schema".
+       Install it from TestFlight, open Settings › iCloud, tap it once, and wait for
+       "CloudKit schema initialised …". (With a Mac: run the Debug build from Xcode with the
+       launch argument -hours-initialize-cloudkit-schema instead.)
+    2. Open icloud.developer.apple.com → CloudKit Console → #{ICLOUD_CONTAINER} → Schema.
+       In Development, the record types CD_DayEntry, CD_HolidayRecord, CD_SiteEntry,
+       CD_CrewMemberEntry, CD_SiteDayEntry, CD_SiteDiaryEntry, CD_SiteDiaryPhotoEntry and
+       CD_CrewSignatureEntry are listed.
+    3. Click "Deploy Schema Changes…", check the list, and deploy to Production.
+    4. Run this workflow again WITHOUT "CloudKit development" for the build testers and App
+       Review get. Never submit a "CloudKit development" build for review.
+TEXT
+
 # The repository root, wherever fastlane was started from. A Fastfile's own
 # Ruby runs inside fastlane/ while its actions run from the root, so a path
 # built by hand here has to be absolute to mean the same thing to both.
@@ -199,6 +239,31 @@ platform :ios do
       end
     end
     UI.success("✓ App Groups is switched on for both Bundle IDs")
+
+    # e. The app's identifier can use iCloud (CloudKit) and push. The key can
+    # switch both on, which it does; what it cannot do is make the container
+    # or tick it on the identifier, so a profile without it stops the beta
+    # lane before anything is built (see `profile_problems`). A build signed
+    # without iCloud cannot even reach the store: the app reads its own
+    # signature and keeps sync off rather than crash (SyncLaunch).
+    app_bundle = Spaceship::ConnectAPI::BundleId.find(APP_ID)
+    have = app_bundle.get_capabilities.map(&:capability_type)
+    {
+      "ICLOUD" => [{ key: "ICLOUD_VERSION", options: [{ key: "XCODE_6" }] }],
+      "PUSH_NOTIFICATIONS" => []
+    }.each do |type, settings|
+      if have.include?(type)
+        UI.success("✓ #{type} is switched on for #{APP_ID}")
+        next
+      end
+      begin
+        app_bundle.create_capability(type, settings: settings)
+        UI.success("✓ #{type} was off for #{APP_ID} and has been switched on")
+      rescue StandardError => error
+        preflight_failed("the Bundle ID #{APP_ID} does not have the #{type} capability", ICLOUD_FIX, error.message)
+      end
+    end
+    UI.important("iCloud: the API cannot see whether #{ICLOUD_CONTAINER} is ticked on #{APP_ID}; the beta lane checks the signing profile for it.")
   end
 
   desc "Signs with match, builds, and uploads to TestFlight"
@@ -224,25 +289,38 @@ platform :ios do
     end
 
     # A profile is a snapshot of the identifier's capabilities on the day it
-    # was made, and match keeps reusing it. One made before the App Group was
-    # ticked lacks it, and the build would fail at signing with an error that
-    # names neither. So: look inside, and make new ones once if needed.
-    without_group = lambda do
-      TARGETS.values.reject do |id|
-        profile = FastlaneCore::ProvisioningProfile.parse(ENV.fetch("sigh_#{id}_appstore_profile-path"))
-        Array(profile.dig("Entitlements", "com.apple.security.application-groups")).include?(APP_GROUP)
+    # was made, and match keeps reusing it. One made before the App Group or
+    # iCloud was ticked lacks it, and the build would fail at signing with an
+    # error that names neither. So: look inside, and make new ones once if
+    # needed.
+    profile_problems = lambda do
+      TARGETS.values.flat_map do |id|
+        entitlements = FastlaneCore::ProvisioningProfile.parse(ENV.fetch("sigh_#{id}_appstore_profile-path"))["Entitlements"] || {}
+        problems = []
+        problems << "#{id} lacks #{APP_GROUP}" unless Array(entitlements["com.apple.security.application-groups"]).include?(APP_GROUP)
+        if id == APP_ID
+          services = Array(entitlements["com.apple.developer.icloud-services"])
+          unless Array(entitlements["com.apple.developer.icloud-container-identifiers"]).include?(ICLOUD_CONTAINER)
+            problems << "#{id} lacks the iCloud container #{ICLOUD_CONTAINER}"
+          end
+          problems << "#{id} lacks CloudKit" unless services.include?("CloudKit") || services.include?("*")
+          problems << "#{id} lacks push (aps-environment production)" unless entitlements["aps-environment"] == "production"
+        end
+        problems
       end
     end
 
     sign.call(false)
-    unless without_group.call.empty?
-      UI.important("The signing profiles predate the App Group; making new ones")
+    unless profile_problems.call.empty?
+      UI.important("The signing profiles predate a capability (#{profile_problems.call.join('; ')}); making new ones")
       sign.call(true)
-      missing = without_group.call
+      missing = profile_problems.call
       unless missing.empty?
-        UI.user_error!("New profiles for #{missing.join(', ')} still lack #{APP_GROUP}.\n#{APP_GROUP_FIX}")
+        fix = missing.any? { |problem| problem.include?(APP_GROUP) } ? APP_GROUP_FIX : ICLOUD_FIX
+        UI.user_error!("New profiles still fall short: #{missing.join('; ')}.\n#{fix}")
       end
     end
+    UI.success("✓ The app's profile carries the App Group, #{ICLOUD_CONTAINER}, CloudKit and push")
 
     # match exports the team and profile it used; nothing is hard-coded.
     team_id = ENV.fetch("sigh_#{APP_ID}_appstore_team-id")
@@ -265,12 +343,25 @@ platform :ios do
     # runs in the same sandbox, so the build submitted for review is made with
     # TESTER_UNLOCK=false and has no unlock compiled in.
     xcargs = ["CURRENT_PROJECT_VERSION=#{ENV.fetch('GITHUB_RUN_NUMBER')}"]
+    # ICLOUD_SYNC is the app target's own setting; it is named here too so a
+    # command-line override can never be what leaves it out.
+    conditions = ["$(inherited)", "ICLOUD_SYNC"]
     if ENV["TESTER_UNLOCK"] == "true"
-      xcargs << "SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) TESTER_UNLOCK'"
+      conditions << "TESTER_UNLOCK"
       UI.message("Pro is unlocked for TestFlight testers in this build")
     else
       UI.important("No tester unlock in this build: this is the one to submit for App Review")
     end
+    # A build for setting up the CloudKit schema: it talks to the container's
+    # Development environment and carries the button that initialises it.
+    # Never one to submit for review.
+    if ENV["CLOUDKIT_DEVELOPMENT"] == "true"
+      conditions << "CLOUDKIT_SCHEMA_TOOLS"
+      xcargs << "ZEITKONTO_CLOUDKIT_ENVIRONMENT=Development"
+      UI.important("CloudKit DEVELOPMENT build, for initialising the schema only. Do not submit it for review.")
+      UI.message(CLOUDKIT_SCHEMA_STEPS)
+    end
+    xcargs << "SWIFT_ACTIVE_COMPILATION_CONDITIONS='#{conditions.join(' ')}'"
 
     build_app(
       project: PROJECT,
@@ -284,6 +375,12 @@ platform :ios do
     )
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
+
+    # Nothing here can see the CloudKit Console, so this is said every time
+    # rather than checked: sync does not crash without the schema, it just
+    # uploads nothing until the schema is in Production.
+    UI.important("If the CloudKit schema has not been deployed to Production yet, sync in this build uploads nothing.")
+    UI.message(CLOUDKIT_SCHEMA_STEPS) unless ENV["CLOUDKIT_DEVELOPMENT"] == "true"
   end
 
   # ---------------------------------------------------------------------------
