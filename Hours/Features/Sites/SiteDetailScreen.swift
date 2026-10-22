@@ -26,6 +26,8 @@ struct SiteDetailScreen: View {
     @State private var editing: Site?
     @State private var exporting: Site?
     @State private var readingDiary: Site?
+    /// The extra-work report, from the toolbar's Report button.
+    @State private var reporting: Site?
     /// The month the export opens on; `nil` is last month, as the menu does.
     @State private var exportingMonth: YearMonth?
     /// The link's export is opened once. Coming back to the site from the
@@ -48,6 +50,19 @@ struct SiteDetailScreen: View {
         .navigationTitle(site?.name ?? "")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            // The report for the boss (mockup 13): a sheet, like the export.
+            // Open on a read-only site too, as the export is.
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    reporting = site
+                } label: {
+                    Label("Report", systemImage: "doc.text")
+                        .labelStyle(.titleAndIcon)
+                }
+                .disabled(site == nil)
+                .accessibilityLabel(String(localized: "Extra work report"))
+                .accessibilityIdentifier("site-extra-work-report")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     // Pushed by value onto whichever stack this screen is in
@@ -114,6 +129,9 @@ struct SiteDetailScreen: View {
         }
         .sheet(item: $readingDiary) { site in
             SiteDiaryListSheet(site: site)
+        }
+        .sheet(item: $reporting) { site in
+            ExtraWorkReportScreen(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites))
         }
         .sheet(item: $editing) { site in
             SiteEditorSheet(

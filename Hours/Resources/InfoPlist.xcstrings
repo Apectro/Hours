@@ -2,67 +2,67 @@
   "sourceLanguage": "en",
   "strings": {
     "NSCameraUsageDescription": {
-      "comment": "Why the app asks for the camera: the site diary's Take photo button.",
+      "comment": "Why the app asks for the camera: Take photo in the site diary and on extra work.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The camera is used only when you take a photo for a site diary."
+            "value": "The camera is used only when you take a photo for a site diary or for extra work."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Kamera wird nur verwendet, wenn du ein Foto für ein Bautagebuch aufnimmst."
+            "value": "Die Kamera wird nur verwendet, wenn du ein Foto für ein Bautagebuch oder eine Regiearbeit aufnimmst."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La cámara solo se usa cuando haces una foto para un diario de obra."
+            "value": "La cámara solo se usa cuando haces una foto para un diario de obra o para un trabajo adicional."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’appareil photo n’est utilisé que lorsque vous prenez une photo pour un journal de chantier."
+            "value": "L’appareil photo n’est utilisé que lorsque vous prenez une photo pour un journal de chantier ou pour des travaux supplémentaires."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kamera se koristi samo kad snimaš fotografiju za građevinski dnevnik."
+            "value": "Kamera se koristi samo kad snimaš fotografiju za građevinski dnevnik ili za izvanugovorni rad."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La fotocamera viene usata solo quando scatti una foto per un giornale dei lavori."
+            "value": "La fotocamera viene usata solo quando scatti una foto per un giornale dei lavori o per un lavoro extra."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "De camera wordt alleen gebruikt als je een foto maakt voor een bouwdagboek."
+            "value": "De camera wordt alleen gebruikt als je een foto maakt voor een bouwdagboek of voor meerwerk."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparat jest używany tylko wtedy, gdy robisz zdjęcie do dziennika budowy."
+            "value": "Aparat jest używany tylko wtedy, gdy robisz zdjęcie do dziennika budowy lub do pracy dodatkowej."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "A câmara só é usada quando tiras uma foto para um diário de obra."
+            "value": "A câmara só é usada quando tiras uma foto para um diário de obra ou para um trabalho adicional."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kamera se uporablja samo, ko posnameš fotografijo za gradbeni dnevnik."
+            "value": "Kamera se uporablja samo, ko posnameš fotografijo za gradbeni dnevnik ali za dodatno delo."
           }
         }
       }

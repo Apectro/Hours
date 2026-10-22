@@ -25,6 +25,8 @@ struct SiteMonthGrid: View {
     var badWeatherDateKeys: Set<Int> = []
     /// Date keys of public holidays off, which are never unwritten.
     var holidayDateKeys: Set<Int> = []
+    /// Date keys with extra work written down.
+    var extraWorkDateKeys: Set<Int> = []
 
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: Metrics.tiny), count: max(layout.columnCount, 1))
@@ -46,7 +48,8 @@ struct SiteMonthGrid: View {
                         isToday: date == today,
                         isUnwritten: isUnwritten(date),
                         hasDiary: diaryDateKeys.contains(date.key),
-                        isBadWeather: badWeatherDateKeys.contains(date.key)
+                        isBadWeather: badWeatherDateKeys.contains(date.key),
+                        hasExtraWork: extraWorkDateKeys.contains(date.key)
                     )
                     .contentShape(Rectangle())
                     .onTapGesture { onSelect(date) }
@@ -117,6 +120,7 @@ struct SiteDayCell: View {
     let isUnwritten: Bool
     var hasDiary: Bool = false
     var isBadWeather: Bool = false
+    var hasExtraWork: Bool = false
 
     var body: some View {
         VStack(spacing: 2) {
@@ -165,7 +169,12 @@ struct SiteDayCell: View {
                     .font(.system(size: 7, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
-            if !isBadWeather && (presentCount ?? 0) == 0 && !hasDiary {
+            if hasExtraWork {
+                Image(systemName: "wrench.and.screwdriver.fill")
+                    .font(.system(size: 7, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            if !isBadWeather && (presentCount ?? 0) == 0 && !hasDiary && !hasExtraWork {
                 Color.clear.frame(width: 5, height: 5)
             }
         }
@@ -183,6 +192,7 @@ struct SiteDayCell: View {
         }
         if isBadWeather { parts.append(String(localized: "Rained off")) }
         if hasDiary { parts.append(String(localized: "Site diary")) }
+        if hasExtraWork { parts.append(String(localized: "Extra work")) }
         if isToday { parts.append(String(localized: "Today")) }
         return parts.joined(separator: ", ")
     }

@@ -39,6 +39,8 @@ struct SiteDayScreen: View {
     @State private var monthDays: [SiteDay] = []
     /// Date keys under the grid with a diary or a diary photo.
     @State private var diaryDateKeys: Set<Int> = []
+    /// Date keys under the grid with extra work.
+    @State private var extraWorkDateKeys: Set<Int> = []
     /// What "Same as last day" would fill in, if there is an earlier day.
     @State private var lastDay: SiteDay?
     /// The date "Same as last day" copies from. Kept apart from `lastDay`,
@@ -108,7 +110,8 @@ struct SiteDayScreen: View {
                     onStep: step,
                     diaryDateKeys: diaryDateKeys,
                     badWeatherDateKeys: badWeatherDateKeys,
-                    holidayDateKeys: holidayDateKeys
+                    holidayDateKeys: holidayDateKeys,
+                    extraWorkDateKeys: extraWorkDateKeys
                 )
 
                 monthSummary
@@ -124,6 +127,12 @@ struct SiteDayScreen: View {
                         onLift: { commit(day.liftingBadWeatherStop()) }
                     )
                 }
+
+                // Extra work is not hours either (see `ExtraWorkRepository`):
+                // only a read-only site stops it. Rebuilt per date, as the
+                // diary is.
+                ExtraWorkDaySection(site: site, date: date, canEdit: !isReadOnly, onChange: reloadExtraWorkMarks)
+                    .id(date.key)
 
                 // Not under the month lock (see `SiteDiaryRepository`): only a
                 // read-only site stops the diary. Rebuilt per date, so a draft
@@ -358,6 +367,12 @@ struct SiteDayScreen: View {
     private func reloadMonth() {
         monthDays = repository.siteDays(siteID: site.id, in: layout.coveredRange)
         reloadDiaryMarks()
+        reloadExtraWorkMarks()
+    }
+
+    private func reloadExtraWorkMarks() {
+        extraWorkDateKeys = ExtraWorkRepository(context: modelContext)
+            .dateKeys(siteID: site.id, in: layout.coveredRange)
     }
 
     private func reloadDiaryMarks() {
