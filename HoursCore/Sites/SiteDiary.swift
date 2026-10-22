@@ -18,6 +18,11 @@ enum DiaryWeather: String, Codable, CaseIterable, Sendable {
         }
     }
 
+    /// Its word on screen, in the language the app is shown in.
+    func displayName(in language: ExportLanguage = .device) -> String {
+        language(term)
+    }
+
     /// Its word, in the export's languages and on screen.
     var term: ExportTerm {
         switch self {
@@ -86,6 +91,12 @@ struct SiteDiary: Hashable, Codable, Sendable {
     /// The four texts with their export terms, in the order they are shown.
     var texts: [(term: ExportTerm, text: String)] {
         [(.diaryWorkDone, workDone), (.diaryDeliveries, deliveries), (.diaryProblems, problems), (.diaryVisitors, visitors)]
+    }
+
+    /// A heading for one of the texts on screen: the export's own word, so
+    /// the app and the director's sheet call each part the same.
+    static func label(for term: ExportTerm, in language: ExportLanguage = .device) -> String {
+        language(term)
     }
 
     /// How many more photos a day with `existing` can take.

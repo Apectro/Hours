@@ -49,7 +49,8 @@ enum XLSXWriter {
         archive.addFile(name: "xl/_rels/workbook.xml.rels", contents: Data(workbookRelationships(sheets: tables.count).utf8))
         archive.addFile(name: "xl/styles.xml", contents: Data(styles.utf8))
         for (index, worksheet) in worksheets.enumerated() {
-            archive.addFile(name: "xl/worksheets/sheet\(index + 1).xml", contents: Data(worksheet.xml.utf8))
+            // A part name, not prose.
+            archive.addFile(name: "xl/worksheets/sheet" + String(index + 1) + ".xml", contents: Data(worksheet.xml.utf8))
         }
         return archive.finalized()
     }

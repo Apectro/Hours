@@ -117,4 +117,11 @@ final class SiteDiaryTests: XCTestCase {
         }
         XCTAssertEqual(ExportLanguage.german(DiaryWeather.rain.term), "Regen")
     }
+
+    /// On screen the weather and the four headings use the export's words,
+    /// so the diary reads the same in the app and on the director's sheet.
+    func testOnScreenNamesFollowTheExportWords() {
+        XCTAssertEqual(DiaryWeather.snow.displayName(in: .german), "Schnee")
+        XCTAssertEqual(SiteDiary.label(for: .diaryProblems, in: .german), "Behinderungen / Verzögerungen")
+    }
 }
