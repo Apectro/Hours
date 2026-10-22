@@ -44,7 +44,8 @@ struct BackupRestorer {
         let siteRepository = SiteRepository(context: context)
         let sites = siteRepository.sites(includeArchived: true)
         let diary = SiteDiaryRepository(context: context).everything()
-        return BackupArchive(
+        let extraWork = ExtraWorkRepository(context: context).everything()
+        var archive = BackupArchive(
             settings: settings,
             days: workdays.allEntries().map(\.record),
             holidays: workdays.holidayRules(),
@@ -55,6 +56,13 @@ struct BackupRestorer {
             diaryPhotos: diary.photos,
             signatures: diary.signatures
         )
+        // Always written, as empty lists when there is none, so a new backup
+        // says it knows about extra work and restoring it replaces the device's.
+        archive.extraWorkJobs = extraWork.jobs
+        archive.extraWorkPhotos = extraWork.photos
+        archive.extraWorkReports = extraWork.reports
+        archive.extraWorkItems = extraWork.items
+        return archive
     }
 
     /// Wide enough that no recorded date falls outside it.
@@ -97,6 +105,7 @@ struct BackupRestorer {
             )
         }
         restoreDiary(from: archive)
+        restoreExtraWork(from: archive)
 
         rebuildSiteShifts(workdays: workdays, siteRepository: siteRepository)
     }
@@ -122,8 +131,30 @@ struct BackupRestorer {
         )
     }
 
-    /// Removes every day, holiday, site, crew member and site day, and every
-    /// diary, photo and signature.
+    /// Extra work, by the diary's rule: replaced by the file's when it has
+    /// it; from an older file, the device's jobs, photos and reports are kept
+    /// for the sites the file restores. The remembered items belong to no
+    /// site, so an older file keeps the device's.
+    private func restoreExtraWork(from archive: BackupArchive) {
+        let repository = ExtraWorkRepository(context: context)
+        let onDevice = repository.everything()
+        let restoredSites = archive.sites.map { Set($0.map(\.id)) }
+        repository.replaceEverything(
+            jobs: BackupArchive.restoredItems(
+                fromFile: archive.extraWorkJobs, onDevice: onDevice.jobs, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            photos: BackupArchive.restoredItems(
+                fromFile: archive.extraWorkPhotos, onDevice: onDevice.photos, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            reports: BackupArchive.restoredItems(
+                fromFile: archive.extraWorkReports, onDevice: onDevice.reports, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            items: BackupArchive.restoredCatalog(fromFile: archive.extraWorkItems, onDevice: onDevice.items)
+        )
+    }
+
+    /// Removes every day, holiday, site, crew member and site day, every
+    /// diary, photo and signature, and all extra work.
     ///
     /// Sites go with the days because the calendar's site shifts are made from
     /// them: keeping one without the other would leave the two disagreeing.
@@ -134,6 +165,8 @@ struct BackupRestorer {
         SiteRepository(context: context, lock: .unlocked).replaceAll(sites: [], crew: [], siteDays: [])
         // A site's diary, photos and signatures go with it.
         SiteDiaryRepository(context: context).replaceAll(diaries: [], photos: [], signatures: [])
+        // Extra work goes with its sites; the remembered items with the rest.
+        ExtraWorkRepository(context: context).replaceEverything(jobs: [], photos: [], reports: [], items: [])
     }
 
     /// Brings the calendar's site shifts into line with the site days now in

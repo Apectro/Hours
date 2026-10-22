@@ -166,7 +166,7 @@ struct PDFAppendix {
 
         let lineY = inner.maxY - 14
         let signatureArea = CGRect(x: inner.minX, y: inner.minY + 16, width: inner.width, height: lineY - inner.minY - 18)
-        drawStrokes(person.strokes, aspectRatio: person.aspectRatio, in: signatureArea)
+        PDFAppendix.drawStrokes(person.strokes, aspectRatio: person.aspectRatio, in: signatureArea)
 
         PDFReportStyle.line(from: CGPoint(x: inner.minX, y: lineY), to: CGPoint(x: inner.maxX, y: lineY),
                             width: 0.6, color: PDFReportStyle.signatureRule)
@@ -176,8 +176,9 @@ struct PDFAppendix {
     }
 
     /// The signature scaled to fit its area, keeping its proportions, set on
-    /// the line as a signature is.
-    private func drawStrokes(_ strokes: [[SignaturePoint]], aspectRatio: Double, in area: CGRect) {
+    /// the line as a signature is. Shared with the extra-work report, which
+    /// prints the client's signature the same way.
+    static func drawStrokes(_ strokes: [[SignaturePoint]], aspectRatio: Double, in area: CGRect) {
         guard !strokes.isEmpty, area.width > 0, area.height > 0 else { return }
         let aspect = CGFloat(max(aspectRatio, 0.1))
         let scale = min(area.width / aspect, area.height)

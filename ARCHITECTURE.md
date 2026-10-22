@@ -356,8 +356,10 @@ site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
   `HolidayRecord`, and for job sites `SiteEntry`, `CrewMemberEntry` and
   `SiteDayEntry` (one per site and `dateKey`), and since 1.1 the site diary:
   `SiteDiaryEntry` (one per site and `dateKey`), `SiteDiaryPhotoEntry` and
-  `CrewSignatureEntry` (one per site, person and month). These are records
-  the user creates, queries and exports.
+  `CrewSignatureEntry` (one per site, person and month), and extra work:
+  `ExtraWorkJobEntry`, `ExtraWorkPhotoEntry`, `ExtraWorkReportEntry` (a report
+  that was sent) and `ExtraWorkItemEntry` (the remembered items). These are
+  records the user creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -373,7 +375,7 @@ default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
-**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4, every
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5, every
 stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
@@ -382,6 +384,11 @@ describing exactly what stores written by it hold. V4 (1.1) adds
 with a default on every property. Diary photos are `@Attribute(.externalStorage)`
 JPEGs: the database file stays small, a fetch of the rows (the month grid's
 marks) never reads an image, and with sync on they travel as CloudKit assets.
+V5 (1.1) adds the four extra-work entities and freezes V4's eight classes. Every
+new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
+default or is optional, nothing is `.unique`, and there are no relationships —
+rows refer to each other by id strings, as the diary's do. `MigrationTests`
+checks every entity of the live schema against those rules.
 
 **Uniqueness is a rule, not a constraint.** `dateKey` used to carry
 `@Attribute(.unique)`. It does not any more, for two reasons that arrive
@@ -428,7 +435,10 @@ stop *is* hours, so it goes through `SiteRepository` and the lock like any
 other change to a site day.
 
 **Backups.** The diary, its photos and the signatures are three optional lists
-in the backup JSON (`diaries`, `diaryPhotos`, `signatures`). The format version
+in the backup JSON (`diaries`, `diaryPhotos`, `signatures`), and extra work four
+more (`extraWorkJobs`, `extraWorkPhotos`, `extraWorkReports`, `extraWorkItems`),
+set after `init` so the initialiser stays as it was. Quantities are written as
+text ("12.5"), exact on every platform. The format version
 stays 1: they are additions 1.0 skips without complaint, where a new version
 number would make 1.0 refuse the whole file. Photos go in as base64 inside the
 one file, so a backup is still a single file through a single door. The price
@@ -436,8 +446,9 @@ is size: a stored photo is about 200–500 KB, a third more as base64, so a mont
 with three photos on twenty days adds roughly 15–30 MB. A file that carries the
 lists replaces what is on the device; a file from before them keeps the
 device's diary for the sites it restores and drops it for sites it removes
-(`BackupArchive.restoredItems`). Deleting everything takes the diary with the
-sites.
+(`BackupArchive.restoredItems`). Extra work restores by the same rule; the
+remembered items belong to no site, so an older file keeps the device's.
+Deleting everything takes the diary and extra work with the sites.
 
 **iCloud sync.** Off by default, per installation, and the same store file
 with or without it: `HoursModelContainer.make` changes only `cloudKitDatabase`,
@@ -694,6 +705,46 @@ moment of signing (`SignatureFingerprint`, FNV-1a over their days' start, end,
 break and minutes — Linux-safe and stable across devices). When the hours change
 afterwards the fingerprint no longer matches and the sign-off and the sheet say
 "changed after signing". Signing again replaces the old signature.
+
+## Extra work
+
+**Extra work** (Regie, izvanugovorni radovi) is what a crew did beyond the
+contract, written down so the boss can invoice it. An `ExtraWorkJob` belongs to
+a site and a day: what was done, material lines (`ExtraWorkItem`: the user's
+own name, a `Decimal` quantity, an `ExtraWorkUnit` — pcs, m, m², m³, kg, h, set,
+or a unit typed in and kept as typed), optional hours per person, up to six
+photos (the diary's `DiaryPhotoProcessor`, so no metadata), and the client's
+optional signature (the crew sign-off's `SignatureCanvas` and points). **There
+is no money anywhere in it**, and it is never on the personal timesheet.
+
+Its status is open → sent → invoiced. Sent is set by one rule,
+`ExtraWorkSending.marked`: only when the share sheet reports a completed share
+(`ShareSheetPresenter` uses `UIActivityViewController`, since `ShareLink` does
+not say), and then for every job in the report, recorded with an
+`ExtraWorkReportRecord`; a cancelled share changes nothing, and sharing a CSV
+marks nothing, since it is data rather than the report. Invoiced is marked by
+hand, from a sent job, and can be taken back.
+
+The report (`ExtraWorkReport`, pure) is one site's jobs — not sent yet (every
+open job, whatever its date), this week, or picked dates — newest day first,
+with the material summed per item and unit: case, accents and spacing do not
+make a new item (`ExtraWorkCatalog.key`), and a line is named as it was most
+recently written. A signature under the report confirms every job in it.
+`ExtraWorkDocument` turns it into the export language's words: the PDF
+(`ExtraWorkPDFRenderer`, A4 portrait in the director's sheet's type, colours and
+signature drawing, jobs running on over pages), a workbook with Material and
+Jobs sheets (`XLSXWriter.data(sheets:)`, quantities as numbers through
+`ReportRow.numbers`), and a CSV of job lines with each job's hours on its first
+line only. Its words are `ExtraWorkTerm`s, kept beside `ExportTerm` in their own
+file with the same one-switch rule.
+
+The remembered items ("Used before") are one list for the user, not per site:
+saving a job records its items, most recently used offered first.
+
+**Not under the month lock.** `ExtraWorkRepository` writes without
+`MonthLock`, for the diary's reason: none of it is anyone's hours, and the
+30th's extra work is sent after the month is closed. Its methods avoid `save`,
+`delete` and `replaceAll`.
 
 ## Export
 

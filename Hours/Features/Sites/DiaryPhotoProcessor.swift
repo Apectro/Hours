@@ -49,6 +49,16 @@ enum DiaryPhotoProcessor {
         reencoded(data, maxPixel: printLongEdge, quality: printQuality)
     }
 
+    /// The longest side of a photo printed as a thumbnail beside a job on
+    /// the extra-work report, where it is drawn about an inch wide.
+    static let thumbnailPrintLongEdge: CGFloat = 360
+
+    /// A small JPEG for a thumbnail in a PDF: the extra-work report prints
+    /// up to six per job, small, and full-size photos would only swell it.
+    static func thumbnailPrintJPEG(from data: Data) -> Data? {
+        reencoded(data, maxPixel: thumbnailPrintLongEdge, quality: printQuality)
+    }
+
     /// An image for the screen, decoded at no more than `maxPixel`.
     static func thumbnail(from data: Data, maxPixel: CGFloat) -> UIImage? {
         guard let image = downsampled(data, maxPixel: maxPixel) else { return nil }

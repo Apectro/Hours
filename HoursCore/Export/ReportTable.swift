@@ -37,6 +37,10 @@ struct ReportRow: Identifiable, Hashable, Sendable {
     /// rather than cell by cell: on the director's sheet, the dash for
     /// someone who was not there that day.
     var mergedGroups: Set<Int> = []
+    /// Columns that hold a plain number rather than a duration — a quantity
+    /// of material — so a workbook writes a number it can add up. Empty for
+    /// every report that has none.
+    var numbers: [Double?] = []
 }
 
 /// A run of neighbouring columns under one heading: on the director's sheet,
@@ -65,6 +69,9 @@ enum ReportKind: String, Hashable, Sendable {
     /// A site's diary as a table, the workbook's second sheet; from
     /// `SiteDiaryReport.table(language:)`.
     case siteDiary
+    /// Extra work for the boss: its material and its jobs, from
+    /// `ExtraWorkDocument`.
+    case extraWork
 }
 
 /// A labelled figure in the totals block.
