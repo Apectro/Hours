@@ -33,8 +33,8 @@ struct BackupArchive: Codable, Sendable {
     ///
     /// Photos go in as base64, inside this one JSON file, so a backup stays a
     /// single file that restores through the same door as ever. The cost is
-    /// size: a stored photo is roughly 200–400 KB, a third more as base64, so
-    /// a month with three photos on twenty days adds about 15–25 MB.
+    /// size: a stored photo is roughly 200–500 KB, a third more as base64, so
+    /// a month with three photos on twenty days adds about 15–30 MB.
     var diaries: [SiteDiary]?
     var diaryPhotos: [DiaryPhoto]?
     var signatures: [CrewSignature]?
