@@ -249,8 +249,10 @@ which case it keeps its contracted hours and only its name is carried through.
 
 - **SwiftData** for entities: `DayEntry` (one per `dateKey`) and
   `HolidayRecord`, and for job sites `SiteEntry`, `CrewMemberEntry` and
-  `SiteDayEntry` (one per site and `dateKey`). These are records the user
-  creates, queries and exports.
+  `SiteDayEntry` (one per site and `dateKey`), and since 1.1 the site diary:
+  `SiteDiaryEntry` (one per site and `dateKey`), `SiteDiaryPhotoEntry` and
+  `CrewSignatureEntry` (one per site, person and month). These are records
+  the user creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -265,6 +267,16 @@ lightweight migration. Settings decode leniently: every field falls back to its
 default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
+
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4, every
+stage lightweight. The live classes are always the newest version; the moment
+a new version is added, the previous one gets frozen copies of the classes
+column for column (V2 and V3 hold theirs), because a version must keep
+describing exactly what stores written by it hold. V4 (1.1) adds
+`SiteDayEntry.isBadWeatherStop` with a default, and the three diary entities
+with a default on every property. Diary photos are `@Attribute(.externalStorage)`
+JPEGs: the database file stays small, a fetch of the rows (the month grid's
+marks) never reads an image, and with sync on they travel as CloudKit assets.
 
 **Uniqueness is a rule, not a constraint.** `dateKey` used to carry
 `@Attribute(.unique)`. It does not any more, for two reasons that arrive
@@ -287,6 +299,28 @@ It also writes your own calendar day in the same save as the site day, through
 `WorkdayRepository` and under the same month lock, and when duplicate site days
 collapse it rewrites the calendar day for that date, so the site and your
 calendar never keep different hours.
+
+**The diary is not under the month lock.** `SiteDiaryRepository` writes the
+diary, its photos and the crew's signatures without consulting `MonthLock`.
+The lock keeps a closed month's hours as they were handed in, and none of this
+is hours: a diary written up the next morning or a crew signing their month —
+which happens after the month ends, usually after it is closed — must still be
+possible. Its methods avoid the names `save` and `delete` so
+`check-repository-lock.py` does not take them for the hours' writes. A rained-off
+stop *is* hours, so it goes through `SiteRepository` and the lock like any
+other change to a site day.
+
+**Backups.** The diary, its photos and the signatures are three optional lists
+in the backup JSON (`diaries`, `diaryPhotos`, `signatures`). The format version
+stays 1: they are additions 1.0 skips without complaint, where a new version
+number would make 1.0 refuse the whole file. Photos go in as base64 inside the
+one file, so a backup is still a single file through a single door. The price
+is size: a stored photo is about 200–500 KB, a third more as base64, so a month
+with three photos on twenty days adds roughly 15–30 MB. A file that carries the
+lists replaces what is on the device; a file from before them keeps the
+device's diary for the sites it restores and drops it for sites it removes
+(`BackupArchive.restoredItems`). Deleting everything takes the diary with the
+sites.
 
 **Validation** happens on the way in (a break can never be negative, times are
 clamped to a real time of day, a range that is entered backwards is corrected)
@@ -386,12 +420,51 @@ The flag lives in its own `UserDefaults` key, like the sync preference, because
 it belongs to the installation rather than to the data. UI tests start from what
 a fresh install looks like, so they see it only when `-hours-first-run` asks.
 
+## Sites: bad weather, the diary and sign-off
+
+**Bad weather** (Schlechtwetter) is a built-in day type, `.badWeather`, paid
+like a holiday by default and editable like the other built-ins. Being built in,
+it appears for everyone who updates with nothing stored or migrated; a custom
+type with the same id overrides it, as with every built-in. A site day can be
+stopped for the whole crew (`SiteDay.stoppedForBadWeather(at:)`): with no time,
+nobody worked and the times go but who was there stays; with a time ("stopped at
+11:00") the hours up to it stand. A full stop gives your own day the Bad weather
+type when nothing else is on it — no type you chose, no other hours. A partial
+stop does not: the type credits the contracted day, and on top of the hours
+already worked that would count them twice, so that day stays hours worked.
+`SiteCalendarSync.merged` is told the site days as they stood before the change,
+which is how lifting, unticking or deleting a stop takes the type it put on back
+off without touching a Bad weather day you chose yourself. Bad-weather days are
+counted on the site's month header and as a tile on the director's sheet, whose
+note column leads with "Bad weather" on those days.
+
+**The site diary** (Bautagebuch) is one `SiteDiary` per site and day — weather,
+a temperature typed by hand, and four texts — plus up to six `DiaryPhoto`s. It
+is independent of the hours: it can exist with none, and deleting the hours
+leaves it. A blank diary is not stored. The weather is picked, never fetched.
+
+**Crew sign-off.** Each person reads their month on your phone and signs with a
+finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
+few hundred numbers in a backup) and a fingerprint of that person's hours at the
+moment of signing (`SignatureFingerprint`, FNV-1a over their days' start, end,
+break and minutes — Linux-safe and stable across devices). When the hours change
+afterwards the fingerprint no longer matches and the sign-off and the sheet say
+"changed after signing". Signing again replaces the old signature.
+
 ## Export
 
 One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,
 totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
+
+A director's sheet can carry the site diary and the crew's sign-off. In the PDF
+they are pages of their own after the table (`PDFAppendix`), laid out before
+drawing so the footer's page count includes them; with nobody signed and no
+diary included the sheet prints exactly as before. Diary photos are drawn from
+small JPEGs (900 px) so the PDF keeps the compressed bytes instead of every
+pixel. In the workbook the diary is a second sheet, a row per day. The CSV
+stays one table, which is what a CSV importer expects: no diary there.
 
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and
@@ -421,6 +494,16 @@ The preference deliberately lives outside `AppSettings`, in its own
 taken on a synced device onto a different phone must not quietly start
 uploading someone's hours. Sync is a property of an installation, not of the
 data.
+
+**The camera and photos.** The diary's photo picker is `PhotosPicker`, which
+runs out of process and needs no photo-library permission: the app only ever
+sees the pictures chosen. The camera is `UIImagePickerController` and asks for
+camera access with a purpose string, the first and only permission the diary
+adds. Every photo, picked or taken, is decoded and written again as a new JPEG
+with no metadata at all (`DiaryPhotoProcessor`), which is what takes the GPS
+coordinates out: the app does not access location, and keeping it in a picture
+handed to a director would break that by the back door. The weather is picked by
+hand; there is no weather service.
 
 The privacy screen is written from `HoursStack.isSyncing` rather than from what
 the app intends in general — it reports the store that actually opened. A
