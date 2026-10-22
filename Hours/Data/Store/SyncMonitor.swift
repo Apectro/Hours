@@ -26,11 +26,9 @@ final class SyncMonitor {
     private(set) var account: Account = .unknown
     /// The last setup, import or export that failed, as the system words it.
     private(set) var lastError: String?
-    /// When anything last came in or went out.
-    private(set) var lastExchange: Date?
 
     @ObservationIgnored private var observer: NSObjectProtocol?
-    @ObservationIgnored private let started = Date()
+    private let started = Date()
 
     func start() {
         guard observer == nil, !HoursStack.isRunningUITests else { return }
@@ -63,7 +61,6 @@ final class SyncMonitor {
         if event.type == .setup { SyncLaunchMark.clear() }
 
         if event.succeeded {
-            if event.type == .import || event.type == .export { lastExchange = event.endDate }
             lastError = nil
         } else if let error = event.error {
             lastError = error.localizedDescription

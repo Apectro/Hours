@@ -141,8 +141,14 @@ struct SyncSettingsScreen: View {
             // Developer-only, never in an App Store build: see `CloudKitSchema`.
             Section {
                 Button {
-                    CloudKitSchema.initialize()
-                    schemaOutcome = CloudKitSchema.outcome
+                    schemaOutcome = "…"
+                    // Off the main thread: it waits on the network, and a
+                    // screen frozen that long can be ended by the system.
+                    Task.detached {
+                        CloudKitSchema.initialize()
+                        let outcome = CloudKitSchema.outcome
+                        await MainActor.run { schemaOutcome = outcome }
+                    }
                 } label: {
                     Text(verbatim: "Initialise the CloudKit schema (Development)")
                 }
