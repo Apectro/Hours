@@ -23,7 +23,10 @@
     "",
     "widgetInterface names the subset the widget extension uses. The widget",
     "ships its own catalogue, and giving it every app string would bloat an",
-    "extension that needs a few dozen."
+    "extension that needs a few dozen.",
+    "",
+    "watchInterface does the same for the Apple Watch app and its complications,",
+    "which share one catalogue in HoursWatchShared."
   ],
   "languages": [
     "de",
@@ -1475,6 +1478,28 @@
       "In- en uitklokken",
       "Rozpoczynanie i kończenie"
     ],
+    "Clock in or out": [
+      "Ein- oder ausstempeln",
+      "Prijava ili odjava",
+      "Prijava prihoda ali odhoda",
+      "Timbra entrata o uscita",
+      "Pointer l’arrivée ou le départ",
+      "Fichar entrada o salida",
+      "Registar entrada ou saída",
+      "In- of uitklokken",
+      "Rozpocznij lub zakończ"
+    ],
+    "Starts the clock, or stops it and records the hours.": [
+      "Startet die Uhr oder stoppt sie und erfasst die Stunden.",
+      "Pokreće sat ili ga zaustavlja i bilježi sate.",
+      "Zažene uro ali jo ustavi in zabeleži ure.",
+      "Avvia la timbratura oppure la ferma e registra le ore.",
+      "Démarre le pointage, ou l’arrête et enregistre les heures.",
+      "Inicia el fichaje, o lo detiene y registra las horas.",
+      "Inicia o registo, ou para-o e regista as horas.",
+      "Start de klok, of stopt hem en legt de uren vast.",
+      "Uruchamia zegar albo go zatrzymuje i zapisuje godziny."
+    ],
     "Clock in with ${applicationName}": [
       "Mit ${applicationName} einstempeln",
       "Prijavi se u ${applicationName}",
@@ -1508,6 +1533,39 @@
       "Uitklokken met ${applicationName}",
       "Zakończ pracę w ${applicationName}"
     ],
+    "Clock in or out with ${applicationName}": [
+      "Mit ${applicationName} ein- oder ausstempeln",
+      "Prijavi se ili odjavi u ${applicationName}",
+      "Prijavi prihod ali odhod v ${applicationName}",
+      "Timbra entrata o uscita con ${applicationName}",
+      "Pointer l’arrivée ou le départ avec ${applicationName}",
+      "Fichar entrada o salida con ${applicationName}",
+      "Registar entrada ou saída com ${applicationName}",
+      "In- of uitklokken met ${applicationName}",
+      "Rozpocznij lub zakończ pracę w ${applicationName}"
+    ],
+    "Same as yesterday in ${applicationName}": [
+      "Wie gestern in ${applicationName}",
+      "Isto kao jučer u ${applicationName}",
+      "Enako kot včeraj v ${applicationName}",
+      "Come ieri in ${applicationName}",
+      "Comme hier dans ${applicationName}",
+      "Igual que ayer en ${applicationName}",
+      "Igual a ontem no ${applicationName}",
+      "Zelfde als gisteren in ${applicationName}",
+      "Jak wczoraj w ${applicationName}"
+    ],
+    "Write today in ${applicationName}": [
+      "Heute in ${applicationName} eintragen",
+      "Upiši danas u ${applicationName}",
+      "Vpiši danes v ${applicationName}",
+      "Scrivi oggi in ${applicationName}",
+      "Saisir aujourd’hui dans ${applicationName}",
+      "Anotar hoy en ${applicationName}",
+      "Registar hoje no ${applicationName}",
+      "Vandaag invullen in ${applicationName}",
+      "Wpisz dzisiaj w ${applicationName}"
+    ],
     "Clock running": [
       "Uhr läuft",
       "Sat radi",
@@ -1529,6 +1587,17 @@
       "Entrada registada",
       "Ingeklokt",
       "Rozpoczęto"
+    ],
+    "Clocked out": [
+      "Ausgestempelt",
+      "Odjavljen",
+      "Prijavljen odhod",
+      "Uscita timbrata",
+      "Départ pointé",
+      "Salida fichada",
+      "Saída registada",
+      "Uitgeklokt",
+      "Zakończono"
     ],
     "Clocked in at %@.": [
       "Eingestempelt um %@.",
@@ -3245,6 +3314,28 @@
       "Abre o Zeitkonto uma vez para preencher isto",
       "Open Zeitkonto één keer om dit te vullen",
       "Otwórz Zeitkonto raz, aby to uzupełnić"
+    ],
+    "Open Zeitkonto on your iPhone once to see your hours here.": [
+      "Öffne Zeitkonto einmal auf deinem iPhone, um deine Stunden hier zu sehen.",
+      "Otvori Zeitkonto jednom na svom iPhoneu da ovdje vidiš svoje sate.",
+      "Enkrat odpri Zeitkonto na svojem iPhonu, da tukaj vidiš svoje ure.",
+      "Apri Zeitkonto una volta sul tuo iPhone per vedere qui le tue ore.",
+      "Ouvrez Zeitkonto une fois sur votre iPhone pour voir vos heures ici.",
+      "Abre Zeitkonto una vez en tu iPhone para ver aquí tus horas.",
+      "Abre o Zeitkonto uma vez no teu iPhone para veres aqui as tuas horas.",
+      "Open Zeitkonto één keer op je iPhone om je uren hier te zien.",
+      "Otwórz raz Zeitkonto na iPhonie, aby zobaczyć tu swoje godziny."
+    ],
+    "Records on your iPhone when it is in reach.": [
+      "Wird auf deinem iPhone erfasst, sobald es in Reichweite ist.",
+      "Bilježi se na tvom iPhoneu kad bude u dometu.",
+      "Zabeleži se na tvojem iPhonu, ko bo v dosegu.",
+      "Viene registrato sul tuo iPhone quando è a portata.",
+      "Sera enregistré sur votre iPhone dès qu’il sera à portée.",
+      "Se registra en tu iPhone cuando esté al alcance.",
+      "Fica registado no teu iPhone quando estiver ao alcance.",
+      "Wordt op je iPhone vastgelegd zodra die binnen bereik is.",
+      "Zostanie zapisane na iPhonie, gdy będzie w zasięgu."
     ],
     "Open on": [
       "Öffnen mit",
@@ -5611,6 +5702,17 @@
       "Zelfde als gisteren",
       "Jak wczoraj"
     ],
+    "Opens today on your site, filled in like the last day.": [
+      "Öffnet heute auf deiner Baustelle, ausgefüllt wie am letzten Tag.",
+      "Otvara današnji dan na tvom gradilištu, ispunjen kao zadnji dan.",
+      "Odpre današnji dan na tvojem gradbišču, izpolnjen kot zadnji dan.",
+      "Apre oggi sul tuo cantiere, compilato come l’ultimo giorno.",
+      "Ouvre aujourd’hui sur votre chantier, rempli comme le dernier jour.",
+      "Abre hoy en tu obra, rellenado como el último día.",
+      "Abre hoje na tua obra, preenchido como no último dia.",
+      "Opent vandaag op je bouwplaats, ingevuld zoals de laatste dag.",
+      "Otwiera dzisiejszy dzień na twojej budowie, wypełniony jak ostatni dzień."
+    ],
     "Since %@ · %@ so far": [
       "Seit %@ · bisher %@",
       "Od %@ · dosad %@",
@@ -6259,6 +6361,17 @@
       "Registar hoje",
       "Vandaag invullen",
       "Wpisz dzisiaj"
+    ],
+    "Opens today's day to write it.": [
+      "Öffnet den heutigen Tag zum Eintragen.",
+      "Otvara današnji dan za upis.",
+      "Odpre današnji dan za vpis.",
+      "Apre la giornata di oggi per scriverla.",
+      "Ouvre la journée d’aujourd’hui pour la saisir.",
+      "Abre el día de hoy para anotarlo.",
+      "Abre o dia de hoje para o registar.",
+      "Opent vandaag om het in te vullen.",
+      "Otwiera dzisiejszy dzień do wpisania."
     ],
     "Create a site": [
       "Baustelle anlegen",
@@ -7580,6 +7693,9 @@
     "Worked today",
     "Clock out",
     "Clocked in",
+    "Clocked out",
+    "Clock in and out",
+    "Starts the clock, or stops it and records the hours.",
     "No sites yet",
     "Same as last day",
     "Site",
@@ -7595,6 +7711,9 @@
     "Nothing written yet",
     "Open site",
     "Same as yesterday",
+    "Opens today on your site, filled in like the last day.",
+    "Write today",
+    "Opens today's day to write it.",
     "Since %@ · %@ so far",
     "THIS WEEK",
     "This week",
@@ -7613,5 +7732,20 @@
     "this month · %@",
     "%@ this week",
     "EARNED TODAY"
+  ],
+  "watchInterface": [
+    "TODAY",
+    "Today",
+    "of %@",
+    "Not a working day",
+    "Month %@",
+    "%@ month",
+    "Clock in",
+    "Clock out",
+    "Clocked in",
+    "since %@",
+    "What you have worked today, and whether the clock is running.",
+    "Open Zeitkonto on your iPhone once to see your hours here.",
+    "Records on your iPhone when it is in reach."
   ]
 }

@@ -28,7 +28,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SEARCHED = ["Hours", "HoursWidget", "HoursShared"]
+SEARCHED = ["Hours", "HoursWidget", "HoursShared", "HoursWatch", "HoursWatchWidget", "HoursWatchShared"]
 
 # Both localizing initializers, across line breaks: these calls wrap.
 CALL = re.compile(r'(?:localized|inflected):\s*"((?:[^"\\]|\\.)*)"', re.S)
@@ -89,7 +89,8 @@ def key_shapes(literal: str) -> list[str]:
 def main() -> int:
     catalogue = json.loads((ROOT / "Hours/Resources/Localizable.xcstrings").read_text("utf-8"))
     widget = json.loads((ROOT / "HoursWidget/Localizable.xcstrings").read_text("utf-8"))
-    known = set(catalogue["strings"]) | set(widget["strings"])
+    watch = json.loads((ROOT / "HoursWatchShared/Localizable.xcstrings").read_text("utf-8"))
+    known = set(catalogue["strings"]) | set(widget["strings"]) | set(watch["strings"])
 
     missing = []
     for folder in SEARCHED:
