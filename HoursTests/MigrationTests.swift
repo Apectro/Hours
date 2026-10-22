@@ -309,12 +309,71 @@ final class MigrationTests: XCTestCase {
         XCTAssertNoThrow(try context.save())
     }
 
-    /// The oldest stores go the whole way, V1 to V5, in one open.
-    func testAVersionOneStoreReachesVersionFive() throws {
+    /// The oldest stores go the whole way, V1 to V6, in one open.
+    func testAVersionOneStoreReachesTheNewestVersion() throws {
         try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
         let context = ModelContext(try HoursModelContainer.make(at: storeURL))
         XCTAssertEqual(WorkdayRepository(context: context).allEntries().count, 1)
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkJobEntry>()), 0)
+    }
+
+    // MARK: - Done (V5 to V6)
+
+    /// Writes a store as 1.1 before a job could be in progress left one:
+    /// V5's frozen copies, with two extra-work jobs — one sent, one still
+    /// "invoiced", a step that no longer exists.
+    private func writeVersionFiveStore() throws -> UUID {
+        let schema = Schema(versionedSchema: HoursSchemaV5.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV5.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        context.insert(site)
+        let diary = HoursSchemaV5.SiteDiaryEntry(siteID: siteID.uuidString, dateKey: 20_261_021)
+        diary.workDone = "Cable trays"
+        context.insert(diary)
+        for (index, status) in ["sent", "invoiced"].enumerated() {
+            let job = HoursSchemaV5.ExtraWorkJobEntry(jobID: UUID().uuidString)
+            job.siteID = siteID.uuidString
+            job.dateKey = 20_261_020 + index
+            job.workDescription = "Job \(index)"
+            job.statusRawValue = status
+            job.sentAt = Date(timeIntervalSince1970: 1_792_000_000)
+            context.insert(job)
+        }
+        let photo = HoursSchemaV5.ExtraWorkPhotoEntry(photoID: UUID().uuidString)
+        photo.siteID = siteID.uuidString
+        photo.jpegData = Data([7])
+        context.insert(photo)
+        context.insert(HoursSchemaV5.ExtraWorkReportEntry(reportID: UUID().uuidString))
+        context.insert(HoursSchemaV5.ExtraWorkItemEntry(itemID: UUID().uuidString))
+        try context.save()
+        return siteID
+    }
+
+    /// Every job a V5 store holds was written as finished work, so it opens
+    /// done — the stored default — with no date it was done, and an
+    /// "invoiced" one reads as sent.
+    func testAVersionFiveStoreOpensWithItsJobsDone() throws {
+        let siteID = try writeVersionFiveStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        let jobs = ExtraWorkRepository(context: context).jobs(siteID: siteID)
+        XCTAssertEqual(jobs.map(\.description), ["Job 0", "Job 1"])
+        XCTAssertTrue(jobs.allSatisfy(\.isDone))
+        XCTAssertTrue(jobs.allSatisfy { $0.doneAt == nil })
+        XCTAssertEqual(jobs.map(\.status), [.sent, .sent])
+        XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDiaryEntry>()).first?.workDone, "Cable trays")
+        XCTAssertEqual(try context.fetch(FetchDescriptor<ExtraWorkPhotoEntry>()).first?.jpegData, Data([7]))
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkReportEntry>()), 1)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkItemEntry>()), 1)
+
+        // And a new job, in progress, is written beside them.
+        let fresh = ExtraWorkJob(siteID: siteID, date: Fixture.date(2026, 10, 23), description: "Under way")
+        ExtraWorkRepository(context: context).storeJob(fresh)
+        XCTAssertEqual(ExtraWorkRepository(context: context).job(id: fresh.id)?.isDone, false)
     }
 
     func testExtraWorkEntriesRoundTrip() {
@@ -331,6 +390,9 @@ final class MigrationTests: XCTestCase {
         )
         job = job.markingSent(at: Date(timeIntervalSince1970: 1_792_000_000), reportID: UUID())
         XCTAssertEqual(ExtraWorkJobEntry(job: job).job, job)
+        XCTAssertFalse(ExtraWorkJobEntry(job: job).isDone, "a job in progress is stored in progress, not with the default")
+        let done = job.markingDone(at: Date(timeIntervalSince1970: 1_792_100_000))
+        XCTAssertEqual(ExtraWorkJobEntry(job: done).job, done)
 
         let photo = ExtraWorkPhoto(jobID: job.id, siteID: siteID, sortOrder: 2, jpegData: Data([9]))
         XCTAssertEqual(ExtraWorkPhotoEntry(photo: photo).photo, photo)
@@ -469,13 +531,14 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 5)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 4)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 6)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 5)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
         XCTAssertEqual(HoursSchemaV4.versionIdentifier, Schema.Version(4, 0, 0))
         XCTAssertEqual(HoursSchemaV5.versionIdentifier, Schema.Version(5, 0, 0))
+        XCTAssertEqual(HoursSchemaV6.versionIdentifier, Schema.Version(6, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is

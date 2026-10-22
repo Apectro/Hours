@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-// Extra work in the store (schema V5). Four entities, each following the rule
+// Extra work in the store (schema V5; V6 adds whether a job is done). Four entities, each following the rule
 // a CloudKit-mirrored store needs: every attribute has a default or is
 // optional, nothing is `.unique`, and there are no relationships — rows refer
 // to each other by id strings, as the diary does, and uniqueness is the
@@ -26,7 +26,15 @@ final class ExtraWorkJobEntry {
     var hoursData: Data?
     /// JSON-encoded `ExtraWorkSignature`; `nil` when the client has not signed.
     var clientSignatureData: Data?
-    /// `ExtraWorkStatus` raw value.
+    /// Whether the work is finished. Stored with the default `true` on
+    /// purpose: the V5→V6 migration fills the new column with it, and every
+    /// job written before V6 was written as finished work. The app sets
+    /// `false` itself for a new job (`apply`).
+    var isDone: Bool = true
+    /// When it was ticked done; `nil` in progress and for migrated jobs.
+    var doneAt: Date?
+    /// `ExtraWorkStatus` raw value. A V5 store may hold "invoiced", a step
+    /// there is no more; it reads as sent.
     var statusRawValue: String = "open"
     var sentAt: Date?
     var sentReportID: String?
@@ -53,7 +61,9 @@ extension ExtraWorkJobEntry {
             items: itemsData.flatMap { try? JSONDecoder().decode([ExtraWorkItem].self, from: $0) } ?? [],
             hours: hoursData.flatMap { try? JSONDecoder().decode([ExtraWorkHours].self, from: $0) } ?? [],
             clientSignature: clientSignatureData.flatMap { try? JSONDecoder().decode(ExtraWorkSignature.self, from: $0) },
-            status: ExtraWorkStatus(rawValue: statusRawValue) ?? .open,
+            isDone: isDone,
+            doneAt: doneAt,
+            status: ExtraWorkStatus(storedValue: statusRawValue),
             sentAt: sentAt,
             sentReportID: sentReportID.flatMap(UUID.init(uuidString:)),
             createdAt: createdAt,
@@ -69,6 +79,8 @@ extension ExtraWorkJobEntry {
         itemsData = try? JSONEncoder().encode(job.items)
         hoursData = job.hours.isEmpty ? nil : try? JSONEncoder().encode(job.hours)
         clientSignatureData = job.clientSignature.flatMap { try? JSONEncoder().encode($0) }
+        isDone = job.isDone
+        doneAt = job.doneAt
         statusRawValue = job.status.rawValue
         sentAt = job.sentAt
         sentReportID = job.sentReportID?.uuidString

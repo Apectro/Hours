@@ -11,7 +11,7 @@ import SwiftData
 /// **Not under the month lock, on purpose**, for the diary's reason: none of
 /// this is hours of anyone's own day. Extra work done on the 30th is written
 /// up and sent to the boss in the next month, after the month is closed, and
-/// a client's signature or an invoice mark changes nobody's hours. The method
+/// a client's signature or a job ticked done changes nobody's hours. The method
 /// names avoid `save`, `delete` and `replaceAll` so
 /// `Scripts/check-repository-lock.py` does not take these writes for the
 /// hours'.
@@ -62,8 +62,8 @@ struct ExtraWorkRepository {
         persist()
     }
 
-    /// Writes jobs whose status changed — sent, invoiced, reopened — in one
-    /// save, without touching anything else about them.
+    /// Writes jobs whose status changed — sent to the boss — in one save,
+    /// without touching anything else about them.
     func storeStatus(of jobs: [ExtraWorkJob]) {
         for job in jobs {
             guard let entry = jobEntries(id: job.id).first else { continue }
@@ -72,6 +72,17 @@ struct ExtraWorkRepository {
             entry.sentReportID = job.sentReportID?.uuidString
             entry.updatedAt = Date()
         }
+        persist()
+    }
+
+    /// Writes a job ticked done or back in progress, from the row's
+    /// checkmark, without touching anything else about it. Not under the
+    /// month lock, like everything here.
+    func storeProgress(of job: ExtraWorkJob) {
+        guard let entry = jobEntries(id: job.id).first else { return }
+        entry.isDone = job.isDone
+        entry.doneAt = job.doneAt
+        entry.updatedAt = Date()
         persist()
     }
 

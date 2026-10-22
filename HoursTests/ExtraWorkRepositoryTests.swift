@@ -78,6 +78,24 @@ final class ExtraWorkRepositoryTests: XCTestCase {
         XCTAssertEqual(repository.reports(siteID: site.id).map(\.id), [record.id])
     }
 
+    func testANewJobIsStoredInProgressAndTickingItDoneIsKept() {
+        let repository = ExtraWorkRepository(context: makeContext())
+        let written = job()
+        repository.storeJob(written)
+        XCTAssertEqual(repository.job(id: written.id)?.isDone, false)
+
+        let moment = Date(timeIntervalSince1970: 1_792_000_000)
+        repository.storeProgress(of: written.togglingDone(at: moment))
+        let done = repository.job(id: written.id)
+        XCTAssertEqual(done?.isDone, true)
+        XCTAssertEqual(done?.doneAt, moment)
+        XCTAssertEqual(done?.description, written.description, "nothing else changes")
+
+        repository.storeProgress(of: done!.togglingDone(at: moment))
+        XCTAssertEqual(repository.job(id: written.id)?.isDone, false)
+        XCTAssertNil(repository.job(id: written.id)?.doneAt)
+    }
+
     func testUsingItemsRemembersThem() {
         let repository = ExtraWorkRepository(context: makeContext())
         repository.recordUse(of: [ExtraWorkItem(name: "Kabel", quantity: 3, unit: .metres)])
@@ -94,7 +112,7 @@ final class ExtraWorkRepositoryTests: XCTestCase {
     private func populate(_ context: ModelContext) -> ExtraWorkJob {
         SiteRepository(context: context).upsert(site)
         let repository = ExtraWorkRepository(context: context)
-        var written = job()
+        var written = job().markingDone(at: Date(timeIntervalSince1970: 1_792_000_000))
         written.clientSignature = ExtraWorkSignature(signerName: "Horvat", signedAt: Date(timeIntervalSince1970: 1_792_000_000),
                                                      strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]])
         repository.storeJob(written)
@@ -116,6 +134,8 @@ final class ExtraWorkRepositoryTests: XCTestCase {
         XCTAssertEqual(restored.map(\.id), [written.id])
         XCTAssertEqual(restored.first?.items, written.items)
         XCTAssertEqual(restored.first?.clientSignature?.signerName, "Horvat")
+        XCTAssertEqual(restored.first?.isDone, written.isDone)
+        XCTAssertEqual(restored.first?.doneAt, written.doneAt)
         XCTAssertEqual(repository.photos(jobID: written.id).map(\.jpegData), [Data([0xFF, 0xD8, 0xFF, 0xD9])])
         XCTAssertEqual(repository.catalog().map(\.name), ["Emergency light"])
     }
