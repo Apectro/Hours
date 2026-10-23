@@ -340,6 +340,49 @@
         "many": "%lld osób",
         "other": "%lld osoby"
       }
+    },
+    "extraJobs": {
+      "de": {
+        "one": "%lld Zusatzarbeit",
+        "other": "%lld Zusatzarbeiten"
+      },
+      "hr": {
+        "one": "%lld dodatni rad",
+        "few": "%lld dodatna rada",
+        "other": "%lld dodatnih radova"
+      },
+      "sl": {
+        "one": "%lld dodatno delo",
+        "two": "%lld dodatni deli",
+        "few": "%lld dodatna dela",
+        "other": "%lld dodatnih del"
+      },
+      "it": {
+        "one": "%lld lavoro extra",
+        "other": "%lld lavori extra"
+      },
+      "fr": {
+        "one": "%lld travail supplémentaire",
+        "other": "%lld travaux supplémentaires"
+      },
+      "es": {
+        "one": "%lld trabajo adicional",
+        "other": "%lld trabajos adicionales"
+      },
+      "pt": {
+        "one": "%lld trabalho adicional",
+        "other": "%lld trabalhos adicionais"
+      },
+      "nl": {
+        "one": "%lld meerwerkklus",
+        "other": "%lld meerwerkklussen"
+      },
+      "pl": {
+        "one": "%lld praca dodatkowa",
+        "few": "%lld prace dodatkowe",
+        "many": "%lld prac dodatkowych",
+        "other": "%lld pracy dodatkowej"
+      }
     }
   },
   "countedSentences": {
@@ -584,6 +627,28 @@
       "pt": "%#@days@ por registar",
       "nl": "%#@days@ in te vullen",
       "pl": "%#@days@ do wpisania"
+    },
+    "%@: ^[%lld extra job](inflect: true) not sent yet": {
+      "de": "%@ – noch nicht gesendet: %#@extraJobs@",
+      "hr": "%@ – još nije poslano: %#@extraJobs@",
+      "sl": "%@ – še ni poslano: %#@extraJobs@",
+      "it": "%@ – da inviare: %#@extraJobs@",
+      "fr": "%@ – à envoyer : %#@extraJobs@",
+      "es": "%@ – pendiente de enviar: %#@extraJobs@",
+      "pt": "%@ – por enviar: %#@extraJobs@",
+      "nl": "%@ – nog niet verstuurd: %#@extraJobs@",
+      "pl": "%@ – jeszcze niewysłane: %#@extraJobs@"
+    },
+    "^[%lld extra job](inflect: true) not sent to your boss yet": {
+      "de": "Noch nicht an den Chef gesendet: %#@extraJobs@",
+      "hr": "Šefu još nije poslano: %#@extraJobs@",
+      "sl": "Šefu še ni poslano: %#@extraJobs@",
+      "it": "Da inviare al capo: %#@extraJobs@",
+      "fr": "À envoyer à votre patron : %#@extraJobs@",
+      "es": "Pendiente de enviar a tu jefe: %#@extraJobs@",
+      "pt": "Por enviar ao chefe: %#@extraJobs@",
+      "nl": "Nog niet naar je baas verstuurd: %#@extraJobs@",
+      "pl": "Jeszcze niewysłane szefowi: %#@extraJobs@"
     }
   },
   "interface": {
@@ -9761,16 +9826,16 @@
       "De bouwleider van de opdrachtgever kan al deze werkzaamheden in één keer aftekenen. De handtekening staat onder het rapport.",
       "Kierownik budowy zleceniodawcy może podpisać wszystkie te prace naraz. Podpis jest drukowany pod raportem."
     ],
-    "Marked as sent after you share the PDF or the Excel file.": [
-      "Wird als gesendet markiert, nachdem du das PDF oder die Excel-Datei geteilt hast.",
-      "Označava se kao poslano nakon što podijeliš PDF ili Excel datoteku.",
-      "Označi se kot poslano, ko deliš PDF ali datoteko Excel.",
-      "Segnato come inviato dopo che condividi il PDF o il file Excel.",
-      "Marqué comme envoyé une fois le PDF ou le fichier Excel partagé.",
-      "Se marca como enviado cuando compartes el PDF o el archivo de Excel.",
-      "Fica marcado como enviado depois de partilhares o PDF ou o ficheiro Excel.",
-      "Wordt als verstuurd gemarkeerd nadat je de pdf of het Excel-bestand hebt gedeeld.",
-      "Oznaczane jako wysłane po udostępnieniu pliku PDF lub Excel."
+    "Marked as sent after you share the PDF, the picture or the Excel file.": [
+      "Wird als gesendet markiert, nachdem du das PDF, das Bild oder die Excel-Datei geteilt hast.",
+      "Označava se kao poslano nakon što podijeliš PDF, sliku ili Excel datoteku.",
+      "Označi se kot poslano, ko deliš PDF, sliko ali datoteko Excel.",
+      "Segnato come inviato dopo che condividi il PDF, l'immagine o il file Excel.",
+      "Marqué comme envoyé une fois le PDF, l'image ou le fichier Excel partagé.",
+      "Se marca como enviado cuando compartes el PDF, la imagen o el archivo de Excel.",
+      "Fica marcado como enviado depois de partilhares o PDF, a imagem ou o ficheiro Excel.",
+      "Wordt als verstuurd gemarkeerd nadat je de pdf, de afbeelding of het Excel-bestand hebt gedeeld.",
+      "Oznaczane jako wysłane po udostępnieniu pliku PDF, obrazu lub pliku Excel."
     ],
     "Marked as sent: %lld": [
       "Als gesendet markiert: %lld",
@@ -9947,6 +10012,39 @@
       "Substituir tudo neste dispositivo e nos teus outros dispositivos pela cópia?",
       "Alles op dit apparaat en je andere apparaten vervangen door de back-up?",
       "Zastąpić wszystko na tym urządzeniu i twoich innych urządzeniach kopią zapasową?"
+    ],
+    "Send as picture": [
+      "Als Bild senden",
+      "Pošalji kao sliku",
+      "Pošlji kot sliko",
+      "Invia come immagine",
+      "Envoyer en image",
+      "Enviar como imagen",
+      "Enviar como imagem",
+      "Als afbeelding versturen",
+      "Wyślij jako obraz"
+    ],
+    "Extra work not sent": [
+      "Zusatzarbeiten nicht gesendet",
+      "Dodatni radovi nisu poslani",
+      "Dodatna dela niso poslana",
+      "Lavori extra non inviati",
+      "Travaux supplémentaires non envoyés",
+      "Trabajos adicionales sin enviar",
+      "Trabalhos adicionais por enviar",
+      "Meerwerk niet verstuurd",
+      "Niewysłane prace dodatkowe"
+    ],
+    "Once a week, a note when finished extra work has not been sent to your boss yet. Tapping it opens the report.": [
+      "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Antippen öffnet den Bericht.",
+      "Jednom tjedno podsjetnik kad završeni dodatni radovi još nisu poslani tvom šefu. Dodir otvara izvješće.",
+      "Enkrat na teden opomnik, ko končana dodatna dela še niso poslana tvojemu šefu. Dotik odpre poročilo.",
+      "Una volta alla settimana, un avviso quando i lavori extra finiti non sono ancora stati inviati al tuo capo. Toccalo per aprire il rapporto.",
+      "Une fois par semaine, un rappel lorsque des travaux supplémentaires terminés n'ont pas encore été envoyés à votre patron. Touchez-le pour ouvrir le rapport.",
+      "Una vez a la semana, un aviso cuando hay trabajos adicionales terminados que aún no has enviado a tu jefe. Al tocarlo se abre el informe.",
+      "Uma vez por semana, um aviso quando há trabalhos adicionais concluídos ainda não enviados ao teu chefe. Tocar abre o relatório.",
+      "Eén keer per week een melding als afgerond meerwerk nog niet naar je baas is verstuurd. Tik erop om het rapport te openen.",
+      "Raz w tygodniu przypomnienie, gdy ukończone prace dodatkowe nie zostały jeszcze wysłane szefowi. Dotknięcie otwiera raport."
     ]
   },
   "sameAsEnglishOnPurpose": [
