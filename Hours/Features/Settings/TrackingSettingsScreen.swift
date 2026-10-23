@@ -40,8 +40,10 @@ struct TrackingSettingsScreen: View {
                 Text("Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.")
             }
 
-            Section("Holidays") {
-                Toggle("Holidays", isOn: settingsStore.binding(\.features.trackHolidays))
+            // No "Holidays" header over a "Holidays" switch: the switch says
+            // what it is on its own.
+            Section {
+                Toggle("Public holidays and days off", isOn: settingsStore.binding(\.features.trackHolidays))
             }
 
             Section("Extra fields") {

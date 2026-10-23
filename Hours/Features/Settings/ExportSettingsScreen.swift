@@ -85,7 +85,7 @@ struct ExportSettingsScreen: View {
                     Toggle("Earnings", isOn: settingsStore.binding(\.export.includeEarnings))
                         .accessibilityIdentifier("export-include-earnings")
                 } footer: {
-                    Text("Adds what each day earned as a last column, with the total in the summary. Off unless you turn it on, since a timesheet is usually handed to someone. A site's sheet never shows money.")
+                    Text("Adds each day's earnings as a last column. Off by default: timesheets usually go to someone. A site sheet never shows money.")
                 }
             }
 

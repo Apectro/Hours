@@ -73,7 +73,7 @@ turns it into a picture; nothing about anybody else's hours is in it.
 **Sites** — a site's crew is entered once and the day's times once for all of
 them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
-month says its sheet is ready for the director, and opens it.
+month says its site sheet is ready for the boss, and opens it.
 
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,

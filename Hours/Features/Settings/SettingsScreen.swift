@@ -104,14 +104,14 @@ struct SettingsScreen: View {
                             CalculationSettingsScreen()
                         } label: {
                             SettingsRow(
-                                title: String(localized: "Calculation"),
+                                title: String(localized: "Balance & rounding"),
                                 value: settings.durationPolicy.title,
                                 systemImage: "function"
                             )
                         }
                     }
 
-                    Section("Tracking") {
+                    Section("Calendar & days") {
                         NavigationLink {
                             TrackingSettingsScreen()
                         } label: {
@@ -126,15 +126,6 @@ struct SettingsScreen: View {
                                 systemImage: "tag"
                             )
                         }
-                        NavigationLink {
-                            ReminderSettingsScreen()
-                        } label: {
-                            SettingsRow(
-                                title: String(localized: "Reminders"),
-                                value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
-                                systemImage: "bell"
-                            )
-                        }
                         if settings.features.trackHolidays {
                             NavigationLink {
                                 HolidaySettingsScreen()
@@ -142,9 +133,6 @@ struct SettingsScreen: View {
                                 SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
                             }
                         }
-                    }
-
-                    Section("Appearance") {
                         NavigationLink {
                             CalendarSettingsScreen()
                         } label: {
@@ -156,18 +144,11 @@ struct SettingsScreen: View {
                                 systemImage: "square.grid.3x3"
                             )
                         }
-                        NavigationLink {
-                            AppearanceSettingsScreen()
-                        } label: {
-                            SettingsRow(
-                                title: String(localized: "Theme"),
-                                value: settings.appearance.title,
-                                systemImage: "circle.lefthalf.filled"
-                            )
-                        }
                     }
 
-                    Section("Export") {
+                    // Reminders sit with what they remind you of: the site
+                    // sheet on the 1st, extra work not sent, a week with gaps.
+                    Section("Reports & reminders") {
                         NavigationLink {
                             ExportSettingsScreen()
                         } label: {
@@ -182,9 +163,27 @@ struct SettingsScreen: View {
                         }
                         .id(Self.exportRow)
                         .tourTarget(.settingsExport)
+                        NavigationLink {
+                            ReminderSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Reminders"),
+                                value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                                systemImage: "bell"
+                            )
+                        }
                     }
 
-                    Section("Data") {
+                    Section("App") {
+                        NavigationLink {
+                            AppearanceSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Theme"),
+                                value: settings.appearance.title,
+                                systemImage: "circle.lefthalf.filled"
+                            )
+                        }
                         // Shown in every build compiled with sync, even one not
                         // signed for it, where the screen says why it cannot.
                         if SyncPreference.offer != .hidden {

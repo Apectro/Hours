@@ -661,8 +661,8 @@ line of `fastlane/watch-screenshots.txt` and saves the screen with `simctl`.
 Four kinds of local notification, each planned in the engine and scheduled by
 `ReminderScheduler`, under its own identifier prefix so each can be replaced
 without touching the others: the weekly gap reminder (`GapFinder`), the evening
-site reminder (`SiteReminderPlan`), the note on the 1st that a site's sheet
-is ready for the director (`MonthlySheetReminderPlan`), and the weekly note
+site reminder (`SiteReminderPlan`), the note on the 1st that a site sheet
+is ready for the boss (`MonthlySheetReminderPlan`), and the weekly note
 that finished extra work has not been sent to the boss
 (`ExtraWorkReminderPlan`). None of them asks for permission until its switch is
 turned on; the two site ones are on by default and simply schedule nothing

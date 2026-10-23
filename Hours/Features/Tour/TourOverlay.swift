@@ -178,7 +178,7 @@ struct TourOverlay: View {
             return String(localized: "Your week, month or year in figures. Pick the period here.")
         case .export:
             return String(
-                localized: "Send your hours or a site's sheet as PDF or Excel, from the calendar's ⋯ menu or the site's. Report language: \(reportLanguageName). Change it here.",
+                localized: "Send your hours or a site sheet as PDF or Excel. Report language: \(reportLanguageName). Change it here.",
                 comment: "Last stop of the guided tour; the value is a language's name, such as Croatian"
             )
         }

@@ -883,17 +883,6 @@
       "Een back-up is een JSON-bestand met elke dag, elke feestdag, elke bouwplaats en al je instellingen. Er wordt niets geüpload — jij kiest waar het bestand heen gaat.",
       "Kopia zapasowa to plik JSON z każdym dniem, każdym świętem, każdą budową i wszystkimi ustawieniami. Nic nie jest wysyłane – to ty wybierasz, gdzie trafia plik."
     ],
-    "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": [
-      "Ein abgeschlossener Monat lehnt Änderungen ab — aus dem Tageseditor, einer Sammelbearbeitung, von der Uhr und von Siri gleichermaßen. Sobald ein Stundenzettel übergeben wurde, ist es der Anfang eines Streits, wenn sich die Tage dahinter still ändern. Zum Wiederöffnen den Monat wegwischen.",
-      "Zatvoreni mjesec odbija izmjene — iz uređivača dana, skupne izmjene, sata i Siri jednako. Kad je evidencija predana, tiho mijenjanje dana iza nje početak je spora. Prijeđite prstom preko mjeseca da ga ponovno otvorite.",
-      "Zaprt mesec zavrne spremembe — iz urejevalnika dneva, množičnega urejanja, ure in Siri enako. Ko je evidenca oddana, je tiho spreminjanje dni za njo začetek spora. Povlecite mesec, da ga znova odprete.",
-      "Un mese chiuso rifiuta le modifiche — dall'editor del giorno, da una modifica in blocco, dal timer e da Siri allo stesso modo. Una volta consegnato un foglio ore, i giorni dietro di esso che cambiano in silenzio sono l'inizio di una contestazione. Scorri via un mese per riaprirlo.",
-      "Un mois clôturé refuse les modifications — depuis l'éditeur de journée, une modification groupée, le pointage et Siri. Une fois la feuille d'heures remise, des journées qui changent en silence derrière elle, c'est le début d'un litige. Balayez un mois pour le rouvrir.",
-      "Un mes cerrado rechaza las ediciones: desde el editor de día, una edición en bloque, el fichaje y Siri por igual. Una vez entregada una hoja de horas, que los días que hay detrás cambien en silencio es el principio de una disputa. Desliza un mes para reabrirlo.",
-      "Um mês fechado recusa edições — a partir do editor de dia, de uma edição em bloco, do relógio e da Siri. Depois de entregue uma folha de horas, os dias por trás dela mudarem em silêncio é o início de uma disputa. Deslize um mês para o reabrir.",
-      "Een afgesloten maand weigert wijzigingen — vanuit de dageditor, een bulkbewerking, de klok en Siri. Zodra een urenstaat is ingeleverd, is het stilletjes veranderen van de dagen erachter het begin van een meningsverschil. Veeg een maand weg om hem te heropenen.",
-      "Zamknięty miesiąc odrzuca zmiany — z edytora dnia, edycji zbiorczej, zegara i Siri tak samo. Gdy karta czasu pracy została przekazana, ciche zmiany dni za nią to początek sporu. Przesuń miesiąc, aby go otworzyć ponownie."
-    ],
     "A second block records a split shift — the time between blocks is neither worked nor a break.": [
       "Ein zweiter Block erfasst eine geteilte Schicht – die Zeit dazwischen ist weder Arbeitszeit noch Pause.",
       "Drugi blok bilježi podijeljenu smjenu – vrijeme između blokova nije ni rad ni pauza.",
@@ -1740,17 +1729,6 @@
       "Meses fechados",
       "Afgesloten maanden",
       "Zamknięte miesiące"
-    ],
-    "Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.": [
-      "Ein Jahresabschluss legt fest, was ins nächste Jahr übertragen wurde; spätere Änderungen an diesem Jahr verschieben die Zahl nicht mehr. Eine Grenze gilt für Überstunden, die Ihnen zustehen; ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden.",
-      "Zatvaranje godine utvrđuje što je preneseno u sljedeću, pa kasnije izmjene te godine više ne mijenjaju brojku. Granica se odnosi na prekovremene sate koji vam pripadaju; manjak se uvijek prenosi u cijelosti, jer bi njegov oprost izmislio sate koje nitko nije odradio.",
-      "Zaključek leta določi, kaj se je preneslo v naslednje, zato poznejši popravki tistega leta številke ne premaknejo več. Omejitev velja za nadure, ki vam pripadajo; primanjkljaj se vedno prenese v celoti, saj bi njegov odpis izmislil ure, ki jih ni nihče opravil.",
-      "Chiudere un anno fissa ciò che ha riportato in quello successivo, così le modifiche successive a quell'anno non spostano più la cifra. Un limite vale per gli straordinari che ti spettano; un deficit si riporta sempre per intero, perché condonarlo inventerebbe ore che nessuno ha lavorato.",
-      "Clôturer une année fixe ce qu'elle a reporté sur la suivante ; les modifications ultérieures à cette année ne déplacent plus le chiffre. Un plafond s'applique aux heures supplémentaires qui vous sont dues ; un déficit se reporte toujours intégralement, car l'effacer inventerait des heures que personne n'a travaillées.",
-      "Cerrar un año fija lo que trasladó al siguiente, de modo que las ediciones posteriores de ese año ya no mueven la cifra. Un límite se aplica a las horas extra que se te deben; un déficit se traslada siempre íntegro, porque perdonarlo inventaría horas que nadie trabajó.",
-      "Fechar um ano fixa o que transitou para o seguinte, pelo que edições posteriores desse ano deixam de mover o valor. Um limite aplica-se às horas extra que lhe são devidas; um défice transita sempre por inteiro, porque perdoá-lo inventaria horas que ninguém trabalhou.",
-      "Een jaar afsluiten legt vast wat het aan het volgende heeft overgedragen, zodat latere wijzigingen in dat jaar het getal niet meer verschuiven. Een grens geldt voor overuren die je tegoed hebt; een tekort gaat altijd volledig mee, want het kwijtschelden zou uren verzinnen die niemand heeft gewerkt.",
-      "Zamknięcie roku ustala, ile przeniesiono na następny, więc późniejsze zmiany w tym roku nie ruszają już tej liczby. Limit dotyczy nadgodzin, które Ci się należą; niedobór przenosi się zawsze w całości, bo darowanie go wymyśliłoby godziny, których nikt nie przepracował."
     ],
     "Colour": [
       "Farbe",
@@ -2741,17 +2719,6 @@
       "Como estou no ${applicationName}",
       "Hoe sta ik ervoor in ${applicationName}",
       "Jak mi idzie w ${applicationName}"
-    ],
-    "How far back to check. Days you have marked as excluded, and days that are not working days, are never counted as missing.": [
-      "Wie weit zurück geprüft wird. Als ausgenommen markierte Tage und Tage, die keine Arbeitstage sind, gelten nie als fehlend.",
-      "Koliko unatrag provjeravati. Dani označeni kao isključeni i dani koji nisu radni nikad se ne broje kao nedostajući.",
-      "Kako daleč nazaj se preverja. Dnevi, označeni kot izključeni, in dnevi, ki niso delovni, nikoli ne štejejo kot manjkajoči.",
-      "Quanto indietro controllare. I giorni contrassegnati come esclusi e i giorni non lavorativi non contano mai come mancanti.",
-      "Jusqu’où remonter. Les jours marqués comme exclus et les jours non travaillés ne comptent jamais comme manquants.",
-      "Hasta cuándo mirar atrás. Los días marcados como excluidos y los que no son laborables nunca cuentan como ausentes.",
-      "Até quando verificar. Os dias marcados como excluídos e os dias não úteis nunca contam como em falta.",
-      "Hoe ver terug er wordt gekeken. Dagen die je hebt uitgesloten en niet-werkdagen tellen nooit als ontbrekend.",
-      "Jak daleko wstecz sprawdzać. Dni oznaczone jako wykluczone i dni niebędące roboczymi nigdy nie liczą się jako brakujące."
     ],
     "How hours are written throughout the app. Exports have their own setting.": [
       "Wie Stunden in der gesamten App geschrieben werden. Exporte haben eine eigene Einstellung.",
@@ -5965,17 +5932,6 @@
       "%@ (je eerste invoer)",
       "%@ (twój pierwszy wpis)"
     ],
-    "The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.": [
-      "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Ohne Startdatum zählt der Saldo ab dem ersten Tag, an dem du etwas erfasst hast. Tage vor dem Start bleiben in allen Summen unberücksichtigt.",
-      "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Bez datuma početka saldo se broji od prvog dana kad si nešto zabilježio. Dani prije početka ne ulaze ni u jedan zbroj.",
-      "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Brez datuma začetka se saldo šteje od prvega dne, ko si kaj zabeležil. Dnevi pred začetkom niso vključeni v noben seštevek.",
-      "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. Senza una data di inizio, il saldo parte dal primo giorno in cui hai registrato qualcosa. I giorni precedenti restano fuori da ogni totale.",
-      "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Sans date de début, le solde compte à partir du premier jour où vous avez saisi quelque chose. Les jours antérieurs sont exclus de tous les totaux.",
-      "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Sin fecha de inicio, el saldo cuenta desde el primer día en que registraste algo. Los días anteriores quedan fuera de todos los totales.",
-      "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais.",
-      "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee.",
-      "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
-    ],
     "When does this change start?": [
       "Ab wann gilt diese Änderung?",
       "Od kada vrijedi ova promjena?",
@@ -6140,50 +6096,6 @@
       "Muda em %@ · até lá: %@ por semana",
       "Wijzigt op %@ · tot dan: %@ per week",
       "Zmienia się %@ · do tego czasu: %@ tygodniowo"
-    ],
-    "%@ sheet for %@ is ready": [
-      "Die %@-Liste für %@ ist fertig",
-      "Lista za %@ za gradilište %@ je spremna",
-      "Seznam za %@ za gradbišče %@ je pripravljen",
-      "Il foglio di %@ per %@ è pronto",
-      "La feuille mensuelle (%@) pour %@ est prête",
-      "La hoja de %@ de %@ está lista",
-      "A folha de %@ de %@ está pronta",
-      "De lijst van %@ voor %@ is klaar",
-      "Arkusz za %@ dla budowy %@ jest gotowy"
-    ],
-    "Send it to your director.": [
-      "Zeit, sie der Bauleitung zu geben.",
-      "Pošalji je voditelju.",
-      "Pošlji ga vodji.",
-      "Mandalo al direttore.",
-      "Envoyez-la au directeur.",
-      "Envíasela al director.",
-      "Envia-a ao diretor.",
-      "Stuur hem naar de uitvoerder.",
-      "Wyślij go kierownikowi."
-    ],
-    "Monthly sheet for the director": [
-      "Monatsliste für die Bauleitung",
-      "Mjesečna lista za voditelja",
-      "Mesečni seznam za vodjo",
-      "Foglio mensile per il direttore",
-      "Feuille mensuelle pour le directeur",
-      "Hoja mensual para el director",
-      "Folha mensal para o diretor",
-      "Maandlijst voor de uitvoerder",
-      "Miesięczny arkusz dla kierownika"
-    ],
-    "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.": [
-      "Am 1. ein Hinweis für jede Baustelle, auf der du letzten Monat gearbeitet hast, dass ihre Liste bereit zum Abgeben ist. Ein Tipp darauf öffnet die Liste.",
-      "Prvog u mjesecu, obavijest za svako gradilište na kojem si radio prošli mjesec da je njegova lista spremna za slanje. Dodir je otvara.",
-      "Prvega v mesecu obvestilo za vsako gradbišče, na katerem si delal prejšnji mesec, da je njegov seznam pripravljen za pošiljanje. Dotik ga odpre.",
-      "Il primo del mese, un avviso per ogni cantiere su cui hai lavorato il mese scorso: il suo foglio è pronto da inviare. Toccandolo si apre il foglio.",
-      "Le 1er du mois, un avis pour chaque chantier sur lequel vous avez travaillé le mois dernier : sa feuille est prête à envoyer. Touchez-le pour ouvrir la feuille.",
-      "El día 1, un aviso por cada obra en la que trabajaste el mes pasado: su hoja está lista para enviar. Al tocarlo se abre la hoja.",
-      "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha.",
-      "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen.",
-      "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
     ],
     "Add": [
       "Hinzufügen",
@@ -6493,17 +6405,6 @@
       "Wat verdien je per uur?",
       "Ile zarabiasz na godzinę?"
     ],
-    "Optional, only for seeing what a month earned. It stays off the sheets for your boss unless you add it in Settings › Export options, and a site's sheet never shows money.": [
-      "Freiwillig, nur um zu sehen, was ein Monat gebracht hat. Auf den Listen für den Chef steht es nur, wenn du es unter Einstellungen › Exportoptionen hinzufügst, und die Liste einer Baustelle zeigt nie Geld.",
-      "Neobavezno, samo da vidiš koliko je mjesec donio. Na listama za šefa nije, osim ako ga dodaš u Postavke › Postavke izvoza, a lista gradilišta nikad ne prikazuje novac.",
-      "Neobvezno, samo da vidiš, koliko je prinesel mesec. Na listih za šefa ga ni, razen če ga dodaš v Nastavitve › Možnosti izvoza, list gradbišča pa nikoli ne kaže denarja.",
-      "Facoltativo, solo per vedere quanto ha reso un mese. Non compare sui fogli per il capo se non lo aggiungi in Impostazioni › Opzioni di esportazione, e il foglio di un cantiere non mostra mai soldi.",
-      "Facultatif, seulement pour voir ce qu’un mois a rapporté. Il n’apparaît pas sur les feuilles pour votre chef, sauf si vous l’ajoutez dans Réglages › Options d’export, et la feuille d’un chantier n’affiche jamais d’argent.",
-      "Opcional, solo para ver lo que ha dado un mes. No aparece en las hojas para el jefe salvo que lo añadas en Ajustes › Opciones de exportación, y la hoja de una obra nunca muestra dinero.",
-      "Opcional, só para veres quanto rendeu um mês. Não aparece nas folhas para o chefe a não ser que o acrescentes em Definições › Opções de exportação, e a folha de uma obra nunca mostra dinheiro.",
-      "Optioneel, alleen om te zien wat een maand heeft opgeleverd. Het staat niet op de lijsten voor je baas, tenzij je het toevoegt in Instellingen › Exportopties, en de lijst van een bouwplaats toont nooit geld.",
-      "Opcjonalnie, tylko żeby widzieć, ile przyniósł miesiąc. Nie ma tego na listach dla szefa, chyba że dodasz w Ustawienia › Opcje eksportu, a lista budowy nigdy nie pokazuje pieniędzy."
-    ],
     "Overtime, surcharges and paid days off can be added later in Settings › Pay.": [
       "Überstunden, Zuschläge und bezahlte freie Tage kannst du später unter Einstellungen › Lohn ergänzen.",
       "Prekovremeni rad, dodaci i plaćeni slobodni dani mogu se dodati kasnije u Postavke › Plaća.",
@@ -6668,17 +6569,6 @@
       "A tua semana, mês ou ano em números. Escolhe o período aqui.",
       "Je week, maand of jaar in cijfers. Kies hier de periode.",
       "Twój tydzień, miesiąc lub rok w liczbach. Okres wybierasz tutaj."
-    ],
-    "Send your hours or a site's sheet as PDF or Excel, from the calendar's ⋯ menu or the site's. Report language: %@. Change it here.": [
-      "Schick deine Stunden oder die Liste einer Baustelle als PDF oder Excel, über das ⋯-Menü im Kalender oder auf der Baustelle. Berichtssprache: %@. Hier änderst du sie.",
-      "Pošalji svoje sate ili listu gradilišta kao PDF ili Excel, iz izbornika ⋯ u kalendaru ili na gradilištu. Jezik izvješća: %@. Ovdje ga mijenjaš.",
-      "Pošlji svoje ure ali list gradbišča kot PDF ali Excel, iz menija ⋯ v koledarju ali na gradbišču. Jezik poročil: %@. Tukaj ga spremeniš.",
-      "Invia le tue ore o il foglio di un cantiere come PDF o Excel, dal menu ⋯ del calendario o del cantiere. Lingua dei rapporti: %@. La cambi qui.",
-      "Envoyez vos heures ou la feuille d’un chantier en PDF ou Excel, depuis le menu ⋯ du calendrier ou du chantier. Langue des rapports : %@. Vous la changez ici.",
-      "Envía tus horas o la hoja de una obra en PDF o Excel, desde el menú ⋯ del calendario o de la obra. Idioma de los informes: %@. Se cambia aquí.",
-      "Envia as tuas horas ou a folha de uma obra em PDF ou Excel, a partir do menu ⋯ do calendário ou da obra. Idioma dos relatórios: %@. Altera-o aqui.",
-      "Stuur je uren of de lijst van een bouwplaats als pdf of Excel, via het ⋯-menu van de kalender of de bouwplaats. Taal van de rapporten: %@. Hier wijzig je die.",
-      "Wyślij swoje godziny albo listę budowy jako PDF lub Excel, z menu ⋯ w kalendarzu lub na budowie. Język raportów: %@. Tutaj go zmienisz."
     ],
     "%lld of %lld": [
       "%lld von %lld",
@@ -7131,17 +7021,6 @@
       "Verdiensten tonen",
       "Pokazywanie zarobku"
     ],
-    "With a rate set, the calendar, Insights and the widgets lead with what you earned. Choose Hours balance to see your hours ahead or behind instead. Nothing about money ever appears on a site, its sheet or anyone in your crew.": [
-      "Mit einem Stundenlohn zeigen Kalender, Auswertung und Widgets zuerst, was du verdient hast. Wähle Stundensaldo, um stattdessen zu sehen, wie viele Stunden du vorn oder hinten liegst. Geld erscheint nie auf einer Baustelle, ihrem Blatt oder bei jemandem aus deinem Team.",
-      "Uz postavljenu satnicu, kalendar, Uvidi i widgeti prvo pokazuju koliko si zaradio. Odaberi Saldo sati da umjesto toga vidiš jesi li u plusu ili minusu sa satima. Ništa o novcu nikad se ne pojavljuje na gradilištu, njegovoj listi ni kod nekoga iz tvoje ekipe.",
-      "Z nastavljeno urno postavko koledar, Vpogledi in pripomočki najprej pokažejo, koliko si zaslužil. Izberi Saldo ur, da namesto tega vidiš, ali si z urami v plusu ali minusu. Nič o denarju se nikoli ne pojavi na gradbišču, njegovem listu ali pri komer koli iz tvoje ekipe.",
-      "Con una tariffa impostata, il calendario, Statistiche e i widget mostrano prima quanto hai guadagnato. Scegli Saldo ore per vedere invece se sei avanti o indietro con le ore. Nulla sul denaro compare mai su un cantiere, sul suo foglio o su qualcuno della tua squadra.",
-      "Avec un taux défini, le calendrier, Statistiques et les widgets affichent d’abord ce que vous avez gagné. Choisissez Solde d’heures pour voir plutôt votre avance ou votre retard en heures. Rien sur l’argent n’apparaît jamais sur un chantier, sa feuille ou une personne de votre équipe.",
-      "Con una tarifa fijada, el calendario, Estadísticas y los widgets muestran primero lo que has ganado. Elige Saldo de horas para ver en cambio si vas por delante o por detrás con las horas. Nada sobre dinero aparece nunca en una obra, su hoja o alguien de tu equipo.",
-      "Com um valor definido, o calendário, as Estatísticas e os widgets mostram primeiro o que ganhaste. Escolhe Saldo de horas para veres antes se estás à frente ou atrás nas horas. Nada sobre dinheiro aparece numa obra, na sua folha ou em alguém da tua equipa.",
-      "Met een uurloon tonen de kalender, Inzichten en de widgets eerst wat je verdiend hebt. Kies Urensaldo om in plaats daarvan te zien of je voor of achter loopt met je uren. Niets over geld verschijnt ooit bij een bouwplaats, het overzicht ervan of iemand uit je ploeg.",
-      "Gdy stawka jest ustawiona, kalendarz, Statystyki i widżety pokazują najpierw, ile zarobiłeś. Wybierz Saldo godzin, aby zamiast tego widzieć, czy masz nadwyżkę, czy brak godzin. Nic o pieniądzach nie pojawia się na budowie, jej arkuszu ani przy kimkolwiek z twojej ekipy."
-    ],
     "Swipe to remove a change. The pay before it then runs on in its place.": [
       "Wische, um eine Änderung zu entfernen. Der Lohn davor gilt dann weiter.",
       "Povuci da ukloniš promjenu. Plaća prije nje tada vrijedi i dalje.",
@@ -7273,17 +7152,6 @@
       "Vê quanto rendem as tuas horas, com horas extra e acréscimos incluídos.",
       "Zie wat je uren opleveren, overuren en toeslagen inbegrepen.",
       "Zobacz, ile przynoszą twoje godziny, z nadgodzinami i dodatkami."
-    ],
-    "Adds what each day earned as a last column, with the total in the summary. Off unless you turn it on, since a timesheet is usually handed to someone. A site's sheet never shows money.": [
-      "Fügt den Verdienst jedes Tages als letzte Spalte hinzu, mit der Summe in der Zusammenfassung. Aus, bis du es einschaltest, denn ein Stundenzettel wird meist jemandem gegeben. Ein Baustellenblatt zeigt nie Geld.",
-      "Dodaje zaradu svakog dana kao zadnji stupac, s ukupnim iznosom u sažetku. Isključeno dok ga ne uključiš, jer se evidencija obično nekome predaje. Lista gradilišta nikad ne prikazuje novac.",
-      "Doda zaslužek vsakega dne kot zadnji stolpec, s skupnim zneskom v povzetku. Izklopljeno, dokler ga ne vklopiš, saj se evidenca običajno nekomu izroči. List gradbišča nikoli ne prikaže denarja.",
-      "Aggiunge il compenso di ogni giorno come ultima colonna, con il totale nel riepilogo. Spento finché non lo attivi, perché un foglio ore di solito si consegna a qualcuno. Il foglio di un cantiere non mostra mai denaro.",
-      "Ajoute la rémunération de chaque jour en dernière colonne, avec le total dans le récapitulatif. Désactivé tant que vous ne l’activez pas, car une feuille d’heures est généralement remise à quelqu’un. La feuille d’un chantier ne montre jamais d’argent.",
-      "Añade lo ganado cada día como última columna, con el total en el resumen. Desactivado hasta que lo actives, porque una hoja de horas suele entregarse a alguien. La hoja de una obra nunca muestra dinero.",
-      "Acrescenta o que cada dia rendeu como última coluna, com o total no resumo. Desligado até o ligares, porque uma folha de horas costuma ser entregue a alguém. A folha de uma obra nunca mostra dinheiro.",
-      "Voegt wat elke dag opleverde toe als laatste kolom, met het totaal in de samenvatting. Uit tot je het aanzet, want een urenstaat geef je meestal aan iemand. Het overzicht van een bouwplaats toont nooit geld.",
-      "Dodaje zarobek z każdego dnia jako ostatnią kolumnę, z sumą w podsumowaniu. Wyłączone, dopóki tego nie włączysz, bo ewidencję zwykle się komuś oddaje. Arkusz budowy nigdy nie pokazuje pieniędzy."
     ],
     "this month · %@": [
       "diesen Monat · %@",
@@ -7515,17 +7383,6 @@
       "As notificações do Zeitkonto estão desligadas na app Definições. Liga-as lá e isto vai começar a funcionar.",
       "Meldingen voor Zeitkonto staan uit in de app Instellingen. Zet ze daar aan en dit gaat werken.",
       "Powiadomienia Zeitkonto są wyłączone w aplikacji Ustawienia. Włącz je tam, a to zacznie działać."
-    ],
-    "The calendar already marks a working day with nothing on it. This tells you without having to look.": [
-      "Der Kalender markiert schon einen Arbeitstag ohne Eintrag. Das hier sagt es dir, ohne dass du nachsehen musst.",
-      "Kalendar već označava radni dan bez upisa. Ovo ti to javi i bez gledanja.",
-      "Koledar že označi delovni dan brez vpisa. To ti pove, ne da bi moral pogledati.",
-      "Il calendario segna già un giorno lavorativo vuoto. Questo te lo dice senza che tu debba guardare.",
-      "Le calendrier signale déjà un jour ouvré sans rien dedans. Ceci vous prévient sans avoir à regarder.",
-      "El calendario ya marca un día laborable vacío. Esto te avisa sin tener que mirar.",
-      "O calendário já marca um dia de trabalho vazio. Isto avisa-te sem teres de ir ver.",
-      "De kalender markeert al een werkdag zonder invoer. Dit laat het je weten zonder dat je hoeft te kijken.",
-      "Kalendarz już zaznacza pusty dzień pracy. To powie ci o tym bez zaglądania."
     ],
     "Sync starts the next time you open Zeitkonto.": [
       "Sync startet beim nächsten Öffnen von Zeitkonto.",
@@ -10035,17 +9892,6 @@
       "Meerwerk niet verstuurd",
       "Niewysłane prace dodatkowe"
     ],
-    "Once a week, a note when finished extra work has not been sent to your boss yet. Tapping it opens the report.": [
-      "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Antippen öffnet den Bericht.",
-      "Jednom tjedno podsjetnik kad završeni dodatni radovi još nisu poslani tvom šefu. Dodir otvara izvješće.",
-      "Enkrat na teden opomnik, ko končana dodatna dela še niso poslana tvojemu šefu. Dotik odpre poročilo.",
-      "Una volta alla settimana, un avviso quando i lavori extra finiti non sono ancora stati inviati al tuo capo. Toccalo per aprire il rapporto.",
-      "Une fois par semaine, un rappel lorsque des travaux supplémentaires terminés n'ont pas encore été envoyés à votre patron. Touchez-le pour ouvrir le rapport.",
-      "Una vez a la semana, un aviso cuando hay trabajos adicionales terminados que aún no has enviado a tu jefe. Al tocarlo se abre el informe.",
-      "Uma vez por semana, um aviso quando há trabalhos adicionais concluídos ainda não enviados ao teu chefe. Tocar abre o relatório.",
-      "Eén keer per week een melding als afgerond meerwerk nog niet naar je baas is verstuurd. Tik erop om het rapport te openen.",
-      "Raz w tygodniu przypomnienie, gdy ukończone prace dodatkowe nie zostały jeszcze wysłane szefowi. Dotknięcie otwiera raport."
-    ],
     "Signatures": [
       "Unterschriften",
       "Potpisi",
@@ -10067,6 +9913,215 @@
       "Sem linha para assinar nem página de assinaturas. As assinaturas já dadas ficam guardadas.",
       "Geen regel om te tekenen en geen pagina met handtekeningen. Al gezette handtekeningen blijven bewaard.",
       "Bez linii do podpisu i bez strony z podpisami. Złożone już podpisy pozostają zapisane."
+    ],
+    "Balance & rounding": [
+      "Saldo & Rundung",
+      "Saldo i zaokruživanje",
+      "Saldo in zaokroževanje",
+      "Saldo e arrotondamento",
+      "Solde et arrondi",
+      "Saldo y redondeo",
+      "Saldo e arredondamento",
+      "Saldo en afronding",
+      "Saldo i zaokrąglanie"
+    ],
+    "Calendar & days": [
+      "Kalender & Tage",
+      "Kalendar i dani",
+      "Koledar in dnevi",
+      "Calendario e giorni",
+      "Calendrier et jours",
+      "Calendario y días",
+      "Calendário e dias",
+      "Agenda en dagen",
+      "Kalendarz i dni"
+    ],
+    "Reports & reminders": [
+      "Berichte & Erinnerungen",
+      "Izvješća i podsjetnici",
+      "Poročila in opomniki",
+      "Rapporti e promemoria",
+      "Rapports et rappels",
+      "Informes y recordatorios",
+      "Relatórios e lembretes",
+      "Rapporten en herinneringen",
+      "Raporty i przypomnienia"
+    ],
+    "App": [
+      "App",
+      "Aplikacija",
+      "Aplikacija",
+      "App",
+      "Application",
+      "App",
+      "App",
+      "App",
+      "Aplikacja"
+    ],
+    "Public holidays and days off": [
+      "Feiertage und freie Tage",
+      "Blagdani i slobodni dani",
+      "Prazniki in prosti dnevi",
+      "Festività e giorni liberi",
+      "Jours fériés et jours de congé",
+      "Festivos y días libres",
+      "Feriados e dias de folga",
+      "Feestdagen en vrije dagen",
+      "Święta i dni wolne"
+    ],
+    "Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.": [
+      "Überstunden, die du schon vor der App hattest. Der Saldo zählt ab dem Startdatum, sonst ab deinem ersten erfassten Tag.",
+      "Prekovremeni koje si imao prije aplikacije. Saldo se broji od datuma početka, inače od tvog prvog zabilježenog dana.",
+      "Nadure, ki si jih imel pred aplikacijo. Saldo se šteje od datuma začetka, sicer od tvojega prvega zabeleženega dne.",
+      "Gli straordinari che avevi prima dell’app. Il saldo parte dalla data di inizio, altrimenti dal tuo primo giorno registrato.",
+      "Les heures supplémentaires que vous aviez avant l’app. Le solde part de la date de début, sinon de votre premier jour saisi.",
+      "Las horas extra que tenías antes de la app. El saldo cuenta desde la fecha de inicio o, si no, desde tu primer día registrado.",
+      "As horas extra que tinhas antes da app. O saldo conta a partir da data de início ou, sem ela, do teu primeiro dia registado.",
+      "De overuren die je had vóór de app. Het saldo telt vanaf de startdatum, anders vanaf je eerste vastgelegde dag.",
+      "Nadgodziny, które miałeś przed aplikacją. Saldo liczy się od daty początkowej, a bez niej od pierwszego zapisanego dnia."
+    ],
+    "Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.": [
+      "Ein Jahresabschluss legt fest, was ins nächste Jahr geht. Eine Grenze kürzt Überstunden; ein Minus geht immer ganz mit.",
+      "Zatvaranje godine utvrđuje što se prenosi u sljedeću. Granica ograničava prekovremene; manjak se uvijek prenosi cijeli.",
+      "Zaključek leta določi, kaj se prenese v naslednje. Omejitev omeji nadure; primanjkljaj se vedno prenese v celoti.",
+      "Chiudere un anno fissa ciò che passa al successivo. Un limite riduce gli straordinari; un deficit passa sempre per intero.",
+      "Clôturer une année fixe ce qu’elle reporte sur la suivante. Un plafond limite les heures reportées ; un déficit se reporte toujours en entier.",
+      "Cerrar un año fija lo que pasa al siguiente. Un límite recorta las horas extra; un déficit pasa siempre entero.",
+      "Fechar um ano fixa o que transita para o seguinte. Um limite corta as horas extra; um défice transita sempre por inteiro.",
+      "Een jaar afsluiten legt vast wat naar het volgende gaat. Een grens beperkt overuren; een tekort gaat altijd volledig mee.",
+      "Zamknięcie roku ustala, co przechodzi na następny. Limit ogranicza nadgodziny; niedobór przechodzi zawsze w całości."
+    ],
+    "A closed month can't be changed by mistake. Swipe a month away to reopen it.": [
+      "Ein abgeschlossener Monat lässt sich nicht versehentlich ändern. Zum Wiederöffnen den Monat wegwischen.",
+      "Zatvoreni mjesec ne može se slučajno promijeniti. Prijeđi prstom preko mjeseca da ga ponovno otvoriš.",
+      "Zaprtega meseca ni mogoče po nesreči spremeniti. Povleci mesec, da ga znova odpreš.",
+      "Un mese chiuso non si può modificare per errore. Scorri via un mese per riaprirlo.",
+      "Un mois clôturé ne peut pas être modifié par erreur. Balayez un mois pour le rouvrir.",
+      "Un mes cerrado no se puede cambiar por error. Desliza un mes para reabrirlo.",
+      "Um mês fechado não pode ser alterado por engano. Desliza um mês para o reabrir.",
+      "Een afgesloten maand kan niet per ongeluk veranderen. Veeg een maand weg om hem te heropenen.",
+      "Zamkniętego miesiąca nie da się zmienić przez pomyłkę. Przesuń miesiąc, aby otworzyć go ponownie."
+    ],
+    "A weekly note if a working day has no hours.": [
+      "Ein wöchentlicher Hinweis, wenn ein Arbeitstag keine Stunden hat.",
+      "Tjedna obavijest ako radni dan nema sati.",
+      "Tedensko obvestilo, če delovni dan nima ur.",
+      "Un avviso settimanale se un giorno lavorativo non ha ore.",
+      "Un rappel hebdomadaire si un jour ouvré n’a pas d’heures.",
+      "Un aviso semanal si un día laborable no tiene horas.",
+      "Um aviso semanal se um dia de trabalho não tiver horas.",
+      "Een wekelijkse melding als een werkdag geen uren heeft.",
+      "Cotygodniowe przypomnienie, jeśli dzień pracy nie ma godzin."
+    ],
+    "Days you excluded and days off never count as missing.": [
+      "Ausgenommene Tage und freie Tage gelten nie als fehlend.",
+      "Isključeni dani i neradni dani nikad se ne broje kao nedostajući.",
+      "Izključeni dnevi in prosti dnevi nikoli ne štejejo kot manjkajoči.",
+      "I giorni esclusi e quelli non lavorativi non contano mai come mancanti.",
+      "Les jours exclus et les jours non travaillés ne comptent jamais comme manquants.",
+      "Los días excluidos y los no laborables nunca cuentan como ausentes.",
+      "Os dias excluídos e os dias não úteis nunca contam como em falta.",
+      "Uitgesloten dagen en vrije dagen tellen nooit als ontbrekend.",
+      "Dni wykluczone i dni wolne nigdy nie liczą się jako brakujące."
+    ],
+    "Monthly site sheet": [
+      "Monatliche Baustellenliste",
+      "Mjesečni list gradilišta",
+      "Mesečni list gradbišča",
+      "Foglio di cantiere mensile",
+      "Feuille de chantier mensuelle",
+      "Hoja de obra mensual",
+      "Folha de obra mensal",
+      "Maandelijkse bouwplaatslijst",
+      "Miesięczny arkusz budowy"
+    ],
+    "On the 1st, a note for each site from last month that its site sheet is ready. Tap it to open the sheet.": [
+      "Am 1. ein Hinweis für jede Baustelle vom letzten Monat, dass ihre Baustellenliste fertig ist. Tippen öffnet die Liste.",
+      "Prvog u mjesecu obavijest za svako gradilište iz prošlog mjeseca da je list gradilišta spreman. Dodir ga otvara.",
+      "Prvega v mesecu obvestilo za vsako gradbišče iz prejšnjega meseca, da je list gradbišča pripravljen. Dotik ga odpre.",
+      "Il primo del mese, un avviso per ogni cantiere del mese scorso: il foglio di cantiere è pronto. Toccalo per aprirlo.",
+      "Le 1er du mois, un avis pour chaque chantier du mois dernier : sa feuille de chantier est prête. Touchez-le pour l’ouvrir.",
+      "El día 1, un aviso por cada obra del mes pasado: su hoja de obra está lista. Tócalo para abrirla.",
+      "No dia 1, um aviso por cada obra do mês passado: a folha de obra está pronta. Toca nele para a abrir.",
+      "Op de 1e een melding voor elke bouwplaats van vorige maand dat de bouwplaatslijst klaar is. Tik erop om hem te openen.",
+      "Pierwszego dnia miesiąca powiadomienie dla każdej budowy z zeszłego miesiąca, że arkusz budowy jest gotowy. Dotknij, aby go otworzyć."
+    ],
+    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the Extra-work report.": [
+      "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Tippen öffnet den Zusatzarbeiten-Bericht.",
+      "Jednom tjedno obavijest kad završeni dodatni radovi još nisu poslani šefu. Dodir otvara izvještaj o dodatnim radovima.",
+      "Enkrat na teden obvestilo, ko končana dodatna dela še niso poslana šefu. Dotik odpre poročilo o dodatnih delih.",
+      "Una volta a settimana, un avviso quando i lavori extra finiti non sono ancora stati inviati al capo. Toccalo per aprire il rapporto lavori extra.",
+      "Une fois par semaine, un rappel quand des travaux supplémentaires terminés n’ont pas été envoyés à votre patron. Touchez-le pour ouvrir le rapport de travaux supplémentaires.",
+      "Una vez a la semana, un aviso cuando hay trabajos adicionales terminados sin enviar a tu jefe. Tócalo para abrir el informe de trabajos adicionales.",
+      "Uma vez por semana, um aviso quando há trabalhos adicionais concluídos por enviar ao chefe. Toca para abrir o relatório de trabalhos adicionais.",
+      "Eén keer per week een melding als afgerond meerwerk nog niet naar je baas is verstuurd. Tik erop om het meerwerkrapport te openen.",
+      "Raz w tygodniu przypomnienie, gdy ukończone prace dodatkowe nie zostały wysłane szefowi. Dotknij, aby otworzyć raport prac dodatkowych."
+    ],
+    "Send it to your boss.": [
+      "Schick sie deinem Chef.",
+      "Pošalji ga šefu.",
+      "Pošlji ga šefu.",
+      "Mandalo al capo.",
+      "Envoyez-la à votre patron.",
+      "Envíasela a tu jefe.",
+      "Envia-a ao chefe.",
+      "Stuur hem naar je baas.",
+      "Wyślij go szefowi."
+    ],
+    "%@ site sheet for %@ is ready": [
+      "Die %@-Baustellenliste für %@ ist fertig",
+      "Za %@ je spreman list gradilišta %@",
+      "Za %@ je pripravljen list gradbišča %@",
+      "Il foglio di cantiere di %@ per %@ è pronto",
+      "La feuille de chantier de %@ pour %@ est prête",
+      "La hoja de obra de %@ de %@ está lista",
+      "A folha de obra de %@ de %@ está pronta",
+      "De bouwplaatslijst van %@ voor %@ is klaar",
+      "Arkusz budowy za %@ dla %@ jest gotowy"
+    ],
+    "Adds each day's earnings as a last column. Off by default: timesheets usually go to someone. A site sheet never shows money.": [
+      "Fügt den Verdienst jedes Tages als letzte Spalte hinzu. Standardmäßig aus, da ein Stundenzettel meist weitergegeben wird. Eine Baustellenliste zeigt nie Geld.",
+      "Dodaje zaradu svakog dana kao zadnji stupac. Isključeno je jer se evidencija obično nekome predaje. List gradilišta nikad ne prikazuje novac.",
+      "Doda zaslužek vsakega dne kot zadnji stolpec. Privzeto izklopljeno, saj se evidenca običajno nekomu izroči. List gradbišča nikoli ne kaže denarja.",
+      "Aggiunge il compenso di ogni giorno come ultima colonna. Spento di base: un foglio ore di solito si consegna. Il foglio di cantiere non mostra mai denaro.",
+      "Ajoute la rémunération de chaque jour en dernière colonne. Désactivé par défaut : une feuille d’heures est souvent remise. Une feuille de chantier ne montre jamais d’argent.",
+      "Añade lo ganado cada día como última columna. Desactivado de entrada: una hoja de horas suele entregarse. Una hoja de obra nunca muestra dinero.",
+      "Acrescenta o que cada dia rendeu como última coluna. Desligado de início: uma folha de horas costuma ser entregue. Uma folha de obra nunca mostra dinheiro.",
+      "Voegt wat elke dag opleverde toe als laatste kolom. Standaard uit: een urenstaat geef je meestal af. Een bouwplaatslijst toont nooit geld.",
+      "Dodaje zarobek z każdego dnia jako ostatnią kolumnę. Domyślnie wyłączone, bo ewidencję zwykle się oddaje. Arkusz budowy nigdy nie pokazuje pieniędzy."
+    ],
+    "With a rate set, the calendar, Insights and widgets lead with earnings. Choose Hours balance to see hours instead. Sites never show money.": [
+      "Mit Stundenlohn zeigen Kalender, Auswertung und Widgets zuerst den Verdienst. Wähle Stundensaldo, um Stunden zu sehen. Baustellen zeigen nie Geld.",
+      "Uz satnicu kalendar, Uvidi i widgeti prvo pokazuju zaradu. Odaberi Saldo sati da vidiš sate. Gradilišta nikad ne prikazuju novac.",
+      "Z urno postavko koledar, Vpogledi in pripomočki najprej pokažejo zaslužek. Izberi Saldo ur, da vidiš ure. Gradbišča nikoli ne kažejo denarja.",
+      "Con una tariffa, il calendario, Statistiche e i widget mostrano prima il guadagno. Scegli Saldo ore per vedere le ore. I cantieri non mostrano mai denaro.",
+      "Avec un taux, le calendrier, Statistiques et les widgets affichent d’abord vos gains. Choisissez Solde d’heures pour voir les heures. Les chantiers ne montrent jamais d’argent.",
+      "Con una tarifa, el calendario, Estadísticas y los widgets muestran primero lo ganado. Elige Saldo de horas para ver las horas. Las obras nunca muestran dinero.",
+      "Com um valor definido, o calendário, as Estatísticas e os widgets mostram primeiro o que ganhaste. Escolhe Saldo de horas para veres as horas. As obras nunca mostram dinheiro.",
+      "Met een uurloon tonen de kalender, Inzichten en de widgets eerst je verdiensten. Kies Urensaldo om uren te zien. Bouwplaatsen tonen nooit geld.",
+      "Ze stawką kalendarz, Statystyki i widżety pokazują najpierw zarobek. Wybierz Saldo godzin, aby widzieć godziny. Budowy nigdy nie pokazują pieniędzy."
+    ],
+    "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Export options; a site sheet never does.": [
+      "Freiwillig, um zu sehen, was ein Monat gebracht hat. Dein Stundenzettel zeigt es nur, wenn du es unter Einstellungen › Exportoptionen hinzufügst; eine Baustellenliste nie.",
+      "Neobavezno, da vidiš koliko je mjesec donio. Tvoja evidencija to prikazuje samo ako ga dodaš u Postavke › Postavke izvoza; list gradilišta nikad.",
+      "Neobvezno, da vidiš, koliko je prinesel mesec. Tvoja evidenca ga pokaže le, če ga dodaš v Nastavitve › Možnosti izvoza; list gradbišča nikoli.",
+      "Facoltativo, per vedere quanto ha reso un mese. Il tuo foglio ore lo mostra solo se lo aggiungi in Impostazioni › Opzioni di esportazione; il foglio di cantiere mai.",
+      "Facultatif, pour voir ce qu’un mois a rapporté. Votre feuille d’heures ne l’affiche que si vous l’ajoutez dans Réglages › Options d’export ; une feuille de chantier jamais.",
+      "Opcional, para ver lo que ha dado un mes. Tu hoja de horas solo lo muestra si lo añades en Ajustes › Opciones de exportación; una hoja de obra, nunca.",
+      "Opcional, para veres quanto rendeu um mês. A tua folha de horas só o mostra se o acrescentares em Definições › Opções de exportação; uma folha de obra, nunca.",
+      "Optioneel, om te zien wat een maand opleverde. Je urenstaat toont het alleen als je het toevoegt in Instellingen › Exportopties; een bouwplaatslijst nooit.",
+      "Opcjonalnie, żeby widzieć, ile przyniósł miesiąc. Twoja ewidencja pokaże to tylko, jeśli dodasz w Ustawienia › Opcje eksportu; arkusz budowy nigdy."
+    ],
+    "Send your hours or a site sheet as PDF or Excel. Report language: %@. Change it here.": [
+      "Schick deine Stunden oder eine Baustellenliste als PDF oder Excel. Berichtssprache: %@. Hier änderst du sie.",
+      "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvješća: %@. Ovdje ga mijenjaš.",
+      "Pošlji svoje ure ali list gradbišča kot PDF ali Excel. Jezik poročil: %@. Tukaj ga spremeniš.",
+      "Invia le tue ore o un foglio di cantiere come PDF o Excel. Lingua dei rapporti: %@. La cambi qui.",
+      "Envoyez vos heures ou une feuille de chantier en PDF ou Excel. Langue des rapports : %@. Vous la changez ici.",
+      "Envía tus horas o una hoja de obra en PDF o Excel. Idioma de los informes: %@. Se cambia aquí.",
+      "Envia as tuas horas ou uma folha de obra em PDF ou Excel. Idioma dos relatórios: %@. Altera-o aqui.",
+      "Stuur je uren of een bouwplaatslijst als pdf of Excel. Taal van de rapporten: %@. Hier wijzig je die.",
+      "Wyślij swoje godziny albo arkusz budowy jako PDF lub Excel. Język raportów: %@. Tutaj go zmienisz."
     ]
   },
   "sameAsEnglishOnPurpose": [
