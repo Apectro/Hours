@@ -10,6 +10,7 @@ struct CalendarScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(ActiveShiftStore.self) private var clockStore
     @Environment(\.modelContext) private var modelContext
+    @Environment(TourCoordinator.self) private var tour: TourCoordinator?
 
     @State private var anchorDate = CalendarDate.today(in: .current)
     @State private var selectedDate = CalendarDate.today(in: .current)
@@ -89,6 +90,10 @@ struct CalendarScreen: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar { toolbarContent }
+            // The tour's stop on today's cell: today has to be on screen.
+            .onChange(of: tour?.tour?.stop) { _, stop in
+                if stop == .today { goToToday() }
+            }
             .sheet(item: $activeSheet) { sheet in
                 switch sheet {
                 case let .day(date):
@@ -423,6 +428,7 @@ private struct CalendarPeriodView: View {
                     catalog: settings.dayTypeCatalog,
                     earnings: earnings
                 )
+                .tourTarget(.calendarSummary)
             }
 
             DaySummaryCard(

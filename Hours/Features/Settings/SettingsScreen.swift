@@ -8,213 +8,237 @@ import SwiftUI
 struct SettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
+    @Environment(TourCoordinator.self) private var tour: TourCoordinator?
 
     var body: some View {
         NavigationStack {
-            List {
-                // Nothing is sold while the first release is free
-                // (`FreeLaunch`); the row and the tester switch return with
-                // payments.
-                if subscriptions.offersPurchases {
-                    Section {
-                        Button {
-                            isShowingPaywall = true
+            ScrollViewReader { scroller in
+                List {
+                    // Nothing is sold while the first release is free
+                    // (`FreeLaunch`); the row and the tester switch return with
+                    // payments.
+                    if subscriptions.offersPurchases {
+                        Section {
+                            Button {
+                                isShowingPaywall = true
+                            } label: {
+                                SettingsRow(
+                                    // The product name does not translate; the verb
+                                    // in front of it does.
+                                    title: subscriptions.isPro
+                                        ? AppIdentity.proName
+                                        : String(localized: "Unlock Zeitkonto Pro"),
+                                    value: subscriptions.isPro ? String(localized: "Active") : nil,
+                                    systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
+                                )
+                            }
+                            .tint(.primary)
+                        } footer: {
+                            if !subscriptions.isPro {
+                                Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
+                            }
+                        }
+
+                        // Only in a TestFlight install, where Pro is unlocked without
+                        // paying (see `TesterAccess`). The switch is how a tester sees
+                        // the paywall and tries a purchase as a customer would.
+                        if subscriptions.isTestFlightInstall {
+                            Section {
+                                Toggle("Pro unlocked for testing", isOn: Binding(
+                                    get: { !subscriptions.testerLocksPro },
+                                    set: {
+                                        subscriptions.setTesterLocksPro(!$0)
+                                        HoursStack.refreshWidget()
+                                    }
+                                ))
+                                .accessibilityIdentifier("settings-tester-pro")
+                            } header: {
+                                Text("TestFlight")
+                            } footer: {
+                                Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
+                            }
+                        }
+                    }
+
+                    Section("Work") {
+                        NavigationLink {
+                            ScheduleSettingsScreen()
                         } label: {
                             SettingsRow(
-                                // The product name does not translate; the verb
-                                // in front of it does.
-                                title: subscriptions.isPro
-                                    ? AppIdentity.proName
-                                    : String(localized: "Unlock Zeitkonto Pro"),
-                                value: subscriptions.isPro ? String(localized: "Active") : nil,
-                                systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
+                                title: String(localized: "Working schedule"),
+                                value: scheduleSummary,
+                                systemImage: "calendar.badge.clock"
+                            )
+                        }
+                        NavigationLink {
+                            LeaveSettingsScreen()
+                        } label: {
+                            // The allowance, as a bare number like the day types' count.
+                            SettingsRow(
+                                title: String(localized: "Leave"),
+                                value: HalfDays(days: settings.leave.allowanceDays).localized,
+                                systemImage: "beach.umbrella"
+                            )
+                        }
+                        .accessibilityIdentifier("settings-leave")
+                        NavigationLink {
+                            PaySettingsScreen(jobID: settings.primaryJob.id)
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Pay"),
+                                value: paySummary,
+                                systemImage: "banknote"
+                            )
+                        }
+                        .accessibilityIdentifier("settings-pay")
+                        NavigationLink {
+                            JobSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Jobs"),
+                                value: jobsSummary,
+                                systemImage: "bag"
+                            )
+                        }
+                        NavigationLink {
+                            CalculationSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Calculation"),
+                                value: settings.durationPolicy.title,
+                                systemImage: "function"
+                            )
+                        }
+                    }
+
+                    Section("Tracking") {
+                        NavigationLink {
+                            TrackingSettingsScreen()
+                        } label: {
+                            SettingsRow(title: String(localized: "Fields"), value: fieldsSummary, systemImage: "slider.horizontal.3")
+                        }
+                        NavigationLink {
+                            DayTypeSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Day types"),
+                                value: "\(settings.dayTypeCatalog.all.count)",
+                                systemImage: "tag"
+                            )
+                        }
+                        NavigationLink {
+                            ReminderSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Reminders"),
+                                value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                                systemImage: "bell"
+                            )
+                        }
+                        if settings.features.trackHolidays {
+                            NavigationLink {
+                                HolidaySettingsScreen()
+                            } label: {
+                                SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
+                            }
+                        }
+                    }
+
+                    Section("Appearance") {
+                        NavigationLink {
+                            CalendarSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Calendar"),
+                                value: settings.calendar.showWeekends
+                                    ? String(localized: "All days")
+                                    : String(localized: "Weekdays only"),
+                                systemImage: "square.grid.3x3"
+                            )
+                        }
+                        NavigationLink {
+                            AppearanceSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Theme"),
+                                value: settings.appearance.title,
+                                systemImage: "circle.lefthalf.filled"
+                            )
+                        }
+                    }
+
+                    Section("Export") {
+                        NavigationLink {
+                            ExportSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Export options"),
+                                value: String(
+                                    localized: "\(settings.effectiveExportColumns.count) columns",
+                                    comment: "How many columns the export will contain"
+                                ),
+                                systemImage: "tablecells"
+                            )
+                        }
+                        .id(Self.exportRow)
+                        .tourTarget(.settingsExport)
+                    }
+
+                    Section("Data") {
+                        // Shown in every build compiled with sync, even one not
+                        // signed for it, where the screen says why it cannot.
+                        if SyncPreference.offer != .hidden {
+                            NavigationLink {
+                                SyncSettingsScreen()
+                            } label: {
+                                SettingsRow(
+                                    title: String(localized: "iCloud"),
+                                    value: HoursStack.isSyncing ? String(localized: "On") : String(localized: "Off"),
+                                    systemImage: "icloud"
+                                )
+                            }
+                        }
+                        NavigationLink {
+                            DataSettingsScreen()
+                        } label: {
+                            SettingsRow(title: String(localized: "Backup and data"), value: nil, systemImage: "externaldrive")
+                        }
+                        NavigationLink {
+                            AboutScreen()
+                        } label: {
+                            SettingsRow(title: String(localized: "Privacy"), value: nil, systemImage: "hand.raised")
+                        }
+                        .accessibilityIdentifier("settings-privacy")
+                        Button {
+                            tour?.start(leadsCrew: settings.leadsCrew)
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Show the tour again"),
+                                value: nil,
+                                systemImage: "questionmark.circle"
                             )
                         }
                         .tint(.primary)
-                    } footer: {
-                        if !subscriptions.isPro {
-                            Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
-                        }
-                    }
-
-                    // Only in a TestFlight install, where Pro is unlocked without
-                    // paying (see `TesterAccess`). The switch is how a tester sees
-                    // the paywall and tries a purchase as a customer would.
-                    if subscriptions.isTestFlightInstall {
-                        Section {
-                            Toggle("Pro unlocked for testing", isOn: Binding(
-                                get: { !subscriptions.testerLocksPro },
-                                set: {
-                                    subscriptions.setTesterLocksPro(!$0)
-                                    HoursStack.refreshWidget()
-                                }
-                            ))
-                            .accessibilityIdentifier("settings-tester-pro")
-                        } header: {
-                            Text("TestFlight")
-                        } footer: {
-                            Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
-                        }
+                        .accessibilityIdentifier("settings-show-tour")
                     }
                 }
-
-                Section("Work") {
-                    NavigationLink {
-                        ScheduleSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Working schedule"),
-                            value: scheduleSummary,
-                            systemImage: "calendar.badge.clock"
-                        )
-                    }
-                    NavigationLink {
-                        LeaveSettingsScreen()
-                    } label: {
-                        // The allowance, as a bare number like the day types' count.
-                        SettingsRow(
-                            title: String(localized: "Leave"),
-                            value: HalfDays(days: settings.leave.allowanceDays).localized,
-                            systemImage: "beach.umbrella"
-                        )
-                    }
-                    .accessibilityIdentifier("settings-leave")
-                    NavigationLink {
-                        PaySettingsScreen(jobID: settings.primaryJob.id)
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Pay"),
-                            value: paySummary,
-                            systemImage: "banknote"
-                        )
-                    }
-                    .accessibilityIdentifier("settings-pay")
-                    NavigationLink {
-                        JobSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Jobs"),
-                            value: jobsSummary,
-                            systemImage: "bag"
-                        )
-                    }
-                    NavigationLink {
-                        CalculationSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Calculation"),
-                            value: settings.durationPolicy.title,
-                            systemImage: "function"
-                        )
-                    }
+                // The tour's last stop is Export options, which may be below
+                // the fold.
+                .onChange(of: tour?.tour?.stop) { _, stop in
+                    guard stop == .export else { return }
+                    withAnimation { scroller.scrollTo(Self.exportRow, anchor: .center) }
                 }
-
-                Section("Tracking") {
-                    NavigationLink {
-                        TrackingSettingsScreen()
-                    } label: {
-                        SettingsRow(title: String(localized: "Fields"), value: fieldsSummary, systemImage: "slider.horizontal.3")
-                    }
-                    NavigationLink {
-                        DayTypeSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Day types"),
-                            value: "\(settings.dayTypeCatalog.all.count)",
-                            systemImage: "tag"
-                        )
-                    }
-                    NavigationLink {
-                        ReminderSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Reminders"),
-                            value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
-                            systemImage: "bell"
-                        )
-                    }
-                    if settings.features.trackHolidays {
-                        NavigationLink {
-                            HolidaySettingsScreen()
-                        } label: {
-                            SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
-                        }
-                    }
-                }
-
-                Section("Appearance") {
-                    NavigationLink {
-                        CalendarSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Calendar"),
-                            value: settings.calendar.showWeekends
-                                ? String(localized: "All days")
-                                : String(localized: "Weekdays only"),
-                            systemImage: "square.grid.3x3"
-                        )
-                    }
-                    NavigationLink {
-                        AppearanceSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Theme"),
-                            value: settings.appearance.title,
-                            systemImage: "circle.lefthalf.filled"
-                        )
-                    }
-                }
-
-                Section("Export") {
-                    NavigationLink {
-                        ExportSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Export options"),
-                            value: String(
-                                localized: "\(settings.effectiveExportColumns.count) columns",
-                                comment: "How many columns the export will contain"
-                            ),
-                            systemImage: "tablecells"
-                        )
-                    }
-                }
-
-                Section("Data") {
-                    // Shown in every build compiled with sync, even one not
-                    // signed for it, where the screen says why it cannot.
-                    if SyncPreference.offer != .hidden {
-                        NavigationLink {
-                            SyncSettingsScreen()
-                        } label: {
-                            SettingsRow(
-                                title: String(localized: "iCloud"),
-                                value: HoursStack.isSyncing ? String(localized: "On") : String(localized: "Off"),
-                                systemImage: "icloud"
-                            )
-                        }
-                    }
-                    NavigationLink {
-                        DataSettingsScreen()
-                    } label: {
-                        SettingsRow(title: String(localized: "Backup and data"), value: nil, systemImage: "externaldrive")
-                    }
-                    NavigationLink {
-                        AboutScreen()
-                    } label: {
-                        SettingsRow(title: String(localized: "Privacy"), value: nil, systemImage: "hand.raised")
-                    }
-                    .accessibilityIdentifier("settings-privacy")
-                }
+                .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
+                .navigationTitle("Settings")
+                // A screen the UI tests wait for. The title beside it is translated.
+                .accessibilityIdentifier("screen-settings")
             }
-            .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
-            .navigationTitle("Settings")
-            // A screen the UI tests wait for. The title beside it is translated.
-            .accessibilityIdentifier("screen-settings")
         }
     }
 
     @State private var isShowingPaywall = false
+
+    private static let exportRow = "settings-export-options"
 
     private var settings: AppSettings { settingsStore.settings }
 

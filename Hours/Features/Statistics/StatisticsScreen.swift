@@ -66,6 +66,7 @@ struct StatisticsScreen: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .tourTarget(.insights)
 
                     periodStepper
 
