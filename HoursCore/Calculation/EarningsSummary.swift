@@ -36,6 +36,13 @@ struct EarningsSummary: Hashable, Sendable {
     var sundayAndHolidayMinutes: Int { days.reduce(0) { $0 + $1.sundayAndHolidayMinutes } }
     var nightMinutes: Int { days.reduce(0) { $0 + $1.nightMinutes } }
 
+    /// The percentages below 100 that paid absence was paid at, lowest
+    /// first — "Sick pay at 70%" under the total.
+    var reducedAbsencePercents: [Int] { Set(days.compactMap(\.absencePaidPercent)).sorted() }
+    /// Days past the employer's first 42 of a sick-leave run, which the
+    /// health insurer pays (HZZO in Croatia) and so earn nothing here.
+    var healthInsuranceDays: Int { days.filter(\.isPaidByHealthInsurance).count }
+
     /// Whether a day's earnings belong in a total counted through `cutoff`.
     ///
     /// Stricter than `DayComputation.counts(through:)`, which still counts a

@@ -113,9 +113,16 @@ struct PeriodEngine: Sendable {
     /// The whole weeks around `range`, which is what earnings need records
     /// for: overtime after the contracted week is counted from the week's
     /// first day, so a month starting on a Thursday needs that Monday.
+    ///
+    /// When a day type pays only the employer's first 42 days of a run (sick
+    /// leave in Croatia), it reaches back far enough to see whether the
+    /// range's first day is past them: the 42 days before it, and two weeks
+    /// more for weekends and holidays at the start of the run.
     func earningsRange(covering range: CalendarDateRange) -> CalendarDateRange {
-        CalendarDateRange(
-            start: CalendarDateRange.week(containing: range.start, in: calendar).start,
+        let capped = settings.dayTypeCatalog.all.contains(where: \.employerPaysFirst42Days)
+        let lookBack = capped ? DayTypeDefinition.employerPaidDays + 14 : 0
+        return CalendarDateRange(
+            start: CalendarDateRange.week(containing: range.start.adding(days: -lookBack, in: calendar), in: calendar).start,
             end: CalendarDateRange.week(containing: range.end, in: calendar).end
         )
     }
