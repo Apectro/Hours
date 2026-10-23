@@ -3,7 +3,8 @@ import UIKit
 /// What goes on one printed page.
 struct PDFPagePlan: Hashable {
     var number: Int
-    /// The header block — eyebrow, headline, tiles — opens the first page only.
+    /// The header block — eyebrow, headline, tiles — opens the first page
+    /// only; of a split site sheet, the first page of each part.
     var showsTitle: Bool
     /// The column headings, on every page that has table rows under it.
     var showsHeadings: Bool
@@ -24,15 +25,18 @@ struct PDFReportLayout {
 
     // MARK: - Pages
 
-    func pages() -> [PDFPagePlan] {
+    /// - Parameter firstNumber: the number this table's first page has in
+    ///   the document: 1, unless it is a later part of a split site sheet.
+    func pages(firstNumber: Int = 1) -> [PDFPagePlan] {
         var plans: [PDFPagePlan] = []
         var next = 0
         var closed = false
 
         repeat {
-            let number = plans.count + 1
+            let number = firstNumber + plans.count
+            let isFirst = plans.isEmpty
             var y = PDFReportStyle.topMargin
-            if number == 1 { y += titleBlockHeight }
+            if isFirst { y += titleBlockHeight }
 
             let first = next
             let hasRows = next < table.rows.count
@@ -65,7 +69,7 @@ struct PDFReportLayout {
             let headsTotal = !hasRows && closes && table.totalRow != nil
             plans.append(PDFPagePlan(
                 number: number,
-                showsTitle: number == 1,
+                showsTitle: isFirst,
                 showsHeadings: hasRows || headsTotal,
                 rows: first..<next,
                 closes: closes
@@ -84,8 +88,9 @@ struct PDFReportLayout {
 
     // MARK: - Heights
 
-    /// Eyebrow, headline and byline beside the tiles, then the rule under them.
-    var titleBlockHeight: CGFloat { 70 }
+    /// Eyebrow, headline and byline beside the tiles, then the rule under
+    /// them; on a part of a split sheet, the "People 1–5 of 9" line too.
+    var titleBlockHeight: CGFloat { table.partLabel.isEmpty ? 70 : 84 }
 
     var headingBlockHeight: CGFloat { PDFReportStyle.headingHeight + 2 }
 
@@ -162,6 +167,43 @@ struct PDFReportLayout {
         let columns = table.columns
         guard !columns.isEmpty else { return [] }
 
+        let minimum = minimumWidths()
+        let weights = columns.map(PDFReportLayout.weight(for:))
+        let required = minimum.reduce(0, +)
+
+        // Not enough paper even for that — a dozen columns of long words on
+        // one sheet. Everything shares the squeeze, which is the only honest
+        // answer when there is no room. A site sheet never gets here: it is
+        // split across pages first (`printedParts`).
+        guard required < availableWidth else {
+            let total = weights.reduce(0, +)
+            guard total > 0 else {
+                return Array(repeating: availableWidth / CGFloat(columns.count), count: columns.count)
+            }
+            return weights.map { availableWidth * $0 / total }
+        }
+
+        // The remainder goes to the columns that can use it. Where none can,
+        // it is spread by weight so the page still fills its width.
+        let flexible = zip(columns, weights).map { $0.mayTruncate ? $1 : 0 }
+        let share = flexible.contains(where: { $0 > 0 }) ? flexible : weights
+        let total = share.reduce(0, +)
+        let spare = availableWidth - required
+        return zip(minimum, share).map { $0 + (total > 0 ? spare * $1 / total : 0) }
+    }
+
+    /// Whether every column gets at least what it cannot do without.
+    func fits(availableWidth: CGFloat) -> Bool {
+        minimumWidths().reduce(0, +) < availableWidth
+    }
+
+    /// What each column cannot do without: its heading, and every value of
+    /// a column that must not be cut short, measured in the fonts the page
+    /// draws, with a group's title fitting across its columns.
+    func minimumWidths() -> [CGFloat] {
+        let columns = table.columns
+        guard !columns.isEmpty else { return [] }
+
         let padding = PDFReportStyle.cellPadding * 2
         let headings = columnHeadings()
         var everyRow = table.rows
@@ -188,28 +230,37 @@ struct PDFReportLayout {
                 minimum[last] += title + padding - have
             }
         }
+        return minimum
+    }
 
-        let weights = columns.map(PDFReportLayout.weight(for:))
-        let required = minimum.reduce(0, +)
+    // MARK: - Parts
 
-        // Not enough paper even for that — a dozen columns of long words on
-        // one sheet. Everything shares the squeeze, which is the only honest
-        // answer when there is no room.
-        guard required < availableWidth else {
-            let total = weights.reduce(0, +)
-            guard total > 0 else {
-                return Array(repeating: availableWidth / CGFloat(columns.count), count: columns.count)
+    /// The tables the PDF prints one after another: the table itself, or a
+    /// site sheet too wide for the page split into groups of people
+    /// (`SiteSheetBuilder.split`).
+    ///
+    /// Every person is two columns that may not be cut short, so the page
+    /// holds five or six before the times would be squeezed. The most people
+    /// a part can hold is measured, not guessed: the largest group size at
+    /// which every part fits, in the fonts the page draws, with that part's
+    /// own names and times. A sheet everyone fits on comes back alone and
+    /// unchanged, and so prints exactly as it did before sheets were split.
+    static func printedParts(
+        of table: ReportTable,
+        availableWidth: CGFloat = PDFReportStyle.contentWidth
+    ) -> [ReportTable] {
+        guard let people = SiteSheetBuilder.peopleCount(in: table), people > 1,
+              !PDFReportLayout(table: table).fits(availableWidth: availableWidth)
+        else { return [table] }
+        for perPage in stride(from: people - 1, through: 2, by: -1) {
+            let parts = SiteSheetBuilder.split(table, peoplePerPage: perPage)
+            if parts.allSatisfy({ PDFReportLayout(table: $0).fits(availableWidth: availableWidth) }) {
+                return parts
             }
-            return weights.map { availableWidth * $0 / total }
         }
-
-        // The remainder goes to the columns that can use it. Where none can,
-        // it is spread by weight so the page still fills its width.
-        let flexible = zip(columns, weights).map { $0.mayTruncate ? $1 : 0 }
-        let share = flexible.contains(where: { $0 > 0 }) ? flexible : weights
-        let total = share.reduce(0, +)
-        let spare = availableWidth - required
-        return zip(minimum, share).map { $0 + (total > 0 ? spare * $1 / total : 0) }
+        // One person to a page is as far as splitting goes; a name too long
+        // even for that is squeezed like any other column that has no room.
+        return SiteSheetBuilder.split(table, peoplePerPage: 1)
     }
 
     private static func weight(for column: ReportColumn) -> CGFloat {

@@ -309,6 +309,11 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .people:         return pick(en: "People", de: "Personen", hr: "Osobe", sl: "Osebe", it: "Persone",
                                           fr: "Personnes", es: "Personas", pt: "Pessoas", nl: "Personen",
                                           pl: "Osoby")
+        case .peopleOnPage:   return pick(en: "People {range} of {total}", de: "Personen {range} von {total}",
+                                          hr: "Osobe {range} od {total}", sl: "Osebe {range} od {total}",
+                                          it: "Persone {range} di {total}", fr: "Personnes {range} sur {total}",
+                                          es: "Personas {range} de {total}", pt: "Pessoas {range} de {total}",
+                                          nl: "Personen {range} van {total}", pl: "Osoby {range} z {total}")
         case .siteLegend:     return pick(
             en: "Each person: on site – off site, then hours after the break. Orange = came late or left early. "
                 + "— = not on this site that day.",
@@ -543,6 +548,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
 
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend
+    /// Over each part of a sheet split across pages: "People 1–5 of 9", a
+    /// pattern filled in by `ExportLanguage.peopleOnPage(_:of:)`.
+    case peopleOnPage
     case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
