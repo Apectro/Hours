@@ -106,6 +106,7 @@ enum SampleData {
     static func seed(
         workdays: WorkdayRepository,
         sites: SiteRepository,
+        extraWork: ExtraWorkRepository,
         calendar: Calendar,
         today: CalendarDate
     ) {
@@ -183,6 +184,93 @@ enum SampleData {
                 try? sites.save(siteDay(on: day, weekday: weekday, site: site, crew: crew))
             }
         }
+
+        seedExtraWork(into: extraWork, site: site, crew: crew, calendar: calendar, today: today, holiday: holiday)
+    }
+
+    /// Extra work on the showcase site, for the listing's day and report
+    /// shots: today, one job finished and one still in progress; two
+    /// finished jobs earlier this week or last, not sent to the boss yet,
+    /// so the report has material to add up. Quantities and time only —
+    /// extra work has no prices anywhere.
+    private static func seedExtraWork(
+        into repository: ExtraWorkRepository,
+        site: Site,
+        crew: [CrewMember],
+        calendar: Calendar,
+        today: CalendarDate,
+        holiday: Int
+    ) {
+        func person(_ index: Int) -> ExtraWorkHours {
+            ExtraWorkHours(memberID: crew[index].id, name: crew[index].name, minutes: 0)
+        }
+        // An ordinary weekday on the site before today: Monday to Thursday
+        // (a Friday may be on the other site), not in the week of leave and
+        // not the holiday.
+        func earlierWorkday(_ count: Int) -> CalendarDate {
+            var found = 0
+            var day = today
+            for _ in 0..<40 {
+                day = day.adding(days: -1, in: calendar)
+                let weekday = calendar.component(.weekday, from: day.date(in: calendar))
+                let isLeave = day.yearMonth == today.yearMonth && ((8...12).contains(day.day) || day.day == holiday)
+                guard (2...5).contains(weekday), !isLeave else { continue }
+                found += 1
+                if found == count { return day }
+            }
+            return day
+        }
+        func afternoon(of day: CalendarDate) -> Date {
+            calendar.date(byAdding: .hour, value: 15, to: day.date(in: calendar)) ?? Date()
+        }
+
+        let now = Date()
+        let jobs: [ExtraWorkJob] = [
+            ExtraWorkJob(
+                siteID: site.id,
+                date: earlierWorkday(3),
+                description: "Core holes for the ventilation, basement",
+                items: [ExtraWorkItem(name: "Core hole 150 mm", quantity: 4, unit: .pieces)],
+                isDone: true,
+                doneAt: afternoon(of: earlierWorkday(3)),
+                createdAt: now.addingTimeInterval(-3 * 86_400)
+            ).settingTime(120, for: [person(3), person(4)]),
+            ExtraWorkJob(
+                siteID: site.id,
+                date: earlierWorkday(1),
+                description: "Moved the site office sockets",
+                items: [
+                    ExtraWorkItem(name: "Double socket", quantity: 3, unit: .pieces),
+                    ExtraWorkItem(name: "Cable NYM-J 3×1.5", quantity: 12, unit: .metres),
+                ],
+                isDone: true,
+                doneAt: afternoon(of: earlierWorkday(1)),
+                createdAt: now.addingTimeInterval(-86_400)
+            ).settingTime(90, for: [person(2)]),
+            ExtraWorkJob(
+                siteID: site.id,
+                date: today,
+                description: "Emergency lighting, stairwell B",
+                items: [
+                    ExtraWorkItem(name: "Emergency light", quantity: 8, unit: .pieces),
+                    ExtraWorkItem(name: "Cable NYM-J 3×1.5", quantity: 25, unit: .metres),
+                ],
+                isDone: true,
+                doneAt: now,
+                createdAt: now.addingTimeInterval(-2)
+            ).settingTime(180, for: [person(0), person(1)]),
+            ExtraWorkJob(
+                siteID: site.id,
+                date: today,
+                description: "Cable trays, plant room",
+                items: [
+                    ExtraWorkItem(name: "Cable tray 300 mm", quantity: 18, unit: .metres),
+                    ExtraWorkItem(name: "Wall bracket", quantity: 12, unit: .pieces),
+                ],
+                createdAt: now.addingTimeInterval(-1)
+            ).settingTime(150, for: [person(1), person(3)]),
+        ]
+        for job in jobs { repository.storeJob(job) }
     }
 
     /// An ordinary day on the showcase site: 07:00 to 16:00 with half an
