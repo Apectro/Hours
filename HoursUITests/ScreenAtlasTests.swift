@@ -242,7 +242,7 @@ final class ScreenAtlasTests: XCTestCase {
         // Archived: the second site put away, its day as an archived site
         // shows it, and the list with the folded section underneath.
         back(app)
-        let second = app.buttons["site-card"].element(boundBy: 1)
+        let second = app.buttons.matching(identifier: "site-card").element(boundBy: 1)
         if tap(second, "the second site", app),
            tap(app.buttons["site-more"], "the site's menu", app),
            tap(app.buttons["site-edit"], "Edit site", app) {
