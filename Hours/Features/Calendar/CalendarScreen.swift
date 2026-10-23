@@ -15,6 +15,8 @@ struct CalendarScreen: View {
     @State private var anchorDate = CalendarDate.today(in: .current)
     @State private var selectedDate = CalendarDate.today(in: .current)
     @State private var activeSheet: ActiveSheet?
+    /// Reopening a closed month is deliberate, so it is asked once more.
+    @State private var monthToReopen: YearMonth?
     /// Only whether there are any, for the one-time public holidays card.
     @Query private var holidayRecords: [HolidayRecord]
 
@@ -41,75 +43,103 @@ struct CalendarScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                if settings.features.useTimeClock, let running = clockStore.running {
-                    ClockCard(
-                        running: running,
-                        settings: settings,
-                        formatting: settingsStore.dateFormatting,
-                        onClockOut: clockOut,
-                        onDiscard: discard
-                    )
-                    .padding(.bottom, Metrics.large)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
+            ScrollViewReader { scroller in
+                ScrollView {
+                    if settings.features.useTimeClock, let running = clockStore.running {
+                        ClockCard(
+                            running: running,
+                            settings: settings,
+                            formatting: settingsStore.dateFormatting,
+                            onClockOut: clockOut,
+                            onDiscard: discard
+                        )
+                        .padding(.bottom, Metrics.large)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
 
-                if showsPublicHolidayOffer {
-                    PublicHolidayOfferCard(
-                        onChoose: { activeSheet = .publicHolidays },
-                        onDismiss: dismissPublicHolidayOffer
-                    )
+                    if showsPublicHolidayOffer {
+                        PublicHolidayOfferCard(
+                            onChoose: { activeSheet = .publicHolidays },
+                            onDismiss: dismissPublicHolidayOffer
+                        )
+                        .padding(.horizontal, Metrics.large)
+                        .padding(.top, Metrics.small)
+                        .transition(.opacity)
+                    }
+
+                    PeriodDataProvider(range: fetchedRange) { data in
+                        CalendarPeriodView(
+                            layout: layout,
+                            summaryRange: summaryRange,
+                            data: data,
+                            settings: settings,
+                            calendar: calendar,
+                            formatting: settingsStore.dateFormatting,
+                            selectedDate: selectedDate,
+                            today: today,
+                            scope: scope,
+                            closedMonth: closedMonthOnScreen,
+                            onSelect: select,
+                            onStep: step,
+                            onEdit: { activeSheet = .day(selectedDate) },
+                            onWorkedHoliday: { activeSheet = .workedHoliday(selectedDate) },
+                            onClockIn: showsClockInOnSelectedDay ? clockIn : nil,
+                            onExport: { activeSheet = .export(summaryRange) },
+                            onReopen: { monthToReopen = $0 }
+                        )
+                    }
                     .padding(.horizontal, Metrics.large)
                     .padding(.top, Metrics.small)
-                    .transition(.opacity)
+                    .padding(.bottom, Metrics.extraLarge)
                 }
-
-                PeriodDataProvider(range: fetchedRange) { data in
-                    CalendarPeriodView(
-                        layout: layout,
-                        summaryRange: summaryRange,
-                        data: data,
-                        settings: settings,
-                        calendar: calendar,
-                        formatting: settingsStore.dateFormatting,
-                        selectedDate: selectedDate,
-                        today: today,
-                        scope: scope,
-                        onSelect: select,
-                        onEdit: { activeSheet = .day(selectedDate) },
-                        onWorkedHoliday: { activeSheet = .workedHoliday(selectedDate) },
-                        onClockIn: showsClockInOnSelectedDay ? clockIn : nil
-                    )
+                .background(Color.hoursCanvas)
+                .scrollDismissesKeyboard(.interactively)
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar { toolbarContent }
+                // The tour's stops on the calendar: what they point at has to be
+                // on screen. The totals sit under the day card, below the fold on
+                // a small phone.
+                .onChange(of: tour?.tour?.stop) { _, stop in
+                    if stop == .today {
+                        goToToday()
+                    } else if stop == .summary {
+                        withAnimation { scroller.scrollTo(Self.summaryAnchor, anchor: .center) }
+                    }
                 }
-                .padding(.horizontal, Metrics.large)
-                .padding(.top, Metrics.small)
-                .padding(.bottom, Metrics.extraLarge)
-            }
-            .background(Color.hoursCanvas)
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar { toolbarContent }
-            // The tour's stop on today's cell: today has to be on screen.
-            .onChange(of: tour?.tour?.stop) { _, stop in
-                if stop == .today { goToToday() }
-            }
-            .sheet(item: $activeSheet) { sheet in
-                switch sheet {
-                case let .day(date):
-                    DayEditorSheet(date: date)
-                case let .export(range):
-                    ExportScreen(initialRange: range)
-                case let .bulkEdit(range):
-                    BulkEditSheet(initialRange: range)
-                case .publicHolidays:
-                    PublicHolidayPicker {}
-                case let .workedHoliday(date):
-                    DayEditorSheet(date: date, startsWorking: true)
+                .confirmationDialog(
+                    reopenTitle,
+                    isPresented: Binding(get: { monthToReopen != nil }, set: { if !$0 { monthToReopen = nil } }),
+                    titleVisibility: .visible
+                ) {
+                    Button("Reopen") {
+                        if let month = monthToReopen { reopen(month) }
+                    }
+                    .accessibilityIdentifier("calendar-reopen-confirm")
+                    Button("Cancel", role: .cancel) { monthToReopen = nil }
+                } message: {
+                    Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
+                }
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case let .day(date):
+                        DayEditorSheet(date: date)
+                    case let .export(range):
+                        ExportScreen(initialRange: range)
+                    case let .bulkEdit(range):
+                        BulkEditSheet(initialRange: range)
+                    case .publicHolidays:
+                        PublicHolidayPicker {}
+                    case let .workedHoliday(date):
+                        DayEditorSheet(date: date, startsWorking: true)
+                    }
                 }
             }
         }
     }
+
+    /// Where the tour's totals stop scrolls to.
+    static let summaryAnchor = "calendar-summary"
 
     // MARK: - Derived state
 
@@ -163,6 +193,28 @@ struct CalendarScreen: View {
             let range = summaryRange
             return "\(formatting.shortDate(range.start)) – \(formatting.shortDate(range.end))"
         }
+    }
+
+    /// The month the ⋯ menu's Close / Reopen is about: the one on screen,
+    /// or in week view the month the week is anchored in.
+    private var monthOnScreen: YearMonth { anchorDate.yearMonth }
+
+    private var lockOffer: MonthLockOffer? {
+        settings.monthLock.offer(for: monthOnScreen, today: today)
+    }
+
+    /// A closed month the grid shows, for the notice above it. In week
+    /// view a week can straddle two months; the first closed one is named.
+    private var closedMonthOnScreen: YearMonth? {
+        settings.monthLock.lockedMonths(in: summaryRange, calendar: calendar).first
+    }
+
+    private var reopenTitle: String {
+        guard let month = monthToReopen else { return "" }
+        return String(
+            localized: "Reopen \(settingsStore.dateFormatting.monthTitle(month))?",
+            comment: "Confirmation title; the value is a month and year"
+        )
     }
 
     /// Once, to someone with no holidays at all, until added or put away.
@@ -269,6 +321,17 @@ struct CalendarScreen: View {
         settingsStore.update { $0.calendar.preferredScope = newScope }
     }
 
+    // MARK: - Closing a month
+
+    private func closeMonth(_ month: YearMonth) {
+        settingsStore.update { $0.monthLock.lock(month) }
+    }
+
+    private func reopen(_ month: YearMonth) {
+        settingsStore.update { $0.monthLock.unlock(month) }
+        monthToReopen = nil
+    }
+
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
@@ -293,6 +356,18 @@ struct CalendarScreen: View {
             }
             .accessibilityLabel(scope == .month ? "Next month" : "Next week")
 
+            // Out of the menu: sending a month's hours is a monthly job, and
+            // it was the one thing people could not find.
+            Button {
+                activeSheet = .export(summaryRange)
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+            }
+            .accessibilityLabel("Export")
+            // On the control, not on its label: the accessibility element
+            // a UI test can tap is the button.
+            .accessibilityIdentifier("calendar-export")
+
             Menu {
                 Picker("View", selection: Binding(get: { scope }, set: setScope)) {
                     ForEach(CalendarScope.allCases) { option in
@@ -312,14 +387,38 @@ struct CalendarScreen: View {
                     Label("Edit a range…", systemImage: "calendar.badge.plus")
                 }
 
-                Button {
-                    activeSheet = .export(summaryRange)
-                } label: {
-                    Label("Export…", systemImage: "square.and.arrow.up")
+                // Closing a month lives where months are. Settings › Calculation ›
+                // Closed months lists them all.
+                switch lockOffer {
+                case .close?:
+                    Button {
+                        closeMonth(monthOnScreen)
+                    } label: {
+                        Label(
+                            String(
+                                localized: "Close \(settingsStore.dateFormatting.monthTitle(monthOnScreen))",
+                                comment: "Button; the value is a month and year"
+                            ),
+                            systemImage: "lock"
+                        )
+                    }
+                    .accessibilityIdentifier("calendar-close-month")
+                case .reopen?:
+                    Button {
+                        monthToReopen = monthOnScreen
+                    } label: {
+                        Label(
+                            String(
+                                localized: "Reopen \(settingsStore.dateFormatting.monthTitle(monthOnScreen))",
+                                comment: "Button; the value is a month and year"
+                            ),
+                            systemImage: "lock.open"
+                        )
+                    }
+                    .accessibilityIdentifier("calendar-reopen-month")
+                case nil:
+                    EmptyView()
                 }
-                // On the control, not on its label: the accessibility element
-                // a UI test can tap is the button.
-                .accessibilityIdentifier("calendar-export")
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
@@ -341,10 +440,14 @@ private struct CalendarPeriodView: View {
     let selectedDate: CalendarDate
     let today: CalendarDate
     let scope: CalendarScope
+    let closedMonth: YearMonth?
     let onSelect: (CalendarDate) -> Void
+    let onStep: (Int) -> Void
     let onEdit: () -> Void
     let onWorkedHoliday: () -> Void
     let onClockIn: (() -> Void)?
+    let onExport: () -> Void
+    let onReopen: (YearMonth) -> Void
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
@@ -364,10 +467,14 @@ private struct CalendarPeriodView: View {
         selectedDate: CalendarDate,
         today: CalendarDate,
         scope: CalendarScope,
+        closedMonth: YearMonth?,
         onSelect: @escaping (CalendarDate) -> Void,
+        onStep: @escaping (Int) -> Void,
         onEdit: @escaping () -> Void,
         onWorkedHoliday: @escaping () -> Void,
-        onClockIn: (() -> Void)? = nil
+        onClockIn: (() -> Void)? = nil,
+        onExport: @escaping () -> Void,
+        onReopen: @escaping (YearMonth) -> Void
     ) {
         self.layout = layout
         self.settings = settings
@@ -375,10 +482,14 @@ private struct CalendarPeriodView: View {
         self.selectedDate = selectedDate
         self.today = today
         self.scope = scope
+        self.closedMonth = closedMonth
         self.onSelect = onSelect
+        self.onStep = onStep
         self.onEdit = onEdit
         self.onWorkedHoliday = onWorkedHoliday
         self.onClockIn = onClockIn
+        self.onExport = onExport
+        self.onReopen = onReopen
 
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
         // The grid can show days from neighbouring months, and the selected day
@@ -410,6 +521,10 @@ private struct CalendarPeriodView: View {
 
     var body: some View {
         VStack(spacing: Metrics.large) {
+            if let closedMonth {
+                ClosedMonthNotice(month: closedMonth, formatting: formatting) { onReopen(closedMonth) }
+            }
+
             CalendarMonthGrid(
                 layout: layout,
                 computations: computationsByKey,
@@ -420,17 +535,21 @@ private struct CalendarPeriodView: View {
                 durationFormatting: settings.displayFormatting,
                 onSelect: onSelect
             )
+            // A sideways swipe pages the period, as the toolbar arrows do.
+            // Simultaneous, so the scroll view still scrolls and a cell
+            // still takes its tap; only a clearly horizontal drag counts.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 30)
+                    .onEnded { value in
+                        let width = value.translation.width
+                        guard abs(width) > 50, abs(width) > abs(value.translation.height) * 1.5 else { return }
+                        onStep(width < 0 ? 1 : -1)
+                    }
+            )
 
-            if settings.calendar.showMonthSummary {
-                PeriodSummaryBar(
-                    summary: summary,
-                    settings: settings,
-                    catalog: settings.dayTypeCatalog,
-                    earnings: earnings
-                )
-                .tourTarget(.calendarSummary)
-            }
-
+            // The selected day first, right under the grid: a tap on a day
+            // has to show its card without scrolling, or it looks like the
+            // tap did nothing.
             DaySummaryCard(
                 computation: selectedComputation,
                 settings: settings,
@@ -439,6 +558,18 @@ private struct CalendarPeriodView: View {
                 onWorkedHoliday: onWorkedHoliday,
                 onClockIn: onClockIn
             )
+
+            if settings.calendar.showMonthSummary {
+                PeriodSummaryBar(
+                    summary: summary,
+                    settings: settings,
+                    catalog: settings.dayTypeCatalog,
+                    earnings: earnings,
+                    onExport: onExport
+                )
+                .tourTarget(.calendarSummary)
+                .id(CalendarScreen.summaryAnchor)
+            }
 
             if scope == .week && !weekDays.isEmpty {
                 WeekDayList(
@@ -514,5 +645,37 @@ private struct WeekDayList: View {
             )
         }
         return day.dayType.displayName()
+    }
+}
+
+/// Above the grid while the period on screen is in a closed month: the
+/// grid looks the same either way, and an editor refusing to save is a poor
+/// way to find out.
+private struct ClosedMonthNotice: View {
+    let month: YearMonth
+    let formatting: CalendarFormatting
+    let onReopen: () -> Void
+
+    var body: some View {
+        HStack(spacing: Metrics.small) {
+            Label {
+                Text(String(
+                    localized: "\(formatting.monthTitle(month)) is closed",
+                    comment: "Calendar notice; the value is a month and year"
+                ))
+            } icon: {
+                Image(systemName: "lock.fill")
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            Spacer(minLength: Metrics.small)
+            Button("Reopen", action: onReopen)
+                .font(.footnote.weight(.semibold))
+                .buttonStyle(.borderless)
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("calendar-closed-reopen")
+        }
+        .padding(.horizontal, Metrics.medium)
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
     }
 }

@@ -133,50 +133,15 @@ struct CalculationSettingsScreen: View {
 
     // MARK: - Closing a month
 
-    /// Months whose timesheet has already been handed over.
-    ///
-    /// The list is the control: locking is adding a month, reopening is
-    /// swiping it away. A toggle per month would need somewhere to show every
-    /// month that ever existed.
-    @ViewBuilder
+    /// Closed months have their own screen (`ClosedMonthsScreen`), and the
+    /// month on screen closes and reopens from the calendar's ⋯ menu. This
+    /// row stays where people learned to look.
     private var monthLockSection: some View {
         Section {
-            if let month = lockableMonth {
-                Button {
-                    settingsStore.update { $0.monthLock.lock(month) }
-                } label: {
-                    Text(String(
-                        localized: "Close \(settingsStore.dateFormatting.monthTitle(month))",
-                        comment: "Button; the value is a month and year"
-                    ))
-                }
-            }
-
-            ForEach(settingsStore.settings.monthLock.months.sorted(by: >), id: \.self) { month in
-                Text(settingsStore.dateFormatting.monthTitle(month))
-            }
-            .onDelete(perform: reopenMonths)
-        } header: {
-            Text("Closed months")
+            ClosedMonthsRow()
         } footer: {
-            Text("A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.")
+            Text("Close a month once its hours are handed over, so it can't change by mistake.")
         }
-    }
-
-    /// The most recent month that is over and not already closed. Only a
-    /// finished month, for the same reason only a finished year can be closed.
-    private var lockableMonth: YearMonth? {
-        let thisMonth = YearMonth(CalendarDate.today(in: settingsStore.workCalendar))
-        let closed = settingsStore.settings.monthLock.months
-        return (1...12)
-            .map { thisMonth.adding(months: -$0) }
-            .first { !closed.contains($0) }
-    }
-
-    private func reopenMonths(at offsets: IndexSet) {
-        let sorted = settingsStore.settings.monthLock.months.sorted(by: >)
-        let months = Set(offsets.map { sorted[$0] })
-        settingsStore.update { $0.monthLock.months.subtract(months) }
     }
 
     private var repository: WorkdayRepository { WorkdayRepository(context: modelContext) }
