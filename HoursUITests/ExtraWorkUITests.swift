@@ -85,6 +85,9 @@ final class ExtraWorkUITests: XCTestCase {
         let share = app.buttons["extra-work-report-share-pdf"]
         XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send report · PDF")
         XCTAssertFalse(share.isEnabled, "nothing finished, nothing to send")
+        let picture = app.buttons["extra-work-send-picture"]
+        XCTAssertTrue(picture.waitForExistence(timeout: 5), "the report should offer Send as picture, for a chat")
+        XCTAssertFalse(picture.isEnabled, "nothing finished, no picture to send")
         app.buttons["extra-work-report-done"].tap()
 
         // Ticked, it is finished.
@@ -103,6 +106,7 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["extra-work-total-0"].waitForExistence(timeout: 5),
                       "the report should sum the material")
         XCTAssertTrue(share.isEnabled, "a report with a finished job can be sent")
+        XCTAssertTrue(picture.isEnabled, "and sent as a picture")
         app.buttons["extra-work-report-done"].tap()
     }
 }

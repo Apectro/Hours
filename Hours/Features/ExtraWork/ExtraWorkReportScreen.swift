@@ -4,7 +4,8 @@ import SwiftData
 /// The report to the boss (mockup 15): what is done — not sent yet, this
 /// week, or picked dates — then, if asked for, what is still in progress,
 /// the material used, the client's optional signature under the lot, and
-/// "Send report · PDF", with Excel and CSV beside it. Above it all, every job
+/// "Send report · PDF", "Send as picture" for a chat, and Excel and CSV
+/// beside them. Above it all, every job
 /// on the site still in progress, whatever its date, with its checkmark:
 /// the place they are easy to find and tick.
 ///
@@ -14,8 +15,10 @@ import SwiftData
 ///
 /// The jobs are marked sent only once the share sheet says the file went
 /// somewhere (`ExtraWorkSending`); cancelling it leaves them as they were.
-/// A CSV is data for an import rather than the report, so sharing one marks
-/// nothing. Everything is written in the export language set in Settings.
+/// The picture is the PDF's report drawn for a chat, so sharing it marks
+/// them sent as the PDF does. A CSV is data for an import rather than the
+/// report, so sharing one marks nothing. Everything is written in the
+/// export language set in Settings.
 struct ExtraWorkReportScreen: View {
     let site: Site
     /// False on a site that is read-only (archived, or Pro lapsed): its jobs
@@ -34,9 +37,18 @@ struct ExtraWorkReportScreen: View {
     @State private var signature: ExtraWorkSignature?
     @State private var showsAllJobs = false
     @State private var sheet: ReportSheet?
-    @State private var preparing: ExportFormat?
+    @State private var preparing: ReportOutput?
     @State private var notice: String?
     @State private var failure: String?
+
+    /// What the share bar can send: the three export formats, and the
+    /// report as one tall picture for a chat (`ExtraWorkPictureRenderer`).
+    private enum ReportOutput: Hashable {
+        case pdf, picture, xlsx, csv
+
+        /// A CSV is data, not the report the boss reads.
+        var marksSent: Bool { self != .csv }
+    }
 
     private enum Choice: String, CaseIterable, Identifiable {
         case notSent, thisWeek, dates
@@ -404,6 +416,24 @@ struct ExtraWorkReportScreen: View {
             .disabled(report.isEmpty || preparing != nil)
             .accessibilityIdentifier("extra-work-report-share-pdf")
 
+            // For a chat: an A4 PDF opens zoomed in and cut off there, a
+            // picture opens full width.
+            Button {
+                share(.picture)
+            } label: {
+                Group {
+                    if preparing == .picture {
+                        ProgressView()
+                    } else {
+                        Label("Send as picture", systemImage: "photo")
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 28)
+            }
+            .buttonStyle(.bordered)
+            .disabled(report.isEmpty || preparing != nil)
+            .accessibilityIdentifier("extra-work-send-picture")
+
             HStack(spacing: Metrics.small) {
                 Button {
                     share(.xlsx)
@@ -423,7 +453,7 @@ struct ExtraWorkReportScreen: View {
             .buttonStyle(.bordered)
             .disabled(report.isEmpty || preparing != nil)
 
-            Text(verbatim: notice ?? String(localized: "Marked as sent after you share the PDF or the Excel file."))
+            Text(verbatim: notice ?? String(localized: "Marked as sent after you share the PDF, the picture or the Excel file."))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -434,14 +464,14 @@ struct ExtraWorkReportScreen: View {
         .background(.bar)
     }
 
-    private func share(_ format: ExportFormat) {
+    private func share(_ output: ReportOutput) {
         let report = self.report
         guard !report.isEmpty else { return }
-        preparing = format
+        preparing = output
         notice = nil
         let repository = ExtraWorkRepository(context: modelContext)
-        // Every format gets the photo ids: the PDF draws them, and the count
-        // is one of the tiles.
+        // Every format gets the photo ids: the PDF and the picture draw them,
+        // and the count is one of the tiles.
         let photoIDs = repository.photoIDs(siteID: site.id, jobIDs: Set(report.jobs.map(\.id)))
         let document = ExtraWorkDocumentBuilder(settings: settingsStore.settings, calendar: settingsStore.workCalendar)
             .make(report: report, siteName: site.name, photoIDs: photoIDs)
@@ -451,34 +481,46 @@ struct ExtraWorkReportScreen: View {
             // photos is drawn.
             await Task.yield()
             let data: Data
-            switch format {
+            let fileExtension: String
+            switch output {
             case .pdf:
-                let stored = repository.photoData(ids: Set(photoIDs.values.flatMap { $0 }), siteID: site.id)
-                let small = stored.compactMapValues { DiaryPhotoProcessor.thumbnailPrintJPEG(from: $0) }
-                data = ExtraWorkPDFRenderer.data(for: document, photos: small)
+                data = ExtraWorkPDFRenderer.data(for: document, photos: smallPhotos(photoIDs, repository: repository))
+                fileExtension = ExportFormat.pdf.fileExtension
+            case .picture:
+                let picture = ExtraWorkPictureRenderer.picture(for: document, photos: smallPhotos(photoIDs, repository: repository))
+                data = picture.data
+                fileExtension = picture.fileExtension
             case .xlsx:
                 data = document.workbook(preferences: settingsStore.settings.export, generatedOn: Date())
+                fileExtension = ExportFormat.xlsx.fileExtension
             case .csv:
                 data = CSVExporter.data(for: document.linesTable(), preferences: settingsStore.settings.export)
+                fileExtension = ExportFormat.csv.fileExtension
             }
             preparing = nil
             let url: URL
             do {
-                url = try ExportFileFactory.write(data: data, format: format, baseName: document.fileName)
+                url = try ExportFileFactory.write(data: data, fileExtension: fileExtension, baseName: document.fileName)
             } catch {
                 failure = error.localizedDescription
                 return
             }
             ShareSheetPresenter.present(url) { outcome in
-                finishSharing(report, format: format, outcome: outcome)
+                finishSharing(report, output: output, outcome: outcome)
             }
         }
     }
 
-    /// The jobs become sent here and only here: after a PDF or a workbook
-    /// was really shared, and only the jobs that were in it.
-    private func finishSharing(_ report: ExtraWorkReport, format: ExportFormat, outcome: ExtraWorkShareOutcome) {
-        guard format != .csv, outcome == .completed else { return }
+    /// The photos as the PDF and the picture draw them: small JPEGs.
+    private func smallPhotos(_ photoIDs: [UUID: [UUID]], repository: ExtraWorkRepository) -> [UUID: Data] {
+        let stored = repository.photoData(ids: Set(photoIDs.values.flatMap { $0 }), siteID: site.id)
+        return stored.compactMapValues { DiaryPhotoProcessor.thumbnailPrintJPEG(from: $0) }
+    }
+
+    /// The jobs become sent here and only here: after a PDF, the picture or
+    /// a workbook was really shared, and only the jobs that were in it.
+    private func finishSharing(_ report: ExtraWorkReport, output: ReportOutput, outcome: ExtraWorkShareOutcome) {
+        guard output.marksSent, outcome == .completed else { return }
         let record = ExtraWorkReportRecord(
             siteID: site.id,
             sentAt: Date(),
@@ -492,6 +534,7 @@ struct ExtraWorkReportScreen: View {
             comment: "Extra work report, after sharing; the value is how many jobs were marked sent"
         )
         load()
+        refreshUnsentWorkReminder()
     }
 
     /// The checkmark: written at once, not under the month lock.
@@ -499,6 +542,15 @@ struct ExtraWorkReportScreen: View {
         guard canEdit else { return }
         ExtraWorkRepository(context: modelContext).storeProgress(of: job.togglingDone(at: Date()))
         load()
+        refreshUnsentWorkReminder()
+    }
+
+    /// Sent, or finished: what the weekly "extra work not sent" note says,
+    /// or whether there is one, has changed.
+    private func refreshUnsentWorkReminder() {
+        let context = modelContext
+        let settings = settingsStore
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
     }
 
     // MARK: - Derived

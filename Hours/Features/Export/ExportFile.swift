@@ -59,12 +59,18 @@ enum ExportFileFactory {
     /// Writes bytes already produced — the PDF the preview was drawn from,
     /// so the page on screen and the page shared are one rendering, not two.
     static func write(data: Data, format: ExportFormat, baseName: String) throws -> URL {
+        try write(data: data, fileExtension: format.fileExtension, baseName: baseName)
+    }
+
+    /// The same, for a file that is not one of the export formats — the
+    /// extra-work report as a picture, `png` or `jpg`.
+    static func write(data: Data, fileExtension: String, baseName: String) throws -> URL {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("Exports", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 
         let url = directory
             .appendingPathComponent(sanitise(baseName))
-            .appendingPathExtension(format.fileExtension)
+            .appendingPathExtension(fileExtension)
         try data.write(to: url, options: .atomic)
         return url
     }
