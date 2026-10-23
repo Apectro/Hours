@@ -650,6 +650,65 @@
         }
       }
     },
+    "%@ is closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist abgeschlossen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está cerrado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est clôturé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zatvoren"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ è chiuso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is afgesloten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ jest zamknięty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está fechado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zaprt"
+          }
+        }
+      }
+    },
     "%@ is closed, so that shift was not recorded.": {
       "extractionState": "manual",
       "localizations": {
@@ -2932,6 +2991,65 @@
         }
       }
     },
+    "A closed month can't be changed by mistake. Swipe one to reopen it. The calendar's ⋯ menu closes or reopens the month on screen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein abgeschlossener Monat kann nicht aus Versehen geändert werden. Wische über einen, um ihn wieder zu öffnen. Das ⋯-Menü im Kalender schließt den angezeigten Monat ab oder öffnet ihn wieder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mes cerrado no se puede cambiar por error. Desliza sobre uno para reabrirlo. El menú ⋯ del calendario cierra o reabre el mes que se muestra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mois clôturé ne peut pas être modifié par erreur. Balayez un mois pour le rouvrir. Le menu ⋯ du calendrier clôture ou rouvre le mois affiché."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvoreni mjesec ne može se slučajno promijeniti. Povuci po mjesecu da ga ponovno otvoriš. Izbornik ⋯ u kalendaru zatvara ili ponovno otvara prikazani mjesec."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mese chiuso non si può modificare per sbaglio. Scorri su un mese per riaprirlo. Il menu ⋯ del calendario chiude o riapre il mese visualizzato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een afgesloten maand kan niet per ongeluk worden gewijzigd. Veeg over een maand om hem te heropenen. Het ⋯-menu van de kalender sluit de getoonde maand af of heropent hem."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamkniętego miesiąca nie da się zmienić przez pomyłkę. Przesuń palcem po miesiącu, aby go ponownie otworzyć. Menu ⋯ kalendarza zamyka lub ponownie otwiera widoczny miesiąc."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um mês fechado não pode ser alterado por engano. Desliza sobre um para o reabrir. O menu ⋯ do calendário fecha ou reabre o mês apresentado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaprtega meseca ni mogoče pomotoma spremeniti. Podrsaj po mesecu, da ga znova odpreš. Meni ⋯ v koledarju zaključi ali znova odpre prikazani mesec."
+          }
+        }
+      }
+    },
     "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": {
       "extractionState": "manual",
       "localizations": {
@@ -4639,6 +4757,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dodaj te praznike"
+          }
+        }
+      }
+    },
+    "Add times": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeiten eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir horarios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter des horaires"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši vremena"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi orari"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tijden invullen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj czas pracy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar horários"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši čase"
           }
         }
       }
@@ -11331,6 +11508,65 @@
         }
       }
     },
+    "Close a month once its hours are handed over, so it can't change by mistake.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließe einen Monat ab, sobald seine Stunden abgegeben sind, damit er sich nicht aus Versehen ändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cierra un mes cuando hayas entregado sus horas, para que no cambie por error."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturez un mois une fois ses heures remises, pour qu’il ne change pas par erreur."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatvori mjesec kad predaš njegove sate, da se ne promijeni slučajno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi un mese quando ne hai consegnato le ore, così non cambia per sbaglio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sluit een maand af zodra de uren zijn ingeleverd, zodat hij niet per ongeluk verandert."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamknij miesiąc po oddaniu godzin, aby nie zmienił się przez pomyłkę."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha um mês depois de entregares as horas, para que não mude por engano."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaključi mesec, ko oddaš njegove ure, da se ne spremeni pomotoma."
+          }
+        }
+      }
+    },
     "Close the year": {
       "extractionState": "manual",
       "localizations": {
@@ -12094,6 +12330,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Štej od datuma začetka"
+          }
+        }
+      }
+    },
+    "Count this day": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Tag zählen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contar este día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compter ce jour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Računaj ovaj dan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conta questo giorno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze dag meetellen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licz ten dzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contar este dia"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Štej ta dan"
           }
         }
       }
@@ -15536,6 +15831,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zavrzi"
+          }
+        }
+      }
+    },
+    "Discard changes?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen verwerfen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Descartar los cambios?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer les modifications ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odbaciti promjene?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorare le modifiche?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzigingen weggooien?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odrzucić zmiany?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar as alterações?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zavržem spremembe?"
           }
         }
       }
@@ -22266,6 +22620,65 @@
         }
       }
     },
+    "Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seine Tage lassen sich wieder ändern. Schließe ihn danach über das ⋯-Menü im Kalender wieder ab."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sus días se pueden volver a cambiar. Cuando termines, ciérralo de nuevo desde el menú ⋯ del calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses jours peuvent de nouveau être modifiés. Une fois terminé, clôturez-le à nouveau depuis le menu ⋯ du calendrier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Njegovi se dani opet mogu mijenjati. Kad završiš, ponovno ga zatvori u izborniku ⋯ u kalendaru."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I suoi giorni si possono di nuovo modificare. Quando hai finito, richiudilo dal menu ⋯ del calendario."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De dagen kunnen weer worden gewijzigd. Sluit hem als je klaar bent weer af via het ⋯-menu van de kalender."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jego dni znów można zmieniać. Gdy skończysz, zamknij go ponownie w menu ⋯ kalendarza."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os seus dias podem voltar a ser alterados. Quando terminares, fecha-o de novo no menu ⋯ do calendário."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Njegove dneve je spet mogoče spreminjati. Ko končaš, ga znova zaključi v meniju ⋯ v koledarju."
+          }
+        }
+      }
+    },
     "Its material, hours, photos and signature are deleted with it.": {
       "extractionState": "manual",
       "localizations": {
@@ -22557,6 +22970,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Samo ti"
+          }
+        }
+      }
+    },
+    "Keep editing": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter bearbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir editando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer la modification"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastavi uređivati"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua a modificare"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verder bewerken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontynuuj edycję"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar a editar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadaljuj z urejanjem"
           }
         }
       }
@@ -25511,6 +25983,65 @@
         }
       }
     },
+    "Next day": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächster Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Día siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour suivant"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sljedeći dan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorno successivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volgende dag"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Następny dzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dia seguinte"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslednji dan"
+          }
+        }
+      }
+    },
     "Next month": {
       "extractionState": "manual",
       "localizations": {
@@ -25625,6 +26156,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Naslednji teden"
+          }
+        }
+      }
+    },
+    "Next year": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächstes Jahr"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Año siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Année suivante"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sljedeća godina"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anno successivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volgend jaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Następny rok"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ano seguinte"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslednje leto"
           }
         }
       }
@@ -28461,6 +29051,65 @@
         }
       }
     },
+    "Nothing was changed. Reopen %@ to make this change.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurde nichts geändert. Öffne %@ wieder, um das zu ändern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se cambió nada. Vuelve a abrir %@ para hacer este cambio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’a été modifié. Rouvrez %@ pour faire cette modification."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ništa nije promijenjeno. Ponovno otvori %@ da napraviš ovu promjenu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato modificato nulla. Riapri %@ per fare questa modifica."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is niets gewijzigd. Heropen %@ om dit te wijzigen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic nie zmieniono. Otwórz ponownie %@, aby wprowadzić tę zmianę."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada foi alterado. Reabre %@ para fazer esta alteração."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nič ni bilo spremenjeno. Znova odpri %@, da narediš to spremembo."
+          }
+        }
+      }
+    },
     "Nothing was restored: all ^[%lld day](inflect: true) in that file are damaged. Your existing hours have not been touched.": {
       "extractionState": "manual",
       "localizations": {
@@ -29067,6 +29716,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odhod z gradbišča"
+          }
+        }
+      }
+    },
+    "Off: kept for reference, not counted in any total.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus: bleibt zum Nachsehen erhalten, zählt aber in keiner Summe."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desactivado: se guarda como referencia, pero no cuenta en ningún total."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivé : conservé pour mémoire, mais compté dans aucun total."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isključeno: dan ostaje zapisan, ali se ne računa ni u jedan zbroj."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattivato: resta come riferimento, ma non conta in nessun totale."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uit: blijft bewaard ter referentie, maar telt in geen enkel totaal mee."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyłączone: zostaje do wglądu, ale nie liczy się do żadnej sumy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desativado: fica guardado como referência, mas não conta em nenhum total."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izklopljeno: dan ostane zapisan, a se ne šteje v noben seštevek."
           }
         }
       }
@@ -32257,6 +32965,65 @@
         }
       }
     },
+    "Previous day": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorheriger Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Día anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour précédent"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prethodni dan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorno precedente"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorige dag"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poprzedni dzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dia anterior"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prejšnji dan"
+          }
+        }
+      }
+    },
     "Previous month": {
       "extractionState": "manual",
       "localizations": {
@@ -32371,6 +33138,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prejšnji teden"
+          }
+        }
+      }
+    },
+    "Previous year": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorheriges Jahr"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Año anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Année précédente"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prethodna godina"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anno precedente"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorig jaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poprzedni rok"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ano anterior"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prejšnje leto"
           }
         }
       }
@@ -34440,6 +35266,183 @@
         }
       }
     },
+    "Reopen": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wieder öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno otvori"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riapri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heropenen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz ponownie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova odpri"
+          }
+        }
+      }
+    },
+    "Reopen %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wieder öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno otvori %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riapri %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ heropenen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz ponownie %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova odpri %@"
+          }
+        }
+      }
+    },
+    "Reopen %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wieder öffnen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Reabrir %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir %@ ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno otvoriti %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riaprire %@?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ heropenen?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otworzyć ponownie %@?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir %@?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova odprem %@?"
+          }
+        }
+      }
+    },
     "Reopen it in Settings › Calculation if you need to change these hours.": {
       "extractionState": "manual",
       "localizations": {
@@ -34495,6 +35498,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Znova ga odprite v Nastavitve › Izračun, če morate spremeniti te ure."
+          }
+        }
+      }
+    },
+    "Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne ihn wieder, um diese Stunden zu ändern. Abschließen kannst du ihn danach wieder über das ⋯-Menü im Kalender."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve a abrirlo para cambiar estas horas. Puedes cerrarlo de nuevo desde el menú ⋯ del calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrez-le pour modifier ces heures. Vous pourrez le clôturer à nouveau depuis le menu ⋯ du calendrier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponovno ga otvori da promijeniš ove sate. Poslije ga opet možeš zatvoriti u izborniku ⋯ u kalendaru."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riaprilo per modificare queste ore. Puoi richiuderlo dal menu ⋯ del calendario."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heropen hem om deze uren te wijzigen. Je kunt hem daarna weer afsluiten via het ⋯-menu van de kalender."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz go ponownie, aby zmienić te godziny. Potem możesz go znów zamknąć w menu ⋯ kalendarza."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabre-o para alterar estas horas. Podes fechá-lo de novo no menu ⋯ do calendário."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Znova ga odpri, da spremeniš te ure. Pozneje ga lahko spet zaključiš v meniju ⋯ v koledarju."
           }
         }
       }
@@ -36299,6 +37361,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enako kot zadnji dan"
+          }
+        }
+      }
+    },
+    "Same as last day in ${applicationName}": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie am letzten Tag in ${applicationName}"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual que el último día en ${applicationName}"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comme le dernier jour dans ${applicationName}"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isto kao zadnji dan u ${applicationName}"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come l’ultimo giorno in ${applicationName}"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zelfde als vorige dag in ${applicationName}"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak ostatniego dnia w ${applicationName}"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual ao último dia no ${applicationName}"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enako kot zadnji dan v ${applicationName}"
           }
         }
       }
@@ -50300,6 +51421,124 @@
         }
       }
     },
+    "Write by hand": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von Hand eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotar a mano"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir à la main"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši ručno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci a mano"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handmatig invullen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisz ręcznie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar à mão"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši ročno"
+          }
+        }
+      }
+    },
+    "Write hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotar horas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir les heures"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši sate"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci le ore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren invullen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisz godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar horas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši ure"
+          }
+        }
+      }
+    },
     "Write one under a day's hours on the site screen.": {
       "extractionState": "manual",
       "localizations": {
@@ -51555,6 +52794,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Niste prijavljeni."
+          }
+        }
+      }
+    },
+    "You can add times to any day, holidays too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeiten lassen sich an jedem Tag eintragen, auch an Feiertagen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes añadir horarios a cualquier día, también a los festivos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez ajouter des horaires à n’importe quel jour, même aux jours fériés."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vremena možeš upisati za svaki dan, i za blagdane."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi aggiungere orari a qualsiasi giorno, anche ai festivi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je kunt aan elke dag tijden toevoegen, ook aan feestdagen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny możesz dodać do każdego dnia, także do świąt."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podes adicionar horários a qualquer dia, também aos feriados."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čase lahko vpišeš za vsak dan, tudi za praznike."
           }
         }
       }
