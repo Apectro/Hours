@@ -136,6 +136,22 @@ struct SiteDayScreen: View {
                     isArchived: site.isArchived,
                     onReopen: { isConfirmingReopen = true }
                 )
+                // On the notice rather than beside the refusal alert below:
+                // two dialogs on one view is asking for one not to show.
+                .confirmationDialog(
+                    String(
+                        localized: "Reopen \(formatting.monthTitle(YearMonth(date)))?",
+                        comment: "Confirmation title; the value is a month and year"
+                    ),
+                    isPresented: $isConfirmingReopen,
+                    titleVisibility: .visible
+                ) {
+                    Button("Reopen") { reopenMonth() }
+                        .accessibilityIdentifier("site-day-reopen-confirm")
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
+                }
 
                 SiteMonthGrid(
                     layout: layout,
@@ -255,20 +271,6 @@ struct SiteDayScreen: View {
             Button("OK", role: .cancel) { refusal = nil }
         } message: {
             Text("Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.")
-        }
-        .confirmationDialog(
-            String(
-                localized: "Reopen \(formatting.monthTitle(YearMonth(date)))?",
-                comment: "Confirmation title; the value is a month and year"
-            ),
-            isPresented: $isConfirmingReopen,
-            titleVisibility: .visible
-        ) {
-            Button("Reopen") { reopenMonth() }
-                .accessibilityIdentifier("site-day-reopen-confirm")
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
         }
     }
 
