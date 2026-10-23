@@ -25,12 +25,21 @@ struct ExtraWorkDocument: Hashable, Sendable {
         /// The export's own way of writing a date, for the workbook and CSV.
         var dateText: String
         var description: String
-        /// "8 × Emergency light · 25 m Cable NYM 3×1.5".
+        /// One line per item, "8 × Emergency light", "25 m Cable NYM 3×1.5":
+        /// the PDF prints them one under another.
+        var materialLines: [String]
+        /// The same lines in one text, a line break between them, for the
+        /// workbook's cell (which wraps).
         var material: String
         var items: [ExtraWorkItem]
-        /// "Ivan 3h · Marko 3h"; empty when no hours were noted.
+        /// "3h · Ivan, Marko": how long the job took, then who was on it;
+        /// empty when no time was noted.
         var hours: String
+        /// How long the job took (`ExtraWorkJob.duration`), never a sum of
+        /// everyone on it; `nil` when no time was noted.
         var minutes: Int?
+        /// "Ivan, Marko": who was on it, for the workbook's and CSV's column.
+        var people: String
         var photoIDs: [UUID]
         var isDone: Bool
         /// "Confirmed on site by Ing. M. Horvat, 22 Oct 2026" when the client
@@ -147,19 +156,29 @@ struct ExtraWorkDocument: Hashable, Sendable {
         return table(columns: [.note, .note, .note], headings: materialHeadings, rows: rows)
     }
 
-    /// The workbook's first sheet: a row per job, done first, hours as
-    /// durations.
+    /// The time columns, when any job has its time noted: how long the job
+    /// took, then who was on it.
+    private var timeHeadings: [String] {
+        hasHours ? [language(.hours), language(ExtraWorkTerm.who)] : []
+    }
+
+    private var timeColumns: [ReportColumn] {
+        hasHours ? [.worked, .note] : []
+    }
+
+    /// The workbook's first sheet: a row per job, done first; the job's time
+    /// as a duration (how long it took, never added up), and who.
     func jobsTable() -> ReportTable {
         let headings = [language(.date), language(ExtraWorkTerm.job), language(.workAndMaterial)]
-            + (hasHours ? [language(.hours)] : [])
+            + timeHeadings
             + trailingHeadings
-        let columns: [ReportColumn] = [.date, .note, .note] + (hasHours ? [.worked] : []) + trailingColumns
+        let columns: [ReportColumn] = [.date, .note, .note] + timeColumns + trailingColumns
         let rows = allJobs.enumerated().map { index, job -> ReportRow in
             var values = [job.dateText, job.description, job.material]
             var minutes: [Int?] = [nil, nil, nil]
             if hasHours {
-                values.append(job.hours.isEmpty ? "" : durationText(job.minutes))
-                minutes.append(job.minutes)
+                values += [durationText(job.minutes), job.people]
+                minutes += [job.minutes, nil]
             }
             let trailing = trailingValues(job)
             values += trailing
@@ -169,13 +188,14 @@ struct ExtraWorkDocument: Hashable, Sendable {
         return table(columns: columns, headings: headings, rows: rows)
     }
 
-    /// The CSV: one table, a line per item. A job's hours are on its first
-    /// line only, so adding the column up does not count them twice.
+    /// The CSV: one table, a line per item. A job's time and who was on it
+    /// are on its first line only, so adding the column up does not count
+    /// them twice.
     func linesTable() -> ReportTable {
         let headings = [language(.date), language(ExtraWorkTerm.job), language(.item), language(.quantity), language(.unit)]
-            + (hasHours ? [language(.hours)] : [])
+            + timeHeadings
             + trailingHeadings
-        let columns: [ReportColumn] = [.date, .note, .note, .note, .note] + (hasHours ? [.worked] : []) + trailingColumns
+        let columns: [ReportColumn] = [.date, .note, .note, .note, .note] + timeColumns + trailingColumns
         var rows: [ReportRow] = []
         for job in allJobs {
             let lines: [ExtraWorkItem?] = job.items.isEmpty ? [nil] : job.items
@@ -190,8 +210,8 @@ struct ExtraWorkDocument: Hashable, Sendable {
                 var minutes: [Int?] = [nil, nil, nil, nil, nil]
                 if hasHours {
                     let first = offset == 0 && job.minutes != nil
-                    values.append(first ? durationText(job.minutes) : "")
-                    minutes.append(first ? job.minutes : nil)
+                    values += [first ? durationText(job.minutes) : "", first ? job.people : ""]
+                    minutes += [first ? job.minutes : nil, nil]
                 }
                 let trailing = trailingValues(job)
                 values += trailing
@@ -263,7 +283,7 @@ struct ExtraWorkDocumentBuilder: Sendable {
 
         func row(_ job: ExtraWorkJob) -> ExtraWorkDocument.JobRow {
             let cleaned = job.cleaned()
-            let hours = cleaned.hours.map { "\($0.name) \(duration.string($0.minutes))" }.joined(separator: " · ")
+            let lines = cleaned.items.map { $0.line(in: language, decimalSeparator: decimal) }
             // The job's own signature; one under the report is drawn once,
             // at its foot, and its name goes in the workbook's column.
             let own = job.clientSignature.map(confirmedBy)
@@ -274,10 +294,12 @@ struct ExtraWorkDocumentBuilder: Sendable {
                 day: dayText(job.date, language: language),
                 dateText: settings.export.dateStyle.string(for: job.date),
                 description: cleaned.description,
-                material: cleaned.items.map { $0.line(in: language, decimalSeparator: decimal) }.joined(separator: " · "),
+                materialLines: lines,
+                material: lines.joined(separator: "\n"),
                 items: cleaned.items,
-                hours: hours,
-                minutes: cleaned.hasHours ? cleaned.totalMinutes : nil,
+                hours: cleaned.timeLine(duration),
+                minutes: cleaned.hasHours ? cleaned.duration : nil,
+                people: cleaned.people.joined(separator: ", "),
                 photoIDs: photoIDs[job.id] ?? [],
                 isDone: job.isDone,
                 confirmation: own?.sentence ?? "",
@@ -290,7 +312,8 @@ struct ExtraWorkDocumentBuilder: Sendable {
         let inProgress = report.inProgress.map(row)
 
         // Useful numbers only: what is done, what is not yet, what there is
-        // to see, and hours where some were noted. Never money.
+        // to see. Never money, and no hours added up across jobs: each job
+        // says how long it took.
         var tiles = [ReportTile(label: language(.jobsDone), value: "\(done.count)")]
         if !inProgress.isEmpty {
             tiles.append(ReportTile(label: language(.inProgress), value: "\(inProgress.count)"))
@@ -298,9 +321,6 @@ struct ExtraWorkDocumentBuilder: Sendable {
         let photoCount = report.jobs.reduce(0) { $0 + (photoIDs[$1.id]?.count ?? 0) }
         if photoCount > 0 {
             tiles.append(ReportTile(label: language(.photos), value: "\(photoCount)"))
-        }
-        if report.hasHours {
-            tiles.append(ReportTile(label: language(.hours), value: duration.string(report.totalMinutes)))
         }
 
         let fileName: String

@@ -80,8 +80,10 @@ struct ExtraWorkReport: Hashable, Sendable {
         return CalendarDateRange(start: first, end: last)
     }
 
+    /// Whether any job has its time noted. There is deliberately no total:
+    /// each job's time is how long that job took, and adding them up across
+    /// jobs (and people) says nothing anyone asked for.
     var hasHours: Bool { jobs.contains(where: \.hasHours) }
-    var totalMinutes: Int { jobs.reduce(0) { $0 + $1.totalMinutes } }
 
     /// Signed for, by the client: on the job itself or under the report.
     func isConfirmed(_ job: ExtraWorkJob) -> Bool {

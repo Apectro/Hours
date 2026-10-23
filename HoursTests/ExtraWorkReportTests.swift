@@ -136,7 +136,6 @@ final class ExtraWorkReportTests: XCTestCase {
         jobs[1].hours = [ExtraWorkHours(name: "Luka", minutes: 150)]
         let report = ExtraWorkReport(siteID: site, jobs: jobs)
         XCTAssertTrue(report.hasHours)
-        XCTAssertEqual(report.totalMinutes, 510)
     }
 
     // MARK: - Confirmation

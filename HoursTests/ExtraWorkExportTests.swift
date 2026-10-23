@@ -66,19 +66,19 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(page.eyebrow, "Extra work done · 19 – 22 October 2026")
         XCTAssertEqual(page.title, "Trg Pravde Zagreb")
         XCTAssertEqual(page.byline, "Recorded by Marijo Mikša")
-        XCTAssertEqual(page.tiles.map(\.label), ["Jobs done", "Hours"])
-        XCTAssertEqual(page.tiles.map(\.value), ["3", "6h"])
+        XCTAssertEqual(page.tiles.map(\.label), ["Jobs done"], "no hours added up across jobs")
+        XCTAssertEqual(page.tiles.map(\.value), ["3"])
     }
 
     func testTilesCountPhotosAndJobsInProgressOnlyWhenThere() {
         let report = report(inProgress: true)
         let page = ExtraWorkDocumentBuilder(settings: settings(), calendar: calendar)
             .make(report: report, siteName: site.name, photoIDs: [report.jobs[0].id: [UUID(), UUID()], report.jobs[2].id: [UUID()]])
-        XCTAssertEqual(page.tiles.map(\.label), ["Jobs done", "In progress", "Photos", "Hours"])
-        XCTAssertEqual(page.tiles.map(\.value), ["3", "1", "3", "6h"])
+        XCTAssertEqual(page.tiles.map(\.label), ["Jobs done", "In progress", "Photos"])
+        XCTAssertEqual(page.tiles.map(\.value), ["3", "1", "3"])
     }
 
-    func testTheHoursTileAppearsOnlyWhenHoursWereNoted() {
+    func testTheHoursColumnAppearsOnlyWhenTimeWasNoted() {
         let page = document(withHours: false)
         XCTAssertEqual(page.tiles.map(\.label), ["Jobs done"])
         XCTAssertTrue(page.jobs.allSatisfy { $0.hours.isEmpty })
@@ -95,8 +95,11 @@ final class ExtraWorkExportTests: XCTestCase {
         let first = page.jobs[0]
         XCTAssertEqual(first.day, "Thu 22")
         XCTAssertEqual(first.description, "Emergency lighting, stairwell 2nd floor")
-        XCTAssertEqual(first.material, "8 × Emergency light · 25.5 m Cable NYM 3×1.5")
-        XCTAssertEqual(first.hours, "Ivan 3h · Marko 3h")
+        XCTAssertEqual(first.materialLines, ["8 × Emergency light", "25.5 m Cable NYM 3×1.5"], "one line per item")
+        XCTAssertEqual(first.material, "8 × Emergency light\n25.5 m Cable NYM 3×1.5")
+        XCTAssertEqual(first.hours, "3h · Ivan, Marko", "how long the job took, then who")
+        XCTAssertEqual(first.minutes, 180, "the job took three hours, not six")
+        XCTAssertEqual(first.people, "Ivan, Marko")
         XCTAssertEqual(first.photoIDs.count, 2)
         XCTAssertEqual(first.confirmation, "", "nothing said about a signature nobody gave")
         XCTAssertNil(first.signature)
@@ -146,7 +149,7 @@ final class ExtraWorkExportTests: XCTestCase {
         let page = document(.german, decimal: .comma, inProgress: true)
         XCTAssertEqual(page.eyebrow, "Erledigte Zusatzarbeiten · 19. – 22. Oktober 2026")
         XCTAssertEqual(page.byline, "Erfasst von Marijo Mikša")
-        XCTAssertEqual(page.tiles.map(\.label), ["Erledigt", "In Arbeit", "Stunden"])
+        XCTAssertEqual(page.tiles.map(\.label), ["Erledigt", "In Arbeit"])
         XCTAssertEqual(page.jobsHeading, "Erledigte Arbeiten, Tag für Tag")
         XCTAssertEqual(page.inProgressHeading, "Noch in Arbeit")
         XCTAssertEqual(page.materialHeading, "Verwendetes Material")
@@ -155,11 +158,12 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(page.material[3].quantity, "25,5")
         XCTAssertEqual(page.material[0].name, "Emergency light", "an item's name is the user's own")
         XCTAssertEqual(page.jobs[0].description, "Emergency lighting, stairwell 2nd floor")
-        XCTAssertEqual(page.jobs[0].material, "8 × Emergency light · 25,5 m Cable NYM 3×1.5")
+        XCTAssertEqual(page.jobs[0].material, "8 × Emergency light\n25,5 m Cable NYM 3×1.5")
         XCTAssertTrue(page.jobs[1].confirmation.hasPrefix("Vor Ort bestätigt von Ing. M. Horvat, "), page.jobs[1].confirmation)
         XCTAssertTrue(page.jobs[0].day.hasPrefix("Do") && page.jobs[0].day.contains("22"), page.jobs[0].day)
         XCTAssertTrue(page.legend.hasPrefix("Mengen wie auf der Baustelle eingebaut."))
-        XCTAssertEqual(page.jobsTable().rows.map { $0.values[4] }, ["erledigt", "erledigt", "erledigt", "in Arbeit"])
+        XCTAssertEqual(page.jobsTable().columnHeadings()[4], "Wer")
+        XCTAssertEqual(page.jobsTable().rows.map { $0.values[5] }, ["erledigt", "erledigt", "erledigt", "in Arbeit"])
     }
 
     func testCroatianWritesEveryLabelInCroatian() {
@@ -171,7 +175,7 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(page.jobsHeading, "Izvršeni radovi po danima")
         XCTAssertEqual(page.inProgressHeading, "Još u tijeku")
         XCTAssertTrue(page.jobs[1].confirmation.hasPrefix("Potvrđeno na gradilištu: Ing. M. Horvat, "), page.jobs[1].confirmation)
-        XCTAssertEqual(page.jobsTable().rows.last?.values[4], "u tijeku")
+        XCTAssertEqual(page.jobsTable().rows.last?.values[5], "u tijeku")
         XCTAssertEqual(page.material[0].name, "Emergency light")
     }
 
@@ -228,21 +232,51 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(table.rows[3].numbers, [nil, 25.5, nil])
     }
 
-    func testTheJobsSheetHasARowPerJobWithHoursAsDurations() {
+    func testTheJobsSheetHasARowPerJobWithHowLongItTookAndWho() {
         let table = document().jobsTable()
-        XCTAssertEqual(table.columnHeadings(), ["Date", "Job", "Work and material", "Hours", "Confirmed on site"])
+        XCTAssertEqual(table.columnHeadings(), ["Date", "Job", "Work and material", "Hours", "Who", "Confirmed on site"])
         XCTAssertEqual(table.rows.count, 3)
         XCTAssertEqual(table.rows[0].values[1], "Emergency lighting, stairwell 2nd floor")
-        XCTAssertEqual(table.rows[0].minutes[3], 360)
+        XCTAssertEqual(table.rows[0].values[2], "8 × Emergency light\n25.5 m Cable NYM 3×1.5", "an item per line in the cell")
+        XCTAssertEqual(table.rows[0].minutes[3], 180, "the job's time, not everyone's added up")
+        XCTAssertEqual(table.rows[0].values[4], "Ivan, Marko")
         XCTAssertNil(table.rows[1].minutes[3])
-        XCTAssertEqual(table.rows[1].values[4], "Ing. M. Horvat, 14 Oct 2026")
-        XCTAssertEqual(table.rows[0].values[4], "")
+        XCTAssertEqual(table.rows[1].values[4], "")
+        XCTAssertEqual(table.rows[1].values[5], "Ing. M. Horvat, 14 Oct 2026")
+        XCTAssertEqual(table.rows[0].values[5], "")
+    }
+
+    /// Nothing in the report adds hours up across jobs: not a tile, not a
+    /// total row.
+    func testNoHoursAreAddedUpAcrossJobs() {
+        let page = document(inProgress: true)
+        XCTAssertFalse(page.tiles.contains { $0.label == "Hours" })
+        XCTAssertTrue(page.jobsTable().totals.isEmpty)
+        XCTAssertTrue(page.linesTable().totals.isEmpty)
+    }
+
+    /// A multi-line cell is wrapped in the workbook, so the items stand one
+    /// under another there too.
+    func testTheWorkbookWrapsTheMaterialCell() {
+        let parts = String(decoding: document().workbook(preferences: settings().export), as: UTF8.self)
+        XCTAssertTrue(parts.contains("8 × Emergency light\n25.5 m Cable NYM 3×1.5"), "the line break is kept")
+        XCTAssertTrue(parts.contains("wrapText=\"1\""), "and the cell wraps")
+    }
+
+    func testTheWhoColumnIsInEveryExportLanguage() {
+        var seen = Set<String>()
+        for language in ExportLanguage.allCases {
+            let word = language(ExtraWorkTerm.who)
+            XCTAssertFalse(word.isEmpty, "\(language)")
+            seen.insert(word)
+        }
+        XCTAssertGreaterThan(seen.count, 5, "translated, not English everywhere")
     }
 
     func testTheJobsSheetMarksJobsStillInProgressAfterTheDoneOnes() {
         let table = document(inProgress: true).jobsTable()
-        XCTAssertEqual(table.columnHeadings(), ["Date", "Job", "Work and material", "Hours", "Status", "Confirmed on site"])
-        XCTAssertEqual(table.rows.map { $0.values[4] }, ["done", "done", "done", "in progress"])
+        XCTAssertEqual(table.columnHeadings(), ["Date", "Job", "Work and material", "Hours", "Who", "Status", "Confirmed on site"])
+        XCTAssertEqual(table.rows.map { $0.values[5] }, ["done", "done", "done", "in progress"])
         XCTAssertEqual(table.rows.last?.values[1], "Cable trays, plant room")
     }
 
@@ -268,18 +302,18 @@ final class ExtraWorkExportTests: XCTestCase {
         let page = document()
         let csv = String(decoding: CSVExporter.data(for: page.linesTable(), preferences: ExportPreferences(includeByteOrderMark: false)), as: UTF8.self)
         let lines = csv.split(separator: "\r\n").map(String.init)
-        XCTAssertEqual(lines.first, "Date,Job,Item,Quantity,Unit,Hours,Confirmed on site")
+        XCTAssertEqual(lines.first, "Date,Job,Item,Quantity,Unit,Hours,Who,Confirmed on site")
         XCTAssertEqual(lines.count, 1 + 5, "a line per item")
-        XCTAssertTrue(lines[1].contains("Emergency light,8,pcs"), lines[1])
+        XCTAssertTrue(lines[1].contains("Emergency light,8,pcs,3h,\"Ivan, Marko\""), lines[1])
         XCTAssertTrue(lines[2].contains("Cable NYM 3×1.5,25.5,m"), lines[2])
-        XCTAssertTrue(lines[1].contains("6h"), "the job's hours on its first line")
-        XCTAssertFalse(lines[2].contains("6h"), "and only there, so a sum does not count them twice")
+        XCTAssertFalse(lines[2].contains("3h"), "the job's time on its first line only, so a sum does not count it twice")
+        XCTAssertFalse(lines[2].contains("Ivan"))
     }
 
     func testTheCSVMarksJobsStillInProgress() {
         let page = document(inProgress: true)
-        XCTAssertEqual(page.linesTable().columnHeadings(), ["Date", "Job", "Item", "Quantity", "Unit", "Hours", "Status", "Confirmed on site"])
-        XCTAssertEqual(page.linesTable().rows.last?.values[6], "in progress")
+        XCTAssertEqual(page.linesTable().columnHeadings(), ["Date", "Job", "Item", "Quantity", "Unit", "Hours", "Who", "Status", "Confirmed on site"])
+        XCTAssertEqual(page.linesTable().rows.last?.values[7], "in progress")
     }
 
     func testTheCSVLeavesOutHoursWhenNoneWereNoted() {

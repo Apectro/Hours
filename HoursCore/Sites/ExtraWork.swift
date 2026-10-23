@@ -208,7 +208,50 @@ extension ExtraWorkItem: Codable {
     }
 }
 
-/// Someone's time on one job. Optional: only where it is billed.
+/// How long a job took: one time for the job, however many were on it —
+/// "it took us an hour" — in quarter-hour steps, or typed.
+enum ExtraWorkTime {
+    /// The stepper's step.
+    static let step = 15
+    /// A day: more than one job takes, so a slip of the thumb stops here.
+    static let maximum = 24 * 60
+
+    static func clamped(_ minutes: Int) -> Int {
+        min(max(minutes, 0), maximum)
+    }
+
+    /// The stepper's −/+: a quarter of an hour at a time, within a day.
+    static func stepped(_ minutes: Int, by steps: Int) -> Int {
+        clamped(minutes + steps * step)
+    }
+
+    /// What was typed: "1:30" as hours and minutes, "1.5" or "1,5" as hours.
+    /// `nil` when it is neither.
+    static func parse(_ text: String) -> Int? {
+        let cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleaned.isEmpty else { return nil }
+        if cleaned.contains(":") {
+            let parts = cleaned.split(separator: ":", omittingEmptySubsequences: false)
+            guard parts.count == 2,
+                  parts.allSatisfy({ !$0.isEmpty && $0.allSatisfy { $0.isASCII && $0.isNumber } }),
+                  let hours = Int(parts[0]), let minutes = Int(parts[1]), minutes < 60 else { return nil }
+            return clamped(hours * 60 + minutes)
+        }
+        guard let hours = ExtraWorkQuantity.parse(cleaned) else { return nil }
+        let minutes = NSDecimalNumber(decimal: hours * 60).doubleValue.rounded()
+        return clamped(Int(min(minutes, Double(maximum))))
+    }
+
+    /// What the field opens on: "1:30", or nothing for no time.
+    static func typingText(_ minutes: Int) -> String {
+        guard minutes > 0 else { return "" }
+        return String(format: "%d:%02d", minutes / 60, minutes % 60)
+    }
+}
+
+/// Someone's time on one job. Optional: only where it is noted. Since 1.1's
+/// editor sets one time for the job, everyone on it has the same minutes;
+/// older jobs can differ (see `ExtraWorkJob.duration`).
 struct ExtraWorkHours: Hashable, Codable, Sendable {
     /// A `CrewMember.id`, `CrewMember.youID`, or `nil` for a name typed in.
     var memberID: UUID?
@@ -369,7 +412,36 @@ struct ExtraWorkJob: Identifiable, Hashable, Sendable {
     }
 
     var hasHours: Bool { hours.contains { $0.minutes > 0 } }
-    var totalMinutes: Int { hours.reduce(0) { $0 + max(0, $1.minutes) } }
+
+    /// How long the job took, in minutes: the one time everyone on it
+    /// shares. A job written before there was one time per job can have
+    /// different minutes per person; it took as long as the longest. Never a
+    /// sum: two people for an hour is a one-hour job.
+    var duration: Int { hours.map(\.minutes).max().map { max(0, $0) } ?? 0 }
+
+    /// Who was on it: everyone with time on the job, in the order written.
+    var people: [String] { hours.filter { $0.minutes > 0 }.map(\.name) }
+
+    /// The job took `minutes`, and these people were on it — each stored
+    /// with that same time. Nobody chosen, or no time, keeps nothing once
+    /// cleaned.
+    func settingTime(_ minutes: Int, for people: [ExtraWorkHours]) -> ExtraWorkJob {
+        var copy = self
+        let time = ExtraWorkTime.clamped(minutes)
+        copy.hours = people.map { ExtraWorkHours(memberID: $0.memberID, name: $0.name, minutes: time) }
+        return copy
+    }
+
+    /// "1h · Marijo Mikša, Dusko Bajlović": how long, then who. Empty when no
+    /// time was noted.
+    func timeLine(_ durations: DurationFormatting) -> String {
+        guard hasHours else { return "" }
+        let names = people
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        let time = durations.string(duration)
+        return names.isEmpty ? time : "\(time) · \(names.joined(separator: ", "))"
+    }
     var isSigned: Bool { clientSignature != nil }
 
     /// Nothing written and nothing counted: not worth storing.
