@@ -80,6 +80,7 @@ struct CrewPickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("crew-picker-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {

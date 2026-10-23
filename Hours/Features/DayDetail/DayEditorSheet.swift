@@ -23,6 +23,10 @@ struct DayEditorSheet: View {
 
     @State private var draft: DayRecord
     @State private var storedRecord: DayRecord?
+    /// The draft as it opened, to tell an edit from a glance: a swipe down
+    /// or Cancel after changing something asks first.
+    @State private var openedDraft: DayRecord?
+    @State private var isConfirmingDiscard = false
     @State private var hasLoaded = false
     /// The stored days of this day's week, read once on opening: a day's
     /// overtime after the contracted week depends on the days before it.
@@ -74,8 +78,10 @@ struct DayEditorSheet: View {
             .accessibilityIdentifier("day-editor")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("day-editor-cancel")
+                    Button("Cancel") {
+                        if hasChanges { isConfirmingDiscard = true } else { dismiss() }
+                    }
+                    .accessibilityIdentifier("day-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
@@ -101,11 +107,37 @@ struct DayEditorSheet: View {
                 "This month is closed",
                 isPresented: Binding(get: { refusal != nil }, set: { if !$0 { refusal = nil } })
             ) {
+                // Reopening here, where the refusal happened: the edit is
+                // still on screen, and Save works once the month is open.
+                // The alert is the confirmation; nothing is saved by it.
+                if let month = refusedMonth {
+                    Button(String(
+                        localized: "Reopen \(settingsStore.dateFormatting.monthTitle(month))",
+                        comment: "Button; the value is a month and year"
+                    )) {
+                        settingsStore.update { $0.monthLock.unlock(month) }
+                        refusal = nil
+                    }
+                    .accessibilityIdentifier("day-editor-reopen-month")
+                }
                 Button("OK", role: .cancel) { refusal = nil }
             } message: {
-                Text("Reopen it in Settings › Calculation if you need to change these hours.")
+                Text("Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.")
             }
             .task { load() }
+        }
+        // A sloppy swipe in a glove must not throw away changed times.
+        .interactiveDismissDisabled(hasChanges)
+        // On the stack rather than beside the delete dialog on the form: two
+        // dialogs on one view is asking for one of them not to show.
+        .confirmationDialog(
+            "Discard changes?",
+            isPresented: $isConfirmingDiscard,
+            titleVisibility: .visible
+        ) {
+            Button("Discard", role: .destructive) { dismiss() }
+                .accessibilityIdentifier("day-editor-discard")
+            Button("Keep editing", role: .cancel) {}
         }
         // The site screen's menu opens the crew through this, onto the same
         // path of values (see `OpenSiteCrewAction`).
@@ -113,6 +145,24 @@ struct DayEditorSheet: View {
     }
 
     // MARK: - Derived
+
+    /// Only what is typed in here: site shifts follow their site day and
+    /// change under the editor when it opens a site, which is not an edit.
+    private var hasChanges: Bool {
+        guard let openedDraft else { return false }
+        return Self.ownPart(of: draft) != Self.ownPart(of: openedDraft)
+    }
+
+    private static func ownPart(of record: DayRecord) -> DayRecord {
+        var record = record
+        record.shifts = record.shifts.filter { $0.siteID == nil }
+        return record
+    }
+
+    private var refusedMonth: YearMonth? {
+        guard case let .monthIsClosed(month)? = refusal as? MonthLock.Refusal else { return nil }
+        return month
+    }
 
     private var holidays: [HolidayRule] { holidayRecords.map(\.rule) }
 
@@ -201,6 +251,7 @@ struct DayEditorSheet: View {
         if startsWorking, !draft.shifts.contains(where: { $0.siteID == nil }), draft.manualWorkedMinutes == nil {
             draft.shifts.append(settingsStore.settings.prefilledShift(on: date))
         }
+        openedDraft = draft
     }
 
     private func save() {

@@ -33,6 +33,7 @@ struct SettingsScreen: View {
                                 )
                             }
                             .tint(.primary)
+                            .accessibilityIdentifier("settings-pro")
                         } footer: {
                             if !subscriptions.isPro {
                                 Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
@@ -70,6 +71,7 @@ struct SettingsScreen: View {
                                 systemImage: "calendar.badge.clock"
                             )
                         }
+                        .accessibilityIdentifier("settings-schedule")
                         NavigationLink {
                             LeaveSettingsScreen()
                         } label: {
@@ -100,23 +102,26 @@ struct SettingsScreen: View {
                                 systemImage: "bag"
                             )
                         }
+                        .accessibilityIdentifier("settings-jobs")
                         NavigationLink {
                             CalculationSettingsScreen()
                         } label: {
                             SettingsRow(
-                                title: String(localized: "Calculation"),
+                                title: String(localized: "Balance & rounding"),
                                 value: settings.durationPolicy.title,
                                 systemImage: "function"
                             )
                         }
+                        .accessibilityIdentifier("settings-calculation")
                     }
 
-                    Section("Tracking") {
+                    Section("Calendar & days") {
                         NavigationLink {
                             TrackingSettingsScreen()
                         } label: {
                             SettingsRow(title: String(localized: "Fields"), value: fieldsSummary, systemImage: "slider.horizontal.3")
                         }
+                        .accessibilityIdentifier("settings-fields")
                         NavigationLink {
                             DayTypeSettingsScreen()
                         } label: {
@@ -126,25 +131,15 @@ struct SettingsScreen: View {
                                 systemImage: "tag"
                             )
                         }
-                        NavigationLink {
-                            ReminderSettingsScreen()
-                        } label: {
-                            SettingsRow(
-                                title: String(localized: "Reminders"),
-                                value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
-                                systemImage: "bell"
-                            )
-                        }
+                        .accessibilityIdentifier("settings-day-types")
                         if settings.features.trackHolidays {
                             NavigationLink {
                                 HolidaySettingsScreen()
                             } label: {
                                 SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
                             }
+                            .accessibilityIdentifier("settings-holidays")
                         }
-                    }
-
-                    Section("Appearance") {
                         NavigationLink {
                             CalendarSettingsScreen()
                         } label: {
@@ -156,18 +151,12 @@ struct SettingsScreen: View {
                                 systemImage: "square.grid.3x3"
                             )
                         }
-                        NavigationLink {
-                            AppearanceSettingsScreen()
-                        } label: {
-                            SettingsRow(
-                                title: String(localized: "Theme"),
-                                value: settings.appearance.title,
-                                systemImage: "circle.lefthalf.filled"
-                            )
-                        }
+                        .accessibilityIdentifier("settings-calendar")
                     }
 
-                    Section("Export") {
+                    // Reminders sit with what they remind you of: the site
+                    // sheet on the 1st, extra work not sent, a week with gaps.
+                    Section("Reports & reminders") {
                         NavigationLink {
                             ExportSettingsScreen()
                         } label: {
@@ -180,11 +169,32 @@ struct SettingsScreen: View {
                                 systemImage: "tablecells"
                             )
                         }
+                        .accessibilityIdentifier("settings-export-options")
                         .id(Self.exportRow)
                         .tourTarget(.settingsExport)
+                        NavigationLink {
+                            ReminderSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Reminders"),
+                                value: settings.reminders.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                                systemImage: "bell"
+                            )
+                        }
+                        .accessibilityIdentifier("settings-reminders")
                     }
 
-                    Section("Data") {
+                    Section("App") {
+                        NavigationLink {
+                            AppearanceSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Theme"),
+                                value: settings.appearance.title,
+                                systemImage: "circle.lefthalf.filled"
+                            )
+                        }
+                        .accessibilityIdentifier("settings-theme")
                         // Shown in every build compiled with sync, even one not
                         // signed for it, where the screen says why it cannot.
                         if SyncPreference.offer != .hidden {
@@ -197,12 +207,14 @@ struct SettingsScreen: View {
                                     systemImage: "icloud"
                                 )
                             }
+                            .accessibilityIdentifier("settings-icloud")
                         }
                         NavigationLink {
                             DataSettingsScreen()
                         } label: {
                             SettingsRow(title: String(localized: "Backup and data"), value: nil, systemImage: "externaldrive")
                         }
+                        .accessibilityIdentifier("settings-data")
                         NavigationLink {
                             AboutScreen()
                         } label: {

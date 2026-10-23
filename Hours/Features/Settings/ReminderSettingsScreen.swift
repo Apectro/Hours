@@ -19,7 +19,7 @@ struct ReminderSettingsScreen: View {
             } footer: {
                 Text(authorizationDenied
                      ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                     : "The calendar already marks a working day with nothing on it. This tells you without having to look.")
+                     : "A weekly note if a working day has no hours.")
             }
 
             if settings.reminders.isEnabled {
@@ -42,7 +42,7 @@ struct ReminderSettingsScreen: View {
                         in: 1...90
                     )
                 } footer: {
-                    Text("How far back to check. Days you have marked as excluded, and days that are not working days, are never counted as missing.")
+                    Text("Days you excluded and days off never count as missing.")
                 }
             }
 
@@ -60,14 +60,14 @@ struct ReminderSettingsScreen: View {
                 }
 
                 Section {
-                    Toggle("Monthly sheet for the director", isOn: sheetEnabledBinding)
+                    Toggle("Monthly site sheet", isOn: sheetEnabledBinding)
                     if settings.reminders.monthlySheetEnabled {
                         DatePicker("Time", selection: sheetTimeBinding, displayedComponents: .hourAndMinute)
                     }
                 } footer: {
                     Text(sheetAuthorizationDenied
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.")
+                         : "On the 1st, a note for each site from last month that its site sheet is ready. Tap it to open the sheet.")
                 }
 
                 // Off by default: not everyone with a site writes extra work.
@@ -84,7 +84,7 @@ struct ReminderSettingsScreen: View {
                 } footer: {
                     Text(unsentAuthorizationDenied
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "Once a week, a note when finished extra work has not been sent to your boss yet. Tapping it opens the report.")
+                         : "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.")
                 }
             }
         }

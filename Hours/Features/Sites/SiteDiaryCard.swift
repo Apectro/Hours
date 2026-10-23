@@ -60,9 +60,17 @@ struct SiteDiaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
-            Text("Site diary")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
+            // Says up front how it differs from the day's note above: the
+            // note is one line in the hours, the diary is pages of its own.
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Site diary")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Weather, work, photos. Printed on its own pages with the site sheet.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 weatherSection
@@ -77,11 +85,6 @@ struct SiteDiaryCard: View {
                 Divider()
                 photoRow
             }
-
-            Text("Printed after the hours on the director's sheet when you choose to include it.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(Metrics.large)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,9 +100,11 @@ struct SiteDiaryCard: View {
                 .ignoresSafeArea()
         }
         .sheet(item: $viewing) { photo in
-            DiaryPhotoViewer(photo: photo, canRemove: canEdit) {
-                remove(photo)
-            }
+            PhotoViewerSheet(
+                data: photo.data,
+                spokenName: String(localized: "Site diary photo"),
+                onRemove: canEdit ? { remove(photo) } : nil
+            )
         }
     }
 
@@ -370,50 +375,4 @@ struct DiaryThumbnail: Identifiable {
     let image: UIImage
     /// The stored JPEG, for the full-size view.
     let data: Data
-}
-
-/// One diary photo, large, with a way to remove it.
-private struct DiaryPhotoViewer: View {
-    let photo: DiaryThumbnail
-    let canRemove: Bool
-    let onRemove: () -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var confirmsRemoval = false
-
-    var body: some View {
-        NavigationStack {
-            Group {
-                if let image = UIImage(data: photo.data) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .accessibilityLabel(String(localized: "Site diary photo"))
-                } else {
-                    Color.hoursCanvas
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.hoursCanvas)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
-                if canRemove {
-                    ToolbarItem(placement: .destructiveAction) {
-                        Button(role: .destructive) {
-                            confirmsRemoval = true
-                        } label: {
-                            Label("Remove photo", systemImage: "trash")
-                        }
-                        .accessibilityIdentifier("site-diary-remove-photo")
-                    }
-                }
-            }
-            .confirmationDialog("Remove this photo?", isPresented: $confirmsRemoval, titleVisibility: .visible) {
-                Button("Remove photo", role: .destructive, action: onRemove)
-            }
-        }
-    }
 }

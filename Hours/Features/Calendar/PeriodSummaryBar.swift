@@ -10,6 +10,8 @@ struct PeriodSummaryBar: View {
     let catalog: DayTypeCatalog
     /// When set, what was earned takes the balance's place.
     var earnings: EarningsSummary? = nil
+    /// Sends these figures: Export, opened on this period.
+    var onExport: (() -> Void)? = nil
 
     private var formatting: DurationFormatting { settings.displayFormatting }
 
@@ -20,19 +22,22 @@ struct PeriodSummaryBar: View {
                     label: String(localized: "Worked"),
                     value: formatting.string(summary.workedMinutes),
                     caption: settings.features.trackExpectedHours
-                        ? "of \(formatting.string(summary.expectedMinutes))"
+                        ? String(
+                            localized: "of \(formatting.string(summary.expectedMinutes))",
+                            comment: "Under the hours worked: the hours planned for the period"
+                        )
                         : nil
                 )
 
                 if let earnings {
-                    Divider().frame(height: 34)
+                    Divider()
                     StatTile(
                         label: String(localized: "Earned"),
                         value: settings.money.string(earnings.totalCents, showsCents: false),
                         caption: earnedCaption
                     )
                 } else if settings.features.showsBalance {
-                    Divider().frame(height: 34)
+                    Divider()
                     StatTile(
                         label: String(localized: "Balance"),
                         value: formatting.signedString(summary.balanceMinutes),
@@ -41,19 +46,36 @@ struct PeriodSummaryBar: View {
                     )
                 }
 
-                Divider().frame(height: 34)
+                Divider()
                 StatTile(
                     label: String(localized: "Average"),
                     value: formatting.string(summary.averageWorkedMinutesPerWorkedDay),
                     caption: String(localized: "per day worked")
                 )
             }
+            // The dividers run the height of the tallest tile, at any text
+            // size, instead of a fixed 34 points that looked broken at the
+            // accessibility sizes.
+            .fixedSize(horizontal: false, vertical: true)
 
-            if !countsLine.isEmpty {
-                Text(countsLine)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .center, spacing: Metrics.small) {
+                if !countsLine.isEmpty {
+                    Text(countsLine)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                if let onExport {
+                    Button(action: onExport) {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityIdentifier("calendar-summary-export")
+                }
             }
         }
     }

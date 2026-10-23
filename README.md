@@ -73,7 +73,7 @@ turns it into a picture; nothing about anybody else's hours is in it.
 **Sites** — a site's crew is entered once and the day's times once for all of
 them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
-month says its sheet is ready for the director, and opens it.
+month says its site sheet is ready for the boss, and opens it.
 
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
@@ -390,6 +390,11 @@ English and German, and lays the set out for upload under `app-store/` on the
 app launched on an Apple Watch simulator with sample data, once per line of
 `fastlane/watch-screenshots.txt`. The app is iPhone-only, so no iPad set is
 needed.
+
+For a design review, run the workflow by hand with **screen_atlas** ticked:
+`ScreenAtlasTests` photographs every screen and state, in light, dark, the
+largest text size and Croatian, into the `screen-atlas` artifact. Nothing
+else runs in that mode.
 
 `fastlane/screenshots.txt` names the version the set is for (`# listing for
 version 1.1`), and the *App Store* workflow uploads a set only when that

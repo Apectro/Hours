@@ -380,11 +380,15 @@ private struct YearReviewShareImage: View {
 }
 
 /// The late-December card on Insights: an offer, not a notification. Opening
-/// it or putting it away puts it away for the year.
+/// it or putting it away puts it away for the year. Without `dismiss` the
+/// same card heads Insights › Year, where the review always is.
 struct YearReviewInvitation: View {
     let year: Int
     let open: () -> Void
-    let dismiss: () -> Void
+    /// Nil where the card is part of the screen (Insights › Year) rather
+    /// than a seasonal offer that can be put away.
+    var dismiss: (() -> Void)?
+    var identifier = "insights-year-review-invitation"
 
     var body: some View {
         HStack(spacing: Metrics.medium) {
@@ -408,18 +412,21 @@ struct YearReviewInvitation: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("insights-year-review-invitation")
+            .accessibilityIdentifier(identifier)
 
-            Button(action: dismiss) {
-                Image(systemName: "xmark")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(YearReviewPalette.mist)
-                    .frame(width: 44, height: 44)
+            if let dismiss {
+                Button(action: dismiss) {
+                    Image(systemName: "xmark")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(YearReviewPalette.mist)
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(String(localized: "Not now"))
+                .accessibilityIdentifier("insights-year-review-dismiss")
             }
-            .accessibilityLabel(String(localized: "Not now"))
-            .accessibilityIdentifier("insights-year-review-dismiss")
         }
         .padding(.leading, Metrics.large)
+        .padding(.trailing, dismiss == nil ? Metrics.large : 0)
         .padding(.vertical, Metrics.small)
         .background(YearReviewPalette.background, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
     }

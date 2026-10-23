@@ -46,10 +46,13 @@ struct SameAsYesterdayControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: ControlKind.sameAsYesterday, provider: SameAsYesterdayProvider()) { link in
             ControlWidgetButton(action: OpenURLIntent(link.url)) {
-                Label("Same as yesterday", systemImage: "arrow.uturn.backward.circle")
+                // "Same as last day", the site screen's own words: the
+                // control cannot know the gap, and on a Monday it copies
+                // Friday.
+                Label("Same as last day", systemImage: "arrow.uturn.backward.circle")
             }
         }
-        .displayName("Same as yesterday")
+        .displayName("Same as last day")
         .description("Opens today on your site, filled in like the last day.")
     }
 }

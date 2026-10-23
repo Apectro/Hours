@@ -546,8 +546,41 @@ Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is 
 primary surface and opens on the current month; tapping a day reveals an inline
 summary beneath the grid, and opening it presents the editor as a sheet so the
 month never leaves the screen. Sites lists each active job site with its crew
-and this month's figures, and leads to the site and its crew list. Export is
-reachable from the calendar toolbar and from Settings.
+and this month's figures, and leads to the site and its crew list; while
+today is unwritten a card also offers "Same as last day", which pushes the
+same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen
+puts the selected day first: the day's week (the whole month on request),
+the day's crew, bad weather, extra work, the diary, and the month's figures
+last. Export is reachable from the calendar toolbar and from Settings.
+
+**The calendar, top to bottom (1.1).** The grid, then the selected day's card
+(its Write hours / Edit day button must be on screen when a day is tapped),
+then the period's totals with their own Export button, then the week list in
+week view. A clearly sideways swipe on the grid pages the period, as the
+toolbar arrows do; it is a simultaneous gesture, so scrolling and cell taps are
+untouched. Export has its own toolbar button; ⋯ keeps the view, Edit a range,
+and **Close / Reopen** for the month on screen (`MonthLock.offer(for:today:)`:
+only a finished month can be closed, any closed month can be reopened, the
+reopen asks once more). A closed month shows a notice above the grid with
+Reopen. Settings › Balance & rounding keeps a Closed months row that opens the full
+list (`ClosedMonthsScreen`). The day editor's and the bulk edit's "this month is
+closed" alerts reopen the month in place; the edit stays on screen and Save
+works afterwards. The site day does the same: its closed-month notice has
+Reopen (asking first), and its refusal alert offers Reopen for that month.
+
+**Photo viewer.** One sheet (`Shared/PhotoViewerSheet`) shows a photo large for
+the site diary and the extra-work editor alike: Done top right, a confirmed
+bin top left when the photo can be removed.
+
+**Export's range steps.** Day, week, month and year each have ‹ › that move a
+whole period (`ExportRangeKind.step`, `canStepForward` — never into a period
+that has not started). `PeriodStepper` is the one stepper control; a site's
+sheet uses it for its month.
+
+**The day editor keeps edits.** Swipe-down is disabled while the draft differs
+from what it opened with (site shifts excluded: they follow the site day), and
+Cancel asks "Discard changes?". Expected hours, corrections and "Count this day"
+sit under one "More" row at the bottom, opened whenever any of them is in use.
 
 ## Widgets and the Live Activity
 
@@ -661,8 +694,8 @@ line of `fastlane/watch-screenshots.txt` and saves the screen with `simctl`.
 Four kinds of local notification, each planned in the engine and scheduled by
 `ReminderScheduler`, under its own identifier prefix so each can be replaced
 without touching the others: the weekly gap reminder (`GapFinder`), the evening
-site reminder (`SiteReminderPlan`), the note on the 1st that a site's sheet
-is ready for the director (`MonthlySheetReminderPlan`), and the weekly note
+site reminder (`SiteReminderPlan`), the note on the 1st that a site sheet
+is ready for the boss (`MonthlySheetReminderPlan`), and the weekly note
 that finished extra work has not been sent to the boss
 (`ExtraWorkReminderPlan`). None of them asks for permission until its switch is
 turned on; the two site ones are on by default and simply schedule nothing
@@ -794,8 +827,11 @@ afterwards the fingerprint no longer matches and the sign-off and the sheet say
 
 Signing is optional. The site export has a **Signatures** switch (remembered in
 `@AppStorage("export.siteSignatures")`, on by default); off, `SiteSheetBuilder`
-leaves out both the line to sign on and the sign-off boxes, and the sign-off
-screen is not offered. Signatures already given stay stored.
+leaves out both the line to sign on and the sign-off boxes, and the export's
+sign-off row stays, greyed, saying it is turned off for that sheet. Signatures
+already given stay stored. The sign-off is also in the site's own menu, as a
+sheet with a month stepper that opens on `SignOff.defaultMonth` (last month
+during the first ten days, this month after). Removing a signature asks first.
 
 ## Extra work
 
@@ -837,7 +873,8 @@ the report. Builds of 1.1 before it shipped had a third status, invoiced; a
 stored "invoiced" reads as sent. A job sent while in progress and finished since
 (`doneAt` after `sentAt`) is `awaitsReport` again: the boss heard it was under
 way, not that it is done. A job shows at most two chips — In progress / Finished,
-then Sent or Signed.
+then Sent or Signed (grey) — through `ExtraWorkChips` everywhere, the report
+included.
 
 The report (`ExtraWorkReport`, pure) is one site's finished jobs — not sent yet
 (every finished job the boss does not have, whatever its date), this week, or
@@ -845,8 +882,15 @@ picked dates — and those still in progress only when "Include jobs still in
 progress" is on; `ExtraWorkReport` keeps them apart (`done`, `inProgress`).
 Material is summed per item and unit over both: case, accents and spacing do not
 make a new item (`ExtraWorkCatalog.key`), and a line is named as it was most
-recently written. The report screen lists every job on the site still in
-progress at the top, whatever the range, each with its checkmark.
+recently written. The report screen ("Extra-work report") puts the site and
+what it carries first, then the range, then the jobs; every job on the site
+still in progress, whatever the range, is one line under the title that opens
+in place to a list with checkmarks. A new job starts in progress, so a report
+left empty only by jobs in progress (`ExtraWorkRange.leftInProgress`) says how
+many, with "Include them" (turns the switch on) and "Mark finished…" (lists
+them with their checkmarks) instead of "Nothing to report". One button sends
+the PDF ("Send to boss · PDF"); the picture, Excel and CSV are in a "More
+formats" menu beside it.
 `ExtraWorkDocument` turns a report into the export language's words — "Extra
 work done · dates", the work done day by day with its photos first, then a
 "Still in progress" section if any, then the material used as a summary; tiles
@@ -1015,6 +1059,21 @@ answer travels in the snapshot the app already writes. It defaults closed, which
 is what makes a file written by an older version read as unpaid rather than as a
 free pass.
 
+## Look
+
+`Hours/Features/Shared/DesignSystem.swift` holds the spacing scale (`Metrics`:
+tiny 4, small 8, medium 12, large 16, extraLarge 24; corner radii 14 for cards,
+10 for smaller tiles, `chipCornerRadius` 8 for status chips) and the semantic
+colours. `hoursNegative` and `hoursPositive` are asset colours
+(`HoursWarningText`, `HoursPositiveText`) that pass contrast as text in Light
+mode — system orange and green on white do not, which matters in sunlight —
+and are the system colours in Dark; `hoursNegativeFill` is the bright orange,
+for washes only. A scrolling screen that is not a `Form` is `SectionHeading`
+over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
+every in-scroll section. Sheets that write something have Cancel on the left
+and Save (or a more precise verb, such as Sign) on the right; sheets that only
+show or share have Done on the right.
+
 ## Text and tests
 
 **Strings the user reads go through a String Catalog.** One per bundle: the app
@@ -1061,3 +1120,15 @@ whatever is on the machine running it, and would write to it.
 Elements are matched by accessibility identifier, not by label. The labels are
 sentences that will be translated; the identifiers are dates and roles that
 will not.
+
+**The screen atlas** (`ScreenAtlasTests`) is a picture of every screen and
+state for a design review: the sample month in every tab, each sheet and menu,
+every Settings screen, the paywall, each first-run step and tour stop, and the
+empty states. It is skipped unless the runner's environment has
+`HOURS_SCREEN_ATLAS=1`; `HOURS_ATLAS_ARGUMENTS` adds launch arguments to every
+launch. CI runs it alone when the `screen_atlas` input is set, in four passes
+(light, dark, accessibility text size, Croatian), and keeps the PNGs as the
+`screen-atlas` artifact, `<pass>/atlas-NN-<screen>.png`. It never stops at a
+missing element: what it could not reach is listed in one failure at the end.
+A new screen gets an identifier on its button (never on a container holding
+buttons, which hands it down to them) and a line in the atlas.

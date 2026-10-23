@@ -102,17 +102,13 @@ struct WeekBars: View {
         HStack(alignment: .bottom, spacing: 7) {
             ForEach(bars, id: \.date) { bar in
                 VStack(spacing: 5) {
-                    Text(bar.minutes > 0 ? formatting.string(bar.minutes) : " ")
-                        .font(.system(size: 9, design: .rounded).monospacedDigit())
-                        .foregroundStyle(WidgetPalette.mist)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                    BarValue(minutes: bar.minutes, formatting: formatting)
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .fill(fill(for: bar))
                         .frame(height: height(for: bar))
                         .widgetAccentable(bar.isToday)
                     Text(weekdayLetter(bar.date))
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundStyle(bar.isToday ? WidgetPalette.amber : WidgetPalette.mist)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -140,5 +136,37 @@ struct WeekBars: View {
     private func weekdayLetter(_ date: CalendarDate) -> String {
         CalendarFormatting(locale: .current, calendar: calendar)
             .veryShortWeekdaySymbol(for: date.weekday(in: calendar))
+    }
+}
+
+/// The hours above a bar, never smaller than 11pt: 9pt could not be read
+/// outdoors. Where "8:30" does not fit the bar's width it becomes the
+/// nearest whole hour, and where even that does not fit it is left out.
+/// The bar's accessibility value always has the exact figure.
+private struct BarValue: View {
+    let minutes: Int
+    let formatting: DurationFormatting
+
+    var body: some View {
+        Group {
+            if minutes > 0 {
+                ViewThatFits(in: .horizontal) {
+                    label(formatting.string(minutes))
+                    label(String((minutes + 30) / 60))
+                    label(" ")
+                }
+            } else {
+                label(" ")
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func label(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.system(size: 11, design: .rounded).monospacedDigit())
+            .foregroundStyle(WidgetPalette.mist)
+            .lineLimit(1)
+            .fixedSize()
     }
 }

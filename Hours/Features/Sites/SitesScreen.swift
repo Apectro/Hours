@@ -156,16 +156,14 @@ private struct SitesContent: View {
                 }
 
                 ForEach(activeSites) { site in
-                    NavigationLink(value: SiteRoute(siteID: site.id)) {
-                        SiteCard(
-                            site: site,
-                            coworkers: loaded.crewCounts[site.id] ?? 0,
-                            days: loaded.days[site.id] ?? [],
-                            isReadOnly: subscriptions.isReadOnly(site, among: loaded.sites)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("site-card")
+                    let isReadOnly = subscriptions.isReadOnly(site, among: loaded.sites)
+                    SiteCard(
+                        site: site,
+                        coworkers: loaded.crewCounts[site.id] ?? 0,
+                        days: loaded.days[site.id] ?? [],
+                        isReadOnly: isReadOnly,
+                        offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
+                    )
                     .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
                 }
 
@@ -257,6 +255,9 @@ private struct SitesContent: View {
             Text("Archived")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                // On the label, which is the control that opens the
+                // section; never on the group, which holds the site links.
+                .accessibilityIdentifier("sites-archived")
         }
         .padding(.top, Metrics.medium)
     }
@@ -304,11 +305,21 @@ private struct SitesContent: View {
         for site in sites {
             counts[site.id] = repository.crew(for: site.id, includeHidden: false).count
         }
-        loaded = LoadedSites(
-            sites: sites,
-            crewCounts: counts,
-            days: Dictionary(grouping: repository.siteDays(siteID: nil, in: range), by: \.siteID)
-        )
+        let days = Dictionary(grouping: repository.siteDays(siteID: nil, in: range), by: \.siteID)
+        // Where the card's "Same as last day" would do what the site's own
+        // button does: today open to changes, nothing written for it yet,
+        // and an earlier day to copy.
+        let today = CalendarDate.today(in: settingsStore.workCalendar)
+        var canCopy = Set<UUID>()
+        if !settingsStore.settings.monthLock.isLocked(today) {
+            for site in sites where !site.isArchived {
+                let writtenToday = days[site.id]?.contains { $0.date == today } ?? false
+                if !writtenToday, repository.lastSiteDay(siteID: site.id, before: today) != nil {
+                    canCopy.insert(site.id)
+                }
+            }
+        }
+        loaded = LoadedSites(sites: sites, crewCounts: counts, days: days, canCopyLastDay: canCopy)
     }
 }
 
@@ -323,10 +334,17 @@ private struct LoadedSites {
     var sites: [Site] = []
     var crewCounts: [UUID: Int] = [:]
     var days: [UUID: [SiteDay]] = [:]
+    /// Active sites whose today can be filled from their last day.
+    var canCopyLastDay: Set<UUID> = []
 }
 
 /// One active site, as screen 1 of the mockup draws it, with a line saying
 /// whether today has been written up on it.
+///
+/// The upper part opens the site. While today is still to be written and
+/// there is a day to copy, the card also offers "Same as last day" — the
+/// site's own button, by the same route the site widget uses — and "Open",
+/// so the commonest day on a site is one tap from the list.
 private struct SiteCard: View {
     let site: Site
     /// The crew offered for a new day, not counting you. People hidden from
@@ -334,55 +352,110 @@ private struct SiteCard: View {
     let coworkers: Int
     let days: [SiteDay]
     let isReadOnly: Bool
+    let offersSameAsLastDay: Bool
 
     @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
         SurfaceCard {
             VStack(alignment: .leading, spacing: Metrics.medium) {
-                HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                    Text(site.name)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
+                NavigationLink(value: SiteRoute(siteID: site.id)) {
+                    summary
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("site-card")
 
-                Text(crewLine)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                todayLine
-
-                HStack(alignment: .top, spacing: Metrics.small) {
-                    StatTile(
-                        label: String(localized: "Days this month"),
-                        value: "\(days.count)"
-                    )
-                    Divider().frame(height: 34)
-                    StatTile(
-                        label: String(localized: "Crew hours"),
-                        value: settingsStore.settings.displayFormatting.string(crewMinutes)
-                    )
-                }
-
-                if isReadOnly {
-                    Label {
-                        Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
-                    } icon: {
-                        Image(systemName: "lock.fill")
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                if offersSameAsLastDay {
+                    actions
                 }
             }
         }
-        .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
+    private var summary: some View {
+        VStack(alignment: .leading, spacing: Metrics.medium) {
+            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                Text(site.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+
+            Text(crewLine)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            todayLine
+
+            HStack(alignment: .top, spacing: Metrics.small) {
+                StatTile(
+                    label: String(localized: "Days this month"),
+                    value: "\(days.count)"
+                )
+                Divider().frame(maxHeight: .infinity)
+                StatTile(
+                    label: String(localized: "Crew hours"),
+                    value: settingsStore.settings.displayFormatting.string(crewMinutes)
+                )
+            }
+            // The divider as tall as the taller tile, at any text size.
+            .fixedSize(horizontal: false, vertical: true)
+
+            if isReadOnly {
+                Label {
+                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                } icon: {
+                    Image(systemName: "lock.fill")
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
+    }
+
+    /// Links by value, like the card itself, so they push onto the Sites
+    /// stack. Side by side while they fit, one above the other otherwise.
+    private var actions: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.small) {
+                sameAsLastDayLink
+                openLink
+            }
+            VStack(spacing: Metrics.small) {
+                sameAsLastDayLink
+                openLink
+            }
+        }
+    }
+
+    private var sameAsLastDayLink: some View {
+        NavigationLink(value: SiteRoute(siteID: site.id, appliesSameAsLastDay: true)) {
+            Label("Same as last day", systemImage: "arrow.uturn.backward.circle")
+                .font(.body.weight(.semibold))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .buttonStyle(.borderedProminent)
+        .accessibilityIdentifier("site-card-same-as-last")
+    }
+
+    private var openLink: some View {
+        NavigationLink(value: SiteRoute(siteID: site.id)) {
+            Text("Open")
+                .font(.body.weight(.medium))
+                .lineLimit(1)
+                .frame(minWidth: 64, minHeight: 44)
+        }
+        .buttonStyle(.bordered)
+        .accessibilityIdentifier("site-card-open")
     }
 
     /// Whether today is written up yet: the one thing worth knowing before

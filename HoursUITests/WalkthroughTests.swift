@@ -126,19 +126,18 @@ final class WalkthroughTests: XCTestCase {
             }
         }
 
-        // 6 — export, reached from the calendar's overflow menu. Last because
-        // it is the thing the app charges for.
+        // 6 — export, from its own button in the calendar's toolbar. Last
+        // because it is the thing the app charges for.
         app.tab(.calendar).tap()
         _ = app.tab(.calendar).waitForExistence(timeout: 10)
         pause(0.5)
-        app.buttons["calendar-more"].tap()
-        let exportItem = app.buttons["calendar-export"]
-        if exportItem.waitForExistence(timeout: 5) {
+        let exportButton = app.buttons["calendar-export"]
+        if exportButton.waitForExistence(timeout: 5) {
             pause()
-            exportItem.tap()
+            exportButton.tap()
             if reached("export", app.screen("screen-export")) { pause(2.5) }
         } else {
-            XCTFail("the overflow menu has no Export item")
+            XCTFail("the calendar's toolbar has no Export button")
         }
 
         // A couple of seconds of the finished screen, so the video does not

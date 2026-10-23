@@ -38,10 +38,12 @@ final class SiteDayTests: XCTestCase {
         wait(for: marko, selected: true)
         XCTAssertFalse(app.buttons["site-times-Ivan"].label.contains("Left early"), "exceptions must not be copied")
 
-        // Marko was somewhere else today.
+        // Marko was somewhere else today. Someone not there has no times to
+        // change, so their clock button goes.
         marko.tap()
         wait(for: marko, selected: false)
-        XCTAssertTrue(app.buttons["site-times-Marko"].label.contains("Not here"))
+        XCTAssertTrue((marko.value as? String)?.contains("Not here") == true, "Marko should read as not here: \(String(describing: marko.value))")
+        XCTAssertFalse(app.buttons["site-times-Marko"].exists, "someone not there has no times to change")
 
         // Two people, eight hours each.
         let total = app.descendants(matching: .any)["site-crew-total"]
@@ -187,9 +189,10 @@ final class SiteDayTests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Taps a day's cell in the site's month and returns it. A day outside
-    /// the month on screen — yesterday on the 1st, say — may not be in the
-    /// grid at all, so the arrows move to its month first.
+    /// Taps a day's cell in the site's grid and returns it. The grid opens on
+    /// the selected day's week, so a day outside it — yesterday on the first
+    /// day of a week, say — is not there at all, and the arrows move to it
+    /// first: a week at a time while folded, a month while open.
     @discardableResult
     private func select(_ app: XCUIApplication, daysFromToday offset: Int) -> XCUIElement {
         let calendar = Calendar.current
@@ -198,9 +201,11 @@ final class SiteDayTests: XCTestCase {
         let key = (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
         let cell = app.buttons["site-day-\(key)"]
         if !cell.waitForExistence(timeout: 3) {
-            // The tests only ever step back from today's month and return to
-            // it, so the direction follows from the offset.
-            app.buttons[offset < 0 ? "site-month-previous" : "site-month-next"].tap()
+            // The tests only ever step back from today and return to it, so
+            // the direction follows from the offset.
+            let week = app.buttons[offset < 0 ? "site-week-previous" : "site-week-next"]
+            let month = app.buttons[offset < 0 ? "site-month-previous" : "site-month-next"]
+            (week.exists ? week : month).tap()
         }
         XCTAssertTrue(cell.waitForExistence(timeout: 5), "the site's month has no cell for \(key)")
         cell.tap()

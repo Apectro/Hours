@@ -17,6 +17,11 @@ struct ExtraWorkDaySection: View {
     /// Called after a job is written or removed, so the month grid can mark
     /// the day.
     let onChange: () -> Void
+    /// Opens the Extra-work report, which the site screen presents (the
+    /// same sheet as its toolbar button). With it, finished jobs the boss
+    /// has not had become a "Send to boss (3)" button in the header rather
+    /// than a count chip.
+    var onOpenReport: (() -> Void)? = nil
 
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
@@ -29,16 +34,30 @@ struct ExtraWorkDaySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Extra work")
-                    .font(.title3.weight(.bold))
-                    .accessibilityAddTraits(.isHeader)
+            // The title, with "Send to boss" beside it when there is
+            // something to send; the counts under it as chips, since on the
+            // title's line they wrapped into a ragged block.
+            HStack(alignment: .center, spacing: Metrics.small) {
+                SectionHeading("Extra work")
+                    // The listing's screenshot scrolls this to the top.
+                    .accessibilityIdentifier("extra-work-heading")
                 Spacer(minLength: Metrics.small)
-                Text(verbatim: countsLine)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("extra-work-counts")
+                if notSent > 0, let onOpenReport {
+                    Button(action: onOpenReport) {
+                        Text(String(
+                            localized: "Send to boss (\(notSent))",
+                            comment: "Extra work on a site day: opens the Extra-work report; the value is how many finished jobs the boss has not had yet"
+                        ))
+                        .font(.subheadline.weight(.semibold))
+                        .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .accessibilityIdentifier("extra-work-send-report")
+                }
             }
+
+            countChips
 
             if !jobs.isEmpty {
                 VStack(spacing: 0) {
@@ -74,6 +93,8 @@ struct ExtraWorkDaySection: View {
             }
 
             if canEdit {
+                // Bordered, not prominent: on the site screen the crew's
+                // "Same as last day" is the one filled button.
                 Button {
                     editing = ExtraWorkEditorRequest(job: nil)
                 } label: {
@@ -81,7 +102,7 @@ struct ExtraWorkDaySection: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 .controlSize(.large)
                 .accessibilityIdentifier("extra-work-add")
             } else if jobs.isEmpty {
@@ -105,19 +126,42 @@ struct ExtraWorkDaySection: View {
         }
     }
 
-    /// "This day: 2 · In progress: 1 · Not sent: 5", without a plural to
-    /// agree: the counts are labels, as on a tile. The last two are the
-    /// whole site's, so a job left in progress on another day is not lost.
-    private var countsLine: String {
-        let today = jobs.count
-        var parts = [String(localized: "This day: \(today)", comment: "Extra work on a site day: how many jobs on the selected day")]
-        if inProgress > 0 {
-            parts.append(String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"))
+    /// "This day: 2", "In progress: 1" and, where the header has no button
+    /// for it, "Not sent: 5" — labels rather than sentences, so no plural to
+    /// agree. The last two are the whole site's, so a job left in progress
+    /// on another day is not lost.
+    private var countChips: some View {
+        HStack(spacing: Metrics.tiny) {
+            countChip(
+                String(localized: "This day: \(jobs.count)", comment: "Extra work on a site day: how many jobs on the selected day"),
+                color: .secondary
+            )
+            if inProgress > 0 {
+                countChip(
+                    String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"),
+                    color: .hoursNegative
+                )
+            }
+            if notSent > 0, onOpenReport == nil {
+                countChip(
+                    String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"),
+                    color: .accentColor
+                )
+            }
         }
-        if notSent > 0 {
-            parts.append(String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"))
-        }
-        return parts.joined(separator: " · ")
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("extra-work-counts")
+    }
+
+    /// The jobs' own chip style (see `ExtraWorkChipView`).
+    private func countChip(_ title: String, color: Color) -> some View {
+        Text(verbatim: title)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(color)
+            .padding(.horizontal, Metrics.small)
+            .padding(.vertical, Metrics.tiny)
+            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
+            .fixedSize()
     }
 
     /// The checkmark: written at once, not under the month lock.
@@ -175,13 +219,13 @@ struct ExtraWorkJobCard: View {
             // "2 × P6" reads as a list, where a flow of chips side by side
             // read as one long line.
             if !job.items.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Metrics.small) {
                     ForEach(Array(job.items.enumerated()), id: \.offset) { _, item in
                         Text(verbatim: item.line(in: .device, decimalSeparator: ExtraWorkFormatting.decimalSeparator))
                             .font(.footnote)
                             .padding(.horizontal, Metrics.small)
                             .padding(.vertical, Metrics.tiny)
-                            .background(Color.hoursCanvas, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .background(Color.hoursCanvas, in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
                     }
                 }
             }
@@ -252,12 +296,12 @@ struct ExtraWorkProgressChip: View {
         .foregroundStyle(color)
         .padding(.horizontal, Metrics.small)
         .padding(.vertical, Metrics.tiny)
-        .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
         .fixedSize()
     }
 
     private var color: Color {
-        progress == .done ? .green : .orange
+        progress == .done ? .hoursPositive : .hoursNegative
     }
 }
 
@@ -281,7 +325,7 @@ struct ExtraWorkChipView: View {
             .foregroundStyle(color)
             .padding(.horizontal, Metrics.small)
             .padding(.vertical, Metrics.tiny)
-            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
             .fixedSize()
     }
 
@@ -312,7 +356,7 @@ struct ExtraWorkDoneButton: View {
         Button(action: action) {
             Image(systemName: job.isDone ? "checkmark.circle.fill" : "circle")
                 .font(.title2)
-                .foregroundStyle(job.isDone ? Color.green : Color.secondary)
+                .foregroundStyle(job.isDone ? Color.hoursPositive : Color.secondary)
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -361,7 +405,7 @@ enum ExtraWorkFormatting {
 
 /// Chips that wrap onto as many lines as they need.
 struct ExtraWorkFlow: Layout {
-    var spacing: CGFloat = 8
+    var spacing: CGFloat = Metrics.small
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let maxWidth = proposal.width ?? .infinity

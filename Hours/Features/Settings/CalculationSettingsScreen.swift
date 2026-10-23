@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// How the numbers are worked out.
+/// How the numbers are worked out: Settings › Balance & rounding.
 struct CalculationSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
@@ -64,13 +64,13 @@ struct CalculationSettingsScreen: View {
             } header: {
                 Text("Balance")
             } footer: {
-                Text("The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.")
+                Text("Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.")
             }
 
             carryOverSection
             monthLockSection
         }
-        .navigationTitle("Calculation")
+        .navigationTitle("Balance & rounding")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -127,56 +127,27 @@ struct CalculationSettingsScreen: View {
         } header: {
             Text("Year end")
         } footer: {
-            Text("Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.")
+            // A shortfall carries in full because forgiving it would invent
+            // hours nobody worked; later edits to a closed year no longer
+            // move what it handed over.
+            Text("Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.")
         }
     }
 
     // MARK: - Closing a month
 
-    /// Months whose timesheet has already been handed over.
-    ///
-    /// The list is the control: locking is adding a month, reopening is
-    /// swiping it away. A toggle per month would need somewhere to show every
-    /// month that ever existed.
-    @ViewBuilder
+    /// Closed months have their own screen (`ClosedMonthsScreen`), and the
+    /// month on screen closes and reopens from the calendar's ⋯ menu. This
+    /// row stays where people learned to look.
     private var monthLockSection: some View {
         Section {
-            if let month = lockableMonth {
-                Button {
-                    settingsStore.update { $0.monthLock.lock(month) }
-                } label: {
-                    Text(String(
-                        localized: "Close \(settingsStore.dateFormatting.monthTitle(month))",
-                        comment: "Button; the value is a month and year"
-                    ))
-                }
-            }
-
-            ForEach(settingsStore.settings.monthLock.months.sorted(by: >), id: \.self) { month in
-                Text(settingsStore.dateFormatting.monthTitle(month))
-            }
-            .onDelete(perform: reopenMonths)
-        } header: {
-            Text("Closed months")
+            ClosedMonthsRow()
         } footer: {
-            Text("A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.")
+            // It refuses edits from the day editor, a bulk edit, the clock and
+            // Siri alike: once a timesheet has been handed over, the days
+            // behind it changing quietly is how a disagreement starts.
+            Text("Close a month once its hours are handed over, so it can't change by mistake.")
         }
-    }
-
-    /// The most recent month that is over and not already closed. Only a
-    /// finished month, for the same reason only a finished year can be closed.
-    private var lockableMonth: YearMonth? {
-        let thisMonth = YearMonth(CalendarDate.today(in: settingsStore.workCalendar))
-        let closed = settingsStore.settings.monthLock.months
-        return (1...12)
-            .map { thisMonth.adding(months: -$0) }
-            .first { !closed.contains($0) }
-    }
-
-    private func reopenMonths(at offsets: IndexSet) {
-        let sorted = settingsStore.settings.monthLock.months.sorted(by: >)
-        let months = Set(offsets.map { sorted[$0] })
-        settingsStore.update { $0.monthLock.months.subtract(months) }
     }
 
     private var repository: WorkdayRepository { WorkdayRepository(context: modelContext) }

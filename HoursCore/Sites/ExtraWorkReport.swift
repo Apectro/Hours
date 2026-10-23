@@ -29,6 +29,19 @@ enum ExtraWorkRange: Hashable, Sendable {
             return onSite.filter { range.contains($0.date) }
         }
     }
+
+    /// The jobs still in progress this range would carry if they were
+    /// included: what a report left empty by them says it is leaving out
+    /// ("2 jobs still in progress · Include them").
+    func leftInProgress(
+        _ jobs: [ExtraWorkJob],
+        siteID: UUID,
+        today: CalendarDate,
+        calendar: Calendar
+    ) -> [ExtraWorkJob] {
+        select(jobs, siteID: siteID, today: today, calendar: calendar, includeInProgress: true)
+            .filter { !$0.isDone }
+    }
 }
 
 /// One item's material in total over a report.

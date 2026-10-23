@@ -81,6 +81,7 @@ ALLOWED = {
     "How am I doing in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "Clock in or out with \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "Same as yesterday in \\(.applicationName)": "AppShortcutPhrase; see the note above",
+    "Same as last day in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     "Write today in \\(.applicationName)": "AppShortcutPhrase; see the note above",
     # Looked up, as a LocalizedStringKey: "Since %@ · %@ so far" is in
     # translations.json. It cannot be String(localized:) because the second

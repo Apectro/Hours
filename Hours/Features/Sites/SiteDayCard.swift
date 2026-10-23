@@ -2,7 +2,7 @@ import SwiftUI
 
 /// One site day on one rounded surface (mockup board 4): the day and the
 /// crew's total, the site's times once for everyone, then each person with a
-/// tick, and the note at the bottom.
+/// tick, a way to the crew list, and the note at the bottom.
 ///
 /// Draws and reports, nothing more. Every change goes back to the site screen
 /// through a callback, because that is where the month lock, the refusal and
@@ -22,9 +22,17 @@ struct SiteDayCard: View {
     let durations: DurationFormatting
     @Binding var noteText: String
     var isNoteFocused: FocusState<Bool>.Binding
+    /// "Saved" beside the title, for a moment after each write.
+    var showsSaved = false
     let onToggle: (UUID) -> Void
     let onEditPerson: (PersonReference) -> Void
     let onEditTimes: () -> Void
+    /// Opens the site's crew list, to add someone or change a name.
+    let onEditCrew: () -> Void
+
+    // Not private: a private property would make the memberwise initializer
+    // the site screen calls private too.
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
@@ -32,16 +40,13 @@ struct SiteDayCard: View {
             timesRow
             warningsView
 
-            Text(String(
+            // The app's one section-heading style (`SectionHeading`), as
+            // "Extra work" below uses.
+            SectionHeading(verbatim: String(
                 localized: "Crew · \(result.people.count) of \(rows.count) here",
                 comment: "Above the crew on a site day; the values are how many were there and how many could have been"
             ))
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .tracking(0.4)
             .padding(.top, Metrics.tiny)
-            .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: Metrics.tiny) {
                 ForEach(rows) { row in
@@ -59,23 +64,38 @@ struct SiteDayCard: View {
                 }
             }
 
-            Text("Tap a name to tick or untick them. Tap their times to change just that person.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            // Open even when the day cannot be changed: the crew list says
+            // for itself what can be done there.
+            Button(action: onEditCrew) {
+                Label("Add or edit crew", systemImage: "person.badge.plus")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    .padding(.horizontal, Metrics.small)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .accessibilityIdentifier("site-day-edit-crew")
 
             Divider()
 
+            // The one line for this day that goes on the Site sheet. The
+            // diary below is the longer record, printed on pages of its own.
             VStack(alignment: .leading, spacing: Metrics.tiny) {
-                TextField("Notes", text: $noteText, axis: .vertical)
-                    .lineLimit(1...5)
-                    .focused(isNoteFocused)
-                    .disabled(!canEdit)
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("site-day-note")
-                Text("Printed with this day when the site is exported.")
-                    .font(.caption)
+                Text("Note on the sheet")
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
+                TextField(
+                    text: $noteText,
+                    prompt: Text("Short note printed in this day's row"),
+                    axis: .vertical
+                ) {
+                    Text("Note on the sheet")
+                }
+                .lineLimit(1...5)
+                .focused(isNoteFocused)
+                .disabled(!canEdit)
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("site-day-note")
             }
         }
         .padding(Metrics.large)
@@ -90,6 +110,13 @@ struct SiteDayCard: View {
             Text(title)
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
+            if showsSaved {
+                Label("Saved", systemImage: "checkmark")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .transition(.opacity)
+                    .accessibilityIdentifier("site-day-saved")
+            }
             Spacer(minLength: Metrics.small)
             if isWritten {
                 Text(durations.string(result.crewTotalMinutes))
@@ -112,23 +139,31 @@ struct SiteDayCard: View {
     // MARK: - Site times
 
     private var timesRow: some View {
-        Button(action: onEditTimes) {
-            HStack(spacing: Metrics.medium) {
+        // At the largest text sizes the times need the whole width, so
+        // "Change" goes underneath instead of squeezing them to "7:00 AM –…".
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Metrics.small))
+            : AnyLayout(HStackLayout(spacing: Metrics.medium))
+        return Button(action: onEditTimes) {
+            layout {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(timesText)
                         .font(.hoursFigure(.title2))
                         .foregroundStyle(.primary)
-                        .lineLimit(1)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                         .minimumScaleFactor(0.7)
                     Text(breakText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                Spacer(minLength: Metrics.small)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer(minLength: Metrics.small)
+                }
                 Text("Change")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(canEdit ? Color.accentColor : Color.secondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Metrics.medium)
             .frame(minHeight: 44)
             .background(
@@ -182,11 +217,12 @@ struct SiteDayCard: View {
 
 /// One person on a site day: who, their times, their hours and the tick.
 ///
-/// Two controls in one row, as before the redesign: the name, the initials
-/// and the tick all tick or untick, and the line of times under the name
-/// opens that person's own times. Only the name is exposed to VoiceOver as
-/// the tick, carrying the hours in its value, so the row is not read out
-/// three times over.
+/// The whole row is the tick, at least 56 points tall, so a gloved tap
+/// anywhere on it does the one thing a row does. Changing just this person's
+/// times is a separate 44-point clock button at the end, shown only while
+/// they are ticked — it used to be the line of times under the name, a
+/// 26-point target stacked on the name's, and a tap meant for it ticked the
+/// person out instead. The same is offered on a long press.
 struct SitePersonRow: View {
     let row: PersonReference
     let person: PersonDay?
@@ -205,46 +241,22 @@ struct SitePersonRow: View {
     private var isYou: Bool { row.id == CrewMember.youID }
 
     var body: some View {
-        HStack(spacing: Metrics.medium) {
+        HStack(spacing: 0) {
             Button(action: onToggle) {
-                initials
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .disabled(!canEdit)
-            .accessibilityHidden(true)
+                HStack(spacing: Metrics.medium) {
+                    initials
 
-            VStack(alignment: .leading, spacing: 0) {
-                Button(action: onToggle) {
-                    Text(row.name)
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity, minHeight: 26, alignment: .leading)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .disabled(!canEdit)
-                .accessibilityLabel(row.name)
-                .accessibilityValue(toggleValue)
-                .accessibilityAddTraits(isHere ? .isSelected : [])
-                .accessibilityIdentifier(isYou ? "site-person-you" : "site-person-\(row.name)")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(row.name)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(exception != nil ? Color.hoursNegative : Color.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .opacity(isHere ? 1 : 0.55)
 
-                Button(action: onEdit) {
-                    Text(subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(exception != nil ? Color.hoursNegative : Color.secondary)
-                        .frame(maxWidth: .infinity, minHeight: 26, alignment: .leading)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .disabled(!canEdit || !isHere)
-                .accessibilityIdentifier(isYou ? "site-times-you" : "site-times-\(row.name)")
-            }
-            .opacity(isHere ? 1 : 0.55)
-
-            Button(action: onToggle) {
-                HStack(spacing: Metrics.small) {
                     Text(person.map { durations.string($0.workedMinutes) } ?? "—")
                         .font(.hoursFigure(.subheadline, weight: .medium))
                         .foregroundStyle(isHere ? Color.primary : Color.secondary)
@@ -253,19 +265,57 @@ struct SitePersonRow: View {
                         .font(.title3)
                         .foregroundStyle(isHere ? Color.accentColor : Color.secondary)
                 }
-                .frame(minHeight: 44)
+                .padding(.vertical, Metrics.tiny)
+                .frame(minHeight: 56)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .disabled(!canEdit)
-            .accessibilityHidden(true)
+            // One element read as the name, with whether they are here and
+            // their hours as its value; the selected trait is the tick.
+            .accessibilityLabel(row.name)
+            .accessibilityValue(toggleValue)
+            .accessibilityAddTraits(isHere ? .isSelected : [])
+            .accessibilityIdentifier(isYou ? "site-person-you" : "site-person-\(row.name)")
+
+            if isHere {
+                Button(action: onEdit) {
+                    Image(systemName: "clock")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(canEdit ? Color.accentColor : Color.secondary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(!canEdit)
+                .padding(.leading, Metrics.tiny)
+                // Says whose times and what they are, so VoiceOver need not
+                // go back to the row to know what it would change.
+                .accessibilityLabel(Text("Change times") + Text(verbatim: ", \(row.name), \(subtitle)"))
+                .accessibilityIdentifier(isYou ? "site-times-you" : "site-times-\(row.name)")
+            }
         }
         .padding(.horizontal, Metrics.small)
-        .padding(.vertical, Metrics.tiny)
         .background(
-            exception != nil ? Color.hoursNegative.opacity(0.10) : Color.clear,
+            exception != nil ? Color.hoursNegativeFill.opacity(0.10) : Color.clear,
             in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
         )
+        .contextMenu {
+            if canEdit {
+                Button(action: onToggle) {
+                    if isHere {
+                        Label("Not here", systemImage: "circle")
+                    } else {
+                        Label("Here", systemImage: "checkmark.circle")
+                    }
+                }
+                if isHere {
+                    Button(action: onEdit) {
+                        Label("Change times", systemImage: "clock")
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Pieces

@@ -61,6 +61,11 @@ struct MetricRow: View {
 
 /// A quiet surface for content that sits outside a `List`. Used sparingly —
 /// the app leans on grouped lists, not on cards everywhere.
+///
+/// The standard for a scrolling screen that is not a `Form` (the site day,
+/// the extra-work editor and report): a `SectionHeading` over a surface with
+/// `Metrics.cornerRadius`, `Metrics.large` between blocks. A screen that is a
+/// plain list of settings or fields stays a `Form`.
 struct SurfaceCard<Content: View>: View {
     var padding: CGFloat = Metrics.large
     @ViewBuilder var content: Content
@@ -121,5 +126,34 @@ struct BalanceText: View {
                           comment: "VoiceOver, a balance in deficit")
         }
         return "on target"
+    }
+}
+
+/// The heading over a block of a scrolling screen: "CREW", "EXTRA WORK",
+/// "WORK DONE", "MATERIAL USED". One style for every in-scroll section, so a
+/// screen does not mix four; a card's own title (a date) stays `.headline`.
+///
+/// Footnote, semibold, secondary, upper case, a hair in from the cards'
+/// edge, and a heading for VoiceOver's rotor. It takes a `LocalizedStringKey`,
+/// so a literal is looked up like any `Text`.
+struct SectionHeading: View {
+    private let text: Text
+
+    init(_ key: LocalizedStringKey) {
+        text = Text(key)
+    }
+
+    /// For a heading already localized, or a name typed by the user.
+    init(verbatim: String) {
+        text = Text(verbatim: verbatim)
+    }
+
+    var body: some View {
+        text
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
+            .padding(.leading, Metrics.tiny)
+            .accessibilityAddTraits(.isHeader)
     }
 }

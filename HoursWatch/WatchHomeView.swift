@@ -97,7 +97,8 @@ private struct SecondaryLine: View {
         Group {
             switch secondary {
             case let .balance(text, isBehind):
-                Text(String(localized: "Month \(text)", comment: "Watch, the month's balance"))
+                // "Balance", as the phone names the same figure.
+                Text(String(localized: "Balance \(text)", comment: "Watch, the month's balance"))
                     .foregroundStyle(isBehind ? WatchPalette.stop : WatchPalette.positive)
             case let .earnings(text):
                 Text(String(localized: "\(text) month", comment: "Watch, what the month has earned"))

@@ -121,6 +121,14 @@ enum SignOffState: Hashable, Sendable {
 }
 
 enum SignOff {
+    /// The month the sign-off opens on when nothing else says which: the
+    /// month just gone during the first ten days of a month, when its sheet
+    /// is being handed in, and this month after that, when crews sign at the
+    /// end of it on site.
+    static func defaultMonth(today: CalendarDate) -> YearMonth {
+        today.day <= 10 ? today.yearMonth.adding(months: -1) : today.yearMonth
+    }
+
     /// The person's latest signature for the month and where it stands
     /// against their hours now.
     ///

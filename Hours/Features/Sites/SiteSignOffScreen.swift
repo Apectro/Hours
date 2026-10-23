@@ -7,17 +7,33 @@ import SwiftData
 ///
 /// A signature keeps a fingerprint of the hours it was given for
 /// (`SignatureFingerprint`), so a change afterwards is shown here and on the
-/// director's sheet as "changed after signing" rather than passing as signed.
-/// Signing again replaces the old signature.
+/// Site sheet as "changed after signing" rather than passing as signed.
+/// Signing again replaces the old signature; removing one asks first, since a
+/// signature is the person's word and cannot be given back without them.
+///
+/// Reached from the export (for the month being exported) and from the site's
+/// own menu, where it opens with a month stepper (`latestMonth` set).
 ///
 /// Not under the month lock: crews sign once the month is over, which is when
 /// it gets closed, and a signature changes nobody's hours.
 struct SiteSignOffScreen: View {
     let site: Site
-    let month: YearMonth
+    /// When set, the month can be stepped, up to this one.
+    let latestMonth: YearMonth?
     /// Called after a signature is written or removed, so the export
     /// screen's preview can be drawn again.
     let onChange: () -> Void
+
+    @State private var month: YearMonth
+    /// Whose signature is about to be removed, while the question is asked.
+    @State private var removing: SignOffPerson?
+
+    init(site: Site, month: YearMonth, latestMonth: YearMonth? = nil, onChange: @escaping () -> Void) {
+        self.site = site
+        self.latestMonth = latestMonth
+        self.onChange = onChange
+        _month = State(initialValue: month)
+    }
 
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
@@ -30,6 +46,16 @@ struct SiteSignOffScreen: View {
 
     var body: some View {
         List {
+            if let latestMonth {
+                Section {
+                    PeriodStepper(
+                        month: $month,
+                        latest: latestMonth,
+                        title: settingsStore.dateFormatting.monthTitle(month),
+                        caption: ""
+                    )
+                }
+            }
             Section {
                 ForEach(people) { person in
                     Button {
@@ -42,17 +68,26 @@ struct SiteSignOffScreen: View {
                     .swipeActions {
                         if SignOff.latest(for: person.id, in: signatures, month: month) != nil {
                             Button("Remove signature", role: .destructive) {
-                                SiteDiaryRepository(context: modelContext)
-                                    .removeSignature(siteID: site.id, memberID: person.id, month: month)
-                                reload()
-                                onChange()
+                                removing = person
                             }
                         }
                     }
                 }
             } footer: {
-                Text("Hand the phone to each person. They check their own days and sign with a finger. A signature is printed on the director's sheet.")
+                Text("Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the site sheet.")
             }
+        }
+        .confirmationDialog(
+            removalTitle,
+            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+            titleVisibility: .visible,
+            presenting: removing
+        ) { person in
+            Button("Remove signature", role: .destructive) {
+                removeSignature(of: person)
+            }
+            .accessibilityIdentifier("sign-off-remove-confirm")
+            Button("Cancel", role: .cancel) { removing = nil }
         }
         .overlay {
             if loaded && people.isEmpty {
@@ -70,6 +105,7 @@ struct SiteSignOffScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("screen-sign-off")
         .task { reload() }
+        .onChange(of: month) { _, _ in reload() }
         .sheet(item: $signing) { person in
             SignatureSheet(
                 person: person,
@@ -104,6 +140,15 @@ struct SiteSignOffScreen: View {
     // MARK: - Derived
 
     private var settings: AppSettings { settingsStore.settings }
+
+    /// "Remove Ivan's signature for October 2026?"
+    private var removalTitle: String {
+        guard let removing else { return "" }
+        return String(
+            localized: "Remove the signature of \(removing.name) for \(settingsStore.dateFormatting.monthTitle(month))?",
+            comment: "Asked before a crew member's signature is removed; the values are their name and a month"
+        )
+    }
 
     private func state(for person: SignOffPerson) -> SignOffState {
         SignOff.state(for: person.id, signatures: signatures, results: results, month: month, siteID: site.id)
@@ -192,6 +237,14 @@ struct SiteSignOffScreen: View {
         loaded = true
     }
 
+    private func removeSignature(of person: SignOffPerson) {
+        removing = nil
+        SiteDiaryRepository(context: modelContext)
+            .removeSignature(siteID: site.id, memberID: person.id, month: month)
+        reload()
+        onChange()
+    }
+
     private func sign(_ person: SignOffPerson, strokes: [[SignaturePoint]]) {
         let calendar = settingsStore.workCalendar
         SiteDiaryRepository(context: modelContext).storeSignature(CrewSignature(
@@ -205,6 +258,34 @@ struct SiteSignOffScreen: View {
         ))
         reload()
         onChange()
+    }
+}
+
+/// Crew sign-off as a sheet of its own, from the site's menu: on site at the
+/// end of the month, nobody should have to go through the export to get
+/// people to sign. Opens on `SignOff.defaultMonth`, with a stepper.
+struct SiteSignOffSheet: View {
+    let site: Site
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        let today = CalendarDate.today(in: settingsStore.workCalendar)
+        NavigationStack {
+            SiteSignOffScreen(
+                site: site,
+                month: SignOff.defaultMonth(today: today),
+                latestMonth: today.yearMonth,
+                onChange: {}
+            )
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                        .accessibilityIdentifier("sign-off-done")
+                }
+            }
+        }
     }
 }
 
@@ -286,6 +367,7 @@ struct SignatureSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("signature-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Sign") {

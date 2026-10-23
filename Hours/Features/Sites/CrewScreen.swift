@@ -52,12 +52,22 @@ struct CrewScreen: View {
                 .onMove(perform: moveAction)
 
                 if !isReadOnly {
-                    TextField("Add a coworker", text: $newName)
-                        .textInputAutocapitalization(.words)
-                        .submitLabel(.done)
-                        .focused($isAddingFocused)
-                        .onSubmit(add)
-                        .accessibilityIdentifier("crew-new-name")
+                    // The return key adds too; the button says that it can.
+                    HStack(spacing: Metrics.small) {
+                        TextField("Add a coworker", text: $newName)
+                            .textInputAutocapitalization(.words)
+                            .submitLabel(.done)
+                            .focused($isAddingFocused)
+                            .onSubmit(add)
+                            .frame(minHeight: 44)
+                            .accessibilityIdentifier("crew-new-name")
+                        Button("Add", action: add)
+                            .buttonStyle(.borderless)
+                            .fontWeight(.semibold)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .disabled(trimmedNewName.isEmpty)
+                            .accessibilityIdentifier("crew-add")
+                    }
 
                     if !candidates.isEmpty {
                         Button {
@@ -72,7 +82,7 @@ struct CrewScreen: View {
                 if isReadOnly {
                     Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
                 } else {
-                    Text("Swipe a name to rename or hide it. Nobody is ever deleted, so hours already recorded never disappear: someone hidden simply stops being offered for new days.")
+                    Text("Swipe to rename or hide. Hidden people keep their hours.")
                 }
             }
 
@@ -105,6 +115,7 @@ struct CrewScreen: View {
                 .textInputAutocapitalization(.words)
             Button("Save") { rename(member) }
             Button("Cancel", role: .cancel) { renaming = nil }
+                .accessibilityIdentifier("crew-rename-cancel")
         }
         .sheet(isPresented: $isPicking) {
             CrewPickerSheet(candidates: candidates) { chosen in
@@ -132,37 +143,58 @@ struct CrewScreen: View {
 
     /// Plain text rather than a button, with the actions on a swipe and a
     /// long press: a row that is a button reads as "open this", and there is
-    /// nothing behind a name to open.
+    /// nothing behind a name to open. Renaming also has a visible pencil, as
+    /// a leading swipe is the one nobody finds.
     private func memberRow(_ member: CrewMember, hiding: Bool) -> some View {
-        Text(member.name)
-            .foregroundStyle(hiding ? .primary : .secondary)
-            .swipeActions(edge: .trailing) {
-                if !isReadOnly {
-                    if hiding {
-                        Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
-                            .tint(.orange)
-                    } else {
-                        Button("Show", systemImage: "eye") { setHidden(member, false) }
-                            .tint(.blue)
-                    }
+        HStack(spacing: Metrics.small) {
+            Text(member.name)
+                .foregroundStyle(hiding ? .primary : .secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("crew-member")
+            if !isReadOnly {
+                Button {
+                    startRenaming(member)
+                } label: {
+                    Image(systemName: "pencil")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(String(
+                    localized: "Rename \(member.name)",
+                    comment: "VoiceOver, the pencil beside a crew member; the value is their name"
+                ))
+                .accessibilityIdentifier("crew-rename-\(member.name)")
+            }
+        }
+        .swipeActions(edge: .trailing) {
+            if !isReadOnly {
+                if hiding {
+                    Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
+                        .tint(.orange)
+                } else {
+                    Button("Show", systemImage: "eye") { setHidden(member, false) }
+                        .tint(.blue)
                 }
             }
-            .swipeActions(edge: .leading) {
-                if !isReadOnly {
-                    Button("Rename", systemImage: "pencil") { startRenaming(member) }
-                        .tint(.gray)
+        }
+        .swipeActions(edge: .leading) {
+            if !isReadOnly {
+                Button("Rename", systemImage: "pencil") { startRenaming(member) }
+                    .tint(.gray)
+            }
+        }
+        .contextMenu {
+            if !isReadOnly {
+                Button("Rename", systemImage: "pencil") { startRenaming(member) }
+                    .accessibilityIdentifier("crew-rename")
+                if hiding {
+                    Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
+                } else {
+                    Button("Show", systemImage: "eye") { setHidden(member, false) }
                 }
             }
-            .contextMenu {
-                if !isReadOnly {
-                    Button("Rename", systemImage: "pencil") { startRenaming(member) }
-                    if hiding {
-                        Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
-                    } else {
-                        Button("Show", systemImage: "eye") { setHidden(member, false) }
-                    }
-                }
-            }
+        }
     }
 
     // MARK: - Data
@@ -208,8 +240,12 @@ struct CrewScreen: View {
 
     // MARK: - Editing
 
+    private var trimmedNewName: String {
+        newName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private func add() {
-        let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmedNewName
         guard !name.isEmpty, !isReadOnly else { return }
         let next = (members.map(\.sortOrder).max() ?? -1) + 1
         repository.upsert(CrewMember(siteID: siteID, name: name, sortOrder: next))

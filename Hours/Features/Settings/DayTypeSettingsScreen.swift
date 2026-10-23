@@ -38,6 +38,7 @@ struct DayTypeSettingsScreen: View {
                         row(for: definition)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("day-types-row")
                 }
                 .onDelete(perform: deleteCustom)
             } footer: {
@@ -50,6 +51,7 @@ struct DayTypeSettingsScreen: View {
                 } label: {
                     Label("Add a day type", systemImage: "plus.circle")
                 }
+                .accessibilityIdentifier("day-types-add")
             }
         }
         .navigationTitle("Day types")
@@ -218,6 +220,7 @@ struct DayTypeEditor: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("day-type-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)

@@ -204,6 +204,25 @@ final class ExtraWorkReportTests: XCTestCase {
         XCTAssertEqual(ExtraWorkRange.thisWeek.select(jobs, siteID: site, today: today, calendar: calendar, includeInProgress: true).count, 7)
     }
 
+    /// What an empty report says it is leaving out: the jobs in progress the
+    /// range would carry if they were included, and only those.
+    func testTheJobsInProgressARangeLeavesOut() {
+        var jobs = week
+        jobs.append(job(22, "Still at it", done: false))
+        jobs.append(job(2, "Last month, still at it", done: false))
+        jobs.append(job(21, "Sent while under way", status: .sent, done: false))
+        jobs.append(job(22, "Elsewhere", site: otherSite, done: false))
+
+        let notSent = ExtraWorkRange.notSentYet.leftInProgress(jobs, siteID: site, today: today, calendar: calendar)
+        XCTAssertEqual(Set(notSent.map(\.description)), ["Still at it", "Last month, still at it"])
+
+        let thisWeek = ExtraWorkRange.thisWeek.leftInProgress(jobs, siteID: site, today: today, calendar: calendar)
+        XCTAssertEqual(Set(thisWeek.map(\.description)), ["Still at it", "Sent while under way"])
+
+        XCTAssertTrue(ExtraWorkRange.notSentYet.leftInProgress(week, siteID: site, today: today, calendar: calendar).isEmpty,
+                      "nothing in progress, nothing left out")
+    }
+
     func testAJobFinishedAfterItWasSentIsNotSentYet() {
         let sentUnderWay = job(21, "Sent while under way", done: false)
             .markingSent(at: base, reportID: UUID())

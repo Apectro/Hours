@@ -3,9 +3,12 @@ import SwiftData
 
 /// Every diary written for a site, the most recent day first: the weather,
 /// what was written and how many photos, to read back through. Written on
-/// the site's own day screen; this only reads.
+/// the site's own day screen; this only reads. A row goes to its day: the
+/// sheet closes and the site screen shows that date.
 struct SiteDiaryListSheet: View {
     let site: Site
+    /// Shows a date on the site screen underneath.
+    var onSelect: (CalendarDate) -> Void = { _ in }
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -32,7 +35,21 @@ struct SiteDiaryListSheet: View {
                     )
                 } else {
                     List(entries) { entry in
-                        row(entry)
+                        Button {
+                            onSelect(entry.date)
+                            dismiss()
+                        } label: {
+                            HStack(spacing: Metrics.small) {
+                                row(entry)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                                    .accessibilityHidden(true)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .foregroundStyle(.primary)
+                        .accessibilityIdentifier("site-diary-entry-\(entry.date.key)")
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -40,7 +57,7 @@ struct SiteDiaryListSheet: View {
             .navigationTitle("Site diary")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                         .accessibilityIdentifier("site-diary-list-done")
                 }
@@ -87,8 +104,8 @@ struct SiteDiaryListSheet: View {
             }
         }
         .padding(.vertical, Metrics.tiny)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("site-diary-entry-\(entry.date.key)")
     }
 
     private func weatherLine(_ diary: SiteDiary?) -> String? {

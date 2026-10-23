@@ -131,6 +131,7 @@ struct BulkEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("bulk-edit-cancel")
                 }
             }
             .confirmationDialog(
@@ -150,10 +151,20 @@ struct BulkEditSheet: View {
                     set: { if !$0 { refusedMonths = [] } }
                 )
             ) {
+                // Reopened here, where the edit is still set up; applying is
+                // then one more tap. The alert is the confirmation.
+                Button("Reopen") {
+                    let months = refusedMonths
+                    settingsStore.update { settings in
+                        for month in months { settings.monthLock.unlock(month) }
+                    }
+                    refusedMonths = []
+                }
+                .accessibilityIdentifier("bulk-edit-reopen")
                 Button("OK", role: .cancel) { refusedMonths = [] }
             } message: {
                 Text(String(
-                    localized: "Nothing was changed. Reopen \(refusedMonthNames) in Settings › Calculation first.",
+                    localized: "Nothing was changed. Reopen \(refusedMonthNames) to make this change.",
                     comment: "Bulk edit refused; the value is a list of month names"
                 ))
             }
