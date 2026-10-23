@@ -131,6 +131,14 @@ APP_STRINGS = {
     "^[%lld extra job](inflect: true) not sent to your boss yet": entry(
         "%#@extraJobs@ not sent to your boss yet", EXTRA_JOBS()
     ),
+    # The Extra-work report: what an empty report is leaving out, and the
+    # line that opens the site's jobs in progress to tick them finished.
+    "^[%lld extra job](inflect: true) still in progress": entry(
+        "%#@extraJobs@ still in progress", EXTRA_JOBS()
+    ),
+    "^[%lld extra job](inflect: true) in progress · Mark finished": entry(
+        "%#@extraJobs@ in progress · Mark finished", EXTRA_JOBS()
+    ),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
     "and stop counting towards your balance. The hours recorded on them are kept.": entry(

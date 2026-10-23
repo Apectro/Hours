@@ -63,14 +63,16 @@ struct ExtraWorkItemSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
+                // It commits: Save, as every sheet that writes something.
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button("Save") {
                         guard let unit else { return }
                         onSave(name.trimmingCharacters(in: .whitespacesAndNewlines), unit)
                         dismiss()
                     }
+                    .fontWeight(.semibold)
                     .disabled(!canSave)
-                    .accessibilityIdentifier("extra-work-item-done")
+                    .accessibilityIdentifier("extra-work-item-save")
                 }
             }
             .onAppear { nameFocused = name.isEmpty }
@@ -102,9 +104,9 @@ struct ExtraWorkSignSheet: View {
             VStack(alignment: .leading, spacing: Metrics.medium) {
                 TextField(String(localized: "Name and role, e.g. Ing. Horvat, site manager"), text: $signer)
                     .textContentType(.name)
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, Metrics.large)
                     .frame(minHeight: 48)
-                    .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                     .accessibilityLabel(String(localized: "Who signs"))
                     .accessibilityIdentifier("extra-work-signer")
 
@@ -129,6 +131,8 @@ struct ExtraWorkSignSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
+                // It commits, so it is the confirmation on the right; "Sign"
+                // rather than "Save", because the client is the one tapping it.
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Sign") {
                         onSign(ExtraWorkSignature(
@@ -139,6 +143,7 @@ struct ExtraWorkSignSheet: View {
                         ))
                         dismiss()
                     }
+                    .fontWeight(.semibold)
                     .disabled(!CrewSignature.isSignature(strokes))
                     .accessibilityIdentifier("extra-work-signature-sign")
                 }

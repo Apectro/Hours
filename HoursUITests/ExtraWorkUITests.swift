@@ -1,8 +1,8 @@
 import XCTest
 
 /// Extra work, end to end on the seeded site: a job written with a new item
-/// counted up, listed under the day in progress, left out of the report to
-/// the boss until it is ticked finished, then in it and summed.
+/// counted up, listed under the day in progress, left out of the Extra-work
+/// report until it is included or ticked finished, then in it and summed.
 final class ExtraWorkUITests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -45,7 +45,7 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(name.waitForExistence(timeout: 5), "New item… should ask for a name")
         name.tap()
         name.typeText("Emergency light")
-        app.buttons["extra-work-item-done"].tap()
+        app.buttons["extra-work-item-save"].tap()
 
         let plus = app.buttons["extra-work-plus-0"]
         XCTAssertTrue(plus.waitForExistence(timeout: 5), "the new item should be a line with a stepper")
@@ -76,18 +76,28 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(tick.waitForExistence(timeout: 5), "the job should have its checkmark")
         XCTAssertFalse(tick.isSelected, "a new job starts in progress")
 
-        // In progress, it is easy to find on the report, and not in it.
+        // In progress, it is not in the report, and the empty report says
+        // why: Include them, or Mark finished… to list it with its checkmark.
         app.buttons["site-extra-work-report"].tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
-        XCTAssertTrue(app.buttons["extra-work-in-progress-0"].waitForExistence(timeout: 5),
-                      "a job in progress is listed at the top")
         XCTAssertFalse(app.buttons["extra-work-report-job-0"].exists, "the report leaves out jobs in progress")
         let share = app.buttons["extra-work-report-share-pdf"]
-        XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send report · PDF")
+        XCTAssertTrue(share.waitForExistence(timeout: 5), "the report should offer Send to boss · PDF")
         XCTAssertFalse(share.isEnabled, "nothing finished, nothing to send")
-        let picture = app.buttons["extra-work-send-picture"]
-        XCTAssertTrue(picture.waitForExistence(timeout: 5), "the report should offer Send as picture, for a chat")
-        XCTAssertFalse(picture.isEnabled, "nothing finished, no picture to send")
+        let moreFormats = app.buttons["extra-work-report-more-formats"]
+        XCTAssertTrue(moreFormats.waitForExistence(timeout: 5), "the picture, Excel and CSV are under More formats")
+        XCTAssertFalse(moreFormats.isEnabled, "nothing finished, no other format to send")
+        let markFinished = app.buttons["extra-work-report-mark-finished"]
+        XCTAssertTrue(markFinished.waitForExistence(timeout: 5), "an empty report held back by a job in progress offers Mark finished…")
+        XCTAssertTrue(app.buttons["extra-work-report-include-them"].exists, "and Include them")
+        markFinished.tap()
+        XCTAssertTrue(app.buttons["extra-work-in-progress-0"].waitForExistence(timeout: 5),
+                      "Mark finished… lists the job in progress")
+        XCTAssertTrue(app.buttons["extra-work-in-progress-tick-0"].exists, "with its checkmark")
+        app.buttons["extra-work-report-include-them"].tap()
+        XCTAssertTrue(app.buttons["extra-work-report-in-progress-0"].waitForExistence(timeout: 5),
+                      "Include them puts the job in the report, as still in progress")
+        XCTAssertTrue(share.isEnabled, "a report with a job in it can be sent")
         app.buttons["extra-work-report-done"].tap()
 
         // Ticked, it is finished.
@@ -106,7 +116,13 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["extra-work-total-0"].waitForExistence(timeout: 5),
                       "the report should sum the material")
         XCTAssertTrue(share.isEnabled, "a report with a finished job can be sent")
-        XCTAssertTrue(picture.isEnabled, "and sent as a picture")
+        XCTAssertTrue(moreFormats.isEnabled, "and sent in the other formats")
+        moreFormats.tap()
+        XCTAssertTrue(app.buttons["extra-work-send-picture"].waitForExistence(timeout: 5),
+                      "More formats offers Send as picture, for a chat")
+        // Closes the menu without choosing anything.
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3)).tap()
+        XCTAssertTrue(app.buttons["extra-work-report-done"].waitForExistence(timeout: 5))
         app.buttons["extra-work-report-done"].tap()
     }
 }

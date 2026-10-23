@@ -1,17 +1,22 @@
 import SwiftUI
 import SwiftData
 
-/// The report to the boss (mockup 15): what is done — not sent yet, this
-/// week, or picked dates — then, if asked for, what is still in progress,
-/// the material used, the client's optional signature under the lot, and
-/// "Send report · PDF", "Send as picture" for a chat, and Excel and CSV
-/// beside them. Above it all, every job
-/// on the site still in progress, whatever its date, with its checkmark:
-/// the place they are easy to find and tick.
+/// The Extra-work report for the boss (mockup 15): the site and what the
+/// report carries first, then which jobs — not sent yet, this week, or
+/// picked dates — what is done, if asked for what is still in progress, the
+/// material used and the client's optional signature under the lot. One
+/// button sends it ("Send to boss · PDF"); the picture for a chat, Excel and
+/// CSV are under "More formats" beside it.
+///
+/// Jobs in progress on the site, whatever their date, are one line under the
+/// title ("2 extra jobs in progress · Mark finished"), opening in place to a list with
+/// checkmarks: the place they are easy to find and tick.
 ///
 /// A report tells the boss what is done; it is not a bill. Only finished
 /// jobs are in it unless "Include jobs still in progress" is on, and those
-/// then have a section of their own.
+/// then have a section of their own. A new job starts in progress, so a
+/// report left empty only by jobs in progress says so, with "Include them"
+/// and "Mark finished…" right there instead of "Nothing to report".
 ///
 /// The jobs are marked sent only once the share sheet says the file went
 /// somewhere (`ExtraWorkSending`); cancelling it leaves them as they were.
@@ -36,6 +41,9 @@ struct ExtraWorkReportScreen: View {
     @State private var allJobs: [ExtraWorkJob] = []
     @State private var signature: ExtraWorkSignature?
     @State private var showsAllJobs = false
+    /// The jobs in progress, opened in place under their line (or under an
+    /// empty report's "Mark finished…").
+    @State private var showsInProgress = false
     @State private var sheet: ReportSheet?
     @State private var preparing: ReportOutput?
     @State private var notice: String?
@@ -71,38 +79,6 @@ struct ExtraWorkReportScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.large) {
-                    if !jobsInProgress.isEmpty {
-                        inProgressOnSiteSection
-                    }
-
-                    Picker(selection: $choice) {
-                        Text("Not sent yet").tag(Choice.notSent)
-                        Text("This week").tag(Choice.thisWeek)
-                        Text("Pick dates").tag(Choice.dates)
-                    } label: {
-                        Text("Jobs")
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityIdentifier("extra-work-report-range")
-
-                    if choice == .dates {
-                        VStack(spacing: 0) {
-                            DatePicker("From", selection: $from, displayedComponents: .date)
-                                .frame(minHeight: 44)
-                            Divider()
-                            DatePicker("To", selection: $to, in: from..., displayedComponents: .date)
-                                .frame(minHeight: 44)
-                        }
-                        .padding(.horizontal, Metrics.large)
-                        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                    }
-
-                    Toggle("Include jobs still in progress", isOn: $includeInProgress)
-                        .frame(minHeight: 44)
-                        .padding(.horizontal, Metrics.large)
-                        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                        .accessibilityIdentifier("extra-work-report-include-in-progress")
-
                     VStack(alignment: .leading, spacing: 2) {
                         Text(verbatim: site.name)
                             .font(.title2.weight(.bold))
@@ -113,18 +89,34 @@ struct ExtraWorkReportScreen: View {
                     }
                     .padding(.leading, Metrics.tiny)
 
+                    // An empty report held back by jobs in progress lists
+                    // them itself, below; the line would say it twice.
+                    if !jobsInProgress.isEmpty && !isHeldBackByJobsInProgress {
+                        inProgressOnSiteSection
+                    }
+
+                    rangeSection
+
                     if report.isEmpty {
-                        Text("Nothing to report for these dates.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(Metrics.large)
-                            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                        if isHeldBackByJobsInProgress {
+                            heldBackSection
+                        } else {
+                            Text("Nothing to report for these dates.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(Metrics.large)
+                                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                        }
                     } else {
                         if !report.done.isEmpty { doneSection }
                         if !report.inProgress.isEmpty { reportedInProgressSection }
                         materialSection
                         signatureSection
+                        Text("Marked as sent after you share the PDF, the picture or the Excel file.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, Metrics.tiny)
                     }
                 }
                 .padding(.horizontal, Metrics.large)
@@ -135,17 +127,32 @@ struct ExtraWorkReportScreen: View {
             // that wraps the share bar too, it is handed down to the bar's
             // buttons and replaces their own identifiers.
             .accessibilityIdentifier("screen-extra-work-report")
-            .safeAreaInset(edge: .bottom) { shareBar }
-            .navigationTitle("Report to boss")
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: Metrics.small) {
+                    if let notice {
+                        sentBanner(notice)
+                    }
+                    shareBar
+                }
+            }
+            .navigationTitle("Extra-work report")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                // The report only shows and shares: Done, top right.
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                         .accessibilityIdentifier("extra-work-report-done")
                 }
             }
             .onAppear(perform: load)
             .onChange(of: choice) { _, _ in showsAllJobs = false }
+            // "Marked as sent: 3" is news, not a fixture: it goes after a
+            // few seconds.
+            .task(id: notice) {
+                guard notice != nil else { return }
+                try? await Task.sleep(for: .seconds(4))
+                withAnimation(.easeOut(duration: 0.3)) { notice = nil }
+            }
             .sheet(item: $sheet) { sheet in
                 switch sheet {
                 case .signature:
@@ -164,47 +171,165 @@ struct ExtraWorkReportScreen: View {
         }
     }
 
-    // MARK: - In progress on the site
+    // MARK: - Which jobs
 
-    /// Every job on the site not finished yet, oldest first, each with its
-    /// checkmark: whatever the report below is set to.
+    private var rangeSection: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Picker(selection: $choice) {
+                Text("Not sent yet").tag(Choice.notSent)
+                Text("This week").tag(Choice.thisWeek)
+                Text("Pick dates").tag(Choice.dates)
+            } label: {
+                Text("Jobs")
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("extra-work-report-range")
+
+            if choice == .dates {
+                VStack(spacing: 0) {
+                    DatePicker("From", selection: $from, displayedComponents: .date)
+                        .frame(minHeight: 44)
+                    Divider()
+                    DatePicker("To", selection: $to, in: from..., displayedComponents: .date)
+                        .frame(minHeight: 44)
+                }
+                .padding(.horizontal, Metrics.large)
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            }
+
+            Toggle("Include jobs still in progress", isOn: $includeInProgress)
+                .frame(minHeight: 44)
+                .padding(.horizontal, Metrics.large)
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                .accessibilityIdentifier("extra-work-report-include-in-progress")
+        }
+    }
+
+    // MARK: - In progress
+
+    /// The site's jobs not finished yet, whatever their date, as one line
+    /// that opens in place to the list with checkmarks.
     private var inProgressOnSiteSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("In progress on this site")
-            VStack(spacing: 0) {
-                ForEach(Array(jobsInProgress.enumerated()), id: \.element.id) { index, job in
-                    HStack(spacing: 0) {
-                        ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
-                            .accessibilityIdentifier("extra-work-in-progress-tick-\(index)")
-                            .padding(.leading, Metrics.small)
-                        Button {
-                            sheet = .job(job)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(verbatim: title(of: job))
-                                    .font(.subheadline.weight(.semibold))
-                                    .multilineTextAlignment(.leading)
-                                Text(verbatim: jobDetail(job))
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                            .padding(.leading, Metrics.small)
-                            .padding(.trailing, Metrics.large)
-                            .padding(.vertical, Metrics.small)
-                            .contentShape(Rectangle())
-                            .accessibilityElement(children: .combine)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("extra-work-in-progress-\(index)")
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Button {
+                withAnimation(.snappy(duration: 0.25)) { showsInProgress.toggle() }
+            } label: {
+                HStack(spacing: Metrics.small) {
+                    Image(systemName: "hourglass")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.hoursNegative)
+                        .accessibilityHidden(true)
+                    Text(String(
+                        inflected: "^[\(jobsInProgress.count) extra job](inflect: true) in progress · Mark finished"
+                    ))
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .rotationEffect(.degrees(showsInProgress ? 90 : 0))
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, Metrics.large)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .accessibilityAddTraits(showsInProgress ? .isSelected : [])
+            .accessibilityIdentifier("extra-work-report-in-progress-line")
+
+            if showsInProgress {
+                inProgressList(jobsInProgress)
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    /// A report left empty only because its jobs are in progress: how many,
+    /// "Include them" (the switch above, turned on), and "Mark finished…",
+    /// which lists them with their checkmarks.
+    private var heldBackSection: some View {
+        VStack(alignment: .leading, spacing: Metrics.medium) {
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                Text(String(
+                    inflected: "^[\(heldBack.count) extra job](inflect: true) still in progress"
+                ))
+                .font(.body.weight(.semibold))
+                .accessibilityIdentifier("extra-work-report-held-back")
+                Text("Finished jobs go in the Extra-work report.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button {
+                    withAnimation(.snappy(duration: 0.2)) { includeInProgress = true }
+                } label: {
+                    Text("Include them")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 28)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .accessibilityIdentifier("extra-work-report-include-them")
+                if canEdit {
+                    Button {
+                        withAnimation(.snappy(duration: 0.25)) { showsInProgress = true }
+                    } label: {
+                        Text("Mark finished…")
+                            .frame(maxWidth: .infinity, minHeight: 28)
                     }
-                    if index < jobsInProgress.count - 1 {
-                        Divider().padding(.leading, Metrics.large)
-                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .disabled(showsInProgress)
+                    .accessibilityIdentifier("extra-work-report-mark-finished")
                 }
             }
+            .padding(Metrics.large)
             .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+
+            if showsInProgress {
+                inProgressList(heldBack)
+                    .transition(.opacity)
+            }
         }
+    }
+
+    /// Jobs in progress, each with its checkmark, and opening in the editor.
+    private func inProgressList(_ jobs: [ExtraWorkJob]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(jobs.enumerated()), id: \.element.id) { index, job in
+                HStack(spacing: 0) {
+                    ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
+                        .accessibilityIdentifier("extra-work-in-progress-tick-\(index)")
+                        .padding(.leading, Metrics.small)
+                    Button {
+                        sheet = .job(job)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: title(of: job))
+                                .font(.subheadline.weight(.semibold))
+                                .multilineTextAlignment(.leading)
+                            Text(verbatim: jobDetail(job))
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .padding(.leading, Metrics.small)
+                        .padding(.trailing, Metrics.large)
+                        .padding(.vertical, Metrics.small)
+                        .contentShape(Rectangle())
+                        .accessibilityElement(children: .combine)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("extra-work-in-progress-\(index)")
+                }
+                if index < jobs.count - 1 {
+                    Divider().padding(.leading, Metrics.large)
+                }
+            }
+        }
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
     }
 
     // MARK: - Work done
@@ -218,8 +343,8 @@ struct ExtraWorkReportScreen: View {
     private var hiddenCount: Int { report.done.count - shownJobs.count }
 
     private var doneSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("Work done")
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            SectionHeading("Work done")
             VStack(spacing: 0) {
                 ForEach(Array(shownJobs.enumerated()), id: \.element.id) { index, job in
                     Button {
@@ -254,8 +379,8 @@ struct ExtraWorkReportScreen: View {
     /// The jobs in progress the user chose to include: after the done ones,
     /// as the PDF has them.
     private var reportedInProgressSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("Still in progress")
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            SectionHeading("Still in progress")
             VStack(spacing: 0) {
                 ForEach(Array(report.inProgress.enumerated()), id: \.element.id) { index, job in
                     Button {
@@ -275,7 +400,7 @@ struct ExtraWorkReportScreen: View {
     }
 
     private func jobRow(_ job: ExtraWorkJob) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Metrics.medium) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(verbatim: title(of: job))
                     .font(.subheadline.weight(.semibold))
@@ -286,12 +411,11 @@ struct ExtraWorkReportScreen: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             // A signature is shown when there is one, and nothing is said
-            // when there is not: it is optional.
-            VStack(alignment: .trailing, spacing: 4) {
+            // when there is not: it is optional. Signed is the grey chip, as
+            // on the site day, not a word in green.
+            VStack(alignment: .trailing, spacing: Metrics.tiny) {
                 if report.isConfirmed(job) {
-                    Text("Signed")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.hoursPositive)
+                    ExtraWorkChipView(chip: .signed)
                 }
                 if job.chip == .sent {
                     ExtraWorkChipView(chip: .sent)
@@ -320,8 +444,8 @@ struct ExtraWorkReportScreen: View {
     // MARK: - Material
 
     private var materialSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("Material used")
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            SectionHeading("Material used")
             VStack(spacing: 0) {
                 ForEach(Array(report.totals.enumerated()), id: \.offset) { index, total in
                     HStack {
@@ -347,7 +471,7 @@ struct ExtraWorkReportScreen: View {
     // MARK: - Client's signature
 
     private var signatureSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Metrics.medium) {
             HStack {
                 Text("Client confirms")
                     .font(.body.weight(.semibold))
@@ -396,8 +520,10 @@ struct ExtraWorkReportScreen: View {
 
     // MARK: - Sharing
 
+    /// One button sends the report; the other formats are in a menu beside
+    /// it, so the bar stays one row high over the jobs.
     private var shareBar: some View {
-        VStack(spacing: Metrics.small) {
+        HStack(spacing: Metrics.small) {
             Button {
                 share(.pdf)
             } label: {
@@ -405,7 +531,7 @@ struct ExtraWorkReportScreen: View {
                     if preparing == .pdf {
                         ProgressView()
                     } else {
-                        Label("Send report · PDF", systemImage: "square.and.arrow.up")
+                        Label("Send to boss · PDF", systemImage: "square.and.arrow.up")
                     }
                 }
                 .font(.headline)
@@ -416,52 +542,71 @@ struct ExtraWorkReportScreen: View {
             .disabled(report.isEmpty || preparing != nil)
             .accessibilityIdentifier("extra-work-report-share-pdf")
 
-            // For a chat: an A4 PDF opens zoomed in and cut off there, a
-            // picture opens full width.
-            Button {
-                share(.picture)
-            } label: {
-                Group {
-                    if preparing == .picture {
-                        ProgressView()
-                    } else {
-                        Label("Send as picture", systemImage: "photo")
-                    }
+            Menu {
+                // For a chat: an A4 PDF opens zoomed in and cut off there, a
+                // picture opens full width.
+                Button {
+                    share(.picture)
+                } label: {
+                    Label("Send as picture", systemImage: "photo")
                 }
-                .frame(maxWidth: .infinity, minHeight: 28)
-            }
-            .buttonStyle(.bordered)
-            .disabled(report.isEmpty || preparing != nil)
-            .accessibilityIdentifier("extra-work-send-picture")
-
-            HStack(spacing: Metrics.small) {
+                .accessibilityIdentifier("extra-work-send-picture")
                 Button {
                     share(.xlsx)
                 } label: {
-                    Text(verbatim: ExportFormat.xlsx.title)
-                        .frame(maxWidth: .infinity, minHeight: 28)
+                    Label {
+                        Text(verbatim: ExportFormat.xlsx.title)
+                    } icon: {
+                        Image(systemName: "tablecells")
+                    }
                 }
                 .accessibilityIdentifier("extra-work-report-share-xlsx")
                 Button {
                     share(.csv)
                 } label: {
-                    Text(verbatim: ExportFormat.csv.title)
-                        .frame(maxWidth: .infinity, minHeight: 28)
+                    Label {
+                        Text(verbatim: ExportFormat.csv.title)
+                    } icon: {
+                        Image(systemName: "doc.plaintext")
+                    }
                 }
                 .accessibilityIdentifier("extra-work-report-share-csv")
+            } label: {
+                Group {
+                    if preparing != nil && preparing != .pdf {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.title2)
+                    }
+                }
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.bordered)
             .disabled(report.isEmpty || preparing != nil)
-
-            Text(verbatim: notice ?? String(localized: "Marked as sent after you share the PDF, the picture or the Excel file."))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .accessibilityIdentifier("extra-work-report-notice")
+            .accessibilityLabel(String(localized: "More formats"))
+            .accessibilityIdentifier("extra-work-report-more-formats")
         }
         .padding(.horizontal, Metrics.large)
         .padding(.vertical, Metrics.small)
         .background(.bar)
+    }
+
+    /// "Marked as sent: 3", for a few seconds over the bar.
+    private func sentBanner(_ text: String) -> some View {
+        Label {
+            Text(verbatim: text)
+        } icon: {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.hoursPositive)
+        }
+        .font(.subheadline.weight(.semibold))
+        .padding(.horizontal, Metrics.large)
+        .padding(.vertical, Metrics.small)
+        .background(.regularMaterial, in: Capsule())
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("extra-work-report-notice")
     }
 
     private func share(_ output: ReportOutput) {
@@ -529,10 +674,12 @@ struct ExtraWorkReportScreen: View {
         )
         let marked = ExtraWorkSending.marked(report.jobs, after: outcome, reportID: record.id, at: record.sentAt)
         ExtraWorkRepository(context: modelContext).recordSent(record, jobs: marked)
-        notice = String(
-            localized: "Marked as sent: \(marked.count)",
-            comment: "Extra work report, after sharing; the value is how many jobs were marked sent"
-        )
+        withAnimation(.snappy(duration: 0.25)) {
+            notice = String(
+                localized: "Marked as sent: \(marked.count)",
+                comment: "Extra work report, after sharing; the value is how many jobs were marked sent"
+            )
+        }
         load()
         refreshUnsentWorkReminder()
     }
@@ -584,6 +731,19 @@ struct ExtraWorkReportScreen: View {
         allJobs.filter { !$0.isDone }
     }
 
+    /// The jobs in progress the chosen range leaves out while "Include jobs
+    /// still in progress" is off.
+    private var heldBack: [ExtraWorkJob] {
+        guard !includeInProgress else { return [] }
+        let calendar = settingsStore.workCalendar
+        return range.leftInProgress(allJobs, siteID: site.id, today: CalendarDate.today(in: calendar), calendar: calendar)
+    }
+
+    /// Empty only because what it would carry is still in progress.
+    private var isHeldBackByJobsInProgress: Bool {
+        report.isEmpty && !heldBack.isEmpty
+    }
+
     /// "5 jobs · 19–22 Oct", without a plural to agree.
     private var summaryLine: String {
         let count = String(localized: "Jobs: \(report.jobs.count)", comment: "Extra work report: how many jobs it carries")
@@ -595,15 +755,6 @@ struct ExtraWorkReportScreen: View {
         return "\(count) · \(dates)"
     }
 
-    private func sectionLabel(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .padding(.leading, Metrics.tiny)
-            .accessibilityAddTraits(.isHeader)
-    }
-
     private func load() {
         allJobs = ExtraWorkRepository(context: modelContext).jobs(siteID: site.id)
     }
@@ -611,6 +762,10 @@ struct ExtraWorkReportScreen: View {
 
 /// A stored signature drawn back, on the white of paper, as mockup 15
 /// shows it.
+///
+/// The pad stays light in Dark mode on purpose: it is the paper the
+/// signature goes on, and dark ink is how it prints. A hairline border keeps
+/// it from reading as a glaring box on a dark screen.
 struct SignaturePreview: View {
     let strokes: [[SignaturePoint]]
     let aspectRatio: Double
@@ -630,6 +785,10 @@ struct SignaturePreview: View {
             }
             context.stroke(path, with: .color(Color(white: 0.11)), style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
         }
-        .background(Color(white: 0.95), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Color(white: 0.95), in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
+                .strokeBorder(Color.hoursHairline, lineWidth: 1)
+        }
     }
 }

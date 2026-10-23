@@ -649,6 +649,28 @@
       "pt": "Por enviar ao chefe: %#@extraJobs@",
       "nl": "Nog niet naar je baas verstuurd: %#@extraJobs@",
       "pl": "Jeszcze niewysłane szefowi: %#@extraJobs@"
+    },
+    "^[%lld extra job](inflect: true) still in progress": {
+      "de": "Noch in Arbeit: %#@extraJobs@",
+      "hr": "Još u tijeku: %#@extraJobs@",
+      "sl": "Še v teku: %#@extraJobs@",
+      "it": "Ancora in corso: %#@extraJobs@",
+      "fr": "Toujours en cours : %#@extraJobs@",
+      "es": "Todavía en curso: %#@extraJobs@",
+      "pt": "Ainda em curso: %#@extraJobs@",
+      "nl": "Nog bezig: %#@extraJobs@",
+      "pl": "Wciąż w toku: %#@extraJobs@"
+    },
+    "^[%lld extra job](inflect: true) in progress · Mark finished": {
+      "de": "In Arbeit: %#@extraJobs@ · Als fertig markieren",
+      "hr": "U tijeku: %#@extraJobs@ · Označi kao završeno",
+      "sl": "V teku: %#@extraJobs@ · Označi kot končano",
+      "it": "In corso: %#@extraJobs@ · Segna come finiti",
+      "fr": "En cours : %#@extraJobs@ · Marquer comme terminés",
+      "es": "En curso: %#@extraJobs@ · Marcar como terminados",
+      "pt": "Em curso: %#@extraJobs@ · Marcar como concluídos",
+      "nl": "Bezig: %#@extraJobs@ · Markeren als klaar",
+      "pl": "W toku: %#@extraJobs@ · Oznacz jako ukończone"
     }
   },
   "interface": {
@@ -8968,17 +8990,6 @@
       "Werk klaar",
       "Praca ukończona"
     ],
-    "Finished jobs go in the report to the boss.": [
-      "Fertige Arbeiten kommen in den Bericht an den Chef.",
-      "Završeni radovi idu u izvješće šefu.",
-      "Končana dela gredo v poročilo šefu.",
-      "I lavori finiti vanno nel rapporto al capo.",
-      "Les travaux terminés vont dans le rapport au patron.",
-      "Los trabajos terminados van en el informe al jefe.",
-      "Os trabalhos concluídos vão no relatório ao chefe.",
-      "Klaar werk gaat in het rapport aan de baas.",
-      "Ukończone prace trafiają do raportu dla szefa."
-    ],
     "In progress until you tick it.": [
       "In Arbeit, bis du sie abhakst.",
       "U tijeku dok ga ne označiš.",
@@ -9077,17 +9088,6 @@
       "Relatório ao chefe",
       "Rapport aan de baas",
       "Raport dla szefa"
-    ],
-    "Send report · PDF": [
-      "Bericht senden · PDF",
-      "Pošalji izvješće · PDF",
-      "Pošlji poročilo · PDF",
-      "Invia rapporto · PDF",
-      "Envoyer le rapport · PDF",
-      "Enviar informe · PDF",
-      "Enviar relatório · PDF",
-      "Rapport versturen · PDF",
-      "Wyślij raport · PDF"
     ],
     "This day: %lld": [
       "An diesem Tag: %lld",
@@ -9528,17 +9528,6 @@
       "Foto do trabalho adicional",
       "Foto van het meerwerk",
       "Zdjęcie pracy dodatkowej"
-    ],
-    "Removes it.": [
-      "Entfernt es.",
-      "Uklanja je.",
-      "Jo odstrani.",
-      "La rimuove.",
-      "La retire.",
-      "La quita.",
-      "Remove-a.",
-      "Verwijdert hem.",
-      "Usuwa je."
     ],
     "Client's signature": [
       "Unterschrift des Auftraggebers",
@@ -10067,6 +10056,83 @@
       "Sem linha para assinar nem página de assinaturas. As assinaturas já dadas ficam guardadas.",
       "Geen regel om te tekenen en geen pagina met handtekeningen. Al gezette handtekeningen blijven bewaard.",
       "Bez linii do podpisu i bez strony z podpisami. Złożone już podpisy pozostają zapisane."
+    ],
+    "Extra-work report": [
+      "Bericht über Zusatzarbeiten",
+      "Izvještaj o dodatnim radovima",
+      "Poročilo o dodatnih delih",
+      "Rapporto lavori extra",
+      "Rapport de travaux supplémentaires",
+      "Informe de trabajos adicionales",
+      "Relatório de trabalhos adicionais",
+      "Meerwerkrapport",
+      "Raport prac dodatkowych"
+    ],
+    "Send to boss · PDF": [
+      "An den Chef senden · PDF",
+      "Pošalji šefu · PDF",
+      "Pošlji šefu · PDF",
+      "Invia al capo · PDF",
+      "Envoyer au patron · PDF",
+      "Enviar al jefe · PDF",
+      "Enviar ao chefe · PDF",
+      "Naar de baas sturen · PDF",
+      "Wyślij szefowi · PDF"
+    ],
+    "Send to boss (%lld)": [
+      "An den Chef senden (%lld)",
+      "Pošalji šefu (%lld)",
+      "Pošlji šefu (%lld)",
+      "Invia al capo (%lld)",
+      "Envoyer au patron (%lld)",
+      "Enviar al jefe (%lld)",
+      "Enviar ao chefe (%lld)",
+      "Naar de baas sturen (%lld)",
+      "Wyślij szefowi (%lld)"
+    ],
+    "More formats": [
+      "Weitere Formate",
+      "Više formata",
+      "Več formatov",
+      "Altri formati",
+      "Autres formats",
+      "Más formatos",
+      "Mais formatos",
+      "Meer formaten",
+      "Więcej formatów"
+    ],
+    "Include them": [
+      "Mit aufnehmen",
+      "Uključi ih",
+      "Vključi jih",
+      "Includili",
+      "Les inclure",
+      "Incluirlos",
+      "Incluí-los",
+      "Meenemen",
+      "Uwzględnij je"
+    ],
+    "Mark finished…": [
+      "Als fertig markieren…",
+      "Označi kao završeno…",
+      "Označi kot končano…",
+      "Segna come finiti…",
+      "Marquer comme terminés…",
+      "Marcar como terminados…",
+      "Marcar como concluídos…",
+      "Markeren als klaar…",
+      "Oznacz jako ukończone…"
+    ],
+    "Finished jobs go in the Extra-work report.": [
+      "Fertige Arbeiten kommen in den Bericht über Zusatzarbeiten.",
+      "Završeni radovi idu u izvještaj o dodatnim radovima.",
+      "Končana dela gredo v poročilo o dodatnih delih.",
+      "I lavori finiti vanno nel rapporto lavori extra.",
+      "Les travaux terminés vont dans le rapport de travaux supplémentaires.",
+      "Los trabajos terminados van en el informe de trabajos adicionales.",
+      "Os trabalhos concluídos vão no relatório de trabalhos adicionais.",
+      "Klaar werk gaat in het meerwerkrapport.",
+      "Ukończone prace trafiają do raportu prac dodatkowych."
     ]
   },
   "sameAsEnglishOnPurpose": [
