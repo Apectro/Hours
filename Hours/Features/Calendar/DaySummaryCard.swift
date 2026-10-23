@@ -51,23 +51,25 @@ struct DaySummaryCard: View {
 
                     Button(action: onEdit) {
                         Label(
-                            computation.hasEntry ? "Edit day" : "Add hours by hand",
-                            systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
+                            computation.hasEntry ? "Edit day" : "Write by hand",
+                            systemImage: "square.and.pencil"
                         )
                         .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
+                    .accessibilityIdentifier("day-card-edit")
                 } else {
                     Button(action: onEdit) {
                         Label(
-                            computation.hasEntry ? "Edit day" : "Add hours",
-                            systemImage: computation.hasEntry ? "square.and.pencil" : "plus"
+                            computation.hasEntry ? "Edit day" : "Write hours",
+                            systemImage: "square.and.pencil"
                         )
                         .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
+                    .accessibilityIdentifier("day-card-edit")
                 }
             }
         }
@@ -123,23 +125,15 @@ struct DaySummaryCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(formatting.fullDate(computation.date))
                     .font(.headline)
-                HStack(spacing: Metrics.tiny) {
-                    if isPublicHoliday, let holidayName = computation.holidayName {
-                        // "Christmas Day · public holiday"
-                        Text(holidayName)
-                        Text("·")
-                        Text("public holiday")
-                    } else {
-                        Text(computation.dayType.displayName())
-                        if let holidayName = computation.holidayName {
-                            Text("·")
-                            Text(holidayName)
-                        }
-                    }
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+                // One text rather than three side by side, so a long line
+                // wraps as a sentence instead of each piece on its own.
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    // Two lines: "Tijelovo · public holiday" at a large text
+                    // size is longer than one.
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.9)
             }
             Spacer(minLength: 0)
             if settings.features.showsBalance && computation.hasEntry {
@@ -150,6 +144,18 @@ struct DaySummaryCard: View {
                 )
             }
         }
+    }
+
+    /// "Christmas Day · public holiday", or the day type and any holiday.
+    private var subtitle: String {
+        if isPublicHoliday, let holidayName = computation.holidayName {
+            return String(
+                localized: "\(holidayName) · public holiday",
+                comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
+            )
+        }
+        return ([computation.dayType.displayName()] + [computation.holidayName].compactMap { $0 })
+            .joined(separator: " · ")
     }
 
     private var figures: some View {
