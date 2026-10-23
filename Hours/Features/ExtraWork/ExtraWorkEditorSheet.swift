@@ -56,7 +56,8 @@ struct ExtraWorkEditorSheet: View {
     @State private var pickedItems: [PhotosPickerItem] = []
     @State private var isAddingPhotos = false
     @State private var showsCamera = false
-    @State private var photoToRemove: PhotoReference?
+    /// The photo open full size; removing it is in there, confirmed.
+    @State private var viewing: ViewedPhoto?
     /// The line whose number was tapped, and what is being typed for it.
     /// Kept apart from the alert's own flag, which the alert clears itself.
     @State private var typedIndex: Int?
@@ -85,6 +86,13 @@ struct ExtraWorkEditorSheet: View {
     private struct PhotoReference: Identifiable {
         let id: UUID
         let isPending: Bool
+    }
+
+    /// A photo shown full size: which one, and its stored JPEG.
+    private struct ViewedPhoto: Identifiable {
+        let reference: PhotoReference
+        let data: Data
+        var id: UUID { reference.id }
     }
 
     init(site: Site, date: CalendarDate, job: ExtraWorkJob?, canEdit: Bool, onDone: @escaping () -> Void) {
@@ -185,11 +193,6 @@ struct ExtraWorkEditorSheet: View {
                 Text(verbatim: draft.items[typedIndex].name)
             }
         }
-        .confirmationDialog("Remove this photo?", isPresented: Binding(
-            get: { photoToRemove != nil }, set: { if !$0 { photoToRemove = nil } }
-        ), titleVisibility: .visible) {
-            Button("Remove photo", role: .destructive) { removePhoto() }
-        }
         .confirmationDialog("Delete this extra work?", isPresented: $confirmsDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive, action: deleteJob)
         } message: {
@@ -200,15 +203,15 @@ struct ExtraWorkEditorSheet: View {
     // MARK: - What was done
 
     private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("What was done")
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            SectionHeading("What was done")
             TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
                 .lineLimit(1...4)
                 .font(.body)
-                .padding(.horizontal, 14)
+                .padding(.horizontal, Metrics.large)
                 .padding(.vertical, Metrics.medium)
                 .frame(minHeight: 48)
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                 .accessibilityLabel(String(localized: "What was done"))
                 .accessibilityIdentifier("extra-work-description")
             Text(verbatim: "\(settingsStore.dateFormatting.dayTitle(draft.date)) · \(site.name)")
@@ -234,7 +237,7 @@ struct ExtraWorkEditorSheet: View {
                     .font(.body)
                 Group {
                     if draft.isDone {
-                        Text("Finished jobs go in the report to the boss.")
+                        Text("Finished jobs go in the Extra-work report.")
                     } else {
                         Text("In progress until you tick it.")
                     }
@@ -243,7 +246,7 @@ struct ExtraWorkEditorSheet: View {
                 .foregroundStyle(.secondary)
             }
         }
-        .tint(.green)
+        .tint(Color.hoursPositive)
         .frame(minHeight: 44)
         .padding(.horizontal, Metrics.large)
         .padding(.vertical, Metrics.small)
@@ -310,7 +313,7 @@ struct ExtraWorkEditorSheet: View {
     }
 
     private func materialRow(_ item: ExtraWorkItem, index: Int) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Metrics.medium) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: item.name)
                     .font(.body)
@@ -365,7 +368,7 @@ struct ExtraWorkEditorSheet: View {
         }
         .padding(.leading, Metrics.large)
         .padding(.trailing, Metrics.medium)
-        .padding(.vertical, 10)
+        .padding(.vertical, Metrics.medium)
     }
 
     private var suggestions: [ExtraWorkCatalogItem] {
@@ -443,7 +446,7 @@ struct ExtraWorkEditorSheet: View {
     /// One −/+ for the whole job, a quarter of an hour a step; the number
     /// can be tapped to type a time.
     private var timeStepper: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Metrics.medium) {
             Text("How long it took")
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -554,13 +557,13 @@ struct ExtraWorkEditorSheet: View {
     }
 
     private var photoSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Metrics.small) {
             ExtraWorkFlow(spacing: Metrics.small) {
                 ForEach(stored.filter { !removedPhotoIDs.contains($0.id) }) { photo in
-                    thumbnail(photo.image, reference: PhotoReference(id: photo.id, isPending: false))
+                    thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: false), data: photo.data))
                 }
                 ForEach(pending) { photo in
-                    thumbnail(photo.image, reference: PhotoReference(id: photo.id, isPending: true))
+                    thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: true), data: photo.data))
                 }
                 if canEdit && ExtraWorkJob.photoSlotsLeft(existing: photoCount) > 0 {
                     PhotosPicker(
@@ -585,22 +588,31 @@ struct ExtraWorkEditorSheet: View {
                 }
             }
         }
+        // A tap on a photo shows it; removing it is a button in there, with
+        // a confirmation. Removing waits for Save, like everything here.
+        .sheet(item: $viewing) { photo in
+            PhotoViewerSheet(
+                data: photo.data,
+                spokenName: String(localized: "Extra work photo"),
+                onRemove: canEdit ? { removePhoto(photo.reference) } : nil
+            )
+        }
     }
 
-    private func thumbnail(_ image: UIImage, reference: PhotoReference) -> some View {
+    private func thumbnail(_ image: UIImage, photo: ViewedPhoto) -> some View {
         Button {
-            photoToRemove = reference
+            viewing = photo
         } label: {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 84, height: 84)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "Extra work photo"))
-        .accessibilityHint(String(localized: "Removes it."))
+        .accessibilityIdentifier("extra-work-photo")
     }
 
     private func addTile(systemImage: String) -> some View {
@@ -609,7 +621,7 @@ struct ExtraWorkEditorSheet: View {
             .foregroundStyle(Color.accentColor)
             .frame(width: 84, height: 84)
             .overlay {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
                     .strokeBorder(Color.hoursHairline, style: StrokeStyle(lineWidth: 1, dash: [4]))
             }
             .contentShape(Rectangle())
@@ -688,15 +700,6 @@ struct ExtraWorkEditorSheet: View {
     }
 
     // MARK: - Parts
-
-    private func sectionLabel(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .padding(.leading, Metrics.tiny)
-            .accessibilityAddTraits(.isHeader)
-    }
 
     /// A section that opens in place under its header. The identifier is on
     /// the header's button, never on this container, which holds buttons.
@@ -850,14 +853,12 @@ struct ExtraWorkEditorSheet: View {
         pending.append(PendingPhoto(image: thumbnail, data: jpeg))
     }
 
-    private func removePhoto() {
-        guard let reference = photoToRemove else { return }
+    private func removePhoto(_ reference: PhotoReference) {
         if reference.isPending {
             pending.removeAll { $0.id == reference.id }
         } else {
             removedPhotoIDs.insert(reference.id)
         }
-        photoToRemove = nil
     }
 
     private func save() {
