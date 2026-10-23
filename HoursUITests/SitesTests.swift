@@ -55,15 +55,14 @@ final class SitesTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Marko"].waitForExistence(timeout: 5), "Marko was not added")
 
         // Hiding keeps Marko, under Hidden, and takes him off the count.
-        // The name field keeps the keyboard up for the next name, and a
-        // swipe while it is up only puts it away. Put it away first, and
-        // swipe again if the first one was spent on it.
+        // Hide from the long-press menu, which every row has. The row's
+        // trailing swipe offers the same; a synthesized swipe on a row with a
+        // button in it is not reliable in the simulator, so the menu is what
+        // this test exercises.
         if app.keyboards.count > 0 { app.staticTexts["You"].tap() }
-        let hide = app.buttons["Hide"]
-        for _ in 0..<2 where !hide.exists {
-            app.staticTexts["Marko"].swipeLeft()
-            _ = hide.waitForExistence(timeout: 3)
-        }
+        app.staticTexts["Marko"].press(forDuration: 1.2)
+        let hide = app.buttons["Hide"].firstMatch
+        _ = hide.waitForExistence(timeout: 5)
         XCTAssertTrue(hide.exists, "no Hide action on a crew member")
         hide.tap()
         XCTAssertTrue(app.staticTexts["crew-hidden-header"].waitForExistence(timeout: 5), "a hidden member has no Hidden section")
