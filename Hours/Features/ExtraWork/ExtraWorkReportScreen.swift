@@ -296,10 +296,12 @@ struct ExtraWorkReportScreen: View {
         job.description.isEmpty ? String(localized: "Extra work") : job.description
     }
 
-    /// "Thu 22 Oct · 6h".
+    /// "Thu 22 Oct · 1h · Marijo Mikša, Dusko Bajlović": the job's own time
+    /// and who; nothing on this screen adds hours up across jobs.
     private func jobDetail(_ job: ExtraWorkJob) -> String {
         var parts = [settingsStore.dateFormatting.mediumDate(job.date)]
-        if job.hasHours { parts.append(settingsStore.settings.displayFormatting.string(job.totalMinutes)) }
+        let time = job.timeLine(settingsStore.settings.displayFormatting)
+        if !time.isEmpty { parts.append(time) }
         return parts.joined(separator: " · ")
     }
 

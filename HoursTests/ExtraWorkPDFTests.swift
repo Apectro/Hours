@@ -89,6 +89,40 @@ final class ExtraWorkPDFTests: XCTestCase {
         XCTAssertFalse(unsigned.contains("signature"), unsigned)
     }
 
+    /// Items one under another, as the owner asked: "4 × P7" and "2 × P6"
+    /// on lines of their own, never joined with a dot, and a job of six
+    /// items measured tall enough that a page of them still runs on and
+    /// counts right.
+    func testItemsStandOneUnderAnother() throws {
+        let settings = Fixture.settings(export: ExportPreferences(language: .english, ownerName: "Marijo Mikša"))
+        let items = (1...6).map { ExtraWorkItem(name: "P\($0)", quantity: Decimal($0), unit: .pieces) }
+        let jobs = (0..<20).map { index in
+            ExtraWorkJob(
+                siteID: site.id, date: Fixture.date(2026, 10, 1 + index), description: "Panels \(index)", items: items,
+                hours: [ExtraWorkHours(name: "Marijo Mikša", minutes: 60), ExtraWorkHours(name: "Dusko Bajlović", minutes: 60)],
+                isDone: true
+            )
+        }
+        let document = ExtraWorkDocumentBuilder(settings: settings, calendar: calendar)
+            .make(report: ExtraWorkReport(siteID: site.id, jobs: jobs), siteName: site.name)
+        let rendered = try pages(document)
+        let text = rendered.joined(separator: "\n")
+        XCTAssertFalse(text.contains("1 × P1 · 2 × P2"), "items are not joined on one line: \(text)")
+        XCTAssertTrue(text.contains("1h · Marijo Mikša, Dusko Bajlović"), "how long, then who: \(text)")
+        let first = try XCTUnwrap(rendered.first)
+        let one = try XCTUnwrap(first.range(of: "1 × P1"))
+        let two = try XCTUnwrap(first.range(of: "2 × P2"))
+        XCTAssertLessThan(one.lowerBound, two.lowerBound)
+        XCTAssertFalse(first[one.upperBound..<two.lowerBound].contains("·"), "a line each, not a dot between")
+        XCTAssertGreaterThan(rendered.count, 2, "twenty jobs of six lines each do not fit on two pages")
+        for (index, page) in rendered.enumerated() {
+            XCTAssertTrue(page.contains("page \(index + 1) of \(rendered.count)"), "page \(index + 1): \(page)")
+        }
+        // Every job printed with all six of its items: nothing was drawn
+        // past the foot of a page.
+        XCTAssertEqual(text.components(separatedBy: "6 × P6").count - 1, 20, "every job's last item is on a page")
+    }
+
     func testALongReportRunsOnAndCountsItsPages() throws {
         let rendered = try pages(document(.english, jobs: 60))
         XCTAssertGreaterThan(rendered.count, 1)

@@ -167,8 +167,11 @@ struct ExtraWorkJobCard: View {
                 ExtraWorkChips(job: job)
             }
 
+            // One item under another, leading-aligned: "4 × P7" over
+            // "2 × P6" reads as a list, where a flow of chips side by side
+            // read as one long line.
             if !job.items.isEmpty {
-                ExtraWorkFlow(spacing: 6) {
+                VStack(alignment: .leading, spacing: 6) {
                     ForEach(Array(job.items.enumerated()), id: \.offset) { _, item in
                         Text(verbatim: item.line(in: .device, decimalSeparator: ExtraWorkFormatting.decimalSeparator))
                             .font(.footnote)
@@ -193,13 +196,12 @@ struct ExtraWorkJobCard: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// "Ivan, Marko · 6h · 2 photos", or "Signed by Ing. Horvat".
+    /// "1h · Marijo Mikša, Dusko Bajlović · Photos: 2" — how long the job
+    /// took, then who was on it — or "Signed by Ing. Horvat".
     private var detailLine: String? {
         var parts: [String] = []
-        if job.hasHours {
-            parts.append(job.hours.filter { $0.minutes > 0 }.map(\.name).joined(separator: ", "))
-            parts.append(durations.string(job.totalMinutes))
-        }
+        let time = job.timeLine(durations)
+        if !time.isEmpty { parts.append(time) }
         if photoCount > 0 {
             parts.append(String(localized: "Photos: \(photoCount)", comment: "Extra work job: how many photos it has"))
         }
