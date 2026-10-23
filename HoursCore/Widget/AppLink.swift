@@ -22,6 +22,9 @@ enum AppLink: Hashable, Sendable {
     /// A site's sheet for one month, as the director gets it. The monthly
     /// reminder opens this on the month that has just ended.
     case siteExport(UUID, YearMonth)
+    /// A site's extra-work report for the boss. The weekly "extra work not
+    /// sent" reminder opens this when one site has jobs waiting.
+    case siteExtraWork(UUID)
     /// Today's day editor, on the calendar: the Write today control and
     /// shortcut. Today is the phone's today when the link is followed, not
     /// when it was made, so the link carries no date.
@@ -31,6 +34,7 @@ enum AppLink: Hashable, Sendable {
 
     private static let sameAsLast = "same-as-last"
     private static let export = "export"
+    private static let extraWork = "extra-work"
     private static let monthQuery = "month"
 
     var url: URL {
@@ -48,6 +52,8 @@ enum AppLink: Hashable, Sendable {
         case let .siteExport(id, month):
             parts = ["site", id.uuidString, Self.export]
             query = "?" + Self.monthQuery + "=" + Self.monthString(month)
+        case let .siteExtraWork(id):
+            parts = ["site", id.uuidString, Self.extraWork]
         }
         // Built from parts that are all known to be valid, so this cannot fail.
         return URL(string: Self.scheme + "://" + parts.joined(separator: "/") + query)!
@@ -73,6 +79,8 @@ enum AppLink: Hashable, Sendable {
             switch parts[1] {
             case Self.sameAsLast:
                 self = .siteSameAsLastDay(id)
+            case Self.extraWork:
+                self = .siteExtraWork(id)
             case Self.export:
                 let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
                 guard

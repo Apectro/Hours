@@ -8,7 +8,7 @@ final class AppLinkTests: XCTestCase {
 
     func testEveryLinkReadsBackAsItself() {
         let october = YearMonth(year: 2026, month: 10)
-        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id), .siteExport(id, october), .writeToday] {
+        for link in [AppLink.sites, .site(id), .siteSameAsLastDay(id), .siteExport(id, october), .siteExtraWork(id), .writeToday] {
             XCTAssertEqual(AppLink(url: link.url), link, "\(link.url)")
         }
     }
@@ -23,6 +23,10 @@ final class AppLinkTests: XCTestCase {
         XCTAssertEqual(
             AppLink.siteExport(id, YearMonth(year: 2026, month: 3)).url.absoluteString,
             "zeitkonto://site/\(id.uuidString)/export?month=2026-03"
+        )
+        XCTAssertEqual(
+            AppLink.siteExtraWork(id).url.absoluteString,
+            "zeitkonto://site/\(id.uuidString)/extra-work"
         )
     }
 

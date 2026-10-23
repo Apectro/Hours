@@ -17,6 +17,15 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
     /// site, and handing the sheet over is what a supervisor forgets.
     var monthlySheetEnabled: Bool
     var monthlySheetTime: TimeOfDay
+    /// Once a week, a note when finished extra work has not been sent to the
+    /// boss yet. Off by default: not everyone with a site writes extra work.
+    /// Named "unsent work" rather than "extra work" so a backup of someone
+    /// without extra work still carries no `extraWork` key at all
+    /// (`ExtraWorkBackupTests`).
+    var unsentWorkEnabled: Bool
+    /// 1 = Sunday ... 7 = Saturday; Friday by default, before the weekend.
+    var unsentWorkWeekday: Int
+    var unsentWorkTime: TimeOfDay
 
     init(
         isEnabled: Bool = false,
@@ -26,7 +35,10 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
         siteRemindersEnabled: Bool = true,
         siteReminderTime: TimeOfDay = TimeOfDay(hour: 18, minute: 0),
         monthlySheetEnabled: Bool = true,
-        monthlySheetTime: TimeOfDay = TimeOfDay(hour: 9, minute: 0)
+        monthlySheetTime: TimeOfDay = TimeOfDay(hour: 9, minute: 0),
+        unsentWorkEnabled: Bool = false,
+        unsentWorkWeekday: Int = 6,
+        unsentWorkTime: TimeOfDay = TimeOfDay(hour: 15, minute: 0)
     ) {
         self.isEnabled = isEnabled
         self.weekday = min(max(weekday, 1), 7)
@@ -36,11 +48,15 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
         self.siteReminderTime = siteReminderTime
         self.monthlySheetEnabled = monthlySheetEnabled
         self.monthlySheetTime = monthlySheetTime
+        self.unsentWorkEnabled = unsentWorkEnabled
+        self.unsentWorkWeekday = min(max(unsentWorkWeekday, 1), 7)
+        self.unsentWorkTime = unsentWorkTime
     }
 
     private enum CodingKeys: String, CodingKey {
         case isEnabled, weekday, time, lookBackDays, siteRemindersEnabled, siteReminderTime
         case monthlySheetEnabled, monthlySheetTime
+        case unsentWorkEnabled, unsentWorkWeekday, unsentWorkTime
     }
 
     init(from decoder: Decoder) throws {
@@ -54,7 +70,10 @@ struct ReminderPreferences: Hashable, Codable, Sendable {
             siteRemindersEnabled: container.lenient(.siteRemindersEnabled, defaults.siteRemindersEnabled),
             siteReminderTime: container.lenient(.siteReminderTime, defaults.siteReminderTime),
             monthlySheetEnabled: container.lenient(.monthlySheetEnabled, defaults.monthlySheetEnabled),
-            monthlySheetTime: container.lenient(.monthlySheetTime, defaults.monthlySheetTime)
+            monthlySheetTime: container.lenient(.monthlySheetTime, defaults.monthlySheetTime),
+            unsentWorkEnabled: container.lenient(.unsentWorkEnabled, defaults.unsentWorkEnabled),
+            unsentWorkWeekday: container.lenient(.unsentWorkWeekday, defaults.unsentWorkWeekday),
+            unsentWorkTime: container.lenient(.unsentWorkTime, defaults.unsentWorkTime)
         )
     }
 }
