@@ -16,21 +16,22 @@ struct DayResultHeader: View {
                 StatTile(label: String(localized: "Worked"), value: duration.string(computation.workedMinutes))
 
                 if settings.features.trackExpectedHours {
-                    Divider().frame(height: 34)
+                    Divider()
                     StatTile(label: String(localized: "Expected"), value: duration.string(computation.expectedMinutes))
                 }
 
                 if settings.features.showsBalance {
-                    Divider().frame(height: 34)
+                    Divider()
+                    // "Balance", as on the calendar and in the month's totals:
+                    // the sign and the colour say which way it went.
                     StatTile(
-                        label: computation.balanceMinutes < 0
-                            ? String(localized: "Short")
-                            : String(localized: "Overtime"),
+                        label: String(localized: "Balance"),
                         value: duration.signedString(computation.balanceMinutes),
                         tint: Color.hoursBalance(computation.balanceMinutes)
                     )
                 }
             }
+            .fixedSize(horizontal: false, vertical: true)
 
             if computation.creditedMinutes > 0 {
                 Label(
@@ -85,13 +86,18 @@ struct OptionalTimeRow: View {
                     ),
                     displayedComponents: .hourAndMinute
                 )
+                // A full 44-point target with room between it and the picker:
+                // a gloved thumb reaching for the time must not clear it.
                 Button {
                     time = nil
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.tertiary)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .padding(.leading, Metrics.small)
                 .accessibilityLabel(String(
                     localized: "Clear \(title.lowercased())",
                     comment: "VoiceOver, the button that empties a field named by the value"
