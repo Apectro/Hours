@@ -93,4 +93,133 @@ final class FirstRunSetupTests: XCTestCase {
         XCTAssertEqual(answers.dailyMinutes, 510)
         XCTAssertEqual(settings.primarySchedules.latest.contractedMinutes(forWeekday: 2), 510)
     }
+
+    // MARK: - Report language, crew and pay (1.1)
+
+    func testTheNewAnswersStartFromTheSettings() {
+        var settings = AppSettings()
+        settings.export.language = .slovenian
+        settings.leadsCrew = true
+        settings.currencyCode = "CHF"
+        settings.changePay(forJob: settings.primaryJob.id, to: PayRules(hourlyRateCents: 2_150), from: nil)
+
+        let answers = FirstRunAnswers(settings: settings)
+
+        XCTAssertEqual(answers.reportLanguage, .slovenian)
+        XCTAssertTrue(answers.leadsCrew)
+        XCTAssertEqual(answers.currencyCode, "CHF")
+        XCTAssertEqual(answers.hourlyRateCents, 2_150)
+    }
+
+    func testAFreshInstallStartsWithThePhonesLanguageNoCrewAndNoRate() {
+        let answers = FirstRunAnswers(settings: AppSettings())
+
+        XCTAssertEqual(answers.reportLanguage, .device)
+        XCTAssertFalse(answers.leadsCrew)
+        XCTAssertNil(answers.currencyCode)
+        XCTAssertEqual(answers.hourlyRateCents, 0)
+    }
+
+    /// Croatia: the sheets in Croatian and pay in euros — on a phone whose
+    /// region pays in Swiss francs, so the euro has to be stored.
+    func testPickingACountryPreselectsItsLanguageAndCurrency() {
+        var answers = FirstRunAnswers(settings: AppSettings())
+
+        answers.preselect(country: .hr, region: nil, settings: AppSettings(), deviceCurrency: "CHF")
+
+        XCTAssertEqual(answers.reportLanguage, .croatian)
+        XCTAssertEqual(answers.currencyCode, "EUR")
+    }
+
+    /// The phone's own currency is stored as none, as Settings › Pay does,
+    /// so the phone keeps deciding.
+    func testTheCountrysCurrencyIsNotStoredWhenThePhoneAlreadyUsesIt() {
+        var answers = FirstRunAnswers(settings: AppSettings())
+
+        answers.preselect(country: .at, region: nil, settings: AppSettings(), deviceCurrency: "EUR")
+
+        XCTAssertEqual(answers.reportLanguage, .german)
+        XCTAssertNil(answers.currencyCode)
+    }
+
+    func testWithoutACountryNothingIsPreselected() {
+        var answers = FirstRunAnswers(settings: AppSettings())
+        answers.reportLanguage = .dutch
+        answers.currencyCode = "PLN"
+
+        answers.preselect(country: nil, region: nil, settings: AppSettings(), deviceCurrency: "EUR")
+
+        XCTAssertEqual(answers.reportLanguage, .device, "back to the setting: the phone's language, or English")
+        XCTAssertNil(answers.currencyCode, "back to the phone's currency")
+    }
+
+    func testTheReportLanguageAndTheCrewAnswerAreWritten() {
+        var settings = AppSettings()
+        var answers = FirstRunAnswers(settings: settings)
+        answers.reportLanguage = .croatian
+        answers.leadsCrew = true
+
+        answers.apply(to: &settings)
+
+        XCTAssertEqual(settings.export.language, .croatian)
+        XCTAssertTrue(settings.leadsCrew)
+    }
+
+    /// A rate is the primary job's pay since always, through the helper
+    /// Settings › Pay saves with; the currency goes with it.
+    func testARateSetsUpEarningsInTheChosenCurrency() {
+        var settings = AppSettings()
+        var answers = FirstRunAnswers(settings: settings)
+        answers.hourlyRateCents = 1_850
+        answers.currencyCode = "CHF"
+
+        answers.apply(to: &settings)
+
+        XCTAssertTrue(settings.earningsAreSetUp)
+        XCTAssertEqual(settings.primaryJob.pay?.latest.hourlyRateCents, 1_850)
+        XCTAssertEqual(settings.primaryJob.pay?.hasChanges, false)
+        XCTAssertNil(settings.primaryJob.pay?.versions.first?.from, "since always")
+        XCTAssertEqual(settings.currencyCode, "CHF")
+    }
+
+    /// Pay skipped: no rate, so no earnings and no currency stored either,
+    /// even when the country preselected one.
+    func testNoRateWritesNoPayAndNoCurrency() {
+        var settings = AppSettings()
+        var answers = FirstRunAnswers(settings: settings)
+        answers.preselect(country: .pl, region: nil, settings: settings, deviceCurrency: "EUR")
+
+        answers.apply(to: &settings)
+
+        XCTAssertFalse(settings.earningsAreSetUp)
+        XCTAssertNil(settings.currencyCode)
+        XCTAssertEqual(settings.export.language, .polish, "the language step was answered")
+    }
+
+    /// A job that already has pay is left as it is: the wizard is not the
+    /// place to rewrite a history of raises.
+    func testExistingPayIsLeftAlone() {
+        var settings = AppSettings()
+        settings.changePay(forJob: settings.primaryJob.id, to: PayRules(hourlyRateCents: 2_000), from: nil)
+        settings.changePay(forJob: settings.primaryJob.id, to: PayRules(hourlyRateCents: 2_200), from: Fixture.date(2026, 6, 1))
+        let before = settings
+        var answers = FirstRunAnswers(settings: settings)
+        answers.hourlyRateCents = 2_500
+
+        answers.apply(to: &settings)
+
+        XCTAssertEqual(settings.primaryJob.pay, before.primaryJob.pay)
+    }
+
+    /// The new steps, continued past untouched, still change nothing.
+    func testUntouchedNewAnswersChangeNothing() {
+        var settings = AppSettings()
+        settings.export.language = .italian
+        settings.leadsCrew = true
+        let before = settings
+
+        FirstRunAnswers(settings: settings).apply(to: &settings)
+
+        XCTAssertEqual(settings, before)
+    }
 }

@@ -74,6 +74,10 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// The country's public holidays added from the catalog, if any, and
     /// whether the calendar's offer of them was answered (1.1).
     var publicHolidays: PublicHolidayPreferences
+    /// Whether you lead a crew, as answered in the welcome (1.1). Only the
+    /// welcome's last screen and the guided tour read it; it never hides a
+    /// tab. Absent from anything older, which reads as no.
+    var leadsCrew: Bool
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -99,7 +103,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         yearCloses: [YearClose] = [],
         monthLock: MonthLock = .unlocked,
         leave: LeavePolicy = LeavePolicy(),
-        publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences()
+        publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences(),
+        leadsCrew: Bool = false
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -124,6 +129,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.monthLock = monthLock
         self.leave = leave
         self.publicHolidays = publicHolidays
+        self.leadsCrew = leadsCrew
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -191,6 +197,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case carryOver, yearCloses, monthLock
         case leave
         case publicHolidays
+        case leadsCrew
     }
 
     init(from decoder: Decoder) throws {
@@ -224,7 +231,8 @@ struct AppSettings: Hashable, Codable, Sendable {
             yearCloses: container.lenient(.yearCloses, defaults.yearCloses),
             monthLock: container.lenient(.monthLock, defaults.monthLock),
             leave: container.lenient(.leave, defaults.leave),
-            publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays)
+            publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays),
+            leadsCrew: container.lenient(.leadsCrew, defaults.leadsCrew)
         )
     }
 
@@ -258,5 +266,6 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(monthLock, forKey: .monthLock)
         try container.encode(leave, forKey: .leave)
         try container.encode(publicHolidays, forKey: .publicHolidays)
+        try container.encode(leadsCrew, forKey: .leadsCrew)
     }
 }
