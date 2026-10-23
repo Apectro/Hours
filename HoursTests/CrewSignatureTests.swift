@@ -192,4 +192,19 @@ final class CrewSignatureTests: XCTestCase {
     func testASheetWithSignaturesKeepsItsLine() {
         XCTAssertEqual(sheet([day(3)], signatures: []).signatures, ["Checked · date, signature"])
     }
+    // MARK: - Which month the sign-off opens on
+
+    /// Crews sign at the end of the month, face to face on site, or in the
+    /// first days of the next one when the sheet goes out: the first ten
+    /// days still mean the month just gone.
+    func testSignOffOpensOnLastMonthInTheFirstTenDays() {
+        XCTAssertEqual(SignOff.defaultMonth(today: Fixture.date(2026, 11, 1)), YearMonth(year: 2026, month: 10))
+        XCTAssertEqual(SignOff.defaultMonth(today: Fixture.date(2026, 11, 10)), YearMonth(year: 2026, month: 10))
+        XCTAssertEqual(SignOff.defaultMonth(today: Fixture.date(2027, 1, 3)), YearMonth(year: 2026, month: 12))
+    }
+
+    func testSignOffOpensOnThisMonthFromTheEleventh() {
+        XCTAssertEqual(SignOff.defaultMonth(today: Fixture.date(2026, 10, 11)), YearMonth(year: 2026, month: 10))
+        XCTAssertEqual(SignOff.defaultMonth(today: Fixture.date(2026, 10, 31)), YearMonth(year: 2026, month: 10))
+    }
 }
