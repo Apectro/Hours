@@ -91,6 +91,15 @@ extension ExportLanguage {
         [self(.page), String(page), self(.of), String(count)].joined(separator: " ")
     }
 
+    /// "People 1–5 of 9", over a part of a site sheet split across pages;
+    /// "People 9 of 9" for a part of one.
+    func peopleOnPage(_ people: ClosedRange<Int>, of total: Int) -> String {
+        let range = people.count == 1 ? String(people.lowerBound) : "\(people.lowerBound)–\(people.upperBound)"
+        return self(.peopleOnPage)
+            .replacingOccurrences(of: "{range}", with: range)
+            .replacingOccurrences(of: "{total}", with: String(total))
+    }
+
     /// A heading as it reads inside a longer one — "Ana hours" rather than
     /// "Ana Hours". German keeps its capital: nearly every heading is a noun,
     /// and a German noun in lower case is a spelling mistake.

@@ -1002,13 +1002,29 @@ totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
 
-A site sheet is A4 landscape, a times and an hours column per person, neither
-allowed to truncate. That fits a normal crew; past about six people the
-columns need more than the page's width and the renderer squeezes every column
-by weight, clipping times. `ExportCaptureTests` captures a ten-person month
-(`16-site-pdf-ten-people-*`) and prints, per crew size, what the columns need
-against the page, so the limit stays visible until big crews get a layout of
-their own.
+A director's sheet (`SiteSheetBuilder`) opens with the timesheet's own Date
+and Day columns — the same `ReportBuilder.dateText`/`weekdayText`, so the date
+follows Settings › Export date style, and the same headings in every export
+language — each a column group of one, so the two-row heading of the workbook
+and the PDF names both. People's groups start at group 2 (`mergedGroups`);
+the closing rows keep their label in the date column with the day empty.
+
+A big crew does not fit across A4 landscape: every person is two columns
+that may never be cut short ("07:00–16:00" and their hours), and the page
+holds five or six. The PDF then prints the month once per group of people
+rather than squeezing the times. `SiteSheetBuilder.split(_:peoplePerPage:)`
+(engine, tested on Linux) cuts the table into consecutive, balanced groups —
+seven at five a page is four and three — each a complete table: Date and Day,
+that group's people, Notes, and that group's closing rows (a sick or leave
+row only where someone in the group had one), with flags and merged groups
+moved along with their person and a "People 1–5 of 9" line
+(`ExportTerm.peopleOnPage`) printed under the header block, which every part
+repeats. How many fit is measured by the app (`PDFReportLayout.printedParts`:
+the largest group size at which every part's measured minimum widths fit).
+A sheet everyone fits on comes back unchanged and prints exactly as before.
+The page count runs across all parts, and the sign-off and diary follow the
+last part once. Only the PDF is split: the workbook keeps one wide sheet and
+the CSV one table.
 
 A director's sheet can carry the site diary and the crew's sign-off. In the PDF
 they are pages of their own after the table (`PDFAppendix`), laid out before

@@ -58,6 +58,15 @@ struct PDFPageDecorations {
             width: 2,
             color: PDFReportStyle.ink
         )
+        // A part of a sheet split across pages says whose hours it holds.
+        if !table.partLabel.isEmpty {
+            PDFReportStyle.draw(
+                table.partLabel,
+                in: CGRect(x: margin, y: ruleY + 5, width: PDFReportStyle.contentWidth, height: 11),
+                font: PDFReportStyle.cellBoldFont,
+                color: PDFReportStyle.secondary
+            )
+        }
         return y + layout.titleBlockHeight
     }
 

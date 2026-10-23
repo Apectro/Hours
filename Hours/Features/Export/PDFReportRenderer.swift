@@ -26,32 +26,66 @@ enum PDFReportRenderer {
         let bounds = CGRect(origin: .zero, size: pageSize)
         let renderer = UIGraphicsPDFRenderer(bounds: bounds, format: format)
 
-        let layout = PDFReportLayout(table: table)
-        let plans = layout.pages()
-        let painter = PDFTablePainter(
-            table: table,
-            layout: layout,
-            widths: layout.columnWidths(availableWidth: PDFReportStyle.contentWidth)
-        )
-        // The sign-off and the diary follow the table on pages of their own,
-        // and count in the footer's "of".
+        // A site sheet too wide for the page prints as parts, a group of
+        // people each, one after another; anything else is one part, itself.
+        var built: [Section] = []
+        var pagesSoFar = 0
+        for part in PDFReportLayout.printedParts(of: table) {
+            let layout = PDFReportLayout(table: part)
+            let plans = layout.pages(firstNumber: pagesSoFar + 1)
+            pagesSoFar += plans.count
+            built.append(Section(
+                table: part,
+                layout: layout,
+                plans: plans,
+                painter: PDFTablePainter(
+                    table: part,
+                    layout: layout,
+                    widths: layout.columnWidths(availableWidth: PDFReportStyle.contentWidth)
+                )
+            ))
+        }
+        let sections = built
+        let tablePages = pagesSoFar
+        // The sign-off and the diary follow the table — every part of it —
+        // on pages of their own, and count in the footer's "of".
         let appendix = PDFAppendix(table: table, photos: photos.compactMapValues { DiaryPhotoProcessor.printableImage(from: $0) })
         let extra = appendix.pages()
+        let pageCount = tablePages + extra.count
         let decorations = PDFPageDecorations(
-            table: table, layout: layout, generatedOn: date, pageCount: plans.count + extra.count
+            table: table, layout: PDFReportLayout(table: table), generatedOn: date, pageCount: pageCount
         )
 
         return renderer.pdfData { context in
-            for plan in plans {
-                context.beginPage()
-                draw(plan, table: table, painter: painter, decorations: decorations)
+            for section in sections {
+                let sectionDecorations = PDFPageDecorations(
+                    table: section.table, layout: section.layout, generatedOn: date, pageCount: pageCount
+                )
+                for plan in section.plans {
+                    context.beginPage()
+                    draw(plan, table: section.table, painter: section.painter, decorations: sectionDecorations)
+                }
             }
             for (index, page) in extra.enumerated() {
                 context.beginPage()
                 autoreleasepool { appendix.draw(page) }
-                decorations.drawFooter(page: plans.count + index + 1, isLast: false)
+                decorations.drawFooter(page: tablePages + index + 1, isLast: false)
             }
         }
+    }
+
+    /// One printed table: the whole report, or a part of a split site sheet.
+    private struct Section {
+        let table: ReportTable
+        let layout: PDFReportLayout
+        let plans: [PDFPagePlan]
+        let painter: PDFTablePainter
+    }
+
+    /// The tables the PDF prints in turn, for the tests: one, unless a site
+    /// sheet's crew is too big for the page.
+    static func parts(of table: ReportTable) -> [ReportTable] {
+        PDFReportLayout.printedParts(of: table)
     }
 
     /// The widths the table is drawn at, for the tests.

@@ -359,10 +359,12 @@ jobs:
     runs-on: macos-latest
     # The suite has grown to 25–29 minutes on a clean run; at 30 a single
     # slow simulator start or failing test was cut off before it could say
-    # which test failed. 50 since a slow runner took 20 for the suite alone.
+    # which test failed. 50 since a slow runner took 20 for the suite alone;
+    # 70 since the whole job reached 48–50 minutes with every test passing
+    # and was cancelled while keeping the screenshots.
     # The screen atlas is four passes over a hundred-odd screens instead, and
     # gets longer.
-    timeout-minutes: ${{ inputs.screen_atlas && 100 || 50 }}
+    timeout-minutes: ${{ inputs.screen_atlas && 100 || 70 }}
 
     steps:
       - uses: actions/checkout@v4

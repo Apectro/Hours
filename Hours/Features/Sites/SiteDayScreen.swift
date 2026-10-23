@@ -174,7 +174,8 @@ struct SiteDayScreen: View {
                     diaryDateKeys: diaryDateKeys,
                     badWeatherDateKeys: badWeatherDateKeys,
                     holidayDateKeys: holidayDateKeys,
-                    extraWorkDateKeys: extraWorkDateKeys
+                    extraWorkDateKeys: extraWorkDateKeys,
+                    awayMarks: awayMarks
                 )
 
                 dayCard
@@ -480,6 +481,26 @@ struct SiteDayScreen: View {
 
     private var presentCounts: [Int: Int] {
         Dictionary(monthDays.map { ($0.date.key, $0.present.count) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    private var awayMarks: [Int: SiteAwayMark] {
+        var marks: [Int: SiteAwayMark] = [:]
+        for day in monthDays where marks[day.date.key] == nil {
+            guard let reason = day.leadingAwayReason else { continue }
+            let color: Color
+            let title: String
+            switch reason {
+            case let .dayType(id):
+                let definition = settings.dayTypeCatalog.definition(for: id)
+                color = definition.tint.color
+                title = definition.displayName()
+            case .otherSite:
+                color = .gray
+                title = String(localized: "Another site")
+            }
+            marks[day.date.key] = SiteAwayMark(count: day.awayCount, color: color, title: title)
+        }
+        return marks
     }
 
     private var result: SiteDayResult {

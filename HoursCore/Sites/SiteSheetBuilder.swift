@@ -23,6 +23,11 @@ struct SiteSheetBuilder: Sendable {
         self.emptyPlaceholder = emptyPlaceholder
     }
 
+    /// The columns before the people: the date and the weekday, as the
+    /// personal timesheet opens.
+    static let leadingColumnKinds: [ReportColumn] = [.date, .weekday]
+    static var leadingColumns: Int { leadingColumnKinds.count }
+
     private struct Person {
         var id: UUID
         var heading: String
@@ -83,18 +88,20 @@ struct SiteSheetBuilder: Sendable {
 
         for date in dates {
             guard let result = byDate[date] else { continue }
-            // "Wed 1 Oct": a director reads this sheet looking for a weekday,
-            // which an ISO date makes them work out.
-            var values = [formatting.mediumDate(date)]
-            var minutes: [Int?] = [nil]
+            // The date and the weekday in two columns, written as the
+            // personal timesheet writes them: the date in the export's date
+            // style, the weekday in the export language.
+            var values = [formatter.dateText(date), formatter.weekdayText(date)]
+            var minutes: [Int?] = [nil, nil]
             var flagged: Set<Int> = []
             var merged: Set<Int> = []
             for (index, person) in people.enumerated() {
                 guard let entry = result.people.first(where: { $0.memberID == person.id }) else {
-                    // Group 0 is the day, so a person's group is one along.
+                    // Groups 0 and 1 are the date and the day, so a person's
+                    // group is two along.
                     // Not there: why, when it was given ("Sick leave"), in
                     // the words a timesheet uses for the day type.
-                    merged.insert(index + 1)
+                    merged.insert(index + Self.leadingColumns)
                     // On another site: its name when it is known, else
                     // "Other site"; neither sick nor leave.
                     let text: String
@@ -140,9 +147,10 @@ struct SiteSheetBuilder: Sendable {
 
         // Each closing figure sits under the hours, with the times column
         // beside it left empty, so a total lines up with what it adds up.
-        var totalValues = [language(.monthTotal)]
-        var totalCells: [Int?] = [nil]
-        var countValues = [language(.daysWorked)]
+        // The label stands in the date column, the day under it empty.
+        var totalValues = [language(.monthTotal), ""]
+        var totalCells: [Int?] = [nil, nil]
+        var countValues = [language(.daysWorked), ""]
         for index in people.indices {
             totalValues += ["", duration.string(totalMinutes[index])]
             totalCells += [nil, totalMinutes[index]]
@@ -156,7 +164,7 @@ struct SiteSheetBuilder: Sendable {
         // and blank for a person with none.
         var absenceRows: [[String]] = []
         for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays)] where counts.contains(where: { $0 > 0 }) {
-            absenceRows.append([language(term)] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
+            absenceRows.append([language(term), ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
         }
 
         // Ids 0 and 1 cannot collide with a date key.
@@ -202,10 +210,10 @@ struct SiteSheetBuilder: Sendable {
             subtitle: formatter.subtitle(for: range),
             ownerName: owner,
             language: language,
-            columns: [.date] + people.flatMap { _ in [ReportColumn.times, .worked] } + [.note],
+            columns: Self.leadingColumnKinds + people.flatMap { _ in [ReportColumn.times, .worked] } + [.note],
             rows: rows,
             totals: [],
-            headingOverrides: [language(.day)]
+            headingOverrides: Self.leadingColumnKinds.map { $0.heading(in: language) }
                 + people.flatMap { _ in [language(.fromTo), language(.hours)] }
                 + [language(.notes)],
             trailingSummaryRows: 2 + absenceRows.count
@@ -214,7 +222,11 @@ struct SiteSheetBuilder: Sendable {
         table.eyebrow = "\(language(.siteHours)) · \(month)"
         table.detail = (recorded + [language.people(people.count), language.daysOnSite(dates.count)])
             .joined(separator: " · ")
-        table.columnGroups = [ReportColumnGroup(title: language(.day), span: 1)]
+        // The date and the day each head their own column, as on a timesheet:
+        // a group of one is headed once and runs down through the second
+        // heading row, where a group of both would print one title over the
+        // pair and neither "Date" nor "Day".
+        table.columnGroups = Self.leadingColumnKinds.map { ReportColumnGroup(title: $0.heading(in: language), span: 1) }
             + people.map { ReportColumnGroup(title: $0.heading, span: 2) }
             + [ReportColumnGroup(title: language(.notes), span: 1)]
         table.tiles = [
