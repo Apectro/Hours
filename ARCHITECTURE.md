@@ -576,7 +576,9 @@ today is unwritten a card also offers "Same as last day", which pushes the
 same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen
 puts the selected day first: the day's week (the whole month on request),
 the day's crew, bad weather, extra work, the diary, and the month's figures
-last. Export is reachable from the calendar toolbar and from Settings.
+last. At accessibility text sizes a day cell of the site's week or month
+shows one mark under its number (the crew count, else rain, else one dot for a
+diary or extra work) instead of three; VoiceOver still names every one. Export is reachable from the calendar toolbar and from Settings.
 
 **The calendar, top to bottom (1.1).** The grid, then the selected day's card
 (its Write hours / Edit day button must be on screen when a day is tapped),
@@ -999,6 +1001,14 @@ One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,
 totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
+
+A site sheet is A4 landscape, a times and an hours column per person, neither
+allowed to truncate. That fits a normal crew; past about six people the
+columns need more than the page's width and the renderer squeezes every column
+by weight, clipping times. `ExportCaptureTests` captures a ten-person month
+(`16-site-pdf-ten-people-*`) and prints, per crew size, what the columns need
+against the page, so the limit stays visible until big crews get a layout of
+their own.
 
 A director's sheet can carry the site diary and the crew's sign-off. In the PDF
 they are pages of their own after the table (`PDFAppendix`), laid out before
