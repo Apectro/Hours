@@ -671,12 +671,56 @@ while the app is open is still not shown, as before.
 
 ## First run
 
-A fresh install asks three questions once (`FirstRunSetupView`): a name for the
-sheets, the working week, whether breaks are paid. Each answer is written as
-you continue past it, through the same helpers the settings screens use
-(`setPrimarySchedule`, `setPrimaryBreaksArePaid`), so skipping half-way keeps
-what was answered, and continuing without changing anything leaves the
-defaults exactly as they were.
+A fresh install asks its questions once (`FirstRunSetupView`): a name for the
+sheets, the working week, whether breaks are paid, where you work (the
+country's public holidays), the language of the reports for the boss, whether
+you lead a crew, and an optional hourly rate with its currency. Each answer is
+written as you continue past it, through the same helpers the settings screens
+use (`changePrimarySchedule`, `setPrimaryBreaksArePaid`, `changePay`, the export
+language and currency fields), so skipping half-way keeps what was answered,
+and continuing without changing anything leaves the defaults exactly as they
+were (`FirstRunAnswers`, tested on Linux).
+
+**Preselected from the country (1.1).** Leaving the country step preselects the
+report language and the currency (`HolidayCountry.reportLanguage(region:)` —
+Switzerland by canton — and `currencyCode`) unless either was already picked by
+hand; with no country both stay as the settings had them, which for the
+language is "Same as the phone": the app's language when the export speaks it,
+English otherwise. The phone's own currency is stored as none, as Settings ›
+Pay does. A rate becomes the primary job's first pay since always; no rate sets
+nothing up and stores no currency, and a job that already has pay keeps it. The
+rate is typed as text and read by `MoneyInput` on every keystroke, since a
+formatted number field only commits when it loses focus and the decimal keypad
+has no Return. The pay step says where money can appear: never on a site's
+sheet, and on a personal timesheet only if Export options adds it.
+
+**Leading a crew** is `AppSettings.leadsCrew`, decoded leniently (1.0 settings
+and backups read as no; 1.0 skips the key). It only decides what the last screen
+offers — Create a site is for a crew lead — and what the tour's Sites stop says.
+It never hides a tab.
+
+## The guided tour
+
+"Show me around" on the setup's last screen, or Settings › Show the tour again,
+starts six stops (`GuidedTour`, `TourStop` in the engine): a welcome in the
+middle, today's cell, the month's totals, Sites, Insights, and Export options
+naming the report language. Skip on any setup step ends the setup without it,
+and it is never started on its own; UI tests see it only when `-hours-tour`
+asks.
+
+Views mark what the tour points at with `.tourTarget(_:)`. They report their
+frame in window coordinates to a `TourCoordinator` in the environment rather
+than as anchor preferences, because the targets sit inside the `TabView`'s tabs,
+navigation stacks and lists, and a preference set there does not reliably reach
+a view outside the `TabView`. `RootView` owns the coordinator, switches tabs
+through its own `selection` as the stops move, and ends on the calendar.
+`TourOverlay` dims the screen (black at 55%), cuts a rounded, animated hole
+around the target and puts the card above or below it; it waits about a second
+for a target after a tab switch, and a target that never appears (the month
+summary switched off, a row scrolled away) shows the card centred with nothing
+lit, so the tour cannot get stuck. Taps outside the card do nothing. The card
+is modal to VoiceOver and takes focus at every stop, the dimming is hidden from
+it, and Reduce Motion drops the movement.
 
 Telling a fresh install from an update is `FirstRunSetup.decide`: any stored
 day, holiday or site, sync being on, or any setting off its default means

@@ -37,6 +37,7 @@ struct CalendarMonthGrid: View {
                     )
                     .contentShape(Rectangle())
                     .onTapGesture { onSelect(date) }
+                    .tourTarget(date == today ? .calendarToday : nil)
                 }
             }
         }

@@ -107,6 +107,14 @@ night surcharges, and paid days off at the rate. A raise starts from a date, so
 the months before it keep the rate they were worked at. The balance is a setting
 away, and money never appears on a site, its sheet or anywhere about your crew.
 
+**Welcome and tour** — a fresh install asks a few questions once, each one
+skippable: your name for the sheets, your week, paid breaks, where you work,
+the language of the reports for your boss (preselected from the country), whether
+you lead a crew, and optionally your hourly rate. "Show me around" then walks
+through the app in six stops — a dimmed screen with the real control lit up —
+and Settings › Show the tour again brings it back. It is never shown to anyone
+on its own.
+
 **Settings** — the contracted week (hours per weekday, not one number for all of
 them), pay, calculation rules, which fields exist, day types, holidays, calendar
 appearance, theme, export options, and backup.

@@ -19,6 +19,9 @@ struct RootView: View {
     /// Where the setup's last screen asked to go, followed once it has gone.
     @State private var setupFinish: FirstRunFinish?
     @State private var afterSetup: FirstRunFinish?
+    /// The guided tour, started from the setup's "Show me around" or from
+    /// Settings, and drawn over everything.
+    @State private var tour = TourCoordinator()
 
     enum Destination: Hashable {
         case calendar
@@ -39,6 +42,13 @@ struct RootView: View {
                 StoreFailureBanner(message: storeFailure)
             }
             tabs
+        }
+        .overlay { TourOverlay(coordinator: tour) }
+        .environment(tour)
+        // The tour moves between tabs through the same selection a tap on
+        // the tab bar sets, and ends on the calendar.
+        .onChange(of: tour.tour?.stop) { _, stop in
+            selection = stop.map { destination(for: $0.tab) } ?? .calendar
         }
         // A widget's buttons are links, because a widget cannot write the
         // store (see `AppLink`). Anything that is not one of ours is ignored
@@ -68,12 +78,19 @@ struct RootView: View {
                 DayEditorSheet(date: CalendarDate.today(in: settingsStore.workCalendar))
             case .createSite:
                 SiteEditorSheet(site: Site(name: ""), isNew: true)
+            case .tour:
+                // Never set: the tour is not a sheet (see `setupDismissed`).
+                EmptyView()
             }
         }
         .task {
             // Before anything below writes to the store, which would make a
             // fresh install look like an existing one.
             decideFirstRun()
+            // Only behind the launch argument the tour's UI tests pass.
+            if TourCoordinator.isRequested, !showsSetup {
+                tour.start(leadsCrew: settingsStore.settings.leadsCrew)
+            }
             // Only ever true behind a launch argument the UI test target
             // passes, and it writes into the in-memory store those tests use,
             // so it cannot reach anyone's real hours.
@@ -177,8 +194,22 @@ struct RootView: View {
         }
         guard let finish = setupFinish else { return }
         setupFinish = nil
+        if finish == .tour {
+            selection = .calendar
+            tour.start(leadsCrew: settingsStore.settings.leadsCrew)
+            return
+        }
         selection = finish == .writeToday ? .calendar : .sites
         afterSetup = finish
+    }
+
+    private func destination(for tab: TourTab) -> Destination {
+        switch tab {
+        case .calendar: return .calendar
+        case .sites: return .sites
+        case .insights: return .insights
+        case .settings: return .settings
+        }
     }
 
     /// Every link the app follows is a place on the Sites tab, except

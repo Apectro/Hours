@@ -1,6 +1,6 @@
 import Foundation
 
-/// Whether a launch asks the three first-run questions.
+/// Whether a launch asks the first-run questions.
 ///
 /// Only a fresh install is asked, once. The difficulty is telling a fresh
 /// install from someone who has just updated to the version that has the
@@ -36,6 +36,14 @@ struct FirstRunAnswers: Hashable, Sendable {
     var end: TimeOfDay
     var breakMinutes: Int
     var breaksArePaid: Bool
+    /// The language of the sheets for the boss (`ExportPreferences.language`).
+    var reportLanguage: ExportLanguage
+    /// Whether you lead a crew (`AppSettings.leadsCrew`).
+    var leadsCrew: Bool
+    /// The primary job's hourly rate; 0 is none, and sets nothing up.
+    var hourlyRateCents: Int
+    /// Nil follows the phone's region, as in Settings › Pay.
+    var currencyCode: String?
 
     init(settings: AppSettings) {
         let schedule = settings.primarySchedules.latest
@@ -45,6 +53,23 @@ struct FirstRunAnswers: Hashable, Sendable {
         end = schedule.defaultEnd
         breakMinutes = schedule.defaultBreakMinutes
         breaksArePaid = settings.primaryJob.breaksArePaid
+        reportLanguage = settings.export.language
+        leadsCrew = settings.leadsCrew
+        hourlyRateCents = settings.primaryJob.pay?.latest.hourlyRateCents ?? 0
+        currencyCode = settings.currencyCode
+    }
+
+    /// The report language and the currency the country suggests, or the
+    /// settings' own without a country. `deviceCurrency` is the phone
+    /// region's: choosing it stores nothing, as Settings › Pay does, so the
+    /// phone keeps deciding.
+    mutating func preselect(country: HolidayCountry?, region: String?, settings: AppSettings, deviceCurrency: String) {
+        reportLanguage = ExportLanguage.suggested(for: country, region: region, otherwise: settings.export.language)
+        if let code = country?.currencyCode {
+            currencyCode = code == deviceCurrency ? nil : code
+        } else {
+            currencyCode = settings.currencyCode
+        }
     }
 
     /// What one working day comes to, which is what each ticked weekday is
@@ -68,6 +93,22 @@ struct FirstRunAnswers: Hashable, Sendable {
         // applies since always rather than from today.
         settings.changePrimarySchedule(to: schedule, from: nil)
         settings.setPrimaryBreaksArePaid(breaksArePaid)
+
+        settings.export.language = reportLanguage
+        settings.leadsCrew = leadsCrew
+
+        // A first rate applies since always, as Settings › Pay saves one. A
+        // job that already has pay keeps it: its raises are not the
+        // welcome's to rewrite.
+        let primary = settings.primaryJob
+        if primary.pay == nil, hourlyRateCents > 0 {
+            settings.changePay(forJob: primary.id, to: PayRules(hourlyRateCents: hourlyRateCents), from: nil)
+        }
+        // The currency only matters with a rate; without one, a currency the
+        // country preselected is not worth storing.
+        if settings.earningsAreSetUp {
+            settings.currencyCode = currencyCode
+        }
     }
 
     private func shaped(_ schedule: WorkSchedule) -> WorkSchedule {

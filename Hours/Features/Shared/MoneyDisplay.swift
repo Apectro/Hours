@@ -12,6 +12,21 @@ extension AppSettings {
     static var deviceCurrencyCode: String {
         Locale.current.currency?.identifier ?? "EUR"
     }
+
+    /// The currencies a picker offers: the common ones, plus `chosen` when
+    /// it is not among them, in code order.
+    static func currencyChoices(including chosen: String) -> [String] {
+        var codes = Locale.commonISOCurrencyCodes
+        if !codes.contains(chosen) { codes.append(chosen) }
+        return codes.sorted()
+    }
+
+    /// "Euro (EUR)", in the phone's language; the bare code when the system
+    /// has no name for it.
+    static func currencyName(_ code: String) -> String {
+        guard let name = Locale.current.localizedString(forCurrencyCode: code) else { return code }
+        return "\(name) (\(code))"
+    }
 }
 
 extension PayRules {

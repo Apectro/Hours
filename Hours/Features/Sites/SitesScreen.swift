@@ -161,6 +161,7 @@ private struct SitesContent: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("site-card")
+                    .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
                 }
 
                 if !archivedSites.isEmpty {
@@ -217,6 +218,7 @@ private struct SitesContent: View {
             Button("Add a site", action: addSite)
                 .buttonStyle(.borderedProminent)
         }
+        .tourTarget(.sites)
         .padding(.top, Metrics.extraLarge)
     }
 
