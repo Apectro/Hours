@@ -658,13 +658,32 @@ line of `fastlane/watch-screenshots.txt` and saves the screen with `simctl`.
 
 ## Reminders and the links they open
 
-Three kinds of local notification, each planned in the engine and scheduled by
+Four kinds of local notification, each planned in the engine and scheduled by
 `ReminderScheduler`, under its own identifier prefix so each can be replaced
 without touching the others: the weekly gap reminder (`GapFinder`), the evening
-site reminder (`SiteReminderPlan`), and the note on the 1st that a site's sheet
-is ready for the director (`MonthlySheetReminderPlan`). None of them asks for
-permission until its switch is turned on; the two site ones are on by default
-and simply schedule nothing while notifications are not allowed.
+site reminder (`SiteReminderPlan`), the note on the 1st that a site's sheet
+is ready for the director (`MonthlySheetReminderPlan`), and the weekly note
+that finished extra work has not been sent to the boss
+(`ExtraWorkReminderPlan`). None of them asks for permission until its switch is
+turned on; the two site ones are on by default and simply schedule nothing
+while notifications are not allowed, and the extra-work one is off by default.
+
+**Extra work not sent.** A day of the week and a time (Friday 15:00 by
+default), one repeating weekly request (`unsent-extra-work`). A notification
+cannot look at the store when it fires, so its words are fixed when it is
+scheduled: `ExtraWorkReminderRefresher` asks the plan again and replaces the
+request — or removes it when nothing is waiting — on launch, on every return to
+the app, when a job is saved, deleted, ticked or sent, when a site is archived,
+and from its settings. Nothing changes the answer without the app being open,
+except a sync from another device or a restore, which wait for the next return
+to the app. Waiting means the report's "Not sent yet" (`awaitsReport`) on a
+finished job of an active site. One site: "Trg Pravde: 3 extra jobs not sent
+yet", linking to that site's report (`zeitkonto://site/<id>/extra-work`,
+`AppLink.siteExtraWork`, which the site screen opens as a sheet, as it opens the
+export); several: the total, "3 extra jobs not sent to your boss yet", linking
+to the Sites tab. Counts are inflected (`String(inflected:)`, the
+`extraJobs` noun). The preference keys say "unsent work" so a backup without
+extra work still has no `extraWork` key in it.
 
 The monthly note only ever plans the next 1st — the one after depends on days
 not written yet — so it is redone on launch, on every return to the app, when a
@@ -835,9 +854,10 @@ for jobs done, in progress and photos, each only where it has something
 to say (never hours). A job's material is one line per item, "4 × P7" over
 "2 × P6", in the PDF and on the day's card alike. A signature the client gave
 is printed as "Confirmed on site by <name>, <date>" with the drawing, on its job or under the report, and nothing is
-printed where there is none. Three renderings: the PDF (`ExtraWorkPDFRenderer`,
+printed where there is none. Four renderings: the PDF (`ExtraWorkPDFRenderer`,
 A4 portrait in the director's sheet's type and colours, jobs running on over
-pages), a workbook with Jobs and Material sheets in that order
+pages), the same report as one tall picture for a chat
+(`ExtraWorkPictureRenderer`; see below), a workbook with Jobs and Material sheets in that order
 (`XLSXWriter.data(sheets:)`, quantities as numbers through `ReportRow.numbers`,
 a job's items one per line in a wrapped cell), and a CSV of job lines with each
 job's time and who on its first line only; where any job has its time noted,
@@ -846,6 +866,23 @@ column appears in both only when jobs in progress are included, and a
 "Confirmed on site" column only when somebody confirmed. Its words are
 `ExtraWorkTerm`s, kept beside `ExportTerm` in their own file with the same
 one-switch rule.
+
+**The picture.** WhatsApp opens an A4 PDF zoomed in and cut off, so "Send as
+picture" shares the report as one image: 1080 pixels wide, drawn a point to a
+pixel with the table's text at about 30 pixels, as tall as the report, never
+paginated, with "Zeitkonto" in the footer instead of a page count. It is not a
+second layout: `ExtraWorkReportLayout` measures and draws every block (header
+and tiles, the jobs, "Still in progress", the material, the closing with the
+legend and signature) for both, and differs only in its `Metrics` — page width,
+margins, columns, and a type scale that multiplies every font, rule and
+vertical distance (1 for the PDF, whose output is unchanged). The PDF renderer
+only cuts the blocks into pages; the picture renderer draws them one under
+another into a `UIGraphicsImageRenderer`. Photos are the PDF's small
+thumbnails, two to a row, until the picture would pass 16,000 pixels; then they
+are left out and the text kept (the PDF still has them). The bytes are a PNG or
+a JPEG at 0.85, whichever is smaller; the file is named as the PDF is, with
+`.png` or `.jpg`. Sharing it marks the jobs sent exactly as the PDF does, only
+once the share sheet reports a completed share.
 
 The remembered items ("Used before") are one list for the user, not per site:
 saving a job records its items, most recently used offered first.

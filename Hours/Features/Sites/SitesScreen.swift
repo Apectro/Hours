@@ -54,6 +54,8 @@ struct SitesScreen: View {
             next.append(SiteRoute(siteID: id, appliesSameAsLastDay: true))
         case let .siteExport(id, month):
             next.append(SiteRoute(siteID: id, exportMonth: month))
+        case let .siteExtraWork(id):
+            next.append(SiteRoute(siteID: id, opensExtraWorkReport: true))
         }
         path = next
         link = nil
@@ -70,6 +72,9 @@ struct SiteRoute: Hashable {
     /// Set by the monthly reminder: open the site's sheet for this month on
     /// arrival, over the site, so closing it leaves you on the site.
     var exportMonth: YearMonth? = nil
+    /// Set by the weekly "extra work not sent" reminder: open the site's
+    /// extra-work report on arrival, over the site, as the export above.
+    var opensExtraWorkReport = false
 }
 
 /// A site's crew list, pushed from the site screen. A value like `SiteRoute`,
@@ -189,7 +194,8 @@ private struct SitesContent: View {
             SiteDetailScreen(
                 siteID: route.siteID,
                 appliesSameAsLastDay: route.appliesSameAsLastDay,
-                exportMonth: route.exportMonth
+                exportMonth: route.exportMonth,
+                opensExtraWorkReport: route.opensExtraWorkReport
             )
         }
         .navigationDestination(for: SiteCrewRoute.self) { route in

@@ -96,8 +96,10 @@ listed at the top of its report. The site's Report button tells the boss what
 is done — finished jobs not sent yet, this week or picked dates, and those still
 in progress only if you include them, in a section of their own — with the
 material used after the work, an optional signature under the lot, and sends a
-PDF (or a workbook, or a CSV) in the export language; the jobs are marked sent
-to the boss once the share goes through. It is a progress report, not a bill:
+PDF (or the same report as one tall picture for WhatsApp and other chats, or a
+workbook, or a CSV) in the export language; the jobs are marked sent to the boss
+once the share goes through. An optional weekly reminder (off by default,
+Friday 15:00) says when finished jobs have not been sent yet. It is a progress report, not a bill:
 quantities only, never a price, and no lines to fill in.
 
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what

@@ -176,6 +176,8 @@ struct SiteEditorSheet: View {
         let context = modelContext
         let settings = settingsStore
         Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: settings) }
+        // An archived site's extra work is no longer counted as waiting.
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
         dismiss()
     }
 }

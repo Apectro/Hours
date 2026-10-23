@@ -69,6 +69,7 @@ HOURS = lambda n=1: plural("hours", n, "%lld hour", "%lld hours")
 MINUTES = lambda n=1: plural("minutes", n, "%lld minute", "%lld minutes")
 COWORKERS = lambda n=1: plural("coworkers", n, "%lld coworker", "%lld coworkers")
 PEOPLE = lambda n=1: plural("people", n, "%lld person", "%lld people")
+EXTRA_JOBS = lambda n=1: plural("extraJobs", n, "%lld extra job", "%lld extra jobs")
 
 APP_STRINGS = {
     "^[%lld day](inflect: true)": entry("%#@days@", DAYS()),
@@ -121,6 +122,14 @@ APP_STRINGS = {
         "Nothing was restored: all %#@days@ in that file are damaged. "
         "Your existing hours have not been touched.",
         DAYS(),
+    ),
+    # The weekly "extra work not sent" notification: one site by name (the
+    # count is the second argument), or the total over several.
+    "%@: ^[%lld extra job](inflect: true) not sent yet": entry(
+        "%@: %#@extraJobs@ not sent yet", EXTRA_JOBS(2)
+    ),
+    "^[%lld extra job](inflect: true) not sent to your boss yet": entry(
+        "%#@extraJobs@ not sent to your boss yet", EXTRA_JOBS()
     ),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "

@@ -126,6 +126,10 @@ struct ExtraWorkDaySection: View {
         ExtraWorkRepository(context: modelContext).storeProgress(of: job.togglingDone(at: Date()))
         load()
         onChange()
+        // Finished, or back in progress: the weekly note's count changes.
+        let context = modelContext
+        let settings = settingsStore
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
     }
 
     /// Read outside `body`: the repository's reads collapse duplicates,

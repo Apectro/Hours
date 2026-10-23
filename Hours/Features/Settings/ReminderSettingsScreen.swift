@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The weekly nudge about days with nothing recorded, and for someone with a
-/// site, the evening site reminder and the note on the 1st about the sheet.
+/// site, the evening site reminder, the note on the 1st about the sheet, and
+/// the weekly note about extra work not sent to the boss yet.
 struct ReminderSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
@@ -9,6 +10,7 @@ struct ReminderSettingsScreen: View {
     @State private var authorizationDenied = false
     @State private var siteAuthorizationDenied = false
     @State private var sheetAuthorizationDenied = false
+    @State private var unsentAuthorizationDenied = false
 
     var body: some View {
         Form {
@@ -66,6 +68,23 @@ struct ReminderSettingsScreen: View {
                     Text(sheetAuthorizationDenied
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
                          : "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.")
+                }
+
+                // Off by default: not everyone with a site writes extra work.
+                Section {
+                    Toggle("Extra work not sent", isOn: unsentEnabledBinding)
+                    if settings.reminders.unsentWorkEnabled {
+                        Picker("Day", selection: unsentWeekdayBinding) {
+                            ForEach(1...7, id: \.self) { weekday in
+                                Text(settingsStore.dateFormatting.weekdayName(for: weekday)).tag(weekday)
+                            }
+                        }
+                        DatePicker("Time", selection: unsentTimeBinding, displayedComponents: .hourAndMinute)
+                    }
+                } footer: {
+                    Text(unsentAuthorizationDenied
+                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
+                         : "Once a week, a note when finished extra work has not been sent to your boss yet. Tapping it opens the report.")
                 }
             }
         }
@@ -134,6 +153,55 @@ struct ReminderSettingsScreen: View {
                 Task { await refreshMonthlySheets() }
             }
         )
+    }
+
+    /// Same promise as the other toggles.
+    private var unsentEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { settings.reminders.unsentWorkEnabled },
+            set: { isOn in
+                guard isOn else {
+                    settingsStore.update { $0.reminders.unsentWorkEnabled = false }
+                    unsentAuthorizationDenied = false
+                    ReminderScheduler().cancelUnsentWorkReminder()
+                    return
+                }
+                Task {
+                    let granted = await ReminderScheduler().requestAuthorization()
+                    unsentAuthorizationDenied = !granted
+                    settingsStore.update { $0.reminders.unsentWorkEnabled = granted }
+                    if granted { await refreshUnsentWork() }
+                }
+            }
+        )
+    }
+
+    private var unsentWeekdayBinding: Binding<Int> {
+        Binding(
+            get: { settings.reminders.unsentWorkWeekday },
+            set: { weekday in
+                settingsStore.update { $0.reminders.unsentWorkWeekday = weekday }
+                Task { await refreshUnsentWork() }
+            }
+        )
+    }
+
+    private var unsentTimeBinding: Binding<Date> {
+        let calendar = settingsStore.workCalendar
+        return Binding(
+            get: {
+                OptionalTimeRow.date(from: settings.reminders.unsentWorkTime, in: calendar)
+            },
+            set: { date in
+                let time = OptionalTimeRow.time(from: date, in: calendar)
+                settingsStore.update { $0.reminders.unsentWorkTime = time }
+                Task { await refreshUnsentWork() }
+            }
+        )
+    }
+
+    private func refreshUnsentWork() async {
+        await ExtraWorkReminderRefresher.refresh(context: modelContext, settingsStore: settingsStore)
     }
 
     private func refreshMonthlySheets() async {

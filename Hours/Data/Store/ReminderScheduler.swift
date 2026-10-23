@@ -14,6 +14,9 @@ struct ReminderScheduler {
     static let siteIdentifierPrefix = "site-reminder-"
     /// Every monthly sheet reminder starts with this, for the same reason.
     static let monthlySheetIdentifierPrefix = "monthly-sheet-"
+    /// The one weekly "extra work not sent" note. It shares no prefix with
+    /// the others, so replacing it touches nothing else.
+    static let unsentWorkIdentifier = "unsent-extra-work"
     /// Where a notification keeps the `AppLink` a tap on it follows.
     static let linkKey = "link"
 
@@ -181,5 +184,53 @@ struct ReminderScheduler {
         let pending = await center.pendingNotificationRequests()
         let ids = pending.map(\.identifier).filter { $0.hasPrefix(ReminderScheduler.monthlySheetIdentifierPrefix) }
         center.removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
+    // MARK: - Extra work not sent
+
+    /// Replaces the weekly "extra work not sent" note with one saying what
+    /// `reminder` says, on `weekday` at `time`, every week; or removes it
+    /// when there is nothing waiting.
+    ///
+    /// A notification cannot look at the store when it fires, so its words
+    /// are fixed when it is scheduled. They stay true because nothing changes
+    /// the answer without the app being open, and the app redoes this
+    /// whenever it could have changed (`ExtraWorkReminderRefresher`): a sync
+    /// from another device is the one change that waits for the app to be
+    /// opened.
+    func scheduleUnsentWorkReminder(
+        _ reminder: ExtraWorkReminder?,
+        weekday: Int,
+        time: TimeOfDay
+    ) async {
+        cancelUnsentWorkReminder()
+        guard let reminder, await isAuthorized() else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = AppIdentity.name
+        switch reminder.scope {
+        case let .site(_, name):
+            content.body = String(inflected: "\(name): ^[\(reminder.count) extra job](inflect: true) not sent yet")
+        case .sites:
+            content.body = String(inflected: "^[\(reminder.count) extra job](inflect: true) not sent to your boss yet")
+        }
+        content.sound = .default
+        content.userInfo = [ReminderScheduler.linkKey: reminder.link.url.absoluteString]
+
+        var components = DateComponents()
+        components.weekday = weekday
+        components.hour = time.hour
+        components.minute = time.minute
+
+        let request = UNNotificationRequest(
+            identifier: ReminderScheduler.unsentWorkIdentifier,
+            content: content,
+            trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        )
+        try? await center.add(request)
+    }
+
+    func cancelUnsentWorkReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: [ReminderScheduler.unsentWorkIdentifier])
     }
 }
