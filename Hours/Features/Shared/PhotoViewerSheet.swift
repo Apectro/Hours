@@ -1,12 +1,10 @@
 import SwiftUI
 import UIKit
 
-/// One photo, large: what a tap on a thumbnail opens. Looking is the reason
-/// people tap a photo, so removing it is a separate, confirmed button at the
-/// bottom, away from Done.
-///
-/// Shared by the extra-work editor; the site diary has the same viewer of
-/// its own (`DiaryPhotoViewer`) and can move to this one.
+/// One photo, large: what a tap on a thumbnail opens, in the site diary and
+/// in the extra-work editor alike. Looking is the reason people tap a photo,
+/// so Done sits top right, as on every sheet that only shows something, and
+/// removing is a separate, confirmed bin top left, away from it.
 struct PhotoViewerSheet: View {
     /// The stored JPEG, drawn at full size.
     let data: Data
@@ -40,12 +38,11 @@ struct PhotoViewerSheet: View {
                         .accessibilityIdentifier("photo-viewer-done")
                 }
                 if onRemove != nil {
-                    ToolbarItem(placement: .bottomBar) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button(role: .destructive) {
                             confirmsRemoval = true
                         } label: {
                             Label("Remove photo", systemImage: "trash")
-                                .frame(minWidth: 44, minHeight: 44)
                         }
                         .accessibilityIdentifier("photo-viewer-remove")
                     }
