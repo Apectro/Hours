@@ -66,7 +66,7 @@ struct SiteDiaryCard: View {
                 Text("Site diary")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
-                Text("Weather, work, photos. Printed on its own pages with the Site sheet.")
+                Text("Weather, work, photos. Printed on its own pages with the site sheet.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

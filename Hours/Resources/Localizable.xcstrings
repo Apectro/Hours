@@ -18732,7 +18732,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bericht über Zusatzarbeiten"
+            "value": "Zusatzarbeiten-Bericht"
           }
         },
         "es": {
@@ -19257,13 +19257,13 @@
         }
       }
     },
-    "Finished jobs go in the Extra-work report.": {
+    "Finished jobs go in the extra-work report.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fertige Arbeiten kommen in den Bericht über Zusatzarbeiten."
+            "value": "Fertige Arbeiten kommen in den Zusatzarbeiten-Bericht."
           }
         },
         "es": {
@@ -20201,7 +20201,7 @@
         }
       }
     },
-    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the Site sheet.": {
+    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the site sheet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -20231,7 +20231,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio del cantiere."
+            "value": "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio di cantiere."
           }
         },
         "nl": {
@@ -29370,7 +29370,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Za ove datume nema ničega za izvješće."
+            "value": "Za ove datume nema ničega za izvještaj."
           }
         },
         "it": {
@@ -30251,7 +30251,7 @@
         }
       }
     },
-    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the Extra-work report.": {
+    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -30670,7 +30670,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur auf diesem Telefon und in deinen Backups. Nie auf Baustellenblättern."
+            "value": "Nur auf diesem Telefon und in deinen Backups. Nie auf Baustellenlisten."
           }
         },
         "es": {
@@ -30694,13 +30694,13 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo su questo telefono e nei tuoi backup. Mai sui fogli dei cantieri."
+            "value": "Solo su questo telefono e nei tuoi backup. Mai sui fogli di cantiere."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alleen op deze telefoon en in je back-ups. Nooit op bouwplaatsoverzichten."
+            "value": "Alleen op deze telefoon en in je back-ups. Nooit op bouwplaatslijsten."
           }
         },
         "pl": {
@@ -36372,7 +36372,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvješće"
+            "value": "Izvještaj"
           }
         },
         "it": {
@@ -36431,7 +36431,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvješća i podsjetnici"
+            "value": "Izvještaji i podsjetnici"
           }
         },
         "it": {
@@ -36484,13 +36484,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rapports pour votre chef"
+            "value": "Rapports pour votre patron"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvješća za šefa"
+            "value": "Izvještaji za šefa"
           }
         },
         "it": {
@@ -38392,7 +38392,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvješća: %@. Ovdje ga mijenjaš."
+            "value": "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvještaja: %@. Ovdje ga mijenjaš."
           }
         },
         "it": {
@@ -45132,7 +45132,7 @@
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voditelj gradilišta naručitelja može potpisati sve ove radove odjednom. Potpis se ispisuje ispod izvješća."
+            "value": "Voditelj gradilišta naručitelja može potpisati sve ove radove odjednom. Potpis se ispisuje ispod izvještaja."
           }
         },
         "it": {
@@ -45458,65 +45458,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dnevnik sledi uram: na lastnih straneh v PDF-ju, na drugem listu v Excelu. CSV vsebuje samo ure."
-          }
-        }
-      }
-    },
-    "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Stundenliste für die Bauleitung gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La hoja para el director forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La feuille pour le directeur fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lista za voditelja dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il foglio per il direttore fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De lijst voor de uitvoerder hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arkusz dla kierownika jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A folha para o diretor faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seznam za vodjo je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji."
           }
         }
       }
@@ -46107,6 +46048,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neobvezno polje kraja je besedilna opomba, ki jo vpišeš. Aplikacija sistema nikoli ne vpraša, kje si."
+          }
+        }
+      }
+    },
+    "The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Baustellenliste gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La hoja de obra forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La feuille de chantier fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List gradilišta dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il foglio di cantiere fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bouwplaatslijst hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arkusz budowy jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folha de obra faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List gradbišča je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji."
           }
         }
       }
@@ -49710,7 +49710,7 @@
         }
       }
     },
-    "Weather, work, photos. Printed on its own pages with the Site sheet.": {
+    "Weather, work, photos. Printed on its own pages with the site sheet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -49740,7 +49740,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meteo, lavori, foto. Stampato su pagine proprie con il foglio del cantiere."
+            "value": "Meteo, lavori, foto. Stampato su pagine proprie con il foglio di cantiere."
           }
         },
         "nl": {
@@ -52029,7 +52029,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saisissez vos heures chaque jour : Zeitkonto tient votre solde et prépare les feuilles pour votre chef."
+            "value": "Saisissez vos heures chaque jour : Zeitkonto tient votre solde et prépare les feuilles pour votre patron."
           }
         },
         "hr": {
@@ -53642,7 +53642,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos chantiers. Cochez votre équipe une fois pour tous, notez les travaux supplémentaires pour votre chef, tenez le journal de chantier."
+            "value": "Vos chantiers. Cochez votre équipe une fois pour tous, notez les travaux supplémentaires pour votre patron, tenez le journal de chantier."
           }
         },
         "hr": {

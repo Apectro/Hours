@@ -259,7 +259,7 @@ struct ExtraWorkReportScreen: View {
                 ))
                 .font(.body.weight(.semibold))
                 .accessibilityIdentifier("extra-work-report-held-back")
-                Text("Finished jobs go in the Extra-work report.")
+                Text("Finished jobs go in the extra-work report.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 Button {

@@ -84,7 +84,7 @@ struct ReminderSettingsScreen: View {
                 } footer: {
                     Text(unsentAuthorizationDenied
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the Extra-work report.")
+                         : "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.")
                 }
             }
         }

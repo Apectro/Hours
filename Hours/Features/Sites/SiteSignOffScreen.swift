@@ -74,7 +74,7 @@ struct SiteSignOffScreen: View {
                     }
                 }
             } footer: {
-                Text("Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the Site sheet.")
+                Text("Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the site sheet.")
             }
         }
         .confirmationDialog(

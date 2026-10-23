@@ -274,7 +274,7 @@ struct ExportScreen: View {
                 if selectedSite == nil {
                     Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
                 } else {
-                    Text("The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.")
+                    Text("The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.")
                 }
             }
         }

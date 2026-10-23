@@ -237,7 +237,7 @@ struct ExtraWorkEditorSheet: View {
                     .font(.body)
                 Group {
                     if draft.isDone {
-                        Text("Finished jobs go in the Extra-work report.")
+                        Text("Finished jobs go in the extra-work report.")
                     } else {
                         Text("In progress until you tick it.")
                     }

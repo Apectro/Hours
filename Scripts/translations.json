@@ -5184,16 +5184,16 @@
       "Kies een andere maand om de dagen te zien.",
       "Wybierz inny miesiąc, aby zobaczyć jego dni."
     ],
-    "The director's sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": [
-      "Die Stundenliste für die Bauleitung gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung.",
-      "Lista za voditelja dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji.",
-      "Seznam za vodjo je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji.",
-      "Il foglio per il direttore fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup.",
-      "La feuille pour le directeur fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde.",
-      "La hoja para el director forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad.",
-      "A folha para o diretor faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança.",
-      "De lijst voor de uitvoerder hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up.",
-      "Arkusz dla kierownika jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
+    "The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": [
+      "Die Baustellenliste gehört zu Zeitkonto Pro. Die Vorschau ist kostenlos, und jeder Baustellentag bleibt in deiner Sicherung.",
+      "List gradilišta dio je Zeitkonto Pro. Pregled je besplatan, a svaki dan na gradilištu ostaje u tvojoj sigurnosnoj kopiji.",
+      "List gradbišča je del Zeitkonto Pro. Predogled je brezplačen, vsak dan na gradbišču pa ostane v tvoji varnostni kopiji.",
+      "Il foglio di cantiere fa parte di Zeitkonto Pro. L’anteprima è gratuita e ogni giornata di cantiere resta nel tuo backup.",
+      "La feuille de chantier fait partie de Zeitkonto Pro. L’aperçu est gratuit, et chaque journée de chantier reste dans votre sauvegarde.",
+      "La hoja de obra forma parte de Zeitkonto Pro. La vista previa es gratis y cada día de obra se queda en tu copia de seguridad.",
+      "A folha de obra faz parte do Zeitkonto Pro. A pré-visualização é grátis e cada dia de obra fica na tua cópia de segurança.",
+      "De bouwplaatslijst hoort bij Zeitkonto Pro. Het voorbeeld is gratis, en elke dag op de bouwplaats blijft in je back-up.",
+      "Arkusz budowy jest częścią Zeitkonto Pro. Podgląd jest bezpłatny, a każdy dzień na budowie zostaje w twojej kopii zapasowej."
     ],
     "Today's site hours aren't written yet.": [
       "Die Stunden der Baustelle für heute sind noch nicht eingetragen.",
@@ -6209,10 +6209,10 @@
     ],
     "Reports for your boss": [
       "Berichte für den Chef",
-      "Izvješća za šefa",
+      "Izvještaji za šefa",
       "Poročila za šefa",
       "Rapporti per il capo",
-      "Rapports pour votre chef",
+      "Rapports pour votre patron",
       "Informes para el jefe",
       "Relatórios para o chefe",
       "Rapporten voor je baas",
@@ -6388,7 +6388,7 @@
       "Upiši sate svaki dan, a Zeitkonto vodi tvoj saldo i radi liste za šefa.",
       "Vsak dan vpiši ure, Zeitkonto pa vodi tvoj saldo in pripravi liste za šefa.",
       "Scrivi le ore ogni giorno: Zeitkonto tiene il tuo saldo e prepara i fogli per il capo.",
-      "Saisissez vos heures chaque jour : Zeitkonto tient votre solde et prépare les feuilles pour votre chef.",
+      "Saisissez vos heures chaque jour : Zeitkonto tient votre solde et prépare les feuilles pour votre patron.",
       "Anota tus horas cada día y Zeitkonto lleva tu saldo y hace las hojas para el jefe.",
       "Regista as horas todos os dias e o Zeitkonto mantém o teu saldo e faz as folhas para o chefe.",
       "Vul elke dag je uren in, en Zeitkonto houdt je saldo bij en maakt de lijsten voor je baas.",
@@ -6443,7 +6443,7 @@
       "Tvoja gradilišta. Označi ekipu jednom za sve, upiši dodatne radove za šefa, vodi građevinski dnevnik.",
       "Tvoja gradbišča. Označi ekipo enkrat za vse, vpiši dodatna dela za šefa, vodi gradbeni dnevnik.",
       "I tuoi cantieri. Spunta la squadra una volta per tutti, scrivi i lavori extra per il capo, tieni il giornale dei lavori.",
-      "Vos chantiers. Cochez votre équipe une fois pour tous, notez les travaux supplémentaires pour votre chef, tenez le journal de chantier.",
+      "Vos chantiers. Cochez votre équipe une fois pour tous, notez les travaux supplémentaires pour votre patron, tenez le journal de chantier.",
       "Tus obras. Marca a tu cuadrilla una vez para todos, apunta los trabajos adicionales para el jefe, lleva el diario de obra.",
       "As tuas obras. Marca a equipa uma vez para todos, regista os trabalhos adicionais para o chefe, mantém o diário de obra.",
       "Je bouwplaatsen. Vink je ploeg één keer aan voor iedereen, schrijf meerwerk op voor je baas, houd het bouwdagboek bij.",
@@ -6637,14 +6637,14 @@
       "Tyle płaci %@. Każda praca ma własną stawkę."
     ],
     "Only on this phone and in your backups. Never on site sheets.": [
-      "Nur auf diesem Telefon und in deinen Backups. Nie auf Baustellenblättern.",
+      "Nur auf diesem Telefon und in deinen Backups. Nie auf Baustellenlisten.",
       "Samo na ovom telefonu i u tvojim sigurnosnim kopijama. Nikad na listama gradilišta.",
       "Samo na tem telefonu in v tvojih varnostnih kopijah. Nikoli na listih gradbišč.",
-      "Solo su questo telefono e nei tuoi backup. Mai sui fogli dei cantieri.",
+      "Solo su questo telefono e nei tuoi backup. Mai sui fogli di cantiere.",
       "Uniquement sur ce téléphone et dans vos sauvegardes. Jamais sur les feuilles de chantier.",
       "Solo en este teléfono y en tus copias de seguridad. Nunca en las hojas de obra.",
       "Só neste telemóvel e nas tuas cópias de segurança. Nunca nas folhas de obra.",
-      "Alleen op deze telefoon en in je back-ups. Nooit op bouwplaatsoverzichten.",
+      "Alleen op deze telefoon en in je back-ups. Nooit op bouwplaatslijsten.",
       "Tylko na tym telefonie i w twoich kopiach zapasowych. Nigdy na arkuszach budowy."
     ],
     "Same rate": [
@@ -8486,7 +8486,7 @@
     ],
     "Report": [
       "Bericht",
-      "Izvješće",
+      "Izvještaj",
       "Poročilo",
       "Rapporto",
       "Rapport",
@@ -9377,7 +9377,7 @@
     ],
     "Nothing to report for these dates.": [
       "Für diese Daten gibt es nichts zu berichten.",
-      "Za ove datume nema ničega za izvješće.",
+      "Za ove datume nema ničega za izvještaj.",
       "Za te datume ni ničesar za poročilo.",
       "Niente da riportare per queste date.",
       "Rien à signaler pour ces dates.",
@@ -9421,7 +9421,7 @@
     ],
     "The client's site manager can sign for all of these jobs at once. It is printed under the report.": [
       "Die Bauleitung des Auftraggebers kann für alle diese Arbeiten auf einmal unterschreiben. Die Unterschrift steht unter dem Bericht.",
-      "Voditelj gradilišta naručitelja može potpisati sve ove radove odjednom. Potpis se ispisuje ispod izvješća.",
+      "Voditelj gradilišta naručitelja može potpisati sve ove radove odjednom. Potpis se ispisuje ispod izvještaja.",
       "Vodja gradbišča naročnika lahko podpiše vsa ta dela hkrati. Podpis je natisnjen pod poročilom.",
       "Il direttore lavori del committente può firmare tutti questi lavori insieme. La firma viene stampata sotto il rapporto.",
       "Le conducteur de travaux du client peut signer tous ces travaux en une fois. La signature figure sous le rapport.",
@@ -9662,7 +9662,7 @@
       "Bez linii do podpisu i bez strony z podpisami. Złożone już podpisy pozostają zapisane."
     ],
     "Extra-work report": [
-      "Bericht über Zusatzarbeiten",
+      "Zusatzarbeiten-Bericht",
       "Izvještaj o dodatnim radovima",
       "Poročilo o dodatnih delih",
       "Rapporto lavori extra",
@@ -9727,8 +9727,8 @@
       "Markeren als klaar…",
       "Oznacz jako ukończone…"
     ],
-    "Finished jobs go in the Extra-work report.": [
-      "Fertige Arbeiten kommen in den Bericht über Zusatzarbeiten.",
+    "Finished jobs go in the extra-work report.": [
+      "Fertige Arbeiten kommen in den Zusatzarbeiten-Bericht.",
       "Završeni radovi idu u izvještaj o dodatnim radovima.",
       "Končana dela gredo v poročilo o dodatnih delih.",
       "I lavori finiti vanno nel rapporto lavori extra.",
@@ -9859,11 +9859,11 @@
       "Uitgeschakeld voor deze lijst",
       "Wyłączone dla tego arkusza"
     ],
-    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the Site sheet.": [
+    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the site sheet.": [
       "Gib das Handy jeder Person. Sie prüft ihre eigenen Tage und unterschreibt mit dem Finger. Die Unterschrift wird auf die Baustellenliste gedruckt.",
       "Daj telefon svakoj osobi. Ona provjeri svoje dane i potpiše se prstom. Potpis se ispisuje na listu gradilišta.",
       "Daj telefon vsaki osebi. Preveri svoje dneve in se podpiše s prstom. Podpis se natisne na list gradbišča.",
-      "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio del cantiere.",
+      "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio di cantiere.",
       "Passez le téléphone à chaque personne. Elle vérifie ses propres jours et signe du doigt. La signature est imprimée sur la feuille de chantier.",
       "Pasa el teléfono a cada persona. Revisa sus propios días y firma con el dedo. La firma se imprime en la hoja de obra.",
       "Passa o telemóvel a cada pessoa. Verifica os seus próprios dias e assina com o dedo. A assinatura é impressa na folha de obra.",
@@ -9881,11 +9881,11 @@
       "Geen werk op deze dag",
       "Tego dnia bez pracy"
     ],
-    "Weather, work, photos. Printed on its own pages with the Site sheet.": [
+    "Weather, work, photos. Printed on its own pages with the site sheet.": [
       "Wetter, Arbeiten, Fotos. Auf eigenen Seiten mit der Baustellenliste gedruckt.",
       "Vrijeme, radovi, fotografije. Ispisuje se na zasebnim stranicama uz list gradilišta.",
       "Vreme, dela, fotografije. Natisne se na svojih straneh z listom gradbišča.",
-      "Meteo, lavori, foto. Stampato su pagine proprie con il foglio del cantiere.",
+      "Meteo, lavori, foto. Stampato su pagine proprie con il foglio di cantiere.",
       "Météo, travaux, photos. Imprimé sur ses propres pages avec la feuille de chantier.",
       "Tiempo, trabajos, fotos. Se imprime en páginas propias con la hoja de obra.",
       "Tempo, trabalhos, fotos. Impresso em páginas próprias com a folha de obra.",
@@ -10202,7 +10202,7 @@
     ],
     "Reports & reminders": [
       "Berichte & Erinnerungen",
-      "Izvješća i podsjetnici",
+      "Izvještaji i podsjetnici",
       "Poročila in opomniki",
       "Rapporti e promemoria",
       "Rapports et rappels",
@@ -10299,7 +10299,7 @@
       "Op de 1e een melding voor elke bouwplaats van vorige maand dat de bouwplaatslijst klaar is. Tik erop om hem te openen.",
       "Pierwszego dnia miesiąca powiadomienie dla każdej budowy z zeszłego miesiąca, że arkusz budowy jest gotowy. Dotknij, aby go otworzyć."
     ],
-    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the Extra-work report.": [
+    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.": [
       "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Tippen öffnet den Zusatzarbeiten-Bericht.",
       "Jednom tjedno obavijest kad završeni dodatni radovi još nisu poslani šefu. Dodir otvara izvještaj o dodatnim radovima.",
       "Enkrat na teden obvestilo, ko končana dodatna dela še niso poslana šefu. Dotik odpre poročilo o dodatnih delih.",
@@ -10367,7 +10367,7 @@
     ],
     "Send your hours or a site sheet as PDF or Excel. Report language: %@. Change it here.": [
       "Schick deine Stunden oder eine Baustellenliste als PDF oder Excel. Berichtssprache: %@. Hier änderst du sie.",
-      "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvješća: %@. Ovdje ga mijenjaš.",
+      "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvještaja: %@. Ovdje ga mijenjaš.",
       "Pošlji svoje ure ali list gradbišča kot PDF ali Excel. Jezik poročil: %@. Tukaj ga spremeniš.",
       "Invia le tue ore o un foglio di cantiere come PDF o Excel. Lingua dei rapporti: %@. La cambi qui.",
       "Envoyez vos heures ou une feuille de chantier en PDF ou Excel. Langue des rapports : %@. Vous la changez ici.",
