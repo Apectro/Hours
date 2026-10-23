@@ -93,7 +93,7 @@ struct ExportScreen: View {
                 .accessibilityIdentifier(selectedSite == nil ? "screen-export" : "screen-site-export")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
+                    ToolbarItem(placement: .confirmationAction) {
                         Button("Done") { dismiss() }
                             .accessibilityIdentifier("export-done")
                     }
@@ -153,7 +153,13 @@ struct ExportScreen: View {
                     customStart: dateBinding($customStart),
                     customEnd: dateBinding($customEnd),
                     description: rangeDescription,
-                    footer: "\(dayCountText) · \(entryCountText)"
+                    footer: "\(dayCountText) · \(entryCountText)",
+                    canStepForward: rangeKind.canStepForward(
+                        from: anchor,
+                        today: CalendarDate.today(in: calendar),
+                        calendar: calendar
+                    ),
+                    onStep: step
                 )
             }
             previewSection
@@ -171,7 +177,7 @@ struct ExportScreen: View {
 
     private func siteMonthSection(_ site: Site) -> some View {
         Section {
-            ExportMonthStepper(
+            PeriodStepper(
                 month: monthBinding,
                 latest: currentMonth,
                 title: formatting.monthTitle(month),
@@ -493,6 +499,12 @@ struct ExportScreen: View {
                 comment: "Export failed; the value is the system's own description"
             )
         }
+    }
+
+    /// One period of the chosen kind back or forward. The anchor is what
+    /// every kind but custom is built around, so moving it moves the range.
+    private func step(_ direction: Int) {
+        anchor = rangeKind.step(anchor, by: direction, calendar: calendar)
     }
 
     private func askForName() {
