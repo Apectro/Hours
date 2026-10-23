@@ -101,8 +101,6 @@ struct CrewScreen: View {
         }
         .navigationTitle("Crew")
         .navigationBarTitleDisplayMode(.inline)
-        // A screen the UI tests wait for. The title beside it is translated.
-        .accessibilityIdentifier("screen-crew")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if !isReadOnly && visible.count > 1 {
@@ -138,6 +136,10 @@ struct CrewScreen: View {
             Text("Always on the crew")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                // What the UI tests wait for: this text is on screen whenever
+                // the crew is. Not on the List, which would hand the
+                // identifier down to every row and button inside it.
+                .accessibilityIdentifier("screen-crew")
         }
     }
 
@@ -167,14 +169,18 @@ struct CrewScreen: View {
                 .accessibilityIdentifier("crew-rename-\(member.name)")
             }
         }
+        // The whole row takes the swipe, gaps included, not only the text.
+        .contentShape(Rectangle())
         .swipeActions(edge: .trailing) {
             if !isReadOnly {
                 if hiding {
                     Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
                         .tint(.orange)
+                        .accessibilityIdentifier("crew-hide")
                 } else {
                     Button("Show", systemImage: "eye") { setHidden(member, false) }
                         .tint(.blue)
+                        .accessibilityIdentifier("crew-show")
                 }
             }
         }
@@ -190,8 +196,10 @@ struct CrewScreen: View {
                     .accessibilityIdentifier("crew-rename")
                 if hiding {
                     Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
+                        .accessibilityIdentifier("crew-hide")
                 } else {
                     Button("Show", systemImage: "eye") { setHidden(member, false) }
+                        .accessibilityIdentifier("crew-show")
                 }
             }
         }
