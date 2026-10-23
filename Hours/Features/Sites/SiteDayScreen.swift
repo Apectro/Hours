@@ -686,6 +686,9 @@ struct SiteDayScreen: View {
             } else if stored != nil {
                 try repository.delete(siteID: site.id, on: next.date)
                 stored = nil
+                // Emptied by hand on this screen: stay on the crew rather
+                // than swapping them for "Same as last day" under the finger.
+                startsEmpty = true
             }
             day = next
             flashSaved()
