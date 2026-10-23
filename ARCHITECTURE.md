@@ -546,8 +546,12 @@ Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is 
 primary surface and opens on the current month; tapping a day reveals an inline
 summary beneath the grid, and opening it presents the editor as a sheet so the
 month never leaves the screen. Sites lists each active job site with its crew
-and this month's figures, and leads to the site and its crew list. Export is
-reachable from the calendar toolbar and from Settings.
+and this month's figures, and leads to the site and its crew list; while
+today is unwritten a card also offers "Same as last day", which pushes the
+same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen
+puts the selected day first: the day's week (the whole month on request),
+the day's crew, bad weather, extra work, the diary, and the month's figures
+last. Export is reachable from the calendar toolbar and from Settings.
 
 ## Widgets and the Live Activity
 
@@ -794,8 +798,11 @@ afterwards the fingerprint no longer matches and the sign-off and the sheet say
 
 Signing is optional. The site export has a **Signatures** switch (remembered in
 `@AppStorage("export.siteSignatures")`, on by default); off, `SiteSheetBuilder`
-leaves out both the line to sign on and the sign-off boxes, and the sign-off
-screen is not offered. Signatures already given stay stored.
+leaves out both the line to sign on and the sign-off boxes, and the export's
+sign-off row stays, greyed, saying it is turned off for that sheet. Signatures
+already given stay stored. The sign-off is also in the site's own menu, as a
+sheet with a month stepper that opens on `SignOff.defaultMonth` (last month
+during the first ten days, this month after). Removing a signature asks first.
 
 ## Extra work
 

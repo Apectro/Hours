@@ -4289,6 +4289,65 @@
         }
       }
     },
+    "Add or edit crew": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mannschaft ergänzen oder ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir o editar la cuadrilla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter ou modifier l’équipe"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj ili uredi ekipu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi o modifica la squadra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ploeg aanvullen of wijzigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj lub edytuj ekipę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar ou editar a equipa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodaj ali uredi ekipo"
+          }
+        }
+      }
+    },
     "Add photos": {
       "extractionState": "manual",
       "localizations": {
@@ -7161,6 +7220,124 @@
         }
       }
     },
+    "Bad weather · no work": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlechtwetter · keine Arbeit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mal tiempo · sin trabajo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intempéries · pas de travail"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loše vrijeme · nije se radilo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maltempo · niente lavoro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slecht weer · geen werk"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niepogoda · bez pracy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mau tempo · sem trabalho"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slabo vreme · brez dela"
+          }
+        }
+      }
+    },
+    "Bad weather · stopped %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlechtwetter · abgebrochen um %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mal tiempo · parado a las %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intempéries · arrêt à %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loše vrijeme · prekinuto u %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maltempo · sospeso alle %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slecht weer · gestopt om %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niepogoda · przerwane o %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mau tempo · parado às %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slabo vreme · prekinjeno ob %@"
+          }
+        }
+      }
+    },
     "Balance": {
       "extractionState": "manual",
       "localizations": {
@@ -8750,6 +8927,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spremeni"
+          }
+        }
+      }
+    },
+    "Change times": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeiten ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar horas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier les horaires"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijeni vremena"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia orari"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tijden wijzigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmień godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar horário"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremeni čase"
           }
         }
       }
@@ -18077,6 +18313,65 @@
         }
       }
     },
+    "Extra-work report": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bericht über Zusatzarbeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informe de trabajos adicionales"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapport de travaux supplémentaires"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izvještaj o dodatnim radovima"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapporto lavori extra"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meerwerkrapport"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raport prac dodatkowych"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relatório de trabalhos adicionais"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poročilo o dodatnih delih"
+          }
+        }
+      }
+    },
     "Field separator": {
       "extractionState": "manual",
       "localizations": {
@@ -19493,61 +19788,61 @@
         }
       }
     },
-    "Hand the phone to each person. They check their own days and sign with a finger. A signature is printed on the director's sheet.": {
+    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the Site sheet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gib das Handy jeder Person. Sie prüft ihre eigenen Tage und unterschreibt mit dem Finger. Die Unterschrift wird auf die Stundenliste für die Bauleitung gedruckt."
+            "value": "Gib das Handy jeder Person. Sie prüft ihre eigenen Tage und unterschreibt mit dem Finger. Die Unterschrift wird auf die Baustellenliste gedruckt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pasa el teléfono a cada persona. Revisa sus propios días y firma con el dedo. La firma se imprime en la hoja para el director."
+            "value": "Pasa el teléfono a cada persona. Revisa sus propios días y firma con el dedo. La firma se imprime en la hoja de obra."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passez le téléphone à chaque personne. Elle vérifie ses propres jours et signe du doigt. La signature est imprimée sur la feuille pour le directeur."
+            "value": "Passez le téléphone à chaque personne. Elle vérifie ses propres jours et signe du doigt. La signature est imprimée sur la feuille de chantier."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daj telefon svakoj osobi. Ona provjeri svoje dane i potpiše se prstom. Potpis se ispisuje na listi za voditelja."
+            "value": "Daj telefon svakoj osobi. Ona provjeri svoje dane i potpiše se prstom. Potpis se ispisuje na listu gradilišta."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio per il direttore."
+            "value": "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio del cantiere."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geef de telefoon aan iedereen. Ieder controleert de eigen dagen en tekent met een vinger. De handtekening komt op de lijst voor de uitvoerder."
+            "value": "Geef de telefoon aan iedereen. Ieder controleert de eigen dagen en tekent met een vinger. De handtekening komt op de bouwplaatslijst."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Podaj telefon każdej osobie. Sprawdza swoje dni i podpisuje się palcem. Podpis zostaje wydrukowany na arkuszu dla kierownika."
+            "value": "Podaj telefon każdej osobie. Sprawdza swoje dni i podpisuje się palcem. Podpis zostaje wydrukowany na arkuszu budowy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passa o telemóvel a cada pessoa. Verifica os seus próprios dias e assina com o dedo. A assinatura é impressa na folha para o diretor."
+            "value": "Passa o telemóvel a cada pessoa. Verifica os seus próprios dias e assina com o dedo. A assinatura é impressa na folha de obra."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daj telefon vsaki osebi. Preveri svoje dneve in se podpiše s prstom. Podpis se natisne na seznam za vodjo."
+            "value": "Daj telefon vsaki osebi. Preveri svoje dneve in se podpiše s prstom. Podpis se natisne na list gradbišča."
           }
         }
       }
@@ -26396,61 +26691,61 @@
         }
       }
     },
-    "No work today": {
+    "No work this day": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Heute keine Arbeit"
+            "value": "An diesem Tag keine Arbeit"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy no se trabaja"
+            "value": "Este día no se trabajó"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pas de travail aujourd’hui"
+            "value": "Pas de travail ce jour-là"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Danas se ne radi"
+            "value": "Taj se dan nije radilo"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oggi niente lavoro"
+            "value": "Niente lavoro in questo giorno"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vandaag geen werk"
+            "value": "Geen werk op deze dag"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dziś bez pracy"
+            "value": "Tego dnia bez pracy"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoje não se trabalha"
+            "value": "Neste dia não se trabalhou"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Danes se ne dela"
+            "value": "Ta dan se ni delalo"
           }
         }
       }
@@ -27690,6 +27985,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Še ni vpisano"
+          }
+        }
+      }
+    },
+    "Note on the sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notiz auf der Liste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota en la hoja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note sur la feuille"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilješka na listi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota sul foglio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notitie op de lijst"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notatka na arkuszu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota na folha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opomba na listu"
           }
         }
       }
@@ -29012,65 +29366,6 @@
         }
       }
     },
-    "Off site": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Feierabend"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salida de la obra"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Départ du chantier"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odlazak s gradilišta"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uscita dal cantiere"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Van de bouwplaats"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wyjście z budowy"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saída da obra"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Odhod z gradbišča"
-          }
-        }
-      }
-    },
     "Offered under Material, the most recently used first. Removing one here does not change any job.": {
       "extractionState": "manual",
       "localizations": {
@@ -29185,65 +29480,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vklopljeno"
-          }
-        }
-      }
-    },
-    "On site": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auf der Baustelle"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Llegada a la obra"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrivée au chantier"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dolazak na gradilište"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrivo in cantiere"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Op de bouwplaats"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Przyjście na budowę"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chegada à obra"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prihod na gradbišče"
           }
         }
       }
@@ -29893,6 +30129,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Samo tisto, kar izvoziš"
+          }
+        }
+      }
+    },
+    "Open": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Openen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri"
           }
         }
       }
@@ -32434,65 +32729,6 @@
         }
       }
     },
-    "Printed after the hours on the director's sheet when you choose to include it.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wird nach den Stunden auf die Stundenliste für die Bauleitung gedruckt, wenn du es beifügst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se imprime tras las horas en la hoja para el director si eliges incluirlo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Imprimé après les heures sur la feuille pour le directeur si vous choisissez de l’inclure."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ispisuje se nakon sati na listi za voditelja ako ga odlučiš priložiti."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stampato dopo le ore sul foglio per il direttore, se scegli di includerlo."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wordt na de uren op de lijst voor de uitvoerder afgedrukt als je het toevoegt."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drukowany po godzinach na arkuszu dla kierownika, jeśli zdecydujesz się go dołączyć."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impresso depois das horas na folha para o diretor, se escolheres incluí-lo."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Natisne se za urami na seznamu za vodjo, če ga priložiš."
-          }
-        }
-      }
-    },
     "Printed on every sheet you export, and kept in Settings › Export options.": {
       "extractionState": "manual",
       "localizations": {
@@ -32607,65 +32843,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Natisne se pod naslovom vsake evidence in se uporabi za ime datoteke. Pusti prazno in nič se ne natisne. Ostane v tej napravi kot vse drugo."
-          }
-        }
-      }
-    },
-    "Printed with this day when the site is exported.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wird beim Export der Baustelle bei diesem Tag gedruckt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se imprime con este día al exportar la obra."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Imprimée avec ce jour lors de l’export du chantier."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ispisuje se uz ovaj dan pri izvozu gradilišta."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stampata con questo giorno quando si esporta il cantiere."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wordt bij deze dag afgedrukt als de bouwplaats wordt geëxporteerd."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drukowana przy tym dniu podczas eksportu budowy."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impressa com este dia ao exportar a obra."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Natisne se ob tem dnevu pri izvozu gradbišča."
           }
         }
       }
@@ -33020,124 +33197,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Količina: %@"
-          }
-        }
-      }
-    },
-    "Rained off": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wetterbedingt abgebrochen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parado por el tiempo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrêt intempéries"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prekinuto zbog vremena"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sospeso per maltempo"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stilgelegd door het weer"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Przerwane przez pogodę"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parado pelo tempo"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prekinjeno zaradi vremena"
-          }
-        }
-      }
-    },
-    "Rained off / bad weather": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wetterbedingt abgebrochen / Schlechtwetter"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parada por mal tiempo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrêt / intempéries"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prekid zbog vremena / loše vrijeme"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sospeso / maltempo"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stilgelegd / slecht weer"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Przerwa / niepogoda"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paragem por mau tempo"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prekinitev zaradi vremena / slabo vreme"
           }
         }
       }
@@ -33909,6 +33968,65 @@
         }
       }
     },
+    "Remove the signature of %@ for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterschrift von %@ für %@ entfernen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Quitar la firma de %@ de %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer la signature de %@ pour %@ ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukloniti potpis osobe %@ za %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovere la firma di %@ per %@?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handtekening van %@ voor %@ verwijderen?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć podpis %@ za %@?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remover a assinatura de %@ de %@?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstraniti podpis osebe %@ za %@?"
+          }
+        }
+      }
+    },
     "Remove these holidays": {
       "extractionState": "manual",
       "localizations": {
@@ -34436,6 +34554,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Preimenuj"
+          }
+        }
+      }
+    },
+    "Rename %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ umbenennen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar el nombre de %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renommer %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preimenuj: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rinomina %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ hernoemen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmień imię: %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar o nome de %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preimenuj: %@"
           }
         }
       }
@@ -36598,6 +36775,65 @@
         }
       }
     },
+    "Saved": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesichert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistré"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremljeno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewaard"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisano"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shranjeno"
+          }
+        }
+      }
+    },
     "Scheduled working days": {
       "extractionState": "manual",
       "localizations": {
@@ -36948,6 +37184,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pošlji poročilo · PDF"
+          }
+        }
+      }
+    },
+    "Send to boss (%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An den Chef senden (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar al jefe (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer au patron (%lld)"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji šefu (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia al capo (%lld)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naar de baas sturen (%lld)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij szefowi (%lld)"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar ao chefe (%lld)"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlji šefu (%lld)"
           }
         }
       }
@@ -37955,6 +38250,65 @@
         }
       }
     },
+    "Short note printed in this day's row": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kurze Notiz in der Zeile dieses Tages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota breve impresa en la fila de este día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courte note imprimée sur la ligne de ce jour"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kratka bilješka u retku ovog dana"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breve nota stampata nella riga di questo giorno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korte notitie in de regel van deze dag"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krótka notatka w wierszu tego dnia"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nota curta impressa na linha deste dia"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kratka opomba v vrstici tega dne"
+          }
+        }
+      }
+    },
     "Show": {
       "extractionState": "manual",
       "localizations": {
@@ -38128,6 +38482,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pokaži mi"
+          }
+        }
+      }
+    },
+    "Show one week": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur eine Woche zeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver una semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher une semaine"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži jedan tjedan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra una settimana"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eén week tonen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż jeden tydzień"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar uma semana"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži en teden"
           }
         }
       }
@@ -38423,6 +38836,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prikaži vikende"
+          }
+        }
+      }
+    },
+    "Show whole month": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganzen Monat zeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver el mes entero"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher tout le mois"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži cijeli mjesec"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra tutto il mese"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hele maand tonen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż cały miesiąc"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar o mês inteiro"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaži cel mesec"
           }
         }
       }
@@ -41200,65 +41672,6 @@
         }
       }
     },
-    "Swipe a name to rename or hide it. Nobody is ever deleted, so hours already recorded never disappear: someone hidden simply stops being offered for new days.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wische über einen Namen, um ihn umzubenennen oder auszublenden. Niemand wird je gelöscht, damit erfasste Stunden nie verschwinden: Wer ausgeblendet ist, wird für neue Tage einfach nicht mehr angeboten."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desliza un nombre para cambiarlo u ocultarlo. Nunca se elimina a nadie, así que las horas ya registradas nunca desaparecen: a quien está oculto simplemente ya no se le ofrece para días nuevos."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Balayez un nom pour le renommer ou le masquer. Personne n’est jamais supprimé, donc les heures déjà enregistrées ne disparaissent jamais : une personne masquée n’est simplement plus proposée pour les nouveaux jours."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Povuci preko imena da ga preimenuješ ili sakriješ. Nitko se nikad ne briše, pa zabilježeni sati nikad ne nestaju: skrivena osoba samo se više ne nudi za nove dane."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scorri su un nome per rinominarlo o nasconderlo. Nessuno viene mai eliminato, così le ore già registrate non spariscono mai: chi è nascosto semplicemente non viene più proposto per i nuovi giorni."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Veeg over een naam om die te wijzigen of te verbergen. Niemand wordt ooit verwijderd, dus vastgelegde uren verdwijnen nooit: wie verborgen is, wordt gewoon niet meer aangeboden voor nieuwe dagen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Przesuń po imieniu, aby je zmienić lub ukryć. Nikt nigdy nie jest usuwany, więc zapisane godziny nigdy nie znikają: ukryta osoba po prostu nie jest już proponowana na nowe dni."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desliza um nome para o mudar ou ocultar. Ninguém é apagado, por isso as horas já registadas nunca desaparecem: quem está oculto deixa apenas de ser sugerido para novos dias."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Podrsaj čez ime, da ga preimenuješ ali skriješ. Nihče ni nikoli izbrisan, zato zabeležene ure nikoli ne izginejo: skrita oseba se le ne ponuja več za nove dneve."
-          }
-        }
-      }
-    },
     "Swipe for your year in numbers.": {
       "extractionState": "manual",
       "localizations": {
@@ -41432,6 +41845,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Podrsaj, da odstraniš spremembo. Teden pred njo potem velja še naprej."
+          }
+        }
+      }
+    },
+    "Swipe to rename or hide. Hidden people keep their hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wischen zum Umbenennen oder Ausblenden. Ausgeblendete behalten ihre Stunden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza para cambiar el nombre u ocultar. Quien está oculto conserva sus horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez pour renommer ou masquer. Les personnes masquées gardent leurs heures."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povuci za preimenovanje ili skrivanje. Skrivene osobe zadržavaju svoje sate."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri per rinominare o nascondere. Chi è nascosto mantiene le sue ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veeg om te hernoemen of te verbergen. Wie verborgen is, houdt zijn uren."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przesuń, aby zmienić imię lub ukryć. Ukryte osoby zachowują swoje godziny."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza para mudar o nome ou ocultar. Quem está oculto mantém as suas horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podrsaj za preimenovanje ali skrivanje. Skrite osebe obdržijo svoje ure."
           }
         }
       }
@@ -42553,65 +43025,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tapni dan, da ga vidiš spodaj. Tapni ga še enkrat, da vpišeš ure."
-          }
-        }
-      }
-    },
-    "Tap a name to tick or untick them. Tap their times to change just that person.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tippe auf einen Namen, um ihn abzuhaken oder den Haken zu entfernen. Tippe auf die Zeiten, um nur diese Person zu ändern."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toca un nombre para marcarlo o desmarcarlo. Toca sus horas para cambiar solo a esa persona."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Touchez un nom pour le cocher ou le décocher. Touchez ses horaires pour ne modifier que cette personne."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dodirni ime da ga označiš ili odznačiš. Dodirni vremena da promijeniš samo tu osobu."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tocca un nome per spuntarlo o togliere la spunta. Tocca gli orari per cambiare solo quella persona."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tik op een naam om die aan of uit te vinken. Tik op de tijden om alleen die persoon te wijzigen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stuknij imię, aby zaznaczyć lub odznaczyć osobę. Stuknij godziny, aby zmienić tylko tę osobę."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toca num nome para o marcar ou desmarcar. Toca no horário para alterar só essa pessoa."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tapni ime, da ga označiš ali odznačiš. Tapni čase, da spremeniš samo to osebo."
           }
         }
       }
@@ -47055,6 +47468,65 @@
         }
       }
     },
+    "Turned off for this sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für diese Liste ausgeschaltet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desactivado para esta hoja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivé pour cette feuille"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isključeno za ovu listu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattivato per questo foglio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitgeschakeld voor deze lijst"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyłączone dla tego arkusza"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desativado para esta folha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izklopljeno za ta list"
+          }
+        }
+      }
+    },
     "Type": {
       "extractionState": "manual",
       "localizations": {
@@ -47291,61 +47763,61 @@
         }
       }
     },
-    "Undo rained off": {
+    "Undo bad weather": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wetterabbruch rückgängig machen"
+            "value": "Schlechtwetter rückgängig machen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deshacer parada por el tiempo"
+            "value": "Deshacer mal tiempo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annuler l’arrêt intempéries"
+            "value": "Annuler les intempéries"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poništi prekid zbog vremena"
+            "value": "Poništi loše vrijeme"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annulla sospensione per maltempo"
+            "value": "Annulla maltempo"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stillegging door weer ongedaan maken"
+            "value": "Slecht weer ongedaan maken"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cofnij przerwanie przez pogodę"
+            "value": "Cofnij niepogodę"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anular paragem pelo tempo"
+            "value": "Anular mau tempo"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Razveljavi prekinitev zaradi vremena"
+            "value": "Razveljavi slabo vreme"
           }
         }
       }
@@ -48290,6 +48762,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vreme"
+          }
+        }
+      }
+    },
+    "Weather, work, photos. Printed on its own pages with the Site sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wetter, Arbeiten, Fotos. Auf eigenen Seiten mit der Baustellenliste gedruckt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo, trabajos, fotos. Se imprime en páginas propias con la hoja de obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Météo, travaux, photos. Imprimé sur ses propres pages avec la feuille de chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrijeme, radovi, fotografije. Ispisuje se na zasebnim stranicama uz list gradilišta."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meteo, lavori, foto. Stampato su pagine proprie con il foglio del cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weer, werk, foto's. Op eigen pagina's afgedrukt bij de bouwplaatslijst."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoda, prace, zdjęcia. Drukowane na osobnych stronach z arkuszem budowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo, trabalhos, fotos. Impresso em páginas próprias com a folha de obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vreme, dela, fotografije. Natisne se na svojih straneh z listom gradbišča."
           }
         }
       }
