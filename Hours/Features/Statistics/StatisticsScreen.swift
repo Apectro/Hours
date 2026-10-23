@@ -49,7 +49,7 @@ struct StatisticsScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Metrics.large) {
-                    if let year = offeredReviewYear {
+                    if let year = offeredReviewYear, !(scope == .year && year == anchor.year) {
                         YearReviewInvitation(
                             year: year,
                             open: {
@@ -69,6 +69,22 @@ struct StatisticsScreen: View {
                     .tourTarget(.insights)
 
                     periodStepper
+
+                    // The review is the year's best card, so it leads the
+                    // year rather than waiting under leave and balance. The
+                    // seasonal card above steps aside for the same year, so
+                    // it is never offered twice.
+                    if scope == .year {
+                        YearReviewInvitation(
+                            year: anchor.year,
+                            open: {
+                                if offeredReviewYear == anchor.year { dismissedReviewYear = anchor.year }
+                                review = ReviewedYear(year: anchor.year)
+                            },
+                            dismiss: nil,
+                            identifier: "insights-year-review"
+                        )
+                    }
 
                     PeriodDataProvider(range: fetchedRange) { data in
                         StatisticsContent(
@@ -95,21 +111,6 @@ struct StatisticsScreen: View {
                             settings: settingsStore.settings,
                             calendar: calendar
                         )
-                    }
-
-                    if scope == .year {
-                        Button {
-                            review = ReviewedYear(year: anchor.year)
-                        } label: {
-                            Label(
-                                String(localized: "Your \(String(anchor.year))", comment: "Opens the year in review; the value is a year"),
-                                systemImage: "sparkles"
-                            )
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(YearReviewPalette.amberDeep)
-                        .accessibilityIdentifier("insights-year-review")
                     }
                 }
                 .padding(.horizontal, Metrics.large)
@@ -147,37 +148,47 @@ struct StatisticsScreen: View {
 
     private var periodStepper: some View {
         HStack {
-            Button {
-                step(-1)
-            } label: {
-                Image(systemName: "chevron.left")
-            }
-            .accessibilityLabel(String(
-            localized: "Previous \(scope.title.lowercased())",
-            comment: "VoiceOver; the value is a period name such as month or week"
-        ))
+            stepButton(
+                systemImage: "chevron.left",
+                label: String(
+                    localized: "Previous \(scope.title.lowercased())",
+                    comment: "VoiceOver; the value is a period name such as month or week"
+                )
+            ) { step(-1) }
 
-            Spacer()
+            Spacer(minLength: Metrics.small)
 
             Text(periodTitle)
                 .font(.headline)
+                .multilineTextAlignment(.center)
                 .contentTransition(.identity)
 
-            Spacer()
+            Spacer(minLength: Metrics.small)
 
-            Button {
-                step(1)
-            } label: {
-                Image(systemName: "chevron.right")
-            }
-            .accessibilityLabel(String(
-            localized: "Next \(scope.title.lowercased())",
-            comment: "VoiceOver; the value is a period name such as month or week"
-        ))
+            stepButton(
+                systemImage: "chevron.right",
+                label: String(
+                    localized: "Next \(scope.title.lowercased())",
+                    comment: "VoiceOver; the value is a period name such as month or week"
+                )
+            ) { step(1) }
             .disabled(isAtPresent)
         }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.circle)
+        // Two buttons in one row: without this a tap anywhere in the row
+        // presses both.
+        .buttonStyle(.borderless)
+    }
+
+    /// A full 44pt target, the same chevron the export month stepper uses:
+    /// the old bordered circles were about 34pt, small for a gloved thumb.
+    private func stepButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.title3.weight(.semibold))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel(Text(verbatim: label))
     }
 
     private var periodTitle: String {

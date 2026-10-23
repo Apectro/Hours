@@ -90,11 +90,11 @@ struct StatisticsContent: View {
                 HStack(alignment: .top, spacing: Metrics.small) {
                     StatTile(label: String(localized: "Worked"), value: duration.string(summary.workedMinutes))
                     if settings.features.trackExpectedHours {
-                        Divider().frame(height: 34)
+                        Divider()
                         StatTile(label: String(localized: "Expected"), value: duration.string(summary.expectedMinutes))
                     }
                     if settings.features.showsBalance {
-                        Divider().frame(height: 34)
+                        Divider()
                         StatTile(
                             label: String(localized: "Balance"),
                             value: duration.signedString(summary.balanceMinutes),
@@ -102,6 +102,9 @@ struct StatisticsContent: View {
                         )
                     }
                 }
+                // The dividers grow with the tiles rather than a fixed 34pt,
+                // which looked broken at the large text sizes.
+                .fixedSize(horizontal: false, vertical: true)
 
                 if settings.features.trackExpectedHours && summary.expectedMinutes > 0 {
                     ProgressBar(fraction: paidFraction, label: paidFractionLabel)
