@@ -30,6 +30,9 @@ final class ScreenAtlasTests: XCTestCase {
     private var number = 0
     private var taken: [String] = []
     private var missed: [String] = []
+    /// Pictures that depend on the simulator rather than the app (a photo
+    /// from the system picker): written down, but not a failure.
+    private var optional: [String] = []
 
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -56,6 +59,7 @@ final class ScreenAtlasTests: XCTestCase {
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
+        print("ATLAS_OPTIONAL_MISSED \(optional.count): \(optional.joined(separator: ", "))")
         XCTAssertTrue(missed.isEmpty, "the atlas missed \(missed.count) screen(s): \(missed.joined(separator: "; "))")
     }
 
@@ -72,6 +76,7 @@ final class ScreenAtlasTests: XCTestCase {
         siteScreens(app)
         insightsScreens(app)
         settingsScreens(app)
+        closedMonthScreens(app)
         app.terminate()
     }
 
@@ -168,9 +173,9 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "bulk-edit-cancel")
         }
 
-        // Your own timesheet, in each format.
-        if tap(app.buttons["calendar-more"], "the calendar's menu", app),
-           tap(app.buttons["calendar-export"], "Export", app) {
+        // Your own timesheet, in each format: the toolbar's Export button,
+        // out of the menu since the polish.
+        if tap(app.buttons["calendar-export"], "Export", app) {
             exportScreens(app, prefix: "export")
             close(app, "export-done")
         }
@@ -264,6 +269,13 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// Today on the showcase site, from the top to the diary.
     private func siteDayScreens(_ app: XCUIApplication) {
+        // The week strip opens out into the whole month, and back.
+        if tap(app.buttons["site-month-toggle"], "Show whole month", app) {
+            pause(0.5)
+            capture("site-day-month-grid", app)
+            tap(app.buttons["site-month-toggle"], "Show one week", app)
+        }
+
         swipeUp(app)
         capture("site-day-crew", app)
 
@@ -295,6 +307,13 @@ final class ScreenAtlasTests: XCTestCase {
             capture("site-day-extra-work", app)
         } else {
             miss("site-day-extra-work (no extra work section)")
+        }
+        // The sample's finished jobs are not sent yet: "Send to boss (N)"
+        // beside the Extra work heading.
+        if bringIntoView(app.buttons["extra-work-send-report"], app) {
+            capture("site-day-send-to-boss", app)
+        } else {
+            miss("site-day-send-to-boss (no Send to boss button)")
         }
 
         let diary = app.buttons["diary-section-weather"]
@@ -452,40 +471,40 @@ final class ScreenAtlasTests: XCTestCase {
            tap(app.buttons["site-export"], "the site's export", app),
            app.screen("screen-site-export").waitForExistence(timeout: 10) {
             exportScreens(app, prefix: "site-export")
-            let signOff = app.buttons["export-sign-off"]
-            if bringIntoView(signOff, app) {
-                tapAnyway(signOff)
-                if app.screen("screen-sign-off").waitForExistence(timeout: 10) {
-                    pause(1)
-                    capture("site-sign-off", app)
-                    let person = app.buttons.matching(
-                        NSPredicate(format: "identifier BEGINSWITH %@", "sign-off-person-")
-                    ).firstMatch
-                    if tap(person, "a person to sign", app) {
+            close(app, "export-done")
+        }
+
+        // Crew sign-off has its own place in the site's menu: a sheet with
+        // the month, each person, and the line they sign on.
+        if tap(app.buttons["site-more"], "the site's menu", app),
+           tap(app.buttons["site-sign-off"], "Crew sign-off", app) {
+            if app.screen("screen-sign-off").waitForExistence(timeout: 10) {
+                pause(1)
+                capture("site-sign-off", app)
+                let person = app.buttons.matching(
+                    NSPredicate(format: "identifier BEGINSWITH %@", "sign-off-person-")
+                ).firstMatch
+                if tap(person, "a person to sign", app) {
+                    pause(0.5)
+                    capture("site-signing", app)
+                    let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
+                    if canvas.waitForExistence(timeout: 5) {
+                        let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
+                        let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+                        let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
+                        start.press(forDuration: 0.1, thenDragTo: middle)
+                        middle.press(forDuration: 0.1, thenDragTo: end)
                         pause(0.5)
-                        capture("site-signing", app)
-                        let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
-                        if canvas.waitForExistence(timeout: 5) {
-                            let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
-                            let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-                            let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
-                            start.press(forDuration: 0.1, thenDragTo: middle)
-                            middle.press(forDuration: 0.1, thenDragTo: end)
-                            pause(0.5)
-                            capture("site-signing-drawn", app)
-                        } else {
-                            miss("site-signing-drawn (no signature area)")
-                        }
-                        close(app, "signature-cancel")
+                        capture("site-signing-drawn", app)
+                    } else {
+                        miss("site-signing-drawn (no signature area)")
                     }
-                    back(app)
-                } else {
-                    miss("site-sign-off (the sign-off did not open)")
+                    close(app, "signature-cancel")
                 }
             } else {
-                miss("site-sign-off (no Crew sign-off row)")
+                miss("site-sign-off (the sign-off did not open)")
             }
-            close(app, "export-done")
+            close(app, "sign-off-done")
         }
 
         if tap(app.buttons["site-more"], "the site's menu", app),
@@ -596,6 +615,16 @@ final class ScreenAtlasTests: XCTestCase {
         settingsPage("settings-calculation", "settings-calculation", app) {
             self.swipeUp(app)
             self.capture("settings-calculation-lower", app)
+            // Closed months: their own screen now. Last month is closed
+            // here, for the calendar's notice afterwards (see
+            // `closedMonthScreens`), which reopens it.
+            if self.tap(app.buttons["settings-closed-months"], "Closed months", app) {
+                self.capture("settings-closed-months", app)
+                if self.tap(app.buttons["closed-months-close"], "Close last month", app) {
+                    self.capture("settings-closed-months-one", app)
+                }
+                self.back(app)
+            }
         }
         settingsPage("settings-fields", "settings-fields", app)
         settingsPage("settings-day-types", "settings-day-types", app) {
@@ -637,6 +666,26 @@ final class ScreenAtlasTests: XCTestCase {
             self.swipeUp(app)
             self.capture("settings-privacy-lower", app)
         }
+    }
+
+    /// Last month, closed in Settings a moment ago: the calendar's notice,
+    /// its menu offering Reopen, and the question Reopen asks. Reopened at
+    /// the end, so nothing after this sees a closed month.
+    private func closedMonthScreens(_ app: XCUIApplication) {
+        app.tab(.calendar).tap()
+        pause(1)
+        guard tap(app.buttons["calendar-previous"], "last month (closed)", app) else { return }
+        pause(0.5)
+        capture("calendar-closed-month", app)
+        if tap(app.buttons["calendar-more"], "the calendar's menu on a closed month", app) {
+            capture("calendar-menu-closed-month", app)
+            dismissMenu(app)
+        }
+        if tap(app.buttons["calendar-closed-reopen"], "Reopen on the notice", app) {
+            capture("calendar-reopen-confirm", app)
+            tap(app.buttons["calendar-reopen-confirm"], "Reopen", app)
+        }
+        tap(app.buttons["calendar-next"], "back to this month", app)
     }
 
     /// The countries, a country's regions, and a set before it is added.
@@ -831,10 +880,100 @@ final class ScreenAtlasTests: XCTestCase {
                 capture("empty-extra-work-report", siteApp)
                 close(siteApp, "extra-work-report-done")
             }
+            heldBackReport(siteApp)
         } else {
             miss("empty-site-day-unwritten (the site did not open)")
         }
         siteApp.terminate()
+    }
+
+    /// A job written and left in progress, as new jobs are: the report is
+    /// empty only because of it, and says so, with Include them and Mark
+    /// finished…; then a photo on the job, large, if the simulator's
+    /// library gives one.
+    private func heldBackReport(_ app: XCUIApplication) {
+        let editor = app.screen("screen-extra-work-editor")
+        guard bringIntoView(app.buttons["extra-work-add"], app) else {
+            miss("extra-work-report-held-back (no Add extra work)")
+            return
+        }
+        tapAnyway(app.buttons["extra-work-add"])
+        guard editor.waitForExistence(timeout: 10) else {
+            miss("extra-work-report-held-back (the editor did not open)")
+            return
+        }
+        let description = app.descendants(matching: .any)["extra-work-description"].firstMatch
+        if description.waitForExistence(timeout: 5) {
+            tapAnyway(description)
+            description.typeText("Core hole for the drain")
+        }
+        photoViewer(app)
+        close(app, "extra-work-save")
+
+        swipeDown(app, times: 6)
+        if tap(app.buttons["site-extra-work-report"], "the report held back", app),
+           app.screen("screen-extra-work-report").waitForExistence(timeout: 10) {
+            pause(1)
+            if app.descendants(matching: .any)["extra-work-report-held-back"].waitForExistence(timeout: 5) {
+                capture("extra-work-report-held-back", app)
+            } else {
+                miss("extra-work-report-held-back (no held-back state)")
+            }
+            if tap(app.buttons["extra-work-report-mark-finished"], "Mark finished…", app) {
+                pause(0.5)
+                capture("extra-work-report-mark-finished", app)
+            }
+            close(app, "extra-work-report-done")
+        }
+    }
+
+    /// The photo viewer, from the extra-work editor's photos. The photo comes
+    /// from the system picker, which belongs to the simulator, so a picker
+    /// that cannot be driven is noted rather than failed.
+    private func photoViewer(_ app: XCUIApplication) {
+        let header = app.buttons["extra-work-section-photos"]
+        if bringIntoView(header, app) { tapAnyway(header) }
+        let add = app.buttons["extra-work-add-photos"]
+        guard bringIntoView(add, app) else {
+            optional.append("photo-viewer (no Add photos)")
+            return
+        }
+        tapAnyway(add)
+        pause(2)
+        // The picker's grid, bridged into the app's tree as XCTest sees it.
+        let picked = app.scrollViews.otherElements.images.firstMatch
+        if picked.waitForExistence(timeout: 8) {
+            tapAnyway(picked)
+            pause(1)
+            // Several photos may be picked, so the picker waits for its own
+            // Add, the last button on its bar (labels differ per language).
+            let bars = app.navigationBars
+            if bars.count > 0 {
+                let buttons = bars.element(boundBy: bars.count - 1).buttons
+                if buttons.count > 1 { tapAnyway(buttons.element(boundBy: buttons.count - 1)) }
+            }
+            pause(1.5)
+        }
+        let save = app.buttons["extra-work-save"]
+        if !save.isHittable {
+            // The picker is still up: swipe it away, back to the editor.
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12))
+                .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
+            pause(1)
+        }
+        let photo = app.buttons["extra-work-photo"].firstMatch
+        guard photo.waitForExistence(timeout: 3), bringIntoView(photo, app) else {
+            optional.append("photo-viewer (the system picker gave no photo)")
+            return
+        }
+        tapAnyway(photo)
+        if app.buttons["photo-viewer-done"].waitForExistence(timeout: 5) {
+            pause(0.5)
+            capture("photo-viewer", app)
+            close(app, "photo-viewer-done")
+        } else {
+            optional.append("photo-viewer (did not open)")
+        }
     }
 
     // MARK: - Helpers

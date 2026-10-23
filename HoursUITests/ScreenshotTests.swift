@@ -93,8 +93,8 @@ final class ScreenshotTests: XCTestCase {
         // sample data, so the month's summary leads with what it earned.
         capture("01-calendar", app)
 
-        // 2 — the site, which is who the app is for: the site's month and
-        // today's card, the crew ticked off once for everyone.
+        // 2 — the site, which is who the app is for: the week strip and
+        // today's card at the top, the crew ticked off once for everyone.
         // Straight after the first capture a tab tap can be lost on a slow
         // runner, and then the list never comes. Tap again if it did not open.
         app.tab(.sites).tap()
@@ -109,12 +109,23 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["site-day-times"].waitForExistence(timeout: 5), "today's site card is not written")
         capture("02-site", app)
 
-        // 3 — today's extra work under the site day: one job done, one in
-        // progress, with their material and who was on them. Scrolled until
-        // "Add extra work", which sits under the jobs, is on screen.
-        let addExtraWork = app.buttons["extra-work-add"]
-        XCTAssertTrue(addExtraWork.waitForExistence(timeout: 10), "the site day has no extra work")
-        for _ in 0..<6 where !addExtraWork.isHittable { app.swipeUp() }
+        // 3 — today's extra work under the site day: the "Extra work"
+        // heading with "Send to boss", one job done, one in progress, with
+        // their material and who was on them. The heading is scrolled up to
+        // just under the navigation bar, so it is not cut off and the jobs
+        // fit below it.
+        let heading = app.descendants(matching: .any)["extra-work-heading"].firstMatch
+        XCTAssertTrue(heading.waitForExistence(timeout: 10), "the site day has no extra work")
+        for _ in 0..<6 where !heading.isHittable { app.swipeUp() }
+        XCTAssertTrue(heading.isHittable, "could not scroll to the extra work")
+        let top = app.navigationBars.firstMatch.frame.maxY + 16
+        let from = heading.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        if from.screenPoint.y > top + 8 {
+            let to = app.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: from.screenPoint.x, dy: top))
+            // Slow and held, so the scroll stops where the finger does.
+            from.press(forDuration: 0.1, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.3)
+        }
         XCTAssertTrue(app.buttons["extra-work-job-1"].waitForExistence(timeout: 5), "today's sample jobs are not listed")
         capture("03-extra-work", app)
 
@@ -127,7 +138,7 @@ final class ScreenshotTests: XCTestCase {
         app.buttons["extra-work-report-done"].tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
 
-        // 5 — the director's sheet: last month, one column group per person,
+        // 5 — the site sheet: last month, one column group per person,
         // previewed as the PDF's first page.
         app.buttons["site-more"].tap()
         let export = app.buttons["site-export"]

@@ -39,6 +39,8 @@ struct ExtraWorkDaySection: View {
             // title's line they wrapped into a ragged block.
             HStack(alignment: .center, spacing: Metrics.small) {
                 SectionHeading("Extra work")
+                    // The listing's screenshot scrolls this to the top.
+                    .accessibilityIdentifier("extra-work-heading")
                 Spacer(minLength: Metrics.small)
                 if notSent > 0, let onOpenReport {
                     Button(action: onOpenReport) {
