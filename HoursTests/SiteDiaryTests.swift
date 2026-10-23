@@ -124,4 +124,20 @@ final class SiteDiaryTests: XCTestCase {
         XCTAssertEqual(DiaryWeather.snow.displayName(in: .german), "Schnee")
         XCTAssertEqual(SiteDiary.label(for: .diaryProblems, in: .german), "Behinderungen / Verzögerungen")
     }
+
+    // MARK: - Previews on a closed row
+
+    /// A closed diary row says what is inside in one grey line.
+    func testTheWeatherRowPreviewsWeatherAndTemperature() {
+        XCTAssertEqual(diary { $0.weather = .rain; $0.temperatureCelsius = 8 }.weatherPreview(in: .english), "Rain, 8 °C")
+        XCTAssertEqual(diary { $0.weather = .rain }.weatherPreview(in: .english), "Rain")
+        XCTAssertEqual(diary { $0.temperatureCelsius = -3 }.weatherPreview(in: .english), "-3 °C")
+        XCTAssertEqual(diary().weatherPreview(in: .english), "", "nothing picked, nothing said")
+    }
+
+    func testATextRowPreviewsItsFirstLine() {
+        XCTAssertEqual(SiteDiary.preview(of: "Formwork, ground floor\nRebar on the first"), "Formwork, ground floor")
+        XCTAssertEqual(SiteDiary.preview(of: "\n  \n  Crane down until 10:00  \nmore"), "Crane down until 10:00")
+        XCTAssertEqual(SiteDiary.preview(of: "  \n "), "")
+    }
 }

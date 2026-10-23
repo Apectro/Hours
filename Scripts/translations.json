@@ -8947,6 +8947,127 @@
       "Uren aan dit werk",
       "Godziny przy tej pracy"
     ],
+    "Time on this job": [
+      "Zeit für diese Arbeit",
+      "Vrijeme na ovom radu",
+      "Čas pri tem delu",
+      "Tempo per questo lavoro",
+      "Temps passé sur ce travail",
+      "Tiempo en este trabajo",
+      "Tempo neste trabalho",
+      "Tijd aan dit werk",
+      "Czas przy tej pracy"
+    ],
+    "How long it took": [
+      "Wie lange es gedauert hat",
+      "Koliko je trajalo",
+      "Koliko je trajalo",
+      "Quanto è durato",
+      "Durée",
+      "Cuánto duró",
+      "Quanto tempo levou",
+      "Hoe lang het duurde",
+      "Ile to trwało"
+    ],
+    "Who was on it": [
+      "Wer dabei war",
+      "Tko je radio",
+      "Kdo je delal",
+      "Chi ci ha lavorato",
+      "Qui y a travaillé",
+      "Quién trabajó",
+      "Quem trabalhou",
+      "Wie eraan werkte",
+      "Kto przy tym pracował"
+    ],
+    "e.g. 1:30": [
+      "z. B. 1:30",
+      "npr. 1:30",
+      "npr. 1:30",
+      "es. 1:30",
+      "p. ex. 1:30",
+      "p. ej. 1:30",
+      "p. ex. 1:30",
+      "bijv. 1:30",
+      "np. 1:30"
+    ],
+    "Hours and minutes, such as 1:30, or hours, such as 1.5.": [
+      "Stunden und Minuten wie 1:30 oder Stunden wie 1,5.",
+      "Sati i minute, npr. 1:30, ili sati, npr. 1,5.",
+      "Ure in minute, npr. 1:30, ali ure, npr. 1,5.",
+      "Ore e minuti, come 1:30, oppure ore, come 1,5.",
+      "Heures et minutes, comme 1:30, ou heures, comme 1,5.",
+      "Horas y minutos, como 1:30, u horas, como 1,5.",
+      "Horas e minutos, como 1:30, ou horas, como 1,5.",
+      "Uren en minuten, zoals 1:30, of uren, zoals 1,5.",
+      "Godziny i minuty, np. 1:30, albo godziny, np. 1,5."
+    ],
+    "Less time": [
+      "Weniger Zeit",
+      "Manje vremena",
+      "Manj časa",
+      "Meno tempo",
+      "Moins de temps",
+      "Menos tiempo",
+      "Menos tempo",
+      "Minder tijd",
+      "Mniej czasu"
+    ],
+    "More time": [
+      "Mehr Zeit",
+      "Više vremena",
+      "Več časa",
+      "Più tempo",
+      "Plus de temps",
+      "Más tiempo",
+      "Mais tempo",
+      "Meer tijd",
+      "Więcej czasu"
+    ],
+    "Type a time, such as 1:30.": [
+      "Tippe eine Zeit ein, etwa 1:30.",
+      "Upiši vrijeme, npr. 1:30.",
+      "Vpiši čas, npr. 1:30.",
+      "Digita un tempo, ad esempio 1:30.",
+      "Saisissez une durée, par exemple 1:30.",
+      "Escribe un tiempo, por ejemplo 1:30.",
+      "Escreve um tempo, por exemplo 1:30.",
+      "Typ een tijd, bijvoorbeeld 1:30.",
+      "Wpisz czas, np. 1:30."
+    ],
+    "Items: %lld": [
+      "Artikel: %lld",
+      "Stavke: %lld",
+      "Postavke: %lld",
+      "Voci: %lld",
+      "Articles : %lld",
+      "Artículos: %lld",
+      "Artigos: %lld",
+      "Artikelen: %lld",
+      "Pozycje: %lld"
+    ],
+    "Expanded": [
+      "Aufgeklappt",
+      "Otvoreno",
+      "Odprto",
+      "Espanso",
+      "Développé",
+      "Expandido",
+      "Expandido",
+      "Uitgevouwen",
+      "Rozwinięte"
+    ],
+    "Collapsed": [
+      "Zugeklappt",
+      "Zatvoreno",
+      "Zaprto",
+      "Compresso",
+      "Réduit",
+      "Contraído",
+      "Recolhido",
+      "Ingeklapt",
+      "Zwinięte"
+    ],
     "Remove": [
       "Entfernen",
       "Ukloni",

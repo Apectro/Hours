@@ -105,15 +105,92 @@ final class ExtraWorkTests: XCTestCase {
         XCTAssertEqual(cleaned.items.map(\.name), ["Lamp"])
     }
 
-    func testHoursAreOptionalAndAddUpWhenThere() {
+    func testTimeIsOptional() {
         var noted = job()
         XCTAssertFalse(noted.hasHours)
-        XCTAssertEqual(noted.totalMinutes, 0)
+        XCTAssertEqual(noted.duration, 0)
+        XCTAssertEqual(noted.people, [])
         noted.hours = [ExtraWorkHours(memberID: UUID(), name: "Ivan", minutes: 180), ExtraWorkHours(name: "Marko", minutes: 180)]
         XCTAssertTrue(noted.hasHours)
-        XCTAssertEqual(noted.totalMinutes, 360)
         noted.hours.append(ExtraWorkHours(name: "Luka", minutes: 0))
         XCTAssertEqual(noted.cleaned().hours.map(\.name), ["Ivan", "Marko"], "nobody with no time on the job")
+    }
+
+    /// "It took us an hour": one time for the job, however many were on it.
+    /// Two people for an hour is a one-hour job, not two hours.
+    func testTheDurationIsHowLongTheJobTookNotTheSumOfEveryone() {
+        var noted = job()
+        noted.hours = [ExtraWorkHours(name: "Marijo Mikša", minutes: 60), ExtraWorkHours(name: "Dusko Bajlović", minutes: 60)]
+        XCTAssertEqual(noted.duration, 60)
+        XCTAssertEqual(noted.people, ["Marijo Mikša", "Dusko Bajlović"])
+    }
+
+    /// Jobs written before there was one time per job can have different
+    /// minutes per person; the job took as long as the longest of them.
+    func testAnOlderJobWithDifferentTimesTookTheLongest() {
+        var noted = job()
+        noted.hours = [
+            ExtraWorkHours(name: "Ivan", minutes: 90),
+            ExtraWorkHours(name: "Marko", minutes: 180),
+            ExtraWorkHours(name: "Luka", minutes: 0)
+        ]
+        XCTAssertEqual(noted.duration, 180)
+        XCTAssertEqual(noted.people, ["Ivan", "Marko"], "only who has time on it")
+    }
+
+    func testSettingTheTimeGivesEveryoneChosenTheSameMinutes() {
+        let you = CrewMember.youID
+        let dusko = UUID()
+        let timed = job().settingTime(60, for: [
+            ExtraWorkHours(memberID: you, name: "Marijo Mikša", minutes: 0),
+            ExtraWorkHours(memberID: dusko, name: "Dusko Bajlović", minutes: 15)
+        ])
+        XCTAssertEqual(timed.hours, [
+            ExtraWorkHours(memberID: you, name: "Marijo Mikša", minutes: 60),
+            ExtraWorkHours(memberID: dusko, name: "Dusko Bajlović", minutes: 60)
+        ])
+        XCTAssertEqual(timed.duration, 60)
+        XCTAssertTrue(job().settingTime(60, for: []).cleaned().hours.isEmpty, "nobody chosen, no time kept")
+        XCTAssertTrue(timed.settingTime(0, for: timed.hours).cleaned().hours.isEmpty, "no time, nobody kept")
+        XCTAssertEqual(job().settingTime(30 * 60, for: timed.hours).duration, ExtraWorkTime.maximum)
+        XCTAssertEqual(job().settingTime(-15, for: timed.hours).duration, 0)
+    }
+
+    /// "1h · Marijo Mikša, Dusko Bajlović": how long first, then who.
+    func testTheTimeLineSaysHowLongThenWho() {
+        var noted = job()
+        XCTAssertEqual(noted.timeLine(DurationFormatting.display), "")
+        noted.hours = [ExtraWorkHours(name: "Marijo Mikša", minutes: 60), ExtraWorkHours(name: "Dusko Bajlović", minutes: 60)]
+        XCTAssertEqual(noted.timeLine(DurationFormatting.display), "1h · Marijo Mikša, Dusko Bajlović")
+        noted.hours = [ExtraWorkHours(name: "", minutes: 90)]
+        XCTAssertEqual(noted.timeLine(DurationFormatting.display), "1h 30m", "no name, no names after it")
+    }
+
+    func testTheTimeStepsByAQuarterOfAnHourWithinADay() {
+        XCTAssertEqual(ExtraWorkTime.stepped(0, by: 1), 15)
+        XCTAssertEqual(ExtraWorkTime.stepped(15, by: -1), 0)
+        XCTAssertEqual(ExtraWorkTime.stepped(0, by: -1), 0)
+        XCTAssertEqual(ExtraWorkTime.stepped(ExtraWorkTime.maximum, by: 1), ExtraWorkTime.maximum)
+        XCTAssertEqual(ExtraWorkTime.stepped(50, by: 1), 65, "from a typed time, on by a quarter")
+    }
+
+    func testATypedTimeReadsAsHoursAndMinutesOrAsHours() {
+        XCTAssertEqual(ExtraWorkTime.parse("1:30"), 90)
+        XCTAssertEqual(ExtraWorkTime.parse(" 0:45 "), 45)
+        XCTAssertEqual(ExtraWorkTime.parse("1,5"), 90)
+        XCTAssertEqual(ExtraWorkTime.parse("1.25"), 75)
+        XCTAssertEqual(ExtraWorkTime.parse("2"), 120)
+        XCTAssertEqual(ExtraWorkTime.parse("30:00"), ExtraWorkTime.maximum, "never more than a day")
+        XCTAssertNil(ExtraWorkTime.parse(""))
+        XCTAssertNil(ExtraWorkTime.parse("abc"))
+        XCTAssertNil(ExtraWorkTime.parse("1:75"), "not a minute past the hour")
+        XCTAssertNil(ExtraWorkTime.parse("-1"))
+    }
+
+    func testATimeIsShownForTypingAsHoursAndMinutes() {
+        XCTAssertEqual(ExtraWorkTime.typingText(90), "1:30")
+        XCTAssertEqual(ExtraWorkTime.typingText(0), "")
+        XCTAssertEqual(ExtraWorkTime.typingText(45), "0:45")
     }
 
     func testABlankJobIsNotWorthKeeping() {

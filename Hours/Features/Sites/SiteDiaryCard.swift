@@ -5,6 +5,14 @@ import PhotosUI
 /// The selected day's site diary (Bautagebuch), under its hours: the
 /// weather, four short texts and up to six photos.
 ///
+/// Each part is a row that opens in place, so the card is short when it is
+/// not being written: closed, a row shows its title and, when it has
+/// something in it, one grey line of it ("Rain, 8 °C", a text's first line,
+/// "Photos: 3"). Opening a text row puts the cursor in its field. A row the
+/// user opened stays open while the card is on screen; the card is built
+/// anew for each date, so a new day starts with every row closed. Closing a
+/// row only hides it — nothing typed is lost.
+///
 /// Saved as it is written, like the day above it: a pick at once, typing when
 /// the field is left, and anything pending when the day changes or the screen
 /// goes. A diary with nothing in it is not stored. It does not depend on the
@@ -30,10 +38,16 @@ struct SiteDiaryCard: View {
     @State private var showsCamera = false
     @State private var isAddingPhotos = false
     @State private var viewing: DiaryThumbnail?
+    @State private var expanded: Set<DiaryRow> = []
     @FocusState private var focused: Field?
 
     private enum Field: Hashable {
         case temperature, workDone, deliveries, problems, visitors
+    }
+
+    /// The rows that open in place, in their order on the card.
+    private enum DiaryRow: String, Hashable {
+        case weather, work, deliveries, problems, visitors, photos
     }
 
     init(siteID: UUID, date: CalendarDate, canEdit: Bool, onChange: @escaping () -> Void) {
@@ -50,14 +64,19 @@ struct SiteDiaryCard: View {
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
 
-            weatherRow
-
-            diaryField(.diaryWorkDone, text: $draft.workDone, field: .workDone, identifier: "site-diary-work")
-            diaryField(.diaryDeliveries, text: $draft.deliveries, field: .deliveries, identifier: "site-diary-deliveries")
-            diaryField(.diaryProblems, text: $draft.problems, field: .problems, identifier: "site-diary-problems")
-            diaryField(.diaryVisitors, text: $draft.visitors, field: .visitors, identifier: "site-diary-visitors")
-
-            photoSection
+            VStack(alignment: .leading, spacing: 0) {
+                weatherSection
+                Divider()
+                textSection(.work, term: .diaryWorkDone, text: $draft.workDone, field: .workDone, identifier: "site-diary-work")
+                Divider()
+                textSection(.deliveries, term: .diaryDeliveries, text: $draft.deliveries, field: .deliveries, identifier: "site-diary-deliveries")
+                Divider()
+                textSection(.problems, term: .diaryProblems, text: $draft.problems, field: .problems, identifier: "site-diary-problems")
+                Divider()
+                textSection(.visitors, term: .diaryVisitors, text: $draft.visitors, field: .visitors, identifier: "site-diary-visitors")
+                Divider()
+                photoRow
+            }
 
             Text("Printed after the hours on the director's sheet when you choose to include it.")
                 .font(.caption)
@@ -84,7 +103,52 @@ struct SiteDiaryCard: View {
         }
     }
 
+    // MARK: - Rows that open in place
+
+    private func header(_ section: DiaryRow, title: String, summary: String, focus field: Field? = nil) -> some View {
+        DisclosureHeader(title: title, summary: summary, isExpanded: expanded.contains(section)) {
+            toggle(section, focus: field)
+        }
+        .accessibilityIdentifier("diary-section-\(section.rawValue)")
+    }
+
+    /// Opens or closes a row. Opening a text row puts the cursor in it, when
+    /// it can be written; closing one writes what was typed.
+    private func toggle(_ section: DiaryRow, focus field: Field?) {
+        if expanded.contains(section) {
+            if let field, focused == field { focused = nil }
+            withAnimation(.snappy(duration: 0.25)) { _ = expanded.remove(section) }
+        } else {
+            withAnimation(.snappy(duration: 0.25)) { _ = expanded.insert(section) }
+            // The field exists from the next pass of the layout, so the
+            // cursor is put in it then.
+            if canEdit, let field {
+                Task {
+                    try? await Task.sleep(for: .milliseconds(100))
+                    focused = field
+                }
+            }
+        }
+    }
+
     // MARK: - Weather
+
+    private var weatherSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header(.weather, title: String(localized: "Weather"), summary: weatherSummary)
+            if expanded.contains(.weather) {
+                weatherRow
+                    .padding(.bottom, Metrics.small)
+            }
+        }
+    }
+
+    /// What was picked and typed, the temperature as typed until it is read.
+    private var weatherSummary: String {
+        var shown = draft
+        shown.temperatureCelsius = SiteDiary.temperature(from: temperatureText)
+        return shown.weatherPreview()
+    }
 
     private var weatherRow: some View {
         HStack(spacing: Metrics.medium) {
@@ -133,25 +197,42 @@ struct SiteDiaryCard: View {
 
     // MARK: - Texts
 
-    private func diaryField(_ term: ExportTerm, text: Binding<String>, field: Field, identifier: String) -> some View {
+    private func textSection(_ section: DiaryRow, term: ExportTerm, text: Binding<String>, field: Field, identifier: String) -> some View {
         let label = SiteDiary.label(for: term)
-        return VStack(alignment: .leading, spacing: 2) {
-            Text(verbatim: label)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            TextField(label, text: text, axis: .vertical)
-                .lineLimit(1...6)
-                .focused($focused, equals: field)
-                .disabled(!canEdit)
-                .frame(minHeight: 44)
-                .accessibilityLabel(label)
-                .accessibilityIdentifier(identifier)
+        return VStack(alignment: .leading, spacing: 0) {
+            header(section, title: label, summary: SiteDiary.preview(of: text.wrappedValue), focus: field)
+            if expanded.contains(section) {
+                TextField(label, text: text, axis: .vertical)
+                    .lineLimit(1...6)
+                    .focused($focused, equals: field)
+                    .disabled(!canEdit)
+                    .frame(minHeight: 44)
+                    .padding(.bottom, Metrics.small)
+                    .accessibilityLabel(label)
+                    .accessibilityIdentifier(identifier)
+            }
         }
     }
 
     // MARK: - Photos
 
     private var slotsLeft: Int { SiteDiary.photoSlotsLeft(existing: photos.count) }
+
+    private var photoRow: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            header(
+                .photos,
+                title: String(localized: "Photos"),
+                summary: photos.isEmpty
+                    ? ""
+                    : String(localized: "Photos: \(photos.count)", comment: "Extra work job: how many photos it has")
+            )
+            if expanded.contains(.photos) {
+                photoSection
+                    .padding(.bottom, Metrics.small)
+            }
+        }
+    }
 
     @ViewBuilder
     private var photoSection: some View {

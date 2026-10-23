@@ -7,7 +7,8 @@ import UIKit
 /// "Zeitkonto · page 1 of 2".
 ///
 /// It tells the boss what is done, so the work comes first and big: the
-/// jobs day by day with their photos, then any still in progress under a
+/// jobs day by day with their photos (each item on a line of its own, then
+/// how long the job took and who), then any still in progress under a
 /// heading of their own, then the material used as a summary. Nothing on it
 /// is a form: no empty lines to sign on. A signature the client gave is
 /// drawn with "Confirmed on site by …" — on its job, or under the report —
@@ -182,13 +183,18 @@ enum ExtraWorkPDFRenderer {
         return ceil(bounds.height)
     }
 
+    /// What the job's cell says, top to bottom: what was done, then each
+    /// item on a line of its own ("4 × P7" over "2 × P6"), then how long it
+    /// took and who, then who confirmed it. Each is measured on its own, so
+    /// a job of many items is as tall as it prints.
     private static func textLines(of job: ExtraWorkDocument.JobRow) -> [(String, UIFont, UIColor)] {
-        [
-            (job.description, PDFReportStyle.cellBoldFont, PDFReportStyle.ink),
-            (job.material, PDFReportStyle.cellFont, PDFReportStyle.ink),
-            (job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary),
-            (job.confirmation, PDFReportStyle.smallFont, PDFReportStyle.secondary)
-        ].filter { !$0.0.isEmpty }
+        var lines: [(String, UIFont, UIColor)] = [(job.description, PDFReportStyle.cellBoldFont, PDFReportStyle.ink)]
+        for item in job.materialLines {
+            lines.append((item, PDFReportStyle.cellFont, PDFReportStyle.ink))
+        }
+        lines.append((job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary))
+        lines.append((job.confirmation, PDFReportStyle.smallFont, PDFReportStyle.secondary))
+        return lines.filter { !$0.0.isEmpty }
     }
 
     private static func photoRows(_ job: ExtraWorkDocument.JobRow, images: [UUID: UIImage]) -> Int {

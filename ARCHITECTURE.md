@@ -707,6 +707,11 @@ note column leads with "Bad weather" on those days.
 a temperature typed by hand, and four texts — plus up to six `DiaryPhoto`s. It
 is independent of the hours: it can exist with none, and deleting the hours
 leaves it. A blank diary is not stored. The weather is picked, never fetched.
+On the day screen each part (weather, the four texts, photos) is a row that
+opens in place, closed with a one-line preview of what it holds
+(`SiteDiary.weatherPreview`, `SiteDiary.preview(of:)`); the editor of an
+extra-work job opens its Material, Time, Photos and Signature sections the same
+way (`DisclosureHeader`).
 
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
@@ -722,12 +727,24 @@ afterwards the fingerprint no longer matches and the sign-off and the sheet say
 contract, written down so the boss knows what is done. An `ExtraWorkJob` belongs
 to a site and a day: what was done, material lines (`ExtraWorkItem`: the user's
 own name, a `Decimal` quantity, an `ExtraWorkUnit` — pcs, m, m², m³, kg, h, set,
-or a unit typed in and kept as typed), optional hours per person, up to six
-photos (the diary's `DiaryPhotoProcessor`, so no metadata), and the client's
+or a unit typed in and kept as typed), optionally how long the job took and who
+was on it, up to six photos (the diary's `DiaryPhotoProcessor`, so no metadata), and the client's
 optional signature (the crew sign-off's `SignaturePoint`s and canvas). **There
 is no money anywhere in it**, it is never on the personal timesheet, and the
 report is a progress report, not a bill: no invoice step, no invoicing words in
 any language (`ExtraWorkExportTests` checks), no empty lines to sign on.
+
+**Time on a job** is one time for the job, not hours per person: "it took us an
+hour" with two people is a one-hour job. The editor has one quarter-hour
+stepper (tap the number to type "1:30" or "1,5", `ExtraWorkTime`) and the day's
+crew as chips, all of the day's ticked crew chosen when the time is added.
+Saving stores each chosen person with that same time in the job's existing
+`[ExtraWorkHours]` (`ExtraWorkJob.settingTime`), so neither the schema nor the
+backup changed. `ExtraWorkJob.duration` is that shared time — for a job written
+before, whose people can have different minutes, the largest — and `people`
+who has time on it; everywhere a job is shown it reads "1h · Marijo Mikša, Dusko
+Bajlović" (`timeLine`). **Nothing adds hours up across jobs** — no tile, no
+summary, no total row: each job says how long it took.
 
 Two things are tracked, separately. **Is the work finished?** A job can run over
 several days, so `isDone` starts false and is ticked by the user — the 44-point
@@ -757,14 +774,17 @@ progress at the top, whatever the range, each with its checkmark.
 `ExtraWorkDocument` turns a report into the export language's words — "Extra
 work done · dates", the work done day by day with its photos first, then a
 "Still in progress" section if any, then the material used as a summary; tiles
-for jobs done, in progress, photos and hours, each only where it has something
-to say. A signature the client gave is printed as "Confirmed on site by
-<name>, <date>" with the drawing, on its job or under the report, and nothing is
+for jobs done, in progress and photos, each only where it has something
+to say (never hours). A job's material is one line per item, "4 × P7" over
+"2 × P6", in the PDF and on the day's card alike. A signature the client gave
+is printed as "Confirmed on site by <name>, <date>" with the drawing, on its job or under the report, and nothing is
 printed where there is none. Three renderings: the PDF (`ExtraWorkPDFRenderer`,
 A4 portrait in the director's sheet's type and colours, jobs running on over
 pages), a workbook with Jobs and Material sheets in that order
-(`XLSXWriter.data(sheets:)`, quantities as numbers through `ReportRow.numbers`),
-and a CSV of job lines with each job's hours on its first line only; a Status
+(`XLSXWriter.data(sheets:)`, quantities as numbers through `ReportRow.numbers`,
+a job's items one per line in a wrapped cell), and a CSV of job lines with each
+job's time and who on its first line only; where any job has its time noted,
+both carry an Hours column (the job's duration) and a Who column; a Status
 column appears in both only when jobs in progress are included, and a
 "Confirmed on site" column only when somebody confirmed. Its words are
 `ExtraWorkTerm`s, kept beside `ExportTerm` in their own file with the same

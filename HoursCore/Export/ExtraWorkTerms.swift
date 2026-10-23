@@ -18,6 +18,7 @@ enum ExtraWorkTerm: String, CaseIterable, Hashable, Sendable {
     case jobs, jobsDone, inProgress, photos
     case workDoneDayByDay, stillInProgress, job, workAndMaterial
     case materialUsed, item, quantity, unit
+    case who
     case progress, progressDone, progressInProgress
     case confirmedOnSite, confirmedOnSiteBy
     case legend, legendWithoutHours
@@ -77,6 +78,10 @@ extension ExportLanguage {
         case .unit:
             return pick(en: "Unit", de: "Einheit", hr: "Jedinica", sl: "Enota", it: "Unità", fr: "Unité",
                         es: "Unidad", pt: "Unidade", nl: "Eenheid", pl: "Jednostka")
+        case .who:
+            // The column of who was on a job, beside how long it took.
+            return pick(en: "Who", de: "Wer", hr: "Tko", sl: "Kdo", it: "Chi", fr: "Qui", es: "Quién", pt: "Quem",
+                        nl: "Wie", pl: "Kto")
         case .progress:
             return pick(en: "Status", de: "Stand", hr: "Stanje", sl: "Stanje", it: "Stato", fr: "État",
                         es: "Estado", pt: "Estado", nl: "Stand", pl: "Stan")

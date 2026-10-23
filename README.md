@@ -87,8 +87,9 @@ director's sheet can carry the diary and the signatures.
 **Extra work** — what the crew did beyond the contract, written down so the
 boss knows what is done: "8 emergency lights and 10 lamps". Each job on a site
 day has what was done, material with −/+ steppers (or a typed 12.5 m), the items
-used before offered as chips, optional hours per person, photos and the
-client's optional finger signature. A job can run over several days: it is *in
+used before offered as chips, optionally how long the job took and who was on
+it ("1h · Marijo, Dusko" — one time for the job, never added up), photos and
+the client's optional finger signature. A job can run over several days: it is *in
 progress* until you tick it *finished* — the checkmark beside it, a long press,
 or "Work finished" in the editor — and the site's jobs still in progress are
 listed at the top of its report. The site's Report button tells the boss what

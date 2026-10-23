@@ -99,6 +99,23 @@ struct SiteDiary: Hashable, Codable, Sendable {
         language(term)
     }
 
+    /// The closed weather row's grey line: "Rain, 8 °C", either part alone,
+    /// or nothing when neither was set.
+    func weatherPreview(in language: ExportLanguage = .device) -> String {
+        var parts: [String] = []
+        if let weather { parts.append(weather.displayName(in: language)) }
+        if let temperatureCelsius { parts.append("\(temperatureCelsius) °C") }
+        return parts.joined(separator: ", ")
+    }
+
+    /// A closed text row's grey line: the first line with something on it.
+    static func preview(of text: String) -> String {
+        text.split(whereSeparator: \.isNewline)
+            .lazy
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .first { !$0.isEmpty } ?? ""
+    }
+
     /// How many more photos a day with `existing` can take.
     static func photoSlotsLeft(existing: Int) -> Int {
         max(0, maximumPhotos - existing)
