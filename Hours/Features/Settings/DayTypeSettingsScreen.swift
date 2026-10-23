@@ -195,6 +195,10 @@ struct DayTypeEditor: View {
                     .labelsHidden()
                 }
 
+                if draft.expectation == .creditedAbsence {
+                    paySection
+                }
+
                 Section("Colour") {
                     TintPicker(selection: $draft.tint)
                 }
@@ -225,8 +229,69 @@ struct DayTypeEditor: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)
                         .fontWeight(.semibold)
+                        .accessibilityIdentifier("day-type-editor-save")
                         .disabled(draft.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
+            }
+        }
+    }
+
+    // MARK: - Pay
+
+    /// What a day of paid absence earns: its credited hours at the rate,
+    /// times this. Money only — the hours and the balance stay as they are.
+    private var paySection: some View {
+        Section {
+            HStack(spacing: Metrics.small) {
+                Text("Paid at")
+                Spacer(minLength: Metrics.small)
+                Button {
+                    draft.paidPercent = max(0, draft.paidPercent - 5)
+                } label: {
+                    Image(systemName: "minus")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .disabled(draft.paidPercent <= 0)
+                // "Less, paid at, 70%": what it changes and where it stands.
+                .accessibilityLabel(Text("Less") + Text(verbatim: ", ") + Text("Paid at"))
+                .accessibilityValue(Text(verbatim: "\(draft.paidPercent)%"))
+                .accessibilityIdentifier("day-type-paid-at-down")
+                Text(verbatim: "\(draft.paidPercent)%")
+                    .font(.body.monospacedDigit())
+                    .frame(minWidth: 52)
+                Button {
+                    draft.paidPercent = min(100, draft.paidPercent + 5)
+                } label: {
+                    Image(systemName: "plus")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .disabled(draft.paidPercent >= 100)
+                .accessibilityLabel(Text("More") + Text(verbatim: ", ") + Text("Paid at"))
+                .accessibilityValue(Text(verbatim: "\(draft.paidPercent)%"))
+                .accessibilityIdentifier("day-type-paid-at-up")
+            }
+
+            if draft.id == .sick {
+                Toggle("Employer pays the first 42 days", isOn: $draft.employerPaysFirst42Days)
+                    .accessibilityIdentifier("day-type-employer-42-days")
+            }
+        } header: {
+            Text("Pay")
+        } footer: {
+            if draft.id == .sick {
+                // The percentage goes in as a value: a bare "%" in a key is
+                // read as the start of a format.
+                let seventy = "70%"
+                Text(String(
+                    localized: "In Croatia sick leave is paid at least \(seventy) for the first 42 days, then by HZZO; a work injury is paid in full. Check your contract: the app uses your hourly rate, not your average pay.",
+                    comment: "Footer under Sick's pay in Settings › Day types; the value is 70%"
+                ))
+            } else {
+                Text("Only what the day earns changes: the hours it credits and your balance stay the same.")
             }
         }
     }
