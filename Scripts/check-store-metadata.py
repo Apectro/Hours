@@ -200,7 +200,7 @@ def main() -> int:
 
     if problems:
         print("\n" + "\n".join(f"  {p}" for p in problems))
-        print("\nApp Store Connect would refuse these. Fix the file under fastlane/metadata/.")
+        print("\nApp Store Connect would refuse these. Fix the files named above.")
         return 1
 
     print(f"\nthe listing fits ({len(report)} fields measured, {len(LOCALES)} languages)")
