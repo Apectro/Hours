@@ -91,15 +91,15 @@ final class ScreenAtlasTests: XCTestCase {
         capture("calendar-month-summary", app)
         swipeDown(app, times: 3)
 
-        if tap(app.buttons["calendar-more"], "the calendar's menu", app) {
+        if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app) {
             capture("calendar-menu", app)
             dismissMenu(app)
         }
 
         // A day other than today, selected: the card under the grid.
         if let key = dayKey(monthsFromNow: 0, day: 3), key != Self.todayKey,
-           tap(app.buttons["day-\(key)"], "the 3rd of this month", app) {
-            bringIntoView(app.buttons["day-card-edit"], app)
+           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "the 3rd of this month", app) {
+            bringIntoView(app.buttons.matching(identifier: "day-card-edit").firstMatch, app)
             capture("calendar-selected-day", app)
         }
 
@@ -110,7 +110,7 @@ final class ScreenAtlasTests: XCTestCase {
             swipeUp(app)
             capture("day-editor-existing-lower", app)
             swipeDown(app, times: 2)
-            if tap(app.buttons["day-editor-day-type"], "the day type picker", app) {
+            if tap(app.buttons.matching(identifier: "day-editor-day-type").firstMatch, "the day type picker", app) {
                 capture("day-editor-day-types", app)
                 dismissMenu(app)
             }
@@ -120,36 +120,36 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         // A new day: next month has nothing in it.
-        if tap(app.buttons["calendar-next"], "next month", app),
+        if tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "next month", app),
            let key = dayKey(monthsFromNow: 1, day: 10) {
-            let day = app.buttons["day-\(key)"]
+            let day = app.buttons.matching(identifier: "day-\(key)").firstMatch
             if tap(day, "the 10th of next month", app) {
                 capture("calendar-empty-day", app)
-                if tap(app.buttons["day-card-edit"], "Add hours on an empty day", app) {
+                if tap(app.buttons.matching(identifier: "day-card-edit").firstMatch, "Add hours on an empty day", app) {
                     capture("day-editor-new", app)
-                    if tap(app.buttons["day-editor-add-hours"], "Add hours in the editor", app) {
+                    if tap(app.buttons.matching(identifier: "day-editor-add-hours").firstMatch, "Add hours in the editor", app) {
                         capture("day-editor-new-times", app)
-                        let addBreak = app.buttons["day-editor-add-break"]
+                        let addBreak = app.buttons.matching(identifier: "day-editor-add-break").firstMatch
                         if addBreak.exists { tapAnyway(addBreak) }
-                        bringIntoView(app.buttons["day-editor-add-block"], app)
+                        bringIntoView(app.buttons.matching(identifier: "day-editor-add-block").firstMatch, app)
                         capture("day-editor-breaks", app)
-                        if tap(app.buttons["day-editor-add-block"], "Add another block", app) {
+                        if tap(app.buttons.matching(identifier: "day-editor-add-block").firstMatch, "Add another block", app) {
                             capture("day-editor-two-blocks", app)
                         }
                     }
                     close(app, "day-editor-cancel")
                 }
             }
-            tap(app.buttons["calendar-previous"], "back to this month", app)
+            tap(app.buttons.matching(identifier: "calendar-previous").firstMatch, "back to this month", app)
         }
 
         // The public holiday the sample month has, and "I worked".
         let holidayDay = Self.today.day == 15 ? 16 : 15
         if let key = dayKey(monthsFromNow: 0, day: holidayDay),
-           tap(app.buttons["day-\(key)"], "the public holiday", app) {
-            bringIntoView(app.buttons["day-card-holiday-worked"], app)
+           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "the public holiday", app) {
+            bringIntoView(app.buttons.matching(identifier: "day-card-holiday-worked").firstMatch, app)
             capture("calendar-holiday", app)
-            if tap(app.buttons["day-card-holiday-worked"], "I worked this day", app) {
+            if tap(app.buttons.matching(identifier: "day-card-holiday-worked").firstMatch, "I worked this day", app) {
                 capture("day-editor-holiday-worked", app)
                 close(app, "day-editor-cancel")
             }
@@ -157,25 +157,25 @@ final class ScreenAtlasTests: XCTestCase {
 
         // The week of leave: the 8th to the 12th, once they have passed.
         if let key = dayKey(monthsFromNow: 0, day: 10),
-           tap(app.buttons["day-\(key)"], "a day of leave", app) {
-            bringIntoView(app.buttons["day-card-edit"], app)
+           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "a day of leave", app) {
+            bringIntoView(app.buttons.matching(identifier: "day-card-edit").firstMatch, app)
             capture("calendar-leave-day", app)
-            if tap(app.buttons["day-card-edit"], "the leave day's editor", app) {
+            if tap(app.buttons.matching(identifier: "day-card-edit").firstMatch, "the leave day's editor", app) {
                 capture("day-editor-leave", app)
                 close(app, "day-editor-cancel")
             }
         }
 
         // Range editing, from the menu.
-        if tap(app.buttons["calendar-more"], "the calendar's menu", app),
-           tap(app.buttons["calendar-edit-range"], "Edit a range", app) {
+        if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app),
+           tap(app.buttons.matching(identifier: "calendar-edit-range").firstMatch, "Edit a range", app) {
             capture("bulk-edit", app)
             close(app, "bulk-edit-cancel")
         }
 
         // Your own timesheet, in each format: the toolbar's Export button,
         // out of the menu since the polish.
-        if tap(app.buttons["calendar-export"], "Export", app) {
+        if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
             exportScreens(app, prefix: "export")
             close(app, "export-done")
         }
@@ -184,7 +184,7 @@ final class ScreenAtlasTests: XCTestCase {
     /// The export screen in each format and the PDF at full size. Shared by
     /// the personal and the site export.
     private func exportScreens(_ app: XCUIApplication, prefix: String) {
-        let pdf = app.buttons["export-format-pdf"]
+        let pdf = app.buttons.matching(identifier: "export-format-pdf").firstMatch
         if pdf.waitForExistence(timeout: 10) { tapAnyway(pdf) }
         let page = app.descendants(matching: .any)["export-preview-page"]
         if page.waitForExistence(timeout: 10) { _ = waitUntilEnabled(page, timeout: 15) }
@@ -198,7 +198,7 @@ final class ScreenAtlasTests: XCTestCase {
             miss("\(prefix)-pdf-full-page (the page was never drawn)")
         }
         for format in ["xlsx", "csv"] {
-            let card = app.buttons["export-format-\(format)"]
+            let card = app.buttons.matching(identifier: "export-format-\(format)").firstMatch
             if bringIntoView(card, app) {
                 tapAnyway(card)
                 pause(1)
@@ -217,18 +217,18 @@ final class ScreenAtlasTests: XCTestCase {
     private func siteScreens(_ app: XCUIApplication) {
         app.tab(.sites).tap()
         if !app.screen("screen-sites").waitForExistence(timeout: 5) { app.tab(.sites).tap() }
-        guard app.buttons["site-card"].firstMatch.waitForExistence(timeout: 15) else {
+        guard app.buttons.matching(identifier: "site-card").firstMatch.waitForExistence(timeout: 15) else {
             miss("sites-list (the sample sites have no cards)")
             return
         }
         capture("sites-list", app)
 
-        if tap(app.buttons["sites-add"], "Add a site", app) {
+        if tap(app.buttons.matching(identifier: "sites-add").firstMatch, "Add a site", app) {
             capture("site-new", app)
             close(app, "site-editor-cancel")
         }
 
-        tapAnyway(app.buttons["site-card"].firstMatch)
+        tapAnyway(app.buttons.matching(identifier: "site-card").firstMatch)
         guard app.screen("screen-site-day").waitForExistence(timeout: 10) else {
             miss("site-day (the site did not open)")
             return
@@ -244,12 +244,12 @@ final class ScreenAtlasTests: XCTestCase {
         back(app)
         let second = app.buttons.matching(identifier: "site-card").element(boundBy: 1)
         if tap(second, "the second site", app),
-           tap(app.buttons["site-more"], "the site's menu", app),
-           tap(app.buttons["site-edit"], "Edit site", app) {
+           tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "Edit site", app) {
             let archived = app.switches["site-editor-archived"]
             if archived.waitForExistence(timeout: 5) {
                 flip(archived)
-                tap(app.buttons["site-editor-save"], "Save the site", app)
+                tap(app.buttons.matching(identifier: "site-editor-save").firstMatch, "Save the site", app)
                 pause(1)
                 capture("site-archived-day", app)
             } else {
@@ -270,10 +270,10 @@ final class ScreenAtlasTests: XCTestCase {
     /// Today on the showcase site, from the top to the diary.
     private func siteDayScreens(_ app: XCUIApplication) {
         // The week strip opens out into the whole month, and back.
-        if tap(app.buttons["site-month-toggle"], "Show whole month", app) {
+        if tap(app.buttons.matching(identifier: "site-month-toggle").firstMatch, "Show whole month", app) {
             pause(0.5)
             capture("site-day-month-grid", app)
-            tap(app.buttons["site-month-toggle"], "Show one week", app)
+            tap(app.buttons.matching(identifier: "site-month-toggle").firstMatch, "Show one week", app)
         }
 
         swipeUp(app)
@@ -285,16 +285,16 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "site-hours-cancel")
         }
 
-        let ivan = app.buttons["site-times-Ivan"]
+        let ivan = app.buttons.matching(identifier: "site-times-Ivan").firstMatch
         if tap(ivan, "Ivan's times", app) {
             capture("site-person-times", app)
             close(app, "person-times-cancel")
         }
 
-        let weather = app.buttons["site-weather-menu"]
+        let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
         if tap(weather, "the rained-off menu", app) {
             capture("site-rained-off-menu", app)
-            if tap(app.buttons["site-weather-stop-at"], "Stopped at", app) {
+            if tap(app.buttons.matching(identifier: "site-weather-stop-at").firstMatch, "Stopped at", app) {
                 capture("site-rained-off-sheet", app)
                 close(app, "site-weather-stop-cancel")
             } else {
@@ -302,7 +302,7 @@ final class ScreenAtlasTests: XCTestCase {
             }
         }
 
-        let addExtraWork = app.buttons["extra-work-add"]
+        let addExtraWork = app.buttons.matching(identifier: "extra-work-add").firstMatch
         if bringIntoView(addExtraWork, app) {
             capture("site-day-extra-work", app)
         } else {
@@ -310,13 +310,13 @@ final class ScreenAtlasTests: XCTestCase {
         }
         // The sample's finished jobs are not sent yet: "Send to boss (N)"
         // beside the Extra work heading.
-        if bringIntoView(app.buttons["extra-work-send-report"], app) {
+        if bringIntoView(app.buttons.matching(identifier: "extra-work-send-report").firstMatch, app) {
             capture("site-day-send-to-boss", app)
         } else {
             miss("site-day-send-to-boss (no Send to boss button)")
         }
 
-        let diary = app.buttons["diary-section-weather"]
+        let diary = app.buttons.matching(identifier: "diary-section-weather").firstMatch
         if bringIntoView(diary, app) {
             capture("site-day-diary", app)
             tapAnyway(diary)
@@ -332,14 +332,14 @@ final class ScreenAtlasTests: XCTestCase {
     /// The extra-work editor, new and existing, and the report to the boss.
     private func extraWorkScreens(_ app: XCUIApplication) {
         let editor = app.screen("screen-extra-work-editor")
-        let addExtraWork = app.buttons["extra-work-add"]
+        let addExtraWork = app.buttons.matching(identifier: "extra-work-add").firstMatch
         if bringIntoView(addExtraWork, app) {
             tapAnyway(addExtraWork)
             if editor.waitForExistence(timeout: 10) {
                 pause(0.5)
                 capture("extra-work-new", app)
                 for section in ["time", "photos", "signature"] {
-                    let header = app.buttons["extra-work-section-\(section)"]
+                    let header = app.buttons.matching(identifier: "extra-work-section-\(section)").firstMatch
                     if bringIntoView(header, app) { tapAnyway(header) }
                 }
                 swipeDown(app, times: 3)
@@ -347,17 +347,17 @@ final class ScreenAtlasTests: XCTestCase {
                 swipeUp(app)
                 capture("extra-work-new-open-lower", app)
 
-                if tap(app.buttons["extra-work-new-item"], "New item", app) {
+                if tap(app.buttons.matching(identifier: "extra-work-new-item").firstMatch, "New item", app) {
                     capture("extra-work-new-item", app)
                     close(app, "extra-work-item-cancel")
                 }
-                if tap(app.buttons["extra-work-sign"], "the client's signature", app) {
+                if tap(app.buttons.matching(identifier: "extra-work-sign").firstMatch, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
                     close(app, "extra-work-signature-cancel")
                 }
-                if tap(app.buttons["extra-work-edit-items"], "the item list", app) {
+                if tap(app.buttons.matching(identifier: "extra-work-edit-items").firstMatch, "the item list", app) {
                     capture("extra-work-catalogue", app)
-                    if tap(app.buttons["extra-work-catalog-item"].firstMatch, "an item in the list", app) {
+                    if tap(app.buttons.matching(identifier: "extra-work-catalog-item").firstMatch, "an item in the list", app) {
                         capture("extra-work-catalogue-item", app)
                         close(app, "extra-work-item-cancel")
                     }
@@ -370,7 +370,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         for index in 0..<2 {
-            let job = app.buttons["extra-work-job-\(index)"]
+            let job = app.buttons.matching(identifier: "extra-work-job-\(index)").firstMatch
             if bringIntoView(job, app) {
                 tapAnyway(job)
                 if editor.waitForExistence(timeout: 10) {
@@ -388,7 +388,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         swipeDown(app, times: 8)
-        if tap(app.buttons["site-extra-work-report"], "the report to the boss", app),
+        if tap(app.buttons.matching(identifier: "site-extra-work-report").firstMatch, "the report to the boss", app),
            app.screen("screen-extra-work-report").waitForExistence(timeout: 10) {
             pause(1)
             capture("extra-work-report", app)
@@ -399,7 +399,7 @@ final class ScreenAtlasTests: XCTestCase {
                 capture("extra-work-report-in-progress", app)
                 swipeUp(app)
                 capture("extra-work-report-lower", app)
-                if tap(app.buttons["extra-work-report-sign"], "the report's signature", app) {
+                if tap(app.buttons.matching(identifier: "extra-work-report-sign").firstMatch, "the report's signature", app) {
                     capture("extra-work-report-signature", app)
                     close(app, "extra-work-signature-cancel")
                 }
@@ -425,9 +425,9 @@ final class ScreenAtlasTests: XCTestCase {
     /// and the site's own editor.
     private func siteMenuScreens(_ app: XCUIApplication) {
         swipeDown(app, times: 8)
-        if tap(app.buttons["site-more"], "the site's menu", app) {
+        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app) {
             capture("site-menu", app)
-            if tap(app.buttons["site-crew"], "the crew", app),
+            if tap(app.buttons.matching(identifier: "site-crew").firstMatch, "the crew", app),
                app.screen("screen-crew").waitForExistence(timeout: 10) {
                 pause(0.5)
                 capture("crew", app)
@@ -436,10 +436,10 @@ final class ScreenAtlasTests: XCTestCase {
                     member.press(forDuration: 1.2)
                     pause(1)
                     capture("crew-member-menu", app)
-                    if tap(app.buttons["crew-rename"], "Rename", app) {
+                    if tap(app.buttons.matching(identifier: "crew-rename").firstMatch, "Rename", app) {
                         pause(0.5)
                         capture("crew-member-rename", app)
-                        let cancel = app.buttons["crew-rename-cancel"]
+                        let cancel = app.buttons.matching(identifier: "crew-rename-cancel").firstMatch
                         if cancel.waitForExistence(timeout: 2) {
                             cancel.tap()
                         } else if app.alerts.firstMatch.exists {
@@ -452,7 +452,7 @@ final class ScreenAtlasTests: XCTestCase {
                 } else {
                     miss("crew-member-menu (no crew member)")
                 }
-                if tap(app.buttons["crew-add-from-sites"], "Add from other sites", app) {
+                if tap(app.buttons.matching(identifier: "crew-add-from-sites").firstMatch, "Add from other sites", app) {
                     capture("crew-add-from-other-sites", app)
                     close(app, "crew-picker-cancel")
                 }
@@ -460,15 +460,15 @@ final class ScreenAtlasTests: XCTestCase {
             }
         }
 
-        if tap(app.buttons["site-more"], "the site's menu", app),
-           tap(app.buttons["site-diary-list"], "the site diary", app) {
+        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
             pause(1)
             capture("site-diary-list", app)
             close(app, "site-diary-list-done")
         }
 
-        if tap(app.buttons["site-more"], "the site's menu", app),
-           tap(app.buttons["site-export"], "the site's export", app),
+        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-export").firstMatch, "the site's export", app),
            app.screen("screen-site-export").waitForExistence(timeout: 10) {
             exportScreens(app, prefix: "site-export")
             close(app, "export-done")
@@ -476,8 +476,8 @@ final class ScreenAtlasTests: XCTestCase {
 
         // Crew sign-off has its own place in the site's menu: a sheet with
         // the month, each person, and the line they sign on.
-        if tap(app.buttons["site-more"], "the site's menu", app),
-           tap(app.buttons["site-sign-off"], "Crew sign-off", app) {
+        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-sign-off").firstMatch, "Crew sign-off", app) {
             if app.screen("screen-sign-off").waitForExistence(timeout: 10) {
                 pause(1)
                 capture("site-sign-off", app)
@@ -507,8 +507,8 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "sign-off-done")
         }
 
-        if tap(app.buttons["site-more"], "the site's menu", app),
-           tap(app.buttons["site-edit"], "Edit site", app) {
+        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "Edit site", app) {
             capture("site-edit", app)
             close(app, "site-editor-cancel")
         }
@@ -549,16 +549,16 @@ final class ScreenAtlasTests: XCTestCase {
             miss("insights-leave-balance (no leave card)")
         }
 
-        let review = app.buttons["insights-year-review"]
+        let review = app.buttons.matching(identifier: "insights-year-review").firstMatch
         if bringIntoView(review, app) {
             tapAnyway(review)
-            if app.buttons["year-review-close"].waitForExistence(timeout: 10) {
+            if app.buttons.matching(identifier: "year-review-close").firstMatch.waitForExistence(timeout: 10) {
                 pause(1.5)
                 capture("year-in-review", app)
                 swipeUp(app)
                 pause(0.5)
                 capture("year-in-review-lower", app)
-                app.buttons["year-review-close"].tap()
+                app.buttons.matching(identifier: "year-review-close").firstMatch.tap()
                 pause(1)
             } else {
                 miss("year-in-review (did not open)")
@@ -587,7 +587,7 @@ final class ScreenAtlasTests: XCTestCase {
 
         // The root, a screen height at a time, until the last row is up.
         capture("settings-1", app)
-        let last = app.buttons["settings-show-tour"]
+        let last = app.buttons.matching(identifier: "settings-show-tour").firstMatch
         var page = 1
         while page < 5, !(last.exists && last.isHittable) {
             swipeUp(app)
@@ -603,11 +603,11 @@ final class ScreenAtlasTests: XCTestCase {
             self.capture("settings-pay-lower", app)
         }
         settingsPage("settings-jobs", "settings-jobs", app) {
-            if self.tap(app.buttons["jobs-row"].firstMatch, "a job", app) {
+            if self.tap(app.buttons.matching(identifier: "jobs-row").firstMatch, "a job", app) {
                 self.capture("settings-job-editor", app)
                 self.close(app, "job-editor-cancel")
             }
-            if self.tap(app.buttons["jobs-add"], "Add a job", app) {
+            if self.tap(app.buttons.matching(identifier: "jobs-add").firstMatch, "Add a job", app) {
                 self.capture("settings-job-new", app)
                 self.close(app, "job-editor-cancel")
             }
@@ -618,9 +618,9 @@ final class ScreenAtlasTests: XCTestCase {
             // Closed months: their own screen now. Last month is closed
             // here, for the calendar's notice afterwards (see
             // `closedMonthScreens`), which reopens it.
-            if self.tap(app.buttons["settings-closed-months"], "Closed months", app) {
+            if self.tap(app.buttons.matching(identifier: "settings-closed-months").firstMatch, "Closed months", app) {
                 self.capture("settings-closed-months", app)
-                if self.tap(app.buttons["closed-months-close"], "Close last month", app) {
+                if self.tap(app.buttons.matching(identifier: "closed-months-close").firstMatch, "Close last month", app) {
                     self.capture("settings-closed-months-one", app)
                 }
                 self.back(app)
@@ -628,11 +628,11 @@ final class ScreenAtlasTests: XCTestCase {
         }
         settingsPage("settings-fields", "settings-fields", app)
         settingsPage("settings-day-types", "settings-day-types", app) {
-            if self.tap(app.buttons["day-types-row"].firstMatch, "a day type", app) {
+            if self.tap(app.buttons.matching(identifier: "day-types-row").firstMatch, "a day type", app) {
                 self.capture("settings-day-type-editor", app)
                 self.close(app, "day-type-editor-cancel")
             }
-            if self.tap(app.buttons["day-types-add"], "Add a day type", app) {
+            if self.tap(app.buttons.matching(identifier: "day-types-add").firstMatch, "Add a day type", app) {
                 self.capture("settings-day-type-new", app)
                 self.close(app, "day-type-editor-cancel")
             }
@@ -642,15 +642,15 @@ final class ScreenAtlasTests: XCTestCase {
             self.capture("settings-reminders-lower", app)
         }
         settingsPage("settings-holidays", "settings-holidays", app) {
-            if self.tap(app.buttons["holidays-row"].firstMatch, "a holiday", app) {
+            if self.tap(app.buttons.matching(identifier: "holidays-row").firstMatch, "a holiday", app) {
                 self.capture("settings-holiday-editor", app)
                 self.close(app, "holiday-editor-cancel")
             }
-            if self.tap(app.buttons["holidays-add"], "Add a holiday", app) {
+            if self.tap(app.buttons.matching(identifier: "holidays-add").firstMatch, "Add a holiday", app) {
                 self.capture("settings-holiday-new", app)
                 self.close(app, "holiday-editor-cancel")
             }
-            if self.tap(app.buttons["public-holidays-open"], "Add public holidays", app) {
+            if self.tap(app.buttons.matching(identifier: "public-holidays-open").firstMatch, "Add public holidays", app) {
                 self.publicHolidayPicker(app, prefix: "settings-public-holidays")
             }
         }
@@ -674,24 +674,24 @@ final class ScreenAtlasTests: XCTestCase {
     private func closedMonthScreens(_ app: XCUIApplication) {
         app.tab(.calendar).tap()
         pause(1)
-        guard tap(app.buttons["calendar-previous"], "last month (closed)", app) else { return }
+        guard tap(app.buttons.matching(identifier: "calendar-previous").firstMatch, "last month (closed)", app) else { return }
         pause(0.5)
         capture("calendar-closed-month", app)
-        if tap(app.buttons["calendar-more"], "the calendar's menu on a closed month", app) {
+        if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu on a closed month", app) {
             capture("calendar-menu-closed-month", app)
             dismissMenu(app)
         }
-        if tap(app.buttons["calendar-closed-reopen"], "Reopen on the notice", app) {
+        if tap(app.buttons.matching(identifier: "calendar-closed-reopen").firstMatch, "Reopen on the notice", app) {
             capture("calendar-reopen-confirm", app)
             tap(app.buttons.matching(identifier: "calendar-reopen-confirm").firstMatch, "Reopen", app)
         }
-        tap(app.buttons["calendar-next"], "back to this month", app)
+        tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "back to this month", app)
     }
 
     /// The countries, a country's regions, and a set before it is added.
     /// Cancelled, so nothing is added.
     private func publicHolidayPicker(_ app: XCUIApplication, prefix: String) {
-        let germany = app.buttons["public-holidays-country-de"]
+        let germany = app.buttons.matching(identifier: "public-holidays-country-de").firstMatch
         guard germany.waitForExistence(timeout: 10) else {
             miss("\(prefix) (the countries were not listed)")
             return
@@ -702,8 +702,8 @@ final class ScreenAtlasTests: XCTestCase {
         pause(1)
         capture("\(prefix)-regions", app)
         back(app)
-        let austria = app.buttons["public-holidays-country-at"]
-        if tap(austria, "Austria", app), app.buttons["public-holidays-add"].waitForExistence(timeout: 5) {
+        let austria = app.buttons.matching(identifier: "public-holidays-country-at").firstMatch
+        if tap(austria, "Austria", app), app.buttons.matching(identifier: "public-holidays-add").firstMatch.waitForExistence(timeout: 5) {
             pause(0.5)
             capture("\(prefix)-preview", app)
             back(app)
@@ -720,7 +720,7 @@ final class ScreenAtlasTests: XCTestCase {
         _ app: XCUIApplication,
         deeper: (() -> Void)? = nil
     ) {
-        let row = app.buttons[identifier]
+        let row = app.buttons.matching(identifier: identifier).firstMatch
         guard bringIntoView(row, app) else {
             miss("\(name) (no row \(identifier))")
             return
@@ -746,7 +746,7 @@ final class ScreenAtlasTests: XCTestCase {
             return
         }
         app.tab(.settings).tap()
-        if tap(app.buttons["settings-pro"], "the Pro row", app) {
+        if tap(app.buttons.matching(identifier: "settings-pro").firstMatch, "the Pro row", app) {
             pause(1.5)
             capture("paywall", app)
             swipeUp(app)
@@ -767,14 +767,14 @@ final class ScreenAtlasTests: XCTestCase {
                 break
             }
             pause(1)
-            if step == "crew", app.buttons["setup-crew-yes"].exists {
+            if step == "crew", app.buttons.matching(identifier: "setup-crew-yes").firstMatch.exists {
                 // A crew lead: the last step then offers to create a site.
-                app.buttons["setup-crew-yes"].tap()
+                app.buttons.matching(identifier: "setup-crew-yes").firstMatch.tap()
                 pause(0.5)
             }
             capture("setup-\(index + 1)-\(step)", app)
             guard step != "finish" else { break }
-            let next = app.buttons["setup-continue"]
+            let next = app.buttons.matching(identifier: "setup-continue").firstMatch
             if waitUntilHittable(next, timeout: 5) {
                 next.tap()
             } else if step == "name", app.textFields["setup-name"].exists {
@@ -800,8 +800,8 @@ final class ScreenAtlasTests: XCTestCase {
             }
             pause(1.5)
             capture("tour-\(stop)", app)
-            let next = app.buttons["tour-next"]
-            let done = app.buttons["tour-done"]
+            let next = app.buttons.matching(identifier: "tour-next").firstMatch
+            let done = app.buttons.matching(identifier: "tour-done").firstMatch
             if waitUntilHittable(next, timeout: 5) {
                 next.tap()
             } else if done.exists {
@@ -841,13 +841,13 @@ final class ScreenAtlasTests: XCTestCase {
             if scope.waitForExistence(timeout: 5), scope.buttons.count >= 4 {
                 scope.buttons.element(boundBy: 3).tap()
                 pause(0.5)
-                let review = app.buttons["insights-year-review"]
+                let review = app.buttons.matching(identifier: "insights-year-review").firstMatch
                 if bringIntoView(review, app) {
                     tapAnyway(review)
-                    if app.buttons["year-review-close"].waitForExistence(timeout: 10) {
+                    if app.buttons.matching(identifier: "year-review-close").firstMatch.waitForExistence(timeout: 10) {
                         pause(1)
                         capture("empty-year-in-review", app)
-                        app.buttons["year-review-close"].tap()
+                        app.buttons.matching(identifier: "year-review-close").firstMatch.tap()
                     } else {
                         miss("empty-year-in-review (did not open)")
                     }
@@ -866,15 +866,15 @@ final class ScreenAtlasTests: XCTestCase {
             return
         }
         siteApp.tab(.sites).tap()
-        if tap(siteApp.buttons["site-card"].firstMatch, "the sample site", siteApp),
+        if tap(siteApp.buttons.matching(identifier: "site-card").firstMatch, "the sample site", siteApp),
            siteApp.screen("screen-site-day").waitForExistence(timeout: 10) {
             pause(1)
             capture("empty-site-day-unwritten", siteApp)
-            if bringIntoView(siteApp.buttons["extra-work-add"], siteApp) {
+            if bringIntoView(siteApp.buttons.matching(identifier: "extra-work-add").firstMatch, siteApp) {
                 capture("empty-site-day-extra-work", siteApp)
             }
             swipeDown(siteApp, times: 6)
-            if tap(siteApp.buttons["site-extra-work-report"], "the empty report", siteApp),
+            if tap(siteApp.buttons.matching(identifier: "site-extra-work-report").firstMatch, "the empty report", siteApp),
                siteApp.screen("screen-extra-work-report").waitForExistence(timeout: 10) {
                 pause(1)
                 capture("empty-extra-work-report", siteApp)
@@ -893,11 +893,11 @@ final class ScreenAtlasTests: XCTestCase {
     /// library gives one.
     private func heldBackReport(_ app: XCUIApplication) {
         let editor = app.screen("screen-extra-work-editor")
-        guard bringIntoView(app.buttons["extra-work-add"], app) else {
+        guard bringIntoView(app.buttons.matching(identifier: "extra-work-add").firstMatch, app) else {
             miss("extra-work-report-held-back (no Add extra work)")
             return
         }
-        tapAnyway(app.buttons["extra-work-add"])
+        tapAnyway(app.buttons.matching(identifier: "extra-work-add").firstMatch)
         guard editor.waitForExistence(timeout: 10) else {
             miss("extra-work-report-held-back (the editor did not open)")
             return
@@ -911,7 +911,7 @@ final class ScreenAtlasTests: XCTestCase {
         close(app, "extra-work-save")
 
         swipeDown(app, times: 6)
-        if tap(app.buttons["site-extra-work-report"], "the report held back", app),
+        if tap(app.buttons.matching(identifier: "site-extra-work-report").firstMatch, "the report held back", app),
            app.screen("screen-extra-work-report").waitForExistence(timeout: 10) {
             pause(1)
             if app.descendants(matching: .any)["extra-work-report-held-back"].waitForExistence(timeout: 5) {
@@ -919,7 +919,7 @@ final class ScreenAtlasTests: XCTestCase {
             } else {
                 miss("extra-work-report-held-back (no held-back state)")
             }
-            if tap(app.buttons["extra-work-report-mark-finished"], "Mark finished…", app) {
+            if tap(app.buttons.matching(identifier: "extra-work-report-mark-finished").firstMatch, "Mark finished…", app) {
                 pause(0.5)
                 capture("extra-work-report-mark-finished", app)
             }
@@ -931,9 +931,9 @@ final class ScreenAtlasTests: XCTestCase {
     /// from the system picker, which belongs to the simulator, so a picker
     /// that cannot be driven is noted rather than failed.
     private func photoViewer(_ app: XCUIApplication) {
-        let header = app.buttons["extra-work-section-photos"]
+        let header = app.buttons.matching(identifier: "extra-work-section-photos").firstMatch
         if bringIntoView(header, app) { tapAnyway(header) }
-        let add = app.buttons["extra-work-add-photos"]
+        let add = app.buttons.matching(identifier: "extra-work-add-photos").firstMatch
         guard bringIntoView(add, app) else {
             optional.append("photo-viewer (no Add photos)")
             return
@@ -954,20 +954,20 @@ final class ScreenAtlasTests: XCTestCase {
             }
             pause(1.5)
         }
-        let save = app.buttons["extra-work-save"]
+        let save = app.buttons.matching(identifier: "extra-work-save").firstMatch
         if !save.isHittable {
             // The picker is still up: swipe it away, back to the editor.
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12))
                 .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
             pause(1)
         }
-        let photo = app.buttons["extra-work-photo"].firstMatch
+        let photo = app.buttons.matching(identifier: "extra-work-photo").firstMatch
         guard photo.waitForExistence(timeout: 3), bringIntoView(photo, app) else {
             optional.append("photo-viewer (the system picker gave no photo)")
             return
         }
         tapAnyway(photo)
-        if app.buttons["photo-viewer-done"].waitForExistence(timeout: 5) {
+        if app.buttons.matching(identifier: "photo-viewer-done").firstMatch.waitForExistence(timeout: 5) {
             pause(0.5)
             capture("photo-viewer", app)
             close(app, "photo-viewer-done")
@@ -1038,6 +1038,7 @@ final class ScreenAtlasTests: XCTestCase {
     /// A switch, by its switch rather than the middle of its row, which on
     /// a full-width toggle is the label.
     private func flip(_ toggle: XCUIElement) {
+        guard toggle.exists else { return }
         let inner = toggle.switches.firstMatch
         if inner.exists, inner.isHittable {
             inner.tap()
@@ -1077,7 +1078,7 @@ final class ScreenAtlasTests: XCTestCase {
     /// down from the top of the screen, so the next screen is not stuck
     /// behind a sheet that would not close.
     private func close(_ app: XCUIApplication, _ identifier: String) {
-        let button = app.buttons[identifier]
+        let button = app.buttons.matching(identifier: identifier).firstMatch
         if button.waitForExistence(timeout: 3) {
             tapAnyway(button)
         } else {
