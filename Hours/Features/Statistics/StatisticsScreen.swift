@@ -66,6 +66,7 @@ struct StatisticsScreen: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityIdentifier("insights-scope")
                     .tourTarget(.insights)
 
                     periodStepper
@@ -155,6 +156,7 @@ struct StatisticsScreen: View {
                     comment: "VoiceOver; the value is a period name such as month or week"
                 )
             ) { step(-1) }
+            .accessibilityIdentifier("insights-previous")
 
             Spacer(minLength: Metrics.small)
 
@@ -173,6 +175,7 @@ struct StatisticsScreen: View {
                 )
             ) { step(1) }
             .disabled(isAtPresent)
+            .accessibilityIdentifier("insights-next")
         }
         // Two buttons in one row: without this a tap anywhere in the row
         // presses both.

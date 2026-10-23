@@ -138,6 +138,7 @@ struct DayEditorForm: View {
                 } label: {
                     Label("Add times", systemImage: "clock")
                 }
+                .accessibilityIdentifier("day-editor-add-hours")
             } footer: {
                 if !showsTimes {
                     Text("You can add times to any day, holidays too.")
@@ -164,6 +165,7 @@ struct DayEditorForm: View {
                 } label: {
                     Label("Add another block", systemImage: "plus.circle")
                 }
+                .accessibilityIdentifier("day-editor-add-block")
             } footer: {
                 Text("A second block records a split shift — the time between blocks is neither worked nor a break.")
             }
@@ -380,6 +382,7 @@ struct DayEditorForm: View {
             } label: {
                 Label("Add break", systemImage: "plus.circle")
             }
+            .accessibilityIdentifier("day-editor-add-break")
         } else {
             DurationStepperRow(
                 title: String(localized: "Break"),

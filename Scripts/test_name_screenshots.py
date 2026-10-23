@@ -97,6 +97,17 @@ class RenamingTests(unittest.TestCase):
         # A name the test already spelled with its extension is not doubled.
         self.assertEqual(name_screenshots.tidy(f"08-export-csv.csv_0_{uuid}.csv"), "08-export-csv.csv")
 
+    def test_the_screen_atlas_keeps_its_names(self):
+        # ScreenAtlasTests names its pictures atlas-NN-<screen>, past a
+        # hundred of them in a run, and the export keeps them by that name.
+        uuid = "14ABDA6E-77DC-466B-8D0B-901055A459EA"
+        self.assertEqual(name_screenshots.tidy(f"atlas-07-site-day-top_0_{uuid}.png"), "atlas-07-site-day-top.png")
+        self.assertTrue(name_screenshots.OURS.match("atlas-07-site-day-top.png"))
+        self.assertTrue(name_screenshots.OURS.match("atlas-112-settings-privacy.png"))
+        # XCTest's own screenshots still are not ours.
+        self.assertFalse(name_screenshots.OURS.match("kXCTAttachmentLegacyScreenImageData.png"))
+        self.assertFalse(name_screenshots.OURS.match("atlas-calendar.png"))
+
     def test_a_manifest_that_cannot_be_read_is_a_warning_not_a_crash(self):
         os.remove(os.path.join(self.raw, "manifest.json"))
         self.assertEqual(self.run_it(), [])

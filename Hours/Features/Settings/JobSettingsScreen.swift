@@ -22,6 +22,7 @@ struct JobSettingsScreen: View {
                         row(for: job)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("jobs-row")
                 }
             } footer: {
                 Text("Each job keeps its own contracted week, so two jobs with different hours each get their own balance rather than sharing one.")
@@ -42,6 +43,7 @@ struct JobSettingsScreen: View {
                     Label("Add a job", systemImage: "plus.circle")
                         .proLock(needsProForAnotherJob)
                 }
+                .accessibilityIdentifier("jobs-add")
             } footer: {
                 if needsProForAnotherJob {
                     Text("A second job is part of Zeitkonto Pro. The job you have keeps working either way.")
@@ -194,6 +196,7 @@ struct JobEditor: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("job-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: requestSave)

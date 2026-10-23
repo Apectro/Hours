@@ -62,6 +62,7 @@ struct ExtraWorkItemSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("extra-work-item-cancel")
                 }
                 // It commits: Save, as every sheet that writes something.
                 ToolbarItem(placement: .confirmationAction) {
@@ -130,6 +131,7 @@ struct ExtraWorkSignSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("extra-work-signature-cancel")
                 }
                 // It commits, so it is the confirmation on the right; "Sign"
                 // rather than "Save", because the client is the one tapping it.
@@ -180,6 +182,7 @@ struct ExtraWorkCatalogScreen: View {
                         .contentShape(Rectangle())
                     }
                     .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("extra-work-catalog-item")
                 }
                 .onDelete { offsets in
                     let repository = ExtraWorkRepository(context: modelContext)

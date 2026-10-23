@@ -57,6 +57,7 @@ struct HolidaySettingsScreen: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("holidays-row")
                     }
                     .onDelete(perform: delete)
                 }
@@ -68,6 +69,7 @@ struct HolidaySettingsScreen: View {
                 } label: {
                     Label("Add a holiday", systemImage: "plus.circle")
                 }
+                .accessibilityIdentifier("holidays-add")
             }
         }
         .navigationTitle("Holidays")
@@ -314,6 +316,7 @@ struct HolidayEditor: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("holiday-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)

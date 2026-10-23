@@ -1115,3 +1115,15 @@ whatever is on the machine running it, and would write to it.
 Elements are matched by accessibility identifier, not by label. The labels are
 sentences that will be translated; the identifiers are dates and roles that
 will not.
+
+**The screen atlas** (`ScreenAtlasTests`) is a picture of every screen and
+state for a design review: the sample month in every tab, each sheet and menu,
+every Settings screen, the paywall, each first-run step and tour stop, and the
+empty states. It is skipped unless the runner's environment has
+`HOURS_SCREEN_ATLAS=1`; `HOURS_ATLAS_ARGUMENTS` adds launch arguments to every
+launch. CI runs it alone when the `screen_atlas` input is set, in four passes
+(light, dark, accessibility text size, Croatian), and keeps the PNGs as the
+`screen-atlas` artifact, `<pass>/atlas-NN-<screen>.png`. It never stops at a
+missing element: what it could not reach is listed in one failure at the end.
+A new screen gets an identifier on its button (never on a container holding
+buttons, which hands it down to them) and a line in the atlas.

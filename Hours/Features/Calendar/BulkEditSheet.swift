@@ -131,6 +131,7 @@ struct BulkEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("bulk-edit-cancel")
                 }
             }
             .confirmationDialog(

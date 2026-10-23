@@ -367,6 +367,7 @@ struct SignatureSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("signature-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Sign") {

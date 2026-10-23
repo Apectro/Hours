@@ -83,7 +83,10 @@ DECORATION = re.compile(r"_\d+_[0-9A-F-]{36}$", re.I)
 # "kXCTAttachmentLegacyScreenImageData", and those are a picture of whatever
 # the simulator was showing when a step ran — not something to put on a store
 # listing. Requiring the numbered form is what separates the two.
-OURS = re.compile(r"^\d{2}-[a-z0-9-]+(\.[a-z0-9]+)?$", re.I)
+#
+# The screen atlas (ScreenAtlasTests) numbers its pictures the same way under
+# an "atlas-" prefix, and takes more than ninety-nine of them.
+OURS = re.compile(r"^(atlas-\d{2,3}|\d{2})-[a-z0-9-]+(\.[a-z0-9]+)?$", re.I)
 
 # Screenshots, plus the files the export tests produce.
 #

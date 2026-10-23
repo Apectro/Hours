@@ -115,6 +115,7 @@ struct CrewScreen: View {
                 .textInputAutocapitalization(.words)
             Button("Save") { rename(member) }
             Button("Cancel", role: .cancel) { renaming = nil }
+                .accessibilityIdentifier("crew-rename-cancel")
         }
         .sheet(isPresented: $isPicking) {
             CrewPickerSheet(candidates: candidates) { chosen in
@@ -149,6 +150,7 @@ struct CrewScreen: View {
             Text(member.name)
                 .foregroundStyle(hiding ? .primary : .secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("crew-member")
             if !isReadOnly {
                 Button {
                     startRenaming(member)
@@ -185,6 +187,7 @@ struct CrewScreen: View {
         .contextMenu {
             if !isReadOnly {
                 Button("Rename", systemImage: "pencil") { startRenaming(member) }
+                    .accessibilityIdentifier("crew-rename")
                 if hiding {
                     Button("Hide", systemImage: "eye.slash") { setHidden(member, true) }
                 } else {

@@ -348,6 +348,7 @@ struct CalendarScreen: View {
                 Image(systemName: "chevron.left")
             }
             .accessibilityLabel(scope == .month ? "Previous month" : "Previous week")
+            .accessibilityIdentifier("calendar-previous")
 
             Button {
                 step(1)
@@ -355,6 +356,7 @@ struct CalendarScreen: View {
                 Image(systemName: "chevron.right")
             }
             .accessibilityLabel(scope == .month ? "Next month" : "Next week")
+            .accessibilityIdentifier("calendar-next")
 
             // Out of the menu: sending a month's hours is a monthly job, and
             // it was the one thing people could not find.
@@ -386,8 +388,9 @@ struct CalendarScreen: View {
                 } label: {
                     Label("Edit a range…", systemImage: "calendar.badge.plus")
                 }
+                .accessibilityIdentifier("calendar-edit-range")
 
-                // Closing a month lives where months are. Settings › Calculation ›
+                // Closing a month lives where months are. Settings › Balance & rounding ›
                 // Closed months lists them all.
                 switch lockOffer {
                 case .close?:

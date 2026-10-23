@@ -33,6 +33,7 @@ struct SettingsScreen: View {
                                 )
                             }
                             .tint(.primary)
+                            .accessibilityIdentifier("settings-pro")
                         } footer: {
                             if !subscriptions.isPro {
                                 Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
@@ -70,6 +71,7 @@ struct SettingsScreen: View {
                                 systemImage: "calendar.badge.clock"
                             )
                         }
+                        .accessibilityIdentifier("settings-schedule")
                         NavigationLink {
                             LeaveSettingsScreen()
                         } label: {
@@ -100,6 +102,7 @@ struct SettingsScreen: View {
                                 systemImage: "bag"
                             )
                         }
+                        .accessibilityIdentifier("settings-jobs")
                         NavigationLink {
                             CalculationSettingsScreen()
                         } label: {
@@ -109,6 +112,7 @@ struct SettingsScreen: View {
                                 systemImage: "function"
                             )
                         }
+                        .accessibilityIdentifier("settings-calculation")
                     }
 
                     Section("Calendar & days") {
@@ -117,6 +121,7 @@ struct SettingsScreen: View {
                         } label: {
                             SettingsRow(title: String(localized: "Fields"), value: fieldsSummary, systemImage: "slider.horizontal.3")
                         }
+                        .accessibilityIdentifier("settings-fields")
                         NavigationLink {
                             DayTypeSettingsScreen()
                         } label: {
@@ -126,12 +131,14 @@ struct SettingsScreen: View {
                                 systemImage: "tag"
                             )
                         }
+                        .accessibilityIdentifier("settings-day-types")
                         if settings.features.trackHolidays {
                             NavigationLink {
                                 HolidaySettingsScreen()
                             } label: {
                                 SettingsRow(title: String(localized: "Holidays"), value: nil, systemImage: "flag")
                             }
+                            .accessibilityIdentifier("settings-holidays")
                         }
                         NavigationLink {
                             CalendarSettingsScreen()
@@ -144,6 +151,7 @@ struct SettingsScreen: View {
                                 systemImage: "square.grid.3x3"
                             )
                         }
+                        .accessibilityIdentifier("settings-calendar")
                     }
 
                     // Reminders sit with what they remind you of: the site
@@ -161,6 +169,7 @@ struct SettingsScreen: View {
                                 systemImage: "tablecells"
                             )
                         }
+                        .accessibilityIdentifier("settings-export-options")
                         .id(Self.exportRow)
                         .tourTarget(.settingsExport)
                         NavigationLink {
@@ -172,6 +181,7 @@ struct SettingsScreen: View {
                                 systemImage: "bell"
                             )
                         }
+                        .accessibilityIdentifier("settings-reminders")
                     }
 
                     Section("App") {
@@ -184,6 +194,7 @@ struct SettingsScreen: View {
                                 systemImage: "circle.lefthalf.filled"
                             )
                         }
+                        .accessibilityIdentifier("settings-theme")
                         // Shown in every build compiled with sync, even one not
                         // signed for it, where the screen says why it cannot.
                         if SyncPreference.offer != .hidden {
@@ -196,12 +207,14 @@ struct SettingsScreen: View {
                                     systemImage: "icloud"
                                 )
                             }
+                            .accessibilityIdentifier("settings-icloud")
                         }
                         NavigationLink {
                             DataSettingsScreen()
                         } label: {
                             SettingsRow(title: String(localized: "Backup and data"), value: nil, systemImage: "externaldrive")
                         }
+                        .accessibilityIdentifier("settings-data")
                         NavigationLink {
                             AboutScreen()
                         } label: {
