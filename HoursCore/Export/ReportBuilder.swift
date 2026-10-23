@@ -164,9 +164,9 @@ struct ReportBuilder: Sendable {
     private func value(for column: ReportColumn, day: DayComputation, runningBalance: Int) -> (text: String, minutes: Int?) {
         switch column {
         case .date:
-            return (settings.export.dateStyle.string(for: day.date), nil)
+            return (dateText(day.date), nil)
         case .weekday:
-            return (formatting.shortWeekdaySymbol(for: day.date.weekday(in: calendar)), nil)
+            return (weekdayText(day.date), nil)
         case .dayType:
             return (day.dayType.exportName(in: language), nil)
         case .job:
@@ -219,6 +219,17 @@ struct ReportBuilder: Sendable {
     }
 
     /// "07:00–16:00", for a cell that holds both ends of a day.
+    /// A row's date in Settings › Export › Date style. The director's sheet
+    /// writes its days with this too, so the two files cannot disagree.
+    func dateText(_ date: CalendarDate) -> String {
+        settings.export.dateStyle.string(for: date)
+    }
+
+    /// A row's weekday, "Mon", in the export language.
+    func weekdayText(_ date: CalendarDate) -> String {
+        formatting.shortWeekdaySymbol(for: date.weekday(in: calendar))
+    }
+
     func timesText(start: TimeOfDay?, end: TimeOfDay?, crossesMidnight: Bool) -> String {
         "\(startText(start))–\(endText(end, crossesMidnight: crossesMidnight))"
     }

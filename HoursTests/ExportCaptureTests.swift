@@ -360,6 +360,11 @@ final class ExportCaptureTests: XCTestCase {
         let document = try XCTUnwrap(PDFDocument(data: data))
         let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
         XCTAssertTrue(text.contains("IVAN HORVAT"), "a person's name is missing from the headings")
+        // The date and the day head a column each, as on a timesheet.
+        for heading in ["DATE", "DAY"] {
+            XCTAssertTrue(text.contains(heading), "the PDF never drew the column title \(heading)")
+        }
+        XCTAssertTrue(text.contains("2026-08-03"), "the date is not in the export's date style")
         XCTAssertTrue(text.contains("Month total"))
         XCTAssertTrue(text.contains("Checked"), "the signature line is missing")
     }

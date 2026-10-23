@@ -66,40 +66,78 @@ final class SiteSheetTests: XCTestCase {
         // Two day rows in date order, then the two closing rows.
         XCTAssertEqual(t.rows.count, 4)
         XCTAssertEqual(t.kind, .siteSheet)
-        XCTAssertEqual(t.columns, [.date, .times, .worked, .times, .worked, .times, .worked, .note])
-        XCTAssertEqual(t.columnGroups.map(\.title), ["Day", "Marijo", "Ivo", "Ana", "Notes"])
-        XCTAssertEqual(t.columnGroups.map(\.span), [1, 2, 2, 2, 1])
+        XCTAssertEqual(t.columns, [.date, .weekday, .times, .worked, .times, .worked, .times, .worked, .note])
+        XCTAssertEqual(t.columnGroups.map(\.title), ["Date", "Day", "Marijo", "Ivo", "Ana", "Notes"])
+        XCTAssertEqual(t.columnGroups.map(\.span), [1, 1, 2, 2, 2, 1])
         XCTAssertEqual(t.title, "Bau Süd")
         XCTAssertEqual(t.ownerName, "Marijo")
         XCTAssertTrue(t.totals.isEmpty)
 
-        XCTAssertEqual(t.rows[0].values[1], "07:00–16:00")
-        XCTAssertEqual(t.rows[0].values[2], "8h 30m")
+        XCTAssertEqual(t.rows[0].values[2], "07:00–16:00")
+        XCTAssertEqual(t.rows[0].values[3], "8h 30m")
         // The hours are a real figure, so the workbook can write a number.
-        XCTAssertEqual(t.rows[0].minutes[2], 510)
+        XCTAssertEqual(t.rows[0].minutes[3], 510)
+        XCTAssertNil(t.rows[0].minutes[2])
+        XCTAssertNil(t.rows[0].minutes[0])
         XCTAssertNil(t.rows[0].minutes[1])
     }
 
-    /// "Mon 3 Aug" in the export language, not the file's date style: the
-    /// sheet is read by a person looking for a weekday, not sorted by a machine.
-    func testTheDayColumnReadsAsAWeekdayAndADate() {
-        let days = [day(3, present: [CrewMember.youID]), day(5, present: [CrewMember.youID])]
-        let english = table(crew: [], days: days)
-        // Whether a comma follows the weekday is the locale data's business,
-        // and Apple's and Linux's disagree; the words and their order are ours.
-        let plain = { (text: String) in text.replacingOccurrences(of: ",", with: "") }
-        XCTAssertEqual(plain(english.rows[0].values[0]), "Mon 3 Aug")
-        XCTAssertEqual(plain(english.rows[1].values[0]), "Wed 5 Aug")
+    // MARK: - Date and day, as on a timesheet
 
+    /// The personal timesheet for August, to hold the site sheet to.
+    private func timesheet(settings: AppSettings) -> ReportTable {
+        let records = [3, 5].map { d in
+            DayRecord(date: Fixture.date(2026, 8, d), start: Fixture.time(7), end: Fixture.time(16), breaks: [.duration(30)])
+        }
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
+            .days(in: august, records: Dictionary(uniqueKeysWithValues: records.map { ($0.date.key, $0) }), holidays: [])
+        return ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
+            .makeTable(days: days, range: august, title: "Hours")
+    }
+
+    /// The date and the weekday in two columns, written and headed exactly as
+    /// the personal timesheet writes and heads them.
+    func testTheDateAndTheDayAreTwoColumnsAsOnATimesheet() {
+        let days = [day(3, present: [CrewMember.youID]), day(5, present: [CrewMember.youID])]
+        for language in [ExportLanguage.english, .german, .croatian] {
+            let settings = settings(language: language)
+            let t = table(crew: [], days: days, settings: settings)
+            let personal = timesheet(settings: settings)
+            XCTAssertEqual(Array(t.columns.prefix(2)), [.date, .weekday])
+            XCTAssertEqual(Array(personal.columns.prefix(2)), [.date, .weekday])
+            XCTAssertEqual(Array(t.columnHeadings().prefix(2)), Array(personal.columnHeadings().prefix(2)), "\(language)")
+            XCTAssertEqual(Array(t.headerTitles().prefix(2)), Array(personal.headerTitles().prefix(2)), "\(language)")
+            XCTAssertEqual(Array(t.columnGroups.prefix(2).map(\.title)), Array(personal.columnHeadings().prefix(2)))
+            for row in t.rows where row.role == .day {
+                guard let same = personal.rows.first(where: { $0.id == row.id }) else { return XCTFail("no \(row.id)") }
+                XCTAssertEqual(Array(row.values.prefix(2)), Array(same.values.prefix(2)), "\(language)")
+            }
+        }
+        let english = table(crew: [], days: days)
+        XCTAssertEqual(Array(english.headerTitles().prefix(2)), ["Date", "Day"])
+        XCTAssertEqual(english.rows[0].values[1], "Mon")
+        XCTAssertEqual(english.rows[1].values[1], "Wed")
         let german = table(crew: [], days: days, settings: settings(language: .german))
-        XCTAssertFalse(german.rows[0].values[0].contains("Mon"), german.rows[0].values[0])
-        XCTAssertTrue(german.rows[0].values[0].contains("3"), german.rows[0].values[0])
+        XCTAssertEqual(Array(german.headerTitles().prefix(2)), ["Datum", "Tag"])
+        let croatian = table(crew: [], days: days, settings: settings(language: .croatian))
+        XCTAssertEqual(Array(croatian.headerTitles().prefix(2)), ["Datum", "Dan"])
+    }
+
+    /// Settings › Export › Date style, as a timesheet follows it.
+    func testTheDateFollowsTheExportDateStyle() {
+        let days = [day(3, present: [CrewMember.youID])]
+        XCTAssertEqual(table(crew: [], days: days).rows[0].values[0], "2026-08-03")
+        for (style, text) in [(ExportDateStyle.dotted, "03.08.2026"), (.slashed, "03/08/2026"), (.slashedUS, "08/03/2026")] {
+            var settings = settings()
+            settings.export.dateStyle = style
+            XCTAssertEqual(table(crew: [], days: days, settings: settings).rows[0].values[0], text)
+        }
     }
 
     func testTheGroupTitleIsTheOwnerNameThenFallsBack() {
         let days = [day(3, present: [CrewMember.youID])]
-        XCTAssertEqual(table(crew: [], days: days).columnGroups[1].title, "Marijo")
-        XCTAssertEqual(table(crew: [], days: days, settings: settings(owner: "")).columnGroups[1].title, "You")
+        XCTAssertEqual(table(crew: [], days: days).columnGroups[2].title, "Marijo")
+        XCTAssertEqual(table(crew: [], days: days, settings: settings(owner: "")).columnGroups[2].title, "You")
     }
 
     /// One flat header row for a CSV importer: the person's name on both of
@@ -107,29 +145,29 @@ final class SiteSheetTests: XCTestCase {
     func testFlatHeadingsNameThePersonOnBothColumns() {
         let ana = member("Ana")
         let t = table(crew: [ana], days: [day(3, present: [ana.id])])
-        XCTAssertEqual(t.headerTitles(), ["Day", "Ana from–to", "Ana hours", "Notes"])
+        XCTAssertEqual(t.headerTitles(), ["Date", "Day", "Ana from–to", "Ana hours", "Notes"])
 
         let german = table(crew: [ana], days: [day(3, present: [ana.id])], settings: settings(language: .german))
         // German keeps the capital a heading starts with: nearly every one is
         // a noun, and a lowercase noun is wrong where a capital "Von" is not.
-        XCTAssertEqual(german.headerTitles(), ["Tag", "Ana Von–bis", "Ana Stunden", "Notizen"])
+        XCTAssertEqual(german.headerTitles(), ["Datum", "Tag", "Ana Von–bis", "Ana Stunden", "Notizen"])
     }
 
     func testSomeoneNotThereIsOneDashAcrossTheirGroup() {
         let ana = member("Ana")
         let days = [day(3, present: [CrewMember.youID]), day(4, present: [CrewMember.youID, ana.id])]
         let t = table(crew: [ana], days: days)
-        XCTAssertEqual(t.rows[0].values[3], "—")
-        XCTAssertEqual(t.rows[0].values[4], "")
-        XCTAssertNil(t.rows[0].minutes[4])
-        // Group 2 is Ana's: Day, you, Ana, Notes.
-        XCTAssertEqual(t.rows[0].mergedGroups, [2])
+        XCTAssertEqual(t.rows[0].values[4], "—")
+        XCTAssertEqual(t.rows[0].values[5], "")
+        XCTAssertNil(t.rows[0].minutes[5])
+        // Group 3 is Ana's: Date, Day, you, Ana, Notes.
+        XCTAssertEqual(t.rows[0].mergedGroups, [3])
         XCTAssertEqual(t.rows[1].mergedGroups, [])
 
         // Files get empty cells.
         let file = table(crew: [ana], days: days, placeholder: "")
-        XCTAssertEqual(file.rows[0].values[3], "")
         XCTAssertEqual(file.rows[0].values[4], "")
+        XCTAssertEqual(file.rows[0].values[5], "")
     }
 
     /// Someone who came late or left early is the line the director looks
@@ -141,9 +179,9 @@ final class SiteSheetTests: XCTestCase {
             day(3, present: [CrewMember.youID, ana.id], own: [ana.id: late]),
             day(4, present: [CrewMember.youID, ana.id])
         ])
-        XCTAssertEqual(t.rows[0].flagged, [3, 4])
-        XCTAssertEqual(t.rows[0].values[3], "08:15–16:00")
-        XCTAssertEqual(t.rows[0].values[4], "7h 15m")
+        XCTAssertEqual(t.rows[0].flagged, [4, 5])
+        XCTAssertEqual(t.rows[0].values[4], "08:15–16:00")
+        XCTAssertEqual(t.rows[0].values[5], "7h 15m")
         XCTAssertEqual(t.rows[1].flagged, [])
     }
 
@@ -160,14 +198,20 @@ final class SiteSheetTests: XCTestCase {
         XCTAssertEqual(total.role, .total)
         XCTAssertEqual(count.role, .count)
         XCTAssertEqual(total.values[0], "Month total")
-        // Under the hours column, with the times column beside it empty.
+        // The label in the date column, nothing under the day.
         XCTAssertEqual(total.values[1], "")
-        XCTAssertEqual(total.values[2], "25h 30m")
-        XCTAssertEqual(total.minutes[2], 3 * 510)
-        XCTAssertEqual(total.minutes[4], 510)
+        XCTAssertEqual(count.values[1], "")
+        XCTAssertEqual(total.values.count, t.columns.count)
+        XCTAssertEqual(count.values.count, t.columns.count)
+        XCTAssertEqual(total.minutes.count, t.columns.count)
+        // Under the hours column, with the times column beside it empty.
+        XCTAssertEqual(total.values[2], "")
+        XCTAssertEqual(total.values[3], "25h 30m")
+        XCTAssertEqual(total.minutes[3], 3 * 510)
+        XCTAssertEqual(total.minutes[5], 510)
         XCTAssertEqual(count.values[0], "Days worked")
-        XCTAssertEqual(count.values[2], "3")
-        XCTAssertEqual(count.values[4], "1")
+        XCTAssertEqual(count.values[3], "3")
+        XCTAssertEqual(count.values[5], "1")
         for row in [total, count] {
             XCTAssertTrue(row.isWorkingDay)
             XCTAssertTrue(row.hasEntry)
@@ -179,7 +223,7 @@ final class SiteSheetTests: XCTestCase {
     func testHiddenMemberStillOnPastSheet() {
         let gone = member("Gone", hidden: true)
         let t = table(crew: [gone], days: [day(3, present: [gone.id])])
-        XCTAssertEqual(t.columnGroups.map(\.title), ["Day", "Gone", "Notes"])
+        XCTAssertEqual(t.columnGroups.map(\.title), ["Date", "Day", "Gone", "Notes"])
     }
 
     func testPersonWithNoDaysInRangeHasNoColumn() {
@@ -189,7 +233,7 @@ final class SiteSheetTests: XCTestCase {
             day(3, present: [ana.id]),
             day(3, present: [ivo.id], month: 7)
         ])
-        XCTAssertEqual(t.columnGroups.map(\.title), ["Day", "Ana", "Notes"])
+        XCTAssertEqual(t.columnGroups.map(\.title), ["Date", "Day", "Ana", "Notes"])
         XCTAssertEqual(t.rows.count, 3)
     }
 
@@ -254,7 +298,7 @@ final class SiteSheetTests: XCTestCase {
             settings: settingsWithAPaidJob()
         )
         XCTAssertEqual(t.legend, ExportLanguage.english(.siteLegendPaidBreaks))
-        XCTAssertEqual(t.rows[0].minutes[2], 540, "07:00–16:00 with the break paid is nine hours")
+        XCTAssertEqual(t.rows[0].minutes[3], 540, "07:00–16:00 with the break paid is nine hours")
     }
 
     func testTheLegendStaysNeutralWhenAMonthMixesPaidAndUnpaidDays() {
@@ -281,10 +325,11 @@ final class SiteSheetTests: XCTestCase {
         let lines = csv.components(separatedBy: "\r\n")
         XCTAssertEqual(
             lines[0],
-            "Day,'=SUM(A1) from–to,'=SUM(A1) hours,\"Kovač, Ivan from–to\",\"Kovač, Ivan hours\",Notes"
+            "Date,Day,'=SUM(A1) from–to,'=SUM(A1) hours,\"Kovač, Ivan from–to\",\"Kovač, Ivan hours\",Notes"
         )
-        let date = CSVExporter.escape(t.rows[0].values[0], separator: ",")
-        XCTAssertEqual(lines[1], "\(date),07:00–16:00,8h 30m,07:00–16:00,8h 30m,")
+        XCTAssertEqual(lines[1], "2026-08-03,Mon,07:00–16:00,8h 30m,07:00–16:00,8h 30m,")
+        // The summary rows keep their label first and leave the day empty.
+        XCTAssertTrue(lines.contains("Month total,,,8h 30m,,8h 30m,"), csv)
         // No empty "Summary" block follows the rows.
         XCTAssertFalse(csv.contains("Summary"))
     }
@@ -304,11 +349,15 @@ final class SiteSheetTests: XCTestCase {
         let t = table(crew: [ana], days: [day(3, present: [CrewMember.youID, ana.id])], placeholder: "")
         let package = workbook(t)
         guard let group = headingRow(in: package, text: "Ana") else { return XCTFail("no group row") }
-        // You in B:C, Ana in D:E, on the group row; Day and Notes run down
-        // through the sub-heading row beneath.
-        XCTAssertTrue(package.contains("<mergeCell ref=\"B\(group):C\(group)\"/>"))
-        XCTAssertTrue(package.contains("<mergeCell ref=\"D\(group):E\(group)\"/>"))
+        // You in C:D, Ana in E:F, on the group row; Date, Day and Notes run
+        // down through the sub-heading row beneath.
+        XCTAssertTrue(package.contains("<mergeCell ref=\"C\(group):D\(group)\"/>"))
+        XCTAssertTrue(package.contains("<mergeCell ref=\"E\(group):F\(group)\"/>"))
         XCTAssertTrue(package.contains("<mergeCell ref=\"A\(group):A\(group + 1)\"/>"))
+        XCTAssertTrue(package.contains("<mergeCell ref=\"B\(group):B\(group + 1)\"/>"))
+        XCTAssertTrue(package.contains("<mergeCell ref=\"G\(group):G\(group + 1)\"/>"))
+        XCTAssertTrue(package.contains(">Date<"))
+        XCTAssertTrue(package.contains(">Day<"))
         XCTAssertTrue(package.contains(">From–to<"))
         XCTAssertTrue(package.contains(">Hours<"))
         XCTAssertFalse(package.contains(">Worked<"))
@@ -331,11 +380,14 @@ final class SiteSheetTests: XCTestCase {
         guard let group = headingRow(in: package, text: "Ana") else { return XCTFail("no group row") }
         let first = group + 2
         // 8h 30m as a fraction of a day, behind the duration mask.
-        XCTAssertTrue(package.contains("<c r=\"C\(first)\" s=\"1\"><v>0.354167</v></c>"), "hours are not numbers")
-        XCTAssertTrue(package.contains("<f>SUM(C\(first):C\(first + 1))</f><v>0.708333</v>"))
-        XCTAssertTrue(package.contains("<f>SUM(E\(first):E\(first + 1))</f><v>0.354167</v>"))
+        XCTAssertTrue(package.contains("<c r=\"D\(first)\" s=\"1\"><v>0.354167</v></c>"), "hours are not numbers")
+        XCTAssertTrue(package.contains("<f>SUM(D\(first):D\(first + 1))</f><v>0.708333</v>"))
+        XCTAssertTrue(package.contains("<f>SUM(F\(first):F\(first + 1))</f><v>0.354167</v>"))
+        // Nothing sums the date or the day.
+        XCTAssertFalse(package.contains("<f>SUM(A"))
+        XCTAssertFalse(package.contains("<f>SUM(B"))
         // Someone not there is an empty cell, not a zero.
-        XCTAssertFalse(package.contains("<c r=\"E\(first + 1)\" s=\"1\"><v>"))
+        XCTAssertFalse(package.contains("<c r=\"F\(first + 1)\" s=\"1\"><v>"))
     }
 
     func testXLSXFilterStopsAtLastDayRow() {
@@ -343,7 +395,7 @@ final class SiteSheetTests: XCTestCase {
         let t = table(crew: [ana], days: [day(3, present: [ana.id]), day(4, present: [ana.id])], placeholder: "")
         let package = workbook(t)
         guard let group = headingRow(in: package, text: "Ana") else { return XCTFail("no group row") }
-        XCTAssertTrue(package.contains("<autoFilter ref=\"A\(group + 1):D\(group + 3)\"/>"), package)
+        XCTAssertTrue(package.contains("<autoFilter ref=\"A\(group + 1):E\(group + 3)\"/>"), package)
     }
 
     func testXLSXWritesAnExceptionInDarkOrange() {
@@ -354,7 +406,7 @@ final class SiteSheetTests: XCTestCase {
         XCTAssertTrue(package.contains("FFC55A00"), "no dark orange in the styles")
         guard let group = headingRow(in: package, text: "Ana") else { return XCTFail("no group row") }
         let row = group + 2
-        XCTAssertFalse(package.contains("<c r=\"C\(row)\" s=\"1\">"), "the exception is written like any other day")
+        XCTAssertFalse(package.contains("<c r=\"D\(row)\" s=\"1\">"), "the exception is written like any other day")
     }
 
     /// The row whose column A carries the group heading style.
