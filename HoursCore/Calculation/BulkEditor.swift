@@ -59,7 +59,6 @@ enum BulkEditor {
         let resolver = HolidayResolver(rules: holidays, calendar: calendar, covering: request.range)
 
         for date in request.range.days(in: calendar) {
-            let weekday = date.weekday(in: calendar)
             let contracted = settings.contractedMinutes(on: date, calendar: calendar)
 
             if request.skipsNonWorkingDays && contracted == 0 {

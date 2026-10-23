@@ -224,7 +224,6 @@ enum XLSXWriter {
         for reportRow in table.rows {
             emit(cells(for: reportRow, in: table, dataRows: firstDataRow...max(firstDataRow, lastDataRow)))
         }
-        let lastRow = rowNumber - 1
 
         // A ruled total under each column of figures, as a timesheet on paper
         // has always had. Written as SUM over the days rather than as the
