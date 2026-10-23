@@ -30,6 +30,10 @@ struct SiteDayCard: View {
     /// Opens the site's crew list, to add someone or change a name.
     let onEditCrew: () -> Void
 
+    // Not private: a private property would make the memberwise initializer
+    // the site screen calls private too.
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
+
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
             header
@@ -135,23 +139,31 @@ struct SiteDayCard: View {
     // MARK: - Site times
 
     private var timesRow: some View {
-        Button(action: onEditTimes) {
-            HStack(spacing: Metrics.medium) {
+        // At the largest text sizes the times need the whole width, so
+        // "Change" goes underneath instead of squeezing them to "7:00 AM –…".
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Metrics.small))
+            : AnyLayout(HStackLayout(spacing: Metrics.medium))
+        return Button(action: onEditTimes) {
+            layout {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(timesText)
                         .font(.hoursFigure(.title2))
                         .foregroundStyle(.primary)
-                        .lineLimit(1)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                         .minimumScaleFactor(0.7)
                     Text(breakText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                Spacer(minLength: Metrics.small)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer(minLength: Metrics.small)
+                }
                 Text("Change")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(canEdit ? Color.accentColor : Color.secondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Metrics.medium)
             .frame(minHeight: 44)
             .background(
