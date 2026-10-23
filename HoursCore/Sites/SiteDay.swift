@@ -202,6 +202,24 @@ struct SiteDay: Hashable, Codable, Sendable {
         return id
     }
 
+    /// The reasons given for people who were not here, one per person, stray
+    /// reasons for someone ticked left out. Someone neither ticked nor given a
+    /// reason is not counted: they may not be on this crew yet.
+    private var awayReasons: [AbsenceReason] {
+        absences.compactMap { absenceReason(for: $0.memberID) }
+    }
+
+    /// How many people were away for a reason, which the site's month marks.
+    var awayCount: Int { awayReasons.count }
+
+    /// The reason the month's mark is coloured by: Sick before any other day
+    /// type, a day type before "on another site", which is the least news.
+    var leadingAwayReason: AbsenceReason? {
+        let reasons = awayReasons
+        if reasons.contains(.dayType(.sick)) { return .dayType(.sick) }
+        return reasons.first { if case .dayType = $0 { return true } else { return false } } ?? reasons.first
+    }
+
     /// The day with `reason` as why `memberID` was not here; nil clears it.
     /// Absent means not here, so giving a reason unticks them.
     func settingReason(_ reason: AbsenceReason?, for memberID: UUID) -> SiteDay {
