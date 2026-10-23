@@ -24,14 +24,29 @@ final class WatchConnection {
     private(set) var isReachable = false
 
     @ObservationIgnored private var delegate: SessionDelegate?
+    /// Showing `WatchSample` for the App Store screenshots, behind a launch
+    /// argument only CI passes: no session, so nothing replaces it, and
+    /// nothing is written to the App Group.
+    private let isSample: Bool
 
     private init() {
+        if let sample = WatchSample.context(
+            arguments: ProcessInfo.processInfo.arguments,
+            at: Date(),
+            calendar: .current
+        ) {
+            isSample = true
+            context = sample
+            pending = []
+            return
+        }
+        isSample = false
         context = WatchStore.readContext()
         pending = WatchCommand.stillWaiting(WatchStore.readPending(), handled: [], now: Date())
     }
 
     func activate() {
-        guard WCSession.isSupported(), delegate == nil else { return }
+        guard !isSample, WCSession.isSupported(), delegate == nil else { return }
         let delegate = SessionDelegate(connection: self)
         self.delegate = delegate
         let session = WCSession.default
@@ -41,6 +56,7 @@ final class WatchConnection {
 
     /// Clock in or Clock out, tapped on the watch.
     func tap(_ kind: WatchCommand.Kind) {
+        guard !isSample else { return }
         let command = WatchCommand(kind: kind, issuedAt: Date())
         pending.append(command)
         savePending()
