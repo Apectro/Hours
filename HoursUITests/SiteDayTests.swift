@@ -133,20 +133,32 @@ final class SiteDayTests: XCTestCase {
         let app = launch()
         openSite(app)
 
+        // Each part of the diary is a row that opens in place.
+        let workRow = app.buttons["diary-section-work"]
+        for _ in 0..<4 where !workRow.isHittable { app.swipeUp() }
+        XCTAssertTrue(workRow.waitForExistence(timeout: 5), "the site diary should be under the day")
+        XCTAssertFalse(app.descendants(matching: .any)["site-diary-work"].exists, "a diary row starts closed")
+        workRow.tap()
         let work = app.descendants(matching: .any)["site-diary-work"]
-        for _ in 0..<3 where !work.isHittable { app.swipeUp() }
-        XCTAssertTrue(work.waitForExistence(timeout: 5), "the site diary should be under the day")
+        XCTAssertTrue(work.waitForExistence(timeout: 5), "opening the row should show its field")
         work.tap()
         work.typeText("Formwork")
-        // Leaving the field writes it.
-        app.descendants(matching: .any)["site-diary-visitors"].tap()
+        // Leaving the field writes it: opening the next row moves the cursor.
+        let visitorsRow = app.buttons["diary-section-visitors"]
+        for _ in 0..<3 where !visitorsRow.isHittable { app.swipeUp() }
+        visitorsRow.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["site-diary-visitors"].waitForExistence(timeout: 5))
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
+        let againRow = app.buttons["diary-section-work"]
+        for _ in 0..<4 where !againRow.isHittable { app.swipeUp() }
+        XCTAssertTrue(againRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(againRow.label.contains("Formwork"), "the closed row should preview what was typed: \(againRow.label)")
+        againRow.tap()
         let again = app.descendants(matching: .any)["site-diary-work"]
-        for _ in 0..<3 where !again.isHittable { app.swipeUp() }
         XCTAssertTrue(again.waitForExistence(timeout: 5))
         XCTAssertEqual(again.value as? String, "Formwork", "the diary should keep what was typed")
     }

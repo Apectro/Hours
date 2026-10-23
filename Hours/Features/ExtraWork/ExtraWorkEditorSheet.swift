@@ -4,9 +4,15 @@ import PhotosUI
 
 /// Writing down one job of extra work (mockup 14): what was done, the
 /// material with big −/+ steppers and a number to tap for 12.5 m, the items
-/// used before as chips, optional hours per person, photos, and the client's
-/// optional signature — and "Work finished", since a job can run over
-/// several days and is in progress until it is ticked.
+/// used before as chips, optionally how long the job took and who was on it,
+/// photos, and the client's optional signature — and "Work finished", since
+/// a job can run over several days and is in progress until it is ticked.
+///
+/// "What was done" and "Work finished" are always open; Material, Time on
+/// this job, Photos and Client's signature are sections that open in place,
+/// each saying what is inside while closed ("Items: 3", "1h · 2 people").
+/// Material starts open, the rest closed, for a new job and an existing one
+/// alike: the summaries tell what an existing job holds.
 ///
 /// A sheet with Cancel and Save, unlike the day screen's diary: a job is a
 /// thing written in one go and handed on, and a half-counted job saved on
@@ -28,7 +34,21 @@ struct ExtraWorkEditorSheet: View {
     /// What the sheet opened on, to tell whether anything changed.
     @State private var original: ExtraWorkJob
     @State private var showsHours: Bool
+    /// Everyone offered under "Who was on it": the day's crew, and anyone
+    /// already on the job who is not in it any more.
     @State private var people: [ExtraWorkPerson] = []
+    /// Who was on it, by `ExtraWorkPerson.id`.
+    @State private var chosen: Set<String> = []
+    /// Who is chosen when the time is added: the day's ticked crew.
+    @State private var dayCrew: Set<String> = []
+    /// How long the job took. An older job whose people have different
+    /// minutes opens on the largest (`ExtraWorkJob.duration`); it is stored
+    /// as one time for everyone only once the time or the people are changed.
+    @State private var minutes: Int
+    @State private var showsTimeAlert = false
+    @State private var typedTime = ""
+    @State private var expanded: Set<EditorSection> = [.material]
+    @State private var loaded = false
     @State private var catalog: [ExtraWorkCatalogItem] = []
     @State private var stored: [DiaryThumbnail] = []
     @State private var removedPhotoIDs: Set<UUID> = []
@@ -45,6 +65,11 @@ struct ExtraWorkEditorSheet: View {
     @State private var sheet: EditorSheet?
     @State private var confirmsDelete = false
     @State private var path: [ExtraWorkCatalogRoute] = []
+
+    /// The sections that open in place.
+    private enum EditorSection: String, Hashable {
+        case material, time, photos, signature
+    }
 
     private enum EditorSheet: String, Identifiable {
         case newItem, signature
@@ -73,23 +98,39 @@ struct ExtraWorkEditorSheet: View {
         _draft = State(initialValue: initial)
         _original = State(initialValue: initial)
         _showsHours = State(initialValue: job?.hasHours ?? false)
+        _minutes = State(initialValue: job?.duration ?? 0)
     }
 
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.extraLarge) {
+                    // A read-only site's job can still be looked through:
+                    // the section headers open, what is in them does not
+                    // change.
                     descriptionSection
+                        .disabled(!canEdit)
                     finishedSection
-                    materialSection
-                    hoursSection
-                    photoSection
-                    signatureSection
-                    if job != nil { statusSection }
+                        .disabled(!canEdit)
+                    collapsible(.material, title: String(localized: "Material"), summary: materialSummary) {
+                        materialSection
+                    }
+                    collapsible(.time, title: String(localized: "Time on this job"), summary: timeSummary) {
+                        timeSection
+                    }
+                    collapsible(.photos, title: String(localized: "Photos"), summary: photoSummary) {
+                        photoSection
+                    }
+                    collapsible(.signature, title: String(localized: "Client's signature"), summary: signatureSummary) {
+                        signatureSection
+                    }
+                    if job != nil {
+                        statusSection
+                            .disabled(!canEdit)
+                    }
                 }
                 .padding(.horizontal, Metrics.large)
                 .padding(.vertical, Metrics.large)
-                .disabled(!canEdit)
             }
             .background(Color.hoursCanvas)
             .scrollDismissesKeyboard(.interactively)
@@ -214,7 +255,6 @@ struct ExtraWorkEditorSheet: View {
 
     private var materialSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            sectionLabel("Material")
             if !draft.items.isEmpty {
                 VStack(spacing: 0) {
                     ForEach(Array(draft.items.enumerated()), id: \.offset) { index, item in
@@ -332,27 +372,40 @@ struct ExtraWorkEditorSheet: View {
         Array(ExtraWorkCatalog.suggestions(from: catalog, excluding: draft.items.map(\.name)).prefix(8))
     }
 
-    // MARK: - Hours
+    // MARK: - Time on this job
 
-    private var hoursSection: some View {
+    /// "It took us an hour": one time for the job, however many were on it,
+    /// and who was. Saved as each chosen person with that same time, in the
+    /// job's existing hours list (`ExtraWorkJob.settingTime`).
+    private var timeSection: some View {
         VStack(alignment: .leading, spacing: 0) {
+            if showsHours {
+                timeStepper
+                    .padding(.leading, Metrics.large)
+                    .padding(.trailing, Metrics.medium)
+                    .padding(.vertical, Metrics.small)
+                Divider().padding(.leading, Metrics.large)
+                whoSection
+                    .padding(.horizontal, Metrics.large)
+                    .padding(.vertical, Metrics.medium)
+                Divider().padding(.leading, Metrics.large)
+            }
             HStack(spacing: Metrics.medium) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Hours on this job")
-                        .font(.body)
-                    Text("Optional — leave it out when the material says it all")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Optional — leave it out when the material says it all")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
                     withAnimation(.snappy(duration: 0.2)) {
                         if showsHours {
                             draft.hours = []
+                            minutes = 0
+                            chosen = []
                             showsHours = false
                         } else {
-                            draft.hours = people.map { ExtraWorkHours(memberID: $0.id, name: $0.name, minutes: 0) }
+                            chosen = dayCrew
                             showsHours = true
+                            applyTime()
                         }
                     }
                 } label: {
@@ -370,48 +423,128 @@ struct ExtraWorkEditorSheet: View {
             }
             .padding(.horizontal, Metrics.large)
             .padding(.vertical, Metrics.medium)
+        }
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        .alert("Time on this job", isPresented: $showsTimeAlert) {
+            TextField(String(localized: "e.g. 1:30"), text: $typedTime)
+                .keyboardType(.numbersAndPunctuation)
+                .accessibilityIdentifier("extra-work-time-field")
+            Button("Cancel", role: .cancel) {}
+            Button("OK") {
+                guard let typed = ExtraWorkTime.parse(typedTime) else { return }
+                minutes = typed
+                applyTime()
+            }
+        } message: {
+            Text("Hours and minutes, such as 1:30, or hours, such as 1.5.")
+        }
+    }
 
-            if showsHours {
-                ForEach(Array(draft.hours.enumerated()), id: \.offset) { index, entry in
-                    Divider().padding(.leading, Metrics.large)
-                    HStack(spacing: 10) {
-                        Text(verbatim: entry.name)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        RoundStepButton(
-                            systemImage: "minus",
-                            isProminent: false,
-                            label: String(localized: "Less time: \(entry.name)", comment: "Extra work hours stepper; the value is a person's name")
-                        ) {
-                            draft.hours[index].minutes = max(0, entry.minutes - 15)
-                        }
-                        Text(verbatim: entry.minutes > 0 ? settingsStore.settings.displayFormatting.string(entry.minutes) : "–")
-                            .font(.body.weight(.semibold))
-                            .monospacedDigit()
-                            .frame(minWidth: 64)
-                            .accessibilityLabel(String(localized: "Time of \(entry.name)", comment: "Extra work: VoiceOver, a person's time on the job; the value is their name"))
-                        RoundStepButton(
-                            systemImage: "plus",
-                            isProminent: true,
-                            label: String(localized: "More time: \(entry.name)", comment: "Extra work hours stepper; the value is a person's name")
-                        ) {
-                            draft.hours[index].minutes = min(24 * 60, entry.minutes + 15)
-                        }
+    /// One −/+ for the whole job, a quarter of an hour a step; the number
+    /// can be tapped to type a time.
+    private var timeStepper: some View {
+        HStack(spacing: 10) {
+            Text("How long it took")
+                .font(.body)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            RoundStepButton(
+                systemImage: "minus",
+                isProminent: false,
+                label: String(localized: "Less time")
+            ) {
+                minutes = ExtraWorkTime.stepped(minutes, by: -1)
+                applyTime()
+            }
+            .accessibilityIdentifier("extra-work-time-minus")
+            Button {
+                typedTime = ExtraWorkTime.typingText(minutes)
+                showsTimeAlert = true
+            } label: {
+                Text(verbatim: minutes > 0 ? settingsStore.settings.displayFormatting.string(minutes) : "–")
+                    .font(.title3.weight(.bold))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(minWidth: 64, minHeight: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Time on this job"))
+            .accessibilityValue(Text(verbatim: minutes > 0 ? settingsStore.settings.displayFormatting.string(minutes) : "–"))
+            .accessibilityHint(String(localized: "Type a time, such as 1:30."))
+            .accessibilityIdentifier("extra-work-time")
+            RoundStepButton(
+                systemImage: "plus",
+                isProminent: true,
+                label: String(localized: "More time")
+            ) {
+                minutes = ExtraWorkTime.stepped(minutes, by: 1)
+                applyTime()
+            }
+            .accessibilityIdentifier("extra-work-time-plus")
+        }
+    }
+
+    /// The day's crew as chips to tick: everyone ticked present that day is
+    /// chosen when the time is added.
+    private var whoSection: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Text("Who was on it")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
+            if people.isEmpty {
+                Text("Nobody is ticked present on this day.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                ExtraWorkFlow(spacing: Metrics.small) {
+                    ForEach(Array(people.enumerated()), id: \.element.id) { index, person in
+                        personChip(person)
+                            .accessibilityIdentifier("extra-work-person-\(index)")
                     }
-                    .padding(.leading, Metrics.large)
-                    .padding(.trailing, Metrics.medium)
-                    .padding(.vertical, Metrics.small)
-                    .accessibilityIdentifier("extra-work-hours-\(index)")
-                }
-                if draft.hours.isEmpty {
-                    Divider().padding(.leading, Metrics.large)
-                    Text("Nobody is ticked present on this day.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(Metrics.large)
                 }
             }
         }
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
+    private func personChip(_ person: ExtraWorkPerson) -> some View {
+        let isChosen = chosen.contains(person.id)
+        return Button {
+            if isChosen { chosen.remove(person.id) } else { chosen.insert(person.id) }
+            applyTime()
+        } label: {
+            HStack(spacing: Metrics.tiny) {
+                if isChosen {
+                    Image(systemName: "checkmark")
+                        .font(.caption.weight(.bold))
+                        .accessibilityHidden(true)
+                }
+                Text(verbatim: person.name)
+                    .font(.subheadline)
+            }
+            .foregroundStyle(isChosen ? Color.white : Color.primary)
+            .padding(.horizontal, Metrics.medium)
+            .frame(minHeight: 36)
+            .background {
+                if isChosen {
+                    Capsule().fill(Color.accentColor)
+                } else {
+                    Capsule().strokeBorder(Color.hoursHairline, lineWidth: 1)
+                }
+            }
+            .contentShape(Capsule())
+            .frame(minHeight: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: person.name))
+        .accessibilityAddTraits(isChosen ? .isSelected : [])
+    }
+
+    /// The time and the people chosen, into the draft: everyone chosen with
+    /// the same minutes, in the order they are offered.
+    private func applyTime() {
+        let onIt = people.filter { chosen.contains($0.id) }.map { ExtraWorkHours(memberID: $0.memberID, name: $0.name, minutes: 0) }
+        draft = draft.settingTime(minutes, for: onIt)
     }
 
     // MARK: - Photos
@@ -422,7 +555,6 @@ struct ExtraWorkEditorSheet: View {
 
     private var photoSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            sectionLabel("Photos")
             ExtraWorkFlow(spacing: Metrics.small) {
                 ForEach(stored.filter { !removedPhotoIDs.contains($0.id) }) { photo in
                     thumbnail(photo.image, reference: PhotoReference(id: photo.id, isPending: false))
@@ -488,8 +620,6 @@ struct ExtraWorkEditorSheet: View {
     private var signatureSection: some View {
         HStack(spacing: Metrics.medium) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Client's signature")
-                    .font(.body)
                 if let signature = draft.clientSignature {
                     Text(verbatim: signedLine(signature))
                         .font(.footnote)
@@ -568,6 +698,60 @@ struct ExtraWorkEditorSheet: View {
             .accessibilityAddTraits(.isHeader)
     }
 
+    /// A section that opens in place under its header. The identifier is on
+    /// the header's button, never on this container, which holds buttons.
+    private func collapsible<Content: View>(
+        _ section: EditorSection,
+        title: String,
+        summary: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            DisclosureHeader(title: title, summary: summary, isExpanded: expanded.contains(section)) {
+                withAnimation(.snappy(duration: 0.25)) {
+                    if expanded.contains(section) {
+                        expanded.remove(section)
+                    } else {
+                        expanded.insert(section)
+                    }
+                }
+            }
+            .accessibilityIdentifier("extra-work-section-\(section.rawValue)")
+            .padding(.horizontal, Metrics.tiny)
+            if expanded.contains(section) {
+                content()
+                    .disabled(!canEdit)
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    /// "Items: 3"; nothing when there are none.
+    private var materialSummary: String {
+        guard !draft.items.isEmpty else { return "" }
+        return String(localized: "Items: \(draft.items.count)", comment: "Extra work editor: how many lines of material a job has, on its closed Material section")
+    }
+
+    /// "1h · 2 people"; nothing when no time is noted.
+    private var timeSummary: String {
+        guard showsHours, draft.hasHours else { return "" }
+        let count = draft.people.count
+        let who = String(inflected: "^[\(count) person](inflect: true)")
+        let time = settingsStore.settings.displayFormatting.string(draft.duration)
+        return "\(time) · \(who)"
+    }
+
+    /// "Photos: 2"; nothing without any.
+    private var photoSummary: String {
+        photoCount > 0 ? String(localized: "Photos: \(photoCount)", comment: "Extra work job: how many photos it has") : ""
+    }
+
+    /// "Signed by Ing. Horvat · 22 Oct", or "Not signed".
+    private var signatureSummary: String {
+        guard let signature = draft.clientSignature else { return String(localized: "Not signed") }
+        return signedLine(signature)
+    }
+
     private var hasChanges: Bool {
         draft != original || !pending.isEmpty || !removedPhotoIDs.isEmpty
     }
@@ -578,7 +762,20 @@ struct ExtraWorkEditorSheet: View {
 
     private func load() {
         loadCatalog()
-        people = dayPeople()
+        // Once: coming back from the remembered items must not undo who was
+        // picked.
+        guard !loaded else { return }
+        loaded = true
+        let day = dayPeople()
+        dayCrew = day.chosen
+        people = day.people
+        // Anyone already on the job who is not offered for the day any more
+        // (taken off the crew, or a name typed on an older job) stays a chip.
+        for entry in draft.hours where entry.minutes > 0 {
+            let person = ExtraWorkPerson(memberID: entry.memberID, name: entry.name)
+            if !people.contains(where: { $0.id == person.id }) { people.append(person) }
+        }
+        chosen = Set(draft.hours.filter { $0.minutes > 0 }.map { ExtraWorkPerson(memberID: $0.memberID, name: $0.name).id })
         if let job {
             stored = repository.photos(jobID: job.id).compactMap { photo in
                 guard let image = DiaryPhotoProcessor.thumbnail(from: photo.jpegData, maxPixel: 300) else { return nil }
@@ -591,22 +788,24 @@ struct ExtraWorkEditorSheet: View {
         catalog = repository.catalog()
     }
 
-    /// Who can have hours on the job: that day's crew as ticked on the site,
-    /// you first; everyone on the site's crew when the day is not written.
-    private func dayPeople() -> [ExtraWorkPerson] {
+    /// Who can be on the job: that day's crew as ticked on the site, you
+    /// first, all of them chosen when the time is added; everyone on the
+    /// site's crew when the day is not written, with only you chosen.
+    private func dayPeople() -> (people: [ExtraWorkPerson], chosen: Set<String>) {
         let sites = SiteRepository(context: modelContext)
         let crew = sites.crew(for: site.id, includeHidden: true)
         let owner = settingsStore.settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let you = ExtraWorkPerson(id: CrewMember.youID, name: owner.isEmpty ? String(localized: "You") : owner)
+        let you = ExtraWorkPerson(memberID: CrewMember.youID, name: owner.isEmpty ? String(localized: "You") : owner)
         let present = sites.siteDay(siteID: site.id, on: date)?.present.map(\.memberID) ?? []
         guard !present.isEmpty else {
-            return [you] + crew.filter { !$0.isHidden }.map { ExtraWorkPerson(id: $0.id, name: $0.name) }
+            let everyone = [you] + crew.filter { !$0.isHidden }.map { ExtraWorkPerson(memberID: $0.id, name: $0.name) }
+            return (everyone, [you.id])
         }
         var list: [ExtraWorkPerson] = present.contains(CrewMember.youID) ? [you] : []
         for member in crew where present.contains(member.id) {
-            list.append(ExtraWorkPerson(id: member.id, name: member.name))
+            list.append(ExtraWorkPerson(memberID: member.id, name: member.name))
         }
-        return list
+        return (list, Set(list.map(\.id)))
     }
 
     // MARK: - Editing
@@ -684,10 +883,15 @@ struct ExtraWorkEditorSheet: View {
     }
 }
 
-/// Someone who can have time on a job.
+/// Someone who can be on a job.
 struct ExtraWorkPerson: Identifiable, Hashable {
-    let id: UUID
+    /// A `CrewMember.id`, `CrewMember.youID`, or `nil` for a name typed on
+    /// an older job.
+    let memberID: UUID?
     let name: String
+
+    /// The member, or for a typed name the name itself.
+    var id: String { memberID?.uuidString ?? "name:" + name }
 }
 
 /// The value route to the remembered items, pushed inside the editor's own
