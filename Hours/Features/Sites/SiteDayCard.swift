@@ -36,16 +36,13 @@ struct SiteDayCard: View {
             timesRow
             warningsView
 
-            Text(String(
+            // The app's one section-heading style (`SectionHeading`), as
+            // "Extra work" below uses.
+            SectionHeading(verbatim: String(
                 localized: "Crew · \(result.people.count) of \(rows.count) here",
                 comment: "Above the crew on a site day; the values are how many were there and how many could have been"
             ))
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .tracking(0.4)
             .padding(.top, Metrics.tiny)
-            .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: Metrics.tiny) {
                 ForEach(rows) { row in
@@ -288,7 +285,7 @@ struct SitePersonRow: View {
         }
         .padding(.horizontal, Metrics.small)
         .background(
-            exception != nil ? Color.hoursNegative.opacity(0.10) : Color.clear,
+            exception != nil ? Color.hoursNegativeFill.opacity(0.10) : Color.clear,
             in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
         )
         .contextMenu {
