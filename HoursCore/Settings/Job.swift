@@ -51,7 +51,7 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
     /// existed — which carry no job id at all — resolve to it forever.
     static let primaryID = UUID(uuidString: "00000000-0000-4000-8000-000000000001")!
 
-    static func primary(schedule: WorkSchedule, breaksArePaid: Bool = false, name: String = "Work") -> Job {
+    static func primary(schedule: WorkSchedule, breaksArePaid: Bool = false, name: String = Job.defaultName) -> Job {
         primary(schedules: ScheduleHistory(schedule), breaksArePaid: breaksArePaid, name: name)
     }
 
@@ -59,7 +59,7 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
         schedules: ScheduleHistory,
         breaksArePaid: Bool = false,
         pay: PayHistory? = nil,
-        name: String = "Work"
+        name: String = Job.defaultName
     ) -> Job {
         var job = Job(id: Job.primaryID, name: name, tint: .blue, breaksArePaid: breaksArePaid, pay: pay, sortOrder: 0)
         job.schedules = schedules
@@ -67,6 +67,17 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
     }
 
     var isPrimary: Bool { id == Job.primaryID }
+
+    /// The name the first job is created with, stored in English.
+    static let defaultName = "Work"
+
+    /// What the job is called on screen and in an export. The first job keeps
+    /// its stored English "Work" until renamed, and shows it in the language
+    /// at hand, as the Work day type does; any name the user gave is shown as
+    /// written, including a second job they called "Work" themselves.
+    func displayName(in language: ExportLanguage = .device) -> String {
+        isPrimary && name == Job.defaultName ? language(.work) : name
+    }
 
     /// The week in force on `date`.
     func schedule(on date: CalendarDate) -> WorkSchedule {
@@ -88,7 +99,7 @@ struct Job: Identifiable, Hashable, Codable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init(
             id: container.lenient(.id, UUID()),
-            name: container.lenient(.name, "Work"),
+            name: container.lenient(.name, Job.defaultName),
             tint: container.lenient(.tint, .blue),
             // Absent from every job written before the switch existed, and
             // those employers were all being treated as not paying.

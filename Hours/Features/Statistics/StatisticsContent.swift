@@ -276,7 +276,7 @@ struct StatisticsContent: View {
                                     .fill(total.job.tint.color)
                                     .frame(width: 10, height: 10)
                                 VStack(alignment: .leading, spacing: 1) {
-                                    Text(total.job.name)
+                                    Text(total.job.displayName())
                                         .font(.subheadline)
                                     Text("\(duration.string(total.workedMinutes)) of \(duration.string(total.expectedMinutes))")
                                         .font(.caption)

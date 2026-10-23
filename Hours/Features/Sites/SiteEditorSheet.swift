@@ -55,7 +55,7 @@ struct SiteEditorSheet: View {
                     Section {
                         Picker("Job", selection: jobBinding) {
                             ForEach(jobChoices) { job in
-                                Text(job.name).tag(job.id)
+                                Text(job.displayName()).tag(job.id)
                             }
                         }
                         .disabled(isReadOnly)

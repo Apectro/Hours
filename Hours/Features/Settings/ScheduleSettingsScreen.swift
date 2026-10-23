@@ -57,11 +57,11 @@ struct ScheduleSettingsScreen: View {
                         SettingsRow(title: String(localized: "All jobs"), value: "\(settings.activeJobs.count)", systemImage: "bag")
                     }
                 } footer: {
-                    Text("This screen edits \(settings.primaryJob.name). Every job keeps its own week.")
+                    Text("This screen edits \(settings.primaryJob.displayName()). Every job keeps its own week.")
                 }
             }
         }
-        .navigationTitle(settings.tracksMultipleJobs ? settings.primaryJob.name : "Working schedule")
+        .navigationTitle(settings.tracksMultipleJobs ? settings.primaryJob.displayName() : "Working schedule")
         .navigationBarTitleDisplayMode(.inline)
         // Leaving with an unsaved week would quietly drop it, so while there
         // is one the way out is Discard or Save.

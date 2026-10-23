@@ -256,7 +256,7 @@ struct SettingsScreen: View {
 
     private var jobsSummary: String {
         let jobs = settings.activeJobs
-        return jobs.count == 1 ? jobs[0].name : "\(jobs.count)"
+        return jobs.count == 1 ? jobs[0].displayName() : "\(jobs.count)"
     }
 
     private var scheduleSummary: String {

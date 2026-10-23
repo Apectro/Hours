@@ -171,7 +171,7 @@ struct ReportBuilder: Sendable {
             return (day.dayType.exportName(in: language), nil)
         case .job:
             let names = day.shifts
-                .map { settings.job($0.jobID).name }
+                .map { settings.job($0.jobID).displayName(in: language) }
                 .reduce(into: [String]()) { unique, name in
                     if !unique.contains(name) { unique.append(name) }
                 }

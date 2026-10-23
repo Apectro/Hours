@@ -67,7 +67,7 @@ struct WidgetSnapshotWriter {
             isClockRunning: running != nil,
             clockStartedAt: running?.startedAt,
             clockJobName: running.flatMap { shift in
-                settings.tracksMultipleJobs ? settings.job(shift.jobID).name : nil
+                settings.tracksMultipleJobs ? settings.job(shift.jobID).displayName() : nil
             },
             todayWorkedMinutes: todayComputation?.workedMinutes ?? 0,
             todayExpectedMinutes: todayComputation?.expectedMinutes ?? 0,
