@@ -10122,6 +10122,17 @@
       "Envia as tuas horas ou uma folha de obra em PDF ou Excel. Idioma dos relatórios: %@. Altera-o aqui.",
       "Stuur je uren of een bouwplaatslijst als pdf of Excel. Taal van de rapporten: %@. Hier wijzig je die.",
       "Wyślij swoje godziny albo arkusz budowy jako PDF lub Excel. Język raportów: %@. Tutaj go zmienisz."
+    ],
+    "Balance %@": [
+      "Saldo %@",
+      "Saldo %@",
+      "Saldo %@",
+      "Saldo %@",
+      "Solde %@",
+      "Saldo %@",
+      "Saldo %@",
+      "Saldo %@",
+      "Saldo %@"
     ]
   },
   "sameAsEnglishOnPurpose": [
@@ -10183,7 +10194,8 @@
     "since %@",
     "this month · %@",
     "%@ this week",
-    "EARNED TODAY"
+    "EARNED TODAY",
+    "Add a site"
   ],
   "watchInterface": [
     "TODAY",
@@ -10198,6 +10210,7 @@
     "since %@",
     "What you have worked today, and whether the clock is running.",
     "Open Zeitkonto on your iPhone once to see your hours here.",
-    "Records on your iPhone when it is in reach."
+    "Records on your iPhone when it is in reach.",
+    "Balance %@"
   ]
 }
