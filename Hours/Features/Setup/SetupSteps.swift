@@ -204,16 +204,181 @@ struct SetupHolidaysStep: View {
     }
 }
 
-/// One answer of a yes/no question, as a whole-row button.
+/// 5 · "Reports for your boss" — the language the exported files are
+/// written in, preselected from the country (`HolidayCountry.reportLanguage`).
+/// The ten languages are named in their own words, as a language picker
+/// should name them.
+struct SetupLanguageStep: View {
+    @Binding var language: ExportLanguage
+    /// Called when a language is tapped, so a later change of country does
+    /// not overrule it.
+    let onChoose: () -> Void
+
+    private static let choices = ExportLanguage.allCases.filter { $0 != .device }
+
+    var body: some View {
+        SetupPage(
+            heading: "Reports for your boss",
+            message: "The language your PDF, Excel and CSV files are written in. The app itself stays in your phone's language.",
+            identifier: "screen-setup-language"
+        ) {
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                ForEach(Self.choices) { choice in
+                    // "Same as the phone" is shown as the language it
+                    // stands for, so one row is always ticked.
+                    SetupChoice(verbatim: choice.title, isSelected: language.resolved == choice) {
+                        language = choice
+                        onChoose()
+                    }
+                    .accessibilityIdentifier("setup-language-\(choice.rawValue)")
+                }
+                Text("You can change it later in Settings › Export options.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
+
+/// 6 · "Do you lead a crew?" — only decides what the last screen and the
+/// tour offer. The Sites tab is there either way.
+struct SetupCrewStep: View {
+    @Binding var leadsCrew: Bool
+
+    var body: some View {
+        SetupPage(
+            heading: "Do you lead a crew?",
+            message: "Sites keep your crew's hours, extra work and a site diary.",
+            identifier: "screen-setup-crew"
+        ) {
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                SetupChoice(title: "Yes, I lead a crew", isSelected: leadsCrew) {
+                    leadsCrew = true
+                }
+                .accessibilityIdentifier("setup-crew-yes")
+                SetupChoice(title: "No, just my own hours", isSelected: !leadsCrew) {
+                    leadsCrew = false
+                }
+                .accessibilityIdentifier("setup-crew-no")
+                Text("The Sites tab stays either way.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+/// 7 · The hourly rate and its currency, both optional. Saved as the main
+/// job's first rate, the way Settings › Pay saves one; nothing typed sets
+/// nothing up.
+///
+/// The rate is plain text read by `MoneyInput` on every keystroke: a
+/// formatted number field only hands over its value when it loses focus,
+/// and the decimal keypad has no Return to make it.
+struct SetupPayStep: View {
+    @Binding var hourlyRateCents: Int
+    /// Nil follows the phone's region.
+    @Binding var currencyCode: String?
+    /// Called when a currency is picked, so a later change of country does
+    /// not overrule it.
+    let onChooseCurrency: () -> Void
+
+    @State private var rateText = ""
+    @State private var hasLoaded = false
+
+    var body: some View {
+        SetupPage(
+            heading: "What do you earn an hour?",
+            message: "Optional, only for seeing what a month earned. It stays off the sheets for your boss unless you add it in Settings › Export options, and a site's sheet never shows money.",
+            identifier: "screen-setup-pay"
+        ) {
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                HStack(spacing: Metrics.medium) {
+                    TextField("Hourly rate", text: $rateText)
+                        .keyboardType(.decimalPad)
+                        .font(.title3)
+                        .accessibilityIdentifier("setup-pay-rate")
+                    Text(verbatim: shownCurrency)
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+                .padding(Metrics.large)
+                .frame(minHeight: 44)
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+
+                Picker("Currency", selection: currencyBinding) {
+                    ForEach(AppSettings.currencyChoices(including: shownCurrency), id: \.self) { code in
+                        Text(verbatim: AppSettings.currencyName(code)).tag(code)
+                    }
+                }
+                .pickerStyle(.menu)
+                .padding(.horizontal, Metrics.large)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                .accessibilityIdentifier("setup-pay-currency")
+
+                Text("Overtime, surcharges and paid days off can be added later in Settings › Pay.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onAppear {
+            // Once: coming back to this step must not rewrite what is typed.
+            guard !hasLoaded else { return }
+            hasLoaded = true
+            if hourlyRateCents > 0 {
+                rateText = PayRules.amount(fromCents: hourlyRateCents)
+                    .formatted(.number.precision(.fractionLength(2)))
+            }
+        }
+        .onChange(of: rateText) { _, text in
+            hourlyRateCents = MoneyInput.cents(from: text)
+        }
+    }
+
+    private var shownCurrency: String {
+        currencyCode ?? AppSettings.deviceCurrencyCode
+    }
+
+    /// The phone's own currency is stored as none, as Settings › Pay does.
+    private var currencyBinding: Binding<String> {
+        Binding(
+            get: { shownCurrency },
+            set: { code in
+                currencyCode = code == AppSettings.deviceCurrencyCode ? nil : code
+                onChooseCurrency()
+            }
+        )
+    }
+}
+
+/// One answer of a question, as a whole-row button.
 struct SetupChoice: View {
-    let title: LocalizedStringKey
+    let title: Text
     let isSelected: Bool
     let action: () -> Void
+
+    init(title: LocalizedStringKey, isSelected: Bool, action: @escaping () -> Void) {
+        self.title = Text(title)
+        self.isSelected = isSelected
+        self.action = action
+    }
+
+    /// For a title that is already what should be shown, such as a
+    /// language named in its own words.
+    init(verbatim title: String, isSelected: Bool, action: @escaping () -> Void) {
+        self.title = Text(verbatim: title)
+        self.isSelected = isSelected
+        self.action = action
+    }
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: Metrics.medium) {
-                Text(title)
+                title
                     .foregroundStyle(.primary)
                 Spacer(minLength: Metrics.small)
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
@@ -231,15 +396,17 @@ struct SetupChoice: View {
     }
 }
 
-/// "You're set", and the two things most people do next.
+/// "You're set", the tour, and the things most people do next. Create a
+/// site is offered to someone who leads a crew.
 struct SetupFinishStep: View {
+    let leadsCrew: Bool
     let onFinish: (FirstRunFinish?) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             SetupPage(
                 heading: "You're set",
-                message: "All of this can be changed in Settings whenever you like.",
+                message: "All of this can be changed in Settings whenever you like. A short tour shows where everything is.",
                 identifier: "screen-setup-finish"
             ) {
                 EmptyView()
@@ -247,24 +414,36 @@ struct SetupFinishStep: View {
 
             VStack(spacing: Metrics.small) {
                 Button {
+                    onFinish(.tour)
+                } label: {
+                    Text("Show me around")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("setup-show-tour")
+
+                Button {
                     onFinish(.writeToday)
                 } label: {
                     Text("Write today")
                         .font(.headline)
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 .accessibilityIdentifier("setup-write-today")
 
-                Button {
-                    onFinish(.createSite)
-                } label: {
-                    Text("Create a site")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                if leadsCrew {
+                    Button {
+                        onFinish(.createSite)
+                    } label: {
+                        Text("Create a site")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("setup-create-site")
                 }
-                .buttonStyle(.bordered)
-                .accessibilityIdentifier("setup-create-site")
             }
             .controlSize(.large)
             .padding(.vertical, Metrics.large)
