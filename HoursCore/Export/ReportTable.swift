@@ -155,6 +155,10 @@ struct ReportTable: Hashable, Sendable {
     /// A box per person with their signature, on the director's sheet once
     /// anyone has signed. Empty prints nothing.
     var signOff: [ReportSignOff] = []
+    /// Which part of a split sheet this is — "People 1–5 of 9" — printed
+    /// small under the header block. Empty, as on every table that was not
+    /// split (`SiteSheetBuilder.split`), prints nothing.
+    var partLabel: String = ""
 
     var isEmpty: Bool { rows.isEmpty }
 

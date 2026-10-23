@@ -93,7 +93,7 @@ struct BackupRestorer {
         let workdays = WorkdayRepository(context: context, lock: .unlocked)
         workdays.deleteAllDays()
         workdays.deleteAllHolidays()
-        for record in archive.days { try? workdays.save(record) }
+        for record in archive.days { _ = try? workdays.save(record) }
         for holiday in archive.holidays { workdays.upsert(holiday) }
 
         let siteRepository = SiteRepository(context: context, lock: .unlocked)
@@ -186,13 +186,13 @@ struct BackupRestorer {
         var seen = Set<CalendarDate>()
         for record in current where seen.insert(record.date).inserted {
             if let updated = rebuilt[record.date] {
-                if updated != record { try? workdays.save(updated) }
+                if updated != record { _ = try? workdays.save(updated) }
             } else {
                 try? workdays.delete(on: record.date)
             }
         }
         for (date, record) in rebuilt where !seen.contains(date) {
-            try? workdays.save(record)
+            _ = try? workdays.save(record)
         }
     }
 }

@@ -38,6 +38,8 @@ struct SiteMonthGrid: View {
     var holidayDateKeys: Set<Int> = []
     /// Date keys with extra work written down.
     var extraWorkDateKeys: Set<Int> = []
+    /// Days some of the crew were away for a reason, by date key.
+    var awayMarks: [Int: SiteAwayMark] = [:]
 
     private var shown: MonthLayout { isExpanded ? layout : weekLayout }
 
@@ -65,7 +67,8 @@ struct SiteMonthGrid: View {
                         isUnwritten: isUnwritten(date),
                         hasDiary: diaryDateKeys.contains(date.key),
                         isBadWeather: badWeatherDateKeys.contains(date.key),
-                        hasExtraWork: extraWorkDateKeys.contains(date.key)
+                        hasExtraWork: extraWorkDateKeys.contains(date.key),
+                        away: awayMarks[date.key]
                     )
                     .contentShape(Rectangle())
                     .onTapGesture { onSelect(date) }
@@ -140,6 +143,7 @@ struct SiteDayCell: View {
     // private too.
     @ScaledMetric(relativeTo: .subheadline) var cellHeight: CGFloat = Metrics.dayCellHeight
     @ScaledMetric(relativeTo: .caption2) var dotDiameter: CGFloat = 5
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     let date: CalendarDate
     let presentCount: Int?
@@ -150,11 +154,19 @@ struct SiteDayCell: View {
     var hasDiary: Bool = false
     var isBadWeather: Bool = false
     var hasExtraWork: Bool = false
+    var away: SiteAwayMark?
 
     var body: some View {
         VStack(spacing: 2) {
             DayNumberCircle(day: date.day, isSelected: isSelected, isToday: isToday)
-            detailLabel
+                // Large, but no wider than a seventh of the screen allows.
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+            if dynamicTypeSize.isAccessibilitySize {
+                compactMark
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            } else {
+                detailLabel
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: cellHeight)
@@ -183,6 +195,19 @@ struct SiteDayCell: View {
                     .font(.caption2.weight(.semibold))
                     .imageScale(.small)
                     .foregroundStyle(Color.hoursNegative)
+            } else if let away {
+                // Half the crew's colour, half the reason's: fewer people
+                // than usual. Nobody here at all is the reason's alone.
+                Circle()
+                    .fill(LinearGradient(
+                        stops: [
+                            .init(color: (presentCount ?? 0) > 0 ? Color.accentColor : away.color, location: 0.5),
+                            .init(color: away.color, location: 0.5),
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ))
+                    .frame(width: splitDotDiameter, height: splitDotDiameter)
             } else if let presentCount, presentCount > 0 {
                 Circle()
                     .fill(Color.accentColor)
@@ -202,12 +227,48 @@ struct SiteDayCell: View {
                     .imageScale(.small)
                     .foregroundStyle(.secondary)
             }
-            if !isBadWeather && (presentCount ?? 0) == 0 && noteMark == nil {
+            if !isBadWeather && (presentCount ?? 0) == 0 && away == nil && noteMark == nil {
                 Color.clear.frame(width: dotDiameter, height: dotDiameter)
             }
         }
         .lineLimit(1)
     }
+
+    /// At accessibility text sizes a seventh of the screen holds one mark, not
+    /// three: the crew count when people were there (orange on a rain day),
+    /// otherwise the rain cloud, otherwise one dot for a diary or extra work.
+    /// VoiceOver still names everything.
+    @ViewBuilder
+    private var compactMark: some View {
+        if let presentCount, presentCount > 0 {
+            Text(verbatim: "\(presentCount)")
+                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(isBadWeather ? Color.hoursNegative : Color.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        } else if isBadWeather {
+            Image(systemName: "cloud.rain.fill")
+                .font(.caption2.weight(.semibold))
+                .imageScale(.small)
+                .foregroundStyle(Color.hoursNegative)
+        } else if noteMark != nil {
+            Circle()
+                .fill(Color.secondary)
+                .frame(width: compactDotDiameter, height: compactDotDiameter)
+        } else {
+            Color.clear.frame(width: compactDotDiameter, height: compactDotDiameter)
+        }
+    }
+
+    /// `dotDiameter` scales with the cell's own (accessibility) size; the
+    /// compact mark is capped, so its dot is too.
+    private var compactDotDiameter: CGFloat {
+        min(dotDiameter, 8)
+    }
+
+    /// Big enough for its two halves to read as two colours.
+    private var splitDotDiameter: CGFloat { dotDiameter * 1.4 }
 
     /// The diary's book, the extra work's wrench, or one ellipsis for both.
     private var noteMark: String? {
@@ -229,10 +290,22 @@ struct SiteDayCell: View {
         } else if isUnwritten {
             parts.append(String(localized: "Not written"))
         }
+        if let away {
+            parts.append(String(localized: "Away: \(away.count)", comment: "VoiceOver, a site's month: how many of the crew were away for a reason"))
+            parts.append(away.title)
+        }
         if isBadWeather { parts.append(String(localized: "Bad weather")) }
         if hasDiary { parts.append(String(localized: "Site diary")) }
         if hasExtraWork { parts.append(String(localized: "Extra work")) }
         if isToday { parts.append(String(localized: "Today")) }
         return parts.joined(separator: ", ")
     }
+}
+
+/// Some of a site's crew were away on a day: how many, and the colour and
+/// name of the reason that leads (`SiteDay.leadingAwayReason`).
+struct SiteAwayMark: Equatable {
+    let count: Int
+    let color: Color
+    let title: String
 }

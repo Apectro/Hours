@@ -10573,6 +10573,17 @@
       "noutra obra",
       "op een andere bouwplaats",
       "na innej budowie"
+    ],
+    "Away: %lld": [
+      "Abwesend: %lld",
+      "Odsutni: %lld",
+      "Odsotni: %lld",
+      "Assenti: %lld",
+      "Absents : %lld",
+      "Ausentes: %lld",
+      "Ausentes: %lld",
+      "Afwezig: %lld",
+      "Nieobecni: %lld"
     ]
   },
   "sameAsEnglishOnPurpose": [
