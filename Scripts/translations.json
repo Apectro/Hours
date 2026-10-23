@@ -4150,17 +4150,6 @@
       "Som van de week",
       "Suma tygodnia"
     ],
-    "Swipe a name to rename or hide it. Nobody is ever deleted, so hours already recorded never disappear: someone hidden simply stops being offered for new days.": [
-      "Wische über einen Namen, um ihn umzubenennen oder auszublenden. Niemand wird je gelöscht, damit erfasste Stunden nie verschwinden: Wer ausgeblendet ist, wird für neue Tage einfach nicht mehr angeboten.",
-      "Povuci preko imena da ga preimenuješ ili sakriješ. Nitko se nikad ne briše, pa zabilježeni sati nikad ne nestaju: skrivena osoba samo se više ne nudi za nove dane.",
-      "Podrsaj čez ime, da ga preimenuješ ali skriješ. Nihče ni nikoli izbrisan, zato zabeležene ure nikoli ne izginejo: skrita oseba se le ne ponuja več za nove dneve.",
-      "Scorri su un nome per rinominarlo o nasconderlo. Nessuno viene mai eliminato, così le ore già registrate non spariscono mai: chi è nascosto semplicemente non viene più proposto per i nuovi giorni.",
-      "Balayez un nom pour le renommer ou le masquer. Personne n’est jamais supprimé, donc les heures déjà enregistrées ne disparaissent jamais : une personne masquée n’est simplement plus proposée pour les nouveaux jours.",
-      "Desliza un nombre para cambiarlo u ocultarlo. Nunca se elimina a nadie, así que las horas ya registradas nunca desaparecen: a quien está oculto simplemente ya no se le ofrece para días nuevos.",
-      "Desliza um nome para o mudar ou ocultar. Ninguém é apagado, por isso as horas já registadas nunca desaparecem: quem está oculto deixa apenas de ser sugerido para novos dias.",
-      "Veeg over een naam om die te wijzigen of te verbergen. Niemand wordt ooit verwijderd, dus vastgelegde uren verdwijnen nooit: wie verborgen is, wordt gewoon niet meer aangeboden voor nieuwe dagen.",
-      "Przesuń po imieniu, aby je zmienić lub ukryć. Nikt nigdy nie jest usuwany, więc zapisane godziny nigdy nie znikają: ukryta osoba po prostu nie jest już proponowana na nowe dni."
-    ],
     "Switch these off to enter worked hours, or the balance, by hand on each day.": [
       "Schalte das aus, um gearbeitete Stunden oder den Saldo an jedem Tag von Hand einzutragen.",
       "Isključi ovo da ručno unosiš odrađene sate ili saldo za svaki dan.",
@@ -5085,28 +5074,6 @@
       "die types",
       "tych typów"
     ],
-    "On site": [
-      "Auf der Baustelle",
-      "Dolazak na gradilište",
-      "Prihod na gradbišče",
-      "Arrivo in cantiere",
-      "Arrivée au chantier",
-      "Llegada a la obra",
-      "Chegada à obra",
-      "Op de bouwplaats",
-      "Przyjście na budowę"
-    ],
-    "Off site": [
-      "Feierabend",
-      "Odlazak s gradilišta",
-      "Odhod z gradbišča",
-      "Uscita dal cantiere",
-      "Départ du chantier",
-      "Salida de la obra",
-      "Saída da obra",
-      "Van de bouwplaats",
-      "Wyjście z budowy"
-    ],
     "Same as last day": [
       "Wie am letzten Tag",
       "Isto kao zadnji dan",
@@ -5117,17 +5084,6 @@
       "Igual ao último dia",
       "Zelfde als vorige dag",
       "Jak ostatniego dnia"
-    ],
-    "Tap a name to tick or untick them. Tap their times to change just that person.": [
-      "Tippe auf einen Namen, um ihn abzuhaken oder den Haken zu entfernen. Tippe auf die Zeiten, um nur diese Person zu ändern.",
-      "Dodirni ime da ga označiš ili odznačiš. Dodirni vremena da promijeniš samo tu osobu.",
-      "Tapni ime, da ga označiš ali odznačiš. Tapni čase, da spremeniš samo to osebo.",
-      "Tocca un nome per spuntarlo o togliere la spunta. Tocca gli orari per cambiare solo quella persona.",
-      "Touchez un nom pour le cocher ou le décocher. Touchez ses horaires pour ne modifier que cette personne.",
-      "Toca un nombre para marcarlo o desmarcarlo. Toca sus horas para cambiar solo a esa persona.",
-      "Toca num nome para o marcar ou desmarcar. Toca no horário para alterar só essa pessoa.",
-      "Tik op een naam om die aan of uit te vinken. Tik op de tijden om alleen die persoon te wijzigen.",
-      "Stuknij imię, aby zaznaczyć lub odznaczyć osobę. Stuknij godziny, aby zmienić tylko tę osobę."
     ],
     "Here": [
       "Da",
@@ -5194,17 +5150,6 @@
       "Desconhecido",
       "Onbekend",
       "Nieznany"
-    ],
-    "Printed with this day when the site is exported.": [
-      "Wird beim Export der Baustelle bei diesem Tag gedruckt.",
-      "Ispisuje se uz ovaj dan pri izvozu gradilišta.",
-      "Natisne se ob tem dnevu pri izvozu gradbišča.",
-      "Stampata con questo giorno quando si esporta il cantiere.",
-      "Imprimée avec ce jour lors de l’export du chantier.",
-      "Se imprime con este día al exportar la obra.",
-      "Impressa com este dia ao exportar a obra.",
-      "Wordt bij deze dag afgedrukt als de bouwplaats wordt geëxporteerd.",
-      "Drukowana przy tym dniu podczas eksportu budowy."
     ],
     "Everyone else keeps the site times: %@.": [
       "Alle anderen behalten die Baustellenzeiten: %@.",
@@ -8033,17 +7978,6 @@
       "Iedereen stopt die dag op dit tijdstip. Wie al weg was, houdt zijn eigen vertrektijd.",
       "Tego dnia wszyscy kończą o tej godzinie. Kto już wyszedł, zachowuje swoją godzinę wyjścia."
     ],
-    "Hand the phone to each person. They check their own days and sign with a finger. A signature is printed on the director's sheet.": [
-      "Gib das Handy jeder Person. Sie prüft ihre eigenen Tage und unterschreibt mit dem Finger. Die Unterschrift wird auf die Stundenliste für die Bauleitung gedruckt.",
-      "Daj telefon svakoj osobi. Ona provjeri svoje dane i potpiše se prstom. Potpis se ispisuje na listi za voditelja.",
-      "Daj telefon vsaki osebi. Preveri svoje dneve in se podpiše s prstom. Podpis se natisne na seznam za vodjo.",
-      "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio per il direttore.",
-      "Passez le téléphone à chaque personne. Elle vérifie ses propres jours et signe du doigt. La signature est imprimée sur la feuille pour le directeur.",
-      "Pasa el teléfono a cada persona. Revisa sus propios días y firma con el dedo. La firma se imprime en la hoja para el director.",
-      "Passa o telemóvel a cada pessoa. Verifica os seus próprios dias e assina com o dedo. A assinatura é impressa na folha para o diretor.",
-      "Geef de telefoon aan iedereen. Ieder controleert de eigen dagen en tekent met een vinger. De handtekening komt op de lijst voor de uitvoerder.",
-      "Podaj telefon każdej osobie. Sprawdza swoje dni i podpisuje się palcem. Podpis zostaje wydrukowany na arkuszu dla kierownika."
-    ],
     "Hours changed after signing on %@": [
       "Stunden nach der Unterschrift vom %@ geändert",
       "Sati promijenjeni nakon potpisa %@",
@@ -8110,17 +8044,6 @@
       "Geen weer",
       "Bez pogody"
     ],
-    "No work today": [
-      "Heute keine Arbeit",
-      "Danas se ne radi",
-      "Danes se ne dela",
-      "Oggi niente lavoro",
-      "Pas de travail aujourd’hui",
-      "Hoy no se trabaja",
-      "Hoje não se trabalha",
-      "Vandaag geen werk",
-      "Dziś bez pracy"
-    ],
     "Nobody has hours on this site this month.": [
       "Diesen Monat hat niemand Stunden auf dieser Baustelle.",
       "Ovaj mjesec nitko nema sati na ovom gradilištu.",
@@ -8175,39 +8098,6 @@
       "Fotos: %lld",
       "Foto's: %lld",
       "Zdjęcia: %lld"
-    ],
-    "Printed after the hours on the director's sheet when you choose to include it.": [
-      "Wird nach den Stunden auf die Stundenliste für die Bauleitung gedruckt, wenn du es beifügst.",
-      "Ispisuje se nakon sati na listi za voditelja ako ga odlučiš priložiti.",
-      "Natisne se za urami na seznamu za vodjo, če ga priložiš.",
-      "Stampato dopo le ore sul foglio per il direttore, se scegli di includerlo.",
-      "Imprimé après les heures sur la feuille pour le directeur si vous choisissez de l’inclure.",
-      "Se imprime tras las horas en la hoja para el director si eliges incluirlo.",
-      "Impresso depois das horas na folha para o diretor, se escolheres incluí-lo.",
-      "Wordt na de uren op de lijst voor de uitvoerder afgedrukt als je het toevoegt.",
-      "Drukowany po godzinach na arkuszu dla kierownika, jeśli zdecydujesz się go dołączyć."
-    ],
-    "Rained off": [
-      "Wetterbedingt abgebrochen",
-      "Prekinuto zbog vremena",
-      "Prekinjeno zaradi vremena",
-      "Sospeso per maltempo",
-      "Arrêt intempéries",
-      "Parado por el tiempo",
-      "Parado pelo tempo",
-      "Stilgelegd door het weer",
-      "Przerwane przez pogodę"
-    ],
-    "Rained off / bad weather": [
-      "Wetterbedingt abgebrochen / Schlechtwetter",
-      "Prekid zbog vremena / loše vrijeme",
-      "Prekinitev zaradi vremena / slabo vreme",
-      "Sospeso / maltempo",
-      "Arrêt / intempéries",
-      "Parada por mal tiempo",
-      "Paragem por mau tempo",
-      "Stilgelegd / slecht weer",
-      "Przerwa / niepogoda"
     ],
     "Remove photo": [
       "Foto entfernen",
@@ -8406,17 +8296,6 @@
       "Anular",
       "Ongedaan maken",
       "Cofnij"
-    ],
-    "Undo rained off": [
-      "Wetterabbruch rückgängig machen",
-      "Poništi prekid zbog vremena",
-      "Razveljavi prekinitev zaradi vremena",
-      "Annulla sospensione per maltempo",
-      "Annuler l’arrêt intempéries",
-      "Deshacer parada por el tiempo",
-      "Anular paragem pelo tempo",
-      "Stillegging door weer ongedaan maken",
-      "Cofnij przerwanie przez pogodę"
     ],
     "Weather": [
       "Wetter",
@@ -10133,6 +10012,204 @@
       "Os trabalhos concluídos vão no relatório de trabalhos adicionais.",
       "Klaar werk gaat in het meerwerkrapport.",
       "Ukończone prace trafiają do raportu prac dodatkowych."
+    ],
+    "Rename %@": [
+      "%@ umbenennen",
+      "Preimenuj: %@",
+      "Preimenuj: %@",
+      "Rinomina %@",
+      "Renommer %@",
+      "Cambiar el nombre de %@",
+      "Mudar o nome de %@",
+      "%@ hernoemen",
+      "Zmień imię: %@"
+    ],
+    "Saved": [
+      "Gesichert",
+      "Spremljeno",
+      "Shranjeno",
+      "Salvato",
+      "Enregistré",
+      "Guardado",
+      "Guardado",
+      "Bewaard",
+      "Zapisano"
+    ],
+    "Swipe to rename or hide. Hidden people keep their hours.": [
+      "Wischen zum Umbenennen oder Ausblenden. Ausgeblendete behalten ihre Stunden.",
+      "Povuci za preimenovanje ili skrivanje. Skrivene osobe zadržavaju svoje sate.",
+      "Podrsaj za preimenovanje ali skrivanje. Skrite osebe obdržijo svoje ure.",
+      "Scorri per rinominare o nascondere. Chi è nascosto mantiene le sue ore.",
+      "Balayez pour renommer ou masquer. Les personnes masquées gardent leurs heures.",
+      "Desliza para cambiar el nombre u ocultar. Quien está oculto conserva sus horas.",
+      "Desliza para mudar o nome ou ocultar. Quem está oculto mantém as suas horas.",
+      "Veeg om te hernoemen of te verbergen. Wie verborgen is, houdt zijn uren.",
+      "Przesuń, aby zmienić imię lub ukryć. Ukryte osoby zachowują swoje godziny."
+    ],
+    "Change times": [
+      "Zeiten ändern",
+      "Promijeni vremena",
+      "Spremeni čase",
+      "Cambia orari",
+      "Modifier les horaires",
+      "Cambiar horas",
+      "Alterar horário",
+      "Tijden wijzigen",
+      "Zmień godziny"
+    ],
+    "Open": [
+      "Öffnen",
+      "Otvori",
+      "Odpri",
+      "Apri",
+      "Ouvrir",
+      "Abrir",
+      "Abrir",
+      "Openen",
+      "Otwórz"
+    ],
+    "Add or edit crew": [
+      "Mannschaft ergänzen oder ändern",
+      "Dodaj ili uredi ekipu",
+      "Dodaj ali uredi ekipo",
+      "Aggiungi o modifica la squadra",
+      "Ajouter ou modifier l’équipe",
+      "Añadir o editar la cuadrilla",
+      "Adicionar ou editar a equipa",
+      "Ploeg aanvullen of wijzigen",
+      "Dodaj lub edytuj ekipę"
+    ],
+    "Note on the sheet": [
+      "Notiz auf der Liste",
+      "Bilješka na listi",
+      "Opomba na listu",
+      "Nota sul foglio",
+      "Note sur la feuille",
+      "Nota en la hoja",
+      "Nota na folha",
+      "Notitie op de lijst",
+      "Notatka na arkuszu"
+    ],
+    "Short note printed in this day's row": [
+      "Kurze Notiz in der Zeile dieses Tages",
+      "Kratka bilješka u retku ovog dana",
+      "Kratka opomba v vrstici tega dne",
+      "Breve nota stampata nella riga di questo giorno",
+      "Courte note imprimée sur la ligne de ce jour",
+      "Nota breve impresa en la fila de este día",
+      "Nota curta impressa na linha deste dia",
+      "Korte notitie in de regel van deze dag",
+      "Krótka notatka w wierszu tego dnia"
+    ],
+    "Show whole month": [
+      "Ganzen Monat zeigen",
+      "Prikaži cijeli mjesec",
+      "Pokaži cel mesec",
+      "Mostra tutto il mese",
+      "Afficher tout le mois",
+      "Ver el mes entero",
+      "Mostrar o mês inteiro",
+      "Hele maand tonen",
+      "Pokaż cały miesiąc"
+    ],
+    "Show one week": [
+      "Nur eine Woche zeigen",
+      "Prikaži jedan tjedan",
+      "Pokaži en teden",
+      "Mostra una settimana",
+      "Afficher une semaine",
+      "Ver una semana",
+      "Mostrar uma semana",
+      "Eén week tonen",
+      "Pokaż jeden tydzień"
+    ],
+    "Turned off for this sheet": [
+      "Für diese Liste ausgeschaltet",
+      "Isključeno za ovu listu",
+      "Izklopljeno za ta list",
+      "Disattivato per questo foglio",
+      "Désactivé pour cette feuille",
+      "Desactivado para esta hoja",
+      "Desativado para esta folha",
+      "Uitgeschakeld voor deze lijst",
+      "Wyłączone dla tego arkusza"
+    ],
+    "Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the Site sheet.": [
+      "Gib das Handy jeder Person. Sie prüft ihre eigenen Tage und unterschreibt mit dem Finger. Die Unterschrift wird auf die Baustellenliste gedruckt.",
+      "Daj telefon svakoj osobi. Ona provjeri svoje dane i potpiše se prstom. Potpis se ispisuje na listu gradilišta.",
+      "Daj telefon vsaki osebi. Preveri svoje dneve in se podpiše s prstom. Podpis se natisne na list gradbišča.",
+      "Passa il telefono a ogni persona. Controlla i propri giorni e firma con un dito. La firma viene stampata sul foglio del cantiere.",
+      "Passez le téléphone à chaque personne. Elle vérifie ses propres jours et signe du doigt. La signature est imprimée sur la feuille de chantier.",
+      "Pasa el teléfono a cada persona. Revisa sus propios días y firma con el dedo. La firma se imprime en la hoja de obra.",
+      "Passa o telemóvel a cada pessoa. Verifica os seus próprios dias e assina com o dedo. A assinatura é impressa na folha de obra.",
+      "Geef de telefoon aan iedereen. Ieder controleert de eigen dagen en tekent met een vinger. De handtekening komt op de bouwplaatslijst.",
+      "Podaj telefon każdej osobie. Sprawdza swoje dni i podpisuje się palcem. Podpis zostaje wydrukowany na arkuszu budowy."
+    ],
+    "No work this day": [
+      "An diesem Tag keine Arbeit",
+      "Taj se dan nije radilo",
+      "Ta dan se ni delalo",
+      "Niente lavoro in questo giorno",
+      "Pas de travail ce jour-là",
+      "Este día no se trabajó",
+      "Neste dia não se trabalhou",
+      "Geen werk op deze dag",
+      "Tego dnia bez pracy"
+    ],
+    "Weather, work, photos. Printed on its own pages with the Site sheet.": [
+      "Wetter, Arbeiten, Fotos. Auf eigenen Seiten mit der Baustellenliste gedruckt.",
+      "Vrijeme, radovi, fotografije. Ispisuje se na zasebnim stranicama uz list gradilišta.",
+      "Vreme, dela, fotografije. Natisne se na svojih straneh z listom gradbišča.",
+      "Meteo, lavori, foto. Stampato su pagine proprie con il foglio del cantiere.",
+      "Météo, travaux, photos. Imprimé sur ses propres pages avec la feuille de chantier.",
+      "Tiempo, trabajos, fotos. Se imprime en páginas propias con la hoja de obra.",
+      "Tempo, trabalhos, fotos. Impresso em páginas próprias com a folha de obra.",
+      "Weer, werk, foto's. Op eigen pagina's afgedrukt bij de bouwplaatslijst.",
+      "Pogoda, prace, zdjęcia. Drukowane na osobnych stronach z arkuszem budowy."
+    ],
+    "Bad weather · stopped %@": [
+      "Schlechtwetter · abgebrochen um %@",
+      "Loše vrijeme · prekinuto u %@",
+      "Slabo vreme · prekinjeno ob %@",
+      "Maltempo · sospeso alle %@",
+      "Intempéries · arrêt à %@",
+      "Mal tiempo · parado a las %@",
+      "Mau tempo · parado às %@",
+      "Slecht weer · gestopt om %@",
+      "Niepogoda · przerwane o %@"
+    ],
+    "Bad weather · no work": [
+      "Schlechtwetter · keine Arbeit",
+      "Loše vrijeme · nije se radilo",
+      "Slabo vreme · brez dela",
+      "Maltempo · niente lavoro",
+      "Intempéries · pas de travail",
+      "Mal tiempo · sin trabajo",
+      "Mau tempo · sem trabalho",
+      "Slecht weer · geen werk",
+      "Niepogoda · bez pracy"
+    ],
+    "Remove the signature of %@ for %@?": [
+      "Unterschrift von %@ für %@ entfernen?",
+      "Ukloniti potpis osobe %@ za %@?",
+      "Odstraniti podpis osebe %@ za %@?",
+      "Rimuovere la firma di %@ per %@?",
+      "Retirer la signature de %@ pour %@ ?",
+      "¿Quitar la firma de %@ de %@?",
+      "Remover a assinatura de %@ de %@?",
+      "Handtekening van %@ voor %@ verwijderen?",
+      "Usunąć podpis %@ za %@?"
+    ],
+    "Undo bad weather": [
+      "Schlechtwetter rückgängig machen",
+      "Poništi loše vrijeme",
+      "Razveljavi slabo vreme",
+      "Annulla maltempo",
+      "Annuler les intempéries",
+      "Deshacer mal tiempo",
+      "Anular mau tempo",
+      "Slecht weer ongedaan maken",
+      "Cofnij niepogodę"
     ]
   },
   "sameAsEnglishOnPurpose": [

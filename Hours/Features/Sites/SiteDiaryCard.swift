@@ -60,9 +60,17 @@ struct SiteDiaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
-            Text("Site diary")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
+            // Says up front how it differs from the day's note above: the
+            // note is one line in the hours, the diary is pages of its own.
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Site diary")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Weather, work, photos. Printed on its own pages with the Site sheet.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 weatherSection
@@ -77,11 +85,6 @@ struct SiteDiaryCard: View {
                 Divider()
                 photoRow
             }
-
-            Text("Printed after the hours on the director's sheet when you choose to include it.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(Metrics.large)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -372,8 +375,10 @@ struct DiaryThumbnail: Identifiable {
     let data: Data
 }
 
-/// One diary photo, large, with a way to remove it.
-private struct DiaryPhotoViewer: View {
+/// One diary photo, large, with a way to remove it. Done on the right, as on
+/// every sheet that only shows something; the bin on the left, away from it.
+/// Not private, so other photos in the app can open the same way.
+struct DiaryPhotoViewer: View {
     let photo: DiaryThumbnail
     let canRemove: Bool
     let onRemove: () -> Void
@@ -397,11 +402,11 @@ private struct DiaryPhotoViewer: View {
             .background(Color.hoursCanvas)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
                 if canRemove {
-                    ToolbarItem(placement: .destructiveAction) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button(role: .destructive) {
                             confirmsRemoval = true
                         } label: {

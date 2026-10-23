@@ -1,10 +1,16 @@
 import SwiftUI
 import SwiftData
 
-/// A site's month and one day of it (mockup boards 4–6): the month as the
-/// calendar draws yours, this month's figures, and the selected day on one
-/// card — the site's times once for everyone, a tick for each person who was
-/// there, and changed times only for whoever came late or left early.
+/// A site's month and one day of it (mockup boards 4–6): the selected day's
+/// week (the whole month on request), the day on one card — the site's times
+/// once for everyone, a tick for each person who was there, and changed times
+/// only for whoever came late or left early — then the weather, extra work,
+/// the diary, and this month's figures last.
+///
+/// The day comes before the month on purpose: ticking the crew is what the
+/// screen is opened for, and with the full month above it the crew started
+/// below the fold, so a "Same as last day" from the widget filled a day out
+/// of sight.
 ///
 /// Edits are saved as they are made, with no Save button. This is a page you
 /// move through day by day, not a sheet you open and dismiss, and a draft that
@@ -22,8 +28,15 @@ struct SiteDayScreen: View {
     /// One of the extra sites after Pro lapsed: shown, not changed.
     let isReadOnly: Bool
 
+    /// A date to show, set from outside — the diary list picks one. Taken
+    /// and cleared on arrival.
+    var requestedDate: Binding<CalendarDate?> = .constant(nil)
+    /// Opens the extra-work report, which the site screen presents.
+    var onOpenReport: (() -> Void)? = nil
+
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.openSiteCrew) private var openSiteCrew
 
     @Query private var holidayRecords: [HolidayRecord]
 
@@ -63,6 +76,15 @@ struct SiteDayScreen: View {
     /// first appearance, so coming back from the crew does not fill it again.
     @State private var requestsSameAsLastDay: Bool
     @FocusState private var isNoteFocused: Bool
+    /// The whole month rather than the selected day's week. Remembered, as
+    /// a way of looking rather than a piece of data.
+    @AppStorage("site.showsWholeMonth") private var showsWholeMonth = false
+    /// "Saved" beside the day's title for a moment after each write, since
+    /// the day saves itself with no button to press.
+    @State private var showsSaved = false
+    @State private var savedRevision = 0
+    /// Counts ticks and unticks, for the haptic.
+    @State private var ticks = 0
 
     /// One sheet at a time, chosen by value: stacking several `.sheet`
     /// modifiers on one view has undefined behaviour.
@@ -80,9 +102,18 @@ struct SiteDayScreen: View {
         }
     }
 
-    init(site: Site, isReadOnly: Bool, date: CalendarDate, appliesSameAsLastDay: Bool = false) {
+    init(
+        site: Site,
+        isReadOnly: Bool,
+        date: CalendarDate,
+        appliesSameAsLastDay: Bool = false,
+        requestedDate: Binding<CalendarDate?> = .constant(nil),
+        onOpenReport: (() -> Void)? = nil
+    ) {
         self.site = site
         self.isReadOnly = isReadOnly
+        self.requestedDate = requestedDate
+        self.onOpenReport = onOpenReport
         _requestsSameAsLastDay = State(initialValue: appliesSameAsLastDay)
         _date = State(initialValue: date)
         _month = State(initialValue: date.yearMonth)
@@ -101,6 +132,8 @@ struct SiteDayScreen: View {
 
                 SiteMonthGrid(
                     layout: layout,
+                    weekLayout: weekLayout,
+                    isExpanded: showsWholeMonth,
                     presentCounts: presentCounts,
                     selectedDate: date,
                     today: today,
@@ -108,13 +141,12 @@ struct SiteDayScreen: View {
                     formatting: formatting,
                     onSelect: select,
                     onStep: step,
+                    onToggleExpanded: toggleWholeMonth,
                     diaryDateKeys: diaryDateKeys,
                     badWeatherDateKeys: badWeatherDateKeys,
                     holidayDateKeys: holidayDateKeys,
                     extraWorkDateKeys: extraWorkDateKeys
                 )
-
-                monthSummary
 
                 dayCard
 
@@ -122,6 +154,7 @@ struct SiteDayScreen: View {
                     SiteWeatherStopRow(
                         day: day,
                         canEdit: canEdit,
+                        formatting: formatting,
                         onStopAll: { commit(day.stoppedForBadWeather(at: nil)) },
                         onStopAt: { activeSheet = .weatherStop },
                         onLift: { commit(day.liftingBadWeatherStop()) }
@@ -131,14 +164,24 @@ struct SiteDayScreen: View {
                 // Extra work is not hours either (see `ExtraWorkRepository`):
                 // only a read-only site stops it. Rebuilt per date, as the
                 // diary is.
-                ExtraWorkDaySection(site: site, date: date, canEdit: !isReadOnly, onChange: reloadExtraWorkMarks)
-                    .id(date.key)
+                ExtraWorkDaySection(
+                    site: site,
+                    date: date,
+                    canEdit: !isReadOnly,
+                    onChange: reloadExtraWorkMarks,
+                    onOpenReport: onOpenReport
+                )
+                .id(date.key)
 
                 // Not under the month lock (see `SiteDiaryRepository`): only a
                 // read-only site stops the diary. Rebuilt per date, so a draft
                 // never lands on another day.
                 SiteDiaryCard(siteID: site.id, date: date, canEdit: !isReadOnly, onChange: reloadDiaryMarks)
                     .id(date.key)
+
+                // Last: the month's figures are read now and then, the day
+                // above is written every day.
+                monthSummary
             }
             .padding(.horizontal, Metrics.large)
             .padding(.bottom, Metrics.extraLarge)
@@ -152,6 +195,13 @@ struct SiteDayScreen: View {
             applyRequestedSameAsLastDay()
         }
         .onDisappear { commitNote() }
+        .onChange(of: requestedDate.wrappedValue) { _, requested in
+            guard let requested else { return }
+            requestedDate.wrappedValue = nil
+            select(requested)
+        }
+        // A tick is felt as well as seen: gloves, sun, a phone held low.
+        .sensoryFeedback(.selection, trigger: ticks)
         .onChange(of: isNoteFocused) { _, focused in
             if !focused { commitNote() }
         }
@@ -206,18 +256,50 @@ struct SiteDayScreen: View {
             calculator: SiteDayCalculator(settings: settings, calendar: calendar)
         )
 
+        var tiles = [
+            MonthTile(label: String(localized: "Days written"), value: "\(figures.daysWritten)"),
+            MonthTile(label: String(localized: "Crew hours"), value: formatter.string(figures.crewMinutes)),
+            MonthTile(label: String(localized: "You"), value: formatter.string(figures.yourMinutes)),
+        ]
+        // Only in a month the weather stopped work.
+        if figures.badWeatherDays > 0 {
+            tiles.append(MonthTile(
+                label: String(localized: "Bad weather"),
+                value: "\(figures.badWeatherDays)",
+                identifier: "site-month-bad-weather"
+            ))
+        }
+
         return SurfaceCard {
-            HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(label: String(localized: "Days written"), value: "\(figures.daysWritten)")
-                Divider().frame(height: 34)
-                StatTile(label: String(localized: "Crew hours"), value: formatter.string(figures.crewMinutes))
-                Divider().frame(height: 34)
-                StatTile(label: String(localized: "You"), value: formatter.string(figures.yourMinutes))
-                // Only in a month the weather stopped work.
-                if figures.badWeatherDays > 0 {
-                    Divider().frame(height: 34)
-                    StatTile(label: String(localized: "Bad weather"), value: "\(figures.badWeatherDays)")
-                        .accessibilityIdentifier("site-month-bad-weather")
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                Text(formatting.monthTitle(month))
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                // One row while it fits; two by two at large text sizes or on
+                // a narrow phone, rather than labels cut off mid-word.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: Metrics.small) {
+                        ForEach(Array(tiles.enumerated()), id: \.offset) { index, tile in
+                            if index > 0 {
+                                Divider().frame(maxHeight: .infinity)
+                            }
+                            tile.view
+                        }
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+
+                    Grid(alignment: .topLeading, horizontalSpacing: Metrics.medium, verticalSpacing: Metrics.medium) {
+                        ForEach(Array(stride(from: 0, to: tiles.count, by: 2)), id: \.self) { start in
+                            GridRow {
+                                tiles[start].view
+                                if start + 1 < tiles.count {
+                                    tiles[start + 1].view
+                                } else {
+                                    Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -247,9 +329,11 @@ struct SiteDayScreen: View {
                 durations: formatter,
                 noteText: $noteText,
                 isNoteFocused: $isNoteFocused,
+                showsSaved: showsSaved,
                 onToggle: toggle,
                 onEditPerson: { activeSheet = .person($0) },
-                onEditTimes: { activeSheet = .siteTimes }
+                onEditTimes: { activeSheet = .siteTimes },
+                onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) }
             )
         }
     }
@@ -309,8 +393,15 @@ struct SiteDayScreen: View {
     private var isLocked: Bool { settings.monthLock.isLocked(date) }
     private var canEdit: Bool { !isReadOnly && !isLocked }
 
+    /// The whole month. Everything under the grid is read over it, the
+    /// folded week included: the selected day is always in this month, so
+    /// its week is always inside the month's full weeks.
     private var layout: MonthLayout {
         MonthLayout.make(month: month, calendar: calendar, includesWeekends: true)
+    }
+
+    private var weekLayout: MonthLayout {
+        MonthLayout.week(containing: date, calendar: calendar, includesWeekends: true)
     }
 
     /// Public holidays off in the shown month: never outlined as unwritten.
@@ -396,10 +487,15 @@ struct SiteDayScreen: View {
         load()
     }
 
-    /// The month arrows. The selection follows into the new month — today if
-    /// it is there, otherwise the same day of the month — so the card never
-    /// describes a day the grid is not showing.
+    /// The arrows: a week while the grid is folded, a month while it is open.
+    /// The selection follows — today if it is there, otherwise the same
+    /// weekday or day of the month — so the card never describes a day the
+    /// grid is not showing.
     private func step(_ direction: Int) {
+        guard showsWholeMonth else {
+            stepWeek(direction)
+            return
+        }
         commitNote()
         let next = month.adding(months: direction)
         let newDate = next.contains(today)
@@ -410,6 +506,27 @@ struct SiteDayScreen: View {
             date = newDate
         }
         load()
+    }
+
+    private func stepWeek(_ direction: Int) {
+        let shifted = date.adding(days: 7 * direction, in: calendar)
+        let week = CalendarDateRange.week(containing: shifted, in: calendar)
+        let newDate = week.contains(today) ? today : shifted
+        commitNote()
+        withAnimation(.snappy(duration: 0.25)) {
+            date = newDate
+            month = newDate.yearMonth
+        }
+        load()
+    }
+
+    /// Opening the month keeps the selected day; folding it shows that day's
+    /// week. Nothing needs reading again: every way of moving keeps the
+    /// selected day inside the month the data was read for.
+    private func toggleWholeMonth() {
+        withAnimation(.snappy(duration: 0.25)) {
+            showsWholeMonth.toggle()
+        }
     }
 
     /// Whether your calendar counts your hours here. Read from your stored
@@ -429,6 +546,7 @@ struct SiteDayScreen: View {
         } else {
             next.present.append(Attendance(memberID: memberID))
         }
+        ticks += 1
         commit(next)
     }
 
@@ -454,6 +572,19 @@ struct SiteDayScreen: View {
         requestsSameAsLastDay = false
         guard date == today, showsUnwrittenChoice else { return }
         fillFromLastDay()
+    }
+
+    /// Shows "Saved" for a moment. A newer write restarts the moment rather
+    /// than being cut short by the older one's timer.
+    private func flashSaved() {
+        savedRevision += 1
+        let revision = savedRevision
+        withAnimation(.easeOut(duration: 0.2)) { showsSaved = true }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard revision == savedRevision else { return }
+            withAnimation(.easeIn(duration: 0.3)) { showsSaved = false }
+        }
     }
 
     private func commitNote() {
@@ -486,6 +617,7 @@ struct SiteDayScreen: View {
                 stored = nil
             }
             day = next
+            flashSaved()
         } catch {
             // Back to what is stored, so the screen never shows hours that
             // were not recorded.
@@ -501,6 +633,26 @@ struct SiteDayScreen: View {
         // reschedule.
         if (stored != nil) != wasStored {
             Task { await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore) }
+        }
+    }
+}
+
+extension SiteDayScreen {
+    /// One of the month's figures, kept as data so the same tiles can be laid
+    /// out in one row or two by two.
+    fileprivate struct MonthTile {
+        let label: String
+        let value: String
+        var identifier: String? = nil
+
+        @ViewBuilder
+        var view: some View {
+            if let identifier {
+                StatTile(label: label, value: value)
+                    .accessibilityIdentifier(identifier)
+            } else {
+                StatTile(label: label, value: value)
+            }
         }
     }
 }

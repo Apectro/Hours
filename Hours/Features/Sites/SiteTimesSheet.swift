@@ -4,7 +4,7 @@ import SwiftUI
 /// and the break, which everyone ticked shares unless their own times were
 /// changed.
 ///
-/// One save on Done rather than one per turn of the wheel, as with a single
+/// One save on Save rather than one per turn of the wheel, as with a single
 /// person's times: the day screen writes through the month lock and your
 /// calendar day, and doing that for every minute the wheel passes would be
 /// sixty writes for one change. Cancel leaves the day exactly as it was.
@@ -56,7 +56,7 @@ struct SiteTimesSheet: View {
                     }
 
                     DatePicker(
-                        editing == .start ? String(localized: "On site") : String(localized: "Off site"),
+                        editing == .start ? String(localized: "Start") : String(localized: "End"),
                         selection: wheelBinding,
                         displayedComponents: .hourAndMinute
                     )
@@ -87,26 +87,28 @@ struct SiteTimesSheet: View {
                         .accessibilityIdentifier("site-hours-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done", action: save)
+                    Button("Save", action: save)
                         .fontWeight(.semibold)
-                        .accessibilityIdentifier("site-hours-done")
+                        .accessibilityIdentifier("site-hours-save")
                 }
             }
         }
         .presentationDetents([.large])
+        // A stray swipe must not throw away times that were changed.
+        .interactiveDismissDisabled(hasChanges)
     }
 
     // MARK: - Times
 
     private func timeTile(_ edge: TimeField) -> some View {
         let isSelected = editing == edge
-        let title = edge == .start ? String(localized: "On site") : String(localized: "Off site")
+        let title = edge == .start ? String(localized: "Start") : String(localized: "End")
         let value = edge == .start ? start : end
 
         return Button {
             editing = edge
             // Choosing an empty time is choosing to set it: it starts where
-            // the wheel shows it, so what is on screen is what Done saves.
+            // the wheel shows it, so what is on screen is what Save saves.
             if value == nil {
                 setTime(fallback(for: edge), for: edge)
             }
@@ -238,6 +240,15 @@ struct SiteTimesSheet: View {
     }
 
     // MARK: - Derived
+
+    /// Against what the sheet opened on, so a day with no times yet, which
+    /// opens on the schedule's, is not "changed" just by being looked at.
+    private var hasChanges: Bool {
+        let isUntimed = day.start == nil && day.end == nil
+        let openedStart = isUntimed ? defaultStart : day.start
+        let openedEnd = isUntimed ? defaultEnd : day.end
+        return start != openedStart || end != openedEnd || breakMinutes != day.breakMinutes
+    }
 
     private var calendar: Calendar { settingsStore.workCalendar }
     private var formatting: CalendarFormatting { settingsStore.dateFormatting }

@@ -183,16 +183,23 @@ struct ExportScreen: View {
             }
             Toggle("Signatures", isOn: $includesSignatures)
                 .accessibilityIdentifier("export-include-signatures")
-            if includesSignatures {
-                // A link with its destination inline, as Export options below:
-                // a value pushed onto this sheet's own stack.
-                NavigationLink {
-                    SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
-                } label: {
+            // A link with its destination inline, as Export options below:
+            // a value pushed onto this sheet's own stack. Always shown, so it
+            // can be found; with Signatures off it stays, greyed, saying why.
+            NavigationLink {
+                SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
+            } label: {
+                VStack(alignment: .leading, spacing: 2) {
                     Label("Crew sign-off", systemImage: "signature")
+                    if !includesSignatures {
+                        Text("Turned off for this sheet")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                .accessibilityIdentifier("export-sign-off")
             }
+            .disabled(!includesSignatures)
+            .accessibilityIdentifier("export-sign-off")
         } footer: {
             VStack(alignment: .leading, spacing: Metrics.small) {
                 if tables?.hasDiary == true && includesDiary {
