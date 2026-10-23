@@ -40,7 +40,7 @@ enum CloudKitSchema {
         do {
             // Released before the real stack opens, as Apple's sample does.
             try autoreleasepool {
-                guard let model = NSManagedObjectModel.makeManagedObjectModel(for: HoursSchemaV6.models) else {
+                guard let model = NSManagedObjectModel.makeManagedObjectModel(for: HoursSchemaV7.models) else {
                     throw CocoaError(.featureUnsupported)
                 }
                 let description = NSPersistentStoreDescription(url: url)

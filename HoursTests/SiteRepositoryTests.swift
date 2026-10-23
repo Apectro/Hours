@@ -330,6 +330,40 @@ final class SiteRepositoryTests: XCTestCase {
         XCTAssertNil(repository.sameAsLastDay(siteID: site.id, on: Fixture.date(2026, 7, 30)), "nothing earlier to copy")
     }
 
+    /// People are sick a day at a time: a reason never carries over.
+    func testSameAsLastDayDoesNotCopyAbsences() throws {
+        let context = makeContext()
+        let repository = SiteRepository(context: context)
+        repository.upsert(site)
+        let ana = UUID()
+        let lastDay = crewDay(on: Fixture.workingMonday)
+            .settingAbsence(.sick, for: ana)
+            .settingAbsence(.vacation, for: CrewMember.youID)
+        try repository.save(lastDay)
+
+        let copy = try XCTUnwrap(repository.sameAsLastDay(siteID: site.id, on: Fixture.date(2026, 8, 6)))
+        XCTAssertEqual(copy.absences, [])
+        XCTAssertEqual(copy.present.map(\.memberID), [ivan])
+    }
+
+    /// You away sick on the site: your calendar day is a sick day, in the
+    /// same save. Ticking yourself back in makes it a working day again.
+    func testYouAwayWithAReasonTypesYourCalendarDay() throws {
+        let context = makeContext()
+        let repository = SiteRepository(context: context)
+        repository.upsert(site)
+        let sick = crewDay(withYou: false).settingAbsence(.sick, for: CrewMember.youID)
+        try repository.save(sick)
+
+        let workdays = WorkdayRepository(context: context)
+        XCTAssertEqual(workdays.record(on: date)?.dayTypeID, .sick)
+        XCTAssertEqual(repository.siteDay(siteID: site.id, on: date)?.absence(for: CrewMember.youID), .sick)
+
+        try repository.save(sick.togglingPresence(of: CrewMember.youID))
+        XCTAssertNil(workdays.record(on: date)?.dayTypeID)
+        XCTAssertEqual(siteShifts(workdays.record(on: date)).count, 1)
+    }
+
     // MARK: - Sites, crew and restore
 
     func testSitesAndCrewReadBackFilteredAndInOrder() {

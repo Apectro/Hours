@@ -31,6 +31,11 @@ final class SiteDayEntry {
     /// `SiteDay.isBadWeatherStop`. Added in schema V4 with a default, so a
     /// row written before it reads as an ordinary day.
     var isBadWeatherStop: Bool = false
+    /// JSON-encoded `[CrewAbsence]`: why people not ticked were away, as
+    /// `presentData` holds who was there. Added in schema V7, optional, so a
+    /// row written before it reads as a day with no absences; `nil` also
+    /// means none.
+    var absenceData: Data?
 
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
@@ -49,8 +54,9 @@ extension SiteDayEntry {
     ///
     /// Damage degrades rather than crashes, as the engine's lenient decoding
     /// does: an unreadable date becomes 1 January 1970 like `DayEntry`'s, an
-    /// unreadable job id means the default job, and an unreadable attendance
-    /// list means nobody present.
+    /// unreadable job id means the default job, an unreadable attendance
+    /// list means nobody present, and an unreadable absence list means no
+    /// reasons given.
     var siteDay: SiteDay {
         SiteDay(
             siteID: UUID(uuidString: siteID) ?? UUID(),
@@ -61,7 +67,8 @@ extension SiteDayEntry {
             present: SiteDayEntry.decodePresent(presentData),
             note: note,
             jobID: jobID.flatMap(UUID.init(uuidString:)),
-            isBadWeatherStop: isBadWeatherStop
+            isBadWeatherStop: isBadWeatherStop,
+            absences: SiteDayEntry.decodeAbsences(absenceData)
         )
     }
 
@@ -76,6 +83,7 @@ extension SiteDayEntry {
         note = day.note
         jobID = day.jobID?.uuidString
         isBadWeatherStop = day.isBadWeatherStop
+        absenceData = SiteDayEntry.encodeAbsences(day.absences)
         updatedAt = Date()
     }
 
@@ -87,5 +95,15 @@ extension SiteDayEntry {
     static func decodePresent(_ data: Data?) -> [Attendance] {
         guard let data, !data.isEmpty else { return [] }
         return (try? JSONDecoder().decode([Attendance].self, from: data)) ?? []
+    }
+
+    static func encodeAbsences(_ absences: [CrewAbsence]) -> Data? {
+        guard !absences.isEmpty else { return nil }
+        return try? JSONEncoder().encode(absences)
+    }
+
+    static func decodeAbsences(_ data: Data?) -> [CrewAbsence] {
+        guard let data, !data.isEmpty else { return [] }
+        return (try? JSONDecoder().decode([CrewAbsence].self, from: data)) ?? []
     }
 }

@@ -279,9 +279,14 @@ enum SampleData {
     private static func siteDay(on day: CalendarDate, weekday: Int, site: Site, crew: [CrewMember]) -> SiteDay {
         let isFriday = weekday == 6
         var present = [Attendance(memberID: CrewMember.youID)]
+        var absences: [CrewAbsence] = []
         for (index, member) in crew.enumerated() {
-            // Jonas, the apprentice, is at college one day in six.
-            if index == 4, day.day % 6 == 0 { continue }
+            // Jonas, the apprentice, is away one day in six: at college,
+            // which needs no reason, or now and then off sick.
+            if index == 4, day.day % 6 == 0 {
+                if day.day % 12 == 0 { absences.append(CrewAbsence(memberID: member.id, dayTypeID: .sick)) }
+                continue
+            }
             switch (index, day.day % 5) {
             case (2, 2):
                 // Luka leaves at noon now and then.
@@ -299,7 +304,8 @@ enum SampleData {
             start: TimeOfDay(hour: 7, minute: 0),
             end: isFriday ? TimeOfDay(hour: 13, minute: 30) : TimeOfDay(hour: 16, minute: 0),
             breakMinutes: 30,
-            present: present
+            present: present,
+            absences: absences
         )
     }
 
