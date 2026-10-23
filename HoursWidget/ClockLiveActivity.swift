@@ -18,7 +18,7 @@ struct ClockLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    HardHatBadge(size: 38)
+                    ClockBadge(size: 38)
                 }
                 DynamicIslandExpandedRegion(.center) {
                     ClockTitle(state: context.state)
@@ -30,18 +30,18 @@ struct ClockLiveActivity: Widget {
                     ClockSince(state: context.state)
                 }
             } compactLeading: {
-                HardHat()
+                ClockMark()
                     .fill(WidgetPalette.amber)
-                    .frame(width: 16, height: 9)
+                    .frame(width: 13, height: 13)
                     .accessibilityHidden(true)
             } compactTrailing: {
                 ClockTimer(startedAt: context.state.startedAt)
                     .frame(maxWidth: 56)
                     .foregroundStyle(WidgetPalette.amber)
             } minimal: {
-                HardHat()
+                ClockMark()
                     .fill(WidgetPalette.amber)
-                    .frame(width: 14, height: 8)
+                    .frame(width: 12, height: 12)
                     .accessibilityLabel("Clocked in")
             }
             .keylineTint(WidgetPalette.amber)
@@ -56,7 +56,7 @@ struct ClockBanner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            HardHatBadge(size: 38)
+            ClockBadge(size: 38)
             VStack(alignment: .leading, spacing: 2) {
                 ClockTitle(state: state)
                 ClockSince(state: state)

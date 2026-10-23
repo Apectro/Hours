@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Draws Zeitkonto's app icon.
 
-A script rather than a checked-in binary nobody can edit: the mark is a navy
-hard hat on a warm amber field — the job site, where the hours are worked.
-Change the numbers below and run it; the PNG is the output, not the source.
+A script rather than a checked-in binary nobody can edit: the mark is a white
+clock on the app's blue, with the part of the day already worked shaded in —
+a time account filling up, which is what Zeitkonto means. The minute hand is
+navy, the hour hand the orange the app uses for overtime. Change the numbers
+below and run it; the PNG is the output, not the source.
 
 Every shape is a signed distance (negative inside, positive outside), which
-gives clean anti-aliased edges and the soft shadow under the hat without an
+gives clean anti-aliased edges and the soft shadow under the face without an
 imaging library.
 
 iOS app icons must be fully opaque — an alpha channel is rejected at upload —
@@ -23,42 +25,52 @@ from pathlib import Path
 
 SIZE = 1024
 
-FIELD_TOP_LEFT = (0xFF, 0xBA, 0x40)
-FIELD_BOTTOM_RIGHT = (0xF0, 0x80, 0x1E)
-GLOW = (0xFF, 0xF0, 0xC8)
-GLOW_STRENGTH = 0.35      # how much the soft light at the top left lifts the field
-GLOW_CENTRE = (230, 70)
-GLOW_RADII = (530, 490)
-GLOW_SOFTNESS = 140
-HAT = (0x18, 0x22, 0x54)
-RIDGE = (0x2C, 0x3A, 0x80)
+FIELD_TOP = (0x4C, 0x8F, 0xDB)
+FIELD_BOTTOM = (0x1E, 0x4E, 0x8C)
+FACE = (0xFF, 0xFF, 0xFF)
+WORKED = (0xDC, 0xE8, 0xF7)   # the shaded part of the day
+NAVY = (0x15, 0x30, 0x5C)
+ORANGE = (0xFF, 0x9F, 0x2E)
 
-CENTRE_X = 512
-DOME_RADIUS = 250
-DOME_BASE = 600           # the dome is the top half of a circle centred here
-BRIM = (182, 610, 842, 696)   # left, top, right, bottom
-BRIM_RADIUS = 43
-RIDGE_BOX = (478, 382, 546, 590)
-RIDGE_RADIUS = 34
-SHADOW_OFFSET = 16
-SHADOW_SOFTNESS = 30
-SHADOW_STRENGTH = 0.27
+CENTRE = (512, 512)
+FACE_RADIUS = 330
+WORKED_RADIUS = 290
+WORKED_TO = 150               # degrees clockwise from twelve: five o'clock
+MINUTE = (0, 250)             # angle, length
+HOUR = (WORKED_TO, 180)       # the hour hand ends the shaded part
+HAND_WIDTH = 40
+HUB_RADIUS = 30
+SHADOW_OFFSET = 14
+SHADOW_SOFTNESS = 28
+SHADOW_STRENGTH = 0.22
 
 
-def rounded_box(x, y, box, radius):
-    """Signed distance to a rounded rectangle."""
-    left, top, right, bottom = box
-    cx, cy = (left + right) / 2, (top + bottom) / 2
-    qx = abs(x - cx) - (right - left) / 2 + radius
-    qy = abs(y - cy) - (bottom - top) / 2 + radius
-    outside = math.hypot(max(qx, 0.0), max(qy, 0.0))
-    return outside + min(max(qx, qy), 0.0) - radius
+def circle(x, y, radius):
+    return math.hypot(x - CENTRE[0], y - CENTRE[1]) - radius
 
 
-def hat(x, y):
-    """Signed distance to the dome and the brim together."""
-    dome = max(math.hypot(x - CENTRE_X, y - DOME_BASE) - DOME_RADIUS, y - DOME_BASE)
-    return min(dome, rounded_box(x, y, BRIM, BRIM_RADIUS))
+def direction(degrees):
+    """A unit vector pointing at `degrees` clockwise from twelve o'clock."""
+    a = math.radians(degrees)
+    return math.sin(a), -math.cos(a)
+
+
+def hand(x, y, degrees, length):
+    """Signed distance to a hand: a capsule from the centre outwards."""
+    dx, dy = direction(degrees)
+    px, py = x - CENTRE[0], y - CENTRE[1]
+    t = min(max(px * dx + py * dy, 0.0), length)
+    return math.hypot(px - dx * t, py - dy * t) - HAND_WIDTH / 2
+
+
+def worked(x, y):
+    """Signed distance to the shaded wedge from twelve to `WORKED_TO`, which is
+    under half a turn and so the meeting of a disc and two half-planes."""
+    px, py = x - CENTRE[0], y - CENTRE[1]
+    after_twelve = -px
+    dx, dy = direction(WORKED_TO)
+    before_end = -(px * dy - py * dx)
+    return max(circle(x, y, WORKED_RADIUS), after_twelve, before_end)
 
 
 def coverage(distance):
@@ -76,15 +88,14 @@ def mix(under, over, amount):
 
 
 def colour_at(x, y):
-    t = (x + y) / (2 * SIZE)
-    colour = mix(FIELD_TOP_LEFT, FIELD_BOTTOM_RIGHT, t)
-    gx, gy = (x - GLOW_CENTRE[0]) / GLOW_RADII[0], (y - GLOW_CENTRE[1]) / GLOW_RADII[1]
-    glow_distance = (math.hypot(gx, gy) - 1) * min(GLOW_RADII)
-    colour = mix(colour, GLOW, GLOW_STRENGTH * blurred(glow_distance, GLOW_SOFTNESS))
-    shadow = SHADOW_STRENGTH * blurred(hat(x, y - SHADOW_OFFSET), SHADOW_SOFTNESS)
+    colour = mix(FIELD_TOP, FIELD_BOTTOM, y / SIZE)
+    shadow = SHADOW_STRENGTH * blurred(circle(x, y - SHADOW_OFFSET, FACE_RADIUS), SHADOW_SOFTNESS)
     colour = mix(colour, (0, 0, 0), shadow)
-    colour = mix(colour, HAT, coverage(hat(x, y)))
-    return mix(colour, RIDGE, coverage(rounded_box(x, y, RIDGE_BOX, RIDGE_RADIUS)))
+    colour = mix(colour, FACE, coverage(circle(x, y, FACE_RADIUS)))
+    colour = mix(colour, WORKED, coverage(worked(x, y)))
+    colour = mix(colour, ORANGE, coverage(hand(x, y, *HOUR)))
+    colour = mix(colour, NAVY, coverage(hand(x, y, *MINUTE)))
+    return mix(colour, NAVY, coverage(circle(x, y, HUB_RADIUS)))
 
 
 def render():
@@ -107,7 +118,7 @@ def png(raw):
 
 
 # The iPhone app's icon, and the Apple Watch app's: the same artwork, which
-# watchOS masks to a circle. The hat sits well inside the circle already.
+# watchOS masks to a circle. The face sits well inside the circle already.
 OUTPUTS = [
     "Hours/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
     "HoursWatch/Assets.xcassets/AppIcon.appiconset/AppIcon.png",

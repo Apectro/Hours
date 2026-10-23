@@ -1,8 +1,8 @@
 import SwiftUI
 import WidgetKit
 
-/// The widgets' colours, taken from the app icon: a navy night and an amber
-/// hard hat.
+/// The widgets' colours: a navy night and amber figures, with the app icon's
+/// blue behind its clock.
 ///
 /// Deliberately duplicated rather than shared: the app's design system imports
 /// UIKit and carries settings screens' worth of styling an extension has no use
@@ -10,6 +10,8 @@ import WidgetKit
 enum WidgetPalette {
     static let navy = Color(red: 0x12 / 255, green: 0x1a / 255, blue: 0x45 / 255)
     static let navyLight = Color(red: 0x1f / 255, green: 0x2d / 255, blue: 0x6b / 255)
+    /// The middle of the app icon's blue field.
+    static let brandBlue = Color(red: 0x35 / 255, green: 0x6f / 255, blue: 0xb4 / 255)
     static let amber = Color(red: 0xff / 255, green: 0xb0 / 255, blue: 0x2e / 255)
     static let amberLight = Color(red: 0xff / 255, green: 0xbf / 255, blue: 0x47 / 255)
     static let amberDeep = Color(red: 0xf0 / 255, green: 0x8a / 255, blue: 0x1e / 255)
@@ -115,39 +117,41 @@ extension WidgetRenderingMode {
     var isFullColor: Bool { self == .fullColor }
 }
 
-/// The app icon's mark: a hard hat, as a half-disc on a short brim.
-struct HardHat: Shape {
+/// The app icon's mark in one colour: the clock's rim and the part of the
+/// day already worked, from twelve to five, which is how the icon shades it.
+/// One fill, so it survives the tinted and Lock Screen styles; the wedge's two
+/// edges are the clock's hands.
+struct ClockMark: Shape {
     func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let brim = rect.height * 0.24
-        let radius = min(rect.width * 0.38, rect.height - brim)
-        let base = CGPoint(x: rect.midX, y: rect.maxY - brim)
+        let side = min(rect.width, rect.height)
+        let centre = CGPoint(x: rect.midX, y: rect.midY)
+        let rim = side * 0.11
+        let outer = side / 2 - rim / 2
+        let wedge = outer - rim * 1.6
 
-        path.move(to: CGPoint(x: base.x - radius, y: base.y))
-        // From the left round over the top to the right: in SwiftUI's
-        // downward y, increasing angles run clockwise on screen.
-        path.addArc(center: base, radius: radius, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
+        var path = Path(ellipseIn: CGRect(
+            x: centre.x - outer, y: centre.y - outer, width: outer * 2, height: outer * 2
+        )).strokedPath(StrokeStyle(lineWidth: rim))
+        // Twelve o'clock is -90° in SwiftUI's downward y; five is 60° on.
+        path.move(to: centre)
+        path.addArc(center: centre, radius: wedge, startAngle: .degrees(-90), endAngle: .degrees(60), clockwise: false)
         path.closeSubpath()
-        path.addRoundedRect(
-            in: CGRect(x: rect.minX, y: rect.maxY - brim, width: rect.width, height: brim),
-            cornerSize: CGSize(width: brim / 2, height: brim / 2)
-        )
         return path
     }
 }
 
-/// The hard hat on an amber tile, as the app icon draws it.
-struct HardHatBadge: View {
+/// The clock on a blue tile, as the app icon draws it.
+struct ClockBadge: View {
     var size: CGFloat
     @Environment(\.widgetRenderingMode) private var renderingMode
 
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.27, style: .continuous)
-                .fill(WidgetPalette.amber.opacity(renderingMode.isFullColor ? 1 : 0.3))
-            HardHat()
-                .fill(renderingMode.isFullColor ? WidgetPalette.navy : Color.primary)
-                .frame(width: size * 0.56, height: size * 0.32)
+                .fill(WidgetPalette.brandBlue.opacity(renderingMode.isFullColor ? 1 : 0.3))
+            ClockMark()
+                .fill(renderingMode.isFullColor ? Color.white : Color.primary)
+                .frame(width: size * 0.66, height: size * 0.66)
         }
         .frame(width: size, height: size)
         .widgetAccentable()
@@ -263,7 +267,7 @@ struct EmptyStateView: View {
                 Image(systemName: symbol)
                     .font(.title3)
             } else {
-                HardHatBadge(size: 30)
+                ClockBadge(size: 30)
             }
             Text(message)
                 .font(.caption2)

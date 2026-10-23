@@ -50,7 +50,7 @@ struct SiteCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                HardHatBadge(size: 26)
+                ClockBadge(size: 26)
                 Text(site.name)
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundStyle(WidgetPalette.navy)
@@ -199,7 +199,7 @@ struct NoSiteView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 14) {
-                HardHatBadge(size: 44)
+                ClockBadge(size: 44)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("No sites yet")
                         .font(.system(size: 15, weight: .bold, design: .rounded))

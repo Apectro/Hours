@@ -188,9 +188,9 @@ struct TodayRingRow: View {
                 } else {
                     // A ring at zero on a Sunday reads as a failure rather
                     // than as a day off, so the mark sits there instead.
-                    HardHat()
+                    ClockMark()
                         .fill(WidgetPalette.amber)
-                        .frame(width: 22, height: 13)
+                        .frame(width: 20, height: 20)
                         .widgetAccentable()
                 }
             }
@@ -289,7 +289,7 @@ struct MonthColumn: View {
 
 // MARK: - Lock Screen
 
-/// Board 12: the ring around the hard hat and today's hours.
+/// Board 12: the ring around the clock mark and today's hours.
 struct TodayCircular: View {
     let figures: TodayFigures
 
@@ -300,8 +300,8 @@ struct TodayCircular: View {
                 ProgressRing(fraction: figures.fraction ?? 0, tint: .primary, lineWidth: 4)
                     .padding(3)
                 VStack(spacing: 1) {
-                    HardHat()
-                        .frame(width: 13, height: 7)
+                    ClockMark()
+                        .frame(width: 10, height: 10)
                         .widgetAccentable()
                     Text(compactHours(figures.worked))
                         .font(.widgetFigure(.caption, weight: .bold))
@@ -310,8 +310,8 @@ struct TodayCircular: View {
                 }
                 .padding(.horizontal, 8)
             } else {
-                HardHat()
-                    .frame(width: 20, height: 11)
+                ClockMark()
+                    .frame(width: 18, height: 18)
                     .widgetAccentable()
             }
         }
@@ -337,8 +337,8 @@ struct TodayRectangular: View {
         VStack(alignment: .leading, spacing: 1) {
             if figures.entry.hasData {
                 HStack(spacing: 4) {
-                    HardHat()
-                        .frame(width: 11, height: 6)
+                    ClockMark()
+                        .frame(width: 10, height: 10)
                         .widgetAccentable()
                     Text(figures.snapshot.isClockRunning ? (figures.snapshot.clockPlace ?? String(localized: "Clocked in")) : String(localized: "Today"))
                         .font(.caption.weight(.bold))

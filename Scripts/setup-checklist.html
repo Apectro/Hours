@@ -866,8 +866,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
           <div class="chips"><span class="chip chip--blocks">Rejected without it</span><span class="chip">Designed icon is in place</span></div>
           <label class="step-title" id="s20-t" for="s20">Replace the app icon with one you actually like</label>
           <p class="step-where">Hours/Resources/Assets.xcassets/AppIcon.appiconset/</p>
-          <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a designed one: a navy hard hat on a warm amber field — the job site, where the hours are worked.</p>
-          <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are editable numbers at the top of the file. Run it again after changing them. It replaced the first placeholder (four timesheet rules) and then a clock design that looked too generic.</p>
+          <p>There was no icon at all — the asset catalogue declared a 1024×1024 slot and held no image, which App Store Connect refuses at upload. There is now a designed one: a white clock on the app's blue, with the part of the day already worked shaded in — a time account filling up.</p>
+          <p>It is drawn by <code>Scripts/make-app-icon.py</code> rather than committed as an opaque binary, so the geometry and the colours are editable numbers at the top of the file. Run it again after changing them. It replaced the first placeholder (four timesheet rules), a first clock design that looked too generic, and then a navy hard hat on amber.</p>
           <p>If you replace it by hand: 1024×1024, <strong>no alpha channel</strong> (iOS rejects transparency in an icon), square — the system applies its own rounded mask.</p>
         </div>
       </li>

@@ -215,7 +215,7 @@ Four of them, drawn in the app icon's navy and amber:
   written yet, who was there on the last day, and two buttons — **Same as
   yesterday** and **Open site**.
 
-Today and This month also work on the Lock Screen, with the hard-hat mark. All
+Today and This month also work on the Lock Screen, with the clock mark. All
 of them follow the tinted and clear Home Screen styles.
 
 While the clock runs, a **Live Activity** shows it on the Lock Screen and in the
