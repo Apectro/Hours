@@ -103,7 +103,6 @@ extension SiteDayEntry {
     }
 
     static func decodeAbsences(_ data: Data?) -> [CrewAbsence] {
-        guard let data, !data.isEmpty else { return [] }
-        return (try? JSONDecoder().decode([CrewAbsence].self, from: data)) ?? []
+        CrewAbsence.decodeList(data)
     }
 }

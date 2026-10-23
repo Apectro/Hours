@@ -859,6 +859,20 @@ cells read the reason's export name — the timesheet's word for the type — an
 are rows under the totals only when someone has one. Nothing about money: a
 site sheet never has any.
 
+**On another site** is a reason too, first in the menu, but not a day type:
+`AbsenceReason.otherSite(siteID?)`, one of your other active sites or "Another
+site" with no name. It never reaches your calendar (your hours there come from
+that site), counts as neither sick nor leave, and prints the site's name, or
+"Other site" in the export language. It is stored as `kind: "otherSite"` with
+no `dayTypeID`, so a reader that knows only day types fails on the entry
+rather than guessing one, and every reader treats a list it cannot read as no
+reasons; this version reads lists entry by entry and leaves out only what it
+cannot read. When someone not ticked here was ticked on another of your sites
+that day — you by your id, anyone else by the name "Add from other sites"
+matches (`CrewCandidates.key`), and only when one site matches —
+`SiteElsewhere` gives a greyed "At <site>" hint; a tap on the reason button
+confirms it, a long press offers the rest. A hint is never stored on its own.
+
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
 few hundred numbers in a backup) and a fingerprint of that person's hours at the

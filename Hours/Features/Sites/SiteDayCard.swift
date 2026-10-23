@@ -27,9 +27,16 @@ struct SiteDayCard: View {
     /// The day types, for why someone was not here
     /// (`DayTypeCatalog.absenceReasons`) and how a reason is shown.
     let dayTypes: DayTypeCatalog
+    /// Your other active sites, for "On another site".
+    let otherSites: [Site]
+    /// Every site's name by id, archived ones too, for a reason naming one.
+    let siteNames: [UUID: String]
+    /// Who was ticked on another of your sites that day, and which: shown
+    /// greyed as a hint until confirmed, never stored on its own.
+    let elsewhere: [UUID: UUID]
     let onToggle: (UUID) -> Void
     /// A reason someone not ticked was away, or nil for none.
-    let onSetAbsence: (UUID, DayTypeID?) -> Void
+    let onSetReason: (UUID, AbsenceReason?) -> Void
     let onEditPerson: (PersonReference) -> Void
     let onEditTimes: () -> Void
     /// Opens the site's crew list, to add someone or change a name.
@@ -60,14 +67,19 @@ struct SiteDayCard: View {
                         index: index,
                         person: result.people.first(where: { $0.memberID == row.id }),
                         exception: SiteException.of(row.id, in: day),
-                        absence: day.absence(for: row.id).map(dayTypes.definition(for:)),
-                        absenceReasons: dayTypes.absenceReasons,
+                        reason: day.absenceReason(for: row.id),
+                        hint: day.attendance(for: row.id) == nil && day.absenceReason(for: row.id) == nil
+                            ? elsewhere[row.id]
+                            : nil,
+                        dayTypes: dayTypes,
+                        otherSites: otherSites,
+                        siteNames: siteNames,
                         date: day.date,
                         canEdit: canEdit,
                         formatting: formatting,
                         durations: durations,
                         onToggle: { onToggle(row.id) },
-                        onSetAbsence: { onSetAbsence(row.id, $0) },
+                        onSetReason: { onSetReason(row.id, $0) },
                         onEdit: { onEditPerson(row) }
                     )
                 }
@@ -239,20 +251,46 @@ struct SitePersonRow: View {
     let person: PersonDay?
     let exception: SiteException?
     /// Why they were not here, when a reason was given.
-    let absence: DayTypeDefinition?
-    let absenceReasons: [DayTypeDefinition]
+    let reason: AbsenceReason?
+    /// The other site they were ticked on that day, while no reason is given.
+    let hint: UUID?
+    let dayTypes: DayTypeCatalog
+    let otherSites: [Site]
+    let siteNames: [UUID: String]
     let date: CalendarDate
     let canEdit: Bool
     let formatting: CalendarFormatting
     let durations: DurationFormatting
     let onToggle: () -> Void
-    let onSetAbsence: (DayTypeID?) -> Void
+    let onSetReason: (AbsenceReason?) -> Void
     let onEdit: () -> Void
 
     // Not `private`: that would make the memberwise initializer private too.
     @ScaledMetric(relativeTo: .subheadline) var initialsDiameter: CGFloat = 36
 
     private var isHere: Bool { person != nil }
+
+    /// The day type, when that is the reason.
+    private var absence: DayTypeDefinition? {
+        guard case let .dayType(id)? = reason else { return nil }
+        return dayTypes.definition(for: id)
+    }
+
+    /// "At Bau Süd", or "Another site" when no site was named or it is gone.
+    private func atSite(_ siteID: UUID?) -> String {
+        guard let name = siteID.flatMap({ siteNames[$0] }) else {
+            return String(localized: "Another site")
+        }
+        return String(localized: "At \(name)", comment: "A crew row: working on another site that day; the value is its name")
+    }
+
+    /// The same, inside VoiceOver's "Ivan, at Bau Süd".
+    private func atSiteInRunningText(_ siteID: UUID?) -> String {
+        guard let name = siteID.flatMap({ siteNames[$0] }) else {
+            return String(localized: "on another site")
+        }
+        return String(localized: "at \(name)", comment: "VoiceOver after a name: working on another site; the value is its name")
+    }
     private var isYou: Bool { row.id == CrewMember.youID }
 
     var body: some View {
@@ -267,7 +305,14 @@ struct SitePersonRow: View {
                             .foregroundStyle(.primary)
                             .opacity(isHere ? 1 : 0.55)
                         if let absence {
-                            AbsenceChip(definition: absence)
+                            AbsenceChip(title: absence.displayName(), color: absence.tint.color)
+                        } else if case let .otherSite(siteID)? = reason {
+                            AbsenceChip(title: atSite(siteID), color: .gray)
+                        } else if let hint {
+                            // Only a hint: greyed until the reason button
+                            // confirms it.
+                            AbsenceChip(title: atSite(hint), color: .gray)
+                                .opacity(0.55)
                         } else {
                             Text(subtitle)
                                 .font(.subheadline)
@@ -349,46 +394,116 @@ struct SitePersonRow: View {
     // MARK: - Why not here
 
     /// In place of the clock while someone is not ticked: 44 points, opening
-    /// the reasons. Shows the reason's own symbol once one is given.
+    /// the reasons. Shows the reason's own symbol once one is given. While
+    /// another site is only a hint, a tap confirms it and a long press opens
+    /// the reasons.
+    @ViewBuilder
     private var reasonButton: some View {
-        Menu {
-            reasonItems
-        } label: {
-            Image(systemName: absence?.symbolName ?? "questionmark.circle")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(canEdit ? (absence?.tint.color ?? Color.accentColor) : Color.secondary)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
+        if let hint {
+            Menu {
+                reasonItems
+            } label: {
+                reasonLabel
+            } primaryAction: {
+                onSetReason(.otherSite(hint))
+            }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
+            .disabled(!canEdit)
+            .padding(.leading, Metrics.tiny)
+            .accessibilityLabel(Text("Why not here") + Text(verbatim: ", \(row.name)"))
+            .accessibilityValue(atSite(hint))
+            .accessibilityHint(Text("Tap to confirm. Touch and hold for other reasons."))
+            .accessibilityIdentifier("site-absence-\(index)")
+        } else {
+            Menu {
+                reasonItems
+            } label: {
+                reasonLabel
+            }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
+            .disabled(!canEdit)
+            .padding(.leading, Metrics.tiny)
+            .accessibilityLabel(Text("Why not here") + Text(verbatim: ", \(row.name)"))
+            .accessibilityValue(reasonValue)
+            .accessibilityIdentifier("site-absence-\(index)")
         }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .disabled(!canEdit)
-        .padding(.leading, Metrics.tiny)
-        .accessibilityLabel(Text("Why not here") + Text(verbatim: ", \(row.name)"))
-        .accessibilityValue(absence?.displayName() ?? String(localized: "No reason"))
-        .accessibilityIdentifier("site-absence-\(index)")
     }
 
-    /// Every reason, then "No reason". The one given has a checkmark.
+    private var reasonLabel: some View {
+        Image(systemName: reasonSymbol)
+            .font(.body.weight(.semibold))
+            .foregroundStyle(canEdit ? (absence?.tint.color ?? Color.accentColor) : Color.secondary)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
+    }
+
+    private var reasonSymbol: String {
+        switch reason {
+        case let .dayType(id)?: return dayTypes.definition(for: id).symbolName
+        case .otherSite?: return "building.2"
+        case nil: return hint == nil ? "questionmark.circle" : "building.2"
+        }
+    }
+
+    private var reasonValue: String {
+        switch reason {
+        case .dayType?: return absence?.displayName() ?? ""
+        case let .otherSite(siteID)?: return atSite(siteID)
+        case nil: return String(localized: "No reason")
+        }
+    }
+
+    /// On another site first, then every day type, then "No reason". The
+    /// one given has a checkmark.
     @ViewBuilder
     private var reasonItems: some View {
-        ForEach(absenceReasons) { reason in
+        Menu {
+            ForEach(Array(otherSites.enumerated()), id: \.element.id) { offset, site in
+                Button {
+                    onSetReason(.otherSite(site.id))
+                } label: {
+                    if reason == .otherSite(site.id) {
+                        Label(site.name, systemImage: "checkmark")
+                    } else {
+                        Text(verbatim: site.name)
+                    }
+                }
+                .accessibilityIdentifier("site-absence-other-site-\(offset)")
+            }
             Button {
-                onSetAbsence(reason.id)
+                onSetReason(.otherSite(nil))
             } label: {
-                if reason.id == absence?.id {
-                    Label(reason.displayName(), systemImage: "checkmark")
+                if reason == .otherSite(nil) {
+                    Label("Another site", systemImage: "checkmark")
                 } else {
-                    Label(reason.displayName(), systemImage: reason.symbolName)
+                    Text("Another site")
                 }
             }
-            .accessibilityIdentifier("site-absence-reason-\(reason.id.rawValue)")
+            .accessibilityIdentifier("site-absence-other-site-any")
+        } label: {
+            Label("On another site", systemImage: "building.2")
+        }
+        .accessibilityIdentifier("site-absence-reason-other-site")
+
+        ForEach(dayTypes.absenceReasons) { option in
+            Button {
+                onSetReason(.dayType(option.id))
+            } label: {
+                if reason == .dayType(option.id) {
+                    Label(option.displayName(), systemImage: "checkmark")
+                } else {
+                    Label(option.displayName(), systemImage: option.symbolName)
+                }
+            }
+            .accessibilityIdentifier("site-absence-reason-\(option.id.rawValue)")
         }
         Divider()
         Button {
-            onSetAbsence(nil)
+            onSetReason(nil)
         } label: {
-            if absence == nil {
+            if reason == nil {
                 Label("No reason", systemImage: "checkmark")
             } else {
                 Text("No reason")
@@ -435,8 +550,11 @@ struct SitePersonRow: View {
     }
 
     private var toggleValue: String {
-        // "Ivan, sick leave": why they were away is what there is to say.
+        // "Ivan, sick leave", "Ivan, at Bau Süd": why they were away is
+        // what there is to say.
         if let absence { return absence.nameInRunningText() }
+        if case let .otherSite(siteID)? = reason { return atSiteInRunningText(siteID) }
+        if let hint { return atSiteInRunningText(hint) }
         guard let person else { return String(localized: "Not here") }
         return [String(localized: "Here"), durations.string(person.workedMinutes)].joined(separator: ", ")
     }
@@ -456,17 +574,19 @@ struct SitePersonRow: View {
     }
 }
 
-/// Why someone was not on site: the day type's colour and name, small.
+/// Why someone was not on site, small: a day type's colour and name, or the
+/// other site they were on.
 struct AbsenceChip: View {
-    let definition: DayTypeDefinition
+    let title: String
+    let color: Color
 
     var body: some View {
         HStack(spacing: Metrics.tiny) {
             Circle()
-                .fill(definition.tint.color)
+                .fill(color)
                 .frame(width: 8, height: 8)
                 .accessibilityHidden(true)
-            Text(verbatim: definition.displayName())
+            Text(verbatim: title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -474,7 +594,7 @@ struct AbsenceChip: View {
         .padding(.horizontal, Metrics.small)
         .padding(.vertical, Metrics.tiny)
         .background(
-            definition.tint.color.opacity(0.16),
+            color.opacity(0.16),
             in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous)
         )
         .fixedSize()

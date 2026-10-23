@@ -64,6 +64,12 @@ struct SiteDayScreen: View {
     @State private var startsEmpty = false
     /// Hidden members included, because a past day may name one.
     @State private var crew: [CrewMember] = []
+    /// Your other active sites, for "On another site".
+    @State private var otherSites: [Site] = []
+    /// Every site's name, archived too, for a reason that names one.
+    @State private var siteNames: [UUID: String] = [:]
+    /// Who was ticked on another of your sites on this date, and where.
+    @State private var elsewhere: [UUID: UUID] = [:]
     /// The note is typed here and saved when the field loses focus, rather
     /// than on every keystroke, which would rewrite your calendar day per letter.
     @State private var noteText = ""
@@ -365,8 +371,11 @@ struct SiteDayScreen: View {
                 isNoteFocused: $isNoteFocused,
                 showsSaved: showsSaved,
                 dayTypes: settings.dayTypeCatalog,
+                otherSites: otherSites,
+                siteNames: siteNames,
+                elsewhere: elsewhere,
                 onToggle: toggle,
-                onSetAbsence: setAbsence,
+                onSetReason: setReason,
                 onEditPerson: { activeSheet = .person($0) },
                 onEditTimes: { activeSheet = .siteTimes },
                 onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) }
@@ -494,8 +503,27 @@ struct SiteDayScreen: View {
         lastDayDate = lastDay == nil ? nil : store.lastSiteDay(siteID: site.id, before: date)?.date
         noteText = day.note
         startsEmpty = false
+        loadOtherSites()
         reloadMonth()
         refreshYourWarning()
+    }
+
+    /// The other sites, and who of this crew was ticked on one of them on
+    /// this date (`SiteElsewhere`): read once per day shown, not per draw.
+    private func loadOtherSites() {
+        let store = repository
+        let all = store.sites(includeArchived: true)
+        siteNames = Dictionary(all.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+        otherSites = all.filter { !$0.isArchived && $0.id != site.id }
+        let everyone = all.flatMap { store.crew(for: $0.id, includeHidden: true) }
+        let onDate = store.siteDays(siteID: nil, in: CalendarDateRange(single: date))
+        var found: [UUID: UUID] = [:]
+        for memberID in [CrewMember.youID] + crew.map(\.id) {
+            if let other = SiteElsewhere.site(of: memberID, on: site.id, date: date, crew: everyone, siteDays: onDate) {
+                found[memberID] = other
+            }
+        }
+        elsewhere = found
     }
 
     private func reloadMonth() {
@@ -589,8 +617,8 @@ struct SiteDayScreen: View {
     }
 
     /// Why someone not ticked was away; nil takes the reason back.
-    private func setAbsence(_ memberID: UUID, _ reason: DayTypeID?) {
-        commit(day.settingAbsence(reason, for: memberID))
+    private func setReason(_ memberID: UUID, _ reason: AbsenceReason?) {
+        commit(day.settingReason(reason, for: memberID))
     }
 
     private func replace(_ attendance: Attendance) {

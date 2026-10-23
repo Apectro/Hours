@@ -181,6 +181,44 @@ final class SiteDayTests: XCTestCase {
         XCTAssertEqual(again.value as? String, notHere, "unticking gives no reason by itself")
     }
 
+    /// Marko worked on another site: "On another site" opens the sites and
+    /// "Another site" for one not in the app; his row changes, nothing is
+    /// ticked, and ticking him clears it.
+    func testChoosingOnAnotherSite() {
+        let app = launch()
+        openSite(app)
+
+        let empty = app.buttons["site-day-start-empty"]
+        XCTAssertTrue(empty.waitForExistence(timeout: 5), "an empty day should offer Start from empty")
+        empty.tap()
+
+        // Rows: you, Ivan, Marko.
+        let marko = app.buttons["site-person-Marko"]
+        wait(for: marko, selected: false)
+        let notHere = marko.value as? String
+        let reason = app.buttons.matching(identifier: "site-absence-2").firstMatch
+        XCTAssertTrue(reason.waitForExistence(timeout: 5), "an unticked row should have a reason button")
+        reason.tap()
+        let otherSite = app.buttons.matching(identifier: "site-absence-reason-other-site").firstMatch
+        XCTAssertTrue(otherSite.waitForExistence(timeout: 5), "the reasons should start with On another site")
+        otherSite.tap()
+        let any = app.buttons.matching(identifier: "site-absence-other-site-any").firstMatch
+        XCTAssertTrue(any.waitForExistence(timeout: 5), "On another site should offer Another site")
+        any.tap()
+
+        let changed = NSPredicate(format: "value != %@", notHere ?? "")
+        expectation(for: changed, evaluatedWith: marko)
+        waitForExpectations(timeout: 5)
+        wait(for: marko, selected: false)
+
+        marko.tap()
+        wait(for: marko, selected: true)
+        XCTAssertFalse(app.buttons["site-absence-2"].exists, "someone here has no reason button")
+        marko.tap()
+        wait(for: marko, selected: false)
+        XCTAssertEqual(marko.value as? String, notHere, "ticking cleared the reason")
+    }
+
     // MARK: - Diary and bad weather
 
     /// The diary under a day keeps what was typed, with no Save button, and

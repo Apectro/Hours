@@ -377,4 +377,133 @@ final class CrewAbsenceTests: XCTestCase {
         XCTAssertEqual(t.rows[0].values[3], "Schulung")
         XCTAssertEqual(t.rows.last?.values[0], "Dani dopusta", "a custom absence is leave")
     }
+
+    // MARK: - On another site
+
+    private let bauSued = UUID()
+
+    func testOnAnotherSiteIsAReasonButNotADayType() {
+        let day = siteDay().settingReason(.otherSite(bauSued), for: ivo)
+        XCTAssertEqual(day.absenceReason(for: ivo), .otherSite(bauSued))
+        XCTAssertNil(day.absence(for: ivo), "not a day type")
+        XCTAssertFalse(day.isBlank)
+        XCTAssertEqual(day.settingReason(nil, for: ivo).absences, [])
+        XCTAssertNil(day.settingReason(.otherSite(nil), for: ivo).togglingPresence(of: ivo).absenceReason(for: ivo))
+    }
+
+    func testOnAnotherSiteRoundTripsWithAndWithoutTheSite() throws {
+        for reason in [AbsenceReason.otherSite(bauSued), .otherSite(nil), .dayType(.sick)] {
+            let absence = CrewAbsence(memberID: ivo, reason: reason)
+            XCTAssertEqual(try JSONDecoder().decode(CrewAbsence.self, from: JSONEncoder().encode(absence)), absence)
+        }
+    }
+
+    /// What this branch wrote before, a member and a day type, reads as it did.
+    func testAnAbsenceWrittenWithOnlyADayTypeReadsAsBefore() throws {
+        let json = #"{"memberID":"\#(ivo.uuidString)","dayTypeID":"vacation"}"#
+        let decoded = try JSONDecoder().decode(CrewAbsence.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded.reason, .dayType(.vacation))
+    }
+
+    /// An entry that names no reason this version knows is left out, and the
+    /// rest of the day's list is kept.
+    func testAnAbsenceWithNoReasonIsLeftOutNotGuessed() throws {
+        let day = siteDay(present: [CrewMember.youID]).settingAbsence(.sick, for: ivo)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(day)) as? [String: Any])
+        var list = try XCTUnwrap(object["absences"] as? [[String: Any]])
+        list.append(["memberID": UUID().uuidString])
+        list.append(["memberID": UUID().uuidString, "kind": "somethingLater"])
+        object["absences"] = list
+        let decoded = try JSONDecoder().decode(SiteDay.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertEqual(decoded.absences, [CrewAbsence(memberID: ivo, dayTypeID: .sick)])
+        XCTAssertEqual(CrewAbsence.decodeList(try JSONSerialization.data(withJSONObject: list)).count, 1)
+    }
+
+    /// A decoder that knows absences only as member and day type — the
+    /// shape every earlier reader of the list has — does not read an other-
+    /// site entry as anything: it fails, and the readers treat a failed list
+    /// as none, so the person is simply not here.
+    private struct DayTypeOnlyAbsence: Decodable {
+        var memberID: UUID
+        var dayTypeID: String
+    }
+
+    func testAReaderThatKnowsOnlyDayTypesDoesNotReadAnotherSiteAsADayType() throws {
+        let data = try JSONEncoder().encode([CrewAbsence(memberID: ivo, reason: .otherSite(bauSued))])
+        XCTAssertNil(try? JSONDecoder().decode([DayTypeOnlyAbsence].self, from: data))
+        let day = siteDay().settingReason(.otherSite(bauSued), for: ivo)
+        let older = try JSONDecoder().decode(OlderSiteDay.self, from: JSONEncoder().encode(day))
+        XCTAssertEqual(older.present, [])
+    }
+
+    func testYouOnAnotherSiteNeverChangesYourCalendar() {
+        let here = siteDay(present: [ivo]).settingReason(.otherSite(bauSued), for: CrewMember.youID)
+        XCTAssertNil(SiteCalendarSync.merged(personal: nil, siteDays: [here], on: date))
+        let mine = DayRecord(date: date, dayTypeID: .vacation)
+        XCTAssertEqual(SiteCalendarSync.merged(personal: mine, siteDays: [here], on: date)?.dayTypeID, .vacation)
+    }
+
+    private func sheet(_ days: [SiteDay], crew: [CrewMember], language: ExportLanguage, siteNames: [UUID: String]) -> ReportTable {
+        var settings = Fixture.settings()
+        settings.export = ExportPreferences(language: language, ownerName: "Marijo")
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        return SiteSheetBuilder(settings: settings, calendar: calendar).makeTable(
+            site: site,
+            crew: crew,
+            results: days.map(calculator.compute),
+            range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31)),
+            siteNames: siteNames
+        )
+    }
+
+    func testTheSheetSaysWhichSiteOrAnotherSite() {
+        let ana = CrewMember(siteID: site.id, name: "Ana")
+        let ivo = CrewMember(siteID: site.id, name: "Ivo", sortOrder: 1)
+        let days = [onSite(3, present: [CrewMember.youID], absences: [
+            CrewAbsence(memberID: ana.id, reason: .otherSite(bauSued)),
+            CrewAbsence(memberID: ivo.id, reason: .otherSite(nil))
+        ])]
+        let names = [bauSued: "Bau Süd"]
+        let german = sheet(days, crew: [ana, ivo], language: .german, siteNames: names)
+        XCTAssertEqual(german.rows[0].values[3], "Bau Süd")
+        XCTAssertEqual(german.rows[0].values[5], "Andere Baustelle")
+        XCTAssertEqual(german.rows[0].mergedGroups, [2, 3])
+        let croatian = sheet(days, crew: [ana, ivo], language: .croatian, siteNames: [:])
+        XCTAssertEqual(croatian.rows[0].values[3], "Drugo gradilište", "a site no longer known is just another site")
+        XCTAssertEqual(croatian.rows[0].values[5], "Drugo gradilište")
+        // Neither sick nor leave: no rows for them.
+        XCTAssertEqual(german.trailingSummaryRows, 2)
+        XCTAssertEqual(croatian.columnGroups.count, 5, "both still have a column")
+    }
+
+    // MARK: - The hint: present on another of your sites
+
+    func testTheHintFindsTheSameNameOnAnotherSiteThatDay() {
+        let here = CrewMember(siteID: site.id, name: "Ivan Horvat")
+        let there = CrewMember(siteID: bauSued, name: "  ivan  horvat ")
+        let other = CrewMember(siteID: bauSued, name: "Marko")
+        let theirDay = SiteDay(siteID: bauSued, date: date, present: [Attendance(memberID: there.id)])
+        let crew = [here, there, other]
+        XCTAssertEqual(SiteElsewhere.site(of: here.id, on: site.id, date: date, crew: crew, siteDays: [theirDay]), bauSued)
+
+        // Not there that day, or on another date: no hint.
+        let elsewhereLater = SiteDay(siteID: bauSued, date: date.adding(days: 1, in: calendar), present: [Attendance(memberID: there.id)])
+        XCTAssertNil(SiteElsewhere.site(of: here.id, on: site.id, date: date, crew: crew, siteDays: [elsewhereLater]))
+        let markoThere = SiteDay(siteID: bauSued, date: date, present: [Attendance(memberID: other.id)])
+        XCTAssertNil(SiteElsewhere.site(of: here.id, on: site.id, date: date, crew: crew, siteDays: [markoThere]))
+    }
+
+    func testTheHintFindsYouByWhoYouAre() {
+        let theirDay = SiteDay(siteID: bauSued, date: date, present: [Attendance(memberID: CrewMember.youID)])
+        XCTAssertEqual(
+            SiteElsewhere.site(of: CrewMember.youID, on: site.id, date: date, crew: [], siteDays: [theirDay]),
+            bauSued
+        )
+    }
+
+    func testTheHintNeverPointsAtThisSite() {
+        let here = CrewMember(siteID: site.id, name: "Ivan")
+        let today = SiteDay(siteID: site.id, date: date, present: [Attendance(memberID: here.id)])
+        XCTAssertNil(SiteElsewhere.site(of: here.id, on: site.id, date: date, crew: [here], siteDays: [today]))
+    }
 }

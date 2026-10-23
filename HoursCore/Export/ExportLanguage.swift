@@ -390,6 +390,10 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           sl: "Dnevi bolniške", it: "Giorni di malattia", fr: "Jours de maladie",
                                           es: "Días de baja", pt: "Dias de baixa", nl: "Ziektedagen",
                                           pl: "Dni choroby")
+        case .otherSite:      return pick(en: "Other site", de: "Andere Baustelle", hr: "Drugo gradilište",
+                                          sl: "Drugo gradbišče", it: "Altro cantiere", fr: "Autre chantier",
+                                          es: "Otra obra", pt: "Outra obra", nl: "Andere bouwplaats",
+                                          pl: "Inna budowa")
         case .leaveDays:      return pick(en: "Leave days", de: "Urlaubstage", hr: "Dani dopusta",
                                           sl: "Dnevi dopusta", it: "Giorni di ferie", fr: "Jours de congé",
                                           es: "Días de permiso", pt: "Dias de licença", nl: "Verlofdagen",
@@ -542,6 +546,8 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
+    /// An absent person's cell: working on another site.
+    case otherSite
 
     /// The site diary.
     case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors

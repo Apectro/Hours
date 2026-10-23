@@ -34,7 +34,8 @@ struct SiteSheetBuilder: Sendable {
         results: [SiteDayResult],
         range: CalendarDateRange,
         signatures: [CrewSignature] = [],
-        includesSignatures: Bool = true
+        includesSignatures: Bool = true,
+        siteNames: [UUID: String] = [:]
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -94,14 +95,24 @@ struct SiteSheetBuilder: Sendable {
                     // Not there: why, when it was given ("Sick leave"), in
                     // the words a timesheet uses for the day type.
                     merged.insert(index + 1)
-                    let reason = result.day.absence(for: person.id)
-                    values += [reason.map { catalog.definition(for: $0).exportName(in: language) } ?? emptyPlaceholder, ""]
-                    minutes += [nil, nil]
-                    switch reason.map(Self.absenceKind) {
-                    case .sick?: sickDays[index] += 1
-                    case .leave?: leaveDays[index] += 1
-                    default: break
+                    // On another site: its name when it is known, else
+                    // "Other site"; neither sick nor leave.
+                    let text: String
+                    switch result.day.absenceReason(for: person.id) {
+                    case let .dayType(id)?:
+                        text = catalog.definition(for: id).exportName(in: language)
+                        switch Self.absenceKind(id) {
+                        case .sick: sickDays[index] += 1
+                        case .leave: leaveDays[index] += 1
+                        case .other: break
+                        }
+                    case let .otherSite(siteID)?:
+                        text = siteID.flatMap { siteNames[$0] } ?? language(.otherSite)
+                    case nil:
+                        text = emptyPlaceholder
                     }
+                    values += [text, ""]
+                    minutes += [nil, nil]
                     continue
                 }
                 totalMinutes[index] += entry.workedMinutes

@@ -10507,6 +10507,72 @@
       "Na Croácia, a baixa médica é paga a pelo menos %@ nos primeiros 42 dias e depois pelo HZZO; um acidente de trabalho é pago na totalidade. Verifica o teu contrato: a app usa o teu valor por hora, não o teu salário médio.",
       "In Kroatië wordt ziekteverlof de eerste 42 dagen voor minstens %@ betaald, daarna door de HZZO; een arbeidsongeval wordt volledig betaald. Controleer je contract: de app rekent met je uurloon, niet met je gemiddelde loon.",
       "W Chorwacji zwolnienie lekarskie jest płatne co najmniej %@ przez pierwsze 42 dni, potem płaci HZZO; wypadek przy pracy jest płatny w całości. Sprawdź umowę: aplikacja używa twojej stawki godzinowej, nie średniego wynagrodzenia."
+    ],
+    "Another site": [
+      "Andere Baustelle",
+      "Drugo gradilište",
+      "Drugo gradbišče",
+      "Altro cantiere",
+      "Autre chantier",
+      "Otra obra",
+      "Outra obra",
+      "Andere bouwplaats",
+      "Inna budowa"
+    ],
+    "At %@": [
+      "Auf %@",
+      "Na %@",
+      "Na %@",
+      "A %@",
+      "À %@",
+      "En %@",
+      "Em %@",
+      "Op %@",
+      "Na %@"
+    ],
+    "On another site": [
+      "Auf einer anderen Baustelle",
+      "Na drugom gradilištu",
+      "Na drugem gradbišču",
+      "In un altro cantiere",
+      "Sur un autre chantier",
+      "En otra obra",
+      "Noutra obra",
+      "Op een andere bouwplaats",
+      "Na innej budowie"
+    ],
+    "Tap to confirm. Touch and hold for other reasons.": [
+      "Tippen zum Bestätigen. Halten für andere Gründe.",
+      "Dodirni za potvrdu. Zadrži za druge razloge.",
+      "Tapni za potrditev. Pridrži za druge razloge.",
+      "Tocca per confermare. Tieni premuto per altri motivi.",
+      "Touchez pour confirmer. Maintenez pour d’autres motifs.",
+      "Toca para confirmar. Mantén pulsado para otros motivos.",
+      "Toca para confirmar. Mantém premido para outros motivos.",
+      "Tik om te bevestigen. Houd vast voor andere redenen.",
+      "Stuknij, aby potwierdzić. Przytrzymaj, by wybrać inny powód."
+    ],
+    "at %@": [
+      "auf %@",
+      "na %@",
+      "na %@",
+      "a %@",
+      "à %@",
+      "en %@",
+      "em %@",
+      "op %@",
+      "na %@"
+    ],
+    "on another site": [
+      "auf einer anderen Baustelle",
+      "na drugom gradilištu",
+      "na drugem gradbišču",
+      "in un altro cantiere",
+      "sur un autre chantier",
+      "en otra obra",
+      "noutra obra",
+      "op een andere bouwplaats",
+      "na innej budowie"
     ]
   },
   "sameAsEnglishOnPurpose": [
