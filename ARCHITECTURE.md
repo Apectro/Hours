@@ -553,6 +553,30 @@ puts the selected day first: the day's week (the whole month on request),
 the day's crew, bad weather, extra work, the diary, and the month's figures
 last. Export is reachable from the calendar toolbar and from Settings.
 
+**The calendar, top to bottom (1.1).** The grid, then the selected day's card
+(its Write hours / Edit day button must be on screen when a day is tapped),
+then the period's totals with their own Export button, then the week list in
+week view. A clearly sideways swipe on the grid pages the period, as the
+toolbar arrows do; it is a simultaneous gesture, so scrolling and cell taps are
+untouched. Export has its own toolbar button; ⋯ keeps the view, Edit a range,
+and **Close / Reopen** for the month on screen (`MonthLock.offer(for:today:)`:
+only a finished month can be closed, any closed month can be reopened, the
+reopen asks once more). A closed month shows a notice above the grid with
+Reopen. Settings › Calculation keeps a Closed months row that opens the full
+list (`ClosedMonthsScreen`). The day editor's and the bulk edit's "this month is
+closed" alerts reopen the month in place; the edit stays on screen and Save
+works afterwards.
+
+**Export's range steps.** Day, week, month and year each have ‹ › that move a
+whole period (`ExportRangeKind.step`, `canStepForward` — never into a period
+that has not started). `PeriodStepper` is the one stepper control; a site's
+sheet uses it for its month.
+
+**The day editor keeps edits.** Swipe-down is disabled while the draft differs
+from what it opened with (site shifts excluded: they follow the site day), and
+Cancel asks "Discard changes?". Expected hours, corrections and "Count this day"
+sit under one "More" row at the bottom, opened whenever any of them is in use.
+
 ## Widgets and the Live Activity
 
 A widget runs in its own process with a hard memory limit, so it never opens

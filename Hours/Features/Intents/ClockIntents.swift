@@ -123,7 +123,7 @@ struct ClockInOrOutIntent: LiveActivityIntent {
 /// still declines a day that is written or a month that is closed. The link
 /// is left where a tapped notification leaves one, and the root follows it.
 struct SameAsYesterdayIntent: AppIntent {
-    static var title: LocalizedStringResource = "Same as yesterday"
+    static var title: LocalizedStringResource = "Same as last day"
     static var description = IntentDescription(
         "Opens today on your site, filled in like the last day."
     )
@@ -243,10 +243,13 @@ struct HoursShortcuts: AppShortcutsProvider {
         )
         AppShortcut(
             intent: SameAsYesterdayIntent(),
+            // The old phrase stays: it is what people say, and a phrase
+            // someone has learned should keep working.
             phrases: [
+                "Same as last day in \(.applicationName)",
                 "Same as yesterday in \(.applicationName)"
             ],
-            shortTitle: "Same as yesterday",
+            shortTitle: "Same as last day",
             systemImageName: "arrow.uturn.backward.circle"
         )
         AppShortcut(

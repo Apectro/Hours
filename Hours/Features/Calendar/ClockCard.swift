@@ -34,21 +34,15 @@ struct ClockCard: View {
                     .foregroundStyle(Color.hoursNegative)
                 }
 
-                HStack(spacing: Metrics.small) {
-                    Button(action: onClockOut) {
-                        Label("Clock out", systemImage: "stop.circle")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-
-                    Button {
-                        isConfirmingDiscard = true
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityLabel("Discard this shift")
+                // The most-used button on a running day, full width and
+                // large. Discard is in the corner menu, well away from it.
+                Button(action: onClockOut) {
+                    Label("Clock out", systemImage: "stop.circle")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 50)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
             }
         }
         .confirmationDialog(
@@ -80,6 +74,19 @@ struct ClockCard: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
+            Menu {
+                Button(role: .destructive) {
+                    isConfirmingDiscard = true
+                } label: {
+                    Label("Discard this shift", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.title3)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("More")
         }
     }
 

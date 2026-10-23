@@ -15,6 +15,9 @@ struct SiteUnwrittenDayCard: View {
     let lastDayDate: CalendarDate
     let lastDay: SiteDay
     let formatting: CalendarFormatting
+    /// Today, copying yesterday: "Same as yesterday", as the site widget
+    /// says. Any other gap keeps "Same as last day".
+    var copiesYesterday = false
     let onSameAsLastDay: () -> Void
     let onStartEmpty: () -> Void
 
@@ -38,7 +41,7 @@ struct SiteUnwrittenDayCard: View {
 
             Button(action: onSameAsLastDay) {
                 VStack(spacing: 2) {
-                    Label("Same as last day", systemImage: "arrow.uturn.backward.circle")
+                    Label(copiesYesterday ? "Same as yesterday" : "Same as last day", systemImage: "arrow.uturn.backward.circle")
                         .font(.body.weight(.semibold))
                     Text(copySummary)
                         .font(.footnote)
@@ -51,7 +54,7 @@ struct SiteUnwrittenDayCard: View {
             .buttonStyle(.borderedProminent)
             // Read as one sentence, so VoiceOver says what would be copied
             // and a test can check it names the right day.
-            .accessibilityLabel(Text("Same as last day") + Text(verbatim: ", \(copySummary)"))
+            .accessibilityLabel(Text(copiesYesterday ? "Same as yesterday" : "Same as last day") + Text(verbatim: ", \(copySummary)"))
             .accessibilityIdentifier("site-day-same-as-last")
 
             Button(action: onStartEmpty) {

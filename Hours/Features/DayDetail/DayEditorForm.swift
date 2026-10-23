@@ -20,6 +20,10 @@ struct DayEditorForm: View {
     /// the day is a vacation day.
     var vacationLeft: HalfDays? = nil
 
+    /// "More" opened by hand. It is also open whenever something in it is
+    /// in use, so nothing hidden is ever quietly changing the day.
+    @State private var showsMore = false
+
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
     /// contract is offered the old contract's times.
@@ -30,12 +34,16 @@ struct DayEditorForm: View {
             summarySection
             dayTypeSection
             workSections
-            if settings.features.trackExpectedHours { expectedSection }
-            if settings.features.allowManualAdjustments { adjustmentSection }
             detailsSection
-            inclusionSection
+            moreSections
         }
         .scrollDismissesKeyboard(.interactively)
+        // A day loaded with something under "More" in use opens it, and it
+        // stays open after that thing is put back, rather than folding away
+        // under the finger that just changed it.
+        .onChange(of: moreIsInUse, initial: true) { _, inUse in
+            if inUse { showsMore = true }
+        }
     }
 
     // MARK: - Summary
@@ -128,11 +136,11 @@ struct DayEditorForm: View {
                 Button {
                     draft.shifts.append(defaultShift())
                 } label: {
-                    Label(showsTimes ? "Add hours" : "Add work times", systemImage: "clock")
+                    Label("Add times", systemImage: "clock")
                 }
             } footer: {
                 if !showsTimes {
-                    Text("Working a day off or a public holiday is a real thing, so times can be added to any day.")
+                    Text("You can add times to any day, holidays too.")
                 }
             }
         } else {
@@ -409,6 +417,49 @@ struct DayEditorForm: View {
         return TimeOfDay(minutes: (start.minutes + 240) % TimeOfDay.minutesPerDay)
     }
 
+    // MARK: - More
+
+    /// Expected hours, corrections and whether the day counts: the rare
+    /// cases, folded under one row at the bottom so the common day is times
+    /// and Save.
+    @ViewBuilder
+    private var moreSections: some View {
+        if !moreIsInUse {
+            Section {
+                DisclosureHeader(
+                    title: String(localized: "More"),
+                    summary: moreSummary,
+                    isExpanded: showsMore
+                ) {
+                    withAnimation(.snappy(duration: 0.2)) { showsMore.toggle() }
+                }
+                .accessibilityIdentifier("day-editor-more")
+            }
+        }
+        if showsMore || moreIsInUse {
+            if settings.features.trackExpectedHours { expectedSection }
+            if settings.features.allowManualAdjustments { adjustmentSection }
+            inclusionSection
+        }
+    }
+
+    /// Anything under "More" that changes the day as drafted.
+    private var moreIsInUse: Bool {
+        draft.expectedOverrideMinutes != nil
+            || draft.adjustmentMinutes != 0
+            || draft.manualBalanceMinutes != nil
+            || !draft.isIncluded
+    }
+
+    /// What is inside, named, while it is closed.
+    private var moreSummary: String {
+        var parts: [String] = []
+        if settings.features.trackExpectedHours { parts.append(String(localized: "Expected hours")) }
+        if settings.features.allowManualAdjustments { parts.append(String(localized: "Corrections")) }
+        parts.append(String(localized: "Count this day"))
+        return parts.joined(separator: " · ")
+    }
+
     // MARK: - Expected
 
     private var expectedSection: some View {
@@ -554,9 +605,10 @@ struct DayEditorForm: View {
 
     private var inclusionSection: some View {
         Section {
-            Toggle("Include in totals", isOn: $draft.isIncluded)
+            Toggle("Count this day", isOn: $draft.isIncluded)
+                .accessibilityIdentifier("day-editor-count-day")
         } footer: {
-            Text("Turn this off to keep a day's details without counting it towards any total.")
+            Text("Off: kept for reference, not counted in any total.")
         }
     }
 }

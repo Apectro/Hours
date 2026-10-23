@@ -48,7 +48,7 @@ struct SiteSignOffScreen: View {
         List {
             if let latestMonth {
                 Section {
-                    ExportMonthStepper(
+                    PeriodStepper(
                         month: $month,
                         latest: latestMonth,
                         title: settingsStore.dateFormatting.monthTitle(month),

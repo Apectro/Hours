@@ -313,6 +313,7 @@ struct SiteDayScreen: View {
                 lastDayDate: lastDayDate,
                 lastDay: lastDay,
                 formatting: formatting,
+                copiesYesterday: date == today && lastDayDate == today.adding(days: -1, in: calendar),
                 onSameAsLastDay: fillFromLastDay,
                 onStartEmpty: { startsEmpty = true }
             )
