@@ -58,6 +58,7 @@ struct DaySummaryCard: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
+                    .accessibilityIdentifier("day-card-edit")
                 } else {
                     Button(action: onEdit) {
                         Label(
@@ -68,6 +69,7 @@ struct DaySummaryCard: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
+                    .accessibilityIdentifier("day-card-edit")
                 }
             }
         }

@@ -257,6 +257,9 @@ private struct SitesContent: View {
             Text("Archived")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                // On the label, which is the control that opens the
+                // section; never on the group, which holds the site links.
+                .accessibilityIdentifier("sites-archived")
         }
         .padding(.top, Metrics.medium)
     }

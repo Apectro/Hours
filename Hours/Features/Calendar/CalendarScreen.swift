@@ -285,6 +285,7 @@ struct CalendarScreen: View {
                 Image(systemName: "chevron.left")
             }
             .accessibilityLabel(scope == .month ? "Previous month" : "Previous week")
+            .accessibilityIdentifier("calendar-previous")
 
             Button {
                 step(1)
@@ -292,6 +293,7 @@ struct CalendarScreen: View {
                 Image(systemName: "chevron.right")
             }
             .accessibilityLabel(scope == .month ? "Next month" : "Next week")
+            .accessibilityIdentifier("calendar-next")
 
             Menu {
                 Picker("View", selection: Binding(get: { scope }, set: setScope)) {
@@ -311,6 +313,7 @@ struct CalendarScreen: View {
                 } label: {
                     Label("Edit a range…", systemImage: "calendar.badge.plus")
                 }
+                .accessibilityIdentifier("calendar-edit-range")
 
                 Button {
                     activeSheet = .export(summaryRange)

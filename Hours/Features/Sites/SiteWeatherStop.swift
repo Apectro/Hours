@@ -116,6 +116,7 @@ struct WeatherStopSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("site-weather-stop-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

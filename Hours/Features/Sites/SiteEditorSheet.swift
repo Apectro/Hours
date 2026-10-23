@@ -81,6 +81,7 @@ struct SiteEditorSheet: View {
                 if !isNew {
                     Section {
                         Toggle("Archived", isOn: $draft.isArchived)
+                            .accessibilityIdentifier("site-editor-archived")
                     } footer: {
                         Text("An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.")
                     }
@@ -91,6 +92,7 @@ struct SiteEditorSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("site-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)

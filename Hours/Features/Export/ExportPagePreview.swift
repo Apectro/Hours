@@ -80,6 +80,7 @@ struct ExportFullPageSheet: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") { dismiss() }
+                            .accessibilityIdentifier("export-full-page-done")
                     }
                 }
         }

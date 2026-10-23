@@ -195,5 +195,6 @@ struct DayTypeMenu: View {
         }
         .accessibilityLabel("Day type")
         .accessibilityValue(resolved.name)
+        .accessibilityIdentifier("day-editor-day-type")
     }
 }

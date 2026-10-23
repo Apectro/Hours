@@ -72,6 +72,7 @@ struct PersonTimesSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("person-times-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

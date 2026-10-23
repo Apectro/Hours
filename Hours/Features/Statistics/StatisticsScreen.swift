@@ -66,6 +66,7 @@ struct StatisticsScreen: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityIdentifier("insights-scope")
                     .tourTarget(.insights)
 
                     periodStepper
@@ -156,6 +157,7 @@ struct StatisticsScreen: View {
             localized: "Previous \(scope.title.lowercased())",
             comment: "VoiceOver; the value is a period name such as month or week"
         ))
+            .accessibilityIdentifier("insights-previous")
 
             Spacer()
 
@@ -175,6 +177,7 @@ struct StatisticsScreen: View {
             comment: "VoiceOver; the value is a period name such as month or week"
         ))
             .disabled(isAtPresent)
+            .accessibilityIdentifier("insights-next")
         }
         .buttonStyle(.bordered)
         .buttonBorderShape(.circle)

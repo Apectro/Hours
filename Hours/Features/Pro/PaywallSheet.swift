@@ -35,6 +35,7 @@ struct PaywallSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Not now") { dismiss() }
+                        .accessibilityIdentifier("paywall-not-now")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Restore") { Task { await restore() } }

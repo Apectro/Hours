@@ -62,6 +62,7 @@ struct ExtraWorkItemSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("extra-work-item-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
@@ -128,6 +129,7 @@ struct ExtraWorkSignSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("extra-work-signature-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Sign") {
@@ -175,6 +177,7 @@ struct ExtraWorkCatalogScreen: View {
                         .contentShape(Rectangle())
                     }
                     .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("extra-work-catalog-item")
                 }
                 .onDelete { offsets in
                     let repository = ExtraWorkRepository(context: modelContext)
