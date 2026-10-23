@@ -48,7 +48,9 @@ is not on it.
 
 **iCloud sync is not mentioned.** The current build does not offer it
 (`SyncPreference.isAvailable` is false without `ICLOUD_SYNC`), and a listing
-that sells a feature the reviewer cannot find is a rejection.
+that sells a feature the reviewer cannot find is a rejection. The 1.1 text
+(`notes/listing-1.1/`) does mention it: 1.1 builds are compiled with
+`ICLOUD_SYNC` and offer it in Settings › iCloud.
 
 ## The German copy
 
@@ -74,12 +76,22 @@ a repeat). German keywords are counted in bytes, so an umlaut costs two.
 ## Screenshots
 
 Taken by `ScreenshotTests` with the sample month (`SampleData.seed`): a site
-with a crew of five, a month of site days, a pay rate with surcharges. Seven
-shots, in this order — the calendar with the month's earnings, the site's
-month and day card, the director's sheet, the day editor, Insights with
-earnings, Pay, and Privacy. CI takes them on the largest iPhone (6.9-inch
-slot), in English and German, and lays them out for upload on the
-`screenshots` branch under `app-store/`.
+with a crew of five, a month of site days, extra work on the site, a pay rate
+with surcharges. For 1.1, eight shots, in this order — the calendar with the
+month's earnings, the site's month and day card, the day's extra work (one
+job done, one in progress), the report to the boss, the director's sheet, the
+day editor, Insights with earnings, and Privacy. 1.0's seven had Pay where
+extra work now is. CI takes them on the largest iPhone (6.9-inch slot), in
+English and German, and lays them out for upload on the `screenshots` branch
+under `app-store/`.
+
+The Apple Watch set, two shots (a shift running, the day written), comes from
+the watch app launched on an Apple Watch simulator with `WatchSample`, one
+launch per line of `fastlane/watch-screenshots.txt`; English only.
+
+`fastlane/screenshots.txt` carries `# listing for version 1.1`, and the
+*App Store* workflow refuses a set made for another version than the
+project's. The 1.1 text is staged in `notes/listing-1.1/` until the switch.
 
 The app is iPhone-only (`TARGETED_DEVICE_FAMILY = 1`), the owner's choice, so
 App Store Connect asks for no iPad screenshots. Turning iPad back on means

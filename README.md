@@ -378,13 +378,21 @@ rating in `fastlane/age-rating.json`. `notes/app-store-listing.md` explains it,
 and CI fails when a field is over the store's limit.
 
 **Screenshots are made for you.** `ScreenshotTests` drives the app with a
-sample month — a site with a crew of five, a month of site days, a pay rate —
-and takes seven shots: the calendar with the month's earnings, a site, the
-director's sheet, the day editor, Insights, Pay and Privacy. The full
-simulator job takes them on the largest iPhone the runner has (the 6.9-inch
-slot), in English and German, and lays the set out for upload under
-`app-store/` on the `screenshots` branch. The app is iPhone-only, so no iPad
-set is needed.
+sample month — a site with a crew of five, a month of site days with extra
+work on them, a pay rate — and takes eight shots: the calendar with the
+month's earnings, a site, the day's extra work, the report to the boss, the
+director's sheet, the day editor, Insights and Privacy. The full simulator
+job takes them on the largest iPhone the runner has (the 6.9-inch slot), in
+English and German, and lays the set out for upload under `app-store/` on the
+`screenshots` branch. The Apple Watch shots come from the same job: the watch
+app launched on an Apple Watch simulator with sample data, once per line of
+`fastlane/watch-screenshots.txt`. The app is iPhone-only, so no iPad set is
+needed.
+
+`fastlane/screenshots.txt` names the version the set is for (`# listing for
+version 1.1`), and the *App Store* workflow uploads a set only when that
+matches the project's `MARKETING_VERSION`. The 1.1 listing text waits in
+`notes/listing-1.1/` while 1.0 is in review; its README says how to switch.
 
 That happens in the full simulator job, which does **not** run on every push:
 macOS minutes bill at ten times the Linux rate, so it runs on pull requests and
@@ -432,7 +440,8 @@ Manager role to create products.
    (the first in-app purchases have to be submitted with an app version).
 8. **Apple Watch screenshots** — a build that carries a watch app cannot be
    submitted without at least one, on the version page under Apple Watch.
-   `ScreenshotTests` takes iPhone shots only.
+   CI takes two from 1.1 on (above) and the `listing` upload sends them; the
+   1.0 version page needs them by hand.
 9. **The owner's name** in `fastlane/metadata/copyright.txt`, and the contact
    email on the privacy and support pages (`notes/app-store-listing.md` says
    where).
