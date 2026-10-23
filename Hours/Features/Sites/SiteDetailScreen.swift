@@ -1,9 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// One site: its month and day screen under the site's name, with the crew,
-/// the export and the editor for the site's name, job and archiving folded
-/// into one menu in the toolbar.
+/// One site: its month and day screen under the site's name, with the
+/// extra-work report in the toolbar and the crew, sign-off, diary, export and
+/// the editor for the site's name, job and archiving folded into one menu.
 ///
 /// Opens on today, or on the date it is given — the personal day editor's
 /// "Open on site" passes the day it came from.
@@ -28,6 +28,9 @@ struct SiteDetailScreen: View {
     @State private var editing: Site?
     @State private var exporting: Site?
     @State private var readingDiary: Site?
+    @State private var signingOff: Site?
+    /// A date picked in the diary list, for the day screen to show.
+    @State private var requestedDate: CalendarDate?
     /// The extra-work report, from the toolbar's Report button.
     @State private var reporting: Site?
     /// The month the export opens on; `nil` is last month, as the menu does.
@@ -45,7 +48,9 @@ struct SiteDetailScreen: View {
                     site: site,
                     isReadOnly: subscriptions.isReadOnly(site, among: sites),
                     date: initialDate ?? CalendarDate.today(in: settingsStore.workCalendar),
-                    appliesSameAsLastDay: appliesSameAsLastDay
+                    appliesSameAsLastDay: appliesSameAsLastDay,
+                    requestedDate: $requestedDate,
+                    onOpenReport: { reporting = site }
                 )
             } else {
                 Color.hoursCanvas
@@ -54,8 +59,8 @@ struct SiteDetailScreen: View {
         .navigationTitle(site?.name ?? "")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            // The report for the boss (mockup 13): a sheet, like the export.
-            // Open on a read-only site too, as the export is.
+            // The Extra-work report for the boss (mockup 13): a sheet, like
+            // the export. Open on a read-only site too, as the export is.
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     reporting = site
@@ -64,7 +69,7 @@ struct SiteDetailScreen: View {
                         .labelStyle(.titleAndIcon)
                 }
                 .disabled(site == nil)
-                .accessibilityLabel(String(localized: "Report to boss"))
+                .accessibilityLabel(String(localized: "Extra-work report"))
                 .accessibilityIdentifier("site-extra-work-report")
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -83,6 +88,16 @@ struct SiteDetailScreen: View {
                     // test can tap is the button.
                     .accessibilityIdentifier("site-crew")
 
+                    // Its own way in: people sign on site, face to face, at
+                    // the end of the month, not while an export is open.
+                    Button {
+                        signingOff = site
+                    } label: {
+                        Label("Crew sign-off", systemImage: "signature")
+                    }
+                    .disabled(site == nil)
+                    .accessibilityIdentifier("site-sign-off")
+
                     // A sheet rather than a push: the diary is read here and
                     // written on the day screen underneath.
                     Button {
@@ -94,7 +109,7 @@ struct SiteDetailScreen: View {
                     .accessibilityIdentifier("site-diary-list")
 
                     // Open on a read-only site too: an archived site's months
-                    // are still the director's to ask for.
+                    // are still the boss's to ask for.
                     Button {
                         exportingMonth = nil
                         exporting = site
@@ -119,7 +134,7 @@ struct SiteDetailScreen: View {
             }
         }
         .sheet(item: $exporting) { site in
-            // Last month: the director asks at the start of the next one.
+            // Last month: the boss asks for it at the start of the next one.
             SiteExportScreen(
                 site: site,
                 month: exportingMonth
@@ -133,7 +148,10 @@ struct SiteDetailScreen: View {
             openLinkedReport()
         }
         .sheet(item: $readingDiary) { site in
-            SiteDiaryListSheet(site: site)
+            SiteDiaryListSheet(site: site) { requestedDate = $0 }
+        }
+        .sheet(item: $signingOff) { site in
+            SiteSignOffSheet(site: site)
         }
         .sheet(item: $reporting) { site in
             ExtraWorkReportScreen(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites))
