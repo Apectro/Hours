@@ -119,6 +119,7 @@ struct RootView: View {
             await HoursStack.subscriptions.refresh()
             await refreshReminder()
             await refreshMonthlySheets()
+            await refreshUnsentWork()
             HoursStack.refreshWidget()
         }
         .onChange(of: scenePhase) { _, phase in
@@ -131,6 +132,7 @@ struct RootView: View {
                 Task { await refreshReminder() }
                 Task { await refreshSiteReminders() }
                 Task { await refreshMonthlySheets() }
+                Task { await refreshUnsentWork() }
                 // Anything that arrived from another device while the app was
                 // away is merged by now, so this is the moment to notice two
                 // rows meaning the same Tuesday. A no-op without sync.
@@ -227,6 +229,12 @@ struct RootView: View {
 
     private func refreshMonthlySheets() async {
         await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore)
+    }
+
+    /// The weekly "extra work not sent" note: its words are fixed when it
+    /// is scheduled, so they are redone on every return to the app.
+    private func refreshUnsentWork() async {
+        await ExtraWorkReminderRefresher.refresh(context: modelContext, settingsStore: settingsStore)
     }
 
     private func refreshSiteReminders() async {

@@ -872,14 +872,24 @@ struct ExtraWorkEditorSheet: View {
             for photo in pending { repository.addPhoto(photo.data, jobID: next.id, siteID: site.id) }
             repository.recordUse(of: cleaned.items)
         }
+        refreshUnsentWorkReminder()
         onDone()
         dismiss()
     }
 
     private func deleteJob() {
         repository.removeJob(id: draft.id)
+        refreshUnsentWorkReminder()
         onDone()
         dismiss()
+    }
+
+    /// A job saved, finished or deleted changes what the weekly "extra work
+    /// not sent" note says, or whether there is one.
+    private func refreshUnsentWorkReminder() {
+        let context = modelContext
+        let settings = settingsStore
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
     }
 }
 

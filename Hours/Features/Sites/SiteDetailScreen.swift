@@ -14,6 +14,8 @@ struct SiteDetailScreen: View {
     var appliesSameAsLastDay = false
     /// See `SiteRoute.exportMonth`.
     var exportMonth: YearMonth? = nil
+    /// See `SiteRoute.opensExtraWorkReport`.
+    var opensExtraWorkReport = false
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -33,6 +35,8 @@ struct SiteDetailScreen: View {
     /// The link's export is opened once. Coming back to the site from the
     /// sheet must not open it again.
     @State private var openedLinkedExport = false
+    /// The same, for the extra-work report a reminder links to.
+    @State private var openedLinkedReport = false
 
     var body: some View {
         Group {
@@ -126,6 +130,7 @@ struct SiteDetailScreen: View {
         // not have it yet the first time the screen is drawn.
         .onChange(of: site?.id, initial: true) { _, _ in
             openLinkedExport()
+            openLinkedReport()
         }
         .sheet(item: $readingDiary) { site in
             SiteDiaryListSheet(site: site)
@@ -148,6 +153,12 @@ struct SiteDetailScreen: View {
         openedLinkedExport = true
         exportingMonth = exportMonth
         exporting = site
+    }
+
+    private func openLinkedReport() {
+        guard opensExtraWorkReport, !openedLinkedReport, let site else { return }
+        openedLinkedReport = true
+        reporting = site
     }
 
     /// For display only, so a duplicate row left by sync just means the first
