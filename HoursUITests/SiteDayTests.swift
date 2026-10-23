@@ -127,6 +127,60 @@ final class SiteDayTests: XCTestCase {
         wait(for: app.buttons["site-person-Ivan"], selected: false)
     }
 
+    // MARK: - Why someone was not here
+
+    /// Ivan off sick: the reason button on his unticked row gives him a
+    /// reason, his row says so, it is still there after leaving the site,
+    /// and ticking him clears it. Read by identifier and by the value
+    /// changing, never by the translated words.
+    func testMarkSomeoneSickAndTickingClearsIt() {
+        let app = launch()
+        openSite(app)
+
+        let empty = app.buttons["site-day-start-empty"]
+        XCTAssertTrue(empty.waitForExistence(timeout: 5), "an empty day should offer Start from empty")
+        empty.tap()
+
+        // Rows: you, Ivan, Marko. Nobody is ticked, so each has a reason
+        // button where the clock would be.
+        let ivan = app.buttons["site-person-Ivan"]
+        wait(for: ivan, selected: false)
+        let notHere = ivan.value as? String
+        let reason = app.buttons.matching(identifier: "site-absence-1").firstMatch
+        XCTAssertTrue(reason.waitForExistence(timeout: 5), "an unticked row should have a reason button")
+        reason.tap()
+        let sick = app.buttons.matching(identifier: "site-absence-reason-sick").firstMatch
+        XCTAssertTrue(sick.waitForExistence(timeout: 5), "the reasons should include Sick")
+        sick.tap()
+
+        // His row now says why, and he is still not ticked.
+        let changed = NSPredicate(format: "value != %@", notHere ?? "")
+        expectation(for: changed, evaluatedWith: ivan)
+        waitForExpectations(timeout: 5)
+        wait(for: ivan, selected: false)
+        let sickValue = ivan.value as? String
+
+        // Kept: leave the site and come back.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
+        app.buttons["site-card"].firstMatch.tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
+        let again = app.buttons["site-person-Ivan"]
+        wait(for: again, selected: false)
+        XCTAssertEqual(again.value as? String, sickValue, "the reason should be kept")
+
+        // Ticking him in clears it: he is here, and has a clock, not a reason.
+        again.tap()
+        wait(for: again, selected: true)
+        XCTAssertFalse(app.buttons["site-absence-1"].exists, "someone here has no reason button")
+        XCTAssertTrue(app.buttons["site-times-Ivan"].waitForExistence(timeout: 5))
+
+        // Unticked again, he is simply not here — no reason comes back.
+        again.tap()
+        wait(for: again, selected: false)
+        XCTAssertEqual(again.value as? String, notHere, "unticking gives no reason by itself")
+    }
+
     // MARK: - Diary and bad weather
 
     /// The diary under a day keeps what was typed, with no Save button, and

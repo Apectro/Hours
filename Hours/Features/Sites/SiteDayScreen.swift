@@ -364,7 +364,9 @@ struct SiteDayScreen: View {
                 noteText: $noteText,
                 isNoteFocused: $isNoteFocused,
                 showsSaved: showsSaved,
+                dayTypes: settings.dayTypeCatalog,
                 onToggle: toggle,
+                onSetAbsence: setAbsence,
                 onEditPerson: { activeSheet = .person($0) },
                 onEditTimes: { activeSheet = .siteTimes },
                 onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) }
@@ -402,7 +404,8 @@ struct SiteDayScreen: View {
     /// appears only on a day that already has them, so the record stays
     /// honest without offering them for new days.
     private var rows: [PersonReference] {
-        let present = Set(day.present.map(\.memberID))
+        // Someone hidden since, but recorded as away that day, stays too.
+        let present = Set(day.present.map(\.memberID) + day.absences.map(\.memberID))
         var rows = [PersonReference(id: CrewMember.youID, name: String(localized: "You"))]
         for member in crew where !member.isHidden || present.contains(member.id) {
             rows.append(PersonReference(id: member.id, name: member.name))
@@ -579,15 +582,15 @@ struct SiteDayScreen: View {
 
     // MARK: - Editing
 
+    /// Ticking someone in clears any reason they were away.
     private func toggle(_ memberID: UUID) {
-        var next = day
-        if let index = next.present.firstIndex(where: { $0.memberID == memberID }) {
-            next.present.remove(at: index)
-        } else {
-            next.present.append(Attendance(memberID: memberID))
-        }
         ticks += 1
-        commit(next)
+        commit(day.togglingPresence(of: memberID))
+    }
+
+    /// Why someone not ticked was away; nil takes the reason back.
+    private func setAbsence(_ memberID: UUID, _ reason: DayTypeID?) {
+        commit(day.settingAbsence(reason, for: memberID))
     }
 
     private func replace(_ attendance: Attendance) {

@@ -24,7 +24,12 @@ struct SiteDayCard: View {
     var isNoteFocused: FocusState<Bool>.Binding
     /// "Saved" beside the title, for a moment after each write.
     var showsSaved = false
+    /// The day types, for why someone was not here
+    /// (`DayTypeCatalog.absenceReasons`) and how a reason is shown.
+    let dayTypes: DayTypeCatalog
     let onToggle: (UUID) -> Void
+    /// A reason someone not ticked was away, or nil for none.
+    let onSetAbsence: (UUID, DayTypeID?) -> Void
     let onEditPerson: (PersonReference) -> Void
     let onEditTimes: () -> Void
     /// Opens the site's crew list, to add someone or change a name.
@@ -49,16 +54,20 @@ struct SiteDayCard: View {
             .padding(.top, Metrics.tiny)
 
             VStack(spacing: Metrics.tiny) {
-                ForEach(rows) { row in
+                ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                     SitePersonRow(
                         row: row,
+                        index: index,
                         person: result.people.first(where: { $0.memberID == row.id }),
                         exception: SiteException.of(row.id, in: day),
+                        absence: day.absence(for: row.id).map(dayTypes.definition(for:)),
+                        absenceReasons: dayTypes.absenceReasons,
                         date: day.date,
                         canEdit: canEdit,
                         formatting: formatting,
                         durations: durations,
                         onToggle: { onToggle(row.id) },
+                        onSetAbsence: { onSetAbsence(row.id, $0) },
                         onEdit: { onEditPerson(row) }
                     )
                 }
@@ -225,13 +234,19 @@ struct SiteDayCard: View {
 /// person out instead. The same is offered on a long press.
 struct SitePersonRow: View {
     let row: PersonReference
+    /// The row's place on the card, for the reason button's identifier.
+    let index: Int
     let person: PersonDay?
     let exception: SiteException?
+    /// Why they were not here, when a reason was given.
+    let absence: DayTypeDefinition?
+    let absenceReasons: [DayTypeDefinition]
     let date: CalendarDate
     let canEdit: Bool
     let formatting: CalendarFormatting
     let durations: DurationFormatting
     let onToggle: () -> Void
+    let onSetAbsence: (DayTypeID?) -> Void
     let onEdit: () -> Void
 
     // Not `private`: that would make the memberwise initializer private too.
@@ -250,12 +265,17 @@ struct SitePersonRow: View {
                         Text(row.name)
                             .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(exception != nil ? Color.hoursNegative : Color.secondary)
+                            .opacity(isHere ? 1 : 0.55)
+                        if let absence {
+                            AbsenceChip(definition: absence)
+                        } else {
+                            Text(subtitle)
+                                .font(.subheadline)
+                                .foregroundStyle(exception != nil ? Color.hoursNegative : Color.secondary)
+                                .opacity(isHere ? 1 : 0.55)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .opacity(isHere ? 1 : 0.55)
 
                     Text(person.map { durations.string($0.workedMinutes) } ?? "—")
                         .font(.hoursFigure(.subheadline, weight: .medium))
@@ -278,7 +298,9 @@ struct SitePersonRow: View {
             .accessibilityAddTraits(isHere ? .isSelected : [])
             .accessibilityIdentifier(isYou ? "site-person-you" : "site-person-\(row.name)")
 
-            if isHere {
+            if !isHere {
+                reasonButton
+            } else {
                 Button(action: onEdit) {
                     Image(systemName: "clock")
                         .font(.body.weight(.semibold))
@@ -313,9 +335,66 @@ struct SitePersonRow: View {
                     Button(action: onEdit) {
                         Label("Change times", systemImage: "clock")
                     }
+                } else {
+                    Menu {
+                        reasonItems
+                    } label: {
+                        Label("Why not here", systemImage: "questionmark.circle")
+                    }
                 }
             }
         }
+    }
+
+    // MARK: - Why not here
+
+    /// In place of the clock while someone is not ticked: 44 points, opening
+    /// the reasons. Shows the reason's own symbol once one is given.
+    private var reasonButton: some View {
+        Menu {
+            reasonItems
+        } label: {
+            Image(systemName: absence?.symbolName ?? "questionmark.circle")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(canEdit ? (absence?.tint.color ?? Color.accentColor) : Color.secondary)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .disabled(!canEdit)
+        .padding(.leading, Metrics.tiny)
+        .accessibilityLabel(Text("Why not here") + Text(verbatim: ", \(row.name)"))
+        .accessibilityValue(absence?.displayName() ?? String(localized: "No reason"))
+        .accessibilityIdentifier("site-absence-\(index)")
+    }
+
+    /// Every reason, then "No reason". The one given has a checkmark.
+    @ViewBuilder
+    private var reasonItems: some View {
+        ForEach(absenceReasons) { reason in
+            Button {
+                onSetAbsence(reason.id)
+            } label: {
+                if reason.id == absence?.id {
+                    Label(reason.displayName(), systemImage: "checkmark")
+                } else {
+                    Label(reason.displayName(), systemImage: reason.symbolName)
+                }
+            }
+            .accessibilityIdentifier("site-absence-reason-\(reason.id.rawValue)")
+        }
+        Divider()
+        Button {
+            onSetAbsence(nil)
+        } label: {
+            if absence == nil {
+                Label("No reason", systemImage: "checkmark")
+            } else {
+                Text("No reason")
+            }
+        }
+        .accessibilityIdentifier("site-absence-reason-none")
     }
 
     // MARK: - Pieces
@@ -356,6 +435,8 @@ struct SitePersonRow: View {
     }
 
     private var toggleValue: String {
+        // "Ivan, sick leave": why they were away is what there is to say.
+        if let absence { return absence.nameInRunningText() }
         guard let person else { return String(localized: "Not here") }
         return [String(localized: "Here"), durations.string(person.workedMinutes)].joined(separator: ", ")
     }
@@ -372,6 +453,31 @@ struct SitePersonRow: View {
         let start = person.start.map { formatting.time($0, on: date) } ?? "—"
         let end = person.end.map { formatting.time($0, on: date) } ?? "—"
         return "\(start) – \(end)"
+    }
+}
+
+/// Why someone was not on site: the day type's colour and name, small.
+struct AbsenceChip: View {
+    let definition: DayTypeDefinition
+
+    var body: some View {
+        HStack(spacing: Metrics.tiny) {
+            Circle()
+                .fill(definition.tint.color)
+                .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
+            Text(verbatim: definition.displayName())
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, Metrics.small)
+        .padding(.vertical, Metrics.tiny)
+        .background(
+            definition.tint.color.opacity(0.16),
+            in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous)
+        )
+        .fixedSize()
     }
 }
 
