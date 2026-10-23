@@ -3,10 +3,16 @@
 # CI copies exactly these into the deliver layout; anything else the test run
 # attaches (the export captures, the CSV and the workbook) stays out.
 # Scripts/check-store-metadata.py fails when this and the test disagree.
+#
+# The version line below says which App Store version this set is for. CI
+# publishes it beside the shots, and the App Store workflow refuses to upload
+# a set made for another version than the project's MARKETING_VERSION.
+# listing for version 1.1
 01-calendar
 02-site
-03-site-sheet
-04-day-editor
-05-insights
-06-pay
-07-privacy
+03-extra-work
+04-extra-work-report
+05-site-sheet
+06-day-editor
+07-insights
+08-privacy

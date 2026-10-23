@@ -425,11 +425,32 @@ jobs:
               the second screenshot size will have to be taken by hand"
           fi
 
+          # An Apple Watch for the watch app's listing shots, with a screen
+          # App Store Connect has a slot for: an Ultra (410×502 or 422×514)
+          # if the runner has one, else a 46, 45 or 44 mm model. Like the
+          # iPhones, never named, and missing only costs the watch shots.
+          WATCHES=$(xcrun simctl list devices available | grep "Apple Watch" || true)
+          W=$(echo "$WATCHES" | grep "Ultra" | head -1)
+          [ -n "$W" ] || W=$(echo "$WATCHES" | grep "46mm" | head -1)
+          [ -n "$W" ] || W=$(echo "$WATCHES" | grep -E "45mm|44mm" | head -1)
+          WATCH=""
+          WATCH_NAME=""
+          if [ -n "$W" ]; then
+            WATCH=$(echo "$W" | udid_of)
+            WATCH_NAME=$(echo "$W" | name_of)
+            echo "watch     -> $WATCH_NAME ($WATCH)"
+          else
+            echo "::warning::no Apple Watch simulator with a store-sized screen on this runner; \
+              the watch screenshots will have to be taken by hand"
+          fi
+
           {
             echo "udid=$PRIMARY"
             echo "name=$PRIMARY_NAME"
             echo "second_udid=$SECONDARY"
             echo "second_name=$SECONDARY_NAME"
+            echo "watch_udid=$WATCH"
+            echo "watch_name=$WATCH_NAME"
           } >> "$GITHUB_OUTPUT"
 
       # Guards a step whose failure mode is not a red build but a green one that
@@ -642,6 +663,70 @@ jobs:
             echo "::warning::the walkthrough test failed; the video shows how far it got"
           fi
 
+      # The Apple Watch shots, which App Store Connect requires now that the
+      # app embeds a watch app. Not a UI test: the watch app is launched on an
+      # Apple Watch simulator once per line of fastlane/watch-screenshots.txt,
+      # with that line's arguments, and the screen is saved as it is.
+      #
+      # The watch gets its figures from the phone, and a simulator has no
+      # phone paired with it, so the list passes -hours-sample-data and the
+      # watch app shows WatchSample instead (HoursCore/Watch/WatchSample.swift).
+      #
+      # On pull requests, on screenshot runs, and on every run on main — the
+      # one that publishes the set the App Store workflow uploads. Built with
+      # the HoursWatch scheme into the same derived data as the iPhone build,
+      # which already built the embedded watch app, so it is mostly a link
+      # and the simulator's boot.
+      - name: Apple Watch screenshots
+        if: >-
+          always() && steps.sim.outputs.watch_udid != '' &&
+          (github.event_name != 'workflow_dispatch' || inputs.screenshots_only ||
+          inputs.extra_screenshots || github.ref == 'refs/heads/main')
+        continue-on-error: true
+        env:
+          WATCH: ${{ steps.sim.outputs.watch_udid }}
+        run: |
+          set -o pipefail
+          SHOTS="$RUNNER_TEMP/watch-shots"
+          rm -rf "$SHOTS"
+          mkdir -p "$SHOTS"
+
+          xcodebuild build \
+            -project Hours.xcodeproj \
+            -scheme HoursWatch \
+            -destination "id=$WATCH" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            > "$RUNNER_TEMP/watch-build.log" 2>&1 \
+            || { echo "::warning::the watch app did not build for the simulator"; grep -E "error:" "$RUNNER_TEMP/watch-build.log" | sort -u | head -20; exit 1; }
+
+          # The watch app itself, not the copy embedded in the iPhone app.
+          APP=$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -name HoursWatch.app \
+            -path '*/Build/Products/Debug-watchsimulator/*' 2>/dev/null | head -1 || true)
+          if [ -z "$APP" ]; then
+            echo "::warning::built, but no HoursWatch.app under Debug-watchsimulator"
+            exit 1
+          fi
+          echo "watch app: $APP"
+          BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+
+          xcrun simctl boot "$WATCH" 2>/dev/null || true
+          xcrun simctl bootstatus "$WATCH" -b
+          xcrun simctl install "$WATCH" "$APP"
+
+          # Every simctl in the loop reads from /dev/null, so none of them
+          # can swallow the rest of the list from the loop's input.
+          grep -vE '^[[:space:]]*(#|$)' fastlane/watch-screenshots.txt | while read -r NAME ARGS; do
+            xcrun simctl terminate "$WATCH" "$BUNDLE" < /dev/null 2>/dev/null || true
+            # ARGS unquoted on purpose: one launch argument per word.
+            xcrun simctl launch "$WATCH" "$BUNDLE" $ARGS < /dev/null
+            # Long enough for a first launch on a cold simulator to draw.
+            sleep 10
+            xcrun simctl io "$WATCH" screenshot --type=png "$SHOTS/$NAME.png" < /dev/null
+          done
+          xcrun simctl terminate "$WATCH" "$BUNDLE" 2>/dev/null || true
+          ls -l "$SHOTS"
+
       # The screenshots for the App Store listing, taken by ScreenshotTests and
       # pulled out of the result bundles. xcresulttool names every exported file
       # after its UUID, so Scripts/name-screenshots.py puts the names the test
@@ -655,6 +740,7 @@ jobs:
         env:
           PRIMARY_NAME: ${{ steps.sim.outputs.name }}
           SECOND_NAME: ${{ steps.sim.outputs.second_name }}
+          WATCH_NAME: ${{ steps.sim.outputs.watch_name }}
         run: |
           OUT="$RUNNER_TEMP/screenshots"
           rm -rf "$OUT"
@@ -683,13 +769,32 @@ jobs:
           # sets never collide on identical filenames.
           harvest "$RUNNER_TEMP/HoursGerman.xcresult" "$(slug "$PRIMARY_NAME")-de"
 
+          # The watch shots, from the step that took them, in a folder named
+          # after the watch like the phones' are.
+          WATCH_ARGS=""
+          if [ -n "$WATCH_NAME" ] && ls "$RUNNER_TEMP"/watch-shots/*.png >/dev/null 2>&1; then
+            mkdir -p "$OUT/$(slug "$WATCH_NAME")"
+            cp "$RUNNER_TEMP"/watch-shots/*.png "$OUT/$(slug "$WATCH_NAME")/"
+            WATCH_ARGS="--watch $(slug "$WATCH_NAME") fastlane/watch-screenshots.txt"
+          else
+            echo "::warning::no Apple Watch screenshots in this run — see the \"Apple Watch screenshots\" step"
+          fi
+
           # The listing's shots and nothing else, laid out for fastlane
           # deliver (app-store/<locale>/), which is what the App Store
           # workflow uploads. Checked for a size App Store Connect has a slot
           # for here, where the run that made them can still say so.
+          # WATCH_ARGS unquoted on purpose: empty, or three words.
           python3 Scripts/store-screenshots.py "$OUT" fastlane/screenshots.txt \
-            "$(slug "$PRIMARY_NAME")" \
+            "$(slug "$PRIMARY_NAME")" $WATCH_ARGS \
             || echo "::warning::the App Store set is incomplete — see the warnings above"
+
+          # The lists the set was made from, beside it. The App Store workflow
+          # reads the version line in listing.txt and refuses to upload a set
+          # made for another version than the project's, and counts the shots
+          # against these rather than against whatever main says today.
+          cp fastlane/screenshots.txt "$OUT/listing.txt"
+          cp fastlane/watch-screenshots.txt "$OUT/watch-listing.txt"
 
           # The walkthrough video, if this run recorded one. Its own folder:
           # the device folders go to App Store Connect as they are and a stray
@@ -711,10 +816,10 @@ jobs:
           fi
 
           SHOTS=$(find "$OUT" -type f -name '*.png' | wc -l | tr -d ' ')
-          FILES=$(find "$OUT" -type f ! -name '*.png' ! -name '*.mp4' ! -name 'README.md' | wc -l | tr -d ' ')
+          FILES=$(find "$OUT" -type f ! -name '*.png' ! -name '*.mp4' ! -name 'README.md' ! -name '*listing.txt' | wc -l | tr -d ' ')
           echo "screenshots: $SHOTS   export artifacts: $FILES"
           find "$OUT" -type f | sort
-          # Seven app screens plus the PDF pages; the CSV and the workbook
+          # The listing's app screens plus the PDF pages; the CSV and the workbook
           # are the two non-images. A count below this means an attachment was
           # dropped, which has happened twice and looked green both times.
           if [ "$SHOTS" -lt "$WANTED" ]; then

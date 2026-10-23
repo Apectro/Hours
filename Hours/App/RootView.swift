@@ -100,6 +100,7 @@ struct RootView: View {
                 SampleData.seed(
                     workdays: HoursStack.repository,
                     sites: SiteRepository(context: HoursStack.container.mainContext),
+                    extraWork: ExtraWorkRepository(context: HoursStack.container.mainContext),
                     calendar: HoursStack.calendar,
                     today: CalendarDate.today(in: HoursStack.calendar)
                 )

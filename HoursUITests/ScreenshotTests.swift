@@ -75,12 +75,15 @@ final class ScreenshotTests: XCTestCase {
     /// carries the same list for the upload, and
     /// `Scripts/check-store-metadata.py` fails when the two differ.
     ///
-    /// Numbered 01–07 with names of their own, because the export capture
-    /// tests attach `06-export-pdf-1` and `07-export-pdf-summary` to the same
-    /// folder: the upload picks these by name, never by number.
+    /// 1.1's set: the site and its extra work lead, because that is what the
+    /// app is for. Numbered with names of their own, because the export
+    /// capture tests attach `06-export-pdf-1` and `07-export-pdf-summary` to
+    /// the same folder: the upload picks these by name, never by number.
+    /// The Apple Watch shots are not taken here (see the "Apple Watch
+    /// screenshots" step in ci.yml and `fastlane/watch-screenshots.txt`).
     static let listing = [
-        "01-calendar", "02-site", "03-site-sheet", "04-day-editor",
-        "05-insights", "06-pay", "07-privacy",
+        "01-calendar", "02-site", "03-extra-work", "04-extra-work-report",
+        "05-site-sheet", "06-day-editor", "07-insights", "08-privacy",
     ]
 
     func testCaptureTheListing() {
@@ -106,7 +109,25 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["site-day-times"].waitForExistence(timeout: 5), "today's site card is not written")
         capture("02-site", app)
 
-        // 3 — the director's sheet: last month, one column group per person,
+        // 3 — today's extra work under the site day: one job done, one in
+        // progress, with their material and who was on them. Scrolled until
+        // "Add extra work", which sits under the jobs, is on screen.
+        let addExtraWork = app.buttons["extra-work-add"]
+        XCTAssertTrue(addExtraWork.waitForExistence(timeout: 10), "the site day has no extra work")
+        for _ in 0..<6 where !addExtraWork.isHittable { app.swipeUp() }
+        XCTAssertTrue(app.buttons["extra-work-job-1"].waitForExistence(timeout: 5), "today's sample jobs are not listed")
+        capture("03-extra-work", app)
+
+        // 4 — the report to the boss: what is done and not sent yet, and the
+        // material added up, in the export language.
+        app.buttons["site-extra-work-report"].tap()
+        XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "the report did not open")
+        XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 10), "the report has no finished jobs")
+        capture("04-extra-work-report", app)
+        app.buttons["extra-work-report-done"].tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
+
+        // 5 — the director's sheet: last month, one column group per person,
         // previewed as the PDF's first page.
         app.buttons["site-more"].tap()
         let export = app.buttons["site-export"]
@@ -116,42 +137,32 @@ final class ScreenshotTests: XCTestCase {
         let page = app.descendants(matching: .any)["export-preview-page"]
         XCTAssertTrue(page.waitForExistence(timeout: 10), "the sheet has no page preview")
         XCTAssertTrue(waitUntilEnabled(page, timeout: 15), "the sheet's first page was never drawn")
-        capture("03-site-sheet", app)
+        capture("05-site-sheet", app)
         app.buttons["export-done"].tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
 
-        // 4 — a day open, showing what one holds. Today, because the sample
+        // 6 — a day open, showing what one holds. Today, because the sample
         // month always writes it, and it is the day already selected.
         app.tab(.calendar).tap()
         let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
-        capture("04-day-editor", app)
+        capture("06-day-editor", app)
         app.buttons["day-editor-cancel"].tap()
 
-        // 5 — the month's figures, earnings first.
+        // 7 — the month's figures, earnings first.
         app.tab(.insights).tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
         XCTAssertTrue(app.descendants(matching: .any)["insights-earned"].waitForExistence(timeout: 10), "Insights shows no earnings")
-        capture("05-insights", app)
+        capture("07-insights", app)
 
-        // 6 — what the job pays: the rate and the surcharges.
+        // 8 — the privacy screen, which is the reason to choose this one.
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
-        let pay = app.buttons["settings-pay"]
-        XCTAssertTrue(reveal(pay, in: app), "could not find Pay in Settings")
-        pay.tap()
-        XCTAssertTrue(app.descendants(matching: .any)["pay-hourly-rate"].waitForExistence(timeout: 10), "Pay did not open")
-        capture("06-pay", app)
-        // Back by position: the back button's label is the translated title.
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
-
-        // 7 — the privacy screen, which is the reason to choose this one.
         let privacy = app.buttons["settings-privacy"]
         XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
         privacy.tap()
         XCTAssertTrue(app.screen("screen-privacy").waitForExistence(timeout: 10))
-        capture("07-privacy", app)
+        capture("08-privacy", app)
 
         XCTAssertEqual(taken, Self.listing, "a screenshot is missing")
     }

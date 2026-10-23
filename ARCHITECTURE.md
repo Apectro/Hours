@@ -648,6 +648,14 @@ ActivityKit is not on watchOS. Its strings are a third catalogue,
 `HoursWatchShared/Localizable.xcstrings`, generated like the others from the
 `watchInterface` list. No Pro gate: it is free, as everything is at launch.
 
+**Sample data for the App Store shots.** A watch simulator has no phone, so
+behind `-hours-sample-data` (the phone sample's own argument) the watch app
+shows `WatchSample`, in the engine: the sample site, a shift since seven or
+a written day, the month in euros in proportion to the date. It then starts
+no WatchConnectivity session and ignores taps, so nothing replaces the
+figures and nothing is written to the App Group. CI launches it once per
+line of `fastlane/watch-screenshots.txt` and saves the screen with `simctl`.
+
 ## Reminders and the links they open
 
 Three kinds of local notification, each planned in the engine and scheduled by

@@ -91,5 +91,72 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(store.read_listing(path), ["01-calendar", "02-site"])
 
 
+WATCH_LISTING = ["01-running", "02-day"]
+
+
+class WatchTests(unittest.TestCase):
+    """The Apple Watch set: English only, from its own folder and list."""
+
+    def setUp(self):
+        self.shots = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.shots, True)
+
+    def folder(self, name, size, names):
+        os.makedirs(os.path.join(self.shots, name))
+        for item in names:
+            png(os.path.join(self.shots, name, item + ".png"), *size)
+
+    def test_watch_shots_go_beside_the_iphone_in_english(self):
+        self.folder("Apple-Watch-Ultra-3-49mm", (422, 514), WATCH_LISTING)
+        problems = store.assemble_watch(self.shots, WATCH_LISTING, "Apple-Watch-Ultra-3-49mm")
+        self.assertEqual(problems, [])
+        self.assertEqual(
+            sorted(os.listdir(os.path.join(self.shots, "app-store", "en-US"))),
+            ["watch-01-running.png", "watch-02-day.png"],
+        )
+        self.assertFalse(os.path.exists(os.path.join(self.shots, "app-store", "de-DE", "watch-01-running.png")))
+
+    def test_every_size_deliver_maps_to_a_watch_is_taken(self):
+        for size in [(410, 502), (422, 514), (416, 496), (396, 484), (368, 448)]:
+            with self.subTest(size=size):
+                folder = f"watch-{size[0]}"
+                self.folder(folder, size, WATCH_LISTING[:1])
+                self.assertEqual(store.assemble_watch(self.shots, WATCH_LISTING[:1], folder), [])
+
+    def test_a_watch_size_with_no_slot_is_refused(self):
+        # A 41 mm Series 7: smaller than any slot App Store Connect has.
+        self.folder("Apple-Watch-Series-7-41mm", (352, 430), WATCH_LISTING)
+        problems = store.assemble_watch(self.shots, WATCH_LISTING, "Apple-Watch-Series-7-41mm")
+        self.assertTrue(any("352×430" in p for p in problems), problems)
+
+    def test_a_missing_watch_shot_is_reported(self):
+        self.folder("Apple-Watch-Ultra-2-49mm", (410, 502), WATCH_LISTING[:1])
+        problems = store.assemble_watch(self.shots, WATCH_LISTING, "Apple-Watch-Ultra-2-49mm")
+        self.assertEqual(problems, ["en-US watch: 02-day.png is missing"])
+
+    def test_the_watch_list_carries_launch_arguments(self):
+        path = os.path.join(self.shots, "watch.txt")
+        with open(path, "w") as handle:
+            handle.write("# a comment\n\n01-running -hours-sample-data\n02-day -hours-sample-data -hours-sample-clock-stopped\n")
+        self.assertEqual(store.read_listing(path), WATCH_LISTING)
+
+    def test_the_command_line_takes_a_watch_folder(self):
+        self.folder("iPhone-17-Pro-Max", (1320, 2868), LISTING)
+        self.folder("iPhone-17-Pro-Max-de", (1320, 2868), LISTING)
+        self.folder("Apple-Watch-Ultra-3-49mm", (422, 514), WATCH_LISTING)
+        listing = os.path.join(self.shots, "listing.txt")
+        with open(listing, "w") as handle:
+            handle.write("\n".join(LISTING) + "\n")
+        watch = os.path.join(self.shots, "watch.txt")
+        with open(watch, "w") as handle:
+            handle.write("01-running -hours-sample-data\n02-day -hours-sample-data\n")
+        status = store.main([
+            "store-screenshots.py", self.shots, listing, "iPhone-17-Pro-Max",
+            "--watch", "Apple-Watch-Ultra-3-49mm", watch,
+        ])
+        self.assertEqual(status, 0)
+        self.assertEqual(len(os.listdir(os.path.join(self.shots, "app-store", "en-US"))), 5)
+
+
 if __name__ == "__main__":
     unittest.main()

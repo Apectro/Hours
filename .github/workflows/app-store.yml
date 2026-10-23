@@ -5,9 +5,10 @@ name: App Store
 # review and uploads no build — that is the TestFlight workflow's job.
 #
 #   listing   fastlane/metadata (both languages, the age rating, the
-#             categories, the review notes) and the screenshots from the
-#             latest run of "Build and test", taken from the screenshots
-#             branch.
+#             categories, the review notes) and the screenshots — iPhone
+#             and Apple Watch — from the latest run of "Build and test" on
+#             main, taken from the screenshots branch, provided they were
+#             made for the version the project is at.
 #   products  the subscription group, the monthly and yearly subscriptions
 #             and the lifetime purchase, with their prices. Skips whatever
 #             already exists, so it is safe to run again.
@@ -76,6 +77,13 @@ jobs:
       # app-store/<locale>/ on the screenshots branch, already checked for a
       # size App Store Connect accepts. A missing set stops the upload here
       # rather than replacing good screenshots with none.
+      #
+      # The set says which version it was made for: the "# listing for
+      # version" line of the listing.txt beside it, a copy of
+      # fastlane/screenshots.txt as it was. A set made for another version
+      # than the project's MARKETING_VERSION is refused, so 1.1's pictures
+      # can never land on 1.0's page, nor 1.0's on 1.1's. A set published
+      # before sets carried a version is 1.0's: seven iPhone shots, no watch.
       - name: Fetch the screenshots
         if: inputs.what != 'products'
         run: |
@@ -92,7 +100,39 @@ jobs:
             exit 1
           }
           git log -1 --format='screenshots from %s (%cr)' FETCH_HEAD
-          WANTED=$(grep -cvE '^(#|$)' fastlane/screenshots.txt)
+
+          VERSIONS=$(sed -nE 's/.*MARKETING_VERSION = ([^;]+);.*/\1/p' Hours.xcodeproj/project.pbxproj | sort -u)
+          if [ "$(echo "$VERSIONS" | wc -l | tr -d ' ')" != "1" ] || [ -z "$VERSIONS" ]; then
+            echo "::error::The targets disagree on MARKETING_VERSION: $(echo $VERSIONS)"
+            exit 1
+          fi
+          APP_VERSION="$VERSIONS"
+
+          if git cat-file -e FETCH_HEAD:listing.txt 2>/dev/null; then
+            git show FETCH_HEAD:listing.txt > "$RUNNER_TEMP/listing.txt"
+            SHOTS_FOR=$(sed -nE 's/^#[[:space:]]*listing for version ([0-9][0-9.]*).*/\1/p' "$RUNNER_TEMP/listing.txt" | head -1)
+            WANTED=$(grep -cvE '^(#|$)' "$RUNNER_TEMP/listing.txt" || true)
+            WATCH_WANTED=$(git show FETCH_HEAD:watch-listing.txt 2>/dev/null | grep -cvE '^[[:space:]]*(#|$)' || true)
+            # Made from the lists main has now, or main has moved on since.
+            if ! cmp -s "$RUNNER_TEMP/listing.txt" fastlane/screenshots.txt; then
+              echo "::error::The screenshots were taken from a different fastlane/screenshots.txt than this commit's. Run Actions › Build and test › Run workflow on main again."
+              exit 1
+            fi
+            if [ "$WATCH_WANTED" -gt 0 ] && ! git show FETCH_HEAD:watch-listing.txt | cmp -s - fastlane/watch-screenshots.txt; then
+              echo "::error::The watch screenshots were taken from a different fastlane/watch-screenshots.txt than this commit's. Run Actions › Build and test › Run workflow on main again."
+              exit 1
+            fi
+          else
+            SHOTS_FOR="1.0"
+            WANTED=7
+            WATCH_WANTED=0
+          fi
+          echo "screenshots made for $SHOTS_FOR; the project is $APP_VERSION"
+          if [ "$SHOTS_FOR" != "$APP_VERSION" ]; then
+            echo "::error::The screenshots on the branch are for version ${SHOTS_FOR:-(none)}, the project is $APP_VERSION. Nothing was uploaded. To switch to 1.1, see notes/listing-1.1/README.md; then run Build and test on main to take that version's set."
+            exit 1
+          fi
+
           # English shots only for now: App Store Connect shows the primary
           # language's screenshots on the German page too. Add de-DE back
           # here to upload German ones.
@@ -102,9 +142,15 @@ jobs:
           done
           for LOCALE in $SHOT_LOCALES; do
             PHONE=$(find "$DIR/app-store/$LOCALE" -name 'iphone-*.png' | wc -l | tr -d ' ')
-            echo "$LOCALE: $PHONE iPhone (of $WANTED)"
+            WATCH=$(find "$DIR/app-store/$LOCALE" -name 'watch-*.png' | wc -l | tr -d ' ')
+            echo "$LOCALE: $PHONE iPhone (of $WANTED), $WATCH Apple Watch (of $WATCH_WANTED)"
             if [ "$PHONE" -lt "$WANTED" ]; then
               echo "::error::$LOCALE has $PHONE of $WANTED iPhone screenshots. Run Build and test on main again and check its screenshot steps."
+              exit 1
+            fi
+            # The watch set is English only (Scripts/store-screenshots.py).
+            if [ "$LOCALE" = "en-US" ] && [ "$WATCH" -lt "$WATCH_WANTED" ]; then
+              echo "::error::$LOCALE has $WATCH of $WATCH_WANTED Apple Watch screenshots. Run Build and test on main again and check its \"Apple Watch screenshots\" step."
               exit 1
             fi
           done

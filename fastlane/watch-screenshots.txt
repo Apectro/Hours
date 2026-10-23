@@ -1,0 +1,12 @@
+# The Apple Watch screenshots, in listing order: a name, then the arguments
+# the watch app is launched with for that shot. CI ("Apple Watch screenshots"
+# in .github/workflows/ci.yml) launches the watch app once per line on an
+# Apple Watch simulator and saves the screen as <name>.png; the upload copies
+# exactly these. English only: App Store Connect shows the primary language's
+# watch shots on every page.
+#
+# -hours-sample-data shows WatchSample (HoursCore/Watch/WatchSample.swift)
+# instead of waiting for a phone; Scripts/check-store-metadata.py fails a
+# line without it, since a watch with no phone shows nothing worth a shot.
+01-running -hours-sample-data
+02-day-written -hours-sample-data -hours-sample-clock-stopped
