@@ -22,7 +22,10 @@ struct PeriodSummaryBar: View {
                     label: String(localized: "Worked"),
                     value: formatting.string(summary.workedMinutes),
                     caption: settings.features.trackExpectedHours
-                        ? "of \(formatting.string(summary.expectedMinutes))"
+                        ? String(
+                            localized: "of \(formatting.string(summary.expectedMinutes))",
+                            comment: "Under the hours worked: the hours planned for the period"
+                        )
                         : nil
                 )
 
