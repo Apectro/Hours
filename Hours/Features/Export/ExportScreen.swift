@@ -63,6 +63,10 @@ struct ExportScreen: View {
     /// Diary photos already made small for the PDF, kept between previews so
     /// stepping months or formats does not re-encode them every time.
     @State private var printPhotos: [UUID: Data] = [:]
+    /// Signing a site's sheet is optional. Off, the sheet has no line to sign
+    /// on and no sign-off page, and the sign-off screen is not offered.
+    /// Remembered, because a crew that does not sign never does.
+    @AppStorage("export.siteSignatures") private var includesSignatures = true
     /// Moved on by the sign-off screen, so a new signature redraws the preview.
     @State private var signOffRevision = 0
 
@@ -177,17 +181,26 @@ struct ExportScreen: View {
                 Toggle("Include site diary", isOn: $includesDiary)
                     .accessibilityIdentifier("export-include-diary")
             }
-            // A link with its destination inline, as Export options below:
-            // a value pushed onto this sheet's own stack.
-            NavigationLink {
-                SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
-            } label: {
-                Label("Crew sign-off", systemImage: "signature")
+            Toggle("Signatures", isOn: $includesSignatures)
+                .accessibilityIdentifier("export-include-signatures")
+            if includesSignatures {
+                // A link with its destination inline, as Export options below:
+                // a value pushed onto this sheet's own stack.
+                NavigationLink {
+                    SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
+                } label: {
+                    Label("Crew sign-off", systemImage: "signature")
+                }
+                .accessibilityIdentifier("export-sign-off")
             }
-            .accessibilityIdentifier("export-sign-off")
         } footer: {
-            if tables?.hasDiary == true && includesDiary {
-                Text("The diary follows the hours: on pages of its own in the PDF, on a second sheet in Excel. A CSV holds the hours only.")
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                if tables?.hasDiary == true && includesDiary {
+                    Text("The diary follows the hours: on pages of its own in the PDF, on a second sheet in Excel. A CSV holds the hours only.")
+                }
+                if !includesSignatures {
+                    Text("No line to sign on and no sign-off page. Signatures already given are kept.")
+                }
             }
         }
     }
@@ -408,7 +421,7 @@ struct ExportScreen: View {
         let range = resolvedRange
         let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
         return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
-            + "-\(includesDiary)-\(signOffRevision)"
+            + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -426,7 +439,7 @@ struct ExportScreen: View {
         let maker = ExportTableMaker(context: modelContext, settings: settings, calendar: calendar)
         let built: ExportTables
         if let site = selectedSite {
-            built = maker.site(site, month: month, includeDiary: includesDiary)
+            built = maker.site(site, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
         } else {
             built = maker.personal(
                 range: resolvedRange,
