@@ -224,8 +224,8 @@ struct MonthRectangular: View {
         VStack(alignment: .leading, spacing: 1) {
             if figures.entry.hasData {
                 HStack(spacing: 4) {
-                    HardHat()
-                        .frame(width: 11, height: 6)
+                    ClockMark()
+                        .frame(width: 10, height: 10)
                         .widgetAccentable()
                     Text("This month")
                         .font(.caption.weight(.bold))
