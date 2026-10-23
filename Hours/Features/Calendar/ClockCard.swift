@@ -98,7 +98,7 @@ struct ClockCard: View {
 
     private var jobSuffix: String {
         guard settings.tracksMultipleJobs else { return "" }
-        return " · \(settings.job(running.jobID).name)"
+        return " · \(settings.job(running.jobID).displayName())"
     }
 
     private func elapsed(at instant: Date) -> some View {

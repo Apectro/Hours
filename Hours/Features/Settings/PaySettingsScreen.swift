@@ -57,7 +57,7 @@ struct PaySettingsScreen: View {
                 }
             }
         }
-        .navigationTitle(settings.tracksMultipleJobs ? job.name : String(localized: "Pay"))
+        .navigationTitle(settings.tracksMultipleJobs ? job.displayName() : String(localized: "Pay"))
         .navigationBarTitleDisplayMode(.inline)
         // Leaving with unsaved pay would quietly drop it, so while there is
         // some the way out is Discard or Save.
@@ -176,7 +176,7 @@ struct PaySettingsScreen: View {
         let privacy = String(localized: "Only on this phone and in your backups. Never on site sheets.")
         guard settings.tracksMultipleJobs else { return privacy }
         let whose = String(
-            localized: "This is what \(job.name) pays. Every job keeps its own rate.",
+            localized: "This is what \(job.displayName()) pays. Every job keeps its own rate.",
             comment: "Pay settings with several jobs; the value is a job's name"
         )
         return whose + " " + privacy

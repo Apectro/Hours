@@ -14,6 +14,7 @@ struct StatisticsContent: View {
     /// Nil while no job has a rate.
     private let earnings: EarningsSummary?
     private var duration: DurationFormatting { settings.displayFormatting }
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     init(
         range: CalendarDateRange,
@@ -87,14 +88,20 @@ struct StatisticsContent: View {
     private var headline: some View {
         SurfaceCard {
             VStack(alignment: .leading, spacing: Metrics.large) {
-                HStack(alignment: .top, spacing: Metrics.small) {
+                // Three columns at accessibility sizes broke "Expected" mid-word;
+                // there the tiles stack, without the dividers between them.
+                let stacks = dynamicTypeSize.isAccessibilitySize
+                let layout = stacks
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: Metrics.medium))
+                    : AnyLayout(HStackLayout(alignment: .top, spacing: Metrics.small))
+                layout {
                     StatTile(label: String(localized: "Worked"), value: duration.string(summary.workedMinutes))
                     if settings.features.trackExpectedHours {
-                        Divider()
+                        if !stacks { Divider() }
                         StatTile(label: String(localized: "Expected"), value: duration.string(summary.expectedMinutes))
                     }
                     if settings.features.showsBalance {
-                        Divider()
+                        if !stacks { Divider() }
                         StatTile(
                             label: String(localized: "Balance"),
                             value: duration.signedString(summary.balanceMinutes),
@@ -276,7 +283,7 @@ struct StatisticsContent: View {
                                     .fill(total.job.tint.color)
                                     .frame(width: 10, height: 10)
                                 VStack(alignment: .leading, spacing: 1) {
-                                    Text(total.job.name)
+                                    Text(total.job.displayName())
                                         .font(.subheadline)
                                     Text("\(duration.string(total.workedMinutes)) of \(duration.string(total.expectedMinutes))")
                                         .font(.caption)

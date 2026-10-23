@@ -226,7 +226,7 @@ struct DayEditorForm: View {
     private func jobPicker(at index: Int) -> some View {
         Picker("Job", selection: jobBinding(at: index)) {
             ForEach(settings.activeJobs) { job in
-                Text(job.name).tag(job.id)
+                Text(job.displayName()).tag(job.id)
             }
         }
     }
@@ -258,7 +258,7 @@ struct DayEditorForm: View {
                 comment: "Heading for the second and later blocks of a split shift"
             )
         }
-        return settings.job(draft.shifts[index].jobID).name
+        return settings.job(draft.shifts[index].jobID).displayName()
     }
 
     private func defaultShift() -> Shift {
@@ -320,7 +320,7 @@ struct DayEditorForm: View {
                 LabeledContent("Break", value: formatter.string(shift.totalBreakMinutes))
             }
             if settings.tracksMultipleJobs {
-                LabeledContent("Job", value: settings.job(shift.jobID).name)
+                LabeledContent("Job", value: settings.job(shift.jobID).displayName())
             }
             if let onOpenSite, let siteID = shift.siteID {
                 Button {

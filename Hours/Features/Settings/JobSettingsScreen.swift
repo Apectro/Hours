@@ -67,7 +67,7 @@ struct JobSettingsScreen: View {
                 .fill(job.tint.color)
                 .frame(width: 12, height: 12)
             VStack(alignment: .leading, spacing: 1) {
-                Text(job.name)
+                Text(job.displayName())
                     .foregroundStyle(job.isArchived ? .secondary : .primary)
                 Text(summary(for: job))
                     .font(.caption)
@@ -112,7 +112,12 @@ struct JobEditor: View {
     private let isNew: Bool
 
     init(job: Job, isNew: Bool) {
-        _draft = State(initialValue: job)
+        // The first job's stored English "Work" is edited as the word the
+        // screen shows; `save` stores it back as "Work" if left alone, so it
+        // keeps following the app's language.
+        var shown = job
+        shown.name = job.displayName()
+        _draft = State(initialValue: shown)
         self.isNew = isNew
     }
 
@@ -184,7 +189,7 @@ struct JobEditor: View {
                             Button("Delete job", role: .destructive, action: delete)
                         } footer: {
                             Text(String(
-                                localized: "Hours already recorded against this job stay, and count towards \(settingsStore.settings.primaryJob.name).",
+                                localized: "Hours already recorded against this job stay, and count towards \(settingsStore.settings.primaryJob.displayName()).",
                                 comment: "Deleting a job; the value is the name of the job they move to"
                             ))
                         }
@@ -263,6 +268,9 @@ struct JobEditor: View {
     private func save(_ edited: Job) {
         var job = edited
         job.name = job.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if job.isPrimary && job.name == Job(id: Job.primaryID, name: Job.defaultName).displayName() {
+            job.name = Job.defaultName
+        }
         settingsStore.update { settings in
             if isNew {
                 settings.addJob(job)
