@@ -1000,6 +1000,13 @@ totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
 
+A director's sheet (`SiteSheetBuilder`) opens with the timesheet's own Date
+and Day columns — the same `ReportBuilder.dateText`/`weekdayText`, so the date
+follows Settings › Export date style, and the same headings in every export
+language — each a column group of one, so the two-row heading of the workbook
+and the PDF names both. People's groups start at group 2 (`mergedGroups`);
+the closing rows keep their label in the date column with the day empty.
+
 A director's sheet can carry the site diary and the crew's sign-off. In the PDF
 they are pages of their own after the table (`PDFAppendix`), laid out before
 drawing so the footer's page count includes them; with nobody signed and no

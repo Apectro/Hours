@@ -346,7 +346,9 @@ struct ExportScreen: View {
     private var siteCaption: String {
         guard let table = tables?.preview, table.kind == .siteSheet, tables?.hasContent == true else { return "" }
         let days = table.rows.count - table.trailingSummaryRows
-        let people = max(table.validGroups.count - 2, 0)
+        // A person is the one group of two columns; the date, the day and
+        // the notes are a column each.
+        let people = table.validGroups.filter { $0.span > 1 }.count
         // Two counts joined rather than one sentence: each agrees with its
         // own number, and the dot between them needs no translating.
         return [
