@@ -765,6 +765,11 @@ break and minutes — Linux-safe and stable across devices). When the hours chan
 afterwards the fingerprint no longer matches and the sign-off and the sheet say
 "changed after signing". Signing again replaces the old signature.
 
+Signing is optional. The site export has a **Signatures** switch (remembered in
+`@AppStorage("export.siteSignatures")`, on by default); off, `SiteSheetBuilder`
+leaves out both the line to sign on and the sign-off boxes, and the sign-off
+screen is not offered. Signatures already given stay stored.
+
 ## Extra work
 
 **Extra work** (Zusatzarbeiten, dodatni radovi) is what a crew did beyond the

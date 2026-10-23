@@ -140,7 +140,12 @@ final class CrewSignatureTests: XCTestCase {
 
     // MARK: - On the sheet
 
-    private func sheet(_ days: [SiteDay], signatures: [CrewSignature], language: ExportLanguage = .english) -> ReportTable {
+    private func sheet(
+        _ days: [SiteDay],
+        signatures: [CrewSignature],
+        language: ExportLanguage = .english,
+        includesSignatures: Bool = true
+    ) -> ReportTable {
         let settings = Fixture.settings(export: ExportPreferences(language: language, ownerName: "Marijo"))
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
         return SiteSheetBuilder(settings: settings, calendar: calendar).makeTable(
@@ -148,7 +153,8 @@ final class CrewSignatureTests: XCTestCase {
             crew: [CrewMember(id: ivan, siteID: site.id, name: "Ivan")],
             results: days.map(calculator.compute),
             range: august.range(in: calendar),
-            signatures: signatures
+            signatures: signatures,
+            includesSignatures: includesSignatures
         )
     }
 
@@ -171,5 +177,19 @@ final class CrewSignatureTests: XCTestCase {
         let ivanBox = table.signOff.first { $0.name == "Ivan" }
         XCTAssertEqual(ivanBox?.isChanged, true)
         XCTAssertEqual(ivanBox?.status, "nach der Unterschrift geändert · unterschrieben am 31. Aug. 2026")
+    }
+
+    /// Signing is optional: with signatures switched off the sheet has no
+    /// line to sign on and no sign-off boxes, even when someone has signed.
+    func testASheetWithoutSignaturesHasNoLineAndNoBoxes() {
+        let days = [day(3)]
+        let table = sheet(days, signatures: [signature(ivan, over: days)], includesSignatures: false)
+        XCTAssertTrue(table.signatures.isEmpty)
+        XCTAssertTrue(table.signOff.isEmpty)
+        XCTAssertFalse(table.rows.isEmpty, "the hours are still on the sheet")
+    }
+
+    func testASheetWithSignaturesKeepsItsLine() {
+        XCTAssertEqual(sheet([day(3)], signatures: []).signatures, ["Checked · date, signature"])
     }
 }

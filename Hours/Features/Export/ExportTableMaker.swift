@@ -102,9 +102,12 @@ struct ExportTableMaker {
 
     // MARK: - A site's month
 
-    /// - Parameter includeDiary: whether the month's site diary follows the
-    ///   hours, when it has one.
-    func site(_ site: Site, month: YearMonth, includeDiary: Bool = true) -> ExportTables {
+    /// - Parameters:
+    ///   - includeDiary: whether the month's site diary follows the hours,
+    ///     when it has one.
+    ///   - includeSignatures: whether the sheet has a line to sign on and,
+    ///     once anyone has signed, the crew's sign-off. Signing is optional.
+    func site(_ site: Site, month: YearMonth, includeDiary: Bool = true, includeSignatures: Bool = true) -> ExportTables {
         let repository = SiteRepository(context: context)
         let range = month.range(in: calendar)
         // Hidden people stay on the sheet: hiding only stops them being
@@ -126,7 +129,14 @@ struct ExportTableMaker {
 
         func build(_ placeholder: String) -> ReportTable {
             var table = SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
-                .makeTable(site: site, crew: crew, results: results, range: range, signatures: signatures)
+                .makeTable(
+                    site: site,
+                    crew: crew,
+                    results: results,
+                    range: range,
+                    signatures: signatures,
+                    includesSignatures: includeSignatures
+                )
             if printsDiary { table.diary = diary }
             return table
         }

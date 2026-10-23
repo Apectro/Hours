@@ -9947,6 +9947,28 @@
       "Substituir tudo neste dispositivo e nos teus outros dispositivos pela cópia?",
       "Alles op dit apparaat en je andere apparaten vervangen door de back-up?",
       "Zastąpić wszystko na tym urządzeniu i twoich innych urządzeniach kopią zapasową?"
+    ],
+    "Signatures": [
+      "Unterschriften",
+      "Potpisi",
+      "Podpisi",
+      "Firme",
+      "Signatures",
+      "Firmas",
+      "Assinaturas",
+      "Handtekeningen",
+      "Podpisy"
+    ],
+    "No line to sign on and no sign-off page. Signatures already given are kept.": [
+      "Keine Zeile zum Unterschreiben und keine Unterschriftenseite. Bereits geleistete Unterschriften bleiben gespeichert.",
+      "Bez crte za potpis i bez stranice s potpisima. Već dani potpisi ostaju spremljeni.",
+      "Brez črte za podpis in brez strani s podpisi. Že dani podpisi ostanejo shranjeni.",
+      "Nessuna riga per la firma e nessuna pagina delle firme. Le firme già date restano salvate.",
+      "Pas de ligne de signature ni de page de signatures. Les signatures déjà données sont conservées.",
+      "Sin línea para firmar ni página de firmas. Las firmas ya dadas se conservan.",
+      "Sem linha para assinar nem página de assinaturas. As assinaturas já dadas ficam guardadas.",
+      "Geen regel om te tekenen en geen pagina met handtekeningen. Al gezette handtekeningen blijven bewaard.",
+      "Bez linii do podpisu i bez strony z podpisami. Złożone już podpisy pozostają zapisane."
     ]
   },
   "sameAsEnglishOnPurpose": [
