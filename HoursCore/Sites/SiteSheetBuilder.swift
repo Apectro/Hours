@@ -33,7 +33,8 @@ struct SiteSheetBuilder: Sendable {
         crew: [CrewMember],
         results: [SiteDayResult],
         range: CalendarDateRange,
-        signatures: [CrewSignature] = []
+        signatures: [CrewSignature] = [],
+        includesSignatures: Bool = true
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -191,6 +192,9 @@ struct SiteSheetBuilder: Sendable {
         case [true, false]: table.legend = language(.siteLegendMixedBreaks)
         default: table.legend = language(.siteLegend)
         }
+        // Signing is optional: switched off, the sheet has no line to sign
+        // on and no sign-off boxes, whoever has signed.
+        guard includesSignatures else { return table }
         table.signatures = [language(.checkedSignature)]
         table.signOff = signOff(
             people: people.enumerated().map { ($0.element.id, $0.element.heading, duration.string(totalMinutes[$0.offset])) },
