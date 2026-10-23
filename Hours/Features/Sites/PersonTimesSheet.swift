@@ -9,7 +9,7 @@ import SwiftUI
 /// marked as different when it really is, and a later change to the site's
 /// times still reaches everyone who had no exception.
 ///
-/// One person's change is a single save on Done, rather than a save per turn
+/// One person's change is a single save on Save, rather than a save per turn
 /// of the time wheel; the day screen does the writing.
 struct PersonTimesSheet: View {
     let name: String
@@ -20,12 +20,15 @@ struct PersonTimesSheet: View {
     @Environment(SettingsStore.self) private var settingsStore
 
     @State private var attendance: Attendance
+    /// What the sheet opened on, to tell a change from a look.
+    private let original: Attendance
 
     init(name: String, attendance: Attendance, day: SiteDay, onSave: @escaping (Attendance) -> Void) {
         self.name = name
         self.day = day
         self.onSave = onSave
         _attendance = State(initialValue: attendance)
+        original = attendance
     }
 
     var body: some View {
@@ -33,13 +36,13 @@ struct PersonTimesSheet: View {
             Form {
                 Section {
                     OptionalTimeRow(
-                        title: String(localized: "On site"),
+                        title: String(localized: "Start"),
                         time: startBinding,
                         calendar: calendar,
                         fallback: day.start ?? settings.primarySchedule(on: day.date).defaultStart
                     )
                     OptionalTimeRow(
-                        title: String(localized: "Off site"),
+                        title: String(localized: "End"),
                         time: endBinding,
                         calendar: calendar,
                         fallback: day.end ?? settings.primarySchedule(on: day.date).defaultEnd
@@ -74,16 +77,18 @@ struct PersonTimesSheet: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button("Save") {
                         onSave(attendance)
                         dismiss()
                     }
                     .fontWeight(.semibold)
-                    .accessibilityIdentifier("person-times-done")
+                    .accessibilityIdentifier("person-times-save")
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        // A stray swipe must not throw away times that were changed.
+        .interactiveDismissDisabled(attendance != original)
     }
 
     // MARK: - Derived

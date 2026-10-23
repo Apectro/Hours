@@ -1,14 +1,16 @@
 import SwiftUI
 
-/// "Rained off": the whole crew stopped by the weather, under the day card.
+/// Bad weather: the whole crew stopped by the weather, under the day card.
 ///
-/// On an ordinary day, a menu: no work at all, or stopped at a time with the
-/// hours until then kept. On a day already stopped, what happened and a way
+/// On an ordinary day, a menu: no work that day, or stopped at a time with
+/// the hours until then kept. One name for it throughout, "Bad weather", as
+/// the day type and the sheet call it. On a day already stopped, what happened and a way
 /// to take it back. Draws and reports only; the site screen writes, as it
 /// does every other change, through the month lock and your calendar day.
 struct SiteWeatherStopRow: View {
     let day: SiteDay
     let canEdit: Bool
+    let formatting: CalendarFormatting
     let onStopAll: () -> Void
     let onStopAt: () -> Void
     let onLift: () -> Void
@@ -18,7 +20,7 @@ struct SiteWeatherStopRow: View {
             HStack(spacing: Metrics.medium) {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Rained off")
+                        Text(stopTitle)
                             .font(.subheadline.weight(.semibold))
                         Text(stopDetail)
                             .font(.footnote)
@@ -33,7 +35,7 @@ struct SiteWeatherStopRow: View {
                     Button("Undo", action: onLift)
                         .font(.subheadline.weight(.semibold))
                         .frame(minWidth: 44, minHeight: 44)
-                        .accessibilityLabel(String(localized: "Undo rained off"))
+                        .accessibilityLabel(String(localized: "Undo bad weather"))
                         .accessibilityIdentifier("site-weather-lift")
                 }
             }
@@ -45,7 +47,7 @@ struct SiteWeatherStopRow: View {
         } else if canEdit {
             Menu {
                 Button(action: onStopAll) {
-                    Label("No work today", systemImage: "cloud.rain")
+                    Label("No work this day", systemImage: "cloud.rain")
                 }
                 .accessibilityIdentifier("site-weather-stop-all")
                 Button(action: onStopAt) {
@@ -53,7 +55,7 @@ struct SiteWeatherStopRow: View {
                 }
                 .accessibilityIdentifier("site-weather-stop-at")
             } label: {
-                Label("Rained off / bad weather", systemImage: "cloud.rain")
+                Label("Bad weather", systemImage: "cloud.rain")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                     .padding(.horizontal, Metrics.medium)
@@ -61,6 +63,18 @@ struct SiteWeatherStopRow: View {
             }
             .accessibilityIdentifier("site-weather-menu")
         }
+    }
+
+    /// "Bad weather · stopped 11:30", or "Bad weather · no work". A partial
+    /// stop keeps the site's start and ends everyone at the stop.
+    private var stopTitle: String {
+        if day.start != nil, let end = day.end {
+            return String(
+                localized: "Bad weather · stopped \(formatting.time(end, on: day.date))",
+                comment: "A site day stopped by the weather part-way; the value is the time it stopped"
+            )
+        }
+        return String(localized: "Bad weather · no work")
     }
 
     private var stopDetail: String {
@@ -118,11 +132,12 @@ struct WeatherStopSheet: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button("Save") {
                         onSave(stop)
                         dismiss()
                     }
-                    .accessibilityIdentifier("site-weather-stop-done")
+                    .fontWeight(.semibold)
+                    .accessibilityIdentifier("site-weather-stop-save")
                 }
             }
         }
