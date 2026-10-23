@@ -58,15 +58,19 @@ struct PeriodSummaryBar: View {
             // accessibility sizes.
             .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .center, spacing: Metrics.small) {
-                if !countsLine.isEmpty {
-                    Text(countsLine)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: 0)
-                if let onExport {
+            // The counts get the whole width: beside the button they wrapped
+            // a lone "· 6 off" onto a line of its own. Export sits under
+            // them, at the trailing edge.
+            if !countsLine.isEmpty {
+                Text(countsLine)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let onExport {
+                HStack(spacing: Metrics.small) {
+                    Spacer(minLength: 0)
                     Button(action: onExport) {
                         Label("Export", systemImage: "square.and.arrow.up")
                             .font(.subheadline.weight(.semibold))
