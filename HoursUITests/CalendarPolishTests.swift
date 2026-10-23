@@ -46,7 +46,9 @@ final class CalendarPolishTests: XCTestCase {
         XCTAssertTrue(reopen.waitForExistence(timeout: 10), "a closed month must say so above the grid")
         reopen.tap()
 
-        let confirm = app.buttons["calendar-reopen-confirm"]
+        // A confirmation dialog can show its buttons twice in the tree (the
+        // sheet and its popover form); either one does the same.
+        let confirm = app.buttons.matching(identifier: "calendar-reopen-confirm").firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 5), "reopening is asked once more")
         confirm.tap()
 
@@ -74,10 +76,17 @@ final class CalendarPolishTests: XCTestCase {
         let count = app.switches["day-editor-count-day"]
         for _ in 0..<4 where !(count.exists && count.isHittable) { app.swipeUp() }
         XCTAssertTrue(count.isHittable, "More did not open")
-        count.tap()
+        // A tap on the middle of a Form toggle lands on its label, which
+        // does not flip it; the switch itself sits at the trailing edge.
+        let knob = count.switches.firstMatch
+        if knob.exists, knob.isHittable {
+            knob.tap()
+        } else {
+            count.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        }
 
         app.buttons["day-editor-cancel"].tap()
-        let discard = app.buttons["day-editor-discard"]
+        let discard = app.buttons.matching(identifier: "day-editor-discard").firstMatch
         XCTAssertTrue(discard.waitForExistence(timeout: 5), "Cancel after an edit must ask first")
         discard.tap()
         XCTAssertTrue(disappears(app.buttons["day-editor-save"]), "Discard did not close the editor")

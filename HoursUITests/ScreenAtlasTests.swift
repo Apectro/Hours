@@ -683,7 +683,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
         if tap(app.buttons["calendar-closed-reopen"], "Reopen on the notice", app) {
             capture("calendar-reopen-confirm", app)
-            tap(app.buttons["calendar-reopen-confirm"], "Reopen", app)
+            tap(app.buttons.matching(identifier: "calendar-reopen-confirm").firstMatch, "Reopen", app)
         }
         tap(app.buttons["calendar-next"], "back to this month", app)
     }
