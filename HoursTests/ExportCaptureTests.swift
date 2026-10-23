@@ -386,6 +386,70 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertTrue(text.contains("Checked"), "the signature line is missing")
     }
 
+    /// Ten people for a whole month, to be looked at: whether a big crew's
+    /// sheet still reads on A4 landscape. See the test below for the figures.
+    func testCaptureTheSiteSheetForTenPeople() throws {
+        let table = siteTable(crew: Self.bigCrew)
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(2).enumerated() {
+            attach(image, named: "16-site-pdf-ten-people-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(text.contains("Month total"))
+    }
+
+    /// How many people fit on the site sheet before a time or an hours
+    /// column is cut short.
+    ///
+    /// Every person is two columns that may never truncate — "07:00–16:00"
+    /// and their hours — so the page runs out at some crew size and the
+    /// renderer then squeezes every column by weight. Up to a normal crew the
+    /// sheet must fit; past that this prints the figures (what the columns
+    /// need against what the page has) instead of failing, so the limit is
+    /// visible in the log until the layout is changed for big crews.
+    func testTheSiteSheetFitsANormalCrewAndReportsWhereItStops() {
+        let heading = PDFReportStyle.headingFont
+        let available = PDFReportRenderer.pageSize.width - PDFReportRenderer.margin * 2
+        let padding = PDFReportStyle.cellPadding * 2
+
+        print("----- site sheet width -----")
+        for crewSize in 0...Self.bigCrew.count {
+            let table = siteTable(crew: Array(Self.bigCrew.prefix(crewSize)))
+            let widths = PDFReportRenderer.columnWidths(for: table, availableWidth: available)
+            XCTAssertEqual(widths.count, table.columns.count)
+
+            // The headings as the page draws them: blank under a person's
+            // name, which spans their two columns.
+            let headings = PDFReportLayout(table: table).columnHeadings()
+            var everyRow = table.rows
+            if let totalRow = table.totalRow { everyRow.append(totalRow) }
+            var required: CGFloat = 0
+            var clipped: [String] = []
+            for (index, column) in table.columns.enumerated() {
+                var needed = PDFReportStyle.width(of: headings[index], font: heading)
+                if !column.mayTruncate {
+                    for row in everyRow where index < row.values.count {
+                        let font = PDFReportLayout.font(for: column, role: row.role)
+                        needed = max(needed, PDFReportStyle.width(of: row.values[index], font: font))
+                    }
+                }
+                required += needed + padding
+                if !column.mayTruncate, widths[index] + 0.5 < needed {
+                    clipped.append("\(column.rawValue) \(Int(widths[index]))pt < \(Int(needed.rounded(.up)))pt")
+                }
+            }
+            let people = crewSize + 1
+            print("\(people) people: columns need \(Int(required.rounded(.up)))pt of \(Int(available))pt"
+                + (clipped.isEmpty ? " — fits" : " — clipped: \(Set(clipped).sorted().joined(separator: ", "))"))
+
+            if people <= 5 {
+                XCTAssertTrue(clipped.isEmpty, "\(people) people: \(clipped.joined(separator: ", "))")
+            }
+        }
+        print("----- end site sheet width -----")
+    }
+
     /// The footer counts the pages it is on, which it can only do because
     /// the pages are laid out before any is drawn.
     func testTheFooterKnowsHowManyPagesThereAre() throws {

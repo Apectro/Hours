@@ -142,7 +142,7 @@ enum SampleData {
 
                 if month == thisMonth, !isToday {
                     if day.day >= 8, day.day <= 12 {
-                        try? workdays.save(DayRecord(date: day, dayTypeID: .vacation))
+                        _ = try? workdays.save(DayRecord(date: day, dayTypeID: .vacation))
                         continue
                     }
                     if day.day == holiday { continue }   // the holiday resolves itself

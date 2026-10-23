@@ -143,6 +143,7 @@ struct SiteDayCell: View {
     // private too.
     @ScaledMetric(relativeTo: .subheadline) var cellHeight: CGFloat = Metrics.dayCellHeight
     @ScaledMetric(relativeTo: .caption2) var dotDiameter: CGFloat = 5
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     let date: CalendarDate
     let presentCount: Int?
@@ -158,7 +159,14 @@ struct SiteDayCell: View {
     var body: some View {
         VStack(spacing: 2) {
             DayNumberCircle(day: date.day, isSelected: isSelected, isToday: isToday)
-            detailLabel
+                // Large, but no wider than a seventh of the screen allows.
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+            if dynamicTypeSize.isAccessibilitySize {
+                compactMark
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            } else {
+                detailLabel
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: cellHeight)
@@ -224,6 +232,39 @@ struct SiteDayCell: View {
             }
         }
         .lineLimit(1)
+    }
+
+    /// At accessibility text sizes a seventh of the screen holds one mark, not
+    /// three: the crew count when people were there (orange on a rain day),
+    /// otherwise the rain cloud, otherwise one dot for a diary or extra work.
+    /// VoiceOver still names everything.
+    @ViewBuilder
+    private var compactMark: some View {
+        if let presentCount, presentCount > 0 {
+            Text(verbatim: "\(presentCount)")
+                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(isBadWeather ? Color.hoursNegative : Color.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        } else if isBadWeather {
+            Image(systemName: "cloud.rain.fill")
+                .font(.caption2.weight(.semibold))
+                .imageScale(.small)
+                .foregroundStyle(Color.hoursNegative)
+        } else if noteMark != nil {
+            Circle()
+                .fill(Color.secondary)
+                .frame(width: compactDotDiameter, height: compactDotDiameter)
+        } else {
+            Color.clear.frame(width: compactDotDiameter, height: compactDotDiameter)
+        }
+    }
+
+    /// `dotDiameter` scales with the cell's own (accessibility) size; the
+    /// compact mark is capped, so its dot is too.
+    private var compactDotDiameter: CGFloat {
+        min(dotDiameter, 8)
     }
 
     /// Big enough for its two halves to read as two colours.

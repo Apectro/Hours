@@ -10,6 +10,65 @@ final class SitesTests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// The crew's trailing swipe, on the cell itself: Hide is behind it.
+    ///
+    /// The long-press menu is exercised in `testCreateSiteAndAddCrew`; this is the swipe
+    /// the footer tells people about. It once failed to reveal anything in
+    /// CI, while "screen-crew" sat on the List and so on every row inside it.
+    func testSwipingACrewRowRevealsHide() {
+        let app = XCUIApplication.hours()
+        app.launch()
+        openCrewOfANewSite(app, named: "Swipe Street 1")
+
+        let newMember = app.textFields["crew-new-name"]
+        XCTAssertTrue(newMember.waitForExistence(timeout: 5))
+        newMember.tap()
+        newMember.typeText("Marko\n")
+        // A name is the person's own, not a translated label.
+        let cell = app.cells.containing(NSPredicate(format: "label == %@", "Marko")).firstMatch
+        XCTAssertTrue(cell.waitForExistence(timeout: 5), "Marko was not added")
+        // The keyboard would take the swipe's room, and focus with it.
+        if app.keyboards.count > 0 { app.staticTexts["screen-crew"].firstMatch.tap() }
+
+        // Swipe actions carry their identifier in current iOS releases; the
+        // label is the fallback, as this suite runs in English.
+        let hide = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "crew-hide", "Hide")).firstMatch
+        cell.swipeLeft()
+        if !hide.waitForExistence(timeout: 3) {
+            // A slower, longer drag from the right of the name, for a
+            // simulator that took the first swipe as a scroll.
+            let from = cell.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5))
+            let to = cell.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.5))
+            from.press(forDuration: 0.1, thenDragTo: to)
+        }
+        XCTAssertTrue(hide.waitForExistence(timeout: 5), "the trailing swipe on a crew row did not reveal Hide")
+        hide.tap()
+        XCTAssertTrue(app.staticTexts["crew-hidden-header"].waitForExistence(timeout: 5), "Hide from the swipe did not hide")
+    }
+
+    /// From launch to a new site's crew list.
+    private func openCrewOfANewSite(_ app: XCUIApplication, named siteName: String) {
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "the Sites tab did not open")
+        app.buttons.matching(identifier: "sites-add").firstMatch.tap()
+        let name = app.textFields["site-name"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5), "the site editor did not open")
+        name.tap()
+        name.typeText(siteName)
+        app.buttons.matching(identifier: "site-editor-save").firstMatch.tap()
+        let card = app.buttons.matching(identifier: "site-card").firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "the new site has no card")
+        card.tap()
+        let more = app.buttons.matching(identifier: "site-more").firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
+        more.tap()
+        let crewItem = app.buttons.matching(identifier: "site-crew").firstMatch
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        crewItem.tap()
+        XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
+    }
+
     func testCreateSiteAndAddCrew() {
         let app = XCUIApplication.hours()
         app.launch()
@@ -56,9 +115,8 @@ final class SitesTests: XCTestCase {
 
         // Hiding keeps Marko, under Hidden, and takes him off the count.
         // Hide from the long-press menu, which every row has. The row's
-        // trailing swipe offers the same; a synthesized swipe on a row with a
-        // button in it is not reliable in the simulator, so the menu is what
-        // this test exercises.
+        // trailing swipe offers the same and has its own test,
+        // `testSwipingACrewRowRevealsHide`.
         if app.keyboards.count > 0 { app.staticTexts["You"].tap() }
         app.staticTexts["Marko"].press(forDuration: 1.2)
         let hide = app.buttons["Hide"].firstMatch

@@ -576,7 +576,9 @@ today is unwritten a card also offers "Same as last day", which pushes the
 same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen
 puts the selected day first: the day's week (the whole month on request),
 the day's crew, bad weather, extra work, the diary, and the month's figures
-last. Export is reachable from the calendar toolbar and from Settings.
+last. At accessibility text sizes a day cell of the site's week or month
+shows one mark under its number (the crew count, else rain, else one dot for a
+diary or extra work) instead of three; VoiceOver still names every one. Export is reachable from the calendar toolbar and from Settings.
 
 **The calendar, top to bottom (1.1).** The grid, then the selected day's card
 (its Write hours / Edit day button must be on screen when a day is tapped),
