@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// How the numbers are worked out.
+/// How the numbers are worked out: Settings › Balance & rounding.
 struct CalculationSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
@@ -64,13 +64,13 @@ struct CalculationSettingsScreen: View {
             } header: {
                 Text("Balance")
             } footer: {
-                Text("The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.")
+                Text("Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.")
             }
 
             carryOverSection
             monthLockSection
         }
-        .navigationTitle("Calculation")
+        .navigationTitle("Balance & rounding")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -127,7 +127,10 @@ struct CalculationSettingsScreen: View {
         } header: {
             Text("Year end")
         } footer: {
-            Text("Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.")
+            // A shortfall carries in full because forgiving it would invent
+            // hours nobody worked; later edits to a closed year no longer
+            // move what it handed over.
+            Text("Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.")
         }
     }
 
@@ -140,6 +143,9 @@ struct CalculationSettingsScreen: View {
         Section {
             ClosedMonthsRow()
         } footer: {
+            // It refuses edits from the day editor, a bulk edit, the clock and
+            // Siri alike: once a timesheet has been handed over, the days
+            // behind it changing quietly is how a disagreement starts.
             Text("Close a month once its hours are handed over, so it can't change by mistake.")
         }
     }

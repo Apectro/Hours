@@ -290,7 +290,7 @@ struct SetupPayStep: View {
     var body: some View {
         SetupPage(
             heading: "What do you earn an hour?",
-            message: "Optional, only for seeing what a month earned. It stays off the sheets for your boss unless you add it in Settings › Export options, and a site's sheet never shows money.",
+            message: "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Export options; a site sheet never does.",
             identifier: "screen-setup-pay"
         ) {
             VStack(alignment: .leading, spacing: Metrics.small) {

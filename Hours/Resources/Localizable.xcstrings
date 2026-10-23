@@ -1437,65 +1437,6 @@
         }
       }
     },
-    "%@ sheet for %@ is ready": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die %@-Liste für %@ ist fertig"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La hoja de %@ de %@ está lista"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La feuille mensuelle (%@) pour %@ est prête"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lista za %@ za gradilište %@ je spremna"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il foglio di %@ per %@ è pronto"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De lijst van %@ voor %@ is klaar"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arkusz za %@ dla budowy %@ jest gotowy"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A folha de %@ de %@ está pronta"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seznam za %@ za gradbišče %@ je pripravljen"
-          }
-        }
-      }
-    },
     "%@ short": {
       "extractionState": "manual",
       "localizations": {
@@ -1551,6 +1492,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ manj"
+          }
+        }
+      }
+    },
+    "%@ site sheet for %@ is ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die %@-Baustellenliste für %@ ist fertig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La hoja de obra de %@ de %@ está lista"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La feuille de chantier de %@ pour %@ est prête"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Za %@ je spreman list gradilišta %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il foglio di cantiere di %@ per %@ è pronto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bouwplaatslijst van %@ voor %@ is klaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arkusz budowy za %@ dla %@ jest gotowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folha de obra de %@ de %@ está pronta"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Za %@ je pripravljen list gradbišča %@"
           }
         }
       }
@@ -3050,65 +3050,6 @@
         }
       }
     },
-    "A closed month refuses edits — from the day editor, a bulk edit, the clock and Siri alike. Once a timesheet has been handed over, the days behind it changing quietly is how a disagreement starts. Swipe a month away to reopen it.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein abgeschlossener Monat lehnt Änderungen ab — aus dem Tageseditor, einer Sammelbearbeitung, von der Uhr und von Siri gleichermaßen. Sobald ein Stundenzettel übergeben wurde, ist es der Anfang eines Streits, wenn sich die Tage dahinter still ändern. Zum Wiederöffnen den Monat wegwischen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un mes cerrado rechaza las ediciones: desde el editor de día, una edición en bloque, el fichaje y Siri por igual. Una vez entregada una hoja de horas, que los días que hay detrás cambien en silencio es el principio de una disputa. Desliza un mes para reabrirlo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un mois clôturé refuse les modifications — depuis l'éditeur de journée, une modification groupée, le pointage et Siri. Une fois la feuille d'heures remise, des journées qui changent en silence derrière elle, c'est le début d'un litige. Balayez un mois pour le rouvrir."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zatvoreni mjesec odbija izmjene — iz uređivača dana, skupne izmjene, sata i Siri jednako. Kad je evidencija predana, tiho mijenjanje dana iza nje početak je spora. Prijeđite prstom preko mjeseca da ga ponovno otvorite."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un mese chiuso rifiuta le modifiche — dall'editor del giorno, da una modifica in blocco, dal timer e da Siri allo stesso modo. Una volta consegnato un foglio ore, i giorni dietro di esso che cambiano in silenzio sono l'inizio di una contestazione. Scorri via un mese per riaprirlo."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Een afgesloten maand weigert wijzigingen — vanuit de dageditor, een bulkbewerking, de klok en Siri. Zodra een urenstaat is ingeleverd, is het stilletjes veranderen van de dagen erachter het begin van een meningsverschil. Veeg een maand weg om hem te heropenen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zamknięty miesiąc odrzuca zmiany — z edytora dnia, edycji zbiorczej, zegara i Siri tak samo. Gdy karta czasu pracy została przekazana, ciche zmiany dni za nią to początek sporu. Przesuń miesiąc, aby go otworzyć ponownie."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um mês fechado recusa edições — a partir do editor de dia, de uma edição em bloco, do relógio e da Siri. Depois de entregue uma folha de horas, os dias por trás dela mudarem em silêncio é o início de uma disputa. Deslize um mês para o reabrir."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zaprt mesec zavrne spremembe — iz urejevalnika dneva, množičnega urejanja, ure in Siri enako. Ko je evidenca oddana, je tiho spreminjanje dni za njo začetek spora. Povlecite mesec, da ga znova odprete."
-          }
-        }
-      }
-    },
     "A day off depending on your collective agreement": {
       "extractionState": "manual",
       "localizations": {
@@ -3400,6 +3341,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Naročnina se obnavlja, dokler je ne prekličeš, v Nastavitve › tvoje ime › Naročnine. Enkraten nakup Zeitkonto je eno plačilo in se nikoli ne obnovi."
+          }
+        }
+      }
+    },
+    "A weekly note if a working day has no hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein wöchentlicher Hinweis, wenn ein Arbeitstag keine Stunden hat."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un aviso semanal si un día laborable no tiene horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rappel hebdomadaire si un jour ouvré n’a pas d’heures."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tjedna obavijest ako radni dan nema sati."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un avviso settimanale se un giorno lavorativo non ha ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een wekelijkse melding als een werkdag geen uren heeft."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cotygodniowe przypomnienie, jeśli dzień pracy nie ma godzin."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um aviso semanal se um dia de trabalho não tiver horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tedensko obvestilo, če delovni dan nima ur."
           }
         }
       }
@@ -4289,124 +4289,6 @@
         }
       }
     },
-    "Add hours": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stunden eintragen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Añadir horas"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saisir des heures"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upiši sate"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aggiungi ore"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uren invoeren"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dodaj godziny"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adicionar horas"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vpiši ure"
-          }
-        }
-      }
-    },
-    "Add hours by hand": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stunden von Hand eintragen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Añadir horas a mano"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saisir les heures à la main"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ručno upiši sate"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aggiungi ore a mano"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uren handmatig invoeren"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dodaj godziny ręcznie"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adicionar horas à mão"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ročno vpiši ure"
-          }
-        }
-      }
-    },
     "Add or edit crew": {
       "extractionState": "manual",
       "localizations": {
@@ -4879,65 +4761,6 @@
         }
       }
     },
-    "Add work times": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arbeitszeiten eintragen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Añadir horario de trabajo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saisir les heures de travail"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upiši radno vrijeme"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aggiungi orari di lavoro"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Werktijden invoeren"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dodaj godziny pracy"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adicionar horário de trabalho"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vpiši delovni čas"
-          }
-        }
-      }
-    },
     "Add your name": {
       "extractionState": "manual",
       "localizations": {
@@ -5115,61 +4938,61 @@
         }
       }
     },
-    "Adds what each day earned as a last column, with the total in the summary. Off unless you turn it on, since a timesheet is usually handed to someone. A site's sheet never shows money.": {
+    "Adds each day's earnings as a last column. Off by default: timesheets usually go to someone. A site sheet never shows money.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fügt den Verdienst jedes Tages als letzte Spalte hinzu, mit der Summe in der Zusammenfassung. Aus, bis du es einschaltest, denn ein Stundenzettel wird meist jemandem gegeben. Ein Baustellenblatt zeigt nie Geld."
+            "value": "Fügt den Verdienst jedes Tages als letzte Spalte hinzu. Standardmäßig aus, da ein Stundenzettel meist weitergegeben wird. Eine Baustellenliste zeigt nie Geld."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añade lo ganado cada día como última columna, con el total en el resumen. Desactivado hasta que lo actives, porque una hoja de horas suele entregarse a alguien. La hoja de una obra nunca muestra dinero."
+            "value": "Añade lo ganado cada día como última columna. Desactivado de entrada: una hoja de horas suele entregarse. Una hoja de obra nunca muestra dinero."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoute la rémunération de chaque jour en dernière colonne, avec le total dans le récapitulatif. Désactivé tant que vous ne l’activez pas, car une feuille d’heures est généralement remise à quelqu’un. La feuille d’un chantier ne montre jamais d’argent."
+            "value": "Ajoute la rémunération de chaque jour en dernière colonne. Désactivé par défaut : une feuille d’heures est souvent remise. Une feuille de chantier ne montre jamais d’argent."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dodaje zaradu svakog dana kao zadnji stupac, s ukupnim iznosom u sažetku. Isključeno dok ga ne uključiš, jer se evidencija obično nekome predaje. Lista gradilišta nikad ne prikazuje novac."
+            "value": "Dodaje zaradu svakog dana kao zadnji stupac. Isključeno je jer se evidencija obično nekome predaje. List gradilišta nikad ne prikazuje novac."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aggiunge il compenso di ogni giorno come ultima colonna, con il totale nel riepilogo. Spento finché non lo attivi, perché un foglio ore di solito si consegna a qualcuno. Il foglio di un cantiere non mostra mai denaro."
+            "value": "Aggiunge il compenso di ogni giorno come ultima colonna. Spento di base: un foglio ore di solito si consegna. Il foglio di cantiere non mostra mai denaro."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voegt wat elke dag opleverde toe als laatste kolom, met het totaal in de samenvatting. Uit tot je het aanzet, want een urenstaat geef je meestal aan iemand. Het overzicht van een bouwplaats toont nooit geld."
+            "value": "Voegt wat elke dag opleverde toe als laatste kolom. Standaard uit: een urenstaat geef je meestal af. Een bouwplaatslijst toont nooit geld."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dodaje zarobek z każdego dnia jako ostatnią kolumnę, z sumą w podsumowaniu. Wyłączone, dopóki tego nie włączysz, bo ewidencję zwykle się komuś oddaje. Arkusz budowy nigdy nie pokazuje pieniędzy."
+            "value": "Dodaje zarobek z każdego dnia jako ostatnią kolumnę. Domyślnie wyłączone, bo ewidencję zwykle się oddaje. Arkusz budowy nigdy nie pokazuje pieniędzy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acrescenta o que cada dia rendeu como última coluna, com o total no resumo. Desligado até o ligares, porque uma folha de horas costuma ser entregue a alguém. A folha de uma obra nunca mostra dinheiro."
+            "value": "Acrescenta o que cada dia rendeu como última coluna. Desligado de início: uma folha de horas costuma ser entregue. Uma folha de obra nunca mostra dinheiro."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Doda zaslužek vsakega dne kot zadnji stolpec, s skupnim zneskom v povzetku. Izklopljeno, dokler ga ne vklopiš, saj se evidenca običajno nekomu izroči. List gradbišča nikoli ne prikaže denarja."
+            "value": "Doda zaslužek vsakega dne kot zadnji stolpec. Privzeto izklopljeno, saj se evidenca običajno nekomu izroči. List gradbišča nikoli ne kaže denarja."
           }
         }
       }
@@ -5996,6 +5819,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drug kanton"
+          }
+        }
+      }
+    },
+    "App": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Application"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikacija"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikacja"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikacija"
           }
         }
       }
@@ -7574,6 +7456,124 @@
         }
       }
     },
+    "Balance %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solde %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo %@"
+          }
+        }
+      }
+    },
+    "Balance & rounding": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo & Rundung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo y redondeo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solde et arrondi"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo i zaokruživanje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo e arrotondamento"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo en afronding"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo i zaokrąglanie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo e arredondamento"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saldo in zaokroževanje"
+          }
+        }
+      }
+    },
     "Balance by month": {
       "extractionState": "manual",
       "localizations": {
@@ -8632,6 +8632,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Koledar"
+          }
+        }
+      }
+    },
+    "Calendar & days": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalender & Tage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario y días"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier et jours"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalendar i dani"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario e giorni"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agenda en dagen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalendarz i dni"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendário e dias"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koledar in dnevi"
           }
         }
       }
@@ -11921,61 +11980,61 @@
         }
       }
     },
-    "Closing a year fixes what it carried into the next one, so later edits to that year no longer move the figure. A cap applies to overtime you are owed; a shortfall always carries in full, because forgiving it would invent hours nobody worked.": {
+    "Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein Jahresabschluss legt fest, was ins nächste Jahr übertragen wurde; spätere Änderungen an diesem Jahr verschieben die Zahl nicht mehr. Eine Grenze gilt für Überstunden, die Ihnen zustehen; ein Minus wird immer vollständig übertragen, denn es zu erlassen hieße, nie geleistete Stunden zu erfinden."
+            "value": "Ein Jahresabschluss legt fest, was ins nächste Jahr geht. Eine Grenze kürzt Überstunden; ein Minus geht immer ganz mit."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerrar un año fija lo que trasladó al siguiente, de modo que las ediciones posteriores de ese año ya no mueven la cifra. Un límite se aplica a las horas extra que se te deben; un déficit se traslada siempre íntegro, porque perdonarlo inventaría horas que nadie trabajó."
+            "value": "Cerrar un año fija lo que pasa al siguiente. Un límite recorta las horas extra; un déficit pasa siempre entero."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clôturer une année fixe ce qu'elle a reporté sur la suivante ; les modifications ultérieures à cette année ne déplacent plus le chiffre. Un plafond s'applique aux heures supplémentaires qui vous sont dues ; un déficit se reporte toujours intégralement, car l'effacer inventerait des heures que personne n'a travaillées."
+            "value": "Clôturer une année fixe ce qu’elle reporte sur la suivante. Un plafond limite les heures reportées ; un déficit se reporte toujours en entier."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zatvaranje godine utvrđuje što je preneseno u sljedeću, pa kasnije izmjene te godine više ne mijenjaju brojku. Granica se odnosi na prekovremene sate koji vam pripadaju; manjak se uvijek prenosi u cijelosti, jer bi njegov oprost izmislio sate koje nitko nije odradio."
+            "value": "Zatvaranje godine utvrđuje što se prenosi u sljedeću. Granica ograničava prekovremene; manjak se uvijek prenosi cijeli."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chiudere un anno fissa ciò che ha riportato in quello successivo, così le modifiche successive a quell'anno non spostano più la cifra. Un limite vale per gli straordinari che ti spettano; un deficit si riporta sempre per intero, perché condonarlo inventerebbe ore che nessuno ha lavorato."
+            "value": "Chiudere un anno fissa ciò che passa al successivo. Un limite riduce gli straordinari; un deficit passa sempre per intero."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Een jaar afsluiten legt vast wat het aan het volgende heeft overgedragen, zodat latere wijzigingen in dat jaar het getal niet meer verschuiven. Een grens geldt voor overuren die je tegoed hebt; een tekort gaat altijd volledig mee, want het kwijtschelden zou uren verzinnen die niemand heeft gewerkt."
+            "value": "Een jaar afsluiten legt vast wat naar het volgende gaat. Een grens beperkt overuren; een tekort gaat altijd volledig mee."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zamknięcie roku ustala, ile przeniesiono na następny, więc późniejsze zmiany w tym roku nie ruszają już tej liczby. Limit dotyczy nadgodzin, które Ci się należą; niedobór przenosi się zawsze w całości, bo darowanie go wymyśliłoby godziny, których nikt nie przepracował."
+            "value": "Zamknięcie roku ustala, co przechodzi na następny. Limit ogranicza nadgodziny; niedobór przechodzi zawsze w całości."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fechar um ano fixa o que transitou para o seguinte, pelo que edições posteriores desse ano deixam de mover o valor. Um limite aplica-se às horas extra que lhe são devidas; um défice transita sempre por inteiro, porque perdoá-lo inventaria horas que ninguém trabalhou."
+            "value": "Fechar um ano fixa o que transita para o seguinte. Um limite corta as horas extra; um défice transita sempre por inteiro."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zaključek leta določi, kaj se je preneslo v naslednje, zato poznejši popravki tistega leta številke ne premaknejo več. Omejitev velja za nadure, ki vam pripadajo; primanjkljaj se vedno prenese v celoti, saj bi njegov odpis izmislil ure, ki jih ni nihče opravil."
+            "value": "Zaključek leta določi, kaj se prenese v naslednje. Omejitev omeji nadure; primanjkljaj se vedno prenese v celoti."
           }
         }
       }
@@ -15005,6 +15064,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vpisani dnevi"
+          }
+        }
+      }
+    },
+    "Days you excluded and days off never count as missing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgenommene Tage und freie Tage gelten nie als fehlend."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días excluidos y los no laborables nunca cuentan como ausentes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les jours exclus et les jours non travaillés ne comptent jamais comme manquants."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isključeni dani i neradni dani nikad se ne broje kao nedostajući."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I giorni esclusi e quelli non lavorativi non contano mai come mancanti."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uitgesloten dagen en vrije dagen tellen nooit als ontbrekend."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni wykluczone i dni wolne nigdy nie liczą się jako brakujące."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias excluídos e os dias não úteis nunca contam como em falta."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izključeni dnevi in prosti dnevi nikoli ne štejejo kot manjkajoči."
           }
         }
       }
@@ -18372,65 +18490,6 @@
         }
       }
     },
-    "Export…": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exportieren …"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exportar…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exporter…"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izvoz…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esporta…"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exporteer…"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eksportuj…"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exportar…"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izvoz …"
-          }
-        }
-      }
-    },
     "Extra fields": {
       "extractionState": "manual",
       "localizations": {
@@ -21676,65 +21735,6 @@
         }
       }
     },
-    "How far back to check. Days you have marked as excluded, and days that are not working days, are never counted as missing.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wie weit zurück geprüft wird. Als ausgenommen markierte Tage und Tage, die keine Arbeitstage sind, gelten nie als fehlend."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hasta cuándo mirar atrás. Los días marcados como excluidos y los que no son laborables nunca cuentan como ausentes."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jusqu’où remonter. Les jours marqués comme exclus et les jours non travaillés ne comptent jamais comme manquants."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Koliko unatrag provjeravati. Dani označeni kao isključeni i dani koji nisu radni nikad se ne broje kao nedostajući."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quanto indietro controllare. I giorni contrassegnati come esclusi e i giorni non lavorativi non contano mai come mancanti."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hoe ver terug er wordt gekeken. Dagen die je hebt uitgesloten en niet-werkdagen tellen nooit als ontbrekend."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jak daleko wstecz sprawdzać. Dni oznaczone jako wykluczone i dni niebędące roboczymi nigdy nie liczą się jako brakujące."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Até quando verificar. Os dias marcados como excluídos e os dias não úteis nunca contam como em falta."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kako daleč nazaj se preverja. Dnevi, označeni kot izključeni, in dnevi, ki niso delovni, nikoli ne štejejo kot manjkajoči."
-          }
-        }
-      }
-    },
     "How hours are written throughout the app. Exports have their own setting.": {
       "extractionState": "manual",
       "localizations": {
@@ -21967,65 +21967,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "V teku"
-          }
-        }
-      }
-    },
-    "In progress on this site": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auf dieser Baustelle in Arbeit"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En curso en esta obra"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En cours sur ce chantier"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "U tijeku na ovom gradilištu"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In corso in questo cantiere"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bezig op deze bouwplaats"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "W toku na tej budowie"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Em curso nesta obra"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "V teku na tem gradbišču"
           }
         }
       }
@@ -22380,65 +22321,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vključi dneve brez vnosa"
-          }
-        }
-      }
-    },
-    "Include in totals": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In Summen einrechnen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incluir en los totales"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inclure dans les totaux"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uključi u zbrojeve"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Includi nei totali"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Meetellen in totalen"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wliczaj do sum"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incluir nos totais"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vključi v seštevke"
           }
         }
       }
@@ -25216,61 +25098,61 @@
         }
       }
     },
-    "Monthly sheet for the director": {
+    "Monthly site sheet": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monatsliste für die Bauleitung"
+            "value": "Monatliche Baustellenliste"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoja mensual para el director"
+            "value": "Hoja de obra mensual"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feuille mensuelle pour le directeur"
+            "value": "Feuille de chantier mensuelle"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mjesečna lista za voditelja"
+            "value": "Mjesečni list gradilišta"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foglio mensile per il direttore"
+            "value": "Foglio di cantiere mensile"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maandlijst voor de uitvoerder"
+            "value": "Maandelijkse bouwplaatslijst"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Miesięczny arkusz dla kierownika"
+            "value": "Miesięczny arkusz budowy"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folha mensal para o diretor"
+            "value": "Folha de obra mensal"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mesečni seznam za vodjo"
+            "value": "Mesečni list gradbišča"
           }
         }
       }
@@ -29523,65 +29405,6 @@
         }
       }
     },
-    "Nothing was changed. Reopen %@ in Settings › Calculation first.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Es wurde nichts geändert. Öffnen Sie zuerst %@ unter Einstellungen › Berechnung wieder."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No se cambió nada. Vuelve a abrir %@ en Ajustes › Cálculo primero."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rien n'a été modifié. Rouvrez d'abord %@ dans Réglages › Calcul."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ništa nije promijenjeno. Najprije ponovno otvorite %@ u Postavke › Izračun."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non è stato modificato nulla. Riapri prima %@ in Impostazioni › Calcolo."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Er is niets gewijzigd. Heropen eerst %@ in Instellingen › Berekening."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nic nie zmieniono. Najpierw otwórz ponownie %@ w Ustawienia › Obliczenia."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nada foi alterado. Reabra primeiro %@ em Definições › Cálculo."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nič ni bilo spremenjeno. Najprej znova odprite %@ v Nastavitve › Izračun."
-          }
-        }
-      }
-    },
     "Nothing was changed. Reopen %@ to make this change.": {
       "extractionState": "manual",
       "localizations": {
@@ -30369,120 +30192,120 @@
         }
       }
     },
-    "On the 1st, a note for each site you worked on last month that its sheet is ready to send. Tapping it opens the sheet.": {
+    "On the 1st, a note for each site from last month that its site sheet is ready. Tap it to open the sheet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Am 1. ein Hinweis für jede Baustelle, auf der du letzten Monat gearbeitet hast, dass ihre Liste bereit zum Abgeben ist. Ein Tipp darauf öffnet die Liste."
+            "value": "Am 1. ein Hinweis für jede Baustelle vom letzten Monat, dass ihre Baustellenliste fertig ist. Tippen öffnet die Liste."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El día 1, un aviso por cada obra en la que trabajaste el mes pasado: su hoja está lista para enviar. Al tocarlo se abre la hoja."
+            "value": "El día 1, un aviso por cada obra del mes pasado: su hoja de obra está lista. Tócalo para abrirla."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le 1er du mois, un avis pour chaque chantier sur lequel vous avez travaillé le mois dernier : sa feuille est prête à envoyer. Touchez-le pour ouvrir la feuille."
+            "value": "Le 1er du mois, un avis pour chaque chantier du mois dernier : sa feuille de chantier est prête. Touchez-le pour l’ouvrir."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prvog u mjesecu, obavijest za svako gradilište na kojem si radio prošli mjesec da je njegova lista spremna za slanje. Dodir je otvara."
+            "value": "Prvog u mjesecu obavijest za svako gradilište iz prošlog mjeseca da je list gradilišta spreman. Dodir ga otvara."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il primo del mese, un avviso per ogni cantiere su cui hai lavorato il mese scorso: il suo foglio è pronto da inviare. Toccandolo si apre il foglio."
+            "value": "Il primo del mese, un avviso per ogni cantiere del mese scorso: il foglio di cantiere è pronto. Toccalo per aprirlo."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Op de 1e een melding voor elke bouwplaats waar je vorige maand hebt gewerkt dat de lijst klaar is om te versturen. Tik erop om de lijst te openen."
+            "value": "Op de 1e een melding voor elke bouwplaats van vorige maand dat de bouwplaatslijst klaar is. Tik erop om hem te openen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pierwszego dnia miesiąca powiadomienie dla każdej budowy, na której pracowałeś w zeszłym miesiącu, że jej arkusz jest gotowy do wysłania. Dotknięcie otwiera arkusz."
+            "value": "Pierwszego dnia miesiąca powiadomienie dla każdej budowy z zeszłego miesiąca, że arkusz budowy jest gotowy. Dotknij, aby go otworzyć."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "No dia 1, um aviso por cada obra onde trabalhaste no mês passado: a sua folha está pronta a enviar. Tocar nele abre a folha."
+            "value": "No dia 1, um aviso por cada obra do mês passado: a folha de obra está pronta. Toca nele para a abrir."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prvega v mesecu obvestilo za vsako gradbišče, na katerem si delal prejšnji mesec, da je njegov seznam pripravljen za pošiljanje. Dotik ga odpre."
+            "value": "Prvega v mesecu obvestilo za vsako gradbišče iz prejšnjega meseca, da je list gradbišča pripravljen. Dotik ga odpre."
           }
         }
       }
     },
-    "Once a week, a note when finished extra work has not been sent to your boss yet. Tapping it opens the report.": {
+    "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the Extra-work report.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Antippen öffnet den Bericht."
+            "value": "Einmal pro Woche ein Hinweis, wenn fertige Zusatzarbeiten noch nicht an deinen Chef gesendet sind. Tippen öffnet den Zusatzarbeiten-Bericht."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una vez a la semana, un aviso cuando hay trabajos adicionales terminados que aún no has enviado a tu jefe. Al tocarlo se abre el informe."
+            "value": "Una vez a la semana, un aviso cuando hay trabajos adicionales terminados sin enviar a tu jefe. Tócalo para abrir el informe de trabajos adicionales."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une fois par semaine, un rappel lorsque des travaux supplémentaires terminés n'ont pas encore été envoyés à votre patron. Touchez-le pour ouvrir le rapport."
+            "value": "Une fois par semaine, un rappel quand des travaux supplémentaires terminés n’ont pas été envoyés à votre patron. Touchez-le pour ouvrir le rapport de travaux supplémentaires."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jednom tjedno podsjetnik kad završeni dodatni radovi još nisu poslani tvom šefu. Dodir otvara izvješće."
+            "value": "Jednom tjedno obavijest kad završeni dodatni radovi još nisu poslani šefu. Dodir otvara izvještaj o dodatnim radovima."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Una volta alla settimana, un avviso quando i lavori extra finiti non sono ancora stati inviati al tuo capo. Toccalo per aprire il rapporto."
+            "value": "Una volta a settimana, un avviso quando i lavori extra finiti non sono ancora stati inviati al capo. Toccalo per aprire il rapporto lavori extra."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eén keer per week een melding als afgerond meerwerk nog niet naar je baas is verstuurd. Tik erop om het rapport te openen."
+            "value": "Eén keer per week een melding als afgerond meerwerk nog niet naar je baas is verstuurd. Tik erop om het meerwerkrapport te openen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raz w tygodniu przypomnienie, gdy ukończone prace dodatkowe nie zostały jeszcze wysłane szefowi. Dotknięcie otwiera raport."
+            "value": "Raz w tygodniu przypomnienie, gdy ukończone prace dodatkowe nie zostały wysłane szefowi. Dotknij, aby otworzyć raport prac dodatkowych."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uma vez por semana, um aviso quando há trabalhos adicionais concluídos ainda não enviados ao teu chefe. Tocar abre o relatório."
+            "value": "Uma vez por semana, um aviso quando há trabalhos adicionais concluídos por enviar ao chefe. Toca para abrir o relatório de trabalhos adicionais."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enkrat na teden opomnik, ko končana dodatna dela še niso poslana tvojemu šefu. Dotik odpre poročilo."
+            "value": "Enkrat na teden obvestilo, ko končana dodatna dela še niso poslana šefu. Dotik odpre poročilo o dodatnih delih."
           }
         }
       }
@@ -31785,61 +31608,61 @@
         }
       }
     },
-    "Optional, only for seeing what a month earned. It stays off the sheets for your boss unless you add it in Settings › Export options, and a site's sheet never shows money.": {
+    "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Export options; a site sheet never does.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Freiwillig, nur um zu sehen, was ein Monat gebracht hat. Auf den Listen für den Chef steht es nur, wenn du es unter Einstellungen › Exportoptionen hinzufügst, und die Liste einer Baustelle zeigt nie Geld."
+            "value": "Freiwillig, um zu sehen, was ein Monat gebracht hat. Dein Stundenzettel zeigt es nur, wenn du es unter Einstellungen › Exportoptionen hinzufügst; eine Baustellenliste nie."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional, solo para ver lo que ha dado un mes. No aparece en las hojas para el jefe salvo que lo añadas en Ajustes › Opciones de exportación, y la hoja de una obra nunca muestra dinero."
+            "value": "Opcional, para ver lo que ha dado un mes. Tu hoja de horas solo lo muestra si lo añades en Ajustes › Opciones de exportación; una hoja de obra, nunca."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Facultatif, seulement pour voir ce qu’un mois a rapporté. Il n’apparaît pas sur les feuilles pour votre chef, sauf si vous l’ajoutez dans Réglages › Options d’export, et la feuille d’un chantier n’affiche jamais d’argent."
+            "value": "Facultatif, pour voir ce qu’un mois a rapporté. Votre feuille d’heures ne l’affiche que si vous l’ajoutez dans Réglages › Options d’export ; une feuille de chantier jamais."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neobavezno, samo da vidiš koliko je mjesec donio. Na listama za šefa nije, osim ako ga dodaš u Postavke › Postavke izvoza, a lista gradilišta nikad ne prikazuje novac."
+            "value": "Neobavezno, da vidiš koliko je mjesec donio. Tvoja evidencija to prikazuje samo ako ga dodaš u Postavke › Postavke izvoza; list gradilišta nikad."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Facoltativo, solo per vedere quanto ha reso un mese. Non compare sui fogli per il capo se non lo aggiungi in Impostazioni › Opzioni di esportazione, e il foglio di un cantiere non mostra mai soldi."
+            "value": "Facoltativo, per vedere quanto ha reso un mese. Il tuo foglio ore lo mostra solo se lo aggiungi in Impostazioni › Opzioni di esportazione; il foglio di cantiere mai."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Optioneel, alleen om te zien wat een maand heeft opgeleverd. Het staat niet op de lijsten voor je baas, tenzij je het toevoegt in Instellingen › Exportopties, en de lijst van een bouwplaats toont nooit geld."
+            "value": "Optioneel, om te zien wat een maand opleverde. Je urenstaat toont het alleen als je het toevoegt in Instellingen › Exportopties; een bouwplaatslijst nooit."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcjonalnie, tylko żeby widzieć, ile przyniósł miesiąc. Nie ma tego na listach dla szefa, chyba że dodasz w Ustawienia › Opcje eksportu, a lista budowy nigdy nie pokazuje pieniędzy."
+            "value": "Opcjonalnie, żeby widzieć, ile przyniósł miesiąc. Twoja ewidencja pokaże to tylko, jeśli dodasz w Ustawienia › Opcje eksportu; arkusz budowy nigdy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional, só para veres quanto rendeu um mês. Não aparece nas folhas para o chefe a não ser que o acrescentes em Definições › Opções de exportação, e a folha de uma obra nunca mostra dinheiro."
+            "value": "Opcional, para veres quanto rendeu um mês. A tua folha de horas só o mostra se o acrescentares em Definições › Opções de exportação; uma folha de obra, nunca."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neobvezno, samo da vidiš, koliko je prinesel mesec. Na listih za šefa ga ni, razen če ga dodaš v Nastavitve › Možnosti izvoza, list gradbišča pa nikoli ne kaže denarja."
+            "value": "Neobvezno, da vidiš, koliko je prinesel mesec. Tvoja evidenca ga pokaže le, če ga dodaš v Nastavitve › Možnosti izvoza; list gradbišča nikoli."
           }
         }
       }
@@ -32312,6 +32135,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dodatek za nadure"
+          }
+        }
+      }
+    },
+    "Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überstunden, die du schon vor der App hattest. Der Saldo zählt ab dem Startdatum, sonst ab deinem ersten erfassten Tag."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas extra que tenías antes de la app. El saldo cuenta desde la fecha de inicio o, si no, desde tu primer día registrado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures supplémentaires que vous aviez avant l’app. Le solde part de la date de début, sinon de votre premier jour saisi."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prekovremeni koje si imao prije aplikacije. Saldo se broji od datuma početka, inače od tvog prvog zabilježenog dana."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli straordinari che avevi prima dell’app. Il saldo parte dalla data di inizio, altrimenti dal tuo primo giorno registrato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De overuren die je had vóór de app. Het saldo telt vanaf de startdatum, anders vanaf je eerste vastgelegde dag."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadgodziny, które miałeś przed aplikacją. Saldo liczy się od daty początkowej, a bez niej od pierwszego zapisanego dnia."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas extra que tinhas antes da app. O saldo conta a partir da data de início ou, sem ela, do teu primeiro dia registado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadure, ki si jih imel pred aplikacijo. Saldo se šteje od datuma začetka, sicer od tvojega prvega zabeleženega dne."
           }
         }
       }
@@ -34086,6 +33968,65 @@
         }
       }
     },
+    "Public holidays and days off": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feiertage und freie Tage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festivos y días libres"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jours fériés et jours de congé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blagdani i slobodni dani"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festività e giorni liberi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feestdagen en vrije dagen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Święta i dni wolne"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feriados e dias de folga"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prazniki in prosti dnevi"
+          }
+        }
+      }
+    },
     "Quantity": {
       "extractionState": "manual",
       "localizations": {
@@ -35738,65 +35679,6 @@
         }
       }
     },
-    "Reopen it in Settings › Calculation if you need to change these hours.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Öffnen Sie ihn unter Einstellungen › Berechnung wieder, wenn Sie diese Stunden ändern müssen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vuelve a abrirlo en Ajustes › Cálculo si necesitas cambiar estas horas."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rouvrez-le dans Réglages › Calcul si vous devez modifier ces heures."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ponovno ga otvorite u Postavke › Izračun ako trebate promijeniti ove sate."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Riaprilo in Impostazioni › Calcolo se devi modificare queste ore."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Heropen hem in Instellingen › Berekening als je deze uren wilt wijzigen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otwórz go ponownie w Ustawienia › Obliczenia, jeśli musisz zmienić te godziny."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reabra-o em Definições › Cálculo se precisar de alterar estas horas."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Znova ga odprite v Nastavitve › Izračun, če morate spremeniti te ure."
-          }
-        }
-      }
-    },
     "Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.": {
       "extractionState": "manual",
       "localizations": {
@@ -36525,61 +36407,61 @@
         }
       }
     },
-    "Report to boss": {
+    "Reports & reminders": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bericht an den Chef"
+            "value": "Berichte & Erinnerungen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Informe al jefe"
+            "value": "Informes y recordatorios"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rapport au patron"
+            "value": "Rapports et rappels"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Izvješće šefu"
+            "value": "Izvješća i podsjetnici"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rapporto al capo"
+            "value": "Rapporti e promemoria"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rapport aan de baas"
+            "value": "Rapporten en herinneringen"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Raport dla szefa"
+            "value": "Raporty i przypomnienia"
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Relatório ao chefe"
+            "value": "Relatórios e lembretes"
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poročilo šefu"
+            "value": "Poročila in opomniki"
           }
         }
       }
@@ -38309,61 +38191,61 @@
         }
       }
     },
-    "Send it to your director.": {
+    "Send it to your boss.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeit, sie der Bauleitung zu geben."
+            "value": "Schick sie deinem Chef."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envíasela al director."
+            "value": "Envíasela a tu jefe."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyez-la au directeur."
+            "value": "Envoyez-la à votre patron."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošalji je voditelju."
+            "value": "Pošalji ga šefu."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mandalo al direttore."
+            "value": "Mandalo al capo."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stuur hem naar de uitvoerder."
+            "value": "Stuur hem naar je baas."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wyślij go kierownikowi."
+            "value": "Wyślij go szefowi."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envia-a ao diretor."
+            "value": "Envia-a ao chefe."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošlji ga vodji."
+            "value": "Pošlji ga šefu."
           }
         }
       }
@@ -38486,61 +38368,61 @@
         }
       }
     },
-    "Send your hours or a site's sheet as PDF or Excel, from the calendar's ⋯ menu or the site's. Report language: %@. Change it here.": {
+    "Send your hours or a site sheet as PDF or Excel. Report language: %@. Change it here.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schick deine Stunden oder die Liste einer Baustelle als PDF oder Excel, über das ⋯-Menü im Kalender oder auf der Baustelle. Berichtssprache: %@. Hier änderst du sie."
+            "value": "Schick deine Stunden oder eine Baustellenliste als PDF oder Excel. Berichtssprache: %@. Hier änderst du sie."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envía tus horas o la hoja de una obra en PDF o Excel, desde el menú ⋯ del calendario o de la obra. Idioma de los informes: %@. Se cambia aquí."
+            "value": "Envía tus horas o una hoja de obra en PDF o Excel. Idioma de los informes: %@. Se cambia aquí."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envoyez vos heures ou la feuille d’un chantier en PDF ou Excel, depuis le menu ⋯ du calendrier ou du chantier. Langue des rapports : %@. Vous la changez ici."
+            "value": "Envoyez vos heures ou une feuille de chantier en PDF ou Excel. Langue des rapports : %@. Vous la changez ici."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošalji svoje sate ili listu gradilišta kao PDF ili Excel, iz izbornika ⋯ u kalendaru ili na gradilištu. Jezik izvješća: %@. Ovdje ga mijenjaš."
+            "value": "Pošalji svoje sate ili list gradilišta kao PDF ili Excel. Jezik izvješća: %@. Ovdje ga mijenjaš."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invia le tue ore o il foglio di un cantiere come PDF o Excel, dal menu ⋯ del calendario o del cantiere. Lingua dei rapporti: %@. La cambi qui."
+            "value": "Invia le tue ore o un foglio di cantiere come PDF o Excel. Lingua dei rapporti: %@. La cambi qui."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stuur je uren of de lijst van een bouwplaats als pdf of Excel, via het ⋯-menu van de kalender of de bouwplaats. Taal van de rapporten: %@. Hier wijzig je die."
+            "value": "Stuur je uren of een bouwplaatslijst als pdf of Excel. Taal van de rapporten: %@. Hier wijzig je die."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wyślij swoje godziny albo listę budowy jako PDF lub Excel, z menu ⋯ w kalendarzu lub na budowie. Język raportów: %@. Tutaj go zmienisz."
+            "value": "Wyślij swoje godziny albo arkusz budowy jako PDF lub Excel. Język raportów: %@. Tutaj go zmienisz."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Envia as tuas horas ou a folha de uma obra em PDF ou Excel, a partir do menu ⋯ do calendário ou da obra. Idioma dos relatórios: %@. Altera-o aqui."
+            "value": "Envia as tuas horas ou uma folha de obra em PDF ou Excel. Idioma dos relatórios: %@. Altera-o aqui."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pošlji svoje ure ali list gradbišča kot PDF ali Excel, iz menija ⋯ v koledarju ali na gradbišču. Jezik poročil: %@. Tukaj ga spremeniš."
+            "value": "Pošlji svoje ure ali list gradbišča kot PDF ali Excel. Jezik poročil: %@. Tukaj ga spremeniš."
           }
         }
       }
@@ -45226,65 +45108,6 @@
         }
       }
     },
-    "The calendar already marks a working day with nothing on it. This tells you without having to look.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Kalender markiert schon einen Arbeitstag ohne Eintrag. Das hier sagt es dir, ohne dass du nachsehen musst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El calendario ya marca un día laborable vacío. Esto te avisa sin tener que mirar."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le calendrier signale déjà un jour ouvré sans rien dedans. Ceci vous prévient sans avoir à regarder."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalendar već označava radni dan bez upisa. Ovo ti to javi i bez gledanja."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il calendario segna già un giorno lavorativo vuoto. Questo te lo dice senza che tu debba guardare."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De kalender markeert al een werkdag zonder invoer. Dit laat het je weten zonder dat je hoeft te kijken."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalendarz już zaznacza pusty dzień pracy. To powie ci o tym bez zaglądania."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O calendário já marca um dia de trabalho vazio. Isto avisa-te sem teres de ir ver."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Koledar že označi delovni dan brez vpisa. To ti pove, ne da bi moral pogledati."
-          }
-        }
-      }
-    },
     "The client's site manager can sign for all of these jobs at once. It is printed under the report.": {
       "extractionState": "manual",
       "localizations": {
@@ -46225,65 +46048,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edino, kar vpraša omrežje, je, ali je Zeitkonto Pro plačan, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur."
-          }
-        }
-      }
-    },
-    "The opening balance is the overtime you were already carrying before you started using the app. Without a start date the balance counts from the first day you recorded anything. Days before the start are left out of every total.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Anfangssaldo sind die Überstunden, die du schon vor der Nutzung der App hattest. Ohne Startdatum zählt der Saldo ab dem ersten Tag, an dem du etwas erfasst hast. Tage vor dem Start bleiben in allen Summen unberücksichtigt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El saldo inicial son las horas extra que ya acumulabas antes de usar la app. Sin fecha de inicio, el saldo cuenta desde el primer día en que registraste algo. Los días anteriores quedan fuera de todos los totales."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le solde initial correspond aux heures supplémentaires que vous aviez déjà avant d’utiliser l’app. Sans date de début, le solde compte à partir du premier jour où vous avez saisi quelque chose. Les jours antérieurs sont exclus de tous les totaux."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Početni saldo su prekovremeni koje si već imao prije početka korištenja aplikacije. Bez datuma početka saldo se broji od prvog dana kad si nešto zabilježio. Dani prije početka ne ulaze ni u jedan zbroj."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il saldo iniziale sono gli straordinari che avevi già prima di usare l’app. Senza una data di inizio, il saldo parte dal primo giorno in cui hai registrato qualcosa. I giorni precedenti restano fuori da ogni totale."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Het beginsaldo zijn de overuren die je al had voordat je de app ging gebruiken. Zonder startdatum telt het saldo vanaf de eerste dag waarop je iets hebt vastgelegd. Dagen daarvoor tellen in geen enkel totaal mee."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saldo początkowe to nadgodziny, które miałeś już przed rozpoczęciem korzystania z aplikacji. Bez daty początkowej saldo liczone jest od pierwszego dnia, w którym coś zapisałeś. Dni wcześniejsze nie wchodzą do żadnej sumy."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O saldo inicial são as horas extra que já tinhas antes de começares a usar a app. Sem data de início, o saldo conta a partir do primeiro dia em que registaste alguma coisa. Os dias anteriores ficam de fora de todos os totais."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Začetni saldo so nadure, ki si jih imel že pred uporabo aplikacije. Brez datuma začetka se saldo šteje od prvega dne, ko si kaj zabeležil. Dnevi pred začetkom niso vključeni v noben seštevek."
           }
         }
       }
@@ -48644,65 +48408,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vklopi App Groups za uporabo pripomočka"
-          }
-        }
-      }
-    },
-    "Turn this off to keep a day's details without counting it towards any total.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schalte das aus, um die Angaben eines Tages zu behalten, ohne ihn in Summen einzurechnen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desactívalo para conservar los detalles de un día sin incluirlo en los totales."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Désactivez ceci pour conserver les détails d’un jour sans le compter dans les totaux."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isključi ovo da zadržiš podatke o danu, a da se ne računa ni u jedan zbroj."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disattivalo per conservare i dettagli di un giorno senza includerlo nei totali."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zet dit uit om de gegevens van een dag te bewaren zonder mee te tellen in totalen."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wyłącz to, aby zachować szczegóły dnia bez wliczania go do sum."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desativa isto para manter os detalhes de um dia sem o incluir nos totais."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izklopi to, če želiš obdržati podatke o dnevu, ne da bi se štel v seštevke."
           }
         }
       }
@@ -51244,61 +50949,61 @@
         }
       }
     },
-    "With a rate set, the calendar, Insights and the widgets lead with what you earned. Choose Hours balance to see your hours ahead or behind instead. Nothing about money ever appears on a site, its sheet or anyone in your crew.": {
+    "With a rate set, the calendar, Insights and widgets lead with earnings. Choose Hours balance to see hours instead. Sites never show money.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mit einem Stundenlohn zeigen Kalender, Auswertung und Widgets zuerst, was du verdient hast. Wähle Stundensaldo, um stattdessen zu sehen, wie viele Stunden du vorn oder hinten liegst. Geld erscheint nie auf einer Baustelle, ihrem Blatt oder bei jemandem aus deinem Team."
+            "value": "Mit Stundenlohn zeigen Kalender, Auswertung und Widgets zuerst den Verdienst. Wähle Stundensaldo, um Stunden zu sehen. Baustellen zeigen nie Geld."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con una tarifa fijada, el calendario, Estadísticas y los widgets muestran primero lo que has ganado. Elige Saldo de horas para ver en cambio si vas por delante o por detrás con las horas. Nada sobre dinero aparece nunca en una obra, su hoja o alguien de tu equipo."
+            "value": "Con una tarifa, el calendario, Estadísticas y los widgets muestran primero lo ganado. Elige Saldo de horas para ver las horas. Las obras nunca muestran dinero."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avec un taux défini, le calendrier, Statistiques et les widgets affichent d’abord ce que vous avez gagné. Choisissez Solde d’heures pour voir plutôt votre avance ou votre retard en heures. Rien sur l’argent n’apparaît jamais sur un chantier, sa feuille ou une personne de votre équipe."
+            "value": "Avec un taux, le calendrier, Statistiques et les widgets affichent d’abord vos gains. Choisissez Solde d’heures pour voir les heures. Les chantiers ne montrent jamais d’argent."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uz postavljenu satnicu, kalendar, Uvidi i widgeti prvo pokazuju koliko si zaradio. Odaberi Saldo sati da umjesto toga vidiš jesi li u plusu ili minusu sa satima. Ništa o novcu nikad se ne pojavljuje na gradilištu, njegovoj listi ni kod nekoga iz tvoje ekipe."
+            "value": "Uz satnicu kalendar, Uvidi i widgeti prvo pokazuju zaradu. Odaberi Saldo sati da vidiš sate. Gradilišta nikad ne prikazuju novac."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con una tariffa impostata, il calendario, Statistiche e i widget mostrano prima quanto hai guadagnato. Scegli Saldo ore per vedere invece se sei avanti o indietro con le ore. Nulla sul denaro compare mai su un cantiere, sul suo foglio o su qualcuno della tua squadra."
+            "value": "Con una tariffa, il calendario, Statistiche e i widget mostrano prima il guadagno. Scegli Saldo ore per vedere le ore. I cantieri non mostrano mai denaro."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Met een uurloon tonen de kalender, Inzichten en de widgets eerst wat je verdiend hebt. Kies Urensaldo om in plaats daarvan te zien of je voor of achter loopt met je uren. Niets over geld verschijnt ooit bij een bouwplaats, het overzicht ervan of iemand uit je ploeg."
+            "value": "Met een uurloon tonen de kalender, Inzichten en de widgets eerst je verdiensten. Kies Urensaldo om uren te zien. Bouwplaatsen tonen nooit geld."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gdy stawka jest ustawiona, kalendarz, Statystyki i widżety pokazują najpierw, ile zarobiłeś. Wybierz Saldo godzin, aby zamiast tego widzieć, czy masz nadwyżkę, czy brak godzin. Nic o pieniądzach nie pojawia się na budowie, jej arkuszu ani przy kimkolwiek z twojej ekipy."
+            "value": "Ze stawką kalendarz, Statystyki i widżety pokazują najpierw zarobek. Wybierz Saldo godzin, aby widzieć godziny. Budowy nigdy nie pokazują pieniędzy."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Com um valor definido, o calendário, as Estatísticas e os widgets mostram primeiro o que ganhaste. Escolhe Saldo de horas para veres antes se estás à frente ou atrás nas horas. Nada sobre dinheiro aparece numa obra, na sua folha ou em alguém da tua equipa."
+            "value": "Com um valor definido, o calendário, as Estatísticas e os widgets mostram primeiro o que ganhaste. Escolhe Saldo de horas para veres as horas. As obras nunca mostram dinheiro."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Z nastavljeno urno postavko koledar, Vpogledi in pripomočki najprej pokažejo, koliko si zaslužil. Izberi Saldo ur, da namesto tega vidiš, ali si z urami v plusu ali minusu. Nič o denarju se nikoli ne pojavi na gradbišču, njegovem listu ali pri komer koli iz tvoje ekipe."
+            "value": "Z urno postavko koledar, Vpogledi in pripomočki najprej pokažejo zaslužek. Izberi Saldo ur, da vidiš ure. Gradbišča nikoli ne kažejo denarja."
           }
         }
       }
@@ -51889,65 +51594,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Danes opravljeno"
-          }
-        }
-      }
-    },
-    "Working a day off or a public holiday is a real thing, so times can be added to any day.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "An einem freien Tag oder Feiertag zu arbeiten kommt vor, also lassen sich Zeiten an jedem Tag eintragen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trabajar en un día libre o festivo pasa, así que se pueden añadir horarios a cualquier día."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travailler un jour de repos ou un jour férié arrive, les horaires peuvent donc être ajoutés à n’importe quel jour."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rad na slobodan dan ili praznik se događa, pa se vremena mogu unijeti na bilo koji dan."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lavorare in un giorno libero o festivo capita, quindi gli orari si possono aggiungere a qualsiasi giorno."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Werken op een vrije dag of feestdag komt voor, dus tijden kunnen op elke dag worden toegevoegd."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Praca w dzień wolny lub święto się zdarza, więc godziny można dodać do dowolnego dnia."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trabalhar num dia de folga ou feriado acontece, por isso os horários podem ser adicionados a qualquer dia."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delo na prostem dnevu ali praznik se dogaja, zato je čase mogoče vnesti na kateri koli dan."
           }
         }
       }

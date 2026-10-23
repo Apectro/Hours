@@ -255,7 +255,7 @@ struct PaySettingsScreen: View {
         } header: {
             Text("Showing earnings")
         } footer: {
-            Text("With a rate set, the calendar, Insights and the widgets lead with what you earned. Choose Hours balance to see your hours ahead or behind instead. Nothing about money ever appears on a site, its sheet or anyone in your crew.")
+            Text("With a rate set, the calendar, Insights and widgets lead with earnings. Choose Hours balance to see hours instead. Sites never show money.")
         }
     }
 

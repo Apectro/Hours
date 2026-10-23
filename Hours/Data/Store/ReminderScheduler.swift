@@ -163,8 +163,8 @@ struct ReminderScheduler {
 
             let month = formatting.monthName(reminder.month)
             let content = UNMutableNotificationContent()
-            content.title = String(localized: "\(month) sheet for \(reminder.siteName) is ready")
-            content.body = String(localized: "Send it to your director.")
+            content.title = String(localized: "\(month) site sheet for \(reminder.siteName) is ready")
+            content.body = String(localized: "Send it to your boss.")
             content.sound = .default
             content.userInfo = [
                 ReminderScheduler.linkKey: AppLink.siteExport(reminder.siteID, reminder.month).url.absoluteString

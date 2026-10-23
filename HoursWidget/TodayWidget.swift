@@ -106,7 +106,7 @@ struct TodaySmall: View {
                 Spacer(minLength: 6)
                 if let footer = figures.footer {
                     Text(footer)
-                        .font(.system(size: 11, design: .rounded))
+                        .font(.system(size: 12, design: .rounded))
                         .foregroundStyle(WidgetPalette.mist)
                         .lineLimit(1)
                 }
@@ -161,7 +161,7 @@ struct TodayHeader: View {
                     localized: "since \(figures.clockTime(startedAt))",
                     comment: "Widget, the time the running clock was started"
                 ))
-                    .font(.system(size: 11, design: .rounded))
+                    .font(.system(size: 12, design: .rounded))
                     .foregroundStyle(WidgetPalette.mist)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

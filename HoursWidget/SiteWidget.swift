@@ -193,20 +193,27 @@ struct SiteButton: View {
 }
 
 /// No active site: say so kindly, and open the Sites tab where one is added.
+/// The whole widget is the link; "Add a site" says where the tap leads, in
+/// the same pill as the site card's buttons.
 struct NoSiteView: View {
     var body: some View {
-        HStack(spacing: 14) {
-            HardHatBadge(size: 44)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("No sites yet")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(WidgetPalette.navy)
-                Text("Add the site you work on, and today's crew is one tap away here.")
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(WidgetPalette.paperText)
-                    .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 14) {
+                HardHatBadge(size: 44)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("No sites yet")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundStyle(WidgetPalette.navy)
+                    Text("Add the site you work on, and today's crew is one tap away here.")
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundStyle(WidgetPalette.paperText)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 0)
+            Spacer(minLength: 6)
+            SiteButton(title: String(localized: "Add a site"), isPrimary: true)
         }
         .widgetURL(AppLink.sites.url)
     }

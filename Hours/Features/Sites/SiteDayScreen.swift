@@ -72,6 +72,8 @@ struct SiteDayScreen: View {
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
+    /// The closed-month notice's Reopen, asking first as the calendar does.
+    @State private var isConfirmingReopen = false
     /// The site widget's "Same as yesterday", not yet acted on. Cleared on
     /// first appearance, so coming back from the crew does not fill it again.
     @State private var requestsSameAsLastDay: Bool
@@ -128,7 +130,12 @@ struct SiteDayScreen: View {
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("site-crew-line")
 
-                SiteDayNotice(isLocked: isLocked, isReadOnly: isReadOnly, isArchived: site.isArchived)
+                SiteDayNotice(
+                    isLocked: isLocked,
+                    isReadOnly: isReadOnly,
+                    isArchived: site.isArchived,
+                    onReopen: { isConfirmingReopen = true }
+                )
 
                 SiteMonthGrid(
                     layout: layout,
@@ -235,9 +242,33 @@ struct SiteDayScreen: View {
             "This month is closed",
             isPresented: Binding(get: { refusal != nil }, set: { if !$0 { refusal = nil } })
         ) {
+            // Reopening here, where the refusal happened, as the day
+            // editor does. The alert is the confirmation.
+            Button(String(
+                localized: "Reopen \(formatting.monthTitle(YearMonth(date)))",
+                comment: "Button; the value is a month and year"
+            )) {
+                reopenMonth()
+                refusal = nil
+            }
+            .accessibilityIdentifier("site-day-reopen-month")
             Button("OK", role: .cancel) { refusal = nil }
         } message: {
-            Text("Reopen it in Settings › Calculation if you need to change these hours.")
+            Text("Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.")
+        }
+        .confirmationDialog(
+            String(
+                localized: "Reopen \(formatting.monthTitle(YearMonth(date)))?",
+                comment: "Confirmation title; the value is a month and year"
+            ),
+            isPresented: $isConfirmingReopen,
+            titleVisibility: .visible
+        ) {
+            Button("Reopen") { reopenMonth() }
+                .accessibilityIdentifier("site-day-reopen-confirm")
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
         }
     }
 
@@ -392,6 +423,12 @@ struct SiteDayScreen: View {
     private var today: CalendarDate { CalendarDate.today(in: calendar) }
 
     private var isLocked: Bool { settings.monthLock.isLocked(date) }
+
+    /// Reopens the selected day's month: the same write as the calendar's
+    /// Reopen. Closing it again is in the calendar's ⋯ menu.
+    private func reopenMonth() {
+        settingsStore.update { $0.monthLock.unlock(YearMonth(date)) }
+    }
     private var canEdit: Bool { !isReadOnly && !isLocked }
 
     /// The whole month. Everything under the grid is read over it, the
@@ -664,19 +701,39 @@ private struct SiteDayNotice: View {
     let isLocked: Bool
     let isReadOnly: Bool
     let isArchived: Bool
+    /// Asks to reopen the closed month, as the calendar's notice does.
+    let onReopen: () -> Void
 
     var body: some View {
         if isLocked {
-            notice(systemImage: "lock.fill") {
-                VStack(alignment: .leading, spacing: Metrics.tiny) {
-                    Text("This month is closed")
-                        .font(.subheadline.weight(.semibold))
-                    Text("Reopen it in Settings › Calculation if you need to change these hours.")
-                        .font(.footnote)
+            // The words read as one element; Reopen stays its own button
+            // beside them, so the identifier is not on a container holding it.
+            HStack(alignment: .center, spacing: Metrics.small) {
+                Label {
+                    VStack(alignment: .leading, spacing: Metrics.tiny) {
+                        Text("This month is closed")
+                            .font(.subheadline.weight(.semibold))
+                        Text("Reopen it to change these hours. You can close it again from the calendar's ⋯ menu.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "lock.fill")
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("site-day-locked")
+                Spacer(minLength: Metrics.small)
+                Button("Reopen", action: onReopen)
+                    .font(.subheadline.weight(.semibold))
+                    .buttonStyle(.borderless)
+                    .frame(minHeight: 44)
+                    .accessibilityIdentifier("site-day-reopen")
             }
-            .accessibilityIdentifier("site-day-locked")
+            .padding(Metrics.medium)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
         } else if isReadOnly, isArchived {
             // Archiving, not a lapsed Pro, is what stops this one, and the
             // way back is the site's own editor.
