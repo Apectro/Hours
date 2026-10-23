@@ -562,10 +562,15 @@ untouched. Export has its own toolbar button; ⋯ keeps the view, Edit a range,
 and **Close / Reopen** for the month on screen (`MonthLock.offer(for:today:)`:
 only a finished month can be closed, any closed month can be reopened, the
 reopen asks once more). A closed month shows a notice above the grid with
-Reopen. Settings › Calculation keeps a Closed months row that opens the full
+Reopen. Settings › Balance & rounding keeps a Closed months row that opens the full
 list (`ClosedMonthsScreen`). The day editor's and the bulk edit's "this month is
 closed" alerts reopen the month in place; the edit stays on screen and Save
-works afterwards.
+works afterwards. The site day does the same: its closed-month notice has
+Reopen (asking first), and its refusal alert offers Reopen for that month.
+
+**Photo viewer.** One sheet (`Shared/PhotoViewerSheet`) shows a photo large for
+the site diary and the extra-work editor alike: Done top right, a confirmed
+bin top left when the photo can be removed.
 
 **Export's range steps.** Day, week, month and year each have ‹ › that move a
 whole period (`ExportRangeKind.step`, `canStepForward` — never into a period
