@@ -188,12 +188,13 @@ enum ExtraWorkPDFRenderer {
     /// took and who, then who confirmed it. Each is measured on its own, so
     /// a job of many items is as tall as it prints.
     private static func textLines(of job: ExtraWorkDocument.JobRow) -> [(String, UIFont, UIColor)] {
-        let material = job.materialLines.map { ($0, PDFReportStyle.cellFont, PDFReportStyle.ink) }
-        return ([(job.description, PDFReportStyle.cellBoldFont, PDFReportStyle.ink)]
-            + material
-            + [(job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary),
-               (job.confirmation, PDFReportStyle.smallFont, PDFReportStyle.secondary)])
-            .filter { !$0.0.isEmpty }
+        var lines: [(String, UIFont, UIColor)] = [(job.description, PDFReportStyle.cellBoldFont, PDFReportStyle.ink)]
+        for item in job.materialLines {
+            lines.append((item, PDFReportStyle.cellFont, PDFReportStyle.ink))
+        }
+        lines.append((job.hours, PDFReportStyle.cellFont, PDFReportStyle.secondary))
+        lines.append((job.confirmation, PDFReportStyle.smallFont, PDFReportStyle.secondary))
+        return lines.filter { !$0.0.isEmpty }
     }
 
     private static func photoRows(_ job: ExtraWorkDocument.JobRow, images: [UUID: UIImage]) -> Int {
