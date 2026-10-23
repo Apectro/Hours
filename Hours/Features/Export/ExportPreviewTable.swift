@@ -193,9 +193,12 @@ private struct ExportPreviewRow: View {
         let value = index < row.values.count ? row.values[index] : ""
         let width = ExportPreviewWidths.span(segment.columns, in: widths)
         if segment.isMerged {
-            Text(value.isEmpty ? "—" : value)
+            // A dash for someone not there; why, when it was given
+            // ("Sick leave"), a step less quiet.
+            let isReason = !value.isEmpty && value != "—"
+            Text(isReason ? value : "—")
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(isReason ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.tertiary)
                 .frame(width: width, alignment: .center)
         } else {
             let column = table.columns[index]

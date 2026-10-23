@@ -31,6 +31,32 @@ struct Attendance: Hashable, Codable, Sendable {
     }
 }
 
+/// Why someone on the crew was not on site that day: a day type that means
+/// absent — Sick, Vacation, a day off (`DayTypeCatalog.absenceReasons`).
+/// Per day, because people are sick a day at a time; never copied to the
+/// next day.
+struct CrewAbsence: Hashable, Codable, Sendable {
+    var memberID: UUID
+    var dayTypeID: DayTypeID
+
+    init(memberID: UUID, dayTypeID: DayTypeID) {
+        self.memberID = memberID
+        self.dayTypeID = dayTypeID
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case memberID, dayTypeID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            memberID: container.lenient(.memberID, UUID()),
+            dayTypeID: container.lenient(.dayTypeID, DayTypeID.sick)
+        )
+    }
+}
+
 /// The hours a crew worked on one site on one date.
 struct SiteDay: Hashable, Codable, Sendable {
     var siteID: UUID
@@ -48,6 +74,11 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// no hours at all, or the hours up to the stop; see
     /// `stoppedForBadWeather(at:)`.
     var isBadWeatherStop: Bool
+    /// Why people who are not ticked were not there, for those it was given
+    /// for (1.1). Nobody is both here and absent: `settingAbsence` unticks,
+    /// `togglingPresence` clears the reason, and `absence(for:)` ignores a
+    /// stray reason for someone ticked.
+    var absences: [CrewAbsence]
 
     init(
         siteID: UUID,
@@ -58,7 +89,8 @@ struct SiteDay: Hashable, Codable, Sendable {
         present: [Attendance] = [],
         note: String = "",
         jobID: UUID? = nil,
-        isBadWeatherStop: Bool = false
+        isBadWeatherStop: Bool = false,
+        absences: [CrewAbsence] = []
     ) {
         self.siteID = siteID
         self.date = date
@@ -69,6 +101,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         self.note = note
         self.jobID = jobID
         self.isBadWeatherStop = isBadWeatherStop
+        self.absences = absences
     }
 
     func attendance(for memberID: UUID) -> Attendance? {
@@ -88,6 +121,40 @@ struct SiteDay: Hashable, Codable, Sendable {
         )
     }
 
+    // MARK: - Absences
+
+    /// Why `memberID` was not here, when a reason was given and they are not
+    /// ticked present.
+    func absence(for memberID: UUID) -> DayTypeID? {
+        guard attendance(for: memberID) == nil else { return nil }
+        return absences.first { $0.memberID == memberID }?.dayTypeID
+    }
+
+    /// The day with `reason` as why `memberID` was not here; nil clears it.
+    /// Absent means not here, so giving a reason unticks them.
+    func settingAbsence(_ reason: DayTypeID?, for memberID: UUID) -> SiteDay {
+        var day = self
+        day.absences.removeAll { $0.memberID == memberID }
+        if let reason {
+            day.present.removeAll { $0.memberID == memberID }
+            day.absences.append(CrewAbsence(memberID: memberID, dayTypeID: reason))
+        }
+        return day
+    }
+
+    /// Ticks `memberID` in, or out. Ticking in clears any reason they were
+    /// away; ticking out gives none.
+    func togglingPresence(of memberID: UUID) -> SiteDay {
+        var day = self
+        if let index = day.present.firstIndex(where: { $0.memberID == memberID }) {
+            day.present.remove(at: index)
+        } else {
+            day.present.append(Attendance(memberID: memberID))
+            day.absences.removeAll { $0.memberID == memberID }
+        }
+        return day
+    }
+
     /// True when there is nothing worth storing: nobody ticked, no site times
     /// and no note. The day screen deletes such a day rather than keeping an
     /// empty row, as the calendar does with a blank `DayRecord`. A break on
@@ -97,6 +164,7 @@ struct SiteDay: Hashable, Codable, Sendable {
     var isBlank: Bool {
         !isBadWeatherStop
             && present.isEmpty
+            && absences.isEmpty
             && start == nil
             && end == nil
             && note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -158,7 +226,7 @@ struct SiteDay: Hashable, Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop
+        case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop, absences
     }
 
     init(from decoder: Decoder) throws {
@@ -172,7 +240,8 @@ struct SiteDay: Hashable, Codable, Sendable {
             present: container.lenient(.present, []),
             note: container.lenient(.note, ""),
             jobID: container.lenientOptional(.jobID),
-            isBadWeatherStop: container.lenient(.isBadWeatherStop, false)
+            isBadWeatherStop: container.lenient(.isBadWeatherStop, false),
+            absences: container.lenient(.absences, [])
         )
     }
 }

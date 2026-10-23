@@ -273,6 +273,19 @@ struct DayTypeCatalog: Hashable, Sendable {
         DayTypeDefinition.builtIns.contains { $0.id == id }
     }
 
+    /// The day types that say why someone was not at work, in the catalogue's
+    /// order: Sick, Vacation, Personal day, Time off in lieu, Day off, and
+    /// the user's own types that credit the day or expect nothing of it.
+    /// Never Work, Weekend, Public holiday, Bad weather or Other, which are
+    /// not reasons a person stays away.
+    var absenceReasons: [DayTypeDefinition] {
+        let shipped: Set<DayTypeID> = [.sick, .vacation, .dayOff, .personal, .timeOffInLieu]
+        return all.filter { definition in
+            if DayTypeCatalog.isBuiltIn(definition.id) { return shipped.contains(definition.id) }
+            return definition.expectation != .scheduled
+        }
+    }
+
     func definition(for id: DayTypeID) -> DayTypeDefinition {
         if let match = all.first(where: { $0.id == id }) { return match }
         return DayTypeDefinition(
