@@ -391,6 +391,11 @@ app launched on an Apple Watch simulator with sample data, once per line of
 `fastlane/watch-screenshots.txt`. The app is iPhone-only, so no iPad set is
 needed.
 
+For a design review, run the workflow by hand with **screen_atlas** ticked:
+`ScreenAtlasTests` photographs every screen and state, in light, dark, the
+largest text size and Croatian, into the `screen-atlas` artifact. Nothing
+else runs in that mode.
+
 `fastlane/screenshots.txt` names the version the set is for (`# listing for
 version 1.1`), and the *App Store* workflow uploads a set only when that
 matches the project's `MARKETING_VERSION`. The 1.1 listing text waits in

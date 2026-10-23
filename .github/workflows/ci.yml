@@ -35,6 +35,15 @@ on:
         description: "Only take the screenshots (skip the other tests)"
         type: boolean
         default: false
+      # Every screen and state of the app, for a design review: ScreenAtlasTests
+      # alone, on the large iPhone, in four passes (light, dark, the largest
+      # accessibility text size, Croatian). Nothing else runs, so the run is
+      # the atlas and nothing more; the pictures are the `screen-atlas`
+      # artifact, a folder per pass.
+      screen_atlas:
+        description: "Take the screen atlas (every screen, four passes; skips everything else)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -351,7 +360,9 @@ jobs:
     # The suite has grown to 25–29 minutes on a clean run; at 30 a single
     # slow simulator start or failing test was cut off before it could say
     # which test failed. 50 since a slow runner took 20 for the suite alone.
-    timeout-minutes: 50
+    # The screen atlas is four passes over a hundred-odd screens instead, and
+    # gets longer.
+    timeout-minutes: ${{ inputs.screen_atlas && 100 || 50 }}
 
     steps:
       - uses: actions/checkout@v4
@@ -476,6 +487,7 @@ jobs:
             | tee "$RUNNER_TEMP/build.log"
 
       - name: Test
+        if: ${{ !inputs.screen_atlas }}
         env:
           ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.screenshots_only && '-only-testing:HoursUITests/ScreenshotTests' || '' }}
         run: |
@@ -487,10 +499,112 @@ jobs:
             -destination "id=${{ steps.sim.outputs.udid }}" \
             $ONLY \
             -skip-testing:HoursUITests/WalkthroughTests \
+            -skip-testing:HoursUITests/ScreenAtlasTests \
             -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
             | tee "$RUNNER_TEMP/test.log"
+
+      # The screen atlas: every screen and state, for a design review, from
+      # ScreenAtlasTests alone. Built once, then run four times against the
+      # same build, one pass per look:
+      #
+      #   light          the system as it comes
+      #   dark           `simctl ui appearance dark`
+      #   accessibility  the largest accessibility text size the app is
+      #                  checked at, as a launch argument rather than through
+      #                  `simctl ui content_size`, which reads the setting once
+      #                  at launch anyway and is less settled across Xcodes
+      #   croatian       the app in Croatian, a language with long words
+      #
+      # A pass's launch arguments reach the test through the environment:
+      # xcodebuild hands TEST_RUNNER_-prefixed variables to the test runner
+      # with the prefix removed, and the test adds HOURS_ATLAS_ARGUMENTS to
+      # every launch. HOURS_SCREEN_ATLAS=1 is what lets the test run at all;
+      # every ordinary run skips it.
+      #
+      # A pass that fails still has its pictures (the test notes what it
+      # missed and carries on), so a failure here is a warning and the next
+      # pass runs.
+      - name: Screen atlas
+        if: github.event_name == 'workflow_dispatch' && inputs.screen_atlas
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=$UDID" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            > "$RUNNER_TEMP/atlas-build.log" 2>&1 \
+            || { grep -E "error:" "$RUNNER_TEMP/atlas-build.log" | sort -u | head -20; exit 1; }
+
+          # Booted here, so the appearance can be set before a pass starts.
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+
+          pass() {
+            NAME="$1"; ARGS="$2"
+            echo "----- pass: $NAME (${ARGS:-no extra arguments}) -----"
+            rm -rf "$RUNNER_TEMP/atlas-$NAME.xcresult"
+            TEST_RUNNER_HOURS_SCREEN_ATLAS=1 \
+            TEST_RUNNER_HOURS_ATLAS_ARGUMENTS="$ARGS" \
+            xcodebuild test-without-building \
+              -project Hours.xcodeproj \
+              -scheme Hours \
+              -destination "id=$UDID" \
+              -only-testing:HoursUITests/ScreenAtlasTests \
+              -resultBundlePath "$RUNNER_TEMP/atlas-$NAME.xcresult" \
+              -skipMacroValidation \
+              CODE_SIGNING_ALLOWED=NO \
+              > "$RUNNER_TEMP/test-atlas-$NAME.log" 2>&1 \
+              || echo "::warning::the $NAME pass of the screen atlas failed; its pictures show how far it got"
+            # What the test missed, where it can be read without the log.
+            grep -hE "ATLAS_(TAKEN|MISSED) " "$RUNNER_TEMP/test-atlas-$NAME.log" | cut -c1-2000 || true
+          }
+
+          xcrun simctl ui "$UDID" appearance light
+          pass light ""
+          xcrun simctl ui "$UDID" appearance dark
+          pass dark ""
+          xcrun simctl ui "$UDID" appearance light
+          pass accessibility "-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXL"
+          pass croatian "-AppleLanguages (hr) -AppleLocale hr_HR"
+
+      # The atlas's attachments as PNGs, <pass>/atlas-NN-<screen>.png, named
+      # back from their UUIDs by the same script as the store's screenshots.
+      - name: Export the screen atlas
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.screen_atlas
+        continue-on-error: true
+        run: |
+          OUT="$RUNNER_TEMP/screen-atlas"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+          for PASS in light dark accessibility croatian; do
+            BUNDLE="$RUNNER_TEMP/atlas-$PASS.xcresult"
+            [ -d "$BUNDLE" ] || { echo "::warning::no result bundle for the $PASS pass"; continue; }
+            RAW="$RUNNER_TEMP/atlas-raw-$PASS"
+            rm -rf "$RAW"; mkdir -p "$RAW" "$OUT/$PASS"
+            xcrun xcresulttool export attachments \
+              --path "$BUNDLE" \
+              --output-path "$RAW" || echo "::warning::could not export the $PASS pass"
+            python3 Scripts/name-screenshots.py "$RAW" "$OUT/$PASS"
+            COUNT=$(find "$OUT/$PASS" -name 'atlas-*.png' | wc -l | tr -d ' ')
+            echo "$PASS: $COUNT pictures"
+          done
+          find "$OUT" -type f | sort
+
+      - name: Keep the screen atlas
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.screen_atlas
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-atlas
+          path: ${{ runner.temp }}/screen-atlas
+          if-no-files-found: warn
+          retention-days: 30
 
       # The screenshots for the App Store listing, taken by ScreenshotTests and
       # pulled out of the result bundle. xcresulttool names every exported file
@@ -500,7 +614,7 @@ jobs:
       # suite is not paid for twice — the rest of it has already run above and
       # does not depend on the screen.
       - name: Screenshots at the second size
-        if: always() && steps.sim.outputs.second_udid != '' && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
+        if: always() && !inputs.screen_atlas && steps.sim.outputs.second_udid != '' && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
         continue-on-error: true
         run: |
           set -o pipefail
@@ -524,7 +638,7 @@ jobs:
       # finds everything by accessibility identifier — a suite that waits for
       # buttons["Calendar"] passes in English and hangs here.
       - name: Screenshots in German
-        if: always() && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
+        if: always() && !inputs.screen_atlas && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
         continue-on-error: true
         run: |
           set -o pipefail
@@ -558,7 +672,7 @@ jobs:
       #     on that signal and only on that signal — killed any other way it
       #     leaves a file of the right size that no player will open.
       - name: Record a walkthrough
-        if: github.event_name == 'workflow_dispatch' && inputs.record_walkthrough
+        if: github.event_name == 'workflow_dispatch' && inputs.record_walkthrough && !inputs.screen_atlas
         continue-on-error: true
         run: |
           set -o pipefail
@@ -679,7 +793,7 @@ jobs:
       # and the simulator's boot.
       - name: Apple Watch screenshots
         if: >-
-          always() && steps.sim.outputs.watch_udid != '' &&
+          always() && !inputs.screen_atlas && steps.sim.outputs.watch_udid != '' &&
           (github.event_name != 'workflow_dispatch' || inputs.screenshots_only ||
           inputs.extra_screenshots || github.ref == 'refs/heads/main')
         continue-on-error: true
@@ -735,7 +849,7 @@ jobs:
       # A folder per device, named after the simulator, because the two sets are
       # otherwise identical filenames and Apple wants them uploaded separately.
       - name: App Store screenshots
-        if: always()
+        if: always() && !inputs.screen_atlas
         continue-on-error: true
         env:
           PRIMARY_NAME: ${{ steps.sim.outputs.name }}
@@ -834,7 +948,7 @@ jobs:
       # branch: they are build output, and build output in the history of the
       # source is a mistake that compounds.
       - name: Publish the screenshots to a branch
-        if: always() && github.ref == 'refs/heads/main'
+        if: always() && !inputs.screen_atlas && github.ref == 'refs/heads/main'
         continue-on-error: true
         env:
           PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -867,7 +981,7 @@ jobs:
           echo "pushed to the screenshots branch"
 
       - name: Keep the screenshots
-        if: always()
+        if: always() && !inputs.screen_atlas
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
