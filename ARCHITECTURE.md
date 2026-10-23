@@ -837,7 +837,8 @@ the report. Builds of 1.1 before it shipped had a third status, invoiced; a
 stored "invoiced" reads as sent. A job sent while in progress and finished since
 (`doneAt` after `sentAt`) is `awaitsReport` again: the boss heard it was under
 way, not that it is done. A job shows at most two chips — In progress / Finished,
-then Sent or Signed.
+then Sent or Signed (grey) — through `ExtraWorkChips` everywhere, the report
+included.
 
 The report (`ExtraWorkReport`, pure) is one site's finished jobs — not sent yet
 (every finished job the boss does not have, whatever its date), this week, or
@@ -845,8 +846,15 @@ picked dates — and those still in progress only when "Include jobs still in
 progress" is on; `ExtraWorkReport` keeps them apart (`done`, `inProgress`).
 Material is summed per item and unit over both: case, accents and spacing do not
 make a new item (`ExtraWorkCatalog.key`), and a line is named as it was most
-recently written. The report screen lists every job on the site still in
-progress at the top, whatever the range, each with its checkmark.
+recently written. The report screen ("Extra-work report") puts the site and
+what it carries first, then the range, then the jobs; every job on the site
+still in progress, whatever the range, is one line under the title that opens
+in place to a list with checkmarks. A new job starts in progress, so a report
+left empty only by jobs in progress (`ExtraWorkRange.leftInProgress`) says how
+many, with "Include them" (turns the switch on) and "Mark finished…" (lists
+them with their checkmarks) instead of "Nothing to report". One button sends
+the PDF ("Send to boss · PDF"); the picture, Excel and CSV are in a "More
+formats" menu beside it.
 `ExtraWorkDocument` turns a report into the export language's words — "Extra
 work done · dates", the work done day by day with its photos first, then a
 "Still in progress" section if any, then the material used as a summary; tiles
@@ -1014,6 +1022,21 @@ The widget cannot ask StoreKit cheaply from its own short-lived process, so the
 answer travels in the snapshot the app already writes. It defaults closed, which
 is what makes a file written by an older version read as unpaid rather than as a
 free pass.
+
+## Look
+
+`Hours/Features/Shared/DesignSystem.swift` holds the spacing scale (`Metrics`:
+tiny 4, small 8, medium 12, large 16, extraLarge 24; corner radii 14 for cards,
+10 for smaller tiles, `chipCornerRadius` 8 for status chips) and the semantic
+colours. `hoursNegative` and `hoursPositive` are asset colours
+(`HoursWarningText`, `HoursPositiveText`) that pass contrast as text in Light
+mode — system orange and green on white do not, which matters in sunlight —
+and are the system colours in Dark; `hoursNegativeFill` is the bright orange,
+for washes only. A scrolling screen that is not a `Form` is `SectionHeading`
+over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
+every in-scroll section. Sheets that write something have Cancel on the left
+and Save (or a more precise verb, such as Sign) on the right; sheets that only
+show or share have Done on the right.
 
 ## Text and tests
 
