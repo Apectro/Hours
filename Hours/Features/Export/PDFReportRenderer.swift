@@ -165,8 +165,8 @@ struct PDFTablePainter {
                 color: PDFReportStyle.secondary,
                 alignment: .left
             )
-            separator(at: frame.minX, from: y, to: y + height)
         }
+        drawGroupSeparators(from: y, to: y + height)
 
         PDFReportStyle.line(
             from: CGPoint(x: PDFReportStyle.margin, y: y + height),
@@ -210,9 +210,7 @@ struct PDFTablePainter {
             )
         }
 
-        for range in table.groupRanges where range.count > 1 {
-            separator(at: span(range).minX, from: y, to: y + height)
-        }
+        drawGroupSeparators(from: y, to: y + height)
         if row.role == .day {
             PDFReportStyle.line(
                 from: CGPoint(x: full.minX, y: full.maxY),
@@ -283,6 +281,15 @@ struct PDFTablePainter {
         guard let first = range.first, first < xs.count else { return .zero }
         let width = range.reduce(CGFloat(0)) { $0 + ($1 < widths.count ? widths[$1] : 0) }
         return CGRect(x: xs[first], y: 0, width: width, height: 0)
+    }
+
+    /// A rule before every column group but the first, which starts at the
+    /// margin: before each person's pair and before a group of one too, so
+    /// a site sheet's Date and Day are ruled apart like everyone else.
+    private func drawGroupSeparators(from top: CGFloat, to bottom: CGFloat) {
+        for range in table.groupRanges where (range.first ?? 0) > 0 {
+            separator(at: span(range).minX, from: top, to: bottom)
+        }
     }
 
     private func separator(at x: CGFloat, from top: CGFloat, to bottom: CGFloat) {
