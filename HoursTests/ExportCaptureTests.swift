@@ -304,23 +304,40 @@ final class ExportCaptureTests: XCTestCase {
 
     // MARK: - The director's sheet
 
+    /// The crew a big site has: with you, ten people on one sheet.
+    private static let bigCrew = [
+        "Ivan Horvat", "Marko Kovač", "Stjepan Babić", "Josip Novak", "Ante Jurić",
+        "Tomislav Knežević", "Katarina Vuković-Marić", "Luka Pavlović", "Dragan Božić"
+    ]
+
     /// A site's month with the cases its page has to show: someone off for a
-    /// day, someone leaving early, and a note.
-    private func siteTable() -> ReportTable {
+    /// day, someone leaving early, and a note. `crew` after the first two
+    /// are there every working day, the odd one leaving early.
+    private func siteTable(crew names: [String] = ["Ivan Horvat", "Marko Kovač"]) -> ReportTable {
         let site = Site(name: "Trg Pravde Zagreb")
         var export = ExportPreferences()
         export.ownerName = "Marijo Mikša"
         let settings = Fixture.settings(export: export)
-        let ivan = CrewMember(siteID: site.id, name: "Ivan Horvat", isHidden: false, sortOrder: 0)
-        let marko = CrewMember(siteID: site.id, name: "Marko Kovač", isHidden: false, sortOrder: 1)
+        let crew = names.enumerated().map { index, name in
+            CrewMember(siteID: site.id, name: name, isHidden: false, sortOrder: index)
+        }
         var days: [SiteDay] = []
         for day in 1...31 {
             let date = Fixture.date(2026, 8, day)
             let weekday = calendar.component(.weekday, from: date.date(in: calendar))
             guard weekday != 1, weekday != 7 else { continue }
-            var present = [Attendance(memberID: CrewMember.youID), Attendance(memberID: ivan.id)]
-            if day % 6 != 0 {
-                present.append(Attendance(memberID: marko.id, end: day % 5 == 0 ? Fixture.time(13) : nil))
+            var present = [Attendance(memberID: CrewMember.youID)]
+            for (index, member) in crew.enumerated() {
+                switch index {
+                case 0:
+                    present.append(Attendance(memberID: member.id))
+                case 1:
+                    if day % 6 != 0 {
+                        present.append(Attendance(memberID: member.id, end: day % 5 == 0 ? Fixture.time(13) : nil))
+                    }
+                default:
+                    present.append(Attendance(memberID: member.id, end: (day + index) % 7 == 0 ? Fixture.time(14, 30) : nil))
+                }
             }
             days.append(SiteDay(
                 siteID: site.id,
@@ -336,7 +353,7 @@ final class ExportCaptureTests: XCTestCase {
         return SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
             .makeTable(
                 site: site,
-                crew: [ivan, marko],
+                crew: crew,
                 results: days.map(calculator.compute),
                 range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
             )
@@ -380,6 +397,75 @@ final class ExportCaptureTests: XCTestCase {
             let text = document.page(at: index)?.string ?? ""
             XCTAssertTrue(text.contains("page \(index + 1) of \(count)"), "page \(index + 1) does not say of \(count)")
         }
+    }
+
+    // MARK: - A big crew, split across pages
+
+    /// Ten people for a whole month: more than A4 landscape holds, so the
+    /// month prints once per group of people, each part with the date, the
+    /// day, the notes and its own closing rows, and "People 1–5 of 10" under
+    /// the header.
+    func testCaptureTheSiteSheetSplitForTenPeople() throws {
+        let table = siteTable(crew: Self.bigCrew)
+        let parts = PDFReportRenderer.parts(of: table)
+        XCTAssertGreaterThan(parts.count, 1, "ten people were printed on one page")
+
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(4).enumerated() {
+            attach(image, named: "17-site-pdf-split-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertGreaterThanOrEqual(document.pageCount, parts.count)
+        let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
+        let text = pageTexts.joined()
+
+        // The page count runs across every part.
+        for (index, page) in pageTexts.enumerated() {
+            XCTAssertTrue(page.contains("page \(index + 1) of \(document.pageCount)"), "page \(index + 1) is misnumbered")
+        }
+        XCTAssertTrue(pageTexts[0].contains(parts[0].partLabel), "the first page does not say whose hours it holds")
+        XCTAssertTrue(parts[0].partLabel.hasPrefix("People 1–"))
+        for part in parts {
+            XCTAssertTrue(text.contains(part.partLabel), "\(part.partLabel) is not printed")
+        }
+        // Everyone is there, under their own name, and every part closes.
+        for name in ["MARIJO MIKŠA"] + Self.bigCrew.map({ $0.uppercased() }) {
+            XCTAssertTrue(text.contains(name), "\(name) is missing from the headings")
+        }
+        XCTAssertEqual(text.components(separatedBy: "Month total").count - 1, parts.count)
+        XCTAssertGreaterThanOrEqual(text.components(separatedBy: "NOTES").count - 1, parts.count, "a part has no Notes")
+    }
+
+    /// Whatever the crew, no time and no hours are cut short: the sheet is
+    /// split as far as it has to be and no further. A crew that fits prints
+    /// exactly as it always did — one table, no "People 1–5 of 5".
+    func testNoCrewSizeCutsATimeShort() {
+        let available = PDFReportRenderer.pageSize.width - PDFReportRenderer.margin * 2
+        print("----- site sheet parts -----")
+        for crewSize in 0...Self.bigCrew.count {
+            let table = siteTable(crew: Array(Self.bigCrew.prefix(crewSize)))
+            let parts = PDFReportRenderer.parts(of: table)
+            let people = crewSize + 1
+            print("\(people) people: \(parts.compactMap(SiteSheetBuilder.peopleCount(in:))) to a page")
+
+            if people <= 5 {
+                XCTAssertEqual(parts, [table], "\(people) people should fit on one page, unchanged")
+            }
+            if parts.count == 1 {
+                XCTAssertEqual(parts, [table], "a sheet that was not split was still changed")
+            }
+            for part in parts {
+                let widths = PDFReportRenderer.columnWidths(for: part, availableWidth: available)
+                let minimum = PDFReportLayout(table: part).minimumWidths()
+                for (index, column) in part.columns.enumerated() where !column.mayTruncate {
+                    XCTAssertGreaterThanOrEqual(
+                        widths[index] + 0.5, minimum[index],
+                        "\(people) people, \(part.partLabel): \(column.rawValue) is cut short"
+                    )
+                }
+            }
+        }
+        print("----- end site sheet parts -----")
     }
 
     /// The CSV and the workbook, written exactly as the app writes them.

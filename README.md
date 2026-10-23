@@ -82,7 +82,8 @@ problems and visitors, and up to six photos, stripped of their location. A
 no hours or keeping the hours until the stop, and gives your own day the Bad
 weather type. At month end each crew member checks their hours on your phone and
 signs with a finger; a signature whose hours change afterwards says so. The
-director's sheet can carry the diary and the signatures.
+director's sheet can carry the diary and the signatures; in the PDF, a crew too
+big for one page is printed a group of people at a time, never with times cut short.
 
 **Extra work** — what the crew did beyond the contract, written down so the
 boss knows what is done: "8 emergency lights and 10 lamps". Each job on a site
