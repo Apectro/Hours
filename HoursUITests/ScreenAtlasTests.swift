@@ -291,6 +291,8 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "person-times-cancel")
         }
 
+        absenceScreens(app)
+
         let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
         if tap(weather, "the rained-off menu", app) {
             capture("site-rained-off-menu", app)
@@ -632,6 +634,14 @@ final class ScreenAtlasTests: XCTestCase {
                 self.capture("settings-day-type-editor", app)
                 self.close(app, "day-type-editor-cancel")
             }
+            // Sick, fifth in the list: Paid at, the 42 days and the note.
+            let sick = app.buttons.matching(identifier: "day-types-row").element(boundBy: 4)
+            if self.tap(sick, "the Sick day type", app) {
+                self.capture("settings-day-type-sick", app)
+                self.swipeUp(app)
+                self.capture("settings-day-type-sick-lower", app)
+                self.close(app, "day-type-editor-cancel")
+            }
             if self.tap(app.buttons.matching(identifier: "day-types-add").firstMatch, "Add a day type", app) {
                 self.capture("settings-day-type-new", app)
                 self.close(app, "day-type-editor-cancel")
@@ -666,6 +676,30 @@ final class ScreenAtlasTests: XCTestCase {
             self.swipeUp(app)
             self.capture("settings-privacy-lower", app)
         }
+    }
+
+    /// Why someone was not here: the first of the crew unticked, the
+    /// reasons the button beside them offers, and their row once marked
+    /// sick. Ticked again at the end, which clears the reason, so the
+    /// pictures after this see the day as it was.
+    private func absenceScreens(_ app: XCUIApplication) {
+        let crew = app.buttons.matching(NSPredicate(
+            format: "identifier BEGINSWITH 'site-person-' AND identifier != 'site-person-you'"
+        )).firstMatch
+        guard tap(crew, "the first of the crew", app) else { return }
+        pause(0.5)
+        // You are row 0, so the first of the crew is row 1.
+        if tap(app.buttons.matching(identifier: "site-absence-1").firstMatch, "the reason button", app) {
+            capture("site-absence-menu", app)
+            if tap(app.buttons.matching(identifier: "site-absence-reason-sick").firstMatch, "Sick", app) {
+                pause(0.5)
+                capture("site-absence-sick", app)
+            } else {
+                dismissMenu(app)
+            }
+        }
+        tapAnyway(crew)
+        pause(0.5)
     }
 
     /// Last month, closed in Settings a moment ago: the calendar's notice,
