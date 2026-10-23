@@ -34,7 +34,8 @@ struct SiteSheetBuilder: Sendable {
         results: [SiteDayResult],
         range: CalendarDateRange,
         signatures: [CrewSignature] = [],
-        includesSignatures: Bool = true
+        includesSignatures: Bool = true,
+        siteNames: [UUID: String] = [:]
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -52,7 +53,11 @@ struct SiteSheetBuilder: Sendable {
         // crew in their order. Hidden members are kept, because hiding only
         // stops them being offered for new days. Someone no longer in the crew
         // list has no name to print, so has no column.
-        let present = Set(byDate.values.flatMap { $0.people.map(\.memberID) })
+        // Someone away all month, sick or on leave, is on the sheet too: why
+        // they were not there is what the director needs to see.
+        let present = Set(byDate.values.flatMap { result in
+            result.people.map(\.memberID) + result.day.absences.map(\.memberID)
+        })
         var people: [Person] = []
         if present.contains(CrewMember.youID) {
             people.append(Person(id: CrewMember.youID, heading: owner.isEmpty ? language(.you) : owner))
@@ -72,6 +77,9 @@ struct SiteSheetBuilder: Sendable {
         var rows: [ReportRow] = []
         var totalMinutes = Array(repeating: 0, count: people.count)
         var daysWorked = Array(repeating: 0, count: people.count)
+        var sickDays = Array(repeating: 0, count: people.count)
+        var leaveDays = Array(repeating: 0, count: people.count)
+        let catalog = settings.dayTypeCatalog
 
         for date in dates {
             guard let result = byDate[date] else { continue }
@@ -84,8 +92,26 @@ struct SiteSheetBuilder: Sendable {
             for (index, person) in people.enumerated() {
                 guard let entry = result.people.first(where: { $0.memberID == person.id }) else {
                     // Group 0 is the day, so a person's group is one along.
+                    // Not there: why, when it was given ("Sick leave"), in
+                    // the words a timesheet uses for the day type.
                     merged.insert(index + 1)
-                    values += [emptyPlaceholder, ""]
+                    // On another site: its name when it is known, else
+                    // "Other site"; neither sick nor leave.
+                    let text: String
+                    switch result.day.absenceReason(for: person.id) {
+                    case let .dayType(id)?:
+                        text = catalog.definition(for: id).exportName(in: language)
+                        switch Self.absenceKind(id) {
+                        case .sick: sickDays[index] += 1
+                        case .leave: leaveDays[index] += 1
+                        case .other: break
+                        }
+                    case let .otherSite(siteID)?:
+                        text = siteID.flatMap { siteNames[$0] } ?? language(.otherSite)
+                    case nil:
+                        text = emptyPlaceholder
+                    }
+                    values += [text, ""]
                     minutes += [nil, nil]
                     continue
                 }
@@ -126,6 +152,13 @@ struct SiteSheetBuilder: Sendable {
         totalCells.append(nil)
         countValues.append("")
 
+        // Days away sick and on leave, each a row only when anybody had one,
+        // and blank for a person with none.
+        var absenceRows: [[String]] = []
+        for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays)] where counts.contains(where: { $0 > 0 }) {
+            absenceRows.append([language(term)] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
+        }
+
         // Ids 0 and 1 cannot collide with a date key.
         rows.append(ReportRow(
             id: 0,
@@ -145,6 +178,18 @@ struct SiteSheetBuilder: Sendable {
             hasEntry: true,
             role: .count
         ))
+        // Ids 2 and 3, as 0 and 1 above.
+        for (offset, values) in absenceRows.enumerated() {
+            rows.append(ReportRow(
+                id: 2 + offset,
+                values: values,
+                minutes: Array(repeating: nil, count: values.count),
+                isWorkingDay: true,
+                balanceMinutes: 0,
+                hasEntry: true,
+                role: .count
+            ))
+        }
 
         let crewMinutes = totalMinutes.reduce(0, +)
         let recorded = owner.isEmpty ? [] : ["\(language(.recordedBy)) \(owner)"]
@@ -163,7 +208,7 @@ struct SiteSheetBuilder: Sendable {
             headingOverrides: [language(.day)]
                 + people.flatMap { _ in [language(.fromTo), language(.hours)] }
                 + [language(.notes)],
-            trailingSummaryRows: 2
+            trailingSummaryRows: 2 + absenceRows.count
         )
         table.kind = .siteSheet
         table.eyebrow = "\(language(.siteHours)) · \(month)"
@@ -256,6 +301,18 @@ struct SiteSheetBuilder: Sendable {
         guard day.isBadWeatherStop else { return day.note }
         let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
         return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
+    }
+
+    private enum AbsenceKind { case sick, leave, other }
+
+    /// Sick is sick; leave is Vacation, a personal day and every absence
+    /// type of the user's own; a day off and time off in lieu are neither.
+    private static func absenceKind(_ id: DayTypeID) -> AbsenceKind {
+        switch id {
+        case .sick: return .sick
+        case .dayOff, .timeOffInLieu: return .other
+        default: return .leave
+        }
     }
 
     /// The same test the timesheet's end column uses for "(+1)".

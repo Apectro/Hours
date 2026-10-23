@@ -126,6 +126,11 @@ struct ExportTableMaker {
             range: range
         )
         let printsDiary = includeDiary && !diary.isEmpty
+        // For "On another site": the site's name on the sheet, archived too.
+        let siteNames = Dictionary(
+            repository.sites(includeArchived: true).map { ($0.id, $0.name) },
+            uniquingKeysWith: { first, _ in first }
+        )
 
         func build(_ placeholder: String) -> ReportTable {
             var table = SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
@@ -135,7 +140,8 @@ struct ExportTableMaker {
                     results: results,
                     range: range,
                     signatures: signatures,
-                    includesSignatures: includeSignatures
+                    includesSignatures: includeSignatures,
+                    siteNames: siteNames
                 )
             if printsDiary { table.diary = diary }
             return table

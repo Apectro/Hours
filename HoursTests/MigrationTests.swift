@@ -309,12 +309,20 @@ final class MigrationTests: XCTestCase {
         XCTAssertNoThrow(try context.save())
     }
 
-    /// The oldest stores go the whole way, V1 to V6, in one open.
+    /// The oldest stores go the whole way, V1 to V7, in one open.
     func testAVersionOneStoreReachesTheNewestVersion() throws {
         try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
         let context = ModelContext(try HoursModelContainer.make(at: storeURL))
         XCTAssertEqual(WorkdayRepository(context: context).allEntries().count, 1)
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<ExtraWorkJobEntry>()), 0)
+
+        // And takes a site day with a reason someone was away.
+        let siteID = UUID()
+        let day = SiteDay(siteID: siteID, date: Fixture.date(2026, 10, 23))
+            .settingAbsence(.sick, for: UUID())
+        context.insert(SiteDayEntry(day: day))
+        XCTAssertNoThrow(try context.save())
+        XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDayEntry>()).first?.siteDay, day)
     }
 
     // MARK: - Done (V5 to V6)
@@ -374,6 +382,69 @@ final class MigrationTests: XCTestCase {
         let fresh = ExtraWorkJob(siteID: siteID, date: Fixture.date(2026, 10, 23), description: "Under way")
         ExtraWorkRepository(context: context).storeJob(fresh)
         XCTAssertEqual(ExtraWorkRepository(context: context).job(id: fresh.id)?.isDone, false)
+    }
+
+    // MARK: - Absences (V6 to V7)
+
+    /// Writes a store as 1.1 before crew absences left one: V6's frozen
+    /// copies, with a site day and an extra-work job in progress.
+    private func writeVersionSixStore() throws -> (site: UUID, member: UUID) {
+        let schema = Schema(versionedSchema: HoursSchemaV6.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let memberID = UUID()
+        let site = HoursSchemaV6.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        context.insert(site)
+        let member = HoursSchemaV6.CrewMemberEntry(memberID: memberID.uuidString)
+        member.siteID = siteID.uuidString
+        member.name = "Ivo"
+        context.insert(member)
+        let day = HoursSchemaV6.SiteDayEntry(siteID: siteID.uuidString, dateKey: 20_261_022)
+        day.startMinutes = 7 * 60
+        day.endMinutes = 16 * 60
+        day.presentData = SiteDayEntry.encodePresent([Attendance(memberID: CrewMember.youID)])
+        context.insert(day)
+        let job = HoursSchemaV6.ExtraWorkJobEntry(jobID: UUID().uuidString)
+        job.siteID = siteID.uuidString
+        job.dateKey = 20_261_022
+        job.workDescription = "Cable trays"
+        job.isDone = false
+        context.insert(job)
+        try context.save()
+        return (siteID, memberID)
+    }
+
+    /// A V6 store opens with every site day as it was and no absences, and
+    /// then takes a day with one.
+    func testAVersionSixStoreOpensWithNoAbsences() throws {
+        let (siteID, memberID) = try writeVersionSixStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        let sites = SiteRepository(context: context)
+        let day = try XCTUnwrap(sites.siteDay(siteID: siteID, on: Fixture.date(2026, 10, 22)))
+        XCTAssertEqual(day.present.map(\.memberID), [CrewMember.youID])
+        XCTAssertEqual(day.start, TimeOfDay(hour: 7, minute: 0))
+        XCTAssertEqual(day.absences, [])
+        XCTAssertEqual(sites.crew(for: siteID, includeHidden: true).map(\.name), ["Ivo"])
+        XCTAssertEqual(ExtraWorkRepository(context: context).jobs(siteID: siteID).first?.isDone, false)
+
+        let sick = day.settingAbsence(.sick, for: memberID)
+        try sites.save(sick)
+        XCTAssertEqual(SiteRepository(context: context).siteDay(siteID: siteID, on: sick.date)?.absence(for: memberID), .sick)
+    }
+
+    func testSiteDayEntryKeepsAbsences() {
+        let day = SiteDay(siteID: UUID(), date: Fixture.date(2026, 10, 23), present: [Attendance(memberID: CrewMember.youID)])
+            .settingAbsence(.vacation, for: UUID())
+        let entry = SiteDayEntry(day: day)
+        XCTAssertNotNil(entry.absenceData)
+        XCTAssertEqual(entry.siteDay, day)
+        entry.apply(day.settingAbsence(nil, for: day.absences[0].memberID))
+        XCTAssertNil(entry.absenceData, "no absences store nothing")
+        XCTAssertEqual(SiteDayEntry.decodeAbsences(Data("damaged".utf8)), [])
     }
 
     func testExtraWorkEntriesRoundTrip() {
@@ -479,6 +550,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(entry.siteDay, day)
         XCTAssertNil(entry.startMinutes)
         XCTAssertNil(entry.presentData)
+        XCTAssertNil(entry.absenceData)
         XCTAssertNil(entry.jobID)
     }
 
@@ -531,14 +603,15 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 6)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 5)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 7)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 6)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
         XCTAssertEqual(HoursSchemaV4.versionIdentifier, Schema.Version(4, 0, 0))
         XCTAssertEqual(HoursSchemaV5.versionIdentifier, Schema.Version(5, 0, 0))
         XCTAssertEqual(HoursSchemaV6.versionIdentifier, Schema.Version(6, 0, 0))
+        XCTAssertEqual(HoursSchemaV7.versionIdentifier, Schema.Version(7, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is

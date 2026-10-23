@@ -51,6 +51,13 @@ struct DayEarnings: Identifiable, Hashable, Sendable {
     var saturdayMinutes: Int = 0
     var sundayAndHolidayMinutes: Int = 0
     var nightMinutes: Int = 0
+    /// The percentage the day's credited hours were paid at, when its type
+    /// pays less than all of them (sick leave at 70%); nil when in full or
+    /// when nothing was credited.
+    var absencePaidPercent: Int?
+    /// A day past the employer's first 42 days of a sick-leave run: the
+    /// health insurer pays it (HZZO in Croatia), so it earns nothing here.
+    var isPaidByHealthInsurance = false
 
     var id: Int { date.key }
     var totalCents: Int { breakdown.totalCents }
@@ -110,10 +117,44 @@ struct EarningsCalculator: Sendable {
     func earnings(for days: [DayComputation]) -> [DayEarnings] {
         let byDate = Dictionary(days.map { ($0.date, $0) }, uniquingKeysWith: { first, _ in first })
         var week = WeekTally(start: nil)
-        return days.map { day in
+        let positions = Self.runPositions(of: days, in: calendar)
+        return zip(days, positions).map { day, position in
             let start = CalendarDateRange.week(containing: day.date, in: calendar).start
             if week.start != start { week = WeekTally(start: start) }
-            return earnings(for: day, week: &week, byDate: byDate)
+            return earnings(for: day, week: &week, byDate: byDate, runPosition: position)
+        }
+    }
+
+    /// For each day whose type pays only the first 42 days of a run, which
+    /// calendar day of its run it is (1 for the first); nil for every other
+    /// day.
+    ///
+    /// A run is consecutive dates of the same such type. Sick leave counts
+    /// calendar days, so a weekend or a public holiday left as it is — no
+    /// type chosen over it, nothing worked — does not end a run that carries
+    /// on after it, and counts in it; any other day does. A run reaching back
+    /// before the first day given is counted from that first day, so the
+    /// days handed over must start early enough to see it
+    /// (`PeriodEngine.earningsRange(covering:)` reaches back for this).
+    static func runPositions(of days: [DayComputation], in calendar: Calendar) -> [Int?] {
+        var runStart: CalendarDate?
+        var runType: DayTypeID?
+        var previous: CalendarDate?
+        return days.map { day in
+            defer { previous = day.date }
+            if let previous, previous.adding(days: 1, in: calendar) != day.date {
+                runStart = nil
+            }
+            if day.dayType.employerPaysFirst42Days {
+                if runStart == nil || runType != day.dayType.id {
+                    runStart = day.date
+                    runType = day.dayType.id
+                }
+                return (runStart?.days(until: day.date, in: calendar) ?? 0) + 1
+            }
+            let bridges = (day.dayType.id == .weekend || day.dayType.id == .holiday) && day.workedMinutes == 0
+            if !bridges { runStart = nil }
+            return nil
         }
     }
 
@@ -161,11 +202,18 @@ struct EarningsCalculator: Sendable {
     private func earnings(
         for day: DayComputation,
         week: inout WeekTally,
-        byDate: [CalendarDate: DayComputation]
+        byDate: [CalendarDate: DayComputation],
+        runPosition: Int?
     ) -> DayEarnings {
         // Excluded days and days before the balance starts count for nothing
         // anywhere else, so they earn nothing and add nothing to the week.
         guard day.isIncluded, !day.precedesBalanceStart else { return .nothing(on: day.date) }
+
+        // Paid absence earns its type's percentage of the credited hours —
+        // nothing at all past the employer's days of a run. Surcharges never
+        // applied to credited hours, so nothing else changes.
+        let pastEmployerDays = runPosition.map { $0 > DayTypeDefinition.employerPaidDays } ?? false
+        let absencePercent = pastEmployerDays ? 0 : day.dayType.paidPercent
 
         let pieces = workedPieces(of: day)
         let credited = creditedShares(of: day)
@@ -192,7 +240,7 @@ struct EarningsCalculator: Sendable {
             let rate = rules.hourlyRateCents
 
             exact.base += worked * rate * 100
-            if rules.paidAbsenceEarns { exact.paidAbsence += creditedMinutes * rate * 100 }
+            if rules.paidAbsenceEarns { exact.paidAbsence += creditedMinutes * rate * absencePercent }
 
             // Credited hours fill the normal day or week first, as they do in
             // the balance, but are never themselves overtime.
@@ -222,6 +270,10 @@ struct EarningsCalculator: Sendable {
         }
 
         result.breakdown = exact.rounded
+        result.isPaidByHealthInsurance = pastEmployerDays
+        if !pastEmployerDays, absencePercent < 100, day.creditedMinutes > 0 {
+            result.absencePaidPercent = absencePercent
+        }
         return result
     }
 

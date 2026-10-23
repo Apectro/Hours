@@ -78,6 +78,19 @@ struct DayTypeDefinition: Identifiable, Hashable, Codable, Sendable {
     var showsTimesByDefault: Bool
     var isBuiltIn: Bool
     var sortOrder: Int
+    /// What a credited-absence day of this type pays, as a percentage of the
+    /// credited hours at the rate: 0 to 100, 100 unless changed. Sick leave
+    /// in Croatia is 70%. Money only — the hours credited and the balance are
+    /// the same whatever it says. Added in 1.1; absent reads as 100.
+    var paidPercent: Int
+    /// The employer pays a run of this type for its first
+    /// `employerPaidDays` calendar days only, and the health insurer after
+    /// that (Croatian sick leave: HZZO from day 43), so the app counts
+    /// nothing earned from then on. Added in 1.1; absent reads as off.
+    var employerPaysFirst42Days: Bool
+
+    /// The days of a run the employer pays when `employerPaysFirst42Days`.
+    static let employerPaidDays = 42
 
     init(
         id: DayTypeID,
@@ -87,7 +100,9 @@ struct DayTypeDefinition: Identifiable, Hashable, Codable, Sendable {
         expectation: ExpectationPolicy,
         showsTimesByDefault: Bool,
         isBuiltIn: Bool = false,
-        sortOrder: Int = 500
+        sortOrder: Int = 500,
+        paidPercent: Int = 100,
+        employerPaysFirst42Days: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -97,6 +112,39 @@ struct DayTypeDefinition: Identifiable, Hashable, Codable, Sendable {
         self.showsTimesByDefault = showsTimesByDefault
         self.isBuiltIn = isBuiltIn
         self.sortOrder = sortOrder
+        self.paidPercent = min(100, max(0, paidPercent))
+        self.employerPaysFirst42Days = employerPaysFirst42Days
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, symbolName, tint, expectation, showsTimesByDefault, isBuiltIn, sortOrder
+        case paidPercent, employerPaysFirst42Days
+    }
+
+    /// Strict on what a type always had, as Swift's own decoder was, so a
+    /// damaged definition still fails as it did; lenient on what 1.1 added,
+    /// so a type stored before it reads as paid in full. Older decoders skip
+    /// the two new keys.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            id: try container.decode(DayTypeID.self, forKey: .id),
+            name: try container.decode(String.self, forKey: .name),
+            symbolName: try container.decode(String.self, forKey: .symbolName),
+            tint: try container.decode(TypeTint.self, forKey: .tint),
+            expectation: try container.decode(ExpectationPolicy.self, forKey: .expectation),
+            showsTimesByDefault: try container.decode(Bool.self, forKey: .showsTimesByDefault),
+            isBuiltIn: try container.decode(Bool.self, forKey: .isBuiltIn),
+            sortOrder: try container.decode(Int.self, forKey: .sortOrder),
+            paidPercent: container.lenient(.paidPercent, 100),
+            employerPaysFirst42Days: container.lenient(.employerPaysFirst42Days, false)
+        )
+    }
+
+    /// Whether a day of this type pays less than its credited hours at the
+    /// rate: a percentage below 100, or the employer paying only so long.
+    var paysReducedAbsence: Bool {
+        expectation == .creditedAbsence && (paidPercent < 100 || employerPaysFirst42Days)
     }
 }
 
@@ -223,6 +271,19 @@ struct DayTypeCatalog: Hashable, Sendable {
     /// Whether `id` names one of the types the app ships with.
     static func isBuiltIn(_ id: DayTypeID) -> Bool {
         DayTypeDefinition.builtIns.contains { $0.id == id }
+    }
+
+    /// The day types that say why someone was not at work, in the catalogue's
+    /// order: Sick, Vacation, Personal day, Time off in lieu, Day off, and
+    /// the user's own types that credit the day or expect nothing of it.
+    /// Never Work, Weekend, Public holiday, Bad weather or Other, which are
+    /// not reasons a person stays away.
+    var absenceReasons: [DayTypeDefinition] {
+        let shipped: Set<DayTypeID> = [.sick, .vacation, .dayOff, .personal, .timeOffInLieu]
+        return all.filter { definition in
+            if DayTypeCatalog.isBuiltIn(definition.id) { return shipped.contains(definition.id) }
+            return definition.expectation != .scheduled
+        }
     }
 
     func definition(for id: DayTypeID) -> DayTypeDefinition {

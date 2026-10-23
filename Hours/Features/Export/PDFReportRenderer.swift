@@ -190,19 +190,21 @@ struct PDFTablePainter {
         return y + height
     }
 
-    /// Someone not there that day: one faint dash across their group. Returns
-    /// the columns it covered, so they are not drawn again.
+    /// Someone not there that day: one faint dash across their group, or why
+    /// they were away ("Sick leave") a step darker. Returns the columns it
+    /// covered, so they are not drawn again.
     private func drawMergedGroups(of row: ReportRow, at y: CGFloat, height: CGFloat) -> Set<Int> {
         let ranges = table.groupRanges
         var covered = Set<Int>()
         for group in row.mergedGroups.sorted() where group < ranges.count {
             let range = ranges[group]
             let value = range.lowerBound < row.values.count ? row.values[range.lowerBound] : ""
+            let isReason = !value.isEmpty && value != "—"
             draw(
-                value.isEmpty ? "—" : value,
+                isReason ? value : "—",
                 in: CGRect(x: span(range).minX, y: y, width: span(range).width, height: height),
                 font: PDFReportStyle.cellFont,
-                color: PDFReportStyle.faint,
+                color: isReason ? PDFReportStyle.secondary : PDFReportStyle.faint,
                 alignment: .center
             )
             covered.formUnion(range)

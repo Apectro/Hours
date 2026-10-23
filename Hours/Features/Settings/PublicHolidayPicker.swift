@@ -27,7 +27,13 @@ enum PublicHolidayActions {
             fromYear: CalendarDate.today(in: calendar).year
         )
         for rule in plan.rules { repository.upsert(rule) }
-        settingsStore.update { $0.publicHolidays.recordAdded(set: set, rules: plan.rules) }
+        settingsStore.update { settings in
+            settings.publicHolidays.recordAdded(set: set, rules: plan.rules)
+            // Where the country is chosen, its sick-pay rule comes with it
+            // (Croatia: 70%, the employer's first 42 days) — unless Sick
+            // was already edited, which is the person's own answer.
+            SickPay.applyCountryDefault(set.country, to: &settings)
+        }
         HoursStack.refreshWidget()
         return plan
     }

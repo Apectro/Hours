@@ -201,9 +201,27 @@ calendar day the minute falls on, so a Saturday night shift turns into Sunday
 at midnight; a holiday on a Saturday pays the holiday rate alone), night (the
 window may cross midnight), and overtime. Because the surcharges simply add,
 which minutes are overtime only decides which day they belong to. Credited
-paid absence earns its credited hours at the rate, with no surcharge. With
-several jobs each shift is paid by its own job, and credited hours split as
-`jobTotals` splits them.
+paid absence earns its credited hours at the rate times its day type's
+**Paid at** (`DayTypeDefinition.paidPercent`, 0–100, 100 unless changed;
+Settings › Day types, for paid-absence types), with no surcharge — sick leave
+in Croatia is 70%. Only money changes: the hours credited and the balance are
+the same at any percentage. With several jobs each shift is paid by its own
+job, and credited hours split as `jobTotals` splits them.
+
+**The employer's first 42 days.** A type with `employerPaysFirst42Days` (Sick,
+on for Croatia) earns nothing from the 43rd calendar day of a run: consecutive
+dates of that type, a weekend or public holiday left as it is inside the run
+counting as a day of it (`EarningsCalculator.runPositions`). From then the
+health insurer pays (HZZO in Croatia); the day is marked
+`isPaidByHealthInsurance` and the day editor says "Paid by health insurance"
+("Plaća HZZO"), and Insights notes such days and any reduced percentage under
+the money. A month needs the 42 days before it to know, so
+`earningsRange(covering:)` reaches back eight weeks while any type has the
+rule. `SickPay.applyCountryDefault` sets the built-in Sick type to 70% with the
+rule when Croatia's public holidays are added — the first-run country step or
+Settings › Holidays — unless Sick was already edited; nothing else changes a
+percentage. The app uses the hourly rate, not the six-month average the law
+uses, and the Sick editor says so.
 
 Overtime after the normal day is the minutes past the day's threshold — the
 week in force that day expects, unless one is set by hand. Overtime after the
@@ -375,7 +393,7 @@ default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
-**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6,
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7,
 every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
@@ -389,7 +407,12 @@ V5 (1.1) adds the four extra-work entities and freezes V4's eight classes. V6
 `doneAt` — and freezes V5's twelve classes. `isDone` is stored with the default
 `true` on purpose: a lightweight stage fills an added column with its default,
 and every job a V5 store holds was written as finished work, before a job could
-be in progress; the app writes `false` itself for a new job. Every
+be in progress; the app writes `false` itself for a new job. V7 (1.1) adds
+`SiteDayEntry.absenceData`, optional, JSON `[CrewAbsence]` beside
+`presentData` — why people not ticked were away — and freezes V6's twelve
+classes. It is a column of its own rather than more JSON in `presentData`
+because every older build decodes that column as `[Attendance]`, leniently,
+and would read an absence as one more person present. Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -446,7 +469,9 @@ set after `init` so the initialiser stays as it was. Quantities are written as
 text ("12.5"), exact on every platform. A job's `isDone` and `doneAt` are
 optional keys: missing, the job is done (it was written before a job could be
 in progress); a decoder from before them skips them, and the status written is
-still only "open" or "sent". The format version
+still only "open" or "sent". A site day's `absences` and a day type's
+`paidPercent` and `employerPaysFirst42Days` are keys in the same way: missing
+reads as none, 100% and off, and 1.0's decoders skip them. The format version
 stays 1: they are additions 1.0 skips without complaint, where a new version
 number would make 1.0 refuse the whole file. Photos go in as base64 inside the
 one file, so a backup is still a single file through a single door. The price
@@ -467,7 +492,7 @@ version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
 every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
 initialises the live version's models; each version that adds a column (V6
-does) has to be initialised and deployed to Production again.
+and V7 do) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -816,6 +841,37 @@ opens in place, closed with a one-line preview of what it holds
 (`SiteDiary.weatherPreview`, `SiteDiary.preview(of:)`); the editor of an
 extra-work job opens its Material, Time, Photos and Signature sections the same
 way (`DisclosureHeader`).
+
+**Why someone was not there.** On a site day, someone not ticked can be given
+a reason: a `CrewAbsence` (person and day type) in `SiteDay.absences`, chosen
+from `DayTypeCatalog.absenceReasons` — Sick, Vacation, Personal day, Time off
+in lieu, Day off and the user's own non-working types; never Work, Weekend,
+Public holiday, Bad weather or Other. The 44-point button where a ticked
+person's clock would be opens the reasons and "No reason"; the row then shows
+the type's colour and name, and the long press offers the same. A reason
+unticks; ticking clears it; "Same as last day" never copies one, since people
+are sick a day at a time. You away with a reason gives your own calendar day
+that type through `SiteCalendarSync.merged`, by the bad-weather rule: only over
+a day with nothing on it and no type you chose, and taken back only when the
+reason that put it there goes or changes. On the site sheet an absent person's
+cells read the reason's export name — the timesheet's word for the type — and
+"Sick days" and "Leave days" (Vacation, personal days, the user's own types)
+are rows under the totals only when someone has one. Nothing about money: a
+site sheet never has any.
+
+**On another site** is a reason too, first in the menu, but not a day type:
+`AbsenceReason.otherSite(siteID?)`, one of your other active sites or "Another
+site" with no name. It never reaches your calendar (your hours there come from
+that site), counts as neither sick nor leave, and prints the site's name, or
+"Other site" in the export language. It is stored as `kind: "otherSite"` with
+no `dayTypeID`, so a reader that knows only day types fails on the entry
+rather than guessing one, and every reader treats a list it cannot read as no
+reasons; this version reads lists entry by entry and leaves out only what it
+cannot read. When someone not ticked here was ticked on another of your sites
+that day — you by your id, anyone else by the name "Add from other sites"
+matches (`CrewCandidates.key`), and only when one site matches —
+`SiteElsewhere` gives a greyed "At <site>" hint; a tap on the reason button
+confirms it, a long press offers the rest. A hint is never stored on its own.
 
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a

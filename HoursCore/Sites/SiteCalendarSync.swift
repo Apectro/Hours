@@ -21,7 +21,8 @@ enum SiteCalendarSync {
     /// is what was stored on that date before this change. When a stop that
     /// would have typed your day is no longer there — lifted, unticked or
     /// deleted — the type goes again. That is the one way to tell the type
-    /// this put on from one you chose, which stays.
+    /// this put on from one you chose, which stays. A reason you were away
+    /// (`SiteDay.absences`) types your day the same way.
     static func merged(
         personal: DayRecord?,
         siteDays: [SiteDay],
@@ -58,6 +59,18 @@ enum SiteCalendarSync {
         }
         if record.dayTypeID == nil, stopped, record.shifts.allSatisfy(\.isEmpty) {
             record.dayTypeID = .badWeather
+        }
+
+        // You marked away on a site with a reason — Sick, Vacation — gives
+        // your day that type by the same rule: only over nothing, and taken
+        // back only when the reason this put on is gone or changed.
+        let reason = onDate.lazy.compactMap { $0.absence(for: CrewMember.youID) }.first
+        let previousReasons = Set(previousSiteDays.filter { $0.date == date }.compactMap { $0.absence(for: CrewMember.youID) })
+        if let type = record.dayTypeID, previousReasons.contains(type), reason != type {
+            record.dayTypeID = nil
+        }
+        if record.dayTypeID == nil, let reason, record.shifts.allSatisfy(\.isEmpty) {
+            record.dayTypeID = reason
         }
 
         return record.isBlank ? nil : record

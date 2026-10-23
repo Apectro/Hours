@@ -34,6 +34,12 @@ struct EarningsCard: View {
                 if parts.paidAbsenceCents > 0 {
                     MetricRow(label: String(localized: "Paid days off"), value: money.string(parts.paidAbsenceCents), systemImage: "checkmark.seal")
                 }
+                if let reducedNote {
+                    Text(verbatim: reducedNote)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 if showsMonths && earnings.months.count > 1 {
                     Divider()
@@ -52,6 +58,28 @@ struct EarningsCard: View {
                 }
             }
         }
+    }
+}
+
+extension EarningsCard {
+    /// "Paid days off at 70% · 3 days paid by health insurance": small,
+    /// and only when some paid absence paid less than in full.
+    var reducedNote: String? {
+        var parts: [String] = []
+        let percents = earnings.reducedAbsencePercents
+        if !percents.isEmpty {
+            let shares = percents.map { "\($0)%" }.joined(separator: ", ")
+            parts.append(String(
+                localized: "Paid days off at \(shares)",
+                comment: "Insights, under the money; the value is like 70%"
+            ))
+        }
+        let insured = earnings.healthInsuranceDays
+        if insured > 0 {
+            // Sick days past the employer's first 42; Croatian names HZZO.
+            parts.append(String(inflected: "^[\(insured) day](inflect: true) paid by health insurance"))
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }
 

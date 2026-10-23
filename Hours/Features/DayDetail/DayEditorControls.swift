@@ -58,6 +58,31 @@ struct DayResultHeader: View {
                 .accessibilityIdentifier("day-earnings")
             }
 
+            // Paid absence that pays less than in full: past the employer's
+            // 42 days of sick leave (HZZO pays), or at a percentage.
+            if let earnings, earnings.isPaidByHealthInsurance {
+                Label(
+                    String(
+                        localized: "Paid by health insurance",
+                        comment: "Day editor, a sick day past the employer's first 42 days; Croatian names HZZO"
+                    ),
+                    systemImage: "cross.case"
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            } else if let percent = earnings?.absencePaidPercent {
+                let share = "\(percent)%"
+                Label(
+                    String(
+                        localized: "Paid at \(share)",
+                        comment: "Day editor, paid absence at a percentage; the value is like 70%"
+                    ),
+                    systemImage: "percent"
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+
             ForEach(computation.warnings.filter(\.isProblem)) { warning in
                 Label(warning.message, systemImage: "exclamationmark.triangle")
                     .font(.footnote)

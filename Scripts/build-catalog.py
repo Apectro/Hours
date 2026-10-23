@@ -139,6 +139,11 @@ APP_STRINGS = {
     "^[%lld extra job](inflect: true) in progress · Mark finished": entry(
         "%#@extraJobs@ in progress · Mark finished", EXTRA_JOBS()
     ),
+    # Insights, under the money: sick days past the employer's first 42,
+    # which the health insurer pays (HZZO in Croatia).
+    "^[%lld day](inflect: true) paid by health insurance": entry(
+        "%#@days@ paid by health insurance", DAYS()
+    ),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
     "and stop counting towards your balance. The hours recorded on them are kept.": entry(

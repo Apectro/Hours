@@ -340,8 +340,8 @@ falls back to the phone's own. See ARCHITECTURE.md, *Persistence*.
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new
 schema version adds or changes stored models. (Schema V6, in 1.1, adds whether an extra-work
-job is done — `isDone` and `doneAt` — so steps 3–4 are needed again before a
-1.1 build syncs it.) A simulator or free-account build
+job is done — `isDone` and `doneAt` — and V7 why crew members were away on a site day —
+`SiteDayEntry.absenceData` — so steps 3–4 are needed again before a 1.1 build syncs them.) A simulator or free-account build
 is not signed for iCloud: the row is there, switched off, and says why.
 
 Sync is not a backup. A day you delete is deleted everywhere.
