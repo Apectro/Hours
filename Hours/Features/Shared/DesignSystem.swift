@@ -12,6 +12,9 @@ enum Metrics {
 
     static let cornerRadius: CGFloat = 14
     static let smallCornerRadius: CGFloat = 10
+    /// Status chips (In progress, Finished, Sent, Signed) and the small
+    /// tinted labels beside them: one radius, so they read as one family.
+    static let chipCornerRadius: CGFloat = 8
 
     /// Day cells are square-ish and comfortably above the 44pt touch minimum.
     static let dayCellHeight: CGFloat = 52
@@ -19,10 +22,24 @@ enum Metrics {
 
 extension Color {
     /// A surplus. Green, because it is genuinely good news.
-    static let hoursPositive = Color.green
+    ///
+    /// The `HoursPositiveText` asset, not system green: system green on white
+    /// is about 2:1 and unreadable as text in sunlight. The asset is a darker
+    /// green in Light mode (#15803D, about 5:1) and system green in Dark.
+    /// The asset is not named `HoursPositive` because Xcode generates a
+    /// `Color` symbol for every colour set, and that one would clash with
+    /// this property.
+    static let hoursPositive = Color("HoursPositiveText")
     /// A shortfall. Deliberately orange, not red: being under your hours is a
     /// state to notice, not an error to be alarmed by.
-    static let hoursNegative = Color.orange
+    ///
+    /// The `HoursWarningText` asset: a dark amber in Light mode (#B45309,
+    /// about 5:1 on white, where system orange is about 2.2:1) and system
+    /// orange in Dark. Safe for text.
+    static let hoursNegative = Color("HoursWarningText")
+    /// The bright orange, for fills and washes only (`opacity(0.10)` behind
+    /// a row): never for text, which uses `hoursNegative`.
+    static let hoursNegativeFill = Color.orange
 
     static var hoursCanvas: Color { Color(uiColor: .systemGroupedBackground) }
     static var hoursSurface: Color { Color(uiColor: .secondarySystemGroupedBackground) }
