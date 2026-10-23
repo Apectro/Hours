@@ -52,14 +52,24 @@ final class PaywallTests: XCTestCase {
     /// The part of the paywall that is a promise rather than a pitch. If this
     /// list ever stops naming the backup file, someone has quietly made a
     /// person's own work record conditional on paying.
+    ///
+    /// Every line of `ProFeature.alwaysFree`, word for word as the sheet
+    /// draws it (checked against the paywall on 2026-10-23); a line changed
+    /// there is a promise changed, and should be changed here on purpose.
     func testThePaywallSaysWhatStaysFree() {
         let app = XCUIApplication.hours()
         openSettings(app)
         app.staticTexts["Unlock Zeitkonto Pro"].tap()
 
         XCTAssertTrue(app.staticTexts["Free, whatever you decide"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Recording and editing your hours"].exists)
-        XCTAssertTrue(app.staticTexts["The backup file, which holds everything you ever recorded"].exists)
+        for line in [
+            "Recording and editing your hours",
+            "The calendar, the balance and every total",
+            "Reminders about days you have not filled in",
+            "The backup file, which holds everything you ever recorded"
+        ] {
+            XCTAssertTrue(app.staticTexts[line].exists, "the paywall no longer promises \"\(line)\" for free")
+        }
     }
 
     /// Reachable and dismissable. A paywall that traps someone is worse than
