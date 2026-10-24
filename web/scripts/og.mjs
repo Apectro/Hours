@@ -27,7 +27,12 @@ const web = dirname(scripts);
 
 const { palette, fonts: faces } = readBrand();
 
-const { INK, SOFT, ACCENT, GROUND, RULE, ON_ACCENT } = palette;
+const { INK, SOFT, ACCENT, GROUND, RULE } = palette;
+
+/** The app icon, drawn by public/icon.svg, nested as is beside the name. */
+const ICON = readFileSync(join(web, "public", "icon.svg"), "utf8")
+  .replace(/^[\s\S]*?<svg[^>]*>/, "")
+  .replace(/<\/svg>\s*$/, "");
 const DISPLAY = faces.display;
 const TYPE = faces.type;
 
@@ -154,8 +159,7 @@ const headTop = 300 - (lines.length - 1) * 34;
 
 const card = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect width="${W}" height="${H}" fill="${GROUND}"/>
-  <rect x="76" y="68" width="52" height="52" rx="12" fill="${ACCENT}"/>
-  <text x="102" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${ON_ACCENT}" text-anchor="middle">z</text>
+  <svg x="76" y="68" width="52" height="52" viewBox="0 0 64 64">${ICON}</svg>
   <text x="146" y="105" font-family="${DISPLAY}" font-weight="700" font-size="31" fill="${INK}" letter-spacing="-0.6">Zeitkonto</text>
   ${lines
     .map(
