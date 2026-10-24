@@ -20,9 +20,10 @@ struct PDFPageDecorations {
     func drawHeader(at y: CGFloat) -> CGFloat {
         let margin = PDFReportStyle.margin
         let tiles = table.tiles
+        let widths = tiles.map(PDFPageDecorations.width(of:))
         let tilesWidth = tiles.isEmpty
             ? 0
-            : CGFloat(tiles.count) * PDFPageDecorations.tileWidth + CGFloat(tiles.count - 1) * PDFPageDecorations.tileGap
+            : widths.reduce(0, +) + CGFloat(tiles.count - 1) * PDFPageDecorations.tileGap
         let textWidth = PDFReportStyle.contentWidth - tilesWidth - (tiles.isEmpty ? 0 : 16)
 
         PDFReportStyle.draw(
@@ -46,9 +47,9 @@ struct PDFPageDecorations {
         )
 
         var x = margin + PDFReportStyle.contentWidth - tilesWidth
-        for tile in tiles {
-            drawTile(tile, in: CGRect(x: x, y: y, width: PDFPageDecorations.tileWidth, height: PDFPageDecorations.tileHeight))
-            x += PDFPageDecorations.tileWidth + PDFPageDecorations.tileGap
+        for (tile, width) in zip(tiles, widths) {
+            drawTile(tile, in: CGRect(x: x, y: y, width: width, height: PDFPageDecorations.tileHeight))
+            x += width + PDFPageDecorations.tileGap
         }
 
         let ruleY = y + 60
@@ -68,6 +69,16 @@ struct PDFPageDecorations {
             )
         }
         return y + layout.titleBlockHeight
+    }
+
+    /// As wide as its figure or its label needs, and never narrower than the
+    /// others' 88 points: "489h 30m" of crew hours was cut to "489h…".
+    private static func width(of tile: ReportTile) -> CGFloat {
+        func measured(_ text: String, _ font: UIFont) -> CGFloat {
+            ceil((text as NSString).size(withAttributes: [.font: font]).width)
+        }
+        let content = max(measured(tile.value, PDFReportStyle.tileValueFont), measured(tile.label, PDFReportStyle.tileLabelFont))
+        return max(tileWidth, content + 18)
     }
 
     private func drawTile(_ tile: ReportTile, in rect: CGRect) {

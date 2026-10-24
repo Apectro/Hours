@@ -1039,7 +1039,13 @@ moved along with their person and a "People 1–5 of 9" line
 repeats. How many fit is measured by the app (`PDFReportLayout.printedParts`:
 the largest group size at which every part's measured minimum widths fit).
 A sheet everyone fits on comes back unchanged and prints exactly as before.
-The page count runs across all parts, and the sign-off and diary follow the
+A day row is 14 points tall, or as little as 12 when that keeps every day of
+the table and its closing rows on the first page (`PDFReportLayout.dayRowHeight`):
+14 points fit 30 days, so a 31-day month used to send its last day over to a
+page of its own with the total. When the days and the total fit but the summary
+does not, the total stays under the days (`PDFPagePlan.drawsTotal`) and the
+summary and the lines to sign on go on to the next page. The header tiles are as
+wide as their figure needs, never narrower than 88 points. The page count runs across all parts, and the sign-off and diary follow the
 last part once. Only the PDF is split: the workbook keeps one wide sheet and
 the CSV one table.
 

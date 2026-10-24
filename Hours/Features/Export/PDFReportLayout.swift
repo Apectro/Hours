@@ -9,8 +9,12 @@ struct PDFPagePlan: Hashable {
     /// The column headings, on every page that has table rows under it.
     var showsHeadings: Bool
     var rows: Range<Int>
-    /// The total row and the summary, which always come together and always
-    /// on the last page.
+    /// The total row under the last day. Usually on the last page with the
+    /// summary; on the page before it when the days and the total fit there
+    /// and the summary does not, so a month's last day is not sent over to a
+    /// page of its own just to keep the total company.
+    var drawsTotal: Bool = false
+    /// The summary and the lines to sign on: the last page.
     var closes: Bool
 }
 
@@ -22,6 +26,33 @@ struct PDFPagePlan: Hashable {
 /// renderer drew as it went and could only ever say "page 2".
 struct PDFReportLayout {
     let table: ReportTable
+    /// How tall a day row is: see `fittedDayRowHeight`.
+    let dayRowHeight: CGFloat
+
+    init(table: ReportTable) {
+        self.table = table
+        self.dayRowHeight = Self.fittedDayRowHeight(
+            for: table,
+            titleHeight: table.partLabel.isEmpty ? 70 : 84,
+            headingHeight: PDFReportStyle.headingHeight + 2
+        )
+    }
+
+    /// 14 points, or as little as 12 when that is what keeps every day of the
+    /// table and its closing rows on the first page. A month is up to 31 days
+    /// and 14 points fit 30, so the 31st used to go over to a page of its own
+    /// with the total; a longer range keeps the full height and simply runs on.
+    private static func fittedDayRowHeight(for table: ReportTable, titleHeight: CGFloat, headingHeight: CGFloat) -> CGFloat {
+        let days = table.rows.filter { $0.role == .day }.count
+        guard days > 0 else { return PDFReportStyle.rowHeight }
+        let closingRows = table.rows.count - days + (table.totalRow == nil ? 0 : 1)
+        let room = PDFReportStyle.contentBottom - PDFReportStyle.topMargin - titleHeight - headingHeight
+            - CGFloat(closingRows) * PDFReportStyle.closingRowHeight
+        for height in stride(from: PDFReportStyle.rowHeight, through: 12, by: -0.5) where CGFloat(days) * height <= room {
+            return height
+        }
+        return PDFReportStyle.rowHeight
+    }
 
     // MARK: - Pages
 
@@ -31,6 +62,7 @@ struct PDFReportLayout {
         var plans: [PDFPagePlan] = []
         var next = 0
         var closed = false
+        var totalDrawn = false
 
         repeat {
             let number = firstNumber + plans.count
@@ -52,6 +84,7 @@ struct PDFReportLayout {
             }
 
             var closes = false
+            var drawsTotal = false
             if next >= table.rows.count {
                 // The summary takes a page of its own rather than being
                 // silently dropped. The renderer before the one before this
@@ -59,19 +92,28 @@ struct PDFReportLayout {
                 // any line that did not fit, so a report whose rows ended near
                 // the bottom of a page came out with its totals partly or
                 // entirely missing — and looked perfectly fine otherwise.
-                if y + closingHeight <= PDFReportStyle.contentBottom || first == next {
+                let remaining = totalDrawn ? summaryBlockHeight : closingHeight
+                if y + remaining <= PDFReportStyle.contentBottom || first == next {
                     closes = true
+                    drawsTotal = !totalDrawn && table.totalRow != nil
+                } else if !totalDrawn, let totalRow = table.totalRow, next > first,
+                          y + rowHeight(totalRow) <= PDFReportStyle.contentBottom {
+                    // The total stays under the days it adds up; the summary
+                    // goes on.
+                    drawsTotal = true
                 }
+                if drawsTotal { totalDrawn = true }
             }
 
             // A page that carries only the closing block still heads its
             // total row, so the figures can be read against their columns.
-            let headsTotal = !hasRows && closes && table.totalRow != nil
+            let headsTotal = !hasRows && drawsTotal
             plans.append(PDFPagePlan(
                 number: number,
                 showsTitle: isFirst,
                 showsHeadings: hasRows || headsTotal,
                 rows: first..<next,
+                drawsTotal: drawsTotal,
                 closes: closes
             ))
             closed = closes
@@ -95,7 +137,7 @@ struct PDFReportLayout {
     var headingBlockHeight: CGFloat { PDFReportStyle.headingHeight + 2 }
 
     func rowHeight(_ row: ReportRow) -> CGFloat {
-        row.role == .day ? PDFReportStyle.rowHeight : PDFReportStyle.closingRowHeight
+        row.role == .day ? dayRowHeight : PDFReportStyle.closingRowHeight
     }
 
     /// The total row and the summary under it, asked for in advance rather
@@ -103,8 +145,12 @@ struct PDFReportLayout {
     var closingHeight: CGFloat {
         var height: CGFloat = 0
         if let totalRow = table.totalRow { height += rowHeight(totalRow) }
-        if !table.totals.isEmpty { height += 10 + summaryHeight }
-        return height
+        return height + summaryBlockHeight
+    }
+
+    /// The summary with the gap above it, without the total row.
+    var summaryBlockHeight: CGFloat {
+        table.totals.isEmpty ? 0 : 10 + summaryHeight
     }
 
     /// Three columns of label and figure under a small heading.
