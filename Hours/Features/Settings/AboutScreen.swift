@@ -81,12 +81,13 @@ struct AboutScreen: View {
             comment: "Privacy summary, the half that is true whether or not sync is on"
         )
         // The App Store half is stated in both branches. Hours talks to Apple
-        // to ask whether Pro has been paid for, so the old line about making no
+        // to ask whether anything was bought (nothing is sold while the first
+        // release is free, but the check still runs), so the old line about making no
         // network connections at all stopped being true the day it could be
         // bought — and this is the worst screen in the app to leave a stale
         // promise on.
         let purchases = String(
-            localized: "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.",
+            localized: "The one thing it asks the network is whether anything was bought, which it asks the App Store; no part of your hours goes with the question.",
             comment: "Privacy summary, the one network call the app makes"
         )
         return isSyncing
