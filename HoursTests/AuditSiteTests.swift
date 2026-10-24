@@ -90,7 +90,7 @@ final class AuditSiteTests: XCTestCase {
             let table = SiteSheetBuilder(settings: settings, calendar: calendar)
                 .makeTable(site: site, crew: crew, results: results, range: august.range(in: calendar))
 
-            let dayRows = table.written
+            let dayRows = table.rows.filter { $0.role == .day }
             let total = table.rows.first { $0.role == .total }!
             let counts = table.rows.first { $0.role == .count }!
             XCTAssertEqual(dayRows.count, results.count)

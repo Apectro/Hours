@@ -286,7 +286,7 @@ final class BadWeatherTests: XCTestCase {
         var stopped = onDay(4) { $0.stoppedForBadWeather(at: Fixture.time(11)) }
         stopped.note = "Storm"
         let table = sheet([onDay(3), stopped], language: .german)
-        let notes = table.written.map { $0.values.last ?? "" }
+        let notes = table.rows.filter { $0.role == .day }.map { $0.values.last ?? "" }
         XCTAssertEqual(notes, ["", "Schlechtwetter · Storm"])
     }
 }

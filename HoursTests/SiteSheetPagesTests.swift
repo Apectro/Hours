@@ -120,10 +120,10 @@ final class SiteSheetPagesTests: XCTestCase {
             }
         }
         // The first day: date, day, then P5's times and hours on part two.
-        XCTAssertEqual(parts[1].written[0].values[0], t.written[0].values[0])
-        XCTAssertEqual(parts[1].written[0].values[2], t.written[0].values[2 + 2 * 4])
-        XCTAssertEqual(parts[1].written[0].minutes[3], t.written[0].minutes[3 + 2 * 4])
-        XCTAssertEqual(parts[0].written[0].values.last, "Crane")
+        XCTAssertEqual(parts[1].rows[0].values[0], t.rows[0].values[0])
+        XCTAssertEqual(parts[1].rows[0].values[2], t.rows[0].values[2 + 2 * 4])
+        XCTAssertEqual(parts[1].rows[0].minutes[3], t.rows[0].minutes[3 + 2 * 4])
+        XCTAssertEqual(parts[0].rows[0].values.last, "Crane")
     }
 
     func testEachPartClosesWithItsOwnPeoplesTotals() {
@@ -185,12 +185,12 @@ final class SiteSheetPagesTests: XCTestCase {
             day(4, present: everyone)
         ])
         // P6 is person 6 of 7, group 2 + 5 on the whole sheet.
-        XCTAssertEqual(t.written[0].mergedGroups, [7])
+        XCTAssertEqual(t.rows[0].mergedGroups, [7])
         let parts = SiteSheetBuilder.split(t, peoplePerPage: 5)
-        XCTAssertEqual(parts[0].written[0].mergedGroups, [])
+        XCTAssertEqual(parts[0].rows[0].mergedGroups, [])
         // On part two (P5, P6, P7) P6 is the second person: group 2 + 1.
-        XCTAssertEqual(parts[1].written[0].mergedGroups, [3])
-        XCTAssertEqual(parts[1].written[0].values[4], t.written[0].values[2 + 2 * 5])
+        XCTAssertEqual(parts[1].rows[0].mergedGroups, [3])
+        XCTAssertEqual(parts[1].rows[0].values[4], t.rows[0].values[2 + 2 * 5])
     }
 
     func testALateArrivalIsFlaggedInItsPart() {
@@ -200,12 +200,12 @@ final class SiteSheetPagesTests: XCTestCase {
         let late = Attendance(memberID: p3.id, start: Fixture.time(8, 15))
         let t = table(crew: crew, days: [day(3, present: everyone, own: [p3.id: late])])
         // P3 is the third person: columns 2 + 2·2 and the one after.
-        XCTAssertEqual(t.written[0].flagged, [6, 7])
+        XCTAssertEqual(t.rows[0].flagged, [6, 7])
         let parts = SiteSheetBuilder.split(t, peoplePerPage: 2)
         XCTAssertEqual(parts.map(\.partLabel), ["People 1–2 of 7", "People 3–4 of 7", "People 5–6 of 7", "People 7 of 7"])
-        XCTAssertEqual(parts[0].written[0].flagged, [])
-        XCTAssertEqual(parts[1].written[0].flagged, [2, 3])
-        XCTAssertEqual(parts[1].written[0].values[2], "08:15–16:00")
+        XCTAssertEqual(parts[0].rows[0].flagged, [])
+        XCTAssertEqual(parts[1].rows[0].flagged, [2, 3])
+        XCTAssertEqual(parts[1].rows[0].values[2], "08:15–16:00")
     }
 
     func testAnAbsenceRowIsLeftOffAPartWhereNobodyWasAway() {

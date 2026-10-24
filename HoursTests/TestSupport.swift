@@ -88,9 +88,3 @@ enum Fixture {
         DayRecord(date: date, dayTypeID: type, start: start, end: end, breaks: breaks)
     }
 }
-
-extension ReportTable {
-    /// A director's sheet lists every day of the month; the days somebody was
-    /// on the site, in order, are the ones most tests are about.
-    var written: [ReportRow] { rows.filter { $0.role == .day && $0.hasEntry } }
-}
