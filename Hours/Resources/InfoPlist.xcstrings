@@ -66,6 +66,138 @@
           }
         }
       }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "comment": "Why the app asks for location Always: noticing arrival at and departure from a site with an arrival reminder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location “Always” lets Zeitkonto notice when you reach or leave a site with an arrival reminder, even with the app closed, and ask about the clock. It never leaves your phone."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort „Immer“ lässt Zeitkonto merken, wenn du eine Baustelle mit Ankunftserinnerung erreichst oder verlässt – auch bei geschlossener App – und nach der Stempeluhr fragen. Er verlässt nie dein Telefon."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La ubicación «Siempre» permite que Zeitkonto note cuando llegas a una obra con recordatorio de llegada o te vas, incluso con la app cerrada, y te pregunte por el reloj. Nunca sale de tu teléfono."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La position « Toujours » permet à Zeitkonto de remarquer quand vous arrivez sur un chantier avec rappel d’arrivée ou le quittez, même app fermée, et de vous demander pour le chrono. Elle ne quitte jamais votre téléphone."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija „Uvijek“ omogućuje Zeitkontu da primijeti kad stigneš na gradilište s podsjetnikom na dolazak ili ga napustiš, i kad je aplikacija zatvorena, te pita za sat. Nikad ne napušta tvoj telefon."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La posizione “Sempre” permette a Zeitkonto di accorgersi quando arrivi o lasci un cantiere con promemoria di arrivo, anche ad app chiusa, e chiederti del timer. Non lascia mai il tuo telefono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie ‘Altijd’ laat Zeitkonto merken wanneer je een bouwplaats met aankomstherinnering bereikt of verlaat, ook als de app dicht is, en naar de klok vragen. Hij verlaat nooit je telefoon."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalizacja „Zawsze” pozwala Zeitkonto zauważyć, gdy dojeżdżasz na budowę z przypomnieniem o przyjeździe lub z niej wyjeżdżasz, nawet przy zamkniętej aplikacji, i zapytać o zegar. Nigdy nie opuszcza twojego telefonu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A localização «Sempre» permite ao Zeitkonto perceber quando chegas ou sais de uma obra com lembrete de chegada, mesmo com a app fechada, e perguntar pelo relógio. Nunca sai do teu telefone."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija »Vedno« omogoča Zeitkontu, da opazi, ko prispeš na gradbišče z opomnikom ob prihodu ali ga zapustiš, tudi ko je aplikacija zaprta, in vpraša glede ure. Nikoli ne zapusti tvojega telefona."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "comment": "Why the app asks for location while in use: saving where a site is for its arrival reminder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your location is used only to save where a site is, when you turn on its arrival reminder. It never leaves your phone."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort wird nur verwendet, um zu speichern, wo eine Baustelle ist, wenn du ihre Ankunftserinnerung einschaltest. Er verlässt nie dein Telefon."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu ubicación solo se usa para guardar dónde está una obra cuando activas su recordatorio de llegada. Nunca sale de tu teléfono."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre position sert uniquement à enregistrer l’emplacement d’un chantier lorsque vous activez son rappel d’arrivée. Elle ne quitte jamais votre téléphone."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja lokacija koristi se samo za spremanje mjesta gradilišta kad uključiš podsjetnik na dolazak. Nikad ne napušta tvoj telefon."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua posizione viene usata solo per salvare dove si trova un cantiere, quando attivi il promemoria di arrivo. Non lascia mai il tuo telefono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je locatie wordt alleen gebruikt om op te slaan waar een bouwplaats is, als je de aankomstherinnering aanzet. Hij verlaat nooit je telefoon."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja lokalizacja służy tylko do zapisania, gdzie jest budowa, gdy włączysz przypomnienie o przyjeździe. Nigdy nie opuszcza twojego telefonu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua localização só é usada para guardar onde fica uma obra, quando ativas o lembrete de chegada. Nunca sai do teu telefone."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja lokacija se uporablja samo za shranjevanje, kje je gradbišče, ko vklopiš opomnik ob prihodu. Nikoli ne zapusti tvojega telefona."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

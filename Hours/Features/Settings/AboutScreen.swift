@@ -39,10 +39,12 @@ struct AboutScreen: View {
                             : String(localized: "Your data lives in this app's own storage and is included in an encrypted device backup if you make one.")
                     )
                 }
+                // 1.2: the opt-in arrival reminder is the one use of
+                // location, and it stays on the phone (see `ArrivalLocation`).
                 PrivacyPoint(
-                    symbol: "location.slash",
-                    title: String(localized: "No location access"),
-                    detail: String(localized: "The optional location field is a text note you type. The app never asks the system where you are.")
+                    symbol: "location",
+                    title: String(localized: "Location only for arrival reminders"),
+                    detail: String(localized: "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.")
                 )
                 if subscriptions.offersPurchases {
                     PrivacyPoint(

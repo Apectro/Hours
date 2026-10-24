@@ -230,6 +230,8 @@ struct DataSettingsScreen: View {
         settingsStore.replace(with: archive.settings)
 
         HoursStack.refreshWidget()
+        // The file's sites decide which are watched for the arrival reminder.
+        HoursStack.arrivals.refresh()
 
         var restored = String(
             inflected: "Restored ^[\(archive.days.count) day](inflect: true) and ^[\(archive.holidays.count) holiday](inflect: true)."
@@ -247,6 +249,7 @@ struct DataSettingsScreen: View {
     private func deleteAll() {
         BackupRestorer(context: modelContext, liveLock: settingsStore.settings.monthLock).deleteEverything()
         HoursStack.refreshWidget()
+        HoursStack.arrivals.refresh()
         message = String(localized: "All recorded days, holidays and sites were removed.")
     }
 }

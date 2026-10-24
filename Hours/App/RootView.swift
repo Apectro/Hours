@@ -123,6 +123,8 @@ struct RootView: View {
             await refreshMonthlySheets()
             await refreshUnsentWork()
             HoursStack.refreshWidget()
+            // The sites watched for the arrival reminder; nothing without one.
+            HoursStack.arrivals.refresh()
         }
         .onChange(of: scenePhase) { _, phase in
             // Rewritten on every return to the app, so the body names the days
@@ -141,6 +143,9 @@ struct RootView: View {
                 HoursStack.repository.reconcileDuplicates()
                 SiteRepository(context: HoursStack.container.mainContext).reconcileDuplicates()
                 HoursStack.refreshWidget()
+                // A site's reminder switched on another device, or Location
+                // access changed in Settings while the app was away.
+                HoursStack.arrivals.refresh()
             }
             // And again on the way out, which is the moment the widget is about
             // to be looked at. Individual edits refresh as they happen; this

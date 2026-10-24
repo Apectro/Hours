@@ -18,6 +18,8 @@ struct SiteEditorSheet: View {
     /// and added when it is saved.
     @State private var candidates: [CrewCandidate] = []
     @State private var chosenCrew: Set<String> = []
+    /// The other active sites, for the arrival reminder's limit of 20.
+    @State private var otherSites: [Site] = []
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -76,6 +78,9 @@ struct SiteEditorSheet: View {
                     }
                 }
 
+                // The opt-in arrival reminder (1.2): off unless turned on here.
+                SiteArrivalSection(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
+
                 if isNew && !candidates.isEmpty {
                     Section {
                         ForEach(candidates) { candidate in
@@ -125,6 +130,7 @@ struct SiteEditorSheet: View {
     /// In a task rather than in `body`: the repository's reads collapse
     /// duplicates, which writes.
     private func loadCandidates() {
+        otherSites = repository.sites(includeArchived: false).filter { $0.id != draft.id }
         guard isNew else { return }
         let calendar = settingsStore.workCalendar
         candidates = repository.crewCandidates(
@@ -186,6 +192,8 @@ struct SiteEditorSheet: View {
         }
         // A renamed or archived site changes which card the widget shows.
         HoursStack.refreshWidget()
+        // And which sites are watched for the arrival reminder.
+        HoursStack.arrivals.refresh()
         // And what the note on the 1st says, or whether there is one.
         let context = modelContext
         let settings = settingsStore

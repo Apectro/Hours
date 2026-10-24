@@ -125,6 +125,11 @@ enum HoursStack {
         )
     }()
 
+    /// The opt-in arrival reminder's location: the one place the app
+    /// touches CoreLocation. A fake under UI tests, which never asks for
+    /// anything real (see `ArrivalLocation`).
+    static let arrivals = ArrivalLocation(isFake: isRunningUITests)
+
     /// What a tapped notification asked to open (see `NotificationLinks`).
     static let notificationLinks = NotificationLinks()
 
