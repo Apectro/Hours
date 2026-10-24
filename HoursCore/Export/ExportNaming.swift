@@ -66,6 +66,18 @@ struct ExportNaming: Sendable {
         "\(site.name) \(monthStamp(month))"
     }
 
+    /// A crew member's own sheet: "Ana Horvat – August 2026", the month in
+    /// the export language, or the dates of a range that is not a month. The
+    /// person handed it looks for their name first. The file writer takes
+    /// out what a file name cannot hold.
+    func crewSheetFileName(_ name: String, range: CalendarDateRange) -> String {
+        let month = range.start.yearMonth
+        let period = range.start.day == 1 && range.end == month.range(in: calendar).end
+            ? formatting.monthTitle(month)
+            : "\(range.start) to \(range.end)"
+        return "\(name.trimmingCharacters(in: .whitespacesAndNewlines)) – \(period)"
+    }
+
     private func monthStamp(_ month: YearMonth) -> String {
         String(format: "%04d-%02d", month.year, month.month)
     }

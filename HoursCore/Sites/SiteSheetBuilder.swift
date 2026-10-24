@@ -315,11 +315,12 @@ struct SiteSheetBuilder: Sendable {
         return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
     }
 
-    private enum AbsenceKind { case sick, leave, other }
+    enum AbsenceKind { case sick, leave, other }
 
     /// Sick is sick; leave is Vacation, a personal day and every absence
     /// type of the user's own; a day off and time off in lieu are neither.
-    private static func absenceKind(_ id: DayTypeID) -> AbsenceKind {
+    /// A crew member's own sheet counts them by the same rule.
+    static func absenceKind(_ id: DayTypeID) -> AbsenceKind {
         switch id {
         case .sick: return .sick
         case .dayOff, .timeOffInLieu: return .other
