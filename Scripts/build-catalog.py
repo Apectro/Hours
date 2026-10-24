@@ -144,6 +144,8 @@ APP_STRINGS = {
     "^[%lld day](inflect: true) paid by health insurance": entry(
         "%#@days@ paid by health insurance", DAYS()
     ),
+    # Field allowance days, on the calendar's summary and Insights (1.2).
+    "Field allowance · ^[%lld day](inflect: true)": entry("Field allowance · %#@days@", DAYS()),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
     "and stop counting towards your balance. The hours recorded on them are kept.": entry(

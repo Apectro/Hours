@@ -96,6 +96,16 @@ struct SettingsScreen: View {
                         }
                         .accessibilityIdentifier("settings-pay")
                         NavigationLink {
+                            AllowanceSettingsScreen()
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Allowance & travel"),
+                                value: settings.allowance.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                                systemImage: "car"
+                            )
+                        }
+                        .accessibilityIdentifier("settings-allowance")
+                        NavigationLink {
                             JobSettingsScreen()
                         } label: {
                             SettingsRow(

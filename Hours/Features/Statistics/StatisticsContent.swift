@@ -13,6 +13,9 @@ struct StatisticsContent: View {
     private let summary: PeriodSummary
     /// Nil while no job has a rate.
     private let earnings: EarningsSummary?
+    /// Field allowance, kilometres and travel through today; empty while
+    /// they are not tracked.
+    private let allowance: AllowanceSummary
     private var duration: DurationFormatting { settings.displayFormatting }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -40,6 +43,7 @@ struct StatisticsContent: View {
         )
         self.days = resolved.days
         self.summary = resolved.summary
+        self.allowance = AllowanceSummary(days: resolved.days, settings: settings, countingThrough: CalendarDate.today(in: calendar))
         // Through today, and only from whole weeks, which the screen fetches.
         self.earnings = engine.earnings(
             in: range,
@@ -59,10 +63,18 @@ struct StatisticsContent: View {
                         earnings: earnings,
                         money: settings.money,
                         formatting: formatting,
-                        showsMonths: scope == .year
+                        showsMonths: scope == .year,
+                        allowance: allowance
                     )
                 }
             } else {
+                // Tracked without an hourly rate: the days, kilometres and
+                // travel still have somewhere to be, and what they come to.
+                if !allowance.isEmpty {
+                    SurfaceCard {
+                        AllowanceLines(allowance: allowance, money: settings.money)
+                    }
+                }
                 EarningsHint(jobID: settings.primaryJob.id)
             }
 

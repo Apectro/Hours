@@ -34,6 +34,7 @@ struct DayEditorForm: View {
             summarySection
             dayTypeSection
             workSections
+            allowanceSection
             detailsSection
             moreSections
         }
@@ -567,6 +568,73 @@ struct DayEditorForm: View {
             get: { draft.manualBalanceMinutes ?? 0 },
             set: { draft.manualBalanceMinutes = $0 }
         )
+    }
+
+    // MARK: - Allowance and travel
+
+    /// The field allowance, kilometres in your own car and travel time, only
+    /// while they are tracked (Settings › Allowance & travel). What a site
+    /// day gives you is not typed here: it rides on its site shift and is
+    /// named in the footer, so it is never written over what you put in.
+    @ViewBuilder
+    private var allowanceSection: some View {
+        if settings.allowance.isEnabled {
+            Section {
+                Toggle("Field allowance", isOn: $draft.hasFieldAllowance)
+                    .accessibilityIdentifier("day-editor-allowance")
+                LabeledContent("Kilometres") {
+                    TextField("Kilometres", text: kilometresBinding)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .font(.hoursFigure(.body, weight: .medium))
+                        .accessibilityIdentifier("day-editor-kilometres")
+                }
+                DurationStepperRow(
+                    title: String(localized: "Travel time"),
+                    minutes: $draft.travelMinutes,
+                    range: 0...(12 * 60),
+                    step: 5,
+                    formatting: DurationFormatting(style: .clock)
+                )
+                .accessibilityIdentifier("day-editor-travel")
+            } header: {
+                Text("Allowance & travel")
+            } footer: {
+                VStack(alignment: .leading, spacing: Metrics.tiny) {
+                    if siteGivesAllowance {
+                        Text("Your site day gives the field allowance.")
+                    }
+                    if siteKilometres > 0 {
+                        Text(String(
+                            localized: "Plus \(siteKilometres) km from your site day.",
+                            comment: "Day editor, under Kilometres; the value is a number of kilometres"
+                        ))
+                    }
+                    Text(settings.allowance.travelCountsAsWork
+                         ? "Travel time counts as work."
+                         : "Travel time is recorded, not counted as work.")
+                }
+            }
+        }
+    }
+
+    /// Plain text read on every keystroke, digits only, so Save never
+    /// misses what was just typed (a formatted number field hands its value
+    /// over only when it loses focus, and a number pad has no Return). An
+    /// empty field is none.
+    private var kilometresBinding: Binding<String> {
+        Binding(
+            get: { draft.kilometres > 0 ? "\(draft.kilometres)" : "" },
+            set: { draft.kilometres = Kilometres.parse($0) }
+        )
+    }
+
+    private var siteGivesAllowance: Bool {
+        draft.shifts.contains { $0.siteID != nil && $0.fieldAllowance }
+    }
+
+    private var siteKilometres: Int {
+        draft.shifts.filter { $0.siteID != nil }.reduce(0) { $0 + $1.kilometres }
     }
 
     // MARK: - Details

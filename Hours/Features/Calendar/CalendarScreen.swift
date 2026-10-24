@@ -457,6 +457,9 @@ private struct CalendarPeriodView: View {
     /// What the period earned through today, while earnings are the main
     /// figure.
     private let earnings: EarningsSummary?
+    /// Field allowance, kilometres and travel through today, while they are
+    /// tracked.
+    private let allowance: AllowanceSummary
     private let selectedComputation: DayComputation
     private let weekDays: [DayComputation]
 
@@ -516,6 +519,11 @@ private struct CalendarPeriodView: View {
         self.earnings = settings.showsEarnings
             ? engine.earnings(in: summaryRange, records: data.records, holidays: data.holidays, countingThrough: today)
             : nil
+        self.allowance = AllowanceSummary(
+            days: resolved.filter { summaryRange.contains($0.date) },
+            settings: settings,
+            countingThrough: today
+        )
         self.selectedComputation = byKey[selectedDate.key] ?? DayComputation.empty(on: selectedDate)
         self.weekDays = scope == .week
             ? resolved.filter { summaryRange.contains($0.date) }
@@ -568,6 +576,7 @@ private struct CalendarPeriodView: View {
                     settings: settings,
                     catalog: settings.dayTypeCatalog,
                     earnings: earnings,
+                    allowance: allowance,
                     onExport: onExport
                 )
                 .tourTarget(.calendarSummary)

@@ -10,6 +10,9 @@ struct EarningsCard: View {
     let formatting: CalendarFormatting
     /// A list of months, for a year.
     var showsMonths = false
+    /// Field allowance, kilometres and travel, each a line of its own under
+    /// the pay — never mixed into it — only when there is some.
+    var allowance: AllowanceSummary? = nil
 
     var body: some View {
         SurfaceCard {
@@ -33,6 +36,9 @@ struct EarningsCard: View {
                 }
                 if parts.paidAbsenceCents > 0 {
                     MetricRow(label: String(localized: "Paid days off"), value: money.string(parts.paidAbsenceCents), systemImage: "checkmark.seal")
+                }
+                if let allowance, !allowance.isEmpty {
+                    AllowanceLines(allowance: allowance, money: money)
                 }
                 if let reducedNote {
                     Text(verbatim: reducedNote)
@@ -80,6 +86,50 @@ extension EarningsCard {
             parts.append(String(inflected: "^[\(insured) day](inflect: true) paid by health insurance"))
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+/// The field allowance, the kilometres and travel time as Insights lines:
+/// days or kilometres with what they come to at the rates in settings, and
+/// travel as a time. Each only when there is some.
+struct AllowanceLines: View {
+    let allowance: AllowanceSummary
+    let money: MoneyFormatting
+
+    var body: some View {
+        VStack(spacing: Metrics.medium) {
+            if allowance.allowanceDays > 0 {
+                MetricRow(
+                    label: String(inflected: "Field allowance · ^[\(allowance.allowanceDays) day](inflect: true)"),
+                    value: amount(allowance.allowanceCents),
+                    systemImage: "suitcase"
+                )
+                .accessibilityIdentifier("insights-allowance")
+            }
+            if allowance.kilometres > 0 {
+                MetricRow(
+                    label: String(
+                        localized: "Kilometres · \(allowance.kilometres) km",
+                        comment: "Insights, the month's kilometres; the value is a number"
+                    ),
+                    value: amount(allowance.mileageCents),
+                    systemImage: "car"
+                )
+                .accessibilityIdentifier("insights-kilometres")
+            }
+            if allowance.travelMinutes > 0 {
+                MetricRow(
+                    label: String(localized: "Travel time"),
+                    value: DurationFormatting(style: .clock).string(allowance.travelMinutes),
+                    systemImage: "road.lanes"
+                )
+            }
+        }
+    }
+
+    /// What it came to; nothing while no rate is set, rather than a zero.
+    private func amount(_ cents: Int) -> String {
+        cents > 0 ? money.string(cents) : String()
     }
 }
 
