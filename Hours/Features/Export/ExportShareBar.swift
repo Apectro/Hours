@@ -7,6 +7,8 @@ enum ExportShareState: Equatable {
     /// No name yet: the button asks for one first, once.
     case needsName
     case ready(URL)
+    /// Several files for one share: a site's sheets, one per person.
+    case readyFiles([URL])
     case preparing
     case failed(String)
     /// Nothing in the range or the month to share.
@@ -21,6 +23,8 @@ struct ExportShareBar: View {
     let onNeedsName: () -> Void
     /// The file and the share sheet, which says how it ended.
     let onShare: (URL) -> Void
+    /// The files of `readyFiles`, for the same share sheet.
+    var onShareFiles: ([URL]) -> Void = { _ in }
 
     var body: some View {
         VStack(spacing: Metrics.small) {
@@ -48,6 +52,10 @@ struct ExportShareBar: View {
             // The share sheet presented by hand rather than a `ShareLink`,
             // which does not say whether anything was shared.
             Button { onShare(url) } label: {
+                label(systemImage: "square.and.arrow.up")
+            }
+        case let .readyFiles(urls):
+            Button { onShareFiles(urls) } label: {
                 label(systemImage: "square.and.arrow.up")
             }
         case .locked:

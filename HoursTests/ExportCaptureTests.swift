@@ -547,6 +547,64 @@ final class ExportCaptureTests: XCTestCase {
         print("----- end site sheet parts -----")
     }
 
+    /// One person's own sheet for a month on two sites, with a sick day and
+    /// a day on leave: the page a worker is handed to check against their
+    /// payslip, in the personal timesheet's design.
+    private func crewMemberTable() -> ReportTable {
+        let south = Site(name: "Trg Pravde Zagreb", sortOrder: 0)
+        let hall = Site(name: "Halle 3", sortOrder: 1)
+        var export = ExportPreferences()
+        export.ownerName = "Marijo Mikša"
+        let settings = Fixture.settings(export: export)
+        let ivan = CrewMember(siteID: south.id, name: "Ivan Horvat")
+        let ivanHall = CrewMember(siteID: hall.id, name: "Ivan Horvat")
+        var days: [SiteDay] = []
+        for day in 1...31 {
+            let date = Fixture.date(2026, 8, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            switch day {
+            case 11:
+                days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
+                                    breakMinutes: 30, absences: [CrewAbsence(memberID: ivan.id, dayTypeID: .sick)]))
+            case 24:
+                days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
+                                    breakMinutes: 30, absences: [CrewAbsence(memberID: ivan.id, dayTypeID: .vacation)]))
+            case 17...21:
+                days.append(SiteDay(siteID: hall.id, date: date, start: Fixture.time(6, 30), end: Fixture.time(15),
+                                    breakMinutes: 30, present: [Attendance(memberID: ivanHall.id)],
+                                    note: day == 17 ? "Crane delivery" : ""))
+            default:
+                days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
+                                    breakMinutes: 30,
+                                    present: [Attendance(memberID: ivan.id, end: day % 5 == 0 ? Fixture.time(13) : nil)]))
+            }
+        }
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        return CrewMemberSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
+            .makeTable(
+                person: .matching(ivan, in: [ivan, ivanHall]),
+                sites: [south, hall],
+                results: days.map(calculator.compute),
+                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
+            )
+    }
+
+    func testCaptureACrewMembersOwnSheet() throws {
+        let table = crewMemberTable()
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(2).enumerated() {
+            attach(image, named: "18-crew-member-pdf-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertEqual(document.pageCount, 1, "a person's normal month should fit one page")
+        let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(text.contains("Ivan Horvat"), "the person's name does not head the sheet")
+        XCTAssertTrue(text.contains("Halle 3"), "the second site is missing")
+        XCTAssertTrue(text.contains("Sick leave"), "the sick day has no reason")
+        XCTAssertTrue(text.contains("Employee"), "the line to sign on is missing")
+    }
+
     /// The CSV and the workbook, written exactly as the app writes them.
     func testCaptureTheDataFiles() throws {
         let table = monthTable()

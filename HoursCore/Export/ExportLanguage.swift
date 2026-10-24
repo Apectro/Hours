@@ -404,6 +404,13 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           es: "Días de permiso", pt: "Dias de licença", nl: "Verlofdagen",
                                           pl: "Dni urlopu")
 
+        // A crew member's own sheet (1.2)
+        case .site:           return pick(en: "Site", de: "Baustelle", hr: "Gradilište", sl: "Gradbišče",
+                                          it: "Cantiere", fr: "Chantier", es: "Obra", pt: "Obra",
+                                          nl: "Bouwplaats", pl: "Budowa")
+        case .reason:         return pick(en: "Reason", de: "Grund", hr: "Razlog", sl: "Razlog", it: "Motivo",
+                                          fr: "Motif", es: "Motivo", pt: "Motivo", nl: "Reden", pl: "Powód")
+
         // The site diary
         case .siteDiary:      return pick(en: "Site diary", de: "Bautagebuch", hr: "Građevinski dnevnik",
                                           sl: "Gradbeni dnevnik", it: "Giornale dei lavori",
@@ -556,6 +563,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case sickDays, leaveDays
     /// An absent person's cell: working on another site.
     case otherSite
+    /// A crew member's own sheet: which site a day was on, and why they were
+    /// not there.
+    case site, reason
 
     /// The site diary.
     case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors
