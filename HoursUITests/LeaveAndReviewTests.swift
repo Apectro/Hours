@@ -57,4 +57,17 @@ final class LeaveAndReviewTests: XCTestCase {
         app.buttons["year-review-close"].tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
     }
+
+    /// Rate and Send feedback sit beside Show the tour again. Only that they are
+    /// there: tapping one leaves the app for the App Store or Mail.
+    func testRateAndFeedbackAreInSettings() {
+        let app = XCUIApplication.hours()
+        app.launch()
+        XCTAssertTrue(app.tab(.settings).waitForExistence(timeout: 10))
+        app.tab(.settings).tap()
+        XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 5))
+
+        XCTAssertTrue(reveal(app.buttons["settings-rate"], in: app, swipes: 8), "Settings has no Rate row")
+        XCTAssertTrue(reveal(app.buttons["settings-feedback"], in: app, swipes: 3), "Settings has no Send feedback row")
+    }
 }

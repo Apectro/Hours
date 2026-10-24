@@ -66,6 +66,8 @@ ALLOWED = {
         "a developer crash message; the app is already unusable when it prints",
     "Invalid calendar date key \\(key)":
         "a precondition failure, not a screen",
+    "\\n\\n—\\nZeitkonto \\(appVersion) · \\(system) · \\(device)":
+        "the feedback mail's footer for the developer: a version, a system and a model, not prose",
     # An AppShortcutPhrase must be a compile-time literal — it cannot take a
     # runtime String, so String(localized:) is not available to it. Apple
     # localizes these through the catalogue instead, keyed on the phrase with

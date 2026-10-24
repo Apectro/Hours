@@ -12629,6 +12629,65 @@
         }
       }
     },
+    "Copy address": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse kopieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar dirección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copier l’adresse"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiraj adresu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia indirizzo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres kopiëren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiuj adres"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar endereço"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiraj naslov"
+          }
+        }
+      }
+    },
     "Corrections": {
       "extractionState": "manual",
       "localizations": {
@@ -27517,6 +27576,65 @@
         }
       }
     },
+    "No mail app is set up on this phone. Write to %@ from any mail app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Telefon ist keine Mail-App eingerichtet. Schreib an %@ aus einer beliebigen Mail-App."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay ninguna app de correo configurada en este teléfono. Escribe a %@ desde cualquier app de correo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune app de messagerie n’est configurée sur ce téléphone. Écrivez à %@ depuis n’importe quelle app de messagerie."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na ovom telefonu nije postavljena aplikacija za poštu. Piši na %@ iz bilo koje aplikacije za poštu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su questo telefono non è configurata un’app di posta. Scrivi a %@ da qualsiasi app di posta."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is geen mail-app ingesteld op deze telefoon. Schrijf naar %@ vanuit een willekeurige mail-app."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na tym telefonie nie skonfigurowano aplikacji pocztowej. Napisz na %@ z dowolnej aplikacji pocztowej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não há nenhuma app de e-mail configurada neste telefone. Escreve para %@ a partir de qualquer app de e-mail."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V tem telefonu ni nastavljene aplikacije za pošto. Piši na %@ iz katere koli aplikacije za pošto."
+          }
+        }
+      }
+    },
     "No reason": {
       "extractionState": "manual",
       "localizations": {
@@ -34971,6 +35089,65 @@
         }
       }
     },
+    "Rate Zeitkonto": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto bewerten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valorar Zeitkonto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noter Zeitkonto"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocijeni Zeitkonto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valuta Zeitkonto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitkonto beoordelen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oceń Zeitkonto"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaliar o Zeitkonto"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oceni Zeitkonto"
+          }
+        }
+      }
+    },
     "Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.": {
       "extractionState": "manual",
       "localizations": {
@@ -38954,6 +39131,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pošlji kot sliko"
+          }
+        }
+      }
+    },
+    "Send feedback": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback senden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar comentarios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer un avis"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji povratnu informaciju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia un feedback"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback sturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij opinię"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar comentários"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlji povratne informacije"
           }
         }
       }
@@ -55390,6 +55626,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zeitkonto Pro"
+          }
+        }
+      }
+    },
+    "Zeitkonto feedback": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback zu Zeitkonto"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentarios sobre Zeitkonto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avis sur Zeitkonto"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povratna informacija o Zeitkontu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback su Zeitkonto"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback over Zeitkonto"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opinia o Zeitkonto"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentários sobre o Zeitkonto"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povratne informacije o Zeitkontu"
           }
         }
       }
