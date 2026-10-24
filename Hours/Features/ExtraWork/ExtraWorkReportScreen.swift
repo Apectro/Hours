@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import SwiftData
 
@@ -33,6 +34,7 @@ struct ExtraWorkReportScreen: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
 
     @State private var choice: Choice = .notSent
     @State private var from: Date = Date()
@@ -652,6 +654,7 @@ struct ExtraWorkReportScreen: View {
             }
             ShareSheetPresenter.present(url) { outcome in
                 finishSharing(report, output: output, outcome: outcome)
+                if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
             }
         }
     }

@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import SwiftData
 import UIKit
@@ -15,6 +16,7 @@ struct ExportScreen: View {
     private let initialTarget: ExportTarget
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -103,7 +105,12 @@ struct ExportScreen: View {
                         format: format,
                         state: shareState,
                         onLocked: { paywallReason = .fileExport },
-                        onNeedsName: askForName
+                        onNeedsName: askForName,
+                        onShare: { url in
+                            ShareSheetPresenter.present(url) { outcome in
+                                if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
+                            }
+                        }
                     )
                 }
                 .task {

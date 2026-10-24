@@ -786,6 +786,23 @@ and backups read as no; 1.0 skips the key). It only decides what the last screen
 offers — Create a site is for a crew lead — and what the tour's Sites stop says.
 It never hides a tab.
 
+## Ratings and feedback
+
+The app asks for an App Store rating with the system prompt (`requestReview`),
+and only right after a sheet has really been shared — the export's or the
+extra-work report's share sheet ending in `.completed` (`ShareSheetPresenter`;
+the export no longer uses a `ShareLink`, which does not say). `ReviewPrompt`
+(engine, tested) decides: not in the first fourteen days after the first launch,
+and once per app version; the system then decides whether to show it and caps it
+at three a year. Nothing asks "do you like it?" first, which the App Store rules
+forbid. `ReviewPromptStore` keeps the first launch and the last version asked in
+`UserDefaults` on this device only, and never asks under UI tests.
+
+Settings › Rate Zeitkonto opens the App Store's write-a-review page
+(app id 6825054128); Send feedback opens a mail to the developer with the app
+version, the system and the phone model in its footer, nothing of the hours, and
+shows the address to copy when no mail account is set up.
+
 ## The guided tour
 
 "Show me around" on the setup's last screen, or Settings › Show the tour again,

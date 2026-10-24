@@ -19,6 +19,8 @@ struct ExportShareBar: View {
     let state: ExportShareState
     let onLocked: () -> Void
     let onNeedsName: () -> Void
+    /// The file and the share sheet, which says how it ended.
+    let onShare: (URL) -> Void
 
     var body: some View {
         VStack(spacing: Metrics.small) {
@@ -43,7 +45,9 @@ struct ExportShareBar: View {
     private var button: some View {
         switch state {
         case let .ready(url):
-            ShareLink(item: url) {
+            // The share sheet presented by hand rather than a `ShareLink`,
+            // which does not say whether anything was shared.
+            Button { onShare(url) } label: {
                 label(systemImage: "square.and.arrow.up")
             }
         case .locked:

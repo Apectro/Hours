@@ -10584,6 +10584,61 @@
       "Ausentes: %lld",
       "Afwezig: %lld",
       "Nieobecni: %lld"
+    ],
+    "Rate Zeitkonto": [
+      "Zeitkonto bewerten",
+      "Ocijeni Zeitkonto",
+      "Oceni Zeitkonto",
+      "Valuta Zeitkonto",
+      "Noter Zeitkonto",
+      "Valorar Zeitkonto",
+      "Avaliar o Zeitkonto",
+      "Zeitkonto beoordelen",
+      "Oceń Zeitkonto"
+    ],
+    "Send feedback": [
+      "Feedback senden",
+      "Pošalji povratnu informaciju",
+      "Pošlji povratne informacije",
+      "Invia un feedback",
+      "Envoyer un avis",
+      "Enviar comentarios",
+      "Enviar comentários",
+      "Feedback sturen",
+      "Wyślij opinię"
+    ],
+    "Copy address": [
+      "Adresse kopieren",
+      "Kopiraj adresu",
+      "Kopiraj naslov",
+      "Copia indirizzo",
+      "Copier l’adresse",
+      "Copiar dirección",
+      "Copiar endereço",
+      "Adres kopiëren",
+      "Kopiuj adres"
+    ],
+    "Zeitkonto feedback": [
+      "Feedback zu Zeitkonto",
+      "Povratna informacija o Zeitkontu",
+      "Povratne informacije o Zeitkontu",
+      "Feedback su Zeitkonto",
+      "Avis sur Zeitkonto",
+      "Comentarios sobre Zeitkonto",
+      "Comentários sobre o Zeitkonto",
+      "Feedback over Zeitkonto",
+      "Opinia o Zeitkonto"
+    ],
+    "No mail app is set up on this phone. Write to %@ from any mail app.": [
+      "Auf diesem Telefon ist keine Mail-App eingerichtet. Schreib an %@ aus einer beliebigen Mail-App.",
+      "Na ovom telefonu nije postavljena aplikacija za poštu. Piši na %@ iz bilo koje aplikacije za poštu.",
+      "V tem telefonu ni nastavljene aplikacije za pošto. Piši na %@ iz katere koli aplikacije za pošto.",
+      "Su questo telefono non è configurata un’app di posta. Scrivi a %@ da qualsiasi app di posta.",
+      "Aucune app de messagerie n’est configurée sur ce téléphone. Écrivez à %@ depuis n’importe quelle app de messagerie.",
+      "No hay ninguna app de correo configurada en este teléfono. Escribe a %@ desde cualquier app de correo.",
+      "Não há nenhuma app de e-mail configurada neste telefone. Escreve para %@ a partir de qualquer app de e-mail.",
+      "Er is geen mail-app ingesteld op deze telefoon. Schrijf naar %@ vanuit een willekeurige mail-app.",
+      "Na tym telefonie nie skonfigurowano aplikacji pocztowej. Napisz na %@ z dowolnej aplikacji pocztowej."
     ]
   },
   "sameAsEnglishOnPurpose": [

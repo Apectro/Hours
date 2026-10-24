@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The settings index.
 ///
@@ -9,6 +10,7 @@ struct SettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
     @Environment(TourCoordinator.self) private var tour: TourCoordinator?
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -232,6 +234,33 @@ struct SettingsScreen: View {
                         }
                         .tint(.primary)
                         .accessibilityIdentifier("settings-show-tour")
+                        Button {
+                            openURL(ReviewPrompt.writeReviewURL)
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Rate Zeitkonto"),
+                                value: nil,
+                                systemImage: "star"
+                            )
+                        }
+                        .tint(.primary)
+                        .accessibilityIdentifier("settings-rate")
+                        Button {
+                            guard let url = ReviewPromptStore.feedbackMailURL else { return }
+                            // No mail account set up means nothing opens; the
+                            // address is shown instead so it can be written to.
+                            openURL(url) { accepted in
+                                if !accepted { isShowingFeedbackAddress = true }
+                            }
+                        } label: {
+                            SettingsRow(
+                                title: String(localized: "Send feedback"),
+                                value: nil,
+                                systemImage: "envelope"
+                            )
+                        }
+                        .tint(.primary)
+                        .accessibilityIdentifier("settings-feedback")
                     }
                 }
                 // The tour's last stop is Export options, which may be below
@@ -241,6 +270,15 @@ struct SettingsScreen: View {
                     withAnimation { scroller.scrollTo(Self.exportRow, anchor: .center) }
                 }
                 .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
+                .alert("Send feedback", isPresented: $isShowingFeedbackAddress) {
+                    Button("Copy address") { UIPasteboard.general.string = ReviewPrompt.feedbackAddress }
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text(String(
+                        localized: "No mail app is set up on this phone. Write to \(ReviewPrompt.feedbackAddress) from any mail app.",
+                        comment: "Feedback without a mail account; the value is an email address"
+                    ))
+                }
                 .navigationTitle("Settings")
                 // A screen the UI tests wait for. The title beside it is translated.
                 .accessibilityIdentifier("screen-settings")
@@ -249,6 +287,7 @@ struct SettingsScreen: View {
     }
 
     @State private var isShowingPaywall = false
+    @State private var isShowingFeedbackAddress = false
 
     private static let exportRow = "settings-export-options"
 
