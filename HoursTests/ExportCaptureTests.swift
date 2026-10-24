@@ -377,6 +377,9 @@ final class ExportCaptureTests: XCTestCase {
         let document = try XCTUnwrap(PDFDocument(data: data))
         let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
         XCTAssertTrue(text.contains("IVAN HORVAT"), "a person's name is missing from the headings")
+        // Every day of August and the closing rows, on one page.
+        XCTAssertEqual(document.pageCount, 1, "a normal crew's month should fit one page")
+        XCTAssertTrue(text.contains("2026-08-01"), "the sheet should list every day, the 1st (a Saturday) included")
         // The date and the day head a column each, as on a timesheet.
         for heading in ["DATE", "DAY"] {
             XCTAssertTrue(text.contains(heading), "the PDF never drew the column title \(heading)")
@@ -461,6 +464,19 @@ final class ExportCaptureTests: XCTestCase {
             let text = document.page(at: index)?.string ?? ""
             XCTAssertTrue(text.contains("page \(index + 1) of \(count)"), "page \(index + 1) does not say of \(count)")
         }
+    }
+
+    /// A 31-day month keeps every day and the total on the first page, the
+    /// rows a little tighter; only the summary goes on, with the lines to sign
+    /// on. The 31st used to go over alone with the total.
+    func testAMonthsDaysAndTotalShareThePage() throws {
+        let table = monthTable(days: 31)
+        let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+        let first = document.page(at: 0)?.string ?? ""
+        XCTAssertTrue(first.contains("2026-08-31"), "the 31st is not on the first page")
+        XCTAssertTrue(first.contains("Total"), "the total is not under the days")
+        let all = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(all.contains("Summary"))
     }
 
     // MARK: - A big crew, split across pages
