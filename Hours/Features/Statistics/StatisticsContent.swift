@@ -18,6 +18,8 @@ struct StatisticsContent: View {
     private let allowance: AllowanceSummary
     private var duration: DurationFormatting { settings.displayFormatting }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    /// The month's payslip check, open as a sheet.
+    @State private var checksPayslip = false
 
     init(
         range: CalendarDateRange,
@@ -88,6 +90,9 @@ struct StatisticsContent: View {
                 .padding(.vertical, Metrics.large)
             } else {
                 breakdown
+                if scope == .month {
+                    payslipCheck
+                }
                 jobBreakdown
                 chartSection
                 dayTypeBreakdown
@@ -209,6 +214,40 @@ struct StatisticsContent: View {
                     )
                 }
             }
+        }
+    }
+
+    // MARK: - Payslip
+
+    private var month: YearMonth { range.start.yearMonth }
+
+    /// The month as Insights shows it, for the payslip to be checked against.
+    private var payslipFigures: PayslipFigures {
+        PayslipFigures(
+            days: days,
+            summary: summary,
+            earnings: earnings,
+            settings: settings,
+            month: month,
+            calendar: calendar,
+            countingThrough: CalendarDate.today(in: calendar)
+        )
+    }
+
+    private var payslipCheck: some View {
+        let stored = settings.payslipEntry(for: month)
+        let figures = payslipFigures
+        return PayslipCheckRow(
+            comparison: stored.map { PayslipComparison(entry: $0, figures: figures) },
+            open: { checksPayslip = true }
+        )
+        .sheet(isPresented: $checksPayslip) {
+            PayslipCheckSheet(
+                month: month,
+                monthTitle: formatting.monthTitle(month),
+                figures: figures,
+                stored: stored
+            )
         }
     }
 

@@ -58,6 +58,12 @@ than sitting greyed out.
 balance, averages, day counts, and a running balance that is always recomputed
 from the days rather than stored.
 
+**Check your payslip** — on Insights' month, type what the payslip says:
+hours worked, overtime, sick days and leave (in hours or days), gross pay. Only
+what you fill in is compared, each with a ✓ or "Payslip shows 4h less", and a
+short note can be shared or copied for payroll in the report language. The row
+then says "Checked" or how many figures differ.
+
 **Leave** — set your yearly vacation allowance, when your leave year starts,
 and any days carried over (and when they expire) in Settings › Leave. Insights
 shows "18 of 25 left · 2 planned", and the day editor says what a vacation day

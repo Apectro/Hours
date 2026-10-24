@@ -81,6 +81,11 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Field allowance, kilometres and travel time (1.2). Absent from
     /// anything older, which reads as switched off with no rates.
     var allowance: AllowancePreferences
+    /// What each month's payslip said, as typed into "Check your payslip"
+    /// (1.2), keyed by `YearMonth.payslipKey` ("2026-10"). Written only once
+    /// something is in it; absent from anything older, which reads as none,
+    /// and skipped by the decoders of 1.0 and 1.1. See `PayslipComparison`.
+    var payslipChecks: [String: PayslipEntry]
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -108,7 +113,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         leave: LeavePolicy = LeavePolicy(),
         publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences(),
         leadsCrew: Bool = false,
-        allowance: AllowancePreferences = AllowancePreferences()
+        allowance: AllowancePreferences = AllowancePreferences(),
+        payslipChecks: [String: PayslipEntry] = [:]
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -135,6 +141,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.publicHolidays = publicHolidays
         self.leadsCrew = leadsCrew
         self.allowance = allowance
+        self.payslipChecks = payslipChecks
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -204,6 +211,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case publicHolidays
         case leadsCrew
         case allowance
+        case payslipChecks
     }
 
     init(from decoder: Decoder) throws {
@@ -239,7 +247,11 @@ struct AppSettings: Hashable, Codable, Sendable {
             leave: container.lenient(.leave, defaults.leave),
             publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays),
             leadsCrew: container.lenient(.leadsCrew, defaults.leadsCrew),
-            allowance: container.lenient(.allowance, defaults.allowance)
+            allowance: container.lenient(.allowance, defaults.allowance),
+            // Month by month, so one unreadable month does not lose the rest.
+            payslipChecks: container
+                .lenient(.payslipChecks, [String: LenientPayslipEntry]())
+                .compactMapValues(\.entry)
         )
     }
 
@@ -275,5 +287,6 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(publicHolidays, forKey: .publicHolidays)
         try container.encode(leadsCrew, forKey: .leadsCrew)
         try container.encode(allowance, forKey: .allowance)
+        if !payslipChecks.isEmpty { try container.encode(payslipChecks, forKey: .payslipChecks) }
     }
 }

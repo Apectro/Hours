@@ -383,6 +383,49 @@
         "many": "%lld prac dodatkowych",
         "other": "%lld pracy dodatkowej"
       }
+    },
+    "differences": {
+      "de": {
+        "one": "%lld Abweichung",
+        "other": "%lld Abweichungen"
+      },
+      "hr": {
+        "one": "%lld razlika",
+        "few": "%lld razlike",
+        "other": "%lld razlika"
+      },
+      "sl": {
+        "one": "%lld razlika",
+        "two": "%lld razliki",
+        "few": "%lld razlike",
+        "other": "%lld razlik"
+      },
+      "it": {
+        "one": "%lld differenza",
+        "other": "%lld differenze"
+      },
+      "fr": {
+        "one": "%lld écart",
+        "other": "%lld écarts"
+      },
+      "es": {
+        "one": "%lld diferencia",
+        "other": "%lld diferencias"
+      },
+      "pt": {
+        "one": "%lld diferença",
+        "other": "%lld diferenças"
+      },
+      "nl": {
+        "one": "%lld verschil",
+        "other": "%lld verschillen"
+      },
+      "pl": {
+        "one": "%lld różnica",
+        "few": "%lld różnice",
+        "many": "%lld różnic",
+        "other": "%lld różnicy"
+      }
     }
   },
   "countedSentences": {
@@ -693,6 +736,17 @@
       "pt": "Ajudas de custo · %#@days@",
       "nl": "Toelage · %#@days@",
       "pl": "Dieta · %#@days@"
+    },
+    "^[%lld difference](inflect: true)": {
+      "de": "%#@differences@",
+      "hr": "%#@differences@",
+      "sl": "%#@differences@",
+      "it": "%#@differences@",
+      "fr": "%#@differences@",
+      "es": "%#@differences@",
+      "pt": "%#@differences@",
+      "nl": "%#@differences@",
+      "pl": "%#@differences@"
     }
   },
   "interface": {
@@ -10925,6 +10979,215 @@
       "ajudas de custo",
       "toelage",
       "dieta"
+    ],
+    "Check your payslip": [
+      "Lohnabrechnung prüfen",
+      "Provjeri platnu listu",
+      "Preveri plačilno listo",
+      "Controlla la busta paga",
+      "Vérifier votre fiche de paie",
+      "Revisa tu nómina",
+      "Verifica o teu recibo de vencimento",
+      "Controleer je loonstrook",
+      "Sprawdź pasek wypłaty"
+    ],
+    "Checked": [
+      "Geprüft",
+      "Provjereno",
+      "Preverjeno",
+      "Controllata",
+      "Vérifiée",
+      "Revisada",
+      "Verificado",
+      "Gecontroleerd",
+      "Sprawdzono"
+    ],
+    "Compare it with your hours": [
+      "Mit deinen Stunden vergleichen",
+      "Usporedi je sa svojim satima",
+      "Primerjaj jo s svojimi urami",
+      "Confrontala con le tue ore",
+      "Comparez-la avec vos heures",
+      "Compárala con tus horas",
+      "Compara-o com as tuas horas",
+      "Vergelijk hem met je uren",
+      "Porównaj go ze swoimi godzinami"
+    ],
+    "Gross pay": [
+      "Bruttolohn",
+      "Bruto plaća",
+      "Bruto plača",
+      "Retribuzione lorda",
+      "Salaire brut",
+      "Salario bruto",
+      "Salário bruto",
+      "Brutoloon",
+      "Wynagrodzenie brutto"
+    ],
+    "From your payslip for %@": [
+      "Aus deiner Lohnabrechnung für %@",
+      "S tvoje platne liste za %@",
+      "S tvoje plačilne liste za %@",
+      "Dalla tua busta paga di %@",
+      "D’après votre fiche de paie de %@",
+      "De tu nómina de %@",
+      "Do teu recibo de %@",
+      "Van je loonstrook van %@",
+      "Z twojego paska wypłaty za %@"
+    ],
+    "Fill in only what your payslip shows. Hours can be typed as 7.5 or 7:30.": [
+      "Trag nur ein, was auf deiner Lohnabrechnung steht. Stunden gehen als 7,5 oder 7:30.",
+      "Upiši samo ono što piše na platnoj listi. Sate možeš upisati kao 7,5 ili 7:30.",
+      "Vpiši samo to, kar piše na plačilni listi. Ure lahko vpišeš kot 7,5 ali 7:30.",
+      "Inserisci solo ciò che riporta la busta paga. Le ore si possono scrivere come 7,5 o 7:30.",
+      "Ne saisissez que ce qui figure sur votre fiche de paie. Les heures peuvent s’écrire 7,5 ou 7:30.",
+      "Rellena solo lo que muestra tu nómina. Las horas se pueden escribir como 7,5 o 7:30.",
+      "Preenche só o que o recibo mostra. As horas podem ser escritas como 7,5 ou 7:30.",
+      "Vul alleen in wat op je loonstrook staat. Uren kun je typen als 7,5 of 7:30.",
+      "Wpisz tylko to, co jest na pasku wypłaty. Godziny można wpisać jako 7,5 lub 7:30."
+    ],
+    "A day counts as %@.": [
+      "Ein Tag zählt als %@.",
+      "Dan se računa kao %@.",
+      "Dan šteje kot %@.",
+      "Un giorno vale %@.",
+      "Une journée compte pour %@.",
+      "Un día cuenta como %@.",
+      "Um dia conta como %@.",
+      "Een dag telt als %@.",
+      "Dzień liczy się jako %@."
+    ],
+    "Remove this check": [
+      "Diese Prüfung entfernen",
+      "Ukloni ovu provjeru",
+      "Odstrani to preverjanje",
+      "Rimuovi questo controllo",
+      "Supprimer cette vérification",
+      "Quitar esta comprobación",
+      "Remover esta verificação",
+      "Deze controle verwijderen",
+      "Usuń to sprawdzenie"
+    ],
+    "Check": [
+      "Prüfen",
+      "Provjeri",
+      "Preveri",
+      "Controlla",
+      "Vérifier",
+      "Comprobar",
+      "Verificar",
+      "Controleren",
+      "Sprawdź"
+    ],
+    "Nothing to compare yet. Fill in a figure from your payslip.": [
+      "Noch nichts zu vergleichen. Trag eine Zahl von deiner Lohnabrechnung ein.",
+      "Još nema što usporediti. Upiši neki iznos s platne liste.",
+      "Še ni ničesar za primerjavo. Vpiši številko s plačilne liste.",
+      "Ancora niente da confrontare. Inserisci un valore dalla busta paga.",
+      "Rien à comparer pour l’instant. Saisissez un chiffre de votre fiche de paie.",
+      "Aún no hay nada que comparar. Rellena una cifra de tu nómina.",
+      "Ainda não há nada para comparar. Preenche um valor do recibo.",
+      "Nog niets te vergelijken. Vul een getal van je loonstrook in.",
+      "Na razie nie ma czego porównać. Wpisz liczbę z paska wypłaty."
+    ],
+    "Payroll may count differently, with other cut-off dates or averages. If you’re unsure, talk to payroll.": [
+      "Die Lohnverrechnung kann anders zählen, mit anderen Stichtagen oder Durchschnitten. Wenn du unsicher bist, frag dort nach.",
+      "Obračun plaća može računati drukčije, s drugim datumima obračuna ili prosjecima. Ako nisi siguran, pitaj računovodstvo.",
+      "Obračun plač lahko šteje drugače, z drugimi presečnimi datumi ali povprečji. Če nisi prepričan, vprašaj v računovodstvu.",
+      "L’ufficio paghe può contare in modo diverso, con altre date di chiusura o medie. Se hai dubbi, chiedi all’ufficio paghe.",
+      "Le service de paie peut compter autrement, avec d’autres dates d’arrêté ou des moyennes. En cas de doute, adressez-vous au service de paie.",
+      "Nóminas puede contar de otra manera, con otras fechas de corte o promedios. Si tienes dudas, habla con nóminas.",
+      "O processamento salarial pode contar de outra forma, com outras datas de fecho ou médias. Se tiveres dúvidas, fala com quem processa os salários.",
+      "De salarisadministratie kan anders rekenen, met andere afsluitdata of gemiddelden. Twijfel je, vraag het dan na bij de salarisadministratie.",
+      "Dział płac może liczyć inaczej, z innymi datami zamknięcia lub średnimi. Jeśli masz wątpliwości, porozmawiaj z działem płac."
+    ],
+    "Share with payroll": [
+      "Mit der Lohnverrechnung teilen",
+      "Podijeli s računovodstvom",
+      "Deli z računovodstvom",
+      "Condividi con l’ufficio paghe",
+      "Partager avec le service de paie",
+      "Compartir con nóminas",
+      "Partilhar com o processamento salarial",
+      "Delen met de salarisadministratie",
+      "Udostępnij działowi płac"
+    ],
+    "Copy": [
+      "Kopieren",
+      "Kopiraj",
+      "Kopiraj",
+      "Copia",
+      "Copier",
+      "Copiar",
+      "Copiar",
+      "Kopiëren",
+      "Kopiuj"
+    ],
+    "Copied": [
+      "Kopiert",
+      "Kopirano",
+      "Kopirano",
+      "Copiato",
+      "Copié",
+      "Copiado",
+      "Copiado",
+      "Gekopieerd",
+      "Skopiowano"
+    ],
+    "Edit figures": [
+      "Zahlen bearbeiten",
+      "Uredi iznose",
+      "Uredi številke",
+      "Modifica i valori",
+      "Modifier les chiffres",
+      "Editar cifras",
+      "Editar valores",
+      "Getallen bewerken",
+      "Edytuj liczby"
+    ],
+    "Recorded %@ · payslip %@": [
+      "Erfasst %@ · Lohnabrechnung %@",
+      "Evidentirano %@ · platna lista %@",
+      "Evidentirano %@ · plačilna lista %@",
+      "Registrate %@ · busta paga %@",
+      "Enregistré %@ · fiche de paie %@",
+      "Registrado %@ · nómina %@",
+      "Registado %@ · recibo %@",
+      "Geregistreerd %@ · loonstrook %@",
+      "Zapisane %@ · pasek %@"
+    ],
+    "Matches": [
+      "Stimmt",
+      "Odgovara",
+      "Se ujema",
+      "Corrisponde",
+      "Concorde",
+      "Coincide",
+      "Confere",
+      "Klopt",
+      "Zgadza się"
+    ],
+    "Payslip shows %@ more": [
+      "Lohnabrechnung zeigt %@ mehr",
+      "Platna lista pokazuje %@ više",
+      "Plačilna lista kaže %@ več",
+      "La busta paga riporta %@ in più",
+      "La fiche de paie indique %@ de plus",
+      "La nómina muestra %@ más",
+      "O recibo mostra %@ a mais",
+      "Loonstrook toont %@ meer",
+      "Pasek pokazuje %@ więcej"
+    ],
+    "Payslip shows %@ less": [
+      "Lohnabrechnung zeigt %@ weniger",
+      "Platna lista pokazuje %@ manje",
+      "Plačilna lista kaže %@ manj",
+      "La busta paga riporta %@ in meno",
+      "La fiche de paie indique %@ de moins",
+      "La nómina muestra %@ menos",
+      "O recibo mostra %@ a menos",
+      "Loonstrook toont %@ minder",
+      "Pasek pokazuje %@ mniej"
     ]
   },
   "sameAsEnglishOnPurpose": [

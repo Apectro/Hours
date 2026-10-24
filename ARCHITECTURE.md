@@ -324,6 +324,32 @@ opened or dismissed (`@AppStorage`, a convenience of the installation). Share
 renders the summary with `ImageRenderer` and hands the picture to the share
 sheet; nothing leaves the phone otherwise.
 
+## Checking a payslip (1.2)
+
+The reason most people track their hours is to see they were paid right, so
+Insights' month has a "Check your payslip" row that opens a sheet. The user types
+what the payslip says — hours worked, overtime, sick and leave (hours or days),
+gross pay — and only what is typed is compared. `PayslipComparison` (engine)
+does no new arithmetic: `PayslipFigures` is read from the same resolved days,
+summary and earnings Insights shows for the month, counted through today —
+Worked, Overtime (the summary's), the hours credited on Sick and on Vacation
+days, and the month's earnings. A line the app has no answer to is not asked
+for: overtime while the balance or "Calculate overtime" is off, money without a
+rate. Days are read by the average working day of the week in force
+(`averageWorkingDayMinutes`, as *Overtime available* reads them). A line
+matches within a quarter of an hour, or one unit of money, either way; beyond
+that it is "more" or "less on the payslip", never an error. The sheet says
+payroll may count differently (cut-off dates, averages), and its note for
+payroll is plain text in the export language (`PayslipTerm`, the figures named
+with the timesheet's own `ExportTerm`s), shared with a `ShareLink` or copied.
+
+What was typed is kept per month in `AppSettings.payslipChecks`, keyed
+`"yyyy-MM"` — no schema change. It decodes month by month (an unreadable month
+is dropped, the rest kept), is written only once something is in it, travels
+in a backup with the settings, and the 1.0 and 1.1 decoders skip the key. The
+row compares the stored figures with the hours as they are now, so editing a
+day afterwards changes "Checked" to "1 difference" by itself.
+
 ## Holidays
 
 The app ships with **no** holidays and never guesses a country. Public holidays
