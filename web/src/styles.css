@@ -228,15 +228,12 @@ p {
   text-decoration: none;
 }
 
+/* The app icon (public/icon.svg), which carries its own tile and corners. */
 .mark {
   width: 28px;
   height: 28px;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: var(--on-accent);
-  border-radius: 5px;
-  font-size: 17px;
+  display: block;
+  flex: none;
 }
 
 .masthead nav {

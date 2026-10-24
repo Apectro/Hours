@@ -155,9 +155,7 @@ function Masthead() {
     <header className="masthead">
       <div className="shell masthead-inner">
         <a className="wordmark" href="#top">
-          <span className="mark" aria-hidden="true">
-            z
-          </span>
+          <img className="mark" src="/icon.svg" alt="" width="28" height="28" />
           Zeitkonto
         </a>
         <div className="masthead-end">
