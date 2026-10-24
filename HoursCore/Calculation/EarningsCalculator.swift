@@ -15,10 +15,20 @@ struct EarningsBreakdown: Hashable, Sendable {
     var nightCents = 0
     /// Credited hours of paid absence, at the rate.
     var paidAbsenceCents = 0
+    /// The field allowance, at the day's rate (1.2). Not pay for hours and
+    /// not a surcharge, so it is its own line wherever money is shown.
+    var allowanceCents = 0
+    /// Kilometres in your own car, at the rate per kilometre (1.2).
+    var mileageCents = 0
 
     var totalCents: Int {
         baseCents + overtimeCents + saturdayCents + sundayAndHolidayCents + nightCents + paidAbsenceCents
+            + allowanceCents + mileageCents
     }
+
+    /// What the hours earned: everything but the allowance and the
+    /// kilometres.
+    var hoursCents: Int { totalCents - allowanceCents - mileageCents }
 
     /// Everything on top of the rate.
     var surchargeCents: Int {
@@ -34,7 +44,9 @@ struct EarningsBreakdown: Hashable, Sendable {
             saturdayCents: lhs.saturdayCents + rhs.saturdayCents,
             sundayAndHolidayCents: lhs.sundayAndHolidayCents + rhs.sundayAndHolidayCents,
             nightCents: lhs.nightCents + rhs.nightCents,
-            paidAbsenceCents: lhs.paidAbsenceCents + rhs.paidAbsenceCents
+            paidAbsenceCents: lhs.paidAbsenceCents + rhs.paidAbsenceCents,
+            allowanceCents: lhs.allowanceCents + rhs.allowanceCents,
+            mileageCents: lhs.mileageCents + rhs.mileageCents
         )
     }
 
@@ -270,6 +282,11 @@ struct EarningsCalculator: Sendable {
         }
 
         result.breakdown = exact.rounded
+        // Whole cents already, so nothing to round: the allowance and the
+        // kilometres at their rates, on a day with hours or without.
+        let extras = AllowanceSummary(days: [day], settings: settings)
+        result.breakdown.allowanceCents = extras.allowanceCents
+        result.breakdown.mileageCents = extras.mileageCents
         result.isPaidByHealthInsurance = pastEmployerDays
         if !pastEmployerDays, absencePercent < 100, day.creditedMinutes > 0 {
             result.absencePaidPercent = absencePercent

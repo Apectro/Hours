@@ -74,6 +74,8 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             case .times: return false
             // Added by the earnings switch, never chosen; see `ReportColumn`.
             case .earnings: return false
+            // Added when the allowance is tracked and a day has one.
+            case .allowance, .kilometres, .travel: return false
             default: return true
             }
         }

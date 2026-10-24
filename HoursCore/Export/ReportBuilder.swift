@@ -60,7 +60,8 @@ struct ReportBuilder: Sendable {
             (earnings?.days ?? []).map { ($0.date.key, $0.totalCents) },
             uniquingKeysWith: { first, _ in first }
         )
-        let columns = settings.effectiveExportColumns + (earnings == nil ? [] : [.earnings])
+        let columns = withAllowanceColumns(settings.effectiveExportColumns, days: days)
+            + (earnings == nil ? [] : [.earnings])
         func isShown(_ day: DayComputation) -> Bool {
             settings.export.includeEmptyDays || day.hasEntry || day.workedMinutes > 0 || day.creditedMinutes > 0
         }
@@ -114,9 +115,25 @@ struct ReportBuilder: Sendable {
             let money = MoneyFormatting(currencyCode: currencyCode, locale: language.locale)
             table.tiles.insert(ReportTile(label: language(.earnings), value: money.string(earnings.totalCents)), at: 1)
         }
+        let extras = AllowanceSummary(days: days, settings: settings, countingThrough: countingThrough)
+        if extras.allowanceDays > 0 {
+            table.tiles.append(ReportTile(label: language(.allowanceDays), value: "\(extras.allowanceDays)"))
+        }
+        table.totals += allowanceTotals(extras, earnings: earnings, currencyCode: currencyCode)
         table.totalRow = makeTotalRow(columns: columns, summary: summary, runningBalance: running)
         if let earnings, let index = columns.firstIndex(of: .earnings), table.totalRow != nil {
             table.totalRow?.values[index] = amount(earnings.totalCents)
+        }
+        for (column, text) in [
+            (ReportColumn.allowance, "\(extras.allowanceDays)"),
+            (.kilometres, "\(extras.kilometres)"),
+            (.travel, duration.string(extras.travelMinutes))
+        ] {
+            if let index = columns.firstIndex(of: column), table.totalRow != nil {
+                table.totalRow?.values[index] = text
+                // Travel is a duration, so the workbook's total is a sum.
+                if column == .travel { table.totalRow?.minutes[index] = extras.travelMinutes }
+            }
         }
         table.signatures = [language(.employeeSignature), language(.employerSignature)]
         return table
@@ -143,7 +160,7 @@ struct ReportBuilder: Sendable {
             minutes.append(cell.minutes)
         }
 
-        return ReportRow(
+        var row = ReportRow(
             id: day.date.key,
             values: values,
             minutes: minutes,
@@ -152,6 +169,61 @@ struct ReportBuilder: Sendable {
             hasEntry: day.hasEntry,
             isAbsence: isAbsence(day)
         )
+        // Kilometres are a plain number, not minutes, so a workbook writes a
+        // figure it can add up.
+        if let index = columns.firstIndex(of: .kilometres), day.kilometres > 0 {
+            row.numbers = columns.map { _ in nil }
+            row.numbers[index] = Double(day.kilometres)
+        }
+        return row
+    }
+
+    // MARK: - Allowance and travel
+
+    /// The chosen columns with Allowance, km and Travel added before the
+    /// notes — each only when the allowance is tracked and some day in the
+    /// range has one. They are never chosen, like the earnings column: a
+    /// column of empty cells for someone who drove nowhere says nothing.
+    private func withAllowanceColumns(_ columns: [ReportColumn], days: [DayComputation]) -> [ReportColumn] {
+        guard settings.allowance.isEnabled else { return columns }
+        var added: [ReportColumn] = []
+        if days.contains(where: \.hasFieldAllowance) { added.append(.allowance) }
+        if days.contains(where: { $0.kilometres > 0 }) { added.append(.kilometres) }
+        if days.contains(where: { $0.travelMinutes > 0 }) { added.append(.travel) }
+        guard !added.isEmpty else { return columns }
+        var result = columns
+        result.insert(contentsOf: added, at: result.firstIndex(of: .note) ?? result.count)
+        return result
+    }
+
+    /// Allowance days, kilometres and travel in the summary, each only when
+    /// there is some; what the allowance and the kilometres come to only when
+    /// the sheet carries earnings, which already include them.
+    private func allowanceTotals(_ extras: AllowanceSummary, earnings: EarningsSummary?, currencyCode: String) -> [ReportTotal] {
+        var totals: [ReportTotal] = []
+        if extras.allowanceDays > 0 {
+            totals.append(ReportTotal(label: language(.allowanceDays), value: "\(extras.allowanceDays)", isEmphasised: false, count: extras.allowanceDays))
+        }
+        if extras.kilometres > 0 {
+            totals.append(ReportTotal(
+                label: language(.kilometres),
+                value: "\(extras.kilometres) \(language(.kilometresShort))",
+                isEmphasised: false,
+                count: extras.kilometres
+            ))
+        }
+        if extras.travelMinutes > 0 {
+            totals.append(ReportTotal(label: language(.travel), value: duration.string(extras.travelMinutes), isEmphasised: false, minutes: extras.travelMinutes))
+        }
+        if let earnings {
+            if earnings.breakdown.allowanceCents > 0 {
+                totals.append(ReportTotal(label: language(.allowance), value: "\(amount(earnings.breakdown.allowanceCents)) \(currencyCode)", isEmphasised: false))
+            }
+            if earnings.breakdown.mileageCents > 0 {
+                totals.append(ReportTotal(label: language(.mileage), value: "\(amount(earnings.breakdown.mileageCents)) \(currencyCode)", isEmphasised: false))
+            }
+        }
+        return totals
     }
 
     /// Paid absence, and public holidays whether or not they are credited:
@@ -210,6 +282,13 @@ struct ReportBuilder: Sendable {
         case .earnings:
             // Written by `makeRow`, which has the day's earnings.
             return (emptyPlaceholder, nil)
+        case .allowance:
+            return (day.hasFieldAllowance ? "✓" : emptyPlaceholder, nil)
+        case .kilometres:
+            return (day.kilometres > 0 ? "\(day.kilometres)" : emptyPlaceholder, nil)
+        case .travel:
+            guard day.travelMinutes > 0 else { return (emptyPlaceholder, nil) }
+            return (duration.string(day.travelMinutes), day.travelMinutes)
         }
     }
 

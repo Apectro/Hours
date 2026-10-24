@@ -57,7 +57,13 @@ struct WorkdayCalculator: Sendable {
         // typed.
         let manualWorked = features.autoCalculateWorkedHours ? nil : record?.manualWorkedMinutes
         let rawWorked = manualWorked ?? shift.workedMinutes
-        let worked = max(0, settings.rounding.apply(to: rawWorked))
+        // Travel is added after rounding, as typed: the rule rounds a shift's
+        // clock times, and travel has none. Only while the allowance and
+        // travel are tracked, and only when travel is set to count as work;
+        // otherwise it is recorded and shown, and adds nothing.
+        let extras = allowanceExtras(of: record)
+        let countedTravel = settings.allowance.travelCountsAsWork ? extras.travel : 0
+        let worked = max(0, settings.rounding.apply(to: rawWorked)) + countedTravel
 
         let credited = definition.expectation == .creditedAbsence ? expected : 0
         let adjustment = features.allowManualAdjustments ? (record?.adjustmentMinutes ?? 0) : 0
@@ -100,7 +106,27 @@ struct WorkdayCalculator: Sendable {
             note: features.trackNotes ? (record?.note ?? "") : "",
             location: features.trackLocation ? (record?.location ?? "") : "",
             tags: features.trackTags ? (record?.tags ?? []) : [],
-            warnings: warnings
+            warnings: warnings,
+            hasFieldAllowance: extras.allowance,
+            kilometres: extras.kilometres,
+            travelMinutes: extras.travel,
+            countedTravelMinutes: countedTravel
+        )
+    }
+
+    // MARK: - Allowance and travel
+
+    /// The day's field allowance, kilometres and travel, all nothing while
+    /// they are not tracked. Your own allowance or a site's: either gives the
+    /// day one, never two. Your own kilometres and every site's vehicle
+    /// kilometres add up, since each is a separate drive.
+    private func allowanceExtras(of record: DayRecord?) -> (allowance: Bool, kilometres: Int, travel: Int) {
+        guard settings.allowance.isEnabled, let record else { return (false, 0, 0) }
+        let siteShifts = record.shifts.filter { $0.siteID != nil }
+        return (
+            record.hasFieldAllowance || siteShifts.contains(where: \.fieldAllowance),
+            record.kilometres + siteShifts.reduce(0) { $0 + $1.kilometres },
+            record.travelMinutes
         )
     }
 

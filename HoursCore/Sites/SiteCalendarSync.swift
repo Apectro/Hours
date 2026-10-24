@@ -46,7 +46,12 @@ enum SiteCalendarSync {
                         ? [BreakSpan(id: day.siteID, explicitMinutes: mine.breakMinutes)]
                         : [],
                     jobID: day.jobID,
-                    siteID: day.siteID
+                    siteID: day.siteID,
+                    // The allowance and the van's kilometres ride on the
+                    // site shift, rebuilt with it, so they follow the site
+                    // day and never touch what you wrote on the day yourself.
+                    fieldAllowance: day.hasAllowance(for: CrewMember.youID),
+                    kilometres: day.kilometres
                 )
             )
         }

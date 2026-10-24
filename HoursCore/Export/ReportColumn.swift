@@ -32,6 +32,13 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     /// personal timesheet when Earnings is switched on in Export options, and
     /// a director's sheet never has it.
     case earnings
+    /// Field allowance, kilometres and travel time (1.2). Never offered among
+    /// the columns to choose either: each is added before the notes of a
+    /// personal timesheet when the allowance is tracked and some day in the
+    /// range has one, and a director's sheet never has them.
+    case allowance
+    case kilometres
+    case travel
 
     var id: String { rawValue }
 
@@ -64,6 +71,9 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         case .note: return .notes
         case .times: return .fromTo
         case .earnings: return .earnings
+        case .allowance: return .allowance
+        case .kilometres: return .kilometresShort
+        case .travel: return .travel
         }
     }
 
@@ -72,12 +82,13 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     var isNumeric: Bool {
         switch self {
         case .worked, .credited, .expected, .overtime, .balance, .cumulativeBalance, .earnings: return true
+        case .kilometres, .travel: return true
         default: return false
         }
     }
 
     /// An amount of money is a figure but not a length of time.
-    var isDuration: Bool { (isNumeric && self != .earnings) || self == .breakTime }
+    var isDuration: Bool { (isNumeric && self != .earnings && self != .kilometres) || self == .breakTime }
 
     /// Whether cutting this column's values short is untidy or wrong.
     ///

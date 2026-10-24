@@ -91,8 +91,11 @@ extension SiteSheetBuilder {
         part.columnGroups = groups.map { table.validGroups[$0] }
 
         // The days, then the closing rows. Month total and days worked are
-        // always there; a row of sick or leave days only where somebody in
-        // this part had one, as the whole sheet has it only where anybody did.
+        // always there; a row of sick, leave or allowance days only where
+        // somebody in this part had one, as the whole sheet has it only where
+        // anybody did. A row whose figure is in the notes column — the
+        // vehicle's kilometres, which belong to no one person — goes on
+        // every part.
         let summaryStart = table.rows.count - min(table.trailingSummaryRows, table.rows.count)
         var rows: [ReportRow] = []
         var summaries = 0
@@ -100,8 +103,8 @@ extension SiteSheetBuilder {
             let row = narrow(original)
             if index >= summaryStart {
                 let isOptional = index - summaryStart >= 2
-                let personCells = row.values.dropFirst(lead).dropLast()
-                if isOptional && personCells.allSatisfy({ $0.trimmingCharacters(in: .whitespaces).isEmpty }) {
+                let figureCells = row.values.dropFirst(lead)
+                if isOptional && figureCells.allSatisfy({ $0.trimmingCharacters(in: .whitespaces).isEmpty }) {
                     continue
                 }
                 summaries += 1

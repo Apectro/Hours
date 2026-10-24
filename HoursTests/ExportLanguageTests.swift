@@ -39,15 +39,16 @@ final class ExportLanguageTests: XCTestCase {
     /// Correction, Total and page. So they are enumerated, and anything else
     /// that matches is a translation nobody did.
     private static let sharedWithEnglish: [ExportLanguage: Set<ExportTerm>] = [
-        .german: [.name, .weatherFrost, .weatherWind],
-        .croatian: [],
-        .slovenian: [],
-        .italian: [],
-        .french: [.date, .dayType, .notes, .correction, .total, .page],
-        .spanish: [.total],
-        .portuguese: [.total],
-        .dutch: [.dayType, .weekend, .weatherWind],
-        .polish: [.weekend]
+        // "km" is the unit in every language.
+        .german: [.name, .weatherFrost, .weatherWind, .kilometresShort],
+        .croatian: [.kilometresShort],
+        .slovenian: [.kilometresShort],
+        .italian: [.kilometresShort],
+        .french: [.date, .dayType, .notes, .correction, .total, .page, .kilometresShort],
+        .spanish: [.total, .kilometresShort],
+        .portuguese: [.total, .kilometresShort],
+        .dutch: [.dayType, .weekend, .weatherWind, .kilometresShort],
+        .polish: [.weekend, .kilometresShort]
     ]
 
     func testNoLanguageQuietlyKeptTheEnglish() {

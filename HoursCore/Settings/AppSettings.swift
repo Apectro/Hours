@@ -78,6 +78,9 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// welcome's last screen and the guided tour read it; it never hides a
     /// tab. Absent from anything older, which reads as no.
     var leadsCrew: Bool
+    /// Field allowance, kilometres and travel time (1.2). Absent from
+    /// anything older, which reads as switched off with no rates.
+    var allowance: AllowancePreferences
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -104,7 +107,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         monthLock: MonthLock = .unlocked,
         leave: LeavePolicy = LeavePolicy(),
         publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences(),
-        leadsCrew: Bool = false
+        leadsCrew: Bool = false,
+        allowance: AllowancePreferences = AllowancePreferences()
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -130,6 +134,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.leave = leave
         self.publicHolidays = publicHolidays
         self.leadsCrew = leadsCrew
+        self.allowance = allowance
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -198,6 +203,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case leave
         case publicHolidays
         case leadsCrew
+        case allowance
     }
 
     init(from decoder: Decoder) throws {
@@ -232,7 +238,8 @@ struct AppSettings: Hashable, Codable, Sendable {
             monthLock: container.lenient(.monthLock, defaults.monthLock),
             leave: container.lenient(.leave, defaults.leave),
             publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays),
-            leadsCrew: container.lenient(.leadsCrew, defaults.leadsCrew)
+            leadsCrew: container.lenient(.leadsCrew, defaults.leadsCrew),
+            allowance: container.lenient(.allowance, defaults.allowance)
         )
     }
 
@@ -267,5 +274,6 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(leave, forKey: .leave)
         try container.encode(publicHolidays, forKey: .publicHolidays)
         try container.encode(leadsCrew, forKey: .leadsCrew)
+        try container.encode(allowance, forKey: .allowance)
     }
 }

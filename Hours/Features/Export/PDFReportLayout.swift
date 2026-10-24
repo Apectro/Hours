@@ -325,6 +325,9 @@ struct PDFReportLayout {
         case .note: return 2.2
         case .times: return 1.0
         case .earnings: return 0.9
+        case .allowance: return 0.9
+        case .kilometres: return 0.6
+        case .travel: return 0.8
         }
     }
 }
