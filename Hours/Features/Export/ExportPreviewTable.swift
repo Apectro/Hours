@@ -53,7 +53,7 @@ struct ExportPreviewTable: View {
             // sheet, which repeats its columns once per person.
             ForEach(table.columns.indices, id: \.self) { index in
                 headingText(table.heading(at: index))
-                    .frame(width: widths[index], alignment: table.columns[index].isNumeric ? .trailing : .leading)
+                    .previewCell(width: widths[index], numeric: table.columns[index].isNumeric)
                     .accessibilityIdentifier("export-preview-heading")
             }
         }
@@ -83,7 +83,7 @@ struct ExportPreviewTable: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                    .frame(width: widths[index], alignment: table.columns[index].isNumeric ? .trailing : .leading)
+                    .previewCell(width: widths[index], numeric: table.columns[index].isNumeric)
                     .accessibilityIdentifier("export-preview-subheading")
             }
         }
@@ -207,7 +207,7 @@ private struct ExportPreviewRow: View {
                 .monospacedDigit()
                 .foregroundStyle(color(index: index, column: column))
                 .lineLimit(1)
-                .frame(width: width, alignment: column.isNumeric ? .trailing : .leading)
+                .previewCell(width: width, numeric: column.isNumeric)
                 .accessibilityIdentifier(isSummary ? "export-preview-summary" : "")
         }
     }
@@ -227,6 +227,16 @@ private struct ExportPreviewRow: View {
     private var rowBackground: Color {
         if row.isAbsence { return ExportPreviewWidths.accent.opacity(0.08) }
         return row.isWorkingDay ? Color.clear : Color.hoursSubdued.opacity(0.08)
+    }
+}
+
+extension View {
+    /// A preview cell `width` wide. A figure sits against the right edge less
+    /// a gap, so "8h 30m" does not run into the next column's "07:00–16:00",
+    /// which starts at its left edge. The measured widths leave room for it.
+    func previewCell(width: CGFloat, numeric: Bool) -> some View {
+        frame(width: max(width - (numeric ? Metrics.small : 0), 0), alignment: numeric ? .trailing : .leading)
+            .frame(width: width, alignment: .leading)
     }
 }
 
