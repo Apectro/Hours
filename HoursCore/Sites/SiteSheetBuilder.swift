@@ -1,7 +1,7 @@
 import Foundation
 
 /// Builds the sheet a site's director gets at the start of the month: one row
-/// per day, a group of two columns per person — their times and their hours —
+/// per day of the month, written or not, a group of two columns per person — their times and their hours —
 /// and each person's total and days worked at the bottom.
 ///
 /// It produces an ordinary `ReportTable`, so CSV, XLSX and the PDF write it
@@ -86,8 +86,25 @@ struct SiteSheetBuilder: Sendable {
         var leaveDays = Array(repeating: 0, count: people.count)
         let catalog = settings.dayTypeCatalog
 
-        for date in dates {
-            guard let result = byDate[date] else { continue }
+        // Every day of the range, as a timesheet lists them: a day nobody was
+        // on the site is a row with only its date, shaded like a timesheet's
+        // weekend when the schedule expects no work, so a gap in the month
+        // reads as a gap rather than disappearing.
+        for date in range.days(in: calendar) {
+            guard let result = byDate[date] else {
+                let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+                let values = [formatter.dateText(date), formatter.weekdayText(date)]
+                    + people.flatMap { _ in ["", ""] } + [""]
+                rows.append(ReportRow(
+                    id: date.key,
+                    values: values,
+                    minutes: Array(repeating: nil, count: values.count),
+                    isWorkingDay: settings.primarySchedule(on: date).isWorkingWeekday(weekday),
+                    balanceMinutes: 0,
+                    hasEntry: false
+                ))
+                continue
+            }
             // The date and the weekday in two columns, written as the
             // personal timesheet writes them: the date in the export's date
             // style, the weekday in the export language.

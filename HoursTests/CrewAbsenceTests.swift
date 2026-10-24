@@ -257,10 +257,10 @@ final class CrewAbsenceTests: XCTestCase {
             onSite(4, present: [CrewMember.youID, ana.id])
         ])
         // Date, Day, you (2), Ana (2), Notes.
-        XCTAssertEqual(t.rows[0].values[4], "Sick leave")
-        XCTAssertEqual(t.rows[0].values[5], "")
-        XCTAssertNil(t.rows[0].minutes[5])
-        XCTAssertEqual(t.rows[0].mergedGroups, [3], "one cell across the person's group, as a dash is")
+        XCTAssertEqual(t.written[0].values[4], "Sick leave")
+        XCTAssertEqual(t.written[0].values[5], "")
+        XCTAssertNil(t.written[0].minutes[5])
+        XCTAssertEqual(t.written[0].mergedGroups, [3], "one cell across the person's group, as a dash is")
     }
 
     func testTheReasonIsInTheSheetsLanguage() {
@@ -271,11 +271,11 @@ final class CrewAbsenceTests: XCTestCase {
             CrewAbsence(memberID: ivo.id, dayTypeID: .vacation)
         ])]
         let german = sheet(crew: [ana, ivo], days: days, language: .german)
-        XCTAssertEqual(german.rows[0].values[4], "Krankheit")
-        XCTAssertEqual(german.rows[0].values[6], "Urlaub")
+        XCTAssertEqual(german.written[0].values[4], "Krankheit")
+        XCTAssertEqual(german.written[0].values[6], "Urlaub")
         let croatian = sheet(crew: [ana, ivo], days: days, language: .croatian)
-        XCTAssertEqual(croatian.rows[0].values[4], "Bolovanje")
-        XCTAssertEqual(croatian.rows[0].values[6], "Godišnji odmor")
+        XCTAssertEqual(croatian.written[0].values[4], "Bolovanje")
+        XCTAssertEqual(croatian.written[0].values[6], "Godišnji odmor")
     }
 
     /// Sick all month is still on the sheet: the director needs to see it.
@@ -355,13 +355,14 @@ final class CrewAbsenceTests: XCTestCase {
         let package = String(decoding: XLSXWriter.data(for: t, preferences: ExportPreferences()), as: UTF8.self)
         XCTAssertTrue(package.contains(">Sick days<"))
         XCTAssertTrue(package.contains(">Sick leave<"))
-        // Two days, so the sum covers two rows and never the counts below.
+        // Every day of the month, so the sum covers 31 rows and never the
+        // counts below.
         // Your hours are column D, after the date and the day.
         let sum = try? XCTUnwrap(package.range(of: #"SUM\(D(\d+):D(\d+)\)"#, options: .regularExpression))
         let formula = sum.map { String(package[$0]) } ?? ""
         let rows = formula.dropFirst(4).dropLast().split(separator: ":").compactMap { Int($0.dropFirst()) }
         XCTAssertEqual(rows.count, 2)
-        XCTAssertEqual((rows.last ?? 0) - (rows.first ?? 0), 1)
+        XCTAssertEqual((rows.last ?? 0) - (rows.first ?? 0), 30)
     }
 
     /// A custom type keeps the name it was given, in every language.
@@ -375,7 +376,7 @@ final class CrewAbsenceTests: XCTestCase {
         let t = sheet(crew: [ana], days: [
             onSite(3, present: [CrewMember.youID], absences: [CrewAbsence(memberID: ana.id, dayTypeID: DayTypeID("training"))])
         ], language: .croatian, settings: settings)
-        XCTAssertEqual(t.rows[0].values[4], "Schulung")
+        XCTAssertEqual(t.written[0].values[4], "Schulung")
         XCTAssertEqual(t.rows.last?.values[0], "Dani dopusta", "a custom absence is leave")
     }
 
@@ -466,12 +467,12 @@ final class CrewAbsenceTests: XCTestCase {
         ])]
         let names = [bauSued: "Bau Süd"]
         let german = sheet(days, crew: [ana, ivo], language: .german, siteNames: names)
-        XCTAssertEqual(german.rows[0].values[4], "Bau Süd")
-        XCTAssertEqual(german.rows[0].values[6], "Andere Baustelle")
-        XCTAssertEqual(german.rows[0].mergedGroups, [3, 4])
+        XCTAssertEqual(german.written[0].values[4], "Bau Süd")
+        XCTAssertEqual(german.written[0].values[6], "Andere Baustelle")
+        XCTAssertEqual(german.written[0].mergedGroups, [3, 4])
         let croatian = sheet(days, crew: [ana, ivo], language: .croatian, siteNames: [:])
-        XCTAssertEqual(croatian.rows[0].values[4], "Drugo gradilište", "a site no longer known is just another site")
-        XCTAssertEqual(croatian.rows[0].values[6], "Drugo gradilište")
+        XCTAssertEqual(croatian.written[0].values[4], "Drugo gradilište", "a site no longer known is just another site")
+        XCTAssertEqual(croatian.written[0].values[6], "Drugo gradilište")
         // Neither sick nor leave: no rows for them.
         XCTAssertEqual(german.trailingSummaryRows, 2)
         XCTAssertEqual(croatian.columnGroups.count, 6, "both still have a column")
