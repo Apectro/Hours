@@ -4216,17 +4216,6 @@
       "De functie waarvoor de uren van deze bouwplaats tellen. Al vastgelegde dagen houden de functie waarmee ze zijn vastgelegd.",
       "Praca, do której liczą się godziny z tej budowy. Już zapisane dni zachowują pracę, z którą je zapisano."
     ],
-    "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.": [
-      "Das Einzige, was es im Netz abfragt, ist, ob Zeitkonto Pro bezahlt wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit.",
-      "Jedino što pita mrežu jest je li Zeitkonto Pro plaćen, a to pita App Store; ništa od vaših sati ne ide uz to pitanje.",
-      "Edino, kar vpraša omrežje, je, ali je Zeitkonto Pro plačan, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur.",
-      "L'unica cosa che chiede alla rete è se Zeitkonto Pro è stato pagato, e lo chiede all'App Store; nessuna parte delle tue ore parte con la domanda.",
-      "La seule chose qu'il demande au réseau, c'est si Zeitkonto Pro a été payé, et il le demande à l'App Store ; aucune partie de vos heures n'accompagne la question.",
-      "Lo único que pregunta a la red es si se ha pagado Zeitkonto Pro, y se lo pregunta a la App Store; ninguna parte de tus horas viaja con la pregunta.",
-      "A única coisa que pergunta à rede é se o Zeitkonto Pro foi pago, e pergunta-o à App Store; nenhuma parte das suas horas segue com a pergunta.",
-      "Het enige wat het aan het netwerk vraagt is of Zeitkonto Pro betaald is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag.",
-      "Jedyne, o co pyta sieć, to czy opłacono Zeitkonto Pro — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
-    ],
     "The optional location field is a text note you type. The app never asks the system where you are.": [
       "Das optionale Ortsfeld ist eine Textnotiz, die du eintippst. Die App fragt das System nie nach deinem Standort.",
       "Neobavezno polje mjesta je tekstualna bilješka koju upišeš. Aplikacija nikad ne pita sustav gdje si.",
@@ -10639,6 +10628,17 @@
       "Não há nenhuma app de e-mail configurada neste telefone. Escreve para %@ a partir de qualquer app de e-mail.",
       "Er is geen mail-app ingesteld op deze telefoon. Schrijf naar %@ vanuit een willekeurige mail-app.",
       "Na tym telefonie nie skonfigurowano aplikacji pocztowej. Napisz na %@ z dowolnej aplikacji pocztowej."
+    ],
+    "The one thing it asks the network is whether anything was bought, which it asks the App Store; no part of your hours goes with the question.": [
+      "Das Einzige, was es im Netz abfragt, ist, ob etwas gekauft wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit.",
+      "Jedino što pita mrežu jest je li nešto kupljeno, a to pita App Store; ništa od vaših sati ne ide uz to pitanje.",
+      "Edino, kar vpraša omrežje, je, ali je bilo kaj kupljeno, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur.",
+      "L'unica cosa che chiede alla rete è se è stato acquistato qualcosa, e lo chiede all'App Store; nessuna parte delle tue ore parte con la domanda.",
+      "La seule chose qu'il demande au réseau, c'est si quelque chose a été acheté, et il le demande à l'App Store ; aucune partie de vos heures n'accompagne la question.",
+      "Lo único que pregunta a la red es si se ha comprado algo, y se lo pregunta a la App Store; ninguna parte de tus horas viaja con la pregunta.",
+      "A única coisa que pergunta à rede é se foi comprado algo, e pergunta-o à App Store; nenhuma parte das suas horas segue com a pergunta.",
+      "Het enige wat het aan het netwerk vraagt is of er iets gekocht is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag.",
+      "Jedyne, o co pyta sieć, to czy coś zostało kupione — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
     ]
   },
   "sameAsEnglishOnPurpose": [

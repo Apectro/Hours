@@ -4,6 +4,11 @@ EXTRA WORK FOR YOUR BOSS
 • The client can sign for it on your phone.
 • "Report to boss" sends what is done as PDF, Excel or CSV, written in your boss's language. Quantities only, no prices.
 
+YOUR CREW
+• Mark why someone wasn't there: sick, on vacation, a day off or on another site. The site calendar shows the short-handed days at a glance.
+• Sick pay at a percentage, with a switch for Croatia's rule: 70% for the first 42 days.
+• The director's sheet has Date and Day columns, and a big crew prints over several pages instead of squeezing the times.
+
 ON SITE
 • A site diary for each day: the weather, short notes and photos.
 • Rained off: stop the whole crew for bad weather, all day or from a time.
@@ -21,4 +26,6 @@ WATCH AND SHORTCUTS
 • iCloud sync between your own devices, if you turn it on. Still no account.
 
 AND
+• A new app icon.
 • A welcome that sets up your report language, crew and pay, and a short guided tour of the app.
+• Rate Zeitkonto and Send feedback in Settings.

@@ -7,6 +7,7 @@ ONE ENTRY FOR THE WHOLE CREW
 • A site has its crew. Enter the day's times once and tick who was there.
 • Someone came late or left at noon? Change their times only; everyone else keeps the site's.
 • "Same as last day" fills today from the last day on the site in one tap.
+• Mark who was off and why: sick, vacation, a day off or another site.
 • Each site has its own month calendar, with how many were there each day.
 • Rained off? Stop the whole crew for bad weather, all day or from a time.
 • A site diary for each day: the weather, short notes and photos.
@@ -17,15 +18,15 @@ Write down what the crew did beyond the contract, on the day: what was done, the
 
 THE DIRECTOR'S MONTHLY SHEET
 
-At the start of the month Zeitkonto reminds you, per site, that last month's sheet is ready. It lists everyone, one group of columns per person, with your name at the top: PDF, Excel or CSV, previewed exactly as it will print. If you want it, each person signs their month on your phone first. Money never appears on a site sheet.
+At the start of the month Zeitkonto reminds you, per site, that last month's sheet is ready. It lists everyone, one group of columns per person, a big crew over several pages: PDF, Excel or CSV, previewed exactly as it will print. If you want it, each person signs their month on your phone first. Money never appears on a site sheet.
 
 WHAT YOU EARNED
 
-Set an hourly rate and the calendar leads with what you earned: overtime after a normal day or after your week, Saturday, Sunday, holiday and night surcharges, and paid days off at your rate. A raise starts from a date, so earlier months keep the rate they were worked at. Earnings are private to you and never shown about your crew.
+Set an hourly rate and the calendar leads with what you earned: overtime after a normal day or after your week, Saturday, Sunday, holiday and night surcharges, paid days off at your rate, and sick pay at a percentage. A raise starts from a date, so earlier months keep the rate they were worked at. Earnings are private to you and never shown about your crew.
 
 A CALENDAR FIRST
 
-The main screen is the month, coloured by day type, with the totals underneath. Tap a day to see it, tap again to edit it. A past working day with nothing written gets a dashed outline, so you notice the gap now rather than at the end of the month.
+The main screen is the month, coloured by day type, with the totals underneath. Tap a day to see it, tap again to edit it. A past working day with nothing written gets a dashed outline, so you notice the gap now.
 
 HOURS THE WAY YOURS WORK
 
@@ -41,7 +42,7 @@ THE BALANCE, FROM YOUR FIRST DAY
 
 worked + paid absence − expected + adjustment
 
-Counted from the first day you recorded, so installing mid-year doesn't start you hundreds of hours behind. Insights covers the day, week, month and year, earnings first, with a Year in review.
+Counted from your first recorded day, so starting mid-year doesn't put you hundreds of hours behind. Insights covers the day, week, month and year, earnings first, with a Year in review.
 
 WATCH, WIDGETS AND LIVE ACTIVITY
 
@@ -49,8 +50,8 @@ An Apple Watch app with today's hours and Clock in / Clock out. Widgets for toda
 
 BUILT NOT TO LOSE YOUR DATA
 
-Days are stored as dates, so a time zone or a clock change can't reshape them. Close a month you have handed in and nothing can change it by accident. Backup and restore writes a plain JSON file holding everything you entered: a file you keep, not a service you trust.
+Days are stored as dates, so a time zone or a clock change can't reshape them. Close a month you have handed in and nothing can change it by accident. Backup writes a plain file holding everything: a file you keep, not a service you trust.
 
 FREE, ALL OF IT
 
-Everything is included at no cost: sites and crews, extra work and the report to your boss, the director's sheet, earnings, the Apple Watch app, the widgets and the Live Activity. No account, no login, no ads.
+Everything is free: sites and crews, extra work and the report to your boss, the director's sheet, earnings, the Apple Watch app, the widgets and the Live Activity. No account, no ads.

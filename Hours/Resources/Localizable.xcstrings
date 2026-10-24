@@ -46996,61 +46996,61 @@
         }
       }
     },
-    "The one thing it asks the network is whether Zeitkonto Pro has been paid for, which it asks the App Store; no part of your hours goes with the question.": {
+    "The one thing it asks the network is whether anything was bought, which it asks the App Store; no part of your hours goes with the question.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Einzige, was es im Netz abfragt, ist, ob Zeitkonto Pro bezahlt wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit."
+            "value": "Das Einzige, was es im Netz abfragt, ist, ob etwas gekauft wurde, und zwar beim App Store; von Ihren Stunden geht dabei nichts mit."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lo único que pregunta a la red es si se ha pagado Zeitkonto Pro, y se lo pregunta a la App Store; ninguna parte de tus horas viaja con la pregunta."
+            "value": "Lo único que pregunta a la red es si se ha comprado algo, y se lo pregunta a la App Store; ninguna parte de tus horas viaja con la pregunta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La seule chose qu'il demande au réseau, c'est si Zeitkonto Pro a été payé, et il le demande à l'App Store ; aucune partie de vos heures n'accompagne la question."
+            "value": "La seule chose qu'il demande au réseau, c'est si quelque chose a été acheté, et il le demande à l'App Store ; aucune partie de vos heures n'accompagne la question."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jedino što pita mrežu jest je li Zeitkonto Pro plaćen, a to pita App Store; ništa od vaših sati ne ide uz to pitanje."
+            "value": "Jedino što pita mrežu jest je li nešto kupljeno, a to pita App Store; ništa od vaših sati ne ide uz to pitanje."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'unica cosa che chiede alla rete è se Zeitkonto Pro è stato pagato, e lo chiede all'App Store; nessuna parte delle tue ore parte con la domanda."
+            "value": "L'unica cosa che chiede alla rete è se è stato acquistato qualcosa, e lo chiede all'App Store; nessuna parte delle tue ore parte con la domanda."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Het enige wat het aan het netwerk vraagt is of Zeitkonto Pro betaald is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag."
+            "value": "Het enige wat het aan het netwerk vraagt is of er iets gekocht is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jedyne, o co pyta sieć, to czy opłacono Zeitkonto Pro — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
+            "value": "Jedyne, o co pyta sieć, to czy coś zostało kupione — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "A única coisa que pergunta à rede é se o Zeitkonto Pro foi pago, e pergunta-o à App Store; nenhuma parte das suas horas segue com a pergunta."
+            "value": "A única coisa que pergunta à rede é se foi comprado algo, e pergunta-o à App Store; nenhuma parte das suas horas segue com a pergunta."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edino, kar vpraša omrežje, je, ali je Zeitkonto Pro plačan, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur."
+            "value": "Edino, kar vpraša omrežje, je, ali je bilo kaj kupljeno, in to vpraša App Store; z vprašanjem ne gre nič od vaših ur."
           }
         }
       }
