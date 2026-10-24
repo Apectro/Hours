@@ -245,6 +245,25 @@ phone's region; the engine stores the code and the cents and nothing else.
 `MoneyFormatting` is the one place cents become text, for the app, the widgets
 and the exports.
 
+**Field allowance, kilometres and travel (1.2).** `AllowancePreferences`
+in settings — off by default, decoded leniently, so every older file reads
+as off with no rates — holds a daily allowance, a rate per kilometre (both
+whole cents in the app's currency) and whether travel time counts as work.
+A day carries `hasFieldAllowance`, `kilometres` and `travelMinutes`;
+`WorkdayCalculator` resolves them onto `DayComputation`, all zero while the
+switch is off (the record keeps them for when it is switched on again).
+Travel that counts as work is added to worked minutes after rounding — the
+rule rounds clock times, and travel has none — so the balance and the pay
+follow it without knowing; `EarningsCalculator` places the extra minutes on
+the end of the day like any typed-in figure. `AllowanceSummary` counts
+allowance days, kilometres and travel over resolved days by the money rule
+(`EarningsSummary.counts`), and needs no hourly rate. With a rate,
+`EarningsBreakdown` has `allowanceCents` and `mileageCents` of its own:
+they are in `totalCents`, never in a surcharge, and every screen and
+export names them on their own lines. The amounts and what is tax-free
+depend on the contract and the country; the settings footer says so and
+the app takes the rates as given.
+
 **Money never reaches anyone else.** The site screens, the site widget card,
 the director's sheet and the crew lists are built without it — the site
 sheet's builder is never handed earnings, and the earnings column is never
@@ -393,8 +412,8 @@ default when absent, so a new preference in a future version cannot invalidate
 a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
-**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7,
-every stage lightweight. The live classes are always the newest version; the moment
+**Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7
+→ V8, every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
 describing exactly what stores written by it hold. V4 (1.1) adds
@@ -412,7 +431,16 @@ be in progress; the app writes `false` itself for a new job. V7 (1.1) adds
 `presentData` — why people not ticked were away — and freezes V6's twelve
 classes. It is a column of its own rather than more JSON in `presentData`
 because every older build decodes that column as `[Attendance]`, leniently,
-and would read an absence as one more person present. Every
+and would read an absence as one more person present. V8 (1.2) freezes V7's
+twelve classes and adds the day's `hasFieldAllowance`, `kilometres` and
+`travelMinutes` (defaults false, 0, 0), the site's `allowanceByDefault`
+(false) and — unused until the opt-in arrival reminder, written by nothing
+and left alone by `SiteEntry.apply` — `latitude` and `longitude`
+(optional), `arrivalRadius` (150) and `remindsOnArrival` (false), and on
+the site day `allowanceData` (optional JSON `[UUID]`, who gets the
+allowance) and `kilometres` (0). `allowanceData` is a column of its own for
+`absenceData`'s reason: a field inside each attendance in `presentData`
+would be dropped by any older build that wrote the day again. Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -469,7 +497,13 @@ set after `init` so the initialiser stays as it was. Quantities are written as
 text ("12.5"), exact on every platform. A job's `isDone` and `doneAt` are
 optional keys: missing, the job is done (it was written before a job could be
 in progress); a decoder from before them skips them, and the status written is
-still only "open" or "sent". A site day's `absences` and a day type's
+still only "open" or "sent". The allowance (1.2) is keys in the same way: the
+settings' `allowance`, a day's `hasFieldAllowance`, `kilometres` and
+`travelMinutes`, a site's `allowanceByDefault`, a site day's
+`allowanceMemberIDs` and `kilometres`, and a site shift's `fieldAllowance`
+and `kilometres` — each written only when set, missing reads as none, and
+nothing new goes inside an attendance, which every older decoder reads as
+one more person present. A site day's `absences` and a day type's
 `paidPercent` and `employerPaysFirst42Days` are keys in the same way: missing
 reads as none, 100% and off, and 1.0's decoders skip them. The format version
 stays 1: they are additions 1.0 skips without complaint, where a new version
@@ -491,8 +525,8 @@ keeps everything. `Scripts/check-cloudkit-models.py` holds the newest schema
 version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
 every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
-initialises the live version's models; each version that adds a column (V6
-and V7 do) has to be initialised and deployed to Production again.
+initialises the live version's models; each version that adds a column (V6,
+V7 and V8 do) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -892,6 +926,26 @@ matches (`CrewCandidates.key`), and only when one site matches —
 `SiteElsewhere` gives a greyed "At <site>" hint; a tap on the reason button
 confirms it, a long press offers the rest. A hint is never stored on its own.
 
+**Field allowance on a site (1.2).** While the allowance is tracked, a
+site can give it by default (`Site.allowanceByDefault`), and a site day
+freezes who got it in `SiteDay.allowanceMemberIDs`: ticking someone in on
+such a site adds them (`togglingPresence(of:allowanceByDefault:)`), the
+crew row's long-press menu takes it off or gives it to one person
+(`settingAllowance`), and unticking or a reason for being away takes it.
+Only someone ticked present has it (`hasAllowance(for:)`), so a stray entry
+counts for nothing. The day also has the vehicle's `kilometres`, one number
+for the day. "Same as last day" carries both, the allowance for those it
+carries over. Your own share reaches your calendar on the site shift
+(`Shift.fieldAllowance`, `Shift.kilometres`), rebuilt with it by
+`SiteCalendarSync` like the hours, so it never touches the allowance or
+kilometres you typed on the day yourself; the day has the allowance if
+either gives it, and your kilometres and every site's add up. A site shift
+carrying only those — a full bad-weather stop — is still `isEmpty` for the
+hours, so the stop still types the day, but is stored for what it carries.
+The site sheet has an "Allowance days" closing row per person, only when
+anyone has one, and a "Kilometres" row with the month's total in the notes
+column, which every split part keeps; never an amount.
+
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
 few hundred numbers in a backup) and a fingerprint of that person's hours at the
@@ -1018,6 +1072,12 @@ One `ReportBuilder` produces a `ReportTable` — columns, formatted rows,
 totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
+
+A personal timesheet adds Allowance, km and Travel before the notes, each
+only while the allowance is tracked and some day in the range has one —
+never chosen, like the earnings column — and lines for allowance days,
+kilometres and travel under the totals, an allowance-days tile, and, when
+it carries earnings, what the allowance and the kilometres came to.
 
 A director's sheet (`SiteSheetBuilder`) opens with the timesheet's own Date
 and Day columns — the same `ReportBuilder.dateText`/`weekdayText`, so the date

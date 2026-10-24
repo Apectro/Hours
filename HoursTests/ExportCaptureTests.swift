@@ -115,6 +115,57 @@ final class ExportCaptureTests: XCTestCase {
         print("pdf bytes               -> \(data.count)")
     }
 
+    /// A month with the field allowance, kilometres and travel, in German,
+    /// with earnings on the sheet: the three columns before the notes, the
+    /// allowance-days tile, and the summary's lines with their amounts.
+    func testCaptureAMonthWithAllowanceColumns() throws {
+        var export = ExportPreferences()
+        export.ownerName = "Ada Lovelace"
+        export.language = .german
+        export.includeEarnings = true
+        var settings = Fixture.settings(export: export)
+        settings.changePay(forJob: Job.primaryID, to: PayRules(hourlyRateCents: 18_50), from: nil)
+        settings.allowance = AllowancePreferences(
+            isEnabled: true, dailyAllowanceCents: 28_00, centsPerKilometre: 42, travelCountsAsWork: false
+        )
+        let start = Fixture.date(2026, 8, 1)
+        let end = Fixture.date(2026, 8, 31)
+        let range = CalendarDateRange(start: start, end: end)
+
+        var records: [Int: DayRecord] = [:]
+        for day in 1...31 {
+            let date = Fixture.date(2026, 8, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            let away = day % 3 != 0
+            records[date.key] = DayRecord(
+                date: date,
+                start: Fixture.time(7),
+                end: Fixture.time(16),
+                breaks: [.duration(30)],
+                note: day == 12 ? "Baustelle Graz" : "",
+                hasFieldAllowance: away,
+                kilometres: away ? 0 : 46,
+                travelMinutes: away ? 0 : 75
+            )
+        }
+
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
+        let days = engine.days(in: range, records: records, holidays: [])
+        let earnings = engine.earnings(in: range, records: records, holidays: [], countingThrough: end)
+        let table = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
+            .makeTable(days: days, range: range, title: "Stunden — August 2026", countingThrough: end,
+                       earnings: earnings, currencyCode: "EUR")
+        XCTAssertTrue(table.columns.contains(.allowance))
+        XCTAssertTrue(table.columns.contains(.kilometres))
+        XCTAssertTrue(table.columns.contains(.travel))
+
+        let rendered = try pages(of: PDFReportRenderer.data(for: table))
+        for (index, image) in rendered.prefix(2).enumerated() {
+            attach(image, named: "06-export-allowance-pdf-\(index + 1)")
+        }
+    }
+
     /// The case that breaks the layout: enough rows to fill a page exactly, so
     /// the totals block has nowhere to go.
     func testCaptureTheSummaryOnAFullPage() throws {

@@ -253,4 +253,99 @@ final class AllowanceTests: XCTestCase {
         XCTAssertEqual(summary.breakdown.mileageCents, 0)
         XCTAssertEqual(summary.totalCents, 120_00)
     }
+
+    // MARK: - Backups
+
+    private func backup() -> BackupArchive {
+        let site = Site(name: "Trg Pravde", allowanceByDefault: true)
+        let ana = UUID()
+        let siteDay = SiteDay(
+            siteID: site.id, date: Fixture.workingTuesday, start: Fixture.time(7), end: Fixture.time(15),
+            present: [Attendance(memberID: CrewMember.youID), Attendance(memberID: ana)],
+            allowanceMemberIDs: [CrewMember.youID, ana], kilometres: 84
+        )
+        let own = workday(Fixture.workingMonday, allowance: true, km: 20, travel: 45)
+        let merged = SiteCalendarSync.merged(personal: nil, siteDays: [siteDay], on: siteDay.date)!
+        return BackupArchive(
+            exportedAt: Date(timeIntervalSince1970: 1_792_000_000),
+            settings: settings(travelCountsAsWork: true),
+            days: [own, merged],
+            holidays: [],
+            sites: [site],
+            crew: [CrewMember(id: ana, siteID: site.id, name: "Ana")],
+            siteDays: [siteDay]
+        )
+    }
+
+    func testABackupRoundTripsTheAllowanceKilometresAndTravel() throws {
+        let original = backup()
+        let restored = try BackupArchive.decoded(from: original.encoded())
+        XCTAssertEqual(restored.settings.allowance, original.settings.allowance)
+        XCTAssertEqual(restored.days, original.days)
+        XCTAssertEqual(restored.sites, original.sites)
+        XCTAssertEqual(restored.siteDays, original.siteDays)
+        XCTAssertTrue(restored.days.contains { $0.shifts.contains(where: \.fieldAllowance) })
+    }
+
+    /// What a 1.1 app reads of a 1.2 backup: the shapes it decodes are where
+    /// they were, nothing new hides inside an attendance (which it would read
+    /// as one), and the new keys are beside them for it to skip.
+    func testAnOlderAppStillReadsANewBackup() throws {
+        struct OneOneArchive: Decodable {
+            struct Day: Decodable {
+                struct Shift: Decodable {
+                    var start: TimeOfDay?
+                    var end: TimeOfDay?
+                    var breaks: [BreakSpan]
+                }
+                var date: CalendarDate
+                var shifts: [Shift]
+            }
+            struct SiteDay: Decodable {
+                struct Attendance: Decodable { var memberID: UUID }
+                var siteID: UUID
+                var present: [Attendance]
+                var breakMinutes: Int
+            }
+            struct Site: Decodable {
+                var id: UUID
+                var name: String
+                var isArchived: Bool
+                var sortOrder: Int
+            }
+            var formatVersion: Int
+            var days: [Day]
+            var sites: [Site]
+            var siteDays: [SiteDay]
+        }
+        let data = try backup().encoded()
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let old = try decoder.decode(OneOneArchive.self, from: data)
+        XCTAssertEqual(old.formatVersion, 1, "a new format version would make 1.0 refuse the file")
+        XCTAssertEqual(old.days.count, 2)
+        XCTAssertEqual(old.siteDays.first?.present.count, 2)
+
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let siteDay = try XCTUnwrap((json["siteDays"] as? [[String: Any]])?.first)
+        let attendance = try XCTUnwrap((siteDay["present"] as? [[String: Any]])?.first)
+        XCTAssertEqual(Set(attendance.keys), ["memberID"])
+        XCTAssertEqual(siteDay["kilometres"] as? Int, 84)
+    }
+
+    func testAnOlderBackupRestoresWithNone() throws {
+        var original = backup()
+        original.settings.allowance = AllowancePreferences()
+        let data = try original.encoded()
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        var settingsObject = try XCTUnwrap(json["settings"] as? [String: Any])
+        settingsObject.removeValue(forKey: "allowance")
+        json["settings"] = settingsObject
+        json["days"] = (json["days"] as? [[String: Any]])?.map { day in
+            day.filter { !["hasFieldAllowance", "kilometres", "travelMinutes"].contains($0.key) }
+        }
+        let restored = try BackupArchive.decoded(from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertFalse(restored.settings.allowance.isEnabled)
+        XCTAssertTrue(restored.days.allSatisfy { !$0.hasFieldAllowance && $0.kilometres == 0 && $0.travelMinutes == 0 })
+    }
 }

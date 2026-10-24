@@ -66,7 +66,7 @@ final class LaunchTests: XCTestCase {
         // below rather than listed here, since which ones exist depends on the
         // settings the app starts with.
         let rows = [
-            "Working schedule", "Pay", "Jobs", "Balance & rounding",
+            "Working schedule", "Pay", "Allowance & travel", "Jobs", "Balance & rounding",
             "Fields", "Day types", "Reminders", "Holidays",
             "Theme", "Export options",
             "iCloud", "Backup and data", "Privacy",
