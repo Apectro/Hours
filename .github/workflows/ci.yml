@@ -492,6 +492,10 @@ jobs:
         if: ${{ !inputs.screen_atlas }}
         env:
           ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.screenshots_only && '-only-testing:HoursUITests/ScreenshotTests' || '' }}
+          # Two simulator clones share the UI test classes on a pull request,
+          # which is most of the suite's half hour. Not on main or a screenshot
+          # run, which publish what the single simulator captured.
+          PARALLEL: ${{ github.event_name == 'pull_request' && '-parallel-testing-enabled YES -parallel-testing-worker-count 2' || '' }}
         run: |
           set -o pipefail
           rm -rf "$RUNNER_TEMP/Hours.xcresult"
@@ -500,6 +504,7 @@ jobs:
             -scheme Hours \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             $ONLY \
+            $PARALLEL \
             -skip-testing:HoursUITests/WalkthroughTests \
             -skip-testing:HoursUITests/ScreenAtlasTests \
             -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
@@ -615,8 +620,13 @@ jobs:
       # The same screenshots at the second size. Only ScreenshotTests, so the
       # suite is not paid for twice — the rest of it has already run above and
       # does not depend on the screen.
+      #
+      # This, the German pass and the watch take about fifteen minutes, so a
+      # pull request skips them: they make pictures, they test nothing the
+      # suite above has not. They run on main and on a screenshot run, which
+      # is where the published set comes from.
       - name: Screenshots at the second size
-        if: always() && !inputs.screen_atlas && steps.sim.outputs.second_udid != '' && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
+        if: always() && !inputs.screen_atlas && steps.sim.outputs.second_udid != '' && ((github.event_name == 'workflow_dispatch' && inputs.extra_screenshots) || github.event_name == 'push')
         continue-on-error: true
         run: |
           set -o pipefail
@@ -640,7 +650,7 @@ jobs:
       # finds everything by accessibility identifier — a suite that waits for
       # buttons["Calendar"] passes in English and hangs here.
       - name: Screenshots in German
-        if: always() && !inputs.screen_atlas && (github.event_name != 'workflow_dispatch' || inputs.extra_screenshots)
+        if: always() && !inputs.screen_atlas && ((github.event_name == 'workflow_dispatch' && inputs.extra_screenshots) || github.event_name == 'push')
         continue-on-error: true
         run: |
           set -o pipefail
@@ -788,7 +798,7 @@ jobs:
       # phone paired with it, so the list passes -hours-sample-data and the
       # watch app shows WatchSample instead (HoursCore/Watch/WatchSample.swift).
       #
-      # On pull requests, on screenshot runs, and on every run on main — the
+      # On screenshot runs and on every run on main — the
       # one that publishes the set the App Store workflow uploads. Built with
       # the HoursWatch scheme into the same derived data as the iPhone build,
       # which already built the embedded watch app, so it is mostly a link
@@ -796,7 +806,7 @@ jobs:
       - name: Apple Watch screenshots
         if: >-
           always() && !inputs.screen_atlas && steps.sim.outputs.watch_udid != '' &&
-          (github.event_name != 'workflow_dispatch' || inputs.screenshots_only ||
+          (github.event_name == 'push' || inputs.screenshots_only ||
           inputs.extra_screenshots || github.ref == 'refs/heads/main')
         continue-on-error: true
         env:
