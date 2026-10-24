@@ -492,10 +492,6 @@ jobs:
         if: ${{ !inputs.screen_atlas }}
         env:
           ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.screenshots_only && '-only-testing:HoursUITests/ScreenshotTests' || '' }}
-          # Two simulator clones share the UI test classes on a pull request,
-          # which is most of the suite's half hour. Not on main or a screenshot
-          # run, which publish what the single simulator captured.
-          PARALLEL: ${{ github.event_name == 'pull_request' && '-parallel-testing-enabled YES -parallel-testing-worker-count 2' || '' }}
         run: |
           set -o pipefail
           rm -rf "$RUNNER_TEMP/Hours.xcresult"
@@ -504,7 +500,6 @@ jobs:
             -scheme Hours \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             $ONLY \
-            $PARALLEL \
             -skip-testing:HoursUITests/WalkthroughTests \
             -skip-testing:HoursUITests/ScreenAtlasTests \
             -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
