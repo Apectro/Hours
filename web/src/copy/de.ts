@@ -136,7 +136,7 @@ export const de: Copy = {
       { claim: "Keine Analyse, kein Tracking", evidence: "keinerlei Code von Dritten in der App" },
       { claim: "Nichts verlässt das Gerät", evidence: "außer du exportierst eine Datei und schickst sie selbst, oder schaltest die Synchronisierung in deine eigene private iCloud ein (ab 1.1)" },
       { claim: "Mannschaft und Lohn bleiben bei dir", evidence: "Baustellen, Namen und Stundenlöhne liegen auf dem Telefon; Geld steht nie auf einer Baustellenliste" },
-      { claim: "Fragt nie, wo du bist", evidence: "kein CoreLocation-Import; das Feld ist ein Textfeld" },
+      { claim: "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon", evidence: "ein einziger Standort speichert den Ort der Baustelle (ab 1.2); iOS überwacht die Umgebung, die App speichert keinen Verlauf und sendet nichts" },
       { claim: "Erinnerungen sind lokal", evidence: "UNCalendarNotificationTrigger, auf dem Gerät geplant" },
     ],
   },
