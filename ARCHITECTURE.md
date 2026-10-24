@@ -1019,11 +1019,7 @@ totals — and CSV, XLSX and PDF are three renderings of that single table, so
 the formats cannot drift apart. Columns are filtered by the feature toggles: a
 column for a feature that is switched off is never offered and never emitted.
 
-A director's sheet (`SiteSheetBuilder`) lists every day of its range, as a
-timesheet does: a day nobody was on the site is a row with only its date and
-weekday (`hasEntry` false), shaded like a timesheet's weekend when the primary
-schedule expects no work that weekday, so a gap in the month stays visible. It
-opens with the timesheet's own Date
+A director's sheet (`SiteSheetBuilder`) opens with the timesheet's own Date
 and Day columns — the same `ReportBuilder.dateText`/`weekdayText`, so the date
 follows Settings › Export date style, and the same headings in every export
 language — each a column group of one, so the two-row heading of the workbook
