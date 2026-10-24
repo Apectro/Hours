@@ -41,6 +41,13 @@ struct SiteDayCard: View {
     let onEditTimes: () -> Void
     /// Opens the site's crew list, to add someone or change a name.
     let onEditCrew: () -> Void
+    /// Field allowance and kilometres (1.2), only while they are tracked:
+    /// the allowance per person in the row's menu, and the vehicle's
+    /// kilometres for the day in a row under the crew.
+    var tracksAllowance = false
+    var onToggleAllowance: (UUID) -> Void = { _ in }
+    var kilometres: Binding<String> = .constant("")
+    var isKilometresFocused: FocusState<Bool>.Binding? = nil
 
     // Not private: a private property would make the memberwise initializer
     // the site screen calls private too.
@@ -80,7 +87,10 @@ struct SiteDayCard: View {
                         durations: durations,
                         onToggle: { onToggle(row.id) },
                         onSetReason: { onSetReason(row.id, $0) },
-                        onEdit: { onEditPerson(row) }
+                        onEdit: { onEditPerson(row) },
+                        hasAllowance: day.hasAllowance(for: row.id),
+                        tracksAllowance: tracksAllowance,
+                        onToggleAllowance: { onToggleAllowance(row.id) }
                     )
                 }
             }
@@ -96,6 +106,10 @@ struct SiteDayCard: View {
             }
             .buttonStyle(.borderless)
             .accessibilityIdentifier("site-day-edit-crew")
+
+            if tracksAllowance {
+                kilometresRow
+            }
 
             Divider()
 
@@ -122,6 +136,36 @@ struct SiteDayCard: View {
         .padding(Metrics.large)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
+    // MARK: - Kilometres
+
+    /// One number for the day: what the crew's vehicle drove. It goes on the
+    /// sheet's closing lines, and to your own day when you were there.
+    @ViewBuilder
+    private var kilometresRow: some View {
+        let field = TextField("Kilometres", text: kilometres)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .font(.hoursFigure(.body, weight: .medium))
+            .frame(minWidth: 64, minHeight: 44)
+            .disabled(!canEdit)
+            .accessibilityIdentifier("site-day-kilometres")
+        HStack(spacing: Metrics.small) {
+            Label("Kilometres", systemImage: "car")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: Metrics.small)
+            if let isKilometresFocused {
+                field.focused(isKilometresFocused)
+            } else {
+                field
+            }
+            Text(verbatim: "km")
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, Metrics.small)
     }
 
     // MARK: - Header
@@ -264,6 +308,11 @@ struct SitePersonRow: View {
     let onToggle: () -> Void
     let onSetReason: (AbsenceReason?) -> Void
     let onEdit: () -> Void
+    /// Gets the field allowance today; a small mark beside the name, and a
+    /// switch in the long-press menu while the allowance is tracked.
+    var hasAllowance = false
+    var tracksAllowance = false
+    var onToggleAllowance: () -> Void = {}
 
     // Not `private`: that would make the memberwise initializer private too.
     @ScaledMetric(relativeTo: .subheadline) var initialsDiameter: CGFloat = 36
@@ -300,10 +349,18 @@ struct SitePersonRow: View {
                     initials
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(row.name)
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(.primary)
-                            .opacity(isHere ? 1 : 0.55)
+                        HStack(spacing: Metrics.tiny) {
+                            Text(row.name)
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(.primary)
+                                .opacity(isHere ? 1 : 0.55)
+                            if showsAllowance {
+                                Image(systemName: "suitcase.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityHidden(true)
+                            }
+                        }
                         if let absence {
                             AbsenceChip(title: absence.displayName(), color: absence.tint.color)
                         } else if case let .otherSite(siteID)? = reason {
@@ -342,6 +399,16 @@ struct SitePersonRow: View {
             .accessibilityValue(toggleValue)
             .accessibilityAddTraits(isHere ? .isSelected : [])
             .accessibilityIdentifier(isYou ? "site-person-you" : "site-person-\(row.name)")
+            // The menu's allowance switch, for VoiceOver without a long press.
+            .accessibilityActions {
+                if canEdit && tracksAllowance && isHere {
+                    if hasAllowance {
+                        Button("Take off the field allowance", action: onToggleAllowance)
+                    } else {
+                        Button("Give the field allowance", action: onToggleAllowance)
+                    }
+                }
+            }
 
             if !isHere {
                 reasonButton
@@ -379,6 +446,16 @@ struct SitePersonRow: View {
                 if isHere {
                     Button(action: onEdit) {
                         Label("Change times", systemImage: "clock")
+                    }
+                    if tracksAllowance {
+                        Button(action: onToggleAllowance) {
+                            if hasAllowance {
+                                Label("Field allowance", systemImage: "checkmark")
+                            } else {
+                                Label("Field allowance", systemImage: "suitcase")
+                            }
+                        }
+                        .accessibilityIdentifier("site-person-allowance")
                     }
                 } else {
                     Menu {
@@ -556,8 +633,12 @@ struct SitePersonRow: View {
         if case let .otherSite(siteID)? = reason { return atSiteInRunningText(siteID) }
         if let hint { return atSiteInRunningText(hint) }
         guard let person else { return String(localized: "Not here") }
-        return [String(localized: "Here"), durations.string(person.workedMinutes)].joined(separator: ", ")
+        var parts = [String(localized: "Here"), durations.string(person.workedMinutes)]
+        if showsAllowance { parts.append(String(localized: "field allowance")) }
+        return parts.joined(separator: ", ")
     }
+
+    private var showsAllowance: Bool { tracksAllowance && isHere && hasAllowance }
 
     private func exceptionTitle(_ exception: SiteException) -> String {
         switch exception {

@@ -64,6 +64,18 @@ struct SiteEditorSheet: View {
                     }
                 }
 
+                // Only while the allowance is tracked (Settings › Allowance &
+                // travel); the site's own say, frozen on each day as written.
+                if settingsStore.settings.allowance.isEnabled {
+                    Section {
+                        Toggle("Field allowance by default", isOn: $draft.allowanceByDefault)
+                            .accessibilityIdentifier("site-editor-allowance")
+                            .disabled(isReadOnly)
+                    } footer: {
+                        Text("Everyone ticked in on a new day gets the field allowance. It can be taken off one person on the day. Days already written stay as they are.")
+                    }
+                }
+
                 if isNew && !candidates.isEmpty {
                     Section {
                         ForEach(candidates) { candidate in
