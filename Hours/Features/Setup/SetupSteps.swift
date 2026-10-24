@@ -308,14 +308,31 @@ struct SetupPayStep: View {
                 .frame(minHeight: 44)
                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
 
-                Picker("Currency", selection: currencyBinding) {
-                    ForEach(AppSettings.currencyChoices(including: shownCurrency), id: \.self) { code in
-                        Text(verbatim: AppSettings.currencyName(code)).tag(code)
+                // A menu with its own label rather than a menu-style picker,
+                // whose one-line label was cut off at the large text sizes.
+                Menu {
+                    Picker("Currency", selection: currencyBinding) {
+                        ForEach(AppSettings.currencyChoices(including: shownCurrency), id: \.self) { code in
+                            Text(verbatim: AppSettings.currencyName(code)).tag(code)
+                        }
                     }
+                } label: {
+                    HStack(spacing: Metrics.small) {
+                        Text(verbatim: AppSettings.currencyName(shownCurrency))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .multilineTextAlignment(.leading)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .imageScale(.small)
+                            .accessibilityHidden(true)
+                    }
+                    .padding(.vertical, Metrics.medium)
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
-                .pickerStyle(.menu)
+                .accessibilityLabel(String(localized: "Currency"))
+                .accessibilityValue(AppSettings.currencyName(shownCurrency))
                 .padding(.horizontal, Metrics.large)
-                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                 .accessibilityIdentifier("setup-pay-currency")
 
