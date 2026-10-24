@@ -91,6 +91,13 @@ signs with a finger; a signature whose hours change afterwards says so. The
 director's sheet can carry the diary and the signatures; in the PDF, a crew too
 big for one page is printed a group of people at a time, never with times cut short.
 
+**A sheet for each person (1.2)** — the site export's "One sheet per person"
+shares a file per crew member instead of the director's sheet: their own days on
+every site they worked that month, in the timesheet's design, with the hours,
+days on site and any sick or leave days, and the lines to sign on when Signatures
+is on. The share button beside a name on the crew list opens that person's sheet
+for this month, to check against a payslip or to sign.
+
 **Extra work** — what the crew did beyond the contract, written down so the
 boss knows what is done: "8 emergency lights and 10 lamps". Each job on a site
 day has what was done, material with −/+ steppers (or a typed 12.5 m), the items

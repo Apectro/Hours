@@ -1,7 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// One site's crew: add, rename, reorder, hide and bring back.
+/// One site's crew: add, rename, reorder, hide and bring back, and open a
+/// person's own sheet to share (`CrewMemberSheetScreen`).
 ///
 /// There is no delete, on purpose. A crew member is named on every day they
 /// were ticked present, and on the director's sheet those days produce; taking
@@ -29,6 +30,8 @@ struct CrewScreen: View {
     /// People on your other crews who are not on this one.
     @State private var candidates: [CrewCandidate] = []
     @State private var isPicking = false
+    /// Whose own sheet is open, to read and share.
+    @State private var sharing: CrewMember?
     @FocusState private var isAddingFocused: Bool
 
     init(siteID: UUID) {
@@ -122,6 +125,9 @@ struct CrewScreen: View {
                 HoursStack.refreshWidget()
             }
         }
+        .sheet(item: $sharing) { member in
+            CrewMemberSheetScreen(member: member)
+        }
         .onChange(of: changeToken, initial: true) { _, _ in
             reload()
         }
@@ -153,6 +159,21 @@ struct CrewScreen: View {
                 .foregroundStyle(hiding ? .primary : .secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier("crew-member")
+            // Their own sheet: reading and sharing it changes nothing, so it
+            // is offered on a crew that cannot be changed too.
+            Button {
+                sharing = member
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(String(
+                localized: "Share the sheet of \(member.name)",
+                comment: "VoiceOver, the share button beside a crew member; the value is their name"
+            ))
+            .accessibilityIdentifier("crew-share-\(member.name)")
             if !isReadOnly {
                 Button {
                     startRenaming(member)
@@ -191,6 +212,8 @@ struct CrewScreen: View {
             }
         }
         .contextMenu {
+            Button("Share sheet", systemImage: "square.and.arrow.up") { sharing = member }
+                .accessibilityIdentifier("crew-share-sheet")
             if !isReadOnly {
                 Button("Rename", systemImage: "pencil") { startRenaming(member) }
                     .accessibilityIdentifier("crew-rename")

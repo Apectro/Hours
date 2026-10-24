@@ -3286,6 +3286,65 @@
         }
       }
     },
+    "A file for each person, with their days on every site. They all go in one share.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Datei für jede Person, mit ihren Tagen auf allen Baustellen. Alle werden zusammen geteilt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un archivo para cada persona, con sus días en todas las obras. Se comparten todos a la vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un fichier par personne, avec ses jours sur tous les chantiers. Ils sont tous partagés en une fois."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datoteka za svaku osobu, s danima na svim gradilištima. Sve se dijele odjednom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un file per ogni persona, con i suoi giorni in tutti i cantieri. Vengono condivisi tutti insieme."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een bestand per persoon, met de dagen op alle bouwplaatsen. Ze worden allemaal in één keer gedeeld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plik dla każdej osoby, z dniami na wszystkich budowach. Wszystkie są udostępniane naraz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um ficheiro para cada pessoa, com os seus dias em todas as obras. São todos partilhados de uma vez."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datoteka za vsako osebo, z dnevi na vseh gradbiščih. Vse se delijo hkrati."
+          }
+        }
+      }
+    },
     "A paid break is still written down, but it counts as worked time instead of being taken off the day.": {
       "extractionState": "manual",
       "localizations": {
@@ -32808,6 +32867,65 @@
         }
       }
     },
+    "One sheet per person": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Blatt pro Person"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una hoja por persona"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une feuille par personne"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jedan list po osobi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un foglio per persona"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eén blad per persoon"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeden arkusz na osobę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma folha por pessoa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En list na osebo"
+          }
+        }
+      }
+    },
     "Only for certain years": {
       "extractionState": "manual",
       "localizations": {
@@ -36108,6 +36226,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Predogled"
+          }
+        }
+      }
+    },
+    "Preview: %@. Everyone on the sheet gets a file of their own.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschau: %@. Jede Person auf dem Blatt bekommt eine eigene Datei."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa: %@. Cada persona de la hoja recibe su propio archivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu : %@. Chaque personne de la feuille reçoit son propre fichier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pregled: %@. Svaka osoba s lista dobiva svoju datoteku."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anteprima: %@. Ogni persona del foglio riceve un file tutto suo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voorbeeld: %@. Iedereen op het blad krijgt een eigen bestand."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podgląd: %@. Każda osoba z arkusza dostaje własny plik."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pré-visualização: %@. Cada pessoa da folha recebe o seu próprio ficheiro."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predogled: %@. Vsaka oseba z lista dobi svojo datoteko."
           }
         }
       }
@@ -42514,6 +42691,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deli varnostno kopijo"
+          }
+        }
+      }
+    },
+    "Share sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blatt teilen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir la hoja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partager la feuille"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podijeli list"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condividi il foglio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blad delen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udostępnij arkusz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partilhar a folha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deli list"
+          }
+        }
+      }
+    },
+    "Share the sheet of %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blatt von %@ teilen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir la hoja de %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partager la feuille de %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podijeli list osobe %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condividi il foglio di %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blad van %@ delen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udostępnij arkusz osoby %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partilhar a folha de %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deli list osebe %@"
           }
         }
       }
@@ -49608,6 +49903,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saldo leta"
+          }
+        }
+      }
+    },
+    "Their days on every site, with the hours and any days away: one page to check against the payslip, or to sign.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Tage auf allen Baustellen, mit den Stunden und den Abwesenheiten: eine Seite zum Abgleich mit der Lohnabrechnung oder zum Unterschreiben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días en todas las obras, con las horas y las ausencias: una página para cotejar con la nómina o para firmar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les jours sur tous les chantiers, avec les heures et les absences : une page à comparer avec la fiche de paie, ou à signer."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani na svim gradilištima, sa satima i danima odsutnosti: jedna stranica za provjeru platne liste ili za potpis."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I giorni in tutti i cantieri, con le ore e le assenze: una pagina da confrontare con la busta paga o da firmare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De dagen op alle bouwplaatsen, met de uren en de afwezigheid: één pagina om met de loonstrook te vergelijken of te ondertekenen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni na wszystkich budowach, z godzinami i nieobecnościami: jedna strona do porównania z paskiem wypłaty lub do podpisu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias em todas as obras, com as horas e as ausências: uma página para conferir com o recibo de vencimento ou para assinar."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi na vseh gradbiščih, z urami in dnevi odsotnosti: ena stran za primerjavo s plačilno listo ali za podpis."
           }
         }
       }

@@ -54,4 +54,46 @@ final class SiteExportTests: XCTestCase {
         let labels = summaries.allElementsBoundByIndex.map(\.label)
         XCTAssertTrue(labels.contains("Month total"), "there is no Month total row: \(labels)")
     }
+
+    /// A crew member's own sheet, from the crew list: their month as the
+    /// page they are handed, before it is shared.
+    func testACrewMembersSheetOpensOnItsPage() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        let card = app.buttons["site-card"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
+        card.tap()
+        let more = app.buttons["site-more"]
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
+        more.tap()
+        let crewItem = app.buttons["site-crew"]
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        crewItem.tap()
+        XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
+
+        // A name is the person's own, not a translated label.
+        let share = app.buttons.matching(identifier: "crew-share-Ivan").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 5), "Ivan has no Share sheet button")
+        share.tap()
+
+        // It opens on this month. The seed wrote yesterday, which on the
+        // first of a month was last month, so step back once if need be.
+        let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
+        if !page.waitForExistence(timeout: 10) {
+            let previous = app.buttons.matching(identifier: "period-previous").firstMatch
+            XCTAssertTrue(previous.waitForExistence(timeout: 5), "the sheet has no month stepper")
+            previous.tap()
+        }
+        XCTAssertTrue(page.waitForExistence(timeout: 10), "Ivan's sheet has no page preview")
+        XCTAssertTrue(app.buttons.matching(identifier: "export-share").firstMatch.exists, "the sheet has no share button")
+
+        let done = app.buttons.matching(identifier: "crew-sheet-done").firstMatch
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.tap()
+        XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "Done did not go back to the crew")
+    }
 }

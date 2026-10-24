@@ -455,6 +455,19 @@ final class ScreenAtlasTests: XCTestCase {
                 } else {
                     miss("crew-member-menu (no crew member)")
                 }
+                // A person's own sheet, from the share button on their row.
+                let share = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "crew-share-")).firstMatch
+                if tap(share, "Share sheet", app) {
+                    let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
+                    if !page.waitForExistence(timeout: 8) {
+                        // This month may have nothing yet; the sample has last month.
+                        tapAnyway(app.buttons.matching(identifier: "period-previous").firstMatch)
+                        _ = page.waitForExistence(timeout: 8)
+                    }
+                    pause(1)
+                    capture("crew-member-sheet", app)
+                    close(app, "crew-sheet-done")
+                }
                 if tap(app.buttons.matching(identifier: "crew-add-from-sites").firstMatch, "Add from other sites", app) {
                     capture("crew-add-from-other-sites", app)
                     close(app, "crew-picker-cancel")
@@ -474,6 +487,19 @@ final class ScreenAtlasTests: XCTestCase {
            tap(app.buttons.matching(identifier: "site-export").firstMatch, "the site's export", app),
            app.screen("screen-site-export").waitForExistence(timeout: 10) {
             exportScreens(app, prefix: "site-export")
+            // One sheet per person: the option, and the first person's page.
+            let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
+            if bringIntoView(perPerson, app) {
+                flip(perPerson)
+                pause(1.5)
+                capture("site-export-per-person", app)
+                swipeDown(app, times: 3)
+                capture("site-export-per-person-preview", app)
+                if bringIntoView(perPerson, app) { flip(perPerson) }
+                swipeDown(app, times: 3)
+            } else {
+                miss("site-export-per-person (no switch)")
+            }
             close(app, "export-done")
         }
 

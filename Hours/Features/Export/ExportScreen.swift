@@ -71,6 +71,11 @@ struct ExportScreen: View {
     @AppStorage("export.siteSignatures") private var includesSignatures = true
     /// Moved on by the sign-off screen, so a new signature redraws the preview.
     @State private var signOffRevision = 0
+    /// A site's month as a sheet for each person instead of one for the
+    /// director: their days on every site, one file each, all in one share.
+    @State private var perPerson = false
+    @State private var personSheets: [CrewSheetTables] = []
+    @State private var fileURLs: [URL] = []
 
     /// - Parameters:
     ///   - initialRange: the days your own timesheet starts on.
@@ -108,6 +113,11 @@ struct ExportScreen: View {
                         onNeedsName: askForName,
                         onShare: { url in
                             ShareSheetPresenter.present(url) { outcome in
+                                if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
+                            }
+                        },
+                        onShareFiles: { urls in
+                            ShareSheetPresenter.present(urls) { outcome in
                                 if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
                             }
                         }
@@ -174,6 +184,14 @@ struct ExportScreen: View {
                 ExportFormatCards(selection: $format)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
+                if selectedSite != nil {
+                    Toggle("One sheet per person", isOn: $perPerson)
+                        .accessibilityIdentifier("export-per-person")
+                }
+            } footer: {
+                if selectedSite != nil && perPerson {
+                    Text("A file for each person, with their days on every site. They all go in one share.")
+                }
             }
             nameSection
             if selectedSite == nil {
@@ -190,7 +208,7 @@ struct ExportScreen: View {
                 title: formatting.monthTitle(month),
                 caption: siteCaption
             )
-            if tables?.hasDiary == true {
+            if tables?.hasDiary == true && !perPerson {
                 Toggle("Include site diary", isOn: $includesDiary)
                     .accessibilityIdentifier("export-include-diary")
             }
@@ -215,7 +233,7 @@ struct ExportScreen: View {
             .accessibilityIdentifier("export-sign-off")
         } footer: {
             VStack(alignment: .leading, spacing: Metrics.small) {
-                if tables?.hasDiary == true && includesDiary {
+                if tables?.hasDiary == true && includesDiary && !perPerson {
                     Text("The diary follows the hours: on pages of its own in the PDF, on a second sheet in Excel. A CSV holds the hours only.")
                 }
                 if !includesSignatures {
@@ -229,7 +247,9 @@ struct ExportScreen: View {
     private var previewSection: some View {
         Section("Preview") {
             if let tables, tables.hasContent {
-                if format == .pdf {
+                if showsPersonSheets, let first = personSheets.first {
+                    personPreview(first)
+                } else if format == .pdf {
                     ExportPagePreview(image: pageImage) { showsFullPage = pdfData != nil }
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -268,6 +288,25 @@ struct ExportScreen: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    /// The first person's sheet, as the director's sheet is previewed: the
+    /// page for a PDF, the table for a workbook or a CSV.
+    @ViewBuilder
+    private func personPreview(_ sheet: CrewSheetTables) -> some View {
+        if format == .pdf {
+            ExportPagePreview(image: pageImage) { showsFullPage = pdfData != nil }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+        } else {
+            tablePreview(sheet.tables.preview)
+        }
+        Text(String(
+                localized: "Preview: \(sheet.tables.preview.ownerName). Everyone on the sheet gets a file of their own.",
+                comment: "Under the export preview with one sheet per person; the value is the first person's name"
+            ))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
     }
 
     private var nameSection: some View {
@@ -366,11 +405,18 @@ struct ExportScreen: View {
 
     private var needsName: Bool { !nameAnswered && ownerName.isEmpty }
 
+    /// One sheet per person is a site's option; your own hours are one sheet.
+    private var showsPersonSheets: Bool { selectedSite != nil && perPerson }
+
     private var shareState: ExportShareState {
         guard let tables, tables.hasContent else { return tables == nil ? .preparing : .empty }
         if !subscriptions.allows(.fileExport) { return .locked }
         if needsName { return .needsName }
-        if let fileURL { return .ready(fileURL) }
+        if showsPersonSheets {
+            if !fileURLs.isEmpty { return .readyFiles(fileURLs) }
+        } else if let fileURL {
+            return .ready(fileURL)
+        }
         if let failureMessage { return .failed(failureMessage) }
         return .preparing
     }
@@ -443,7 +489,7 @@ struct ExportScreen: View {
         let range = resolvedRange
         let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
         return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
-            + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)"
+            + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)-\(perPerson)"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -470,6 +516,12 @@ struct ExportScreen: View {
             )
         }
         tables = built
+        personSheets = []
+        fileURLs = []
+        if let site = selectedSite, perPerson {
+            regeneratePersonSheets(site: site, maker: maker, siteSheet: built)
+            return
+        }
 
         // The PDF is drawn for the preview whether or not it can be shared:
         // seeing the page is free. The same bytes become the file.
@@ -510,6 +562,36 @@ struct ExportScreen: View {
             failureMessage = nil
         } catch {
             fileURL = nil
+            failureMessage = String(
+                localized: "The file could not be prepared. \(error.localizedDescription)",
+                comment: "Export failed; the value is the system's own description"
+            )
+        }
+    }
+
+    /// A sheet for each person on the site's sheet, the first one previewed,
+    /// and a file each once they can be shared.
+    private func regeneratePersonSheets(site: Site, maker: ExportTableMaker, siteSheet: ExportTables) {
+        let sheets = maker.crewSheets(site: site, month: month, includeSignatures: includesSignatures)
+        personSheets = sheets
+        fileURL = nil
+        if format == .pdf, let first = sheets.first, first.tables.hasContent {
+            let data = PDFReportRenderer.data(for: first.tables.file)
+            pdfData = data
+            pageImage = ExportPagePreview.thumbnail(of: data)
+        } else {
+            pdfData = nil
+            pageImage = nil
+        }
+        guard subscriptions.allows(.fileExport), siteSheet.hasContent, !sheets.isEmpty, !needsName else {
+            failureMessage = nil
+            return
+        }
+        do {
+            fileURLs = try CrewSheetFiles.write(sheets, format: format, preferences: settings.export, firstPDF: pdfData)
+            failureMessage = nil
+        } catch {
+            fileURLs = []
             failureMessage = String(
                 localized: "The file could not be prepared. \(error.localizedDescription)",
                 comment: "Export failed; the value is the system's own description"

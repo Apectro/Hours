@@ -988,6 +988,32 @@ already given stay stored. The sign-off is also in the site's own menu, as a
 sheet with a month stepper that opens on `SignOff.defaultMonth` (last month
 during the first ten days, this month after). Removing a signature asks first.
 
+**A sheet for each person (1.2).** At month end each worker wants their own
+hours to check against their payslip, and the supervisor wants to hand each of
+them a page. `CrewMemberSheetBuilder` (engine) makes one person's month across
+every site they appear on. A person is a `CrewSheetPerson`: you by your id, anyone
+else by their name folded as "Add from other sites" folds it (`CrewCandidates.key`),
+since each site keeps its own crew. It is a `.timesheet` `ReportTable` with the
+person's name as `ownerName`, so the PDF, the workbook and the CSV print it
+through the personal timesheet's own code and look, headline and tiles
+included; the sites go in the eyebrow and the title. A row per day they were
+ticked present (two on a day they were on two sites) and per day a reason was
+given for them not being there, one a day and none on a day they worked
+elsewhere; a day with neither is no row, which is also how it treats weekends
+and holidays, as the site sheet does. The site column appears only for more than
+one site, the reason and note columns only when a row has one; a note is the site
+day's, led by "Bad weather" as on the site sheet. Totals: hours and days on site,
+sick and leave days only when non-zero, counted by the site sheet's rule
+(`SiteSheetBuilder.absenceKind`). With the Signatures switch on it carries the
+timesheet's employee line and the site sheet's "checked" line; no drawn
+signatures, which belong to the site sheet. The site export's "One sheet per
+person" shares one file per person in the chosen format, all in one share
+(`ShareSheetPresenter.present(_ urls:)`), named "<Name> – <Month Year>"
+(`ExportNaming.crewSheetFileName`, then the file writer's sanitising). The crew
+list's share button opens `CrewMemberSheetScreen`, one person's sheet for this
+month with a month stepper. Nothing is stored: the sheets are made from the site
+days each time.
+
 ## Extra work
 
 **Extra work** (Zusatzarbeiten, dodatni radovi) is what a crew did beyond the
