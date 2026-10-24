@@ -235,16 +235,17 @@ struct SiteDayCell: View {
     }
 
     /// At accessibility text sizes a seventh of the screen holds one mark, not
-    /// three: the crew count when people were there (orange on a rain day),
-    /// otherwise the rain cloud, otherwise one dot for a diary or extra work.
-    /// VoiceOver still names everything.
+    /// three: the crew count when people were there (orange on a rain day, the
+    /// leading reason's colour when some were away), otherwise the rain cloud,
+    /// otherwise a dot in the reason's colour when everyone was away, otherwise
+    /// one dot for a diary or extra work. VoiceOver still names everything.
     @ViewBuilder
     private var compactMark: some View {
         if let presentCount, presentCount > 0 {
             Text(verbatim: "\(presentCount)")
                 .font(.system(.caption2, design: .rounded, weight: .semibold))
                 .monospacedDigit()
-                .foregroundStyle(isBadWeather ? Color.hoursNegative : Color.secondary)
+                .foregroundStyle(isBadWeather ? Color.hoursNegative : away?.color ?? Color.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
         } else if isBadWeather {
@@ -252,6 +253,10 @@ struct SiteDayCell: View {
                 .font(.caption2.weight(.semibold))
                 .imageScale(.small)
                 .foregroundStyle(Color.hoursNegative)
+        } else if let away {
+            Circle()
+                .fill(away.color)
+                .frame(width: compactDotDiameter, height: compactDotDiameter)
         } else if noteMark != nil {
             Circle()
                 .fill(Color.secondary)
