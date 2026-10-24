@@ -53,35 +53,39 @@ final class MigrationTests: XCTestCase {
     }
 
     /// Writes a store exactly as every build between sync and sites left one:
-    /// the live `DayEntry` and `HolidayRecord` classes, and nothing else.
+    /// `DayEntry` and `HolidayRecord` as they stood from V2 to V7, and nothing
+    /// else.
     ///
-    /// Deliberately not `HoursSchemaV2`'s frozen copies. Those copies are only
-    /// right if they hash the same as the classes that really wrote people's
-    /// stores, and writing with the real classes is what proves it: a mistake
-    /// in the frozen copy leaves this store matching no version, and the open
-    /// below fails.
+    /// Until V8 this wrote with the live classes, which had not changed since
+    /// V2. V8 adds columns to the live `DayEntry`, so it now writes with V7's
+    /// frozen copies, which are those same classes column for column, and not
+    /// with `HoursSchemaV2`'s. A mistake in either frozen copy leaves this store
+    /// matching no version, and the open below fails.
     private func writeVersionTwoStore(days: [(key: Int, note: String)], holidays: Int = 0) throws {
-        let schema = Schema([DayEntry.self, HolidayRecord.self], version: Schema.Version(2, 0, 0))
+        let schema = Schema(
+            [HoursSchemaV7.DayEntry.self, HoursSchemaV7.HolidayRecord.self],
+            version: Schema.Version(2, 0, 0)
+        )
         let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
 
         for day in days {
-            let entry = DayEntry(dateKey: day.key)
-            entry.apply(
-                DayRecord(
-                    date: CalendarDate(key: day.key) ?? Fixture.date(2026, 1, 1),
-                    shifts: [Shift(start: TimeOfDay(hour: 7, minute: 0), end: TimeOfDay(hour: 15, minute: 30))],
-                    note: day.note
-                )
+            let entry = HoursSchemaV7.DayEntry(dateKey: day.key)
+            entry.shiftsData = DayEntry.encodeShifts(
+                [Shift(start: TimeOfDay(hour: 7, minute: 0), end: TimeOfDay(hour: 15, minute: 30))]
             )
+            entry.note = day.note
+            entry.isIncluded = true
             context.insert(entry)
         }
         for index in 0..<holidays {
-            context.insert(HolidayRecord(rule: HolidayRule(
-                name: "Holiday \(index)",
-                recurrence: HolidayRecurrence(kind: .annual, month: 12, day: 25)
-            )))
+            let record = HoursSchemaV7.HolidayRecord(identifier: UUID())
+            record.name = "Holiday \(index)"
+            record.kindRawValue = HolidayRecurrence.Kind.annual.rawValue
+            record.month = 12
+            record.day = 25
+            context.insert(record)
         }
         try context.save()
     }
