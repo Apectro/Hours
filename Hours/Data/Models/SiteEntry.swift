@@ -22,10 +22,12 @@ final class SiteEntry {
     /// site written before it gives no allowance by default.
     var allowanceByDefault: Bool = false
 
-    // Added in schema V8 for the opt-in arrival reminder, and written by
-    // nothing yet: no screen sets them, `apply` leaves them alone and `site`
-    // does not read them, so they stay exactly as stored. Where the site is,
-    // how close counts as arrived (metres) and whether to remind on arrival.
+    // Added in schema V8 for the opt-in arrival reminder (1.2): `Site`'s
+    // `latitude`, `longitude`, `arrivalRadius` and `remindsOnArrival`. Where
+    // the site is, how close counts as arrived (metres) and whether to
+    // remind on arrival. `site` reads them and `apply` writes them, so a
+    // restore (`SiteRepository.replaceAll`, which builds entries from
+    // `Site`) keeps them.
     var latitude: Double?
     var longitude: Double?
     var arrivalRadius: Double = 150
@@ -54,7 +56,11 @@ extension SiteEntry {
             jobID: jobID.flatMap(UUID.init(uuidString:)),
             isArchived: isArchived,
             sortOrder: sortOrder,
-            allowanceByDefault: allowanceByDefault
+            allowanceByDefault: allowanceByDefault,
+            latitude: latitude,
+            longitude: longitude,
+            arrivalRadius: arrivalRadius,
+            remindsOnArrival: remindsOnArrival
         )
     }
 
@@ -66,6 +72,10 @@ extension SiteEntry {
         isArchived = site.isArchived
         sortOrder = site.sortOrder
         allowanceByDefault = site.allowanceByDefault
+        latitude = site.latitude
+        longitude = site.longitude
+        arrivalRadius = site.arrivalRadius
+        remindsOnArrival = site.remindsOnArrival
         updatedAt = Date()
     }
 }

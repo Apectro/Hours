@@ -1207,10 +1207,10 @@ enum HoursSchemaV7: VersionedSchema {
 ///   (`hasFieldAllowance`, `kilometres`, `travelMinutes`), each with a
 ///   default — no allowance, nothing driven, no travel;
 /// - on the site, whether the crew gets the allowance by default
-///   (`allowanceByDefault`, false), and — written by nothing yet, for the
-///   opt-in arrival reminder to come — where it is and whether to remind on
-///   arrival (`latitude` and `longitude`, optional; `arrivalRadius`, 150
-///   metres; `remindsOnArrival`, false);
+///   (`allowanceByDefault`, false), and for the opt-in arrival reminder
+///   where it is and whether to remind on arrival (`latitude` and
+///   `longitude`, optional; `arrivalRadius`, 150 metres; `remindsOnArrival`,
+///   false);
 /// - on the site day, who on the crew gets the allowance (`allowanceData`,
 ///   optional JSON `[UUID]`) and the vehicle's kilometres (`kilometres`, 0).
 ///
