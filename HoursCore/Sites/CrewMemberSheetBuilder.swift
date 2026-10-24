@@ -35,7 +35,8 @@ struct CrewSheetPerson: Identifiable, Hashable, Sendable {
         return CrewSheetPerson(
             name: member.name.trimmingCharacters(in: .whitespacesAndNewlines),
             memberIDs: ids,
-            id: key.isEmpty ? "member:\(member.id.uuidString)" : "member:\(key)"
+            // An identifier, never shown.
+            id: "member:" + (key.isEmpty ? member.id.uuidString : key)
         )
     }
 }

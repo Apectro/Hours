@@ -11,11 +11,16 @@ import UIKit
 @MainActor
 enum ShareSheetPresenter {
     static func present(_ url: URL, completion: @escaping (ExtraWorkShareOutcome) -> Void) {
-        guard let presenter = frontMostController() else {
+        present([url], completion: completion)
+    }
+
+    /// Several files in one share: a crew's sheets, one per person.
+    static func present(_ urls: [URL], completion: @escaping (ExtraWorkShareOutcome) -> Void) {
+        guard let presenter = frontMostController(), !urls.isEmpty else {
             completion(.failed)
             return
         }
-        let controller = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        let controller = UIActivityViewController(activityItems: urls, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, completed, _, error in
             if error != nil {
                 completion(.failed)
