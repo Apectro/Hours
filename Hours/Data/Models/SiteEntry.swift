@@ -18,6 +18,19 @@ final class SiteEntry {
     var jobID: String?
     var isArchived: Bool = false
     var sortOrder: Int = 0
+    /// `Site.allowanceByDefault`. Added in schema V8 with a default, so a
+    /// site written before it gives no allowance by default.
+    var allowanceByDefault: Bool = false
+
+    // Added in schema V8 for the opt-in arrival reminder, and written by
+    // nothing yet: no screen sets them, `apply` leaves them alone and `site`
+    // does not read them, so they stay exactly as stored. Where the site is,
+    // how close counts as arrived (metres) and whether to remind on arrival.
+    var latitude: Double?
+    var longitude: Double?
+    var arrivalRadius: Double = 150
+    var remindsOnArrival: Bool = false
+
     var updatedAt: Date = Date()
 
     init(site: Site) {
@@ -40,7 +53,8 @@ extension SiteEntry {
             name: name,
             jobID: jobID.flatMap(UUID.init(uuidString:)),
             isArchived: isArchived,
-            sortOrder: sortOrder
+            sortOrder: sortOrder,
+            allowanceByDefault: allowanceByDefault
         )
     }
 
@@ -51,6 +65,7 @@ extension SiteEntry {
         jobID = site.jobID?.uuidString
         isArchived = site.isArchived
         sortOrder = site.sortOrder
+        allowanceByDefault = site.allowanceByDefault
         updatedAt = Date()
     }
 }

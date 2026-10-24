@@ -144,6 +144,15 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// `togglingPresence` clears the reason, and `absence(for:)` ignores a
     /// stray reason for someone ticked.
     var absences: [CrewAbsence]
+    /// Who on the crew gets the field allowance for this day (1.2), frozen
+    /// when the day is written: ticking someone in on a site with
+    /// `Site.allowanceByDefault` adds them, and it can be taken off one
+    /// person at a time. Only someone ticked present has it
+    /// (`hasAllowance(for:)`).
+    var allowanceMemberIDs: [UUID]
+    /// Kilometres the crew's vehicle drove for this day: one number for the
+    /// day, not per person (1.2).
+    var kilometres: Int
 
     init(
         siteID: UUID,
@@ -155,7 +164,9 @@ struct SiteDay: Hashable, Codable, Sendable {
         note: String = "",
         jobID: UUID? = nil,
         isBadWeatherStop: Bool = false,
-        absences: [CrewAbsence] = []
+        absences: [CrewAbsence] = [],
+        allowanceMemberIDs: [UUID] = [],
+        kilometres: Int = 0
     ) {
         self.siteID = siteID
         self.date = date
@@ -167,6 +178,8 @@ struct SiteDay: Hashable, Codable, Sendable {
         self.jobID = jobID
         self.isBadWeatherStop = isBadWeatherStop
         self.absences = absences
+        self.allowanceMemberIDs = allowanceMemberIDs
+        self.kilometres = max(0, kilometres)
     }
 
     func attendance(for memberID: UUID) -> Attendance? {
@@ -227,6 +240,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         day.absences.removeAll { $0.memberID == memberID }
         if let reason {
             day.present.removeAll { $0.memberID == memberID }
+            day.allowanceMemberIDs.removeAll { $0 == memberID }
             day.absences.append(CrewAbsence(memberID: memberID, reason: reason))
         }
         return day
@@ -238,14 +252,42 @@ struct SiteDay: Hashable, Codable, Sendable {
     }
 
     /// Ticks `memberID` in, or out. Ticking in clears any reason they were
-    /// away; ticking out gives none.
-    func togglingPresence(of memberID: UUID) -> SiteDay {
+    /// away, and gives them the field allowance when the site gives it by
+    /// default; ticking out gives no reason and takes the allowance.
+    func togglingPresence(of memberID: UUID, allowanceByDefault: Bool = false) -> SiteDay {
         var day = self
+        day.allowanceMemberIDs.removeAll { $0 == memberID }
         if let index = day.present.firstIndex(where: { $0.memberID == memberID }) {
             day.present.remove(at: index)
         } else {
             day.present.append(Attendance(memberID: memberID))
             day.absences.removeAll { $0.memberID == memberID }
+            if allowanceByDefault { day.allowanceMemberIDs.append(memberID) }
+        }
+        return day
+    }
+
+    // MARK: - Field allowance
+
+    /// Whether `memberID` gets the field allowance for this day: ticked
+    /// present and given it. A stray entry for someone not there counts for
+    /// nothing.
+    func hasAllowance(for memberID: UUID) -> Bool {
+        attendance(for: memberID) != nil && allowanceMemberIDs.contains(memberID)
+    }
+
+    /// How many of the people present get the allowance.
+    var allowanceCount: Int {
+        Set(allowanceMemberIDs).filter { attendance(for: $0) != nil }.count
+    }
+
+    /// The day with the allowance given to, or taken off, one person. Only
+    /// someone present can have it, so giving it to anyone else does nothing.
+    func settingAllowance(_ hasAllowance: Bool, for memberID: UUID) -> SiteDay {
+        var day = self
+        day.allowanceMemberIDs.removeAll { $0 == memberID }
+        if hasAllowance, attendance(for: memberID) != nil {
+            day.allowanceMemberIDs.append(memberID)
         }
         return day
     }
@@ -258,6 +300,7 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// typed text would be a save that silently did nothing.
     var isBlank: Bool {
         !isBadWeatherStop
+            && kilometres == 0
             && present.isEmpty
             && absences.isEmpty
             && start == nil
@@ -322,6 +365,7 @@ struct SiteDay: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop, absences
+        case allowanceMemberIDs, kilometres
     }
 
     init(from decoder: Decoder) throws {
@@ -337,7 +381,27 @@ struct SiteDay: Hashable, Codable, Sendable {
             jobID: container.lenientOptional(.jobID),
             isBadWeatherStop: container.lenient(.isBadWeatherStop, false),
             // Entry by entry: one that cannot be read is left out, not the day's list.
-            absences: container.lenient(.absences, [CrewAbsence.Lossy]()).compactMap(\.value)
+            absences: container.lenient(.absences, [CrewAbsence.Lossy]()).compactMap(\.value),
+            allowanceMemberIDs: container.lenient(.allowanceMemberIDs, []),
+            kilometres: container.lenient(.kilometres, 0)
         )
+    }
+
+    /// Written by hand so the allowance and the kilometres go in only when
+    /// set, and a day without them is written exactly as before.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(siteID, forKey: .siteID)
+        try container.encode(date, forKey: .date)
+        try container.encodeIfPresent(start, forKey: .start)
+        try container.encodeIfPresent(end, forKey: .end)
+        try container.encode(breakMinutes, forKey: .breakMinutes)
+        try container.encode(present, forKey: .present)
+        try container.encode(note, forKey: .note)
+        try container.encodeIfPresent(jobID, forKey: .jobID)
+        try container.encode(isBadWeatherStop, forKey: .isBadWeatherStop)
+        try container.encode(absences, forKey: .absences)
+        if !allowanceMemberIDs.isEmpty { try container.encode(allowanceMemberIDs, forKey: .allowanceMemberIDs) }
+        if kilometres != 0 { try container.encode(kilometres, forKey: .kilometres) }
     }
 }

@@ -84,6 +84,10 @@ struct SiteSheetBuilder: Sendable {
         var daysWorked = Array(repeating: 0, count: people.count)
         var sickDays = Array(repeating: 0, count: people.count)
         var leaveDays = Array(repeating: 0, count: people.count)
+        var allowanceDays = Array(repeating: 0, count: people.count)
+        // Only while the allowance is tracked; switched off, the sheet is as
+        // it was. Never money: days and kilometres, not what they pay.
+        let tracksAllowance = settings.allowance.isEnabled
         let catalog = settings.dayTypeCatalog
 
         for date in dates {
@@ -124,6 +128,7 @@ struct SiteSheetBuilder: Sendable {
                 }
                 totalMinutes[index] += entry.workedMinutes
                 if entry.workedMinutes > 0 { daysWorked[index] += 1 }
+                if tracksAllowance && entry.hasAllowance { allowanceDays[index] += 1 }
                 if entry.isException {
                     flagged.formUnion([values.count, values.count + 1])
                 }
@@ -163,8 +168,17 @@ struct SiteSheetBuilder: Sendable {
         // Days away sick and on leave, each a row only when anybody had one,
         // and blank for a person with none.
         var absenceRows: [[String]] = []
-        for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays)] where counts.contains(where: { $0 > 0 }) {
+        // Allowance days follow by the same rule.
+        for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.allowanceDays, allowanceDays)]
+        where counts.contains(where: { $0 > 0 }) {
             absenceRows.append([language(term), ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
+        }
+        // The vehicle's kilometres belong to the day rather than to anyone,
+        // so the month's total stands in the notes column, under nobody.
+        let kilometres = tracksAllowance ? byDate.values.reduce(0) { $0 + $1.day.kilometres } : 0
+        if kilometres > 0 {
+            absenceRows.append([language(.kilometres), ""] + people.flatMap { _ in ["", ""] }
+                + ["\(kilometres) \(language(.kilometresShort))"])
         }
 
         // Ids 0 and 1 cannot collide with a date key.

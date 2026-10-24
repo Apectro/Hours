@@ -21,13 +21,24 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
     /// rebuilt from it whenever the site day changes, never edited here.
     var siteID: UUID?
 
+    /// On a site shift only: the site day gave you the field allowance
+    /// (`SiteDay.hasAllowance(for:)`). Rebuilt with the shift, so it follows
+    /// the site day and never touches the allowance you set on the day
+    /// yourself (`DayRecord.hasFieldAllowance`).
+    var fieldAllowance: Bool
+
+    /// On a site shift only: the site day's vehicle kilometres, as above.
+    var kilometres: Int
+
     init(
         id: UUID = UUID(),
         start: TimeOfDay? = nil,
         end: TimeOfDay? = nil,
         breaks: [BreakSpan] = [],
         jobID: UUID? = nil,
-        siteID: UUID? = nil
+        siteID: UUID? = nil,
+        fieldAllowance: Bool = false,
+        kilometres: Int = 0
     ) {
         self.id = id
         self.start = start
@@ -35,14 +46,24 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
         self.breaks = breaks
         self.jobID = jobID
         self.siteID = siteID
+        self.fieldAllowance = fieldAllowance
+        self.kilometres = max(0, kilometres)
     }
 
     var hasTimes: Bool { start != nil && end != nil }
 
     /// True when the shift carries nothing worth keeping.
+    ///
+    /// About the hours only: a site shift that carries an allowance or
+    /// kilometres and no times is still empty here, so a full bad-weather
+    /// stop still types the day. Whether it is worth storing is
+    /// `hasSiteExtras` as well.
     var isEmpty: Bool {
         start == nil && end == nil && breaks.allSatisfy(\.isEmpty)
     }
+
+    /// A site shift carrying the field allowance or kilometres.
+    var hasSiteExtras: Bool { fieldAllowance || kilometres > 0 }
 
     /// Every break in this shift, timed or plain, as entered.
     ///
@@ -54,7 +75,7 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, start, end, breaks, jobID, siteID
+        case id, start, end, breaks, jobID, siteID, fieldAllowance, kilometres
     }
 
     init(from decoder: Decoder) throws {
@@ -76,8 +97,24 @@ struct Shift: Identifiable, Hashable, Codable, Sendable {
             end: try container.decodeIfPresent(TimeOfDay.self, forKey: .end),
             breaks: try container.decodeIfPresent([BreakSpan].self, forKey: .breaks) ?? [],
             jobID: container.lenientOptional(.jobID, UUID.self),
-            siteID: container.lenientOptional(.siteID, UUID.self)
+            siteID: container.lenientOptional(.siteID, UUID.self),
+            fieldAllowance: container.lenient(.fieldAllowance, false),
+            kilometres: container.lenient(.kilometres, 0)
         )
+    }
+
+    /// Written by hand so the two site extras go in only when set: every
+    /// other shift is written exactly as before.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(start, forKey: .start)
+        try container.encodeIfPresent(end, forKey: .end)
+        try container.encode(breaks, forKey: .breaks)
+        try container.encodeIfPresent(jobID, forKey: .jobID)
+        try container.encodeIfPresent(siteID, forKey: .siteID)
+        if fieldAllowance { try container.encode(fieldAllowance, forKey: .fieldAllowance) }
+        if kilometres != 0 { try container.encode(kilometres, forKey: .kilometres) }
     }
 }
 

@@ -155,21 +155,27 @@ struct SiteRepository {
     /// has left as present, on the director's sheet. "You" is never a stored
     /// member, so it is never hidden and always carries over.
     ///
+    /// Who got the field allowance carries over with them, and so do the
+    /// vehicle's kilometres: the same crew driving to the same site.
+    ///
     /// Not saved here: the caller shows it in the editor and saving is the
     /// person's decision, which is also where the month lock gets its say.
     func sameAsLastDay(siteID: UUID, on date: CalendarDate) -> SiteDay? {
         guard let last = lastSiteDay(siteID: siteID, before: date) else { return nil }
         let hidden = Set(crew(for: siteID, includeHidden: true).filter(\.isHidden).map(\.id))
+        let present = last.present
+            .filter { !hidden.contains($0.memberID) }
+            .map { Attendance(memberID: $0.memberID) }
         return SiteDay(
             siteID: siteID,
             date: date,
             start: last.start,
             end: last.end,
             breakMinutes: last.breakMinutes,
-            present: last.present
-                .filter { !hidden.contains($0.memberID) }
-                .map { Attendance(memberID: $0.memberID) },
-            jobID: site(id: siteID)?.jobID
+            present: present,
+            jobID: site(id: siteID)?.jobID,
+            allowanceMemberIDs: present.map(\.memberID).filter(last.hasAllowance(for:)),
+            kilometres: last.kilometres
         )
     }
 

@@ -11,6 +11,8 @@ struct PersonDay: Hashable, Sendable {
     /// Mirrors `SiteDay.hasException`: they worked different hours from the site's.
     var isException: Bool
     var warnings: [DayWarning]
+    /// They get the field allowance for the day (`SiteDay.hasAllowance(for:)`).
+    var hasAllowance: Bool = false
 }
 
 struct SiteDayResult: Hashable, Sendable {
@@ -73,7 +75,8 @@ struct SiteDayCalculator: Sendable {
             breakMinutes: breakMinutes,
             workedMinutes: max(0, settings.rounding.apply(to: shift.workedMinutes)),
             isException: day.hasException(attendance.memberID),
-            warnings: warnings
+            warnings: warnings,
+            hasAllowance: day.hasAllowance(for: attendance.memberID)
         )
     }
 }

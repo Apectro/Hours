@@ -46,6 +46,20 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     /// `elapsedReal` duration policy; `nil` means "the device's current zone".
     var timeZoneIdentifier: String?
 
+    /// The day earned the field allowance (1.2): your own say. A site day
+    /// that gives you the allowance does it through its site shift instead
+    /// (`Shift.fieldAllowance`), so this is never written by a site.
+    var hasFieldAllowance: Bool
+
+    /// Kilometres driven in your own car, as you wrote them. A site's
+    /// vehicle kilometres come through its site shift, as above.
+    var kilometres: Int
+
+    /// Time spent travelling, in minutes. Whether it counts as work is a
+    /// setting (`AllowancePreferences.travelCountsAsWork`), decided by
+    /// `WorkdayCalculator`.
+    var travelMinutes: Int
+
     init(
         date: CalendarDate,
         dayTypeID: DayTypeID? = nil,
@@ -62,7 +76,10 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         location: String = "",
         tags: [String] = [],
         isIncluded: Bool = true,
-        timeZoneIdentifier: String? = nil
+        timeZoneIdentifier: String? = nil,
+        hasFieldAllowance: Bool = false,
+        kilometres: Int = 0,
+        travelMinutes: Int = 0
     ) {
         self.date = date
         self.dayTypeID = dayTypeID
@@ -85,6 +102,9 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         self.tags = tags
         self.isIncluded = isIncluded
         self.timeZoneIdentifier = timeZoneIdentifier
+        self.hasFieldAllowance = hasFieldAllowance
+        self.kilometres = max(0, kilometres)
+        self.travelMinutes = max(0, travelMinutes)
     }
 
     var id: Int { date.key }
@@ -137,6 +157,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         case manualWorkedMinutes, expectedOverrideMinutes, adjustmentMinutes, adjustmentReason
         case manualBalanceMinutes
         case note, location, tags, isIncluded, timeZoneIdentifier
+        case hasFieldAllowance, kilometres, travelMinutes
         // Written by versions that held a single shift on the day itself. Read
         // so that a backup taken before shifts existed still restores.
         case legacyStart = "start"
@@ -181,7 +202,11 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
             location: container.lenient(.location, ""),
             tags: container.lenient(.tags, []),
             isIncluded: container.lenient(.isIncluded, true),
-            timeZoneIdentifier: container.lenientOptional(.timeZoneIdentifier, String.self)
+            timeZoneIdentifier: container.lenientOptional(.timeZoneIdentifier, String.self),
+            // Absent from anything written before 1.2: none of the three.
+            hasFieldAllowance: container.lenient(.hasFieldAllowance, false),
+            kilometres: container.lenient(.kilometres, 0),
+            travelMinutes: container.lenient(.travelMinutes, 0)
         )
     }
 
@@ -200,6 +225,12 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
         try container.encode(tags, forKey: .tags)
         try container.encode(isIncluded, forKey: .isIncluded)
         try container.encodeIfPresent(timeZoneIdentifier, forKey: .timeZoneIdentifier)
+        // Only when set, so a day without them is written exactly as before
+        // and an older version, which skips keys it does not know, reads the
+        // rest of the day unchanged either way.
+        if hasFieldAllowance { try container.encode(hasFieldAllowance, forKey: .hasFieldAllowance) }
+        if kilometres != 0 { try container.encode(kilometres, forKey: .kilometres) }
+        if travelMinutes != 0 { try container.encode(travelMinutes, forKey: .travelMinutes) }
     }
 
     /// True when the record carries no information worth persisting. The editor
@@ -207,7 +238,7 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
     /// indicators on the calendar honest.
     var isBlank: Bool {
         dayTypeID == nil
-            && shifts.allSatisfy(\.isEmpty)
+            && shifts.allSatisfy { $0.isEmpty && !$0.hasSiteExtras }
             && manualWorkedMinutes == nil
             && expectedOverrideMinutes == nil
             && adjustmentMinutes == 0
@@ -216,5 +247,8 @@ struct DayRecord: Identifiable, Hashable, Codable, Sendable {
             && location.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && tags.isEmpty
             && isIncluded
+            && !hasFieldAllowance
+            && kilometres == 0
+            && travelMinutes == 0
     }
 }

@@ -64,15 +64,19 @@ final class SiteExportTests: XCTestCase {
 
         XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
         app.tab(.sites).tap()
-        let card = app.buttons["site-card"].firstMatch
+        let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        let more = app.buttons["site-more"]
+        let more = app.buttons.matching(identifier: "site-more").firstMatch
         XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
         more.tap()
-        let crewItem = app.buttons["site-crew"]
+        let crewItem = app.buttons.matching(identifier: "site-crew").firstMatch
         XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
         crewItem.tap()
+        if !app.screen("screen-crew").waitForExistence(timeout: 5) {
+            // What was on screen instead, for the log.
+            print(app.debugDescription)
+        }
         XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
 
         // A name is the person's own, not a translated label.

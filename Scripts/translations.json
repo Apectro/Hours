@@ -726,6 +726,17 @@
       "nl": "%#@days@ betaald door de verzekering",
       "pl": "%#@days@ płaci ubezpieczyciel"
     },
+    "Field allowance · ^[%lld day](inflect: true)": {
+      "de": "Auslöse · %#@days@",
+      "hr": "Terenski dodatak · %#@days@",
+      "sl": "Terenski dodatek · %#@days@",
+      "it": "Trasferta · %#@days@",
+      "fr": "Indemnité de déplacement · %#@days@",
+      "es": "Dieta · %#@days@",
+      "pt": "Ajudas de custo · %#@days@",
+      "nl": "Toelage · %#@days@",
+      "pl": "Dieta · %#@days@"
+    },
     "^[%lld difference](inflect: true)": {
       "de": "%#@differences@",
       "hr": "%#@differences@",
@@ -10694,6 +10705,281 @@
       "Het enige wat het aan het netwerk vraagt is of er iets gekocht is, en dat vraagt het de App Store; geen deel van je uren gaat mee met die vraag.",
       "Jedyne, o co pyta sieć, to czy coś zostało kupione — pyta o to App Store; żadna część Twoich godzin nie idzie razem z pytaniem."
     ],
+    "Allowance & travel": [
+      "Auslöse & Fahrten",
+      "Terenski dodatak i putovanja",
+      "Terenski dodatek in potovanja",
+      "Trasferta e viaggi",
+      "Indemnité et trajets",
+      "Dietas y desplazamientos",
+      "Ajudas de custo e deslocações",
+      "Toelage en reizen",
+      "Diety i dojazdy"
+    ],
+    "Track field allowance and travel": [
+      "Auslöse und Fahrten erfassen",
+      "Bilježi terenski dodatak i putovanja",
+      "Beleži terenski dodatek in potovanja",
+      "Registra trasferta e viaggi",
+      "Suivre l’indemnité de déplacement et les trajets",
+      "Registrar dietas y desplazamientos",
+      "Registar ajudas de custo e deslocações",
+      "Toelage en reizen bijhouden",
+      "Zapisuj diety i dojazdy"
+    ],
+    "A field allowance on the days you get one, kilometres in your own car, and travel time — on your own days and on sites.": [
+      "Auslöse an den Tagen, an denen du sie bekommst, Kilometer mit dem eigenen Auto und Fahrzeit – an deinen eigenen Tagen und auf Baustellen.",
+      "Terenski dodatak za dane kad ga dobiješ, kilometri vlastitim autom i vrijeme putovanja – na tvojim danima i na gradilištima.",
+      "Terenski dodatek za dneve, ko ga dobiš, kilometri z lastnim avtom in čas potovanja – na tvojih dnevih in na gradbiščih.",
+      "La trasferta nei giorni in cui ti spetta, i chilometri con la tua auto e il tempo di viaggio – nei tuoi giorni e nei cantieri.",
+      "L’indemnité de déplacement les jours où vous y avez droit, les kilomètres avec votre voiture et le temps de trajet – sur vos journées et sur les chantiers.",
+      "La dieta los días que la cobras, los kilómetros con tu coche y el tiempo de viaje, en tus días y en las obras.",
+      "As ajudas de custo nos dias em que as recebes, os quilómetros no teu carro e o tempo de viagem – nos teus dias e nas obras.",
+      "Toelage op de dagen dat je die krijgt, kilometers met je eigen auto en reistijd – op je eigen dagen en op bouwplaatsen.",
+      "Dieta w dni, w które ci przysługuje, kilometry własnym autem i czas dojazdu – w twoich dniach i na budowach."
+    ],
+    "Allowance per day": [
+      "Auslöse pro Tag",
+      "Terenski dodatak po danu",
+      "Terenski dodatek na dan",
+      "Trasferta al giorno",
+      "Indemnité par jour",
+      "Dieta por día",
+      "Ajudas de custo por dia",
+      "Toelage per dag",
+      "Dieta za dzień"
+    ],
+    "Rate per km": [
+      "Satz pro km",
+      "Iznos po km",
+      "Znesek na km",
+      "Tariffa per km",
+      "Taux par km",
+      "Tarifa por km",
+      "Valor por km",
+      "Tarief per km",
+      "Stawka za km"
+    ],
+    "Rates": [
+      "Sätze",
+      "Iznosi",
+      "Zneski",
+      "Tariffe",
+      "Taux",
+      "Tarifas",
+      "Valores",
+      "Tarieven",
+      "Stawki"
+    ],
+    "Amounts and tax-free limits depend on your contract and your country. Check them.": [
+      "Beträge und steuerfreie Grenzen hängen von deinem Vertrag und deinem Land ab. Prüfe sie.",
+      "Iznosi i neoporezivi limiti ovise o tvom ugovoru i državi. Provjeri ih.",
+      "Zneski in neobdavčene meje so odvisni od tvoje pogodbe in države. Preveri jih.",
+      "Importi e limiti esenti da imposte dipendono dal tuo contratto e dal tuo paese. Controllali.",
+      "Les montants et les plafonds exonérés dépendent de votre contrat et de votre pays. Vérifiez-les.",
+      "Los importes y los límites exentos dependen de tu contrato y de tu país. Compruébalos.",
+      "Os valores e os limites isentos dependem do teu contrato e do teu país. Confirma-os.",
+      "Bedragen en belastingvrije grenzen hangen af van je contract en je land. Controleer ze.",
+      "Kwoty i limity zwolnione z podatku zależą od twojej umowy i kraju. Sprawdź je."
+    ],
+    "Travel time counts as work": [
+      "Fahrzeit zählt als Arbeit",
+      "Vrijeme putovanja računa se kao rad",
+      "Čas potovanja šteje kot delo",
+      "Il tempo di viaggio conta come lavoro",
+      "Le temps de trajet compte comme travail",
+      "El tiempo de viaje cuenta como trabajo",
+      "O tempo de viagem conta como trabalho",
+      "Reistijd telt als werk",
+      "Czas dojazdu liczy się jako praca"
+    ],
+    "Travel time is added to the day's hours and balance.": [
+      "Die Fahrzeit wird zu den Stunden und zum Saldo des Tages gezählt.",
+      "Vrijeme putovanja dodaje se satima i saldu dana.",
+      "Čas potovanja se prišteje uram in saldu dneva.",
+      "Il tempo di viaggio si aggiunge alle ore e al saldo del giorno.",
+      "Le temps de trajet s’ajoute aux heures et au solde de la journée.",
+      "El tiempo de viaje se suma a las horas y al saldo del día.",
+      "O tempo de viagem soma-se às horas e ao saldo do dia.",
+      "Reistijd telt mee in de uren en het saldo van de dag.",
+      "Czas dojazdu dolicza się do godzin i salda dnia."
+    ],
+    "Travel time is recorded and shown, not added to your hours.": [
+      "Die Fahrzeit wird erfasst und angezeigt, aber nicht zu deinen Stunden gezählt.",
+      "Vrijeme putovanja bilježi se i prikazuje, ali se ne dodaje tvojim satima.",
+      "Čas potovanja se beleži in prikaže, ne prišteje pa se tvojim uram.",
+      "Il tempo di viaggio viene registrato e mostrato, non aggiunto alle tue ore.",
+      "Le temps de trajet est enregistré et affiché, sans s’ajouter à vos heures.",
+      "El tiempo de viaje se registra y se muestra, pero no se suma a tus horas.",
+      "O tempo de viagem é registado e mostrado, mas não se soma às tuas horas.",
+      "Reistijd wordt vastgelegd en getoond, niet bij je uren geteld.",
+      "Czas dojazdu jest zapisywany i pokazywany, ale nie dolicza się do twoich godzin."
+    ],
+    "Field allowance": [
+      "Auslöse",
+      "Terenski dodatak",
+      "Terenski dodatek",
+      "Trasferta",
+      "Indemnité de déplacement",
+      "Dieta",
+      "Ajudas de custo",
+      "Toelage",
+      "Dieta"
+    ],
+    "Kilometres": [
+      "Kilometer",
+      "Kilometri",
+      "Kilometri",
+      "Chilometri",
+      "Kilomètres",
+      "Kilómetros",
+      "Quilómetros",
+      "Kilometers",
+      "Kilometry"
+    ],
+    "Travel time": [
+      "Fahrzeit",
+      "Vrijeme putovanja",
+      "Čas potovanja",
+      "Tempo di viaggio",
+      "Temps de trajet",
+      "Tiempo de viaje",
+      "Tempo de viagem",
+      "Reistijd",
+      "Czas dojazdu"
+    ],
+    "Your site day gives the field allowance.": [
+      "Die Auslöse kommt von deinem Baustellentag.",
+      "Terenski dodatak dolazi s tvog dana na gradilištu.",
+      "Terenski dodatek prihaja z tvojega dneva na gradbišču.",
+      "La trasferta viene dal tuo giorno in cantiere.",
+      "L’indemnité vient de votre journée sur le chantier.",
+      "La dieta viene de tu día en la obra.",
+      "As ajudas de custo vêm do teu dia na obra.",
+      "De toelage komt van je dag op de bouwplaats.",
+      "Dieta pochodzi z twojego dnia na budowie."
+    ],
+    "Plus %lld km from your site day.": [
+      "Dazu %lld km von deinem Baustellentag.",
+      "Uz to %lld km s tvog dana na gradilištu.",
+      "Poleg tega %lld km s tvojega dneva na gradbišču.",
+      "Più %lld km dal tuo giorno in cantiere.",
+      "Plus %lld km de votre journée sur le chantier.",
+      "Más %lld km de tu día en la obra.",
+      "Mais %lld km do teu dia na obra.",
+      "Plus %lld km van je dag op de bouwplaats.",
+      "Plus %lld km z twojego dnia na budowie."
+    ],
+    "Travel time counts as work.": [
+      "Fahrzeit zählt als Arbeit.",
+      "Vrijeme putovanja računa se kao rad.",
+      "Čas potovanja šteje kot delo.",
+      "Il tempo di viaggio conta come lavoro.",
+      "Le temps de trajet compte comme travail.",
+      "El tiempo de viaje cuenta como trabajo.",
+      "O tempo de viagem conta como trabalho.",
+      "Reistijd telt als werk.",
+      "Czas dojazdu liczy się jako praca."
+    ],
+    "Travel time is recorded, not counted as work.": [
+      "Fahrzeit wird erfasst, nicht als Arbeit gezählt.",
+      "Vrijeme putovanja se bilježi, ne računa se kao rad.",
+      "Čas potovanja se beleži, ne šteje kot delo.",
+      "Il tempo di viaggio viene registrato, non conta come lavoro.",
+      "Le temps de trajet est enregistré, sans compter comme travail.",
+      "El tiempo de viaje se registra, no cuenta como trabajo.",
+      "O tempo de viagem é registado, não conta como trabalho.",
+      "Reistijd wordt vastgelegd, niet als werk geteld.",
+      "Czas dojazdu jest zapisywany, nie liczy się jako praca."
+    ],
+    "%lld km": [
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km",
+      "%lld km"
+    ],
+    "Travel %@": [
+      "Fahrzeit %@",
+      "Putovanje %@",
+      "Potovanje %@",
+      "Viaggio %@",
+      "Trajet %@",
+      "Viaje %@",
+      "Viagem %@",
+      "Reistijd %@",
+      "Dojazd %@"
+    ],
+    "Kilometres · %lld km": [
+      "Kilometer · %lld km",
+      "Kilometri · %lld km",
+      "Kilometri · %lld km",
+      "Chilometri · %lld km",
+      "Kilomètres · %lld km",
+      "Kilómetros · %lld km",
+      "Quilómetros · %lld km",
+      "Kilometers · %lld km",
+      "Kilometry · %lld km"
+    ],
+    "Field allowance by default": [
+      "Auslöse standardmäßig",
+      "Terenski dodatak prema zadanom",
+      "Terenski dodatek privzeto",
+      "Trasferta per impostazione predefinita",
+      "Indemnité par défaut",
+      "Dieta por defecto",
+      "Ajudas de custo por omissão",
+      "Standaard toelage",
+      "Domyślnie dieta"
+    ],
+    "Everyone ticked in on a new day gets the field allowance. It can be taken off one person on the day. Days already written stay as they are.": [
+      "Alle, die an einem neuen Tag abgehakt werden, bekommen die Auslöse. Am Tag kann sie einzelnen Personen abgenommen werden. Bereits erfasste Tage bleiben, wie sie sind.",
+      "Svi označeni na novom danu dobivaju terenski dodatak. Na danu ga se može maknuti pojedinoj osobi. Već upisani dani ostaju kakvi jesu.",
+      "Vsi, označeni na novem dnevu, dobijo terenski dodatek. Na dnevu ga lahko odvzameš posamezniku. Že vpisani dnevi ostanejo, kot so.",
+      "Chi viene spuntato in un nuovo giorno riceve la trasferta. Nel giorno si può togliere a una singola persona. I giorni già scritti restano come sono.",
+      "Toutes les personnes cochées un nouveau jour reçoivent l’indemnité. Vous pouvez la retirer à une personne ce jour-là. Les jours déjà saisis restent tels quels.",
+      "Todos los marcados en un día nuevo reciben la dieta. Ese día se le puede quitar a una persona. Los días ya escritos se quedan como están.",
+      "Todos os marcados num dia novo recebem as ajudas de custo. Nesse dia podem ser retiradas a uma pessoa. Os dias já escritos ficam como estão.",
+      "Iedereen die op een nieuwe dag wordt aangevinkt, krijgt de toelage. Op de dag kun je die bij één persoon weghalen. Dagen die al zijn ingevuld blijven zoals ze zijn.",
+      "Każdy zaznaczony w nowym dniu dostaje dietę. W danym dniu można ją odebrać jednej osobie. Dni już zapisane zostają bez zmian."
+    ],
+    "Take off the field allowance": [
+      "Auslöse wegnehmen",
+      "Makni terenski dodatak",
+      "Odvzemi terenski dodatek",
+      "Togli la trasferta",
+      "Retirer l’indemnité",
+      "Quitar la dieta",
+      "Retirar as ajudas de custo",
+      "Toelage weghalen",
+      "Odbierz dietę"
+    ],
+    "Give the field allowance": [
+      "Auslöse geben",
+      "Dodijeli terenski dodatak",
+      "Dodeli terenski dodatek",
+      "Assegna la trasferta",
+      "Attribuer l’indemnité",
+      "Dar la dieta",
+      "Atribuir ajudas de custo",
+      "Toelage geven",
+      "Przyznaj dietę"
+    ],
+    "field allowance": [
+      "Auslöse",
+      "terenski dodatak",
+      "terenski dodatek",
+      "trasferta",
+      "indemnité de déplacement",
+      "dieta",
+      "ajudas de custo",
+      "toelage",
+      "dieta"
+    ],
     "One sheet per person": [
       "Ein Blatt pro Person",
       "Jedan list po osobi",
@@ -10975,6 +11261,51 @@
       "key": "Byte-order mark",
       "language": "nl",
       "why": "Dutch technical writing leaves this term in English."
+    },
+    {
+      "key": "%lld km",
+      "language": "de",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "hr",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "sl",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "it",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "fr",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "es",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "pt",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "nl",
+      "why": "A distance; km is the unit in every language."
+    },
+    {
+      "key": "%lld km",
+      "language": "pl",
+      "why": "A distance; km is the unit in every language."
     }
   ],
   "widgetInterface": [

@@ -76,6 +76,7 @@ final class ScreenAtlasTests: XCTestCase {
         siteScreens(app)
         insightsScreens(app)
         settingsScreens(app)
+        allowanceScreens(app)
         closedMonthScreens(app)
         app.terminate()
     }
@@ -652,6 +653,18 @@ final class ScreenAtlasTests: XCTestCase {
             self.swipeUp(app)
             self.capture("settings-pay-lower", app)
         }
+        // Allowance & travel, off as shipped, then switched on: the rates
+        // and travel. Left on, for `allowanceScreens` after Settings.
+        settingsPage("settings-allowance", "settings-allowance", app) {
+            let enabled = app.switches["allowance-enabled"].firstMatch
+            if enabled.waitForExistence(timeout: 5) {
+                self.flip(enabled)
+                self.pause(0.5)
+                self.capture("settings-allowance-on", app)
+            } else {
+                self.miss("settings-allowance-on (no switch)")
+            }
+        }
         settingsPage("settings-jobs", "settings-jobs", app) {
             if self.tap(app.buttons.matching(identifier: "jobs-row").firstMatch, "a job", app) {
                 self.capture("settings-job-editor", app)
@@ -723,6 +736,65 @@ final class ScreenAtlasTests: XCTestCase {
         settingsPage("settings-privacy", "settings-privacy", app) {
             self.swipeUp(app)
             self.capture("settings-privacy-lower", app)
+        }
+    }
+
+    /// With the allowance switched on in Settings: today's editor with its
+    /// allowance, kilometres and travel, then saved with the allowance, the
+    /// month's summary line and Insights' lines; and the site day with its
+    /// kilometres and a crew row's menu offering the allowance.
+    private func allowanceScreens(_ app: XCUIApplication) {
+        app.tab(.calendar).tap()
+        pause(1)
+        let save = app.openTodaysEditor()
+        guard save.waitForExistence(timeout: 10) else {
+            miss("day-editor-allowance (today's editor did not open)")
+            return
+        }
+        let allowance = app.switches["day-editor-allowance"].firstMatch
+        if bringIntoView(allowance, app) {
+            capture("day-editor-allowance", app)
+            flip(allowance)
+            tapAnyway(save)
+            pause(1)
+            swipeUp(app)
+            capture("calendar-month-summary-allowance", app)
+            swipeDown(app, times: 3)
+        } else {
+            miss("day-editor-allowance (no allowance section)")
+            close(app, "day-editor-cancel")
+        }
+
+        app.tab(.insights).tap()
+        pause(1)
+        if bringIntoView(app.descendants(matching: .any)["insights-allowance"].firstMatch, app) {
+            capture("insights-allowance", app)
+        } else {
+            miss("insights-allowance (no allowance line)")
+        }
+        swipeDown(app, times: 3)
+
+        app.tab(.sites).tap()
+        if tap(app.buttons.matching(identifier: "site-card").firstMatch, "the site", app),
+           app.screen("screen-site-day").waitForExistence(timeout: 10) {
+            if bringIntoView(app.textFields["site-day-kilometres"].firstMatch, app) {
+                capture("site-day-kilometres", app)
+            } else {
+                miss("site-day-kilometres (no kilometres row)")
+            }
+            let crew = app.buttons.matching(NSPredicate(
+                format: "identifier BEGINSWITH 'site-person-' AND identifier != 'site-person-you'"
+            )).firstMatch
+            if bringIntoView(crew, app), crew.isSelected {
+                crew.press(forDuration: 1.0)
+                if app.buttons["site-person-allowance"].firstMatch.waitForExistence(timeout: 5) {
+                    capture("site-person-allowance-menu", app)
+                } else {
+                    miss("site-person-allowance-menu (no allowance in the row's menu)")
+                }
+                dismissMenu(app)
+            }
+            back(app)
         }
     }
 

@@ -10,6 +10,9 @@ struct PeriodSummaryBar: View {
     let catalog: DayTypeCatalog
     /// When set, what was earned takes the balance's place.
     var earnings: EarningsSummary? = nil
+    /// Field allowance, kilometres and travel: a quiet line of their own,
+    /// only when there is any.
+    var allowance: AllowanceSummary? = nil
     /// Sends these figures: Export, opened on this period.
     var onExport: (() -> Void)? = nil
 
@@ -68,6 +71,14 @@ struct PeriodSummaryBar: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            if !allowanceLine.isEmpty {
+                Text(allowanceLine)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("calendar-summary-allowance")
+            }
             if let onExport {
                 HStack(spacing: Metrics.small) {
                     Spacer(minLength: 0)
@@ -98,6 +109,29 @@ struct PeriodSummaryBar: View {
         guard summary.overtimeMinutes > 0, summary.deficitMinutes > 0 else { return nil }
         // Only worth showing when the net hides movement in both directions.
         return "+\(formatting.string(summary.overtimeMinutes)) / \(formatting.string(-summary.deficitMinutes))"
+    }
+
+    /// "Field allowance · 12 days  ·  340 km  ·  Travel 6:30", each part only
+    /// when there is some.
+    private var allowanceLine: String {
+        guard let allowance, !allowance.isEmpty else { return "" }
+        var parts: [String] = []
+        if allowance.allowanceDays > 0 {
+            parts.append(String(inflected: "Field allowance · ^[\(allowance.allowanceDays) day](inflect: true)"))
+        }
+        if allowance.kilometres > 0 {
+            parts.append(String(
+                localized: "\(allowance.kilometres) km",
+                comment: "A distance driven; the value is a number of kilometres"
+            ))
+        }
+        if allowance.travelMinutes > 0 {
+            parts.append(String(
+                localized: "Travel \(DurationFormatting(style: .clock).string(allowance.travelMinutes))",
+                comment: "Travel time in the month's totals; the value is like 6:30"
+            ))
+        }
+        return parts.joined(separator: "  ·  ")
     }
 
     private var countsLine: String {

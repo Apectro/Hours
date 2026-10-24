@@ -36,6 +36,16 @@ final class SiteDayEntry {
     /// row written before it reads as a day with no absences; `nil` also
     /// means none.
     var absenceData: Data?
+    /// JSON-encoded `[UUID]`: who on the crew gets the field allowance
+    /// (`SiteDay.allowanceMemberIDs`). Added in schema V8, optional, so a row
+    /// written before it reads as a day nobody had the allowance; `nil` also
+    /// means nobody. A column of its own rather than a field on each
+    /// attendance in `presentData`, which an older build would drop the next
+    /// time it wrote the day.
+    var allowanceData: Data?
+    /// `SiteDay.kilometres`, the vehicle's for the day. Added in schema V8
+    /// with a default.
+    var kilometres: Int = 0
 
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
@@ -68,7 +78,9 @@ extension SiteDayEntry {
             note: note,
             jobID: jobID.flatMap(UUID.init(uuidString:)),
             isBadWeatherStop: isBadWeatherStop,
-            absences: SiteDayEntry.decodeAbsences(absenceData)
+            absences: SiteDayEntry.decodeAbsences(absenceData),
+            allowanceMemberIDs: SiteDayEntry.decodeAllowance(allowanceData),
+            kilometres: kilometres
         )
     }
 
@@ -84,6 +96,8 @@ extension SiteDayEntry {
         jobID = day.jobID?.uuidString
         isBadWeatherStop = day.isBadWeatherStop
         absenceData = SiteDayEntry.encodeAbsences(day.absences)
+        allowanceData = SiteDayEntry.encodeAllowance(day.allowanceMemberIDs)
+        kilometres = day.kilometres
         updatedAt = Date()
     }
 
@@ -104,5 +118,16 @@ extension SiteDayEntry {
 
     static func decodeAbsences(_ data: Data?) -> [CrewAbsence] {
         CrewAbsence.decodeList(data)
+    }
+
+    static func encodeAllowance(_ memberIDs: [UUID]) -> Data? {
+        guard !memberIDs.isEmpty else { return nil }
+        return try? JSONEncoder().encode(memberIDs)
+    }
+
+    /// Unreadable means nobody, as an unreadable attendance list does.
+    static func decodeAllowance(_ data: Data?) -> [UUID] {
+        guard let data, !data.isEmpty else { return [] }
+        return (try? JSONDecoder().decode([UUID].self, from: data)) ?? []
     }
 }

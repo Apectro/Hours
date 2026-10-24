@@ -43,3 +43,11 @@ extension PayRules {
         Decimal(cents) / 100
     }
 }
+
+/// Kilometres as they are typed: the digits, at most five of them, and none
+/// for nothing usable.
+enum Kilometres {
+    static func parse(_ text: String) -> Int {
+        Int(String(text.filter { $0.isASCII && $0.isNumber }.prefix(5))) ?? 0
+    }
+}

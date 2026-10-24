@@ -404,6 +404,28 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           es: "Días de permiso", pt: "Dias de licença", nl: "Verlofdagen",
                                           pl: "Dni urlopu")
 
+        // Field allowance, kilometres and travel (1.2): columns and summary
+        // lines on a timesheet, closing lines on a site sheet.
+        case .allowance:      return pick(en: "Allowance", de: "Auslöse", hr: "Terenski dodatak",
+                                          sl: "Terenski dodatek", it: "Trasferta", fr: "Indemnité",
+                                          es: "Dieta", pt: "Ajudas de custo", nl: "Toelage", pl: "Dieta")
+        case .kilometresShort: return pick(en: "km", de: "km", hr: "km", sl: "km", it: "km", fr: "km",
+                                           es: "km", pt: "km", nl: "km", pl: "km")
+        case .travel:         return pick(en: "Travel", de: "Fahrzeit", hr: "Putovanje", sl: "Potovanje",
+                                          it: "Viaggio", fr: "Trajet", es: "Viaje", pt: "Viagem",
+                                          nl: "Reistijd", pl: "Podróż")
+        case .allowanceDays:  return pick(en: "Allowance days", de: "Auslösetage", hr: "Dani terenskog dodatka",
+                                          sl: "Dnevi terenskega dodatka", it: "Giorni di trasferta",
+                                          fr: "Jours d’indemnité", es: "Días de dieta",
+                                          pt: "Dias de ajudas de custo", nl: "Toelagedagen", pl: "Dni diet")
+        case .kilometres:     return pick(en: "Kilometres", de: "Kilometer", hr: "Kilometri", sl: "Kilometri",
+                                          it: "Chilometri", fr: "Kilomètres", es: "Kilómetros",
+                                          pt: "Quilómetros", nl: "Kilometers", pl: "Kilometry")
+        case .mileage:        return pick(en: "Mileage", de: "Kilometergeld", hr: "Naknada za kilometre",
+                                          sl: "Kilometrina", it: "Rimborso chilometrico",
+                                          fr: "Indemnités kilométriques", es: "Kilometraje",
+                                          pt: "Quilometragem", nl: "Kilometervergoeding", pl: "Kilometrówka")
+
         // A crew member's own sheet (1.2)
         case .site:           return pick(en: "Site", de: "Baustelle", hr: "Gradilište", sl: "Gradbišče",
                                           it: "Cantiere", fr: "Chantier", es: "Obra", pt: "Obra",
@@ -566,6 +588,10 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// A crew member's own sheet: which site a day was on, and why they were
     /// not there.
     case site, reason
+
+    /// Field allowance, kilometres and travel (1.2). `kilometresShort` is the
+    /// unit, "km" everywhere; `kilometres` the word, for a line's label.
+    case allowance, kilometresShort, travel, allowanceDays, kilometres, mileage
 
     /// The site diary.
     case siteDiary, weather, diaryWorkDone, diaryDeliveries, diaryProblems, diaryVisitors

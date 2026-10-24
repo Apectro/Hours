@@ -123,6 +123,18 @@ night surcharges, and paid days off at the rate. A raise starts from a date, so
 the months before it keep the rate they were worked at. The balance is a setting
 away, and money never appears on a site, its sheet or anywhere about your crew.
 
+**Field allowance and travel** — off by default. Switched on in Settings ›
+Allowance & travel, with your allowance per day and rate per kilometre, a day
+gets a field allowance switch (Auslöse, terenski dodatak), kilometres in your
+own car and travel time, which counts as work only if you say so. A site can
+give the allowance to everyone ticked in, taken off one person from their
+row's menu, and has the van's kilometres for the day; your share reaches
+your own day without touching what you typed there. The month's summary,
+Insights and your timesheet list the days, kilometres and travel, and what
+they come to as lines of their own; the site sheet counts allowance days and
+kilometres, never money. Amounts and tax-free limits depend on your contract
+and your country.
+
 **Welcome and tour** — a fresh install asks a few questions once, each one
 skippable: your name for the sheets, your week, paid breaks, where you work,
 the language of the reports for your boss (preselected from the country), whether
@@ -350,6 +362,11 @@ falls back to the phone's own. See ARCHITECTURE.md, *Persistence*.
    Changes…** to Production.
 5. Run *TestFlight* again **without** CloudKit development: that is the build
    for testers and App Review. Never submit a CloudKit development build.
+
+Steps 3 and 4 are needed again whenever a release adds columns to the store:
+1.2's schema V8 (field allowance, kilometres, travel and the site's arrival
+fields) does, so it must be initialised and deployed to Production before 1.2
+ships, or a syncing 1.2 device cannot upload what it records.
 
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new

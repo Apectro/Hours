@@ -78,6 +78,9 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// welcome's last screen and the guided tour read it; it never hides a
     /// tab. Absent from anything older, which reads as no.
     var leadsCrew: Bool
+    /// Field allowance, kilometres and travel time (1.2). Absent from
+    /// anything older, which reads as switched off with no rates.
+    var allowance: AllowancePreferences
     /// What each month's payslip said, as typed into "Check your payslip"
     /// (1.2), keyed by `YearMonth.payslipKey` ("2026-10"). Written only once
     /// something is in it; absent from anything older, which reads as none,
@@ -110,6 +113,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         leave: LeavePolicy = LeavePolicy(),
         publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences(),
         leadsCrew: Bool = false,
+        allowance: AllowancePreferences = AllowancePreferences(),
         payslipChecks: [String: PayslipEntry] = [:]
     ) {
         self.schemaVersion = schemaVersion
@@ -136,6 +140,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.leave = leave
         self.publicHolidays = publicHolidays
         self.leadsCrew = leadsCrew
+        self.allowance = allowance
         self.payslipChecks = payslipChecks
     }
 
@@ -205,6 +210,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case leave
         case publicHolidays
         case leadsCrew
+        case allowance
         case payslipChecks
     }
 
@@ -241,6 +247,7 @@ struct AppSettings: Hashable, Codable, Sendable {
             leave: container.lenient(.leave, defaults.leave),
             publicHolidays: container.lenient(.publicHolidays, defaults.publicHolidays),
             leadsCrew: container.lenient(.leadsCrew, defaults.leadsCrew),
+            allowance: container.lenient(.allowance, defaults.allowance),
             // Month by month, so one unreadable month does not lose the rest.
             payslipChecks: container
                 .lenient(.payslipChecks, [String: LenientPayslipEntry]())
@@ -279,6 +286,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(leave, forKey: .leave)
         try container.encode(publicHolidays, forKey: .publicHolidays)
         try container.encode(leadsCrew, forKey: .leadsCrew)
+        try container.encode(allowance, forKey: .allowance)
         if !payslipChecks.isEmpty { try container.encode(payslipChecks, forKey: .payslipChecks) }
     }
 }

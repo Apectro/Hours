@@ -73,6 +73,10 @@ struct SiteDayScreen: View {
     /// The note is typed here and saved when the field loses focus, rather
     /// than on every keystroke, which would rewrite your calendar day per letter.
     @State private var noteText = ""
+    /// The vehicle's kilometres, typed here and saved when the field loses
+    /// focus, as the note is.
+    @State private var kilometresText = ""
+    @FocusState private var isKilometresFocused: Bool
     @State private var yourHoursNotCounted = false
     @State private var activeSheet: ActiveSheet?
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
@@ -224,7 +228,10 @@ struct SiteDayScreen: View {
             load()
             applyRequestedSameAsLastDay()
         }
-        .onDisappear { commitNote() }
+        .onDisappear {
+            commitNote()
+            commitKilometres()
+        }
         .onChange(of: requestedDate.wrappedValue) { _, requested in
             guard let requested else { return }
             requestedDate.wrappedValue = nil
@@ -234,6 +241,9 @@ struct SiteDayScreen: View {
         .sensoryFeedback(.selection, trigger: ticks)
         .onChange(of: isNoteFocused) { _, focused in
             if !focused { commitNote() }
+        }
+        .onChange(of: isKilometresFocused) { _, focused in
+            if !focused { commitKilometres() }
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -379,7 +389,11 @@ struct SiteDayScreen: View {
                 onSetReason: setReason,
                 onEditPerson: { activeSheet = .person($0) },
                 onEditTimes: { activeSheet = .siteTimes },
-                onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) }
+                onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) },
+                tracksAllowance: settings.allowance.isEnabled,
+                onToggleAllowance: toggleAllowance,
+                kilometres: $kilometresText,
+                isKilometresFocused: $isKilometresFocused
             )
         }
     }
@@ -523,6 +537,7 @@ struct SiteDayScreen: View {
         lastDay = store.sameAsLastDay(siteID: site.id, on: date)
         lastDayDate = lastDay == nil ? nil : store.lastSiteDay(siteID: site.id, before: date)?.date
         noteText = day.note
+        kilometresText = Self.text(kilometres: day.kilometres)
         startsEmpty = false
         loadOtherSites()
         reloadMonth()
@@ -572,6 +587,7 @@ struct SiteDayScreen: View {
     private func select(_ newDate: CalendarDate) {
         guard newDate != date else { return }
         commitNote()
+        commitKilometres()
         withAnimation(.snappy(duration: 0.2)) {
             date = newDate
             if !month.contains(newDate) { month = newDate.yearMonth }
@@ -589,6 +605,7 @@ struct SiteDayScreen: View {
             return
         }
         commitNote()
+        commitKilometres()
         let next = month.adding(months: direction)
         let newDate = next.contains(today)
             ? today
@@ -605,6 +622,7 @@ struct SiteDayScreen: View {
         let week = CalendarDateRange.week(containing: shifted, in: calendar)
         let newDate = week.contains(today) ? today : shifted
         commitNote()
+        commitKilometres()
         withAnimation(.snappy(duration: 0.25)) {
             date = newDate
             month = newDate.yearMonth
@@ -631,10 +649,31 @@ struct SiteDayScreen: View {
 
     // MARK: - Editing
 
-    /// Ticking someone in clears any reason they were away.
+    /// Ticking someone in clears any reason they were away, and gives them
+    /// the field allowance when the site does by default — read from the
+    /// store, in case the site was changed while this screen was open.
     private func toggle(_ memberID: UUID) {
         ticks += 1
-        commit(day.togglingPresence(of: memberID))
+        let byDefault = settings.allowance.isEnabled
+            && (repository.site(id: site.id) ?? site).allowanceByDefault
+        commit(day.togglingPresence(of: memberID, allowanceByDefault: byDefault))
+    }
+
+    /// The row menu's switch: the allowance for one person, today.
+    private func toggleAllowance(_ memberID: UUID) {
+        commit(day.settingAllowance(!day.hasAllowance(for: memberID), for: memberID))
+    }
+
+    private func commitKilometres() {
+        let typed = Kilometres.parse(kilometresText)
+        guard typed != day.kilometres else { return }
+        var next = day
+        next.kilometres = typed
+        commit(next)
+    }
+
+    private static func text(kilometres: Int) -> String {
+        kilometres > 0 ? "\(kilometres)" : ""
     }
 
     /// Why someone not ticked was away; nil takes the reason back.
@@ -690,6 +729,10 @@ struct SiteDayScreen: View {
         guard canEdit else { return }
         var next = proposed
         next.note = noteText
+        // Kilometres being typed travel with a change made meanwhile, as the
+        // note does; otherwise the change decides them ("Same as last day"
+        // brings its own).
+        if isKilometresFocused { next.kilometres = Kilometres.parse(kilometresText) }
         // A new day freezes the site's job as it stands now (see `SiteDay.jobID`).
         if stored == nil { next.jobID = site.jobID }
         guard next != stored else {
@@ -720,6 +763,7 @@ struct SiteDayScreen: View {
             day = stored ?? SiteDay(siteID: site.id, date: date, jobID: site.jobID)
             noteText = day.note
         }
+        if !isKilometresFocused { kilometresText = Self.text(kilometres: day.kilometres) }
         reloadMonth()
         refreshYourWarning()
         HoursStack.refreshWidget()

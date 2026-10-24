@@ -145,6 +145,8 @@ APP_STRINGS = {
     "^[%lld day](inflect: true) paid by health insurance": entry(
         "%#@days@ paid by health insurance", DAYS()
     ),
+    # Field allowance days, on the calendar's summary and Insights (1.2).
+    "Field allowance · ^[%lld day](inflect: true)": entry("Field allowance · %#@days@", DAYS()),
     # Insights › Month, under "Check your payslip": how many figures the
     # payslip shows differently. Zero is a separate string ("Checked").
     "^[%lld difference](inflect: true)": entry("%#@differences@", DIFFERENCES()),

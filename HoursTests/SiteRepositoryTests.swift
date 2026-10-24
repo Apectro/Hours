@@ -330,6 +330,28 @@ final class SiteRepositoryTests: XCTestCase {
         XCTAssertNil(repository.sameAsLastDay(siteID: site.id, on: Fixture.date(2026, 7, 30)), "nothing earlier to copy")
     }
 
+    /// The same crew driving to the same site: who had the field allowance
+    /// and the vehicle's kilometres carry over; someone left out of the copy
+    /// takes their allowance with them.
+    func testSameAsLastDayCopiesTheAllowanceAndKilometres() throws {
+        let context = makeContext()
+        let repository = SiteRepository(context: context)
+        repository.upsert(site)
+        var leaver = CrewMember(siteID: site.id, name: "Goran", sortOrder: 2)
+        repository.upsert(leaver)
+        var lastDay = crewDay(on: Fixture.workingMonday)
+            .togglingPresence(of: leaver.id, allowanceByDefault: true)
+            .settingAllowance(true, for: ivan)
+        lastDay.kilometres = 84
+        try repository.save(lastDay)
+        leaver.isHidden = true
+        repository.upsert(leaver)
+
+        let copy = try XCTUnwrap(repository.sameAsLastDay(siteID: site.id, on: Fixture.date(2026, 8, 6)))
+        XCTAssertEqual(copy.allowanceMemberIDs, [ivan])
+        XCTAssertEqual(copy.kilometres, 84)
+    }
+
     /// People are sick a day at a time: a reason never carries over.
     func testSameAsLastDayDoesNotCopyAbsences() throws {
         let context = makeContext()

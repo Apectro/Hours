@@ -84,6 +84,17 @@ struct DayComputation: Identifiable, Hashable, Sendable {
     var tags: [String]
     var warnings: [DayWarning]
 
+    /// Field allowance, kilometres and travel (1.2), all nothing while they
+    /// are not tracked. The allowance and kilometres include what a site day
+    /// gave you; see `WorkdayCalculator`.
+    var hasFieldAllowance: Bool = false
+    var kilometres: Int = 0
+    /// Travel as recorded.
+    var travelMinutes: Int = 0
+    /// The part of `travelMinutes` already in `workedMinutes`: all of it when
+    /// travel counts as work, none otherwise.
+    var countedTravelMinutes: Int = 0
+
     var id: Int { date.key }
 
     /// A public holiday that was paid as one and worked as well: the hours
