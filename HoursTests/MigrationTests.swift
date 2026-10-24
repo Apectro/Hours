@@ -309,7 +309,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertNoThrow(try context.save())
     }
 
-    /// The oldest stores go the whole way, V1 to V7, in one open.
+    /// The oldest stores go the whole way, V1 to V8, in one open.
     func testAVersionOneStoreReachesTheNewestVersion() throws {
         try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
         let context = ModelContext(try HoursModelContainer.make(at: storeURL))
@@ -323,6 +323,16 @@ final class MigrationTests: XCTestCase {
         context.insert(SiteDayEntry(day: day))
         XCTAssertNoThrow(try context.save())
         XCTAssertEqual(try context.fetch(FetchDescriptor<SiteDayEntry>()).first?.siteDay, day)
+
+        // And the day as 1.2 keeps it, with the allowance and kilometres.
+        let migrated = try XCTUnwrap(WorkdayRepository(context: context).record(on: Fixture.date(2026, 8, 3)))
+        XCTAssertFalse(migrated.hasFieldAllowance)
+        XCTAssertEqual(migrated.kilometres, 0)
+        XCTAssertEqual(migrated.travelMinutes, 0)
+        let allowance = SiteDay(siteID: siteID, date: Fixture.date(2026, 10, 24), present: [Attendance(memberID: CrewMember.youID)],
+                                allowanceMemberIDs: [CrewMember.youID], kilometres: 40)
+        context.insert(SiteDayEntry(day: allowance))
+        XCTAssertNoThrow(try context.save())
     }
 
     // MARK: - Done (V5 to V6)
@@ -434,6 +444,142 @@ final class MigrationTests: XCTestCase {
         let sick = day.settingAbsence(.sick, for: memberID)
         try sites.save(sick)
         XCTAssertEqual(SiteRepository(context: context).siteDay(siteID: siteID, on: sick.date)?.absence(for: memberID), .sick)
+    }
+
+    // MARK: - Allowance and travel (V7 to V8)
+
+    /// Writes a store as 1.1 left one: V7's frozen copies, with a day, a
+    /// site and a site day with an absence.
+    private func writeVersionSevenStore() throws -> (site: UUID, member: UUID) {
+        let schema = Schema(versionedSchema: HoursSchemaV7.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let memberID = UUID()
+        let site = HoursSchemaV7.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        context.insert(site)
+        let member = HoursSchemaV7.CrewMemberEntry(memberID: memberID.uuidString)
+        member.siteID = siteID.uuidString
+        member.name = "Ivo"
+        context.insert(member)
+        let day = HoursSchemaV7.SiteDayEntry(siteID: siteID.uuidString, dateKey: 20_261_023)
+        day.startMinutes = 7 * 60
+        day.endMinutes = 15 * 60 + 30
+        day.presentData = SiteDayEntry.encodePresent([Attendance(memberID: CrewMember.youID)])
+        day.absenceData = SiteDayEntry.encodeAbsences([CrewAbsence(memberID: memberID, dayTypeID: .sick)])
+        context.insert(day)
+        let own = HoursSchemaV7.DayEntry(dateKey: 20_261_022)
+        own.note = "Office"
+        own.startMinutes = 8 * 60
+        own.endMinutes = 16 * 60
+        context.insert(own)
+        try context.save()
+        return (siteID, memberID)
+    }
+
+    /// A 1.1 store opens as V8 with everything where it was: no allowance,
+    /// no kilometres, no travel, a site giving no allowance by default and
+    /// with no location — and then takes all of them.
+    func testAVersionSevenStoreOpensWithNoAllowanceAndTakesOne() throws {
+        let (siteID, memberID) = try writeVersionSevenStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        let workdays = WorkdayRepository(context: context)
+        let own = try XCTUnwrap(workdays.record(on: Fixture.date(2026, 10, 22)))
+        XCTAssertEqual(own.note, "Office")
+        XCTAssertEqual(own.start, TimeOfDay(hour: 8, minute: 0))
+        XCTAssertFalse(own.hasFieldAllowance)
+        XCTAssertEqual(own.kilometres, 0)
+        XCTAssertEqual(own.travelMinutes, 0)
+
+        let sites = SiteRepository(context: context)
+        let site = try XCTUnwrap(sites.site(id: siteID))
+        XCTAssertFalse(site.allowanceByDefault)
+        let entry = try XCTUnwrap(context.fetch(FetchDescriptor<SiteEntry>()).first)
+        XCTAssertNil(entry.latitude)
+        XCTAssertNil(entry.longitude)
+        XCTAssertEqual(entry.arrivalRadius, 150)
+        XCTAssertFalse(entry.remindsOnArrival)
+
+        let day = try XCTUnwrap(sites.siteDay(siteID: siteID, on: Fixture.date(2026, 10, 23)))
+        XCTAssertEqual(day.absence(for: memberID), .sick)
+        XCTAssertEqual(day.allowanceMemberIDs, [])
+        XCTAssertEqual(day.kilometres, 0)
+
+        // And it takes the new fields.
+        try workdays.save(DayRecord(date: Fixture.date(2026, 10, 21), hasFieldAllowance: true, kilometres: 84, travelMinutes: 95))
+        let written = try XCTUnwrap(WorkdayRepository(context: context).record(on: Fixture.date(2026, 10, 21)))
+        XCTAssertTrue(written.hasFieldAllowance)
+        XCTAssertEqual(written.kilometres, 84)
+        XCTAssertEqual(written.travelMinutes, 95)
+
+        var defaulted = site
+        defaulted.allowanceByDefault = true
+        sites.upsert(defaulted)
+        XCTAssertEqual(SiteRepository(context: context).site(id: siteID)?.allowanceByDefault, true)
+
+        let withAllowance = day.settingAllowance(true, for: CrewMember.youID)
+        var driven = withAllowance
+        driven.kilometres = 62
+        try sites.save(driven)
+        let stored = try XCTUnwrap(SiteRepository(context: context).siteDay(siteID: siteID, on: day.date))
+        XCTAssertEqual(stored.allowanceMemberIDs, [CrewMember.youID])
+        XCTAssertEqual(stored.kilometres, 62)
+        // Your own day has the site's allowance and kilometres on its site shift.
+        let yours = try XCTUnwrap(WorkdayRepository(context: context).record(on: day.date))
+        XCTAssertEqual(yours.shifts.first?.fieldAllowance, true)
+        XCTAssertEqual(yours.shifts.first?.kilometres, 62)
+    }
+
+    func testTheArrivalFieldsSurviveEditingTheSite() throws {
+        let context = ModelContext(HoursModelContainer.ephemeral())
+        let site = Site(name: "Bau Süd")
+        let entry = SiteEntry(site: site)
+        entry.latitude = 45.8
+        entry.longitude = 15.97
+        entry.arrivalRadius = 200
+        entry.remindsOnArrival = true
+        context.insert(entry)
+        try context.save()
+
+        var renamed = site
+        renamed.name = "Bau Nord"
+        entry.apply(renamed)
+        XCTAssertEqual(entry.latitude, 45.8)
+        XCTAssertEqual(entry.longitude, 15.97)
+        XCTAssertEqual(entry.arrivalRadius, 200)
+        XCTAssertTrue(entry.remindsOnArrival)
+    }
+
+    func testDayAndSiteDayEntriesKeepTheAllowance() {
+        let record = DayRecord(date: Fixture.date(2026, 10, 23), hasFieldAllowance: true, kilometres: 12, travelMinutes: 30)
+        let dayEntry = DayEntry(dateKey: record.date.key)
+        dayEntry.apply(record)
+        XCTAssertEqual(dayEntry.record, record)
+
+        let siteDay = SiteDay(siteID: UUID(), date: Fixture.date(2026, 10, 23), present: [Attendance(memberID: CrewMember.youID)],
+                              allowanceMemberIDs: [CrewMember.youID], kilometres: 40)
+        let entry = SiteDayEntry(day: siteDay)
+        XCTAssertEqual(entry.siteDay, siteDay)
+        entry.apply(siteDay.settingAllowance(false, for: CrewMember.youID))
+        XCTAssertNil(entry.allowanceData, "nobody stores nothing")
+        XCTAssertEqual(SiteDayEntry.decodeAllowance(Data("damaged".utf8)), [])
+
+        let site = Site(name: "Bau Süd", allowanceByDefault: true)
+        XCTAssertEqual(SiteEntry(site: site).site, site)
+    }
+
+    /// A full bad-weather stop with the allowance: the site shift has no
+    /// hours but is stored for what it carries.
+    func testASiteShiftWithOnlyAnAllowanceIsStored() {
+        let record = DayRecord(date: Fixture.date(2026, 10, 23), dayTypeID: .badWeather,
+                               shifts: [Shift(id: UUID(), siteID: UUID(), fieldAllowance: true)])
+        let entry = DayEntry(dateKey: record.date.key)
+        entry.apply(record)
+        XCTAssertNotNil(entry.shiftsData)
+        XCTAssertEqual(entry.record.shifts.first?.fieldAllowance, true)
     }
 
     func testSiteDayEntryKeepsAbsences() {
@@ -603,8 +749,8 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 7)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 6)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 8)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 7)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
@@ -612,6 +758,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(HoursSchemaV5.versionIdentifier, Schema.Version(5, 0, 0))
         XCTAssertEqual(HoursSchemaV6.versionIdentifier, Schema.Version(6, 0, 0))
         XCTAssertEqual(HoursSchemaV7.versionIdentifier, Schema.Version(7, 0, 0))
+        XCTAssertEqual(HoursSchemaV8.versionIdentifier, Schema.Version(8, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is

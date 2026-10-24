@@ -44,6 +44,13 @@ final class DayEntry {
     var isIncluded: Bool = true
     var timeZoneIdentifier: String?
 
+    /// `DayRecord.hasFieldAllowance`, `kilometres` and `travelMinutes`.
+    /// Added in schema V8 with defaults, so a row written before them reads
+    /// as a day with none of the three.
+    var hasFieldAllowance: Bool = false
+    var kilometres: Int = 0
+    var travelMinutes: Int = 0
+
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
 
@@ -72,7 +79,10 @@ extension DayEntry {
             location: locationName,
             tags: tagsJoined.isEmpty ? [] : tagsJoined.components(separatedBy: DayEntry.tagSeparator),
             isIncluded: isIncluded,
-            timeZoneIdentifier: timeZoneIdentifier
+            timeZoneIdentifier: timeZoneIdentifier,
+            hasFieldAllowance: hasFieldAllowance,
+            kilometres: kilometres,
+            travelMinutes: travelMinutes
         )
     }
 
@@ -112,11 +122,16 @@ extension DayEntry {
             .joined(separator: DayEntry.tagSeparator)
         isIncluded = record.isIncluded
         timeZoneIdentifier = record.timeZoneIdentifier
+        hasFieldAllowance = record.hasFieldAllowance
+        kilometres = record.kilometres
+        travelMinutes = record.travelMinutes
         updatedAt = Date()
     }
 
     static func encodeShifts(_ shifts: [Shift]) -> Data? {
-        let meaningful = shifts.filter { !$0.isEmpty }
+        // A site shift with an allowance or kilometres and no hours — a full
+        // bad-weather stop — is kept, or what the site gave the day is lost.
+        let meaningful = shifts.filter { !$0.isEmpty || $0.hasSiteExtras }
         guard !meaningful.isEmpty else { return nil }
         return try? JSONEncoder().encode(meaningful)
     }
