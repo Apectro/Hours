@@ -47,11 +47,16 @@ struct SiteArrivalSection: View {
 
             if let place = site.place {
                 SitePlaceMap(place: place, radius: site.monitoredRadius, name: site.name)
-                LabeledContent("Place") {
+                // One element for VoiceOver and the UI tests: "Place, 45.81302, 15.97722".
+                HStack {
+                    Text("Place")
+                    Spacer(minLength: Metrics.medium)
                     Text(Self.coordinates(place))
                         .monospacedDigit()
-                        .textSelection(.enabled)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
                 }
+                .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("site-arrival-coordinates")
                 Picker("Counts as arrived within", selection: $site.arrivalRadius) {
                     ForEach(Site.arrivalRadii, id: \.self) { radius in

@@ -57,7 +57,7 @@ final class ArrivalLocation {
         case noFix
     }
 
-    @ObservationIgnored private let isFake: Bool
+    private let isFake: Bool
     @ObservationIgnored private var bridge: LocationBridge?
     @ObservationIgnored private var authorizationWaiters: [CheckedContinuation<Void, Never>] = []
     @ObservationIgnored private var placeWaiters: [CheckedContinuation<SitePlace, Error>] = []
