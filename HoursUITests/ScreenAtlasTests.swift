@@ -558,6 +558,28 @@ final class ScreenAtlasTests: XCTestCase {
         capture("insights-month-bottom", app)
         swipeDown(app, times: 4)
 
+        // Check your payslip: the figures, then how they compare.
+        let payslip = app.buttons.matching(identifier: "insights-payslip-check").firstMatch
+        if bringIntoView(payslip, app) {
+            tapAnyway(payslip)
+            let overtime = app.textFields.matching(identifier: "payslip-field-overtime").firstMatch
+            if overtime.waitForExistence(timeout: 5) {
+                capture("payslip-check-entry", app)
+                tapAnyway(overtime)
+                overtime.typeText("12")
+                if tap(app.buttons.matching(identifier: "payslip-check").firstMatch, "the payslip's Check button", app) {
+                    capture("payslip-check-result", app)
+                }
+                close(app, "payslip-done")
+            } else {
+                miss("payslip-check-entry (did not open)")
+                close(app, "payslip-cancel")
+            }
+        } else {
+            miss("payslip-check (no row on the month)")
+        }
+        swipeDown(app, times: 4)
+
         let scope = scopeControl(app)
         guard scope.waitForExistence(timeout: 5), scope.buttons.count >= 4 else {
             miss("insights periods (no period control)")
