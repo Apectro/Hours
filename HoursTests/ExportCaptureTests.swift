@@ -699,6 +699,18 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertTrue(last.contains("Hauptstraße 12, 10115 Berlin"), "the address is not in By site")
         XCTAssertEqual(pageTexts.joined().components(separatedBy: "By site").count - 1, 1, "By site is printed once")
         XCTAssertTrue(pageTexts.joined().contains("2026-08-31"))
+
+        // The dates as wide as a date, not as "Month total" or a site's name
+        // under them, which run on over the empty day and site cells; and
+        // the site column wide enough for the site's whole name.
+        let layout = PDFReportLayout(table: table)
+        let minimum = layout.minimumWidths()
+        let dateWidth = PDFReportStyle.width(of: "2026-08-31", font: PDFReportStyle.cellFont) + PDFReportStyle.cellPadding * 2
+        XCTAssertLessThanOrEqual(minimum[0], dateWidth + 1, "the dates are sized by their closing labels")
+        let siteName = PDFReportStyle.width(of: "Hauptstraße 12", font: PDFReportStyle.cellFont)
+        XCTAssertGreaterThanOrEqual(minimum[2], siteName, "a site's name is cut short")
+        let monthTotal = try XCTUnwrap(table.rows.first { $0.role == .total })
+        XCTAssertEqual(layout.labelSpan(of: monthTotal), 0..<3)
     }
 
     /// Whatever the crew, no time and no hours are cut short: the sheet is
