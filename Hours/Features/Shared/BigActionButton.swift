@@ -68,7 +68,7 @@ private struct BigActionButtonBody: View {
 
     var body: some View {
         configuration.label
-            .font(isMain ? .title3.weight(.bold) : .body.weight(.bold))
+            .font(isMain ? Font.title3.weight(.bold) : Font.body.weight(.bold))
             .multilineTextAlignment(.center)
             .foregroundStyle(foreground)
             .padding(.horizontal, Metrics.large)
