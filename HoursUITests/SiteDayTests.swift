@@ -304,6 +304,55 @@ final class SiteDayTests: XCTestCase {
         return cell
     }
 
+    /// Part of the crew moves to the second site in the middle of the day
+    /// (1.2): the banner says so, the mover's row names the other site, and
+    /// Undo takes it back. Today is filled from yesterday first.
+    func testMovingToAnotherSiteAndUndo() {
+        let app = launch(arguments: ["-hours-second-site"])
+        openSite(app)
+
+        let same = app.buttons["site-day-same-as-last"]
+        XCTAssertTrue(same.waitForExistence(timeout: 5))
+        same.tap()
+        wait(for: app.buttons["site-person-Ivan"], selected: true)
+
+        let move = app.buttons["site-day-move"].firstMatch
+        if !move.exists { app.swipeUp() }
+        XCTAssertTrue(move.waitForExistence(timeout: 5), "a written day with another site offers the move")
+        move.tap()
+
+        XCTAssertTrue(app.screen("site-move-sheet").waitForExistence(timeout: 5), "the move sheet did not open")
+        let confirm = app.buttons["site-move-confirm"].firstMatch
+        let destination = app.buttons["site-move-to-0"].firstMatch
+        XCTAssertTrue(destination.waitForExistence(timeout: 5))
+        destination.tap()
+        // Everyone ticked goes unless unticked: Marko stays.
+        let marko = app.buttons["site-move-person-Marko"].firstMatch
+        XCTAssertTrue(marko.waitForExistence(timeout: 5))
+        marko.tap()
+        XCTAssertTrue(confirm.isEnabled, "Move should be offered for a site and a time inside the day")
+        confirm.tap()
+
+        let banner = app.descendants(matching: .any)["site-move-banner"].firstMatch
+        XCTAssertTrue(banner.waitForExistence(timeout: 5), "the day should say who went where")
+        XCTAssertTrue(banner.label.contains("Trg Pravde"), "the banner should name the other site: \(banner.label)")
+        let ivan = app.buttons["site-person-Ivan"]
+        let movedValue = NSPredicate(format: "value CONTAINS %@", "Trg Pravde")
+        expectation(for: movedValue, evaluatedWith: ivan)
+        waitForExpectations(timeout: 5)
+        XCTAssertFalse((app.buttons["site-person-Marko"].value as? String ?? "").contains("Trg Pravde"), "Marko stayed")
+
+        let undo = app.buttons["site-move-undo"].firstMatch
+        XCTAssertTrue(undo.waitForExistence(timeout: 5))
+        undo.tap()
+        XCTAssertTrue(
+            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: banner)], timeout: 5)
+                == .completed,
+            "Undo should take the move back"
+        )
+        XCTAssertFalse((ivan.value as? String ?? "").contains("Trg Pravde"), "Ivan is back on this site's times")
+    }
+
     /// A date as the app's day headings write it ("Tue 19 Oct" in English),
     /// in the simulator's own locale, which is the one the app runs in.
     private static func mediumDate(daysFromToday offset: Int) -> String {

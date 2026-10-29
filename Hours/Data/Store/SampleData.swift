@@ -27,6 +27,14 @@ enum SampleData {
         ProcessInfo.processInfo.arguments.contains(siteLaunchArgument)
     }
 
+    /// A second site beside the seeded one, "Trg Pravde" with Ivan on its
+    /// crew, for the test of moving to another site (1.2).
+    static let secondSiteLaunchArgument = "-hours-second-site"
+
+    static var isSecondSiteRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(secondSiteLaunchArgument)
+    }
+
     /// Closes the current month, for the test that a closed month refuses
     /// site edits. Settings in a UI test run are an ephemeral copy, so this
     /// never reaches anyone's real lock.
@@ -51,6 +59,11 @@ enum SampleData {
         let marko = CrewMember(siteID: site.id, name: "Marko", sortOrder: 1)
         repository.upsert(ivan)
         repository.upsert(marko)
+        if isSecondSiteRequested {
+            let other = Site(name: "Trg Pravde", sortOrder: 1)
+            repository.upsert(other)
+            repository.upsert(CrewMember(siteID: other.id, name: "Ivan", sortOrder: 0))
+        }
 
         try? repository.save(SiteDay(
             siteID: site.id,
