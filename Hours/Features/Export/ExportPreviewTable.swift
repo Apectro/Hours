@@ -213,7 +213,9 @@ private struct ExportPreviewRow: View {
     }
 
     private func font(for column: ReportColumn) -> Font {
-        isSummary || column == .worked ? .caption.weight(.semibold) : .caption
+        isSummary || column == .worked || (row.splitDay == .subtotal && column != .site)
+            ? .caption.weight(.semibold)
+            : .caption
     }
 
     /// Someone who came late or left early is in the same amber as on the
@@ -221,10 +223,13 @@ private struct ExportPreviewRow: View {
     private func color(index: Int, column: ReportColumn) -> Color {
         if row.flagged.contains(index) { return ExportPreviewWidths.accent }
         if column == .times || row.role == .count || !row.hasEntry { return .secondary }
+        if row.splitDay == .subtotal && column == .site { return .secondary }
         return .primary
     }
 
     private var rowBackground: Color {
+        // A day on more than one site reads as one group, as on the page.
+        if row.splitDay != nil { return Color.accentColor.opacity(0.06) }
         if row.isAbsence { return ExportPreviewWidths.accent.opacity(0.08) }
         return row.isWorkingDay ? Color.clear : Color.hoursSubdued.opacity(0.08)
     }

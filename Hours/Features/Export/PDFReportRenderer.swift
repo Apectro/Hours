@@ -202,14 +202,17 @@ struct PDFTablePainter {
             draw(
                 row.values[index],
                 in: CGRect(x: xs[index] + padding, y: y, width: widths[index] - padding * 2, height: height),
-                font: PDFReportLayout.font(for: column, role: row.role),
+                font: row.splitDay == .subtotal && column != .site
+                    ? PDFReportStyle.cellBoldFont
+                    : PDFReportLayout.font(for: column, role: row.role),
                 color: color(of: row, column: column, index: index),
                 alignment: column.isNumeric ? .right : .left
             )
         }
 
         drawGroupSeparators(from: y, to: y + height)
-        if row.role == .day {
+        // A day split across sites is one group: ruled under its Day row only.
+        if row.role == .day && row.splitDay != .site {
             PDFReportStyle.line(
                 from: CGPoint(x: full.minX, y: full.maxY),
                 to: CGPoint(x: full.maxX, y: full.maxY),
@@ -244,6 +247,7 @@ struct PDFTablePainter {
 
     private func wash(for row: ReportRow) -> UIColor? {
         guard row.role == .day else { return nil }
+        if row.splitDay != nil { return PDFReportStyle.splitDayWash }
         if row.isAbsence { return PDFReportStyle.absenceWash }
         if !row.isWorkingDay { return PDFReportStyle.restWash }
         return nil
@@ -253,6 +257,8 @@ struct PDFTablePainter {
     private func color(of row: ReportRow, column: ReportColumn, index: Int) -> UIColor {
         if row.flagged.contains(index) { return PDFReportStyle.accent }
         if row.role == .count { return PDFReportStyle.secondary }
+        // "Day", the subtotal's label, is quieter than the sites above it.
+        if row.splitDay == .subtotal && column == .site { return PDFReportStyle.secondary }
         // A weekend is there to be counted, not read.
         if row.role == .day && !row.isWorkingDay && !row.isAbsence { return PDFReportStyle.faint }
 

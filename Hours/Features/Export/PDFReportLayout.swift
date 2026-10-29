@@ -162,16 +162,23 @@ struct PDFReportLayout {
         table.totals.isEmpty ? 0 : 10 + summaryHeight
     }
 
-    /// Three columns of label and figure under a small heading.
+    /// Three columns of label and figure under a small heading; two beside
+    /// the "By site" block when the period has more than one site.
     var summaryHeight: CGFloat {
         guard !table.totals.isEmpty else { return 0 }
-        return 14 + CGFloat(summaryLinesPerColumn) * 12
+        let lines = table.bySite.isEmpty ? summaryLinesPerColumn : max(summaryLinesPerColumn, table.bySite.count)
+        return 14 + CGFloat(lines) * 12
     }
 
     static let summaryColumns = 3
 
+    /// How many columns the summary's own figures take.
+    var summaryFigureColumns: Int {
+        table.bySite.isEmpty ? PDFReportLayout.summaryColumns : PDFReportLayout.summaryColumns - 1
+    }
+
     var summaryLinesPerColumn: Int {
-        Int((Double(table.totals.count) / Double(PDFReportLayout.summaryColumns)).rounded(.up))
+        Int((Double(table.totals.count) / Double(summaryFigureColumns)).rounded(.up))
     }
 
     // MARK: - Columns

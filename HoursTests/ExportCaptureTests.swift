@@ -115,6 +115,63 @@ final class ExportCaptureTests: XCTestCase {
         print("pdf bytes               -> \(data.count)")
     }
 
+    /// A 31-day month on two sites with one day split between them (1.2):
+    /// the Site column, the day's rows shaded as one with its Day row, the
+    /// Sites tile and "By site" beside the summary. Every day and the total
+    /// still fit the first page.
+    func testCaptureAMonthWithASplitDay() throws {
+        var export = ExportPreferences()
+        export.ownerName = "Marijo Mikša"
+        export.includeEmptyDays = true
+        let settings = Fixture.settings(export: export)
+        let haupt = UUID()
+        let trg = UUID()
+        let start = Fixture.date(2026, 10, 1)
+        let end = Fixture.date(2026, 10, 31)
+        let range = CalendarDateRange(start: start, end: end)
+        func shift(_ site: UUID, _ from: TimeOfDay, _ to: TimeOfDay, breakMinutes: Int) -> Shift {
+            Shift(
+                id: site, start: from, end: to,
+                breaks: breakMinutes > 0 ? [BreakSpan(id: site, explicitMinutes: breakMinutes)] : [],
+                siteID: site
+            )
+        }
+
+        var records: [Int: DayRecord] = [:]
+        for day in 1...31 {
+            let date = Fixture.date(2026, 10, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            let shifts: [Shift]
+            if day == 29 {
+                shifts = [
+                    shift(haupt, Fixture.time(7), Fixture.time(11, 30), breakMinutes: 0),
+                    shift(trg, Fixture.time(12), Fixture.time(16), breakMinutes: 30)
+                ]
+            } else {
+                shifts = [shift(day < 20 ? haupt : trg, Fixture.time(7), Fixture.time(16), breakMinutes: 30)]
+            }
+            records[date.key] = DayRecord(date: date, shifts: shifts)
+        }
+
+        let days = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: Fixture.longAgo)
+            .days(in: range, records: records, holidays: [])
+        var builder = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
+        builder.siteNames = [haupt: "Hauptstraße 12", trg: "Trg Pravde"]
+        builder.siteAddresses = [haupt: "Hauptstraße 12\n10115 Berlin", trg: "Trg pravde 2\n10000 Zagreb"]
+        let table = builder.makeTable(days: days, range: range, title: "Hours — October 2026", countingThrough: end)
+
+        XCTAssertEqual(table.rows.count, 33, "31 days, the split day's second site and its Day row")
+        let first = try XCTUnwrap(PDFReportLayout(table: table).pages().first)
+        XCTAssertEqual(first.rows, 0..<table.rows.count, "every row on the first page")
+        XCTAssertTrue(first.drawsTotal, "and the total under them")
+
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(2).enumerated() {
+            attach(image, named: "06-export-pdf-two-sites-\(index + 1)")
+        }
+    }
+
     /// A month with the field allowance, kilometres and travel, in German,
     /// with earnings on the sheet: the three columns before the notes, the
     /// allowance-days tile, and the summary's lines with their amounts.

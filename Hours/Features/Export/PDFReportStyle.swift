@@ -63,6 +63,8 @@ enum PDFReportStyle {
     static let restWash = rgb(0xF6F6F8)
     /// A day of paid absence.
     static let absenceWash = rgb(0xFFF7EC)
+    /// A day worked on more than one site: its rows, one shade as one group.
+    static let splitDayWash = rgb(0xF6F8FC)
 
     private static func rgb(_ hex: UInt32) -> UIColor {
         UIColor(
