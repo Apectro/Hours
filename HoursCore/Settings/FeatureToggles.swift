@@ -76,6 +76,8 @@ struct FeatureToggles: Hashable, Codable, Sendable {
             case .earnings: return false
             // Added when the allowance is tracked and a day has one.
             case .allowance, .kilometres, .travel: return false
+            // Added when the period has more than one site.
+            case .site: return false
             default: return true
             }
         }

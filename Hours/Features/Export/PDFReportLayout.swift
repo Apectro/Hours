@@ -337,6 +337,7 @@ struct PDFReportLayout {
         case .allowance: return 0.9
         case .kilometres: return 0.6
         case .travel: return 0.8
+        case .site: return 1.4
         }
     }
 }
