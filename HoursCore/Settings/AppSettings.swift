@@ -86,6 +86,15 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// something is in it; absent from anything older, which reads as none,
     /// and skipped by the decoders of 1.0 and 1.1. See `PayslipComparison`.
     var payslipChecks: [String: PayslipEntry]
+    /// Each site's usual day and extras (1.2), keyed by the site's id as
+    /// text: see `SiteSetup`, and `siteSetup(for:)` to read one. Written
+    /// only once something is in it; absent from anything older, which reads
+    /// as every site with no usual day and every extra on, and skipped by the
+    /// decoders of 1.0 and 1.1.
+    var siteSetups: [String: SiteSetup]
+    /// What a new site starts with (1.2): Settings › New sites start with.
+    /// Written only once changed.
+    var newSites: NewSiteDefaults
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -114,7 +123,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         publicHolidays: PublicHolidayPreferences = PublicHolidayPreferences(),
         leadsCrew: Bool = false,
         allowance: AllowancePreferences = AllowancePreferences(),
-        payslipChecks: [String: PayslipEntry] = [:]
+        payslipChecks: [String: PayslipEntry] = [:],
+        siteSetups: [String: SiteSetup] = [:],
+        newSites: NewSiteDefaults = NewSiteDefaults()
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -142,6 +153,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.leadsCrew = leadsCrew
         self.allowance = allowance
         self.payslipChecks = payslipChecks
+        self.siteSetups = siteSetups
+        self.newSites = newSites
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -212,6 +225,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case leadsCrew
         case allowance
         case payslipChecks
+        case siteSetups, newSites
     }
 
     init(from decoder: Decoder) throws {
@@ -251,7 +265,14 @@ struct AppSettings: Hashable, Codable, Sendable {
             // Month by month, so one unreadable month does not lose the rest.
             payslipChecks: container
                 .lenient(.payslipChecks, [String: LenientPayslipEntry]())
-                .compactMapValues(\.entry)
+                .compactMapValues(\.entry),
+            // Site by site, for the same reason; a key that is not a site's
+            // id names nothing and is left out.
+            siteSetups: container
+                .lenient(.siteSetups, [String: LenientSiteSetup]())
+                .filter { UUID(uuidString: $0.key) != nil }
+                .compactMapValues(\.setup),
+            newSites: container.lenient(.newSites, defaults.newSites)
         )
     }
 
@@ -288,5 +309,16 @@ struct AppSettings: Hashable, Codable, Sendable {
         try container.encode(leadsCrew, forKey: .leadsCrew)
         try container.encode(allowance, forKey: .allowance)
         if !payslipChecks.isEmpty { try container.encode(payslipChecks, forKey: .payslipChecks) }
+        if !siteSetups.isEmpty { try container.encode(siteSetups, forKey: .siteSetups) }
+        if newSites != NewSiteDefaults() { try container.encode(newSites, forKey: .newSites) }
+    }
+}
+
+/// One site's setup in a stored list, nil where it cannot be read.
+private struct LenientSiteSetup: Decodable {
+    let setup: SiteSetup?
+
+    init(from decoder: Decoder) throws {
+        setup = try? SiteSetup(from: decoder)
     }
 }

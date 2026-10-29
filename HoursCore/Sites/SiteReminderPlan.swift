@@ -15,6 +15,11 @@ enum SiteReminderPlan {
     /// phone already asked "write today's hours?" as you left it
     /// (`askedWhenLeavingToday`) does not make today missing: one question a
     /// day about it is enough.
+    ///
+    /// A site with work days set (`workDays`, from `SiteSetup`, 1.2) is
+    /// expected on exactly those weekdays, a new site with no days yet
+    /// included; its history no longer decides. A site with the evening
+    /// reminder switched off (`silenced`) is never missing.
     static func dates(
         siteDays: [SiteDay],
         today: CalendarDate,
@@ -22,7 +27,9 @@ enum SiteReminderPlan {
         lookBackDays: Int = 14,
         daysAhead: Int = 7,
         holidays: Set<Int> = [],
-        askedWhenLeavingToday: Set<UUID> = []
+        askedWhenLeavingToday: Set<UUID> = [],
+        workDays: [UUID: Set<Int>] = [:],
+        silenced: Set<UUID> = []
     ) -> [CalendarDate] {
         guard lookBackDays > 0, daysAhead > 0 else { return [] }
         let windowStart = today.adding(days: -lookBackDays, in: calendar)
@@ -34,6 +41,13 @@ enum SiteReminderPlan {
             if siteDay.date >= windowStart && siteDay.date < today {
                 weekdaysBySite[siteDay.siteID, default: []].insert(siteDay.date.weekday(in: calendar))
             }
+        }
+
+        for (siteID, weekdays) in workDays where !weekdays.isEmpty {
+            weekdaysBySite[siteID] = weekdays
+        }
+        for siteID in silenced {
+            weekdaysBySite[siteID] = nil
         }
 
         var result: [CalendarDate] = []
