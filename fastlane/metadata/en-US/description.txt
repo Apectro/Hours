@@ -40,7 +40,7 @@ Counted from the first day you recorded, so installing mid-year doesn't start yo
 
 WIDGETS AND LIVE ACTIVITY
 
-Today, This month, This week and your current site on the Home Screen, with "Same as yesterday" right on the site widget. While the clock runs, a Live Activity shows it on the Lock Screen and in the Dynamic Island, with a stop button. Siri and Shortcuts can start and stop it too.
+Today with a Clock in button, the week, the month, your balance, what you earned and today's crew on your site on the Home Screen; the running clock, the week and your leave days on the Lock Screen. While the clock runs, a Live Activity shows it on the Lock Screen and in the Dynamic Island, with a stop button. Siri and Shortcuts can start and stop it too.
 
 BUILT NOT TO LOSE YOUR DATA
 

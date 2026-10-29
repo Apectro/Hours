@@ -225,23 +225,33 @@ UIKit, SwiftUI or SwiftData to accidentally import.
 
 ## Widgets
 
-Four of them, drawn in the app icon's navy and amber:
+Eight of them since 1.2, drawn in the quiet native style: the system widget
+background, system text colours and one accent, the app icon's blue
+(`HoursWidget/Assets.xcassets`). No gradients, no chips.
 
-- **Today** (small and medium): worked so far against what was expected, in an
-  amber ring, with the running clock, its site or job, and when the day is due
-  to end — and, with a rate set, what today has earned.
-- **This month** (small and medium): what the month has earned, or the balance,
-  ahead of or behind plan, and a square for each working day of the month —
-  done, short, today, to come.
-- **This week** (medium): the week's total against its target, and a bar for
-  each day starting on your own first weekday, with the week's earnings or the
-  month's balance beneath.
-- **Site** (medium): the site you worked on most recently, whether today is
-  written yet, who was there on the last day, and two buttons — **Same as
-  yesterday** and **Open site**.
+- **Today** (small, medium, Lock Screen): worked today against what is
+  expected, and **Clock in** / **Clock out** as real buttons; before work
+  "usually 07:00", on a day off "Day off" and the week. The medium one adds
+  the week's bars.
+- **Clock** (Lock Screen only): the running clock with live seconds and its
+  site; the circular one stops it with a tap.
+- **This week** (small, medium, large, Lock Screen): the week's bars — leave
+  outlined, today in the primary colour, the normal day dashed — and, large,
+  the week as a time card with each day's from–to.
+- **This month** (small, medium, Lock Screen): the month's hours, balance and
+  money, and a dot for every day: worked, leave, sick, weekend, to come.
+- **Balance** (small, circular): the running balance, the month's, and what it
+  comes to in days off. With overtime switched off it says so.
+- **Leave** (Lock Screen): vacation days left of what the year gives, and the
+  next leave. Without an allowance set it asks for one.
+- **Site** (medium): today's crew on your most recent site, ticked or with the
+  reason they are away; before today is written, **Same as yesterday** and
+  **Open site**.
+- **Earned** (medium): the month so far, split into hours, field allowance and
+  kilometres. Without an hourly rate it asks for one.
 
-Today and This month also work on the Lock Screen, with the clock mark. All
-of them follow the tinted and clear Home Screen styles.
+Every one follows the tinted and clear Home Screen styles; placed widgets keep
+their kinds across the update.
 
 While the clock runs, a **Live Activity** shows it on the Lock Screen and in the
 Dynamic Island, ticking by itself, with a button that stops it.
