@@ -217,7 +217,7 @@ final class ExportLanguageTests: XCTestCase {
             )
             let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
             XCTAssertTrue(
-                package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
+                package.contains("formatCode=\"[h]:mm;-[h]:mm\""),
                 "\(language.rawValue): the workbook mask has drifted from the text"
             )
         }
