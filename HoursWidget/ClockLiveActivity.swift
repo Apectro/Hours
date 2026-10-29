@@ -13,12 +13,12 @@ struct ClockLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ClockActivityAttributes.self) { context in
             ClockBanner(state: context.state)
-                .activityBackgroundTint(WidgetPalette.navy.opacity(0.85))
+                .activityBackgroundTint(Color(red: 0x1c / 255, green: 0x1c / 255, blue: 0x1e / 255).opacity(0.9))
                 .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    ClockBadge(size: 38)
+                    ClockTile(size: 38)
                 }
                 DynamicIslandExpandedRegion(.center) {
                     ClockTitle(state: context.state)
@@ -31,20 +31,20 @@ struct ClockLiveActivity: Widget {
                 }
             } compactLeading: {
                 ClockMark()
-                    .fill(WidgetPalette.amber)
+                    .fill(WidgetTheme.accent)
                     .frame(width: 13, height: 13)
                     .accessibilityHidden(true)
             } compactTrailing: {
                 ClockTimer(startedAt: context.state.startedAt)
                     .frame(maxWidth: 56)
-                    .foregroundStyle(WidgetPalette.amber)
+                    .foregroundStyle(WidgetTheme.accent)
             } minimal: {
                 ClockMark()
-                    .fill(WidgetPalette.amber)
+                    .fill(WidgetTheme.accent)
                     .frame(width: 12, height: 12)
                     .accessibilityLabel("Clocked in")
             }
-            .keylineTint(WidgetPalette.amber)
+            .keylineTint(WidgetTheme.accent)
         }
     }
 }
@@ -56,7 +56,7 @@ struct ClockBanner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ClockBadge(size: 38)
+            ClockTile(size: 38)
             VStack(alignment: .leading, spacing: 2) {
                 ClockTitle(state: state)
                 ClockSince(state: state)
@@ -130,7 +130,7 @@ struct StopClockButton: View {
     var body: some View {
         Button(intent: StopClockIntent()) {
             ZStack {
-                Circle().fill(WidgetPalette.stop)
+                Circle().fill(WidgetTheme.stop)
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
                     .fill(Color.white)
                     .frame(width: 14, height: 14)
@@ -139,5 +139,22 @@ struct StopClockButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Clock out")
+    }
+}
+
+/// The app's mark on a tile of the accent blue, as the icon draws it.
+struct ClockTile: View {
+    var size: CGFloat
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.27, style: .continuous)
+                .fill(WidgetTheme.accent)
+            ClockMark()
+                .fill(Color.white)
+                .frame(width: size * 0.66, height: size * 0.66)
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }

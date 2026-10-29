@@ -1,126 +1,85 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
-/// The widgets' colours: a navy night and amber figures, with the app icon's
-/// blue behind its clock.
+/// The widgets' look (1.2): the system's own widget background, system label
+/// colours, and one accent — the app icon's blue. Quiet on purpose: no
+/// gradients, no chips, no capital-letter labels on the Home Screen, so a
+/// widget sits beside Apple's own and does not shout.
 ///
-/// Deliberately duplicated rather than shared: the app's design system imports
-/// UIKit and carries settings screens' worth of styling an extension has no use
-/// for, and the widgets now have a look of their own besides.
-enum WidgetPalette {
-    static let navy = Color(red: 0x12 / 255, green: 0x1a / 255, blue: 0x45 / 255)
-    static let navyLight = Color(red: 0x1f / 255, green: 0x2d / 255, blue: 0x6b / 255)
-    /// The middle of the app icon's blue field.
-    static let brandBlue = Color(red: 0x35 / 255, green: 0x6f / 255, blue: 0xb4 / 255)
-    static let amber = Color(red: 0xff / 255, green: 0xb0 / 255, blue: 0x2e / 255)
-    static let amberLight = Color(red: 0xff / 255, green: 0xbf / 255, blue: 0x47 / 255)
-    static let amberDeep = Color(red: 0xf0 / 255, green: 0x8a / 255, blue: 0x1e / 255)
-    /// Secondary text on navy.
-    static let mist = Color(red: 0x9f / 255, green: 0xb0 / 255, blue: 0xe8 / 255)
-    static let running = Color(red: 0x34 / 255, green: 0xc7 / 255, blue: 0x59 / 255)
-    static let positive = Color(red: 0x4c / 255, green: 0xd9 / 255, blue: 0x64 / 255)
-    /// The site card's paper.
-    static let paper = Color(red: 0xf6 / 255, green: 0xf3 / 255, blue: 0xee / 255)
-    static let paperButton = Color(red: 0xe9 / 255, green: 0xe4 / 255, blue: 0xdc / 255)
-    static let paperText = Color(red: 0x6b / 255, green: 0x6b / 255, blue: 0x72 / 255)
-    static let pendingBackground = Color(red: 0xff / 255, green: 0xf0 / 255, blue: 0xd6 / 255)
-    static let pendingText = Color(red: 0xc5 / 255, green: 0x5a / 255, blue: 0x00 / 255)
-    static let writtenText = Color(red: 0x1f / 255, green: 0x7a / 255, blue: 0x3a / 255)
-    static let stop = Color(red: 0xff / 255, green: 0x45 / 255, blue: 0x3a / 255)
-
-    /// One colour per face on the site card, in turn.
-    static let faces: [Color] = [
-        Color(red: 0x2c / 255, green: 0x4a / 255, blue: 0xa8 / 255),
-        Color(red: 0xe0 / 255, green: 0x7b / 255, blue: 0x12 / 255),
-        Color(red: 0x4f / 255, green: 0x7d / 255, blue: 0x5a / 255),
-        navyLight,
-    ]
-
-    /// Over your hours is green; under them is amber rather than red, because
-    /// it is a state to notice, not an error.
-    static func balance(_ minutes: Int) -> Color {
-        if minutes > 0 { return positive }
-        if minutes < 0 { return amber }
-        return mist
-    }
+/// The colours live in the extension's asset catalogue, each with its light
+/// and dark value. They are named through `Color("…")` rather than the
+/// generated symbols, so nothing here depends on that build setting.
+enum WidgetTheme {
+    /// Brand blue: #4C8FDB on dark, #356FB4 on white.
+    static let accent = Color("WidgetBlue")
+    /// The system widget background: #1C1C1E dark, white light.
+    static let background = Color("WidgetBackground")
+    /// Empty bars, rings and discs: #3A3A3C / #E5E5EA.
+    static let track = Color("WidgetTrack")
+    /// The capsule buttons' fill: #2C2C2E / #E9E9EB.
+    static let fill = Color("WidgetFill")
+    /// Hairlines between list rows.
+    static let rule = Color("WidgetRule")
+    /// The Stop button: system red.
+    static let stop = Color.red
 }
 
 extension Font {
-    static func widgetFigure(_ style: Font.TextStyle, weight: Font.Weight = .semibold) -> Font {
-        .system(style, design: .rounded, weight: weight).monospacedDigit()
-    }
-
-    /// A figure at a size the design fixes, for the Home Screen where the
-    /// widget's own size is fixed too. Lock Screen text uses text styles
-    /// instead, so it follows Dynamic Type.
-    static func widgetFigure(size: CGFloat, weight: Font.Weight = .bold) -> Font {
+    /// The big figure: SF Rounded, semibold, tabular digits. 38pt on the Home
+    /// Screen, as the design draws it.
+    static func widgetFigure(size: CGFloat = 38, weight: Font.Weight = .semibold) -> Font {
         .system(size: size, weight: weight, design: .rounded).monospacedDigit()
     }
-}
 
-/// The three cards the widgets are drawn on.
-enum WidgetCard {
-    case navy
-    case amber
-    case paper
-
-    var background: LinearGradient {
-        switch self {
-        case .navy:
-            return LinearGradient(
-                colors: [WidgetPalette.navyLight, WidgetPalette.navy],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        case .amber:
-            return LinearGradient(
-                colors: [WidgetPalette.amberLight, WidgetPalette.amberDeep],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        case .paper:
-            return LinearGradient(colors: [WidgetPalette.paper], startPoint: .top, endPoint: .bottom)
-        }
+    /// Header titles: 13pt semibold.
+    static let widgetHeader = Font.system(size: 13, weight: .semibold)
+    /// The lines under a figure: 12.5pt.
+    static let widgetLine = Font.system(size: 12.5).monospacedDigit()
+    /// Lock Screen label, above the figure.
+    static let lockLabel = Font.system(size: 11, weight: .semibold)
+    /// Lock Screen figure.
+    static func lockFigure(size: CGFloat = 27) -> Font {
+        .system(size: size, weight: .semibold, design: .rounded).monospacedDigit()
     }
-
-    /// The card's colours are the same in dark mode and light, so the text on
-    /// it follows the card rather than the phone: `.secondary` on navy has to
-    /// be light whatever the system appearance is.
-    var colorScheme: ColorScheme {
-        self == .navy ? .dark : .light
-    }
+    /// Lock Screen line under the figure.
+    static let lockLine = Font.system(size: 12.5).monospacedDigit()
 }
 
 extension View {
-    /// Home Screen widgets get their card; Lock Screen accessories are drawn
-    /// onto the wallpaper and must not have one. Both still declare a
-    /// container background, which iOS 17 made mandatory.
-    ///
-    /// In the tinted and clear Home Screen styles the system removes the
-    /// background itself, so the content has to read without it; see
-    /// `isFullColor` at each place that fills a shape.
+    /// A Home Screen widget on the system's widget background; a Lock Screen
+    /// accessory on the wallpaper. Both declare a container background, as
+    /// iOS 17 made mandatory; in the tinted and clear styles the system takes
+    /// the background away itself.
     @ViewBuilder
-    func widgetCard(_ card: WidgetCard, onHomeScreen: Bool) -> some View {
+    func widgetSurface(onHomeScreen: Bool) -> some View {
         if onHomeScreen {
-            environment(\.colorScheme, card.colorScheme)
-                .containerBackground(card.background, for: .widget)
+            containerBackground(WidgetTheme.background, for: .widget)
         } else {
             containerBackground(.clear, for: .widget)
         }
     }
 }
 
+extension WidgetFamily {
+    var isHomeScreen: Bool {
+        switch self {
+        case .systemSmall, .systemMedium, .systemLarge, .systemExtraLarge: return true
+        default: return false
+        }
+    }
+}
+
 extension WidgetRenderingMode {
     /// False in the tinted and clear Home Screen styles and on the Lock
-    /// Screen, where every colour becomes one tint and a filled shape behind
-    /// text turns both into a single blob.
+    /// Screen, where every colour becomes one tint.
     var isFullColor: Bool { self == .fullColor }
 }
 
+// MARK: - Marks
+
 /// The app icon's mark in one colour: the clock's rim and the part of the
 /// day already worked, from twelve to five, which is how the icon shades it.
-/// One fill, so it survives the tinted and Lock Screen styles; the wedge's two
-/// edges are the clock's hands.
 struct ClockMark: Shape {
     func path(in rect: CGRect) -> Path {
         let side = min(rect.width, rect.height)
@@ -140,85 +99,141 @@ struct ClockMark: Shape {
     }
 }
 
-/// The clock on a blue tile, as the app icon draws it.
-struct ClockBadge: View {
-    var size: CGFloat
-    @Environment(\.widgetRenderingMode) private var renderingMode
-
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.27, style: .continuous)
-                .fill(WidgetPalette.brandBlue.opacity(renderingMode.isFullColor ? 1 : 0.3))
-            ClockMark()
-                .fill(renderingMode.isFullColor ? Color.white : Color.primary)
-                .frame(width: size * 0.66, height: size * 0.66)
-        }
-        .frame(width: size, height: size)
-        .widgetAccentable()
-        .accessibilityHidden(true)
+/// The clock's rim alone: the mark on a day off, with nothing worked.
+struct ClockRim: Shape {
+    func path(in rect: CGRect) -> Path {
+        let side = min(rect.width, rect.height)
+        let rim = side * 0.11
+        let outer = side / 2 - rim / 2
+        return Path(ellipseIn: CGRect(
+            x: rect.midX - outer, y: rect.midY - outer, width: outer * 2, height: outer * 2
+        )).strokedPath(StrokeStyle(lineWidth: rim))
     }
 }
 
-/// A ring showing progress towards the expected hours.
-///
-/// Capped at a full circle: a fourteen-hour day should read as "well over",
-/// not wrap around and look like two hours.
-struct ProgressRing: View {
+/// A wedge from twelve o'clock, as much of the circle as `fraction` says:
+/// the day filled like the app icon, on the circular Lock Screen widget.
+struct DayWedge: Shape {
     var fraction: Double
-    var tint: Color
-    var lineWidth: CGFloat = 7
+
+    func path(in rect: CGRect) -> Path {
+        let centre = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        let share = min(max(fraction, 0), 1)
+        var path = Path()
+        guard share > 0 else { return path }
+        if share >= 1 { return Path(ellipseIn: rect.insetBy(dx: rect.width / 2 - radius, dy: rect.height / 2 - radius)) }
+        path.move(to: centre)
+        path.addArc(
+            center: centre, radius: radius,
+            startAngle: .degrees(-90), endAngle: .degrees(-90 + 360 * share), clockwise: false
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// The small symbol and title every Home Screen widget starts with.
+struct WidgetHeader<Symbol: View>: View {
+    let title: String
+    @ViewBuilder let symbol: () -> Symbol
 
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(tint.opacity(0.2), lineWidth: lineWidth)
-            Circle()
-                .trim(from: 0, to: min(max(fraction, 0), 1))
-                .stroke(tint, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .rotationEffect(.degrees(-90))
+        HStack(spacing: 5) {
+            symbol()
+                .foregroundStyle(WidgetTheme.accent)
+                .frame(width: 13, height: 13)
                 .widgetAccentable()
+                .accessibilityHidden(true)
+            Text(verbatim: title)
+                .font(.widgetHeader)
+                .lineLimit(1)
+        }
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
+extension WidgetHeader where Symbol == AnyView {
+    /// A header with an SF Symbol.
+    init(title: String, systemImage: String) {
+        self.title = title
+        self.symbol = {
+            AnyView(Image(systemName: systemImage).resizable().scaledToFit().font(.system(size: 13, weight: .semibold)))
         }
     }
 }
 
-/// A small rounded label: the balance on the week widget, the day's state on
-/// the site widget.
-struct WidgetChip: View {
-    var text: String
-    var foreground: Color
-    var background: Color
-    @Environment(\.widgetRenderingMode) private var renderingMode
+/// The big number.
+struct BigFigure: View {
+    let text: String
 
     var body: some View {
-        Text(text)
-            .font(.system(size: 11, weight: .bold, design: .rounded))
+        Text(verbatim: text)
+            .font(.widgetFigure())
             .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .foregroundStyle(foreground)
-            .background(
-                renderingMode.isFullColor ? background : Color.primary.opacity(0.15),
-                in: Capsule()
-            )
+            .minimumScaleFactor(0.45)
+            .widgetAccentable()
     }
 }
 
-/// The small upper-case heading each card starts with.
-///
-/// Takes a `Text` rather than a key, because one heading is a month name the
-/// phone has already put into its own language and must not be looked up.
-struct WidgetHeading: View {
-    var text: Text
-    var color: Color
+/// A line in the secondary label colour.
+struct SecondaryLine: View {
+    let text: String
 
     var body: some View {
-        text
-            .font(.system(size: 12, weight: .bold, design: .rounded))
-            .tracking(0.7)
-            .foregroundStyle(color)
+        Text(verbatim: text)
+            .font(.widgetLine)
+            .foregroundStyle(.secondary)
             .lineLimit(1)
-            .widgetAccentable()
+            .minimumScaleFactor(0.75)
+    }
+}
+
+/// The capsule under the Today widget: Clock out in red, Clock in in the
+/// accent. The app's own words rather than a bare "Start", whose
+/// translations already mean a start time.
+/// A real button, run by the clock's own App Intents in the app's process.
+struct ClockButton: View {
+    let isRunning: Bool
+
+    var body: some View {
+        Group {
+            if isRunning {
+                Button(intent: StopClockIntent()) {
+                    label(String(localized: "Clock out"), symbol: "stop.fill", tint: WidgetTheme.stop)
+                }
+                .accessibilityIdentifier("widget-stop")
+            } else {
+                Button(intent: ToggleClockIntent(value: true)) {
+                    label(String(localized: "Clock in"), symbol: "play.fill", tint: WidgetTheme.accent)
+                }
+                .accessibilityIdentifier("widget-start")
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func label(_ title: String, symbol: String, tint: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: symbol)
+                .font(.system(size: 9, weight: .bold))
+            Text(verbatim: title)
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(tint)
+        .frame(maxWidth: .infinity)
+        .frame(height: 30)
+        .background(WidgetTheme.fill, in: Capsule())
+        .contentShape(Capsule())
+        .widgetAccentable()
+    }
+}
+
+extension ToggleClockIntent {
+    /// The intent set to the state it should end in: `true` clocks in.
+    init(value: Bool) {
+        self.init()
+        self.value = value
     }
 }
 
@@ -226,8 +241,7 @@ struct WidgetHeading: View {
 ///
 /// Different nothings need different words: one is waiting for the app to be
 /// opened, one cannot ever work until a capability is turned on, and one is
-/// simply not part of what was bought. Telling someone to "open the app" when
-/// opening it will not help is worse than saying nothing.
+/// simply not part of what was bought.
 struct EmptyStateView: View {
     var state: HoursEntry.State
     var compact: Bool = false
@@ -267,7 +281,10 @@ struct EmptyStateView: View {
                 Image(systemName: symbol)
                     .font(.title3)
             } else {
-                ClockBadge(size: 30)
+                ClockMark()
+                    .fill(WidgetTheme.accent)
+                    .frame(width: 26, height: 26)
+                    .widgetAccentable()
             }
             Text(message)
                 .font(.caption2)
@@ -276,6 +293,23 @@ struct EmptyStateView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 4)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A quiet sentence in place of figures: "Set your hourly rate", "Overtime
+/// is switched off". The widget is placed and working; there is simply
+/// nothing of this kind to show yet.
+struct QuietNote: View {
+    let text: String
+
+    var body: some View {
+        Text(verbatim: text)
+            .font(.widgetLine)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.leading)
+            .lineLimit(3)
+            .minimumScaleFactor(0.8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
@@ -289,4 +323,64 @@ extension WidgetSnapshot {
     /// What the running clock is for: its site when that is certain, its job
     /// when there is more than one, otherwise nothing.
     var clockPlace: String? { clockSiteName ?? clockJobName }
+}
+
+/// Text the widgets share, in one place.
+enum WidgetText {
+    /// "16:30" or "4:30 PM", as the phone tells the time.
+    static func time(_ time: TimeOfDay, on date: Date, calendar: Calendar = .current) -> String {
+        CalendarFormatting(locale: .current, calendar: calendar).time(time, on: CalendarDate(date, calendar: calendar))
+    }
+
+    static func clockTime(_ date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
+    }
+
+    /// "106 h": a month's hours, whole.
+    static func wholeHours(_ minutes: Int) -> String {
+        String(localized: "\(minutes / 60) h", comment: "Widget, a number of whole hours, e.g. 106 h")
+    }
+
+    /// "October", in the phone's language.
+    static func monthName(_ date: Date) -> String {
+        date.formatted(.dateTime.month(.wide))
+    }
+
+    /// "OCT".
+    static func monthAbbreviation(_ date: Date) -> String {
+        date.formatted(.dateTime.month(.abbreviated)).uppercased()
+    }
+
+    /// "Week 43".
+    static func week(_ number: Int?) -> String {
+        guard let number else { return String(localized: "Week", comment: "Widget header, the week widget") }
+        return String(localized: "Week \(number)", comment: "Widget header, the week's number in the year")
+    }
+
+    /// "≈ 1½ days off".
+    static func daysOff(_ days: HalfDays) -> String {
+        if days == HalfDays(halves: 2) {
+            return String(localized: "≈ 1 day off", comment: "Widget, the balance read as one day off")
+        }
+        if days == HalfDays(halves: 1) {
+            return String(localized: "≈ ½ day off", comment: "Widget, the balance read as half a day off")
+        }
+        return String(localized: "≈ \(days.withHalfSign) days off", comment: "Widget, the balance read as days off, e.g. 1½")
+    }
+
+    /// "22–24 Dec", or "30 Dec – 2 Jan" across a month.
+    static func range(_ start: CalendarDate, _ end: CalendarDate, calendar: Calendar = .current) -> String {
+        let from = start.date(in: calendar)
+        let to = end.date(in: calendar)
+        if start == end { return from.formatted(.dateTime.day().month(.abbreviated)) }
+        if start.month == end.month, start.year == end.year {
+            return from.formatted(.dateTime.day()) + "–" + to.formatted(.dateTime.day().month(.abbreviated))
+        }
+        return from.formatted(.dateTime.day().month(.abbreviated)) + " – " + to.formatted(.dateTime.day().month(.abbreviated))
+    }
+
+    /// The letter for a weekday, as the phone writes it.
+    static func weekdayLetter(_ date: CalendarDate, calendar: Calendar = .current) -> String {
+        CalendarFormatting(locale: .current, calendar: calendar).veryShortWeekdaySymbol(for: date.weekday(in: calendar))
+    }
 }

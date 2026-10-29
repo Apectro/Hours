@@ -1,10 +1,11 @@
 import SwiftUI
 import WidgetKit
 
-/// Today on the site you are working on: written or not, who was there last
-/// time, and a button to write today the same way.
+/// Today on the site you are working on: who is there, and why the others
+/// are not. Before today is written, the last day and a button to write
+/// today the same way.
 ///
-/// Both buttons are links that open the app (see `AppLink`). The site's days
+/// The buttons are links that open the app (see `AppLink`). The site's days
 /// live in the app's own store, which a widget cannot safely write, so the
 /// widget asks and the app does it, under the same month lock and the same
 /// rules as the button on the site screen.
@@ -12,10 +13,10 @@ struct SiteWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "HoursSite", provider: HoursProvider()) { entry in
             SiteWidgetView(entry: entry)
-                .widgetCard(.paper, onHomeScreen: true)
+                .widgetSurface(onHomeScreen: true)
         }
         .configurationDisplayName("Site")
-        .description("Today on your site, and who was there last time.")
+        .description("Today's crew on your site: who is there, and why the others are not.")
         .supportedFamilies([.systemMedium])
     }
 }
@@ -25,20 +26,22 @@ struct SiteWidgetView: View {
 
     var body: some View {
         if !entry.hasData {
-            HStack {
+            VStack(alignment: .leading, spacing: 0) {
+                WidgetHeader(title: String(localized: "Site"), systemImage: "person.2.fill")
                 Spacer(minLength: 0)
-                EmptyStateView(state: entry.state, compact: false)
+                EmptyStateView(state: entry.state).frame(maxWidth: .infinity)
                 Spacer(minLength: 0)
             }
         } else if let site = entry.snapshot.site {
             SiteCard(entry: entry, site: site)
+                .widgetURL(AppLink.site(site.id).url)
         } else {
             NoSiteView()
         }
     }
 }
 
-/// Board 11, bottom.
+/// The site's name, "4 of 5 · since 07:00", and the crew.
 struct SiteCard: View {
     let entry: HoursEntry
     let site: WidgetSite
@@ -49,32 +52,48 @@ struct SiteCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
-                ClockBadge(size: 26)
-                Text(site.name)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(WidgetPalette.navy)
-                    .lineLimit(1)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                WidgetHeader(title: site.name, systemImage: "person.2.fill")
                 Spacer(minLength: 4)
-                WidgetChip(
-                    text: isWritten ? String(localized: "Written") : String(localized: "Not written yet"),
-                    foreground: isWritten ? WidgetPalette.writtenText : WidgetPalette.pendingText,
-                    background: isWritten ? WidgetPalette.running.opacity(0.16) : WidgetPalette.pendingBackground
-                )
+                Text(verbatim: status)
+                    .font(.system(size: 12).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
             }
-            Spacer(minLength: 6)
-            CrewLine(site: site, summary: lastDaySummary)
-            Spacer(minLength: 6)
-            buttons
+            if isWritten {
+                CrewList(rows: site.crew)
+                    .padding(.top, 9)
+                Spacer(minLength: 0)
+            } else {
+                SecondaryLine(text: lastDaySummary).padding(.top, 11)
+                Spacer(minLength: 6)
+                buttons
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// "4 of 5 · since 07:00" once today is written, "Not written yet" before.
+    private var status: String {
+        guard isWritten else { return String(localized: "Not written yet") }
+        var parts = [String(
+            localized: "\(site.presentCount) of \(site.crew.count)",
+            comment: "Site widget, people present of everyone on the crew list, e.g. 4 of 5"
+        )]
+        if let start = site.lastStart {
+            parts.append(String(
+                localized: "since \(WidgetText.time(start, on: entry.date))",
+                comment: "Widget, the time the running clock was started"
+            ))
+        }
+        return parts.joined(separator: " · ")
     }
 
     @ViewBuilder
     private var buttons: some View {
         HStack(spacing: 8) {
-            // Hidden once today is written: there is nothing left to copy
-            // into, and the app would only open the site anyway.
-            if !isWritten, let lastDay = site.lastDay {
+            if let lastDay = site.lastDay {
                 Link(destination: AppLink.siteSameAsLastDay(site.id).url) {
                     SiteButton(title: sameAsTitle(lastDay), isPrimary: true)
                 }
@@ -119,102 +138,85 @@ struct SiteCard: View {
     }
 }
 
-/// Up to four faces, overlapping, then the line about the day.
-struct CrewLine: View {
-    let site: WidgetSite
-    let summary: String
+/// Up to four lines: a name and ✓, or the reason they are away. More than
+/// four, and the last line says how many more.
+struct CrewList: View {
+    let rows: [WidgetCrewRow]
 
     var body: some View {
-        HStack(spacing: 6) {
-            HStack(spacing: -12) {
-                if site.includesYou {
-                    Face(content: Image(systemName: "person.fill"), color: WidgetPalette.navy)
-                }
-                ForEach(Array(site.initials.enumerated()), id: \.offset) { index, initials in
-                    Face(
-                        content: Text(verbatim: initials),
-                        color: WidgetPalette.faces[index % WidgetPalette.faces.count]
-                    )
+        let fitting = WidgetCrewRow.fitting(rows, lines: 4)
+        VStack(spacing: 0) {
+            ForEach(Array(fitting.rows.enumerated()), id: \.offset) { _, row in
+                line {
+                    Text(verbatim: row.name).lineLimit(1)
+                    Spacer(minLength: 8)
+                    if row.isPresent {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(WidgetTheme.accent)
+                            .widgetAccentable()
+                            .accessibilityLabel(Text("Present", comment: "VoiceOver, someone ticked present on the site"))
+                    } else {
+                        Text(verbatim: row.reason ?? "–")
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             }
-            .accessibilityHidden(true)
-            if site.morePeople > 0 {
-                Text(verbatim: "+\(site.morePeople)")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(WidgetPalette.navy)
+            if fitting.more > 0 {
+                line {
+                    Text(verbatim: String(localized: "+\(fitting.more) more", comment: "Site widget, people not listed, e.g. +2 more"))
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                }
             }
-            Text(summary)
-                .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(WidgetPalette.paperText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
         }
     }
-}
 
-/// One round face on the site card: you as a figure, everyone else as
-/// their initials.
-struct Face<Content: View>: View {
-    let content: Content
-    let color: Color
-    @Environment(\.widgetRenderingMode) private var renderingMode
-
-    var body: some View {
-        content
-            .font(.system(size: 11, weight: .bold, design: .rounded))
-            .foregroundStyle(renderingMode.isFullColor ? Color.white : Color.primary)
-            .frame(width: 30, height: 30)
-            .background(Circle().fill(renderingMode.isFullColor ? color : Color.primary.opacity(0.2)))
-            .overlay(Circle().stroke(WidgetPalette.paper, lineWidth: renderingMode.isFullColor ? 2 : 0))
+    private func line<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack(spacing: 0) {
+            Rectangle().fill(WidgetTheme.rule).frame(height: 0.75)
+            HStack(spacing: 0) { content() }
+                .font(.system(size: 12).monospacedDigit())
+                .frame(height: 24)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
+/// A capsule like the Today widget's, for the site's links.
 struct SiteButton: View {
     let title: String
     let isPrimary: Bool
-    @Environment(\.widgetRenderingMode) private var renderingMode
 
     var body: some View {
-        Text(title)
-            .font(.system(size: 14, weight: .semibold, design: .rounded))
+        Text(verbatim: title)
+            .font(.system(size: 12, weight: .semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.7)
-            .foregroundStyle(isPrimary && renderingMode.isFullColor ? Color.white : WidgetPalette.navy)
+            .foregroundStyle(isPrimary ? WidgetTheme.accent : Color.primary)
             .frame(maxWidth: .infinity)
-            .frame(height: 36)
-            .background(background, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .frame(height: 30)
+            .background(WidgetTheme.fill, in: Capsule())
             .widgetAccentable(isPrimary)
-    }
-
-    private var background: Color {
-        guard renderingMode.isFullColor else { return Color.primary.opacity(isPrimary ? 0.25 : 0.12) }
-        return isPrimary ? WidgetPalette.navy : WidgetPalette.paperButton
     }
 }
 
-/// No active site: say so kindly, and open the Sites tab where one is added.
-/// The whole widget is the link; "Add a site" says where the tap leads, in
-/// the same pill as the site card's buttons.
+/// No active site: say so quietly, and open the Sites tab where one is added.
 struct NoSiteView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 14) {
-                ClockBadge(size: 44)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("No sites yet")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundStyle(WidgetPalette.navy)
-                    Text("Add the site you work on, and today's crew is one tap away here.")
-                        .font(.system(size: 12, design: .rounded))
-                        .foregroundStyle(WidgetPalette.paperText)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.85)
-                }
-                Spacer(minLength: 0)
-            }
+            WidgetHeader(title: String(localized: "No sites yet"), systemImage: "person.2.fill")
+            Text(verbatim: String(localized: "Add the site you work on, and today's crew is one tap away here."))
+                .font(.widgetLine)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .padding(.top, 8)
             Spacer(minLength: 6)
             SiteButton(title: String(localized: "Add a site"), isPrimary: true)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .widgetURL(AppLink.sites.url)
     }
 }

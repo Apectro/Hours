@@ -165,6 +165,8 @@ WIDGET_STRINGS = {
     "^[%lld day](inflect: true) to write": entry("%#@days@ to write", DAYS()),
     # The site widget: how many were on the site its last written day.
     "^[%lld person](inflect: true)": entry("%#@people@", PEOPLE()),
+    # The Earned widget's allowance line (1.2), in the app's own words.
+    "Field allowance · ^[%lld day](inflect: true)": entry("Field allowance · %#@days@", DAYS()),
 }
 
 
