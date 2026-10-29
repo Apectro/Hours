@@ -206,6 +206,16 @@ struct WorkdayCalculator: Sendable {
 
         var total = ShiftResult(workedMinutes: 0, breakMinutes: 0, grossMinutes: 0, crossesMidnight: false)
 
+        // Site hours are the record of that time. A block of your own that
+        // covers the same stretch — a clock left running while ticked in on
+        // the site, or the day typed twice — is the same work, so the part it
+        // shares with a site counts once.
+        let siteTime: [Range<Int>] = record.shifts.compactMap { shift in
+            guard shift.siteID != nil, let start = shift.start, let end = shift.end,
+                  end.minutes > start.minutes else { return nil }
+            return start.minutes..<end.minutes
+        }
+
         for shift in record.shifts {
             guard let start = shift.start, let end = shift.end else {
                 // Only nag when times were expected: a vacation day with no
@@ -241,7 +251,14 @@ struct WorkdayCalculator: Sendable {
             // reported as a break; it just is not taken off. Decided per shift,
             // because a split day can be one employer in the morning and
             // another in the evening.
-            let worked = breaksArePaid(forJob: shift.jobID) ? gross : max(0, gross - breakTotal)
+            var worked = breaksArePaid(forJob: shift.jobID) ? gross : max(0, gross - breakTotal)
+            if shift.siteID == nil, !crossesMidnight, !siteTime.isEmpty {
+                let shared = Self.sharedMinutes(start.minutes..<end.minutes, with: siteTime)
+                if shared > 0 {
+                    worked = max(0, worked - shared)
+                    if !warnings.contains(.ownHoursOverlapSite) { warnings.append(.ownHoursOverlapSite) }
+                }
+            }
             total.workedMinutes += worked
             total.breakMinutes += breakTotal
             total.grossMinutes += gross
@@ -279,6 +296,24 @@ struct WorkdayCalculator: Sendable {
             total.periods.sort { ($0.start?.minutes ?? 0) < ($1.start?.minutes ?? 0) }
         }
 
+        return total
+    }
+
+    /// Minutes of `range` that fall inside any of `others`, overlaps among
+    /// `others` counted once.
+    static func sharedMinutes(_ range: Range<Int>, with others: [Range<Int>]) -> Int {
+        let clipped = others.compactMap { other -> Range<Int>? in
+            let lower = max(range.lowerBound, other.lowerBound)
+            let upper = min(range.upperBound, other.upperBound)
+            return lower < upper ? lower..<upper : nil
+        }.sorted { $0.lowerBound < $1.lowerBound }
+        var total = 0
+        var reached = range.lowerBound
+        for part in clipped {
+            let lower = max(part.lowerBound, reached)
+            if part.upperBound > lower { total += part.upperBound - lower }
+            reached = max(reached, part.upperBound)
+        }
         return total
     }
 

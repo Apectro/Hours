@@ -81,6 +81,8 @@ enum UITerm: String, CaseIterable, Hashable, Sendable {
     case proICloudSyncExplained
     // A warning the day editor shows about site hours
     case siteHoursNotCounted
+    // The day editor, when your own hours and a site's cover the same time
+    case ownHoursOverlapSite
 }
 
 extension ExportLanguage {
@@ -440,6 +442,19 @@ extension ExportLanguage {
                               pt: "As tuas horas de obra deste dia não são contadas no teu calendário.",
                               nl: "Je uren op de bouwplaats van deze dag tellen niet mee in je agenda.",
                               pl: "Twoje godziny na budowie z tego dnia nie wliczają się do Twojego kalendarza.")
+
+        // The day editor, when your own hours and a site's cover the same time
+        case .ownHoursOverlapSite:
+            return pick(en: "Your own hours and your site hours cover the same time, so that time counts once.",
+                              de: "Deine eigenen Stunden und deine Baustellenstunden decken dieselbe Zeit ab, deshalb zählt sie nur einmal.",
+                              hr: "Tvoji vlastiti sati i sati na gradilištu pokrivaju isto vrijeme, pa se ono broji samo jednom.",
+                              sl: "Tvoje lastne ure in ure na gradbišču pokrivajo isti čas, zato se šteje le enkrat.",
+                              it: "Le tue ore e le ore in cantiere coprono lo stesso tempo, quindi conta una volta sola.",
+                              fr: "Vos propres heures et vos heures de chantier couvrent le même temps ; il n’est donc compté qu’une fois.",
+                              es: "Tus horas propias y tus horas de obra cubren el mismo tiempo, así que cuenta una sola vez.",
+                              pt: "As tuas horas próprias e as horas de obra cobrem o mesmo tempo, por isso contam só uma vez.",
+                              nl: "Je eigen uren en je uren op de bouwplaats beslaan dezelfde tijd, dus die telt maar één keer.",
+                              pl: "Twoje własne godziny i godziny na budowie obejmują ten sam czas, więc liczy się on tylko raz.")
         }
     }
 }
