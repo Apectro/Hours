@@ -92,7 +92,7 @@ is checkable:
 | Crew names are typed, not read from Contacts | No Contacts import; a crew member is a `TextField` |
 | Pay stays off site sheets | Site exports are built without earnings; earnings appear on a personal timesheet only with `ExportPreferences.includeEarnings` |
 | Widgets read a local snapshot | `WidgetSnapshotWriter` writes JSON into the `group.app.zeitkonto` App Group container |
-| Location only for an arrival reminder, never leaves the phone (1.2) | `ArrivalLocation` is the only CoreLocation code: one `requestLocation` fix saved as the site's place when its reminder is turned on, and `CLCircularRegion` monitoring of those sites; nothing is sent, no history is kept. The day's location field is still a `TextField` |
+| Location only for an arrival reminder, never leaves the phone (1.2) | `ArrivalLocation` is the only CoreLocation code: one `requestLocation` fix saved as the site's place when its reminder is turned on, and `CLCircularRegion` monitoring of those sites; nothing is sent, no history is kept; a site's address is reverse-geocoded (`CLGeocoder`, Apple Maps) only on the "Fill in from the saved place" tap. The day's location field is still a `TextField` |
 | Notifications are local | `UNCalendarNotificationTrigger`, scheduled on the device |
 | The app learns only entitlement | `SubscriptionStore` reads `Transaction.currentEntitlements` and nothing else |
 

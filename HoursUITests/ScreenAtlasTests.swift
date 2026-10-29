@@ -565,9 +565,26 @@ final class ScreenAtlasTests: XCTestCase {
         if coordinates.waitForExistence(timeout: 5) {
             _ = bringIntoView(app.descendants(matching: .any)["site-arrival-map"].firstMatch, app)
             capture("site-edit-arrival-place", app)
+            siteAddressScreen(app)
         } else {
             miss("site-edit-arrival-place (no place was saved)")
         }
+    }
+
+    /// The site's address (1.2), filled in from the place just saved: the
+    /// fake's answer, so nothing is asked of Apple Maps.
+    private func siteAddressScreen(_ app: XCUIApplication) {
+        let fill = app.buttons.matching(identifier: "site-address-fill").firstMatch
+        guard bringIntoView(fill, app) else {
+            miss("site-edit-address (no Fill in from the saved place)")
+            return
+        }
+        tapAnyway(fill)
+        let address = app.textViews["site-address"].firstMatch.exists
+            ? app.textViews["site-address"].firstMatch
+            : app.textFields["site-address"].firstMatch
+        _ = bringIntoView(address, app)
+        capture("site-edit-address", app)
     }
 
     // MARK: Insights

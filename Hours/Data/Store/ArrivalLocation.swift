@@ -27,6 +27,10 @@ enum LocationAccess: Hashable, Sendable {
 ///   both, which needs Always access. iOS wakes the app when one is crossed;
 ///   the app then decides (`ArrivalReminders`) and may post a notification.
 ///   No background location mode, no continuous updates.
+/// - **Turns a saved place into an address**, only when "Fill in from the
+///   saved place" is tapped in the site's settings: `CLGeocoder` asks Apple
+///   Maps about that one place, and what comes back becomes the site's
+///   address text (`SiteAddress.compose`). Nothing is looked up otherwise.
 ///
 /// **Why region monitoring rather than `CLMonitor`.** Both are on iOS 18.
 /// `CLLocationManager` region monitoring hands an event to the delegate set
@@ -110,6 +114,30 @@ final class ArrivalLocation {
             placeWaiters.append(continuation)
             if placeWaiters.count == 1 { manager.requestLocation() }
         }
+    }
+
+    // MARK: - The address of a saved place
+
+    /// The street and number, postcode and city of a site's saved place, or
+    /// nil when Apple Maps has none (or cannot be reached). Asked only when
+    /// the user taps "Fill in from the saved place": this is the one call
+    /// that sends a place off the phone, to Apple, for that answer.
+    ///
+    /// `CLGeocoder` rather than MapKit's `MKReverseGeocodingRequest`, which
+    /// only arrives with iOS 26; the deployment target is iOS 18.
+    func address(of place: SitePlace) async -> String? {
+        if isFake {
+            return SiteAddress.compose(street: "Trg bana Josipa Jelačića", number: "1", postcode: "10000", city: "Zagreb")
+        }
+        let location = CLLocation(latitude: place.latitude, longitude: place.longitude)
+        guard let placemark = try? await CLGeocoder().reverseGeocodeLocation(location).first else { return nil }
+        let text = SiteAddress.compose(
+            street: placemark.thoroughfare,
+            number: placemark.subThoroughfare,
+            postcode: placemark.postalCode,
+            city: placemark.locality
+        )
+        return text.isEmpty ? nil : text
     }
 
     // MARK: - Always

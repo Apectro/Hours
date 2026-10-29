@@ -20,6 +20,10 @@ struct SiteEditorSheet: View {
     @State private var chosenCrew: Set<String> = []
     /// The other active sites, for the arrival reminder's limit of 20.
     @State private var otherSites: [Site] = []
+    /// "Fill in from the saved place" is asking Apple Maps.
+    @State private var isFindingAddress = false
+    /// It asked, and Apple Maps had no address for the place.
+    @State private var foundNoAddress = false
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -47,9 +51,37 @@ struct SiteEditorSheet: View {
                         .textInputAutocapitalization(.words)
                         .accessibilityIdentifier("site-name")
                         .disabled(isReadOnly)
+                    // 1.2: printed under the name on the site's sheets.
+                    TextField("Address", text: $draft.address, axis: .vertical)
+                        .lineLimit(1...3)
+                        .textInputAutocapitalization(.words)
+                        .textContentType(.fullStreetAddress)
+                        .accessibilityIdentifier("site-address")
+                        .disabled(isReadOnly)
+                    if let place = draft.place, !isReadOnly {
+                        Button {
+                            Task { await fillAddress(from: place) }
+                        } label: {
+                            HStack(spacing: Metrics.small) {
+                                Text("Fill in from the saved place")
+                                if isFindingAddress {
+                                    Spacer(minLength: Metrics.small)
+                                    ProgressView()
+                                }
+                            }
+                        }
+                        .disabled(isFindingAddress)
+                        .accessibilityIdentifier("site-address-fill")
+                    }
                 } footer: {
                     if isReadOnly {
                         Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                    } else if foundNoAddress {
+                        Text("Apple Maps has no address for the saved place. Type it instead.")
+                    } else if draft.place != nil {
+                        Text("Printed under the site's name on its sheets. “Fill in from the saved place” asks Apple Maps for the address of that one place, only when you tap it.")
+                    } else {
+                        Text("Printed under the site's name on its sheets.")
                     }
                 }
 
@@ -173,9 +205,24 @@ struct SiteEditorSheet: View {
         return jobs
     }
 
+    /// Asks Apple Maps for the saved place's address, only on the tap, and
+    /// puts it in the field to be checked or changed before saving.
+    private func fillAddress(from place: SitePlace) async {
+        isFindingAddress = true
+        foundNoAddress = false
+        let address = await HoursStack.arrivals.address(of: place)
+        isFindingAddress = false
+        if let address {
+            draft.address = address
+        } else {
+            foundNoAddress = true
+        }
+    }
+
     private func save() {
         var site = draft
         site.name = trimmedName
+        site.address = draft.address.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !site.name.isEmpty else { return }
 
         // Bringing a site back from the archive makes it active again, which

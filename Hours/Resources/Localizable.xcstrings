@@ -5469,6 +5469,65 @@
         }
       }
     },
+    "Address": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indirizzo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morada"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslov"
+          }
+        }
+      }
+    },
     "Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.": {
       "extractionState": "manual",
       "localizations": {
@@ -6763,6 +6822,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Videz"
+          }
+        }
+      }
+    },
+    "Apple Maps has no address for the saved place. Type it instead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Karten hat keine Adresse für den gespeicherten Ort. Tippe sie stattdessen ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapas de Apple no tiene una dirección para el lugar guardado. Escríbela tú."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plans n’a pas d’adresse pour l’emplacement enregistré. Saisissez-la vous-même."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Karte nema adresu za spremljeno mjesto. Upiši je ručno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mappe di Apple non ha un indirizzo per il luogo salvato. Scrivilo tu."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Kaarten heeft geen adres voor de opgeslagen plek. Typ het zelf."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapy Apple nie mają adresu dla zapisanego miejsca. Wpisz go sam."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os Mapas da Apple não têm morada para o local guardado. Escreve-a tu."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Zemljevidi nimajo naslova za shranjeni kraj. Vpiši ga sam."
           }
         }
       }
@@ -21401,6 +21519,65 @@
         }
       }
     },
+    "Fill in from the saved place": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom gespeicherten Ort ausfüllen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rellenar desde el lugar guardado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplir depuis l’emplacement enregistré"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ispuni iz spremljenog mjesta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compila dal luogo salvato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invullen vanaf de opgeslagen plek"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uzupełnij z zapisanego miejsca"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preencher a partir do local guardado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izpolni iz shranjenega kraja"
+          }
+        }
+      }
+    },
     "Fill in only what your payslip shows. Hours can be typed as 7.5 or 7:30.": {
       "extractionState": "manual",
       "localizations": {
@@ -27183,61 +27360,61 @@
         }
       }
     },
-    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.": {
+    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. “Fill in from the saved place” asks Apple Maps for that one place's address, only when you tap it. The location field on a day is a text note you type.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst."
+            "value": "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. „Vom gespeicherten Ort ausfüllen“ fragt Apple Karten nach der Adresse dieses einen Orts, nur wenn du darauf tippst. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. El campo de lugar de un día es una nota que escribes tú."
+            "value": "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. «Rellenar desde el lugar guardado» pide a Mapas de Apple la dirección de ese único lugar, solo cuando lo tocas. El campo de lugar de un día es una nota que escribes tú."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. Le champ lieu d’un jour est une note que vous tapez."
+            "value": "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. « Remplir depuis l’emplacement enregistré » demande à Plans l’adresse de ce seul emplacement, uniquement quand vous le touchez. Le champ lieu d’un jour est une note que vous tapez."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. Polje lokacije na danu je tekstualna bilješka koju upisuješ."
+            "value": "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. „Ispuni iz spremljenog mjesta” pita Apple Karte za adresu tog jednog mjesta, samo kad to dodirneš. Polje lokacije na danu je tekstualna bilješka koju upisuješ."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. Il campo luogo di un giorno è una nota che scrivi tu."
+            "value": "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. «Compila dal luogo salvato» chiede a Mappe di Apple l’indirizzo di quel solo luogo, solo quando lo tocchi. Il campo luogo di un giorno è una nota che scrivi tu."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. Het locatieveld op een dag is een notitie die je typt."
+            "value": "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. ‘Invullen vanaf de opgeslagen plek’ vraagt Apple Kaarten om het adres van die ene plek, alleen als je erop tikt. Het locatieveld op een dag is een notitie die je typt."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. Pole miejsca w dniu to notatka, którą wpisujesz."
+            "value": "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. „Uzupełnij z zapisanego miejsca” pyta Mapy Apple o adres tego jednego miejsca, tylko gdy to stukniesz. Pole miejsca w dniu to notatka, którą wpisujesz."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. O campo de local de um dia é uma nota que escreves."
+            "value": "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. «Preencher a partir do local guardado» pede aos Mapas da Apple a morada desse único local, só quando tocas nele. O campo de local de um dia é uma nota que escreves."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš."
+            "value": "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. »Izpolni iz shranjenega kraja« vpraša Apple Zemljevide za naslov tega enega kraja, samo ko se ga dotakneš. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš."
           }
         }
       }
@@ -38232,6 +38409,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Izpiše se na vsakem listu, ki ga izvoziš, in se shrani v Nastavitve › Možnosti izvoza."
+          }
+        }
+      }
+    },
+    "Printed under the site's name on its sheets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht auf den Blättern der Baustelle unter ihrem Namen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se imprime bajo el nombre de la obra en sus hojas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imprimée sous le nom du chantier sur ses feuilles."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ispisuje se ispod naziva gradilišta na njegovim listama."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stampato sotto il nome del cantiere sui suoi fogli."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Staat op de lijsten van de bouwplaats onder de naam."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drukowany pod nazwą budowy na jej arkuszach."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressa por baixo do nome da obra nas suas folhas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izpiše se pod imenom gradbišča na njegovih listih."
+          }
+        }
+      }
+    },
+    "Printed under the site's name on its sheets. “Fill in from the saved place” asks Apple Maps for the address of that one place, only when you tap it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steht auf den Blättern der Baustelle unter ihrem Namen. „Vom gespeicherten Ort ausfüllen“ fragt Apple Karten nach der Adresse dieses einen Orts, nur wenn du darauf tippst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se imprime bajo el nombre de la obra en sus hojas. «Rellenar desde el lugar guardado» pide a Mapas de Apple la dirección de ese único lugar, solo cuando lo tocas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imprimée sous le nom du chantier sur ses feuilles. « Remplir depuis l’emplacement enregistré » demande à Plans l’adresse de ce seul emplacement, uniquement quand vous le touchez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ispisuje se ispod naziva gradilišta na njegovim listama. „Ispuni iz spremljenog mjesta” pita Apple Karte za adresu tog jednog mjesta, samo kad to dodirneš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stampato sotto il nome del cantiere sui suoi fogli. «Compila dal luogo salvato» chiede a Mappe di Apple l’indirizzo di quel solo luogo, solo quando lo tocchi."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Staat op de lijsten van de bouwplaats onder de naam. ‘Invullen vanaf de opgeslagen plek’ vraagt Apple Kaarten om het adres van die ene plek, alleen als je erop tikt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drukowany pod nazwą budowy na jej arkuszach. „Uzupełnij z zapisanego miejsca” pyta Mapy Apple o adres tego jednego miejsca, tylko gdy to stukniesz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressa por baixo do nome da obra nas suas folhas. «Preencher a partir do local guardado» pede aos Mapas da Apple a morada desse único local, só quando tocas nele."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izpiše se pod imenom gradbišča na njegovih listih. »Izpolni iz shranjenega kraja« vpraša Apple Zemljevide za naslov tega enega kraja, samo ko se ga dotakneš."
           }
         }
       }
