@@ -15,15 +15,32 @@ struct CrewSheetTables: Identifiable {
 extension ExportTableMaker {
     /// A sheet for everyone on `site`'s sheet for the month, in its order,
     /// each with their days on every site (`CrewMemberSheetBuilder`).
-    func crewSheets(site: Site, month: YearMonth, includeSignatures: Bool) -> [CrewSheetTables] {
-        let input = crewSheetInput(month: month)
-        let people = CrewMemberSheetBuilder.people(
-            on: site.id,
-            crew: input.crew,
-            results: input.results,
-            range: input.range,
-            ownerName: settings.export.ownerName
-        )
+    ///
+    /// With more sites on the director's sheet (1.2), everyone on any of
+    /// them — you first, then each site's people in the order chosen — and
+    /// each sheet holds only those sites' days.
+    func crewSheets(site: Site, month: YearMonth, includeSignatures: Bool, sites chosen: [Site] = []) -> [CrewSheetTables] {
+        var input = crewSheetInput(month: month)
+        var siteIDs = [site.id]
+        for other in chosen where !siteIDs.contains(other.id) { siteIDs.append(other.id) }
+        if siteIDs.count > 1 {
+            let kept = Set(siteIDs)
+            input.results = input.results.filter { kept.contains($0.day.siteID) }
+        }
+        var seen = Set<String>()
+        var people: [CrewSheetPerson] = []
+        for id in siteIDs {
+            let onSite = CrewMemberSheetBuilder.people(
+                on: id,
+                crew: input.crew,
+                results: input.results,
+                range: input.range,
+                ownerName: settings.export.ownerName
+            )
+            for person in onSite where seen.insert(person.id).inserted {
+                if person.isYou { people.insert(person, at: 0) } else { people.append(person) }
+            }
+        }
         return people.map { crewSheet(for: $0, input: input, includeSignatures: includeSignatures) }
     }
 

@@ -12212,6 +12212,50 @@
       "Je eigen uren",
       "Twoje własne godziny"
     ],
+    "Sites on this sheet": [
+      "Baustellen auf diesem Blatt",
+      "Gradilišta na ovom listu",
+      "Gradbišča na tem listu",
+      "Cantieri in questo foglio",
+      "Chantiers sur cette feuille",
+      "Obras en esta hoja",
+      "Obras nesta folha",
+      "Bouwplaatsen op dit blad",
+      "Budowy na tym arkuszu"
+    ],
+    "Other sites": [
+      "Andere Baustellen",
+      "Druga gradilišta",
+      "Druga gradbišča",
+      "Altri cantieri",
+      "Autres chantiers",
+      "Otras obras",
+      "Outras obras",
+      "Andere bouwplaatsen",
+      "Inne budowy"
+    ],
+    "Each person's hours a day are added up across the sites you pick, on one sheet with a By site total.": [
+      "Die Stunden jeder Person werden pro Tag über die gewählten Baustellen addiert, auf einem Blatt mit einer Summe nach Baustelle.",
+      "Sati svake osobe zbrajaju se po danu na odabranim gradilištima, na jednom listu sa zbrojem po gradilištu.",
+      "Ure vsake osebe se seštejejo po dnevih na izbranih gradbiščih, na enem listu s seštevkom po gradbišču.",
+      "Le ore di ogni persona vengono sommate per giorno sui cantieri scelti, in un unico foglio con il totale per cantiere.",
+      "Les heures de chaque personne sont additionnées par jour sur les chantiers que vous choisissez, sur une seule feuille avec un total par chantier.",
+      "Las horas de cada persona se suman por día en las obras que elijas, en una sola hoja con un total por obra.",
+      "As horas de cada pessoa são somadas por dia nas obras que escolheres, numa só folha com um total por obra.",
+      "De uren van elke persoon worden per dag opgeteld over de gekozen bouwplaatsen, op één blad met een totaal per bouwplaats.",
+      "Godziny każdej osoby są sumowane dziennie na wybranych budowach, na jednym arkuszu z sumą według budowy."
+    ],
+    "A file for each person, with their days on the sites on this sheet. They all go in one share.": [
+      "Eine Datei für jede Person, mit ihren Tagen auf den Baustellen dieses Blatts. Alle werden zusammen geteilt.",
+      "Datoteka za svaku osobu, s danima na gradilištima s ovog lista. Sve se dijele odjednom.",
+      "Datoteka za vsako osebo, z dnevi na gradbiščih s tega lista. Vse se delijo hkrati.",
+      "Un file per ogni persona, con i suoi giorni nei cantieri di questo foglio. Vengono condivisi tutti insieme.",
+      "Un fichier par personne, avec ses jours sur les chantiers de cette feuille. Ils sont tous partagés en une fois.",
+      "Un archivo para cada persona, con sus días en las obras de esta hoja. Se comparten todos a la vez.",
+      "Um ficheiro para cada pessoa, com os seus dias nas obras desta folha. São todos partilhados de uma vez.",
+      "Een bestand per persoon, met de dagen op de bouwplaatsen van dit blad. Ze worden allemaal in één keer gedeeld.",
+      "Plik dla każdej osoby, z dniami na budowach z tego arkusza. Wszystkie są udostępniane naraz."
+    ],
     "All sites": [
       "Alle Baustellen",
       "Sva gradilišta",
