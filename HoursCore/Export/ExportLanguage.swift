@@ -457,7 +457,7 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                         es: "Las firmas de la cuadrilla están en la hoja de cada obra.",
                         pt: "As assinaturas da equipa estão na folha de cada obra.",
                         nl: "De handtekeningen van de ploeg staan op het blad van elke bouwplaats.",
-                        pl: "Podpisy brygady są na arkuszu każdej budowy.")
+                        pl: "Podpisy ekipy są na arkuszu każdej budowy.")
         case .reason:         return pick(en: "Reason", de: "Grund", hr: "Razlog", sl: "Razlog", it: "Motivo",
                                           fr: "Motif", es: "Motivo", pt: "Motivo", nl: "Reden", pl: "Powód")
 

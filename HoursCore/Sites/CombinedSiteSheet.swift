@@ -111,7 +111,7 @@ extension SiteSheetBuilder {
                 }
             for (_, member) in ordered {
                 let folded = CrewCandidates.key(for: member.name)
-                let key = folded.isEmpty ? "member:\(member.id.uuidString)" : "name:\(folded)"
+                let key = folded.isEmpty ? "member:" + member.id.uuidString : "name:" + folded
                 if let index = personByKey[key] {
                     people[index].memberIDs.insert(member.id)
                 } else {
