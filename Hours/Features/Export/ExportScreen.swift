@@ -79,6 +79,14 @@ struct ExportScreen: View {
     @State private var perPerson = false
     @State private var personSheets: [CrewSheetTables] = []
     @State private var fileURLs: [URL] = []
+    /// Other sites on the site's sheet (1.2), in the order chosen: one
+    /// director's sheet with each person's hours a day added up across them.
+    /// For this export only; a new export starts on the one site.
+    @State private var sheetSiteIDs: [UUID] = []
+    @State private var choosesSheetSites = false
+    /// The month's crew hours by site, for the list of sites to take in;
+    /// also which archived sites have days in the month.
+    @State private var monthSiteHours: [UUID: Int] = [:]
 
     /// - Parameters:
     ///   - initialRange: the days your own timesheet starts on.
@@ -152,6 +160,18 @@ struct ExportScreen: View {
                 .sheet(isPresented: $showsFullPage) {
                     ExportFullPageSheet(data: pdfData ?? Data())
                 }
+                .sheet(isPresented: $choosesSheetSites) {
+                    if let site = selectedSite {
+                        ExportSheetSitesPicker(
+                            site: site,
+                            candidates: sheetSiteCandidates,
+                            hours: monthSiteHours,
+                            chosen: $sheetSiteIDs
+                        )
+                    }
+                }
+                // Another site's export starts on that site alone.
+                .onChange(of: target) { _, _ in sheetSiteIDs = [] }
                 .paywall(for: $paywallReason)
         }
     }
@@ -197,7 +217,11 @@ struct ExportScreen: View {
                         .accessibilityIdentifier("export-per-person")
                 } footer: {
                     if perPerson {
-                        Text("A file for each person, with their days on every site. They all go in one share.")
+                        if sheetSites.count > 1 {
+                            Text("A file for each person, with their days on the sites on this sheet. They all go in one share.")
+                        } else {
+                            Text("A file for each person, with their days on every site. They all go in one share.")
+                        }
                     }
                 }
             }
@@ -216,6 +240,12 @@ struct ExportScreen: View {
                 title: formatting.monthTitle(month),
                 caption: siteCaption
             )
+            // Which sites the sheet takes in: this one, and any others
+            // picked in a sheet of their own. Only once there is another
+            // site to take in.
+            if !sheetSiteCandidates.isEmpty {
+                sheetSitesRow
+            }
             if tables?.hasDiary == true && !perPerson {
                 Toggle("Include site diary", isOn: $includesDiary)
                     .accessibilityIdentifier("export-include-diary")
@@ -249,6 +279,32 @@ struct ExportScreen: View {
                 }
             }
         }
+    }
+
+    /// "Sites on this sheet" and the sites it takes in, under it.
+    private var sheetSitesRow: some View {
+        Button {
+            choosesSheetSites = true
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sites on this sheet")
+                        .foregroundStyle(.primary)
+                    Text(verbatim: sheetSites.map(\.name).joined(separator: " · "))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("export-sheet-sites")
     }
 
     /// "All sites" or one of them, only when the range has hours on more
@@ -285,7 +341,7 @@ struct ExportScreen: View {
                 if showsPersonSheets, let first = personSheets.first {
                     personPreview(first)
                 } else if format == .pdf {
-                    ExportPagePreview(image: pageImage) { showsFullPage = pdfData != nil }
+                    ExportPagePreview(image: pageImage, title: tables.file.title) { showsFullPage = pdfData != nil }
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 } else {
@@ -341,7 +397,7 @@ struct ExportScreen: View {
     @ViewBuilder
     private func personPreview(_ sheet: CrewSheetTables) -> some View {
         if format == .pdf {
-            ExportPagePreview(image: pageImage) { showsFullPage = pdfData != nil }
+            ExportPagePreview(image: pageImage, title: sheet.tables.file.title) { showsFullPage = pdfData != nil }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
         } else {
@@ -424,6 +480,20 @@ struct ExportScreen: View {
 
     private var month: YearMonth { siteMonth ?? currentMonth.adding(months: -1) }
 
+    /// The sites a site's sheet takes in: the export's own, then the others
+    /// chosen, while they are still offered.
+    private var sheetSites: [Site] {
+        guard let site = selectedSite else { return [] }
+        let offered = sheetSiteCandidates
+        return [site] + sheetSiteIDs.compactMap { id in offered.first { $0.id == id } }
+    }
+
+    /// The other active sites, and archived ones with days in the month.
+    private var sheetSiteCandidates: [Site] {
+        guard let site = selectedSite else { return [] }
+        return allSites.filter { $0.id != site.id && (!$0.isArchived || monthSiteHours[$0.id] != nil) }
+    }
+
     private var monthBinding: Binding<YearMonth> {
         Binding(get: { month }, set: { siteMonth = $0 })
     }
@@ -498,7 +568,7 @@ struct ExportScreen: View {
     /// The file's name when nobody has typed one: a timesheet's follows its
     /// range, a site's is the site and the month.
     private var suggestedFileName: String {
-        if let site = selectedSite { return exportNaming.siteFileName(site, month: month) }
+        if selectedSite != nil { return exportNaming.siteSheetFileName(sheetSites, month: month) }
         let name = exportNaming.timesheetFileName(rangeKind: rangeKind, range: resolvedRange)
         return filteredSite.map { "\(name) - \($0.name)" } ?? name
     }
@@ -532,6 +602,7 @@ struct ExportScreen: View {
         return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
             + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)-\(perPerson)"
             + "-\(siteFilter?.uuidString ?? "all")"
+            + "-\(sheetSiteIDs.map(\.uuidString).joined(separator: ","))"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -548,8 +619,9 @@ struct ExportScreen: View {
 
         let maker = ExportTableMaker(context: modelContext, settings: settings, calendar: calendar)
         let built: ExportTables
-        if let site = selectedSite {
-            built = maker.site(site, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
+        if selectedSite != nil {
+            monthSiteHours = maker.siteMonthHours(month: month)
+            built = maker.sites(sheetSites, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
         } else {
             built = maker.personal(
                 range: resolvedRange,
@@ -573,8 +645,8 @@ struct ExportScreen: View {
         // seeing the page is free. The same bytes become the file.
         if format == .pdf && built.hasContent {
             var photos: [UUID: Data] = [:]
-            if let site = selectedSite, !built.photoIDs.isEmpty {
-                photos = maker.printPhotos(ids: built.photoIDs, site: site, month: month, cache: printPhotos)
+            if selectedSite != nil, !built.photoIDs.isEmpty {
+                photos = maker.printPhotos(ids: built.photoIDs, sites: sheetSites, month: month, cache: printPhotos)
                 printPhotos.merge(photos) { _, new in new }
             }
             let data = PDFReportRenderer.data(for: built.file, photos: photos)
@@ -618,7 +690,7 @@ struct ExportScreen: View {
     /// A sheet for each person on the site's sheet, the first one previewed,
     /// and a file each once they can be shared.
     private func regeneratePersonSheets(site: Site, maker: ExportTableMaker, siteSheet: ExportTables) {
-        let sheets = maker.crewSheets(site: site, month: month, includeSignatures: includesSignatures)
+        let sheets = maker.crewSheets(site: site, month: month, includeSignatures: includesSignatures, sites: sheetSites)
         personSheets = sheets
         fileURL = nil
         if format == .pdf, let first = sheets.first, first.tables.hasContent {

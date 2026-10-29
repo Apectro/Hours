@@ -112,7 +112,7 @@ enum PDFReportRenderer {
         if plan.drawsTotal, let totalRow = table.totalRow {
             y = painter.drawRow(totalRow, at: y)
         }
-        if plan.closes, !table.totals.isEmpty {
+        if plan.closes, !table.totals.isEmpty || !table.bySite.isEmpty {
             y = decorations.drawSummary(at: y + 10)
         }
         decorations.drawFooter(page: plan.number, isLast: plan.closes)

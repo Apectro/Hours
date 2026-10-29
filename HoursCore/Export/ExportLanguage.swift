@@ -445,6 +445,19 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           sl: "+ še {count}", it: "+ altri {count}", fr: "+ {count} autres",
                                           es: "+ {count} más", pt: "+ mais {count}", nl: "+ nog {count}",
                                           pl: "+ {count} więcej")
+        // One sheet for several sites (1.2): drawn sign-offs stay on each
+        // site's own sheet.
+        case .signOffOnSiteSheets:
+            return pick(en: "Crew sign-offs are on each site's own sheet.",
+                        de: "Die Unterschriften der Mannschaft stehen auf dem Blatt der jeweiligen Baustelle.",
+                        hr: "Potpisi ekipe nalaze se na listu svakog gradilišta.",
+                        sl: "Podpisi ekipe so na listu posameznega gradbišča.",
+                        it: "Le firme della squadra sono sul foglio di ciascun cantiere.",
+                        fr: "Les signatures de l’équipe figurent sur la feuille de chaque chantier.",
+                        es: "Las firmas de la cuadrilla están en la hoja de cada obra.",
+                        pt: "As assinaturas da equipa estão na folha de cada obra.",
+                        nl: "De handtekeningen van de ploeg staan op het blad van elke bouwplaats.",
+                        pl: "Podpisy ekipy są na arkuszu każdej budowy.")
         case .reason:         return pick(en: "Reason", de: "Grund", hr: "Razlog", sl: "Razlog", it: "Motivo",
                                           fr: "Motif", es: "Motivo", pt: "Motivo", nl: "Reden", pl: "Powód")
 
@@ -609,6 +622,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// tile, and the "+2 more" a long list of site names ends with
     /// (`ExportLanguage.moreSites(_:)`).
     case bySite, sites, moreSites
+    /// Under a sheet for several sites' month, after the legend, when a
+    /// sign-off was left out of it (1.2).
+    case signOffOnSiteSheets
 
     /// Field allowance, kilometres and travel (1.2). `kilometresShort` is the
     /// unit, "km" everywhere; `kilometres` the word, for a line's label.

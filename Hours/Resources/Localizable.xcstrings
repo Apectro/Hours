@@ -4761,6 +4761,65 @@
         }
       }
     },
+    "A file for each person, with their days on the sites on this sheet. They all go in one share.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Datei für jede Person, mit ihren Tagen auf den Baustellen dieses Blatts. Alle werden zusammen geteilt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un archivo para cada persona, con sus días en las obras de esta hoja. Se comparten todos a la vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un fichier par personne, avec ses jours sur les chantiers de cette feuille. Ils sont tous partagés en une fois."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datoteka za svaku osobu, s danima na gradilištima s ovog lista. Sve se dijele odjednom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un file per ogni persona, con i suoi giorni nei cantieri di questo foglio. Vengono condivisi tutti insieme."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een bestand per persoon, met de dagen op de bouwplaatsen van dit blad. Ze worden allemaal in één keer gedeeld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plik dla każdej osoby, z dniami na budowach z tego arkusza. Wszystkie są udostępniane naraz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um ficheiro para cada pessoa, com os seus dias nas obras desta folha. São todos partilhados de uma vez."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datoteka za vsako osebo, z dnevi na gradbiščih s tega lista. Vse se delijo hkrati."
+          }
+        }
+      }
+    },
     "A mail to the developer": {
       "extractionState": "manual",
       "localizations": {
@@ -21692,6 +21751,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsako delo ima svoj pogodbeni teden, zato imata dve deli z različnimi urami vsako svoj saldo namesto skupnega."
+          }
+        }
+      }
+    },
+    "Each person's hours a day are added up across the sites you pick, on one sheet with a By site total.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Stunden jeder Person werden pro Tag über die gewählten Baustellen addiert, auf einem Blatt mit einer Summe nach Baustelle."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas de cada persona se suman por día en las obras que elijas, en una sola hoja con un total por obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures de chaque personne sont additionnées par jour sur les chantiers que vous choisissez, sur une seule feuille avec un total par chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati svake osobe zbrajaju se po danu na odabranim gradilištima, na jednom listu sa zbrojem po gradilištu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ore di ogni persona vengono sommate per giorno sui cantieri scelti, in un unico foglio con il totale per cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De uren van elke persoon worden per dag opgeteld over de gekozen bouwplaatsen, op één blad met een totaal per bouwplaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny każdej osoby są sumowane dziennie na wybranych budowach, na jednym arkuszu z sumą według budowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas de cada pessoa são somadas por dia nas obras que escolheres, numa só folha com um total por obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure vsake osebe se seštejejo po dnevih na izbranih gradbiščih, na enem listu s seštevkom po gradbišču."
           }
         }
       }
@@ -40616,6 +40734,65 @@
         }
       }
     },
+    "Other sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otras obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druga gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altri cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inne budowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outras obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druga gradbišča"
+          }
+        }
+      }
+    },
     "Other unit": {
       "extractionState": "manual",
       "localizations": {
@@ -52977,6 +53154,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gradbišča vodijo ure tvoje ekipe, dodatna dela in gradbeni dnevnik."
+          }
+        }
+      }
+    },
+    "Sites on this sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellen auf diesem Blatt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras en esta hoja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chantiers sur cette feuille"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilišta na ovom listu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cantieri in questo foglio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaatsen op dit blad"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowy na tym arkuszu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras nesta folha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišča na tem listu"
           }
         }
       }

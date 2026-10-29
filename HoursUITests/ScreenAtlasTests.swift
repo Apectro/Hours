@@ -496,6 +496,18 @@ final class ScreenAtlasTests: XCTestCase {
             } else {
                 miss("site-export-per-person (no switch)")
             }
+            // Sites on this sheet (1.2): the list, a second site picked, and
+            // the one sheet for both.
+            if tap(app.buttons.matching(identifier: "export-sheet-sites").firstMatch, "Sites on this sheet", app) {
+                pause(0.8)
+                capture("site-export-sheet-sites", app)
+                if tap(app.buttons.matching(identifier: "export-sheet-site-0").firstMatch, "a second site", app) {
+                    capture("site-export-sheet-sites-chosen", app)
+                }
+                close(app, "export-sheet-sites-done")
+                pause(1.5)
+                capture("site-export-combined", app)
+            }
             close(app, "export-done")
         }
 

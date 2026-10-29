@@ -49,6 +49,15 @@ enum CSVExporter {
                 }
             }
         }
+        // A sheet for several sites' month has no summary, and its hours per
+        // site follow the days on their own (1.2).
+        if !summarised && table.kind == .siteSheet && !table.bySite.isEmpty {
+            lines.append("")
+            lines.append(row([table.language(.bySite)], separator: separator))
+            for site in table.bySite {
+                lines.append(row([site.name, site.address, site.value], separator: separator))
+            }
+        }
 
         return lines.joined(separator: "\r\n") + "\r\n"
     }

@@ -128,26 +128,42 @@ struct ExportTableMaker {
     ///   - includeSignatures: whether the sheet has a line to sign on and,
     ///     once anyone has signed, the crew's sign-off. Signing is optional.
     func site(_ site: Site, month: YearMonth, includeDiary: Bool = true, includeSignatures: Bool = true) -> ExportTables {
+        sites([site], month: month, includeDiary: includeDiary, includeSignatures: includeSignatures)
+    }
+
+    /// One director's sheet for the month of `sites`, in the order chosen
+    /// (1.2): with one site, that site's sheet exactly; with several, the
+    /// crews joined and each person's hours a day added up across them
+    /// (`SiteSheetBuilder.makeTable(sites:)`), each site's diary under its
+    /// name.
+    func sites(_ chosen: [Site], month: YearMonth, includeDiary: Bool = true, includeSignatures: Bool = true) -> ExportTables {
         let repository = SiteRepository(context: context)
         // As stored now: the address may have been edited since the screen
         // that asked was opened.
-        let site = repository.site(id: site.id) ?? site
+        let sites = chosen.map { repository.site(id: $0.id) ?? $0 }
         let range = month.range(in: calendar)
         // Hidden people stay on the sheet: hiding only stops them being
         // offered for new days, and they worked the days they worked.
-        let crew = repository.crew(for: site.id, includeHidden: true)
+        let crew = sites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
-        let siteDays = repository.siteDays(siteID: site.id, in: range)
+        let siteDays = sites.flatMap { repository.siteDays(siteID: $0.id, in: range) }
         let results = siteDays.map { calculator.compute($0) }
 
         let diaryRepository = SiteDiaryRepository(context: context)
-        let signatures = diaryRepository.signatures(siteID: site.id, month: month)
-        let diary = SiteDiaryReportBuilder(settings: settings, calendar: calendar).make(
-            diaries: diaryRepository.diaries(siteID: site.id, in: range),
-            photos: diaryRepository.photoReferences(siteID: site.id, in: range),
-            badWeatherStops: Set(siteDays.filter(\.isBadWeatherStop).map(\.date)),
-            range: range
-        )
+        let signatures = sites.flatMap { diaryRepository.signatures(siteID: $0.id, month: month) }
+        let diaryBuilder = SiteDiaryReportBuilder(settings: settings, calendar: calendar)
+        let diaries = sites.map { site in
+            diaryBuilder.make(
+                diaries: diaryRepository.diaries(siteID: site.id, in: range),
+                photos: diaryRepository.photoReferences(siteID: site.id, in: range),
+                badWeatherStops: Set(siteDays.filter { $0.siteID == site.id && $0.isBadWeatherStop }.map(\.date)),
+                range: range
+            )
+        }
+        // One site's diary as it always was; several, each under its name.
+        let diary = diaries.count == 1
+            ? diaries[0]
+            : SiteDiaryReport.combined(zip(sites, diaries).map { (siteName: $0.name, report: $1) })
         let printsDiary = includeDiary && !diary.isEmpty
         // For "On another site": the site's name on the sheet, archived too.
         let siteNames = Dictionary(
@@ -158,7 +174,7 @@ struct ExportTableMaker {
         func build(_ placeholder: String) -> ReportTable {
             var table = SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
                 .makeTable(
-                    site: site,
+                    sites: sites,
                     crew: crew,
                     results: results,
                     range: range,
@@ -175,16 +191,33 @@ struct ExportTableMaker {
         return tables
     }
 
+    /// The crew's hours of every site with days in the month, by site, for
+    /// the list of sites a sheet can take in. A site with days and no hours
+    /// is there with zero.
+    func siteMonthHours(month: YearMonth) -> [UUID: Int] {
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        var seen = Set<String>()
+        var hours: [UUID: Int] = [:]
+        for day in SiteRepository(context: context).siteDays(siteID: nil, in: month.range(in: calendar)) {
+            // Sync can deliver a site day twice; the first one counts.
+            guard seen.insert("\(day.siteID.uuidString)-\(day.date.key)").inserted else { continue }
+            hours[day.siteID, default: 0] += calculator.compute(day).crewTotalMinutes
+        }
+        return hours
+    }
+
     /// The diary photos with these ids, made small for the PDF. Only the ids
     /// not already in `cache` are read and re-encoded.
-    func printPhotos(ids: Set<UUID>, site: Site, month: YearMonth, cache: [UUID: Data]) -> [UUID: Data] {
+    func printPhotos(ids: Set<UUID>, sites: [Site], month: YearMonth, cache: [UUID: Data]) -> [UUID: Data] {
         var result = cache.filter { ids.contains($0.key) }
-        let missing = ids.subtracting(result.keys)
-        guard !missing.isEmpty else { return result }
-        let stored = SiteDiaryRepository(context: context)
-            .photoData(ids: missing, siteID: site.id, in: month.range(in: calendar))
-        for (id, data) in stored {
-            if let small = DiaryPhotoProcessor.printJPEG(from: data) { result[id] = small }
+        var missing = ids.subtracting(result.keys)
+        let repository = SiteDiaryRepository(context: context)
+        for site in sites where !missing.isEmpty {
+            let stored = repository.photoData(ids: missing, siteID: site.id, in: month.range(in: calendar))
+            for (id, data) in stored {
+                missing.remove(id)
+                if let small = DiaryPhotoProcessor.printJPEG(from: data) { result[id] = small }
+            }
         }
         return result
     }

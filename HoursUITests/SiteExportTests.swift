@@ -52,6 +52,47 @@ final class SiteExportTests: XCTestCase {
         XCTAssertTrue(labels.contains("Month total"), "there is no Month total row: \(labels)")
     }
 
+    /// One sheet for two sites (1.2): Sites on this sheet, a second site
+    /// ticked, and the preview's page is the sheet for both.
+    func testASecondSiteJoinsTheSheet() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site", "-hours-second-site"]
+        app.launch()
+
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        let card = app.buttons.matching(identifier: "site-card").firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
+        card.tap()
+        let more = app.buttons.matching(identifier: "site-more").firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
+        more.tap()
+        let export = app.buttons.matching(identifier: "site-export").firstMatch
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
+        export.tap()
+        XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
+
+        let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
+        XCTAssertTrue(page.waitForExistence(timeout: 10), "the PDF has no page preview")
+        XCTAssertFalse((page.value as? String ?? "").contains("Trg Pravde"), "the sheet starts on one site")
+
+        let row = app.buttons.matching(identifier: "export-sheet-sites").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "there is no Sites on this sheet row")
+        row.tap()
+        let other = app.buttons.matching(identifier: "export-sheet-site-0").firstMatch
+        XCTAssertTrue(other.waitForExistence(timeout: 5), "the second site is not offered")
+        other.tap()
+        let done = app.buttons.matching(identifier: "export-sheet-sites-done").firstMatch
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.tap()
+
+        // The page is drawn again for both: its title names them in order.
+        let both = NSPredicate(format: "value CONTAINS %@ AND value CONTAINS %@", "Kaiserstrasse 12", "Trg Pravde")
+        expectation(for: both, evaluatedWith: page)
+        waitForExpectations(timeout: 10)
+        XCTAssertEqual(page.value as? String, "Kaiserstrasse 12 · Trg Pravde")
+    }
+
     /// A crew member's own sheet, from the crew list: their month as the
     /// page they are handed, before it is shared.
     func testACrewMembersSheetOpensOnItsPage() {
