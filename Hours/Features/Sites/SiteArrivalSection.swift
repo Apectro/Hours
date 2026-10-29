@@ -36,6 +36,18 @@ struct SiteArrivalSection: View {
             Toggle("Remind me when I arrive", isOn: toggleBinding)
                 .accessibilityIdentifier("site-editor-arrival")
                 .disabled(isReadOnly || isLocating)
+                // On the row, not on the Section: a Form hands a Section's
+                // modifiers to its rows, and a sheet there never showed.
+                .sheet(isPresented: $showsExplanation) {
+                    ArrivalExplanationSheet(
+                        needsPlace: site.place == nil,
+                        onContinue: {
+                            showsExplanation = false
+                            Task { await turnOn() }
+                        },
+                        onCancel: { showsExplanation = false }
+                    )
+                }
 
             if isLocating {
                 HStack(spacing: Metrics.small) {
@@ -91,16 +103,6 @@ struct SiteArrivalSection: View {
             VStack(alignment: .leading, spacing: Metrics.small) {
                 ForEach(notices, id: \.self) { Text($0) }
             }
-        }
-        .sheet(isPresented: $showsExplanation) {
-            ArrivalExplanationSheet(
-                needsPlace: site.place == nil,
-                onContinue: {
-                    showsExplanation = false
-                    Task { await turnOn() }
-                },
-                onCancel: { showsExplanation = false }
-            )
         }
     }
 
