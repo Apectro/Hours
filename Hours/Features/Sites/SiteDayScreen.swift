@@ -104,9 +104,12 @@ struct SiteDayScreen: View {
         case person(PersonReference)
         case siteTimes
         case weatherStop
+        /// "Moved to another site…": everyone ticked (nil) or one person.
+        case move(UUID?)
 
         var id: String {
             switch self {
+            case let .move(memberID): return "move-\(memberID?.uuidString ?? "all")"
             case let .person(person): return "person-\(person.id.uuidString)"
             case .siteTimes: return "site-times"
             case .weatherStop: return "weather-stop"
@@ -263,6 +266,33 @@ struct SiteDayScreen: View {
                     defaultEnd: settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: commit
                 )
+            case let .move(memberID):
+                SiteMoveSheet(
+                    site: site,
+                    day: day,
+                    people: movablePeople,
+                    preselected: memberID.map { [$0] },
+                    otherSites: otherSites,
+                    suggestedLeft: SiteMoving.suggestedLeftTime(
+                        for: day,
+                        now: TimeOfDay(minutes: calendar.component(.hour, from: Date()) * 60 + calendar.component(.minute, from: Date())),
+                        isToday: date == today,
+                        rounding: settings.rounding
+                    ),
+                    check: { choice in
+                        do {
+                            _ = try moveOutcome(choice)
+                            return nil
+                        } catch let error as SiteMoveError {
+                            return error
+                        } catch {
+                            // A closed month: the sheet is not offered then,
+                            // and Move says so through the refusal alert.
+                            return nil
+                        }
+                    },
+                    onMove: applyMove
+                )
             case .weatherStop:
                 WeatherStopSheet(
                     day: day,
@@ -393,7 +423,10 @@ struct SiteDayScreen: View {
                 tracksAllowance: settings.allowance.isEnabled,
                 onToggleAllowance: toggleAllowance,
                 kilometres: $kilometresText,
-                isKilometresFocused: $isKilometresFocused
+                isKilometresFocused: $isKilometresFocused,
+                canMove: canMove,
+                onMove: { activeSheet = .move($0) },
+                onUndoMove: undoMove
             )
         }
     }
@@ -441,6 +474,66 @@ struct SiteDayScreen: View {
             rows.append(PersonReference(id: attendance.memberID, name: String(localized: "Unknown")))
         }
         return rows
+    }
+
+    // MARK: - Moving to another site
+
+    /// Ticked here and not moved yet, in the card's order.
+    private var movablePeople: [PersonReference] {
+        rows.filter { day.attendance(for: $0.id) != nil && day.move(of: $0.id) == nil }
+    }
+
+    /// "Moved to another site…" is offered on a day that can be changed,
+    /// with someone to move and somewhere to go.
+    private var canMove: Bool {
+        canEdit && stored != nil && !otherSites.isEmpty && !movablePeople.isEmpty
+    }
+
+    /// The move as the engine makes it, read against what is stored now.
+    private func moveOutcome(_ choice: SiteMoveChoice) throws -> SiteMoveOutcome {
+        let store = repository
+        return try SiteMoving.apply(SiteMoveRequest(
+            source: day,
+            target: store.siteDay(siteID: choice.site.id, on: date),
+            targetSite: store.site(id: choice.site.id) ?? choice.site,
+            sourceCrew: crew,
+            targetCrew: store.crew(for: choice.site.id, includeHidden: true),
+            memberIDs: choice.memberIDs,
+            left: choice.left,
+            started: choice.started,
+            breakPlacement: choice.breakPlacement,
+            lock: settings.monthLock,
+            tracksAllowance: settings.allowance.isEnabled
+        ))
+    }
+
+    /// Writes both days and your calendar day in one save.
+    private func applyMove(_ choice: SiteMoveChoice) {
+        commitNote()
+        commitKilometres()
+        do {
+            try repository.applyMove(try moveOutcome(choice))
+            afterMove()
+        } catch {
+            refusal = error
+        }
+    }
+
+    private func undoMove(_ move: SiteMove) {
+        do {
+            try repository.undoMove(move, from: day)
+            afterMove()
+        } catch {
+            refusal = error
+        }
+    }
+
+    private func afterMove() {
+        ticks += 1
+        load()
+        flashSaved()
+        HoursStack.refreshWidget()
+        Task { await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore) }
     }
 
     // MARK: - Derived

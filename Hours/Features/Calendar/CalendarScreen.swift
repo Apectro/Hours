@@ -19,6 +19,11 @@ struct CalendarScreen: View {
     @State private var monthToReopen: YearMonth?
     /// Only whether there are any, for the one-time public holidays card.
     @Query private var holidayRecords: [HolidayRecord]
+    /// Every site, archived too, for the names on a day worked on two sites.
+    @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
+    /// A site's day opened from the day card, pushed by value; the site's
+    /// crew from there, as on the Sites tab.
+    @State private var path = NavigationPath()
 
     /// One sheet at a time, chosen by value. Stacking several `.sheet`
     /// modifiers on a single view has undefined behaviour.
@@ -42,7 +47,7 @@ struct CalendarScreen: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollViewReader { scroller in
                 ScrollView {
                     if settings.features.useTimeClock, let running = clockStore.running {
@@ -85,7 +90,9 @@ struct CalendarScreen: View {
                             onWorkedHoliday: { activeSheet = .workedHoliday(selectedDate) },
                             onClockIn: showsClockInOnSelectedDay ? clockIn : nil,
                             onExport: { activeSheet = .export(summaryRange) },
-                            onReopen: { monthToReopen = $0 }
+                            onReopen: { monthToReopen = $0 },
+                            siteNames: siteNames,
+                            onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: selectedDate)) }
                         )
                     }
                     .padding(.horizontal, Metrics.large)
@@ -120,6 +127,12 @@ struct CalendarScreen: View {
                 } message: {
                     Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
                 }
+                .navigationDestination(for: CalendarSiteRoute.self) { route in
+                    SiteDetailScreen(siteID: route.siteID, initialDate: route.date)
+                }
+                .navigationDestination(for: SiteCrewRoute.self) { route in
+                    CrewScreen(siteID: route.siteID)
+                }
                 .sheet(item: $activeSheet) { sheet in
                     switch sheet {
                     case let .day(date):
@@ -136,6 +149,14 @@ struct CalendarScreen: View {
                 }
             }
         }
+        // The site screen's crew, pushed onto this stack by value.
+        .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
+    }
+
+    /// Every site's name by id. For display only: a duplicate left by sync
+    /// just means the first of the two names is used.
+    private var siteNames: [UUID: String] {
+        Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
     }
 
     /// Where the tour's totals stop scrolls to.
@@ -451,6 +472,9 @@ private struct CalendarPeriodView: View {
     let onClockIn: (() -> Void)?
     let onExport: () -> Void
     let onReopen: (YearMonth) -> Void
+    /// Site names, for a day worked on two sites, and the way to its sites.
+    var siteNames: [UUID: String] = [:]
+    var onOpenSite: ((UUID) -> Void)? = nil
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
@@ -480,8 +504,12 @@ private struct CalendarPeriodView: View {
         onWorkedHoliday: @escaping () -> Void,
         onClockIn: (() -> Void)? = nil,
         onExport: @escaping () -> Void,
-        onReopen: @escaping (YearMonth) -> Void
+        onReopen: @escaping (YearMonth) -> Void,
+        siteNames: [UUID: String] = [:],
+        onOpenSite: ((UUID) -> Void)? = nil
     ) {
+        self.siteNames = siteNames
+        self.onOpenSite = onOpenSite
         self.layout = layout
         self.settings = settings
         self.formatting = formatting
@@ -567,7 +595,9 @@ private struct CalendarPeriodView: View {
                 formatting: formatting,
                 onEdit: onEdit,
                 onWorkedHoliday: onWorkedHoliday,
-                onClockIn: onClockIn
+                onClockIn: onClockIn,
+                siteNames: siteNames,
+                onOpenSite: onOpenSite
             )
 
             if settings.calendar.showMonthSummary {
@@ -690,4 +720,11 @@ private struct ClosedMonthNotice: View {
         .padding(.horizontal, Metrics.medium)
         .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
     }
+}
+
+/// A site's day opened from a calendar day worked on more than one site
+/// (1.2): pushed by value, as every destination on a stack is here.
+struct CalendarSiteRoute: Hashable {
+    let siteID: UUID
+    let date: CalendarDate
 }
