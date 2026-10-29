@@ -1,0 +1,20 @@
+{
+  "_comment": "Seconds each UI test class took on a CI run (2026-10-29). Used only to balance the parallel UI-test parts; a class missing here counts as 60. Refresh by hand when the parts drift apart.",
+  "SiteDayTests": 317,
+  "SitesTests": 228,
+  "ArrivalReminderUITests": 183,
+  "AllowanceUITests": 166,
+  "ClearerAppTests": 143,
+  "FirstRunTests": 129,
+  "LaunchTests": 121,
+  "DayTypeTests": 84,
+  "ExtraWorkUITests": 77,
+  "PaywallTests": 74,
+  "CalendarPolishTests": 72,
+  "TourTests": 65,
+  "SiteExportTests": 60,
+  "LeaveAndReviewTests": 50,
+  "PayslipCheckTests": 40,
+  "PublicHolidayTests": 40,
+  "SiteAddressUITests": 40
+}

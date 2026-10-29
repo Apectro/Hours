@@ -335,6 +335,66 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # The other two parts of a pull request's UI tests, beside the main job
+  # (which runs the first). Scripts/ui-test-shards.py decides which classes
+  # each part gets, from the timings in Scripts/ui-test-timings.json, so the
+  # three take about as long as each other and a new test class is never left
+  # out. Each part builds for itself: two minutes, against the ten saved.
+  ui-tests:
+    name: UI tests (part ${{ matrix.part }} of 3)
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [2, 3]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          IPHONES=$(xcrun simctl list devices available | grep "iPhone" || true)
+          if [ -z "$IPHONES" ]; then
+            echo "::error::No iPhone simulator available on this runner."
+            exit 1
+          fi
+          # The same choice as the main job: a large iPhone if there is one.
+          BIG=$(echo "$IPHONES" | grep "Pro Max" | head -1)
+          [ -n "$BIG" ] || BIG=$(echo "$IPHONES" | grep "Plus" | head -1)
+          [ -n "$BIG" ] || BIG=$(echo "$IPHONES" | head -1)
+          echo "udid=$(echo "$BIG" | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/')" >> "$GITHUB_OUTPUT"
+          echo "simulator: $BIG"
+
+      - name: Test
+        run: |
+          set -o pipefail
+          ONLY=$(python3 Scripts/ui-test-shards.py $(( ${{ matrix.part }} - 1 )) 3)
+          echo "testing: $ONLY"
+          xcodebuild test \
+            -project Hours.xcodeproj \
+            -scheme Hours \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            $ONLY \
+            -resultBundlePath "$RUNNER_TEMP/Hours.xcresult" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/test.log"
+
+      - name: Failing tests
+        if: failure()
+        run: |
+          grep -hE 'error: -\[' "$RUNNER_TEMP"/*.log 2>/dev/null | sort -u || true
+
+      - name: Keep the logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests-part-${{ matrix.part }}-logs
+          path: ${{ runner.temp }}/*.log
+          retention-days: 7
+
   build-and-test:
     name: App and tests (iOS simulator)
     # Not on every push, on purpose.
@@ -495,6 +555,15 @@ jobs:
         run: |
           set -o pipefail
           rm -rf "$RUNNER_TEMP/Hours.xcresult"
+          # On a pull request the UI tests are split three ways and run side
+          # by side: this job takes the unit tests, the store screenshots and
+          # the first part, and the "UI tests" job below the other two. One
+          # simulator running every UI test in turn was over half an hour of
+          # the wait for a result. Pushes and manual runs still run it all here.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ONLY="-only-testing:HoursTests -only-testing:HoursUITests/ScreenshotTests $(python3 Scripts/ui-test-shards.py 0 3)"
+          fi
+          echo "testing: ${ONLY:-everything}"
           xcodebuild test \
             -project Hours.xcodeproj \
             -scheme Hours \
