@@ -64,11 +64,9 @@ final class SiteExportTests: XCTestCase {
         let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        let more = app.buttons.matching(identifier: "site-more").firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
-        more.tap()
+        // The site's Sheet button, under its name (the "…" menu is gone).
         let export = app.buttons.matching(identifier: "site-export").firstMatch
-        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site has no Sheet button")
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
