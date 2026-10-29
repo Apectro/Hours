@@ -202,6 +202,22 @@ extension SiteDay {
     }
 }
 
+extension SiteDay {
+    /// The day without the usual times when nobody is on it any more and
+    /// they are all it has of them: unticking the last person on a new day
+    /// leaves it blank, so it is not kept, as before usual times existed.
+    func droppingUnusedUsualTimes(of setup: SiteSetup) -> SiteDay {
+        guard setup.hasUsualTimes, present.isEmpty,
+              start == setup.start, end == setup.end, breakMinutes == setup.breakMinutes
+        else { return self }
+        var day = self
+        day.start = nil
+        day.end = nil
+        day.breakMinutes = 0
+        return day
+    }
+}
+
 /// Which weekdays a site is worked: its set work days, or else the weekdays
 /// it was worked in the last two weeks — the evening reminder's own rule.
 enum SiteWorkDays {

@@ -361,6 +361,29 @@ final class NewSiteWizardTests: XCTestCase {
         XCTAssertEqual(day.startingWithUsualTimes(of: SiteSetup(start: seven, end: half3, breakMinutes: 30)), day)
     }
 
+    /// Unticking the last person on a day that only had the usual times
+    /// takes them away again, so the day is blank and not kept.
+    func testUntickingEveryoneTakesTheUsualTimesBack() {
+        let setup = SiteSetup(start: seven, end: half3, breakMinutes: 30)
+        let day = SiteDay(siteID: UUID(), date: CalendarDate(year: 2026, month: 10, day: 29))
+            .startingWithUsualTimes(of: setup)
+
+        let emptied = day.droppingUnusedUsualTimes(of: setup)
+
+        XCTAssertTrue(emptied.isBlank)
+    }
+
+    func testTimesOfItsOwnOrSomeoneThereAreKept() {
+        let setup = SiteSetup(start: seven, end: half3, breakMinutes: 30)
+        let date = CalendarDate(year: 2026, month: 10, day: 29)
+        let changed = SiteDay(siteID: UUID(), date: date, start: TimeOfDay(hour: 6, minute: 0), end: half3, breakMinutes: 30)
+        let someone = SiteDay(siteID: UUID(), date: date, start: seven, end: half3, breakMinutes: 30,
+                              present: [Attendance(memberID: CrewMember.youID)])
+
+        XCTAssertEqual(changed.droppingUnusedUsualTimes(of: setup), changed)
+        XCTAssertEqual(someone.droppingUnusedUsualTimes(of: setup), someone)
+    }
+
     func testASiteWithNoUsualTimesChangesNothing() {
         let day = SiteDay(siteID: UUID(), date: CalendarDate(year: 2026, month: 10, day: 29))
 

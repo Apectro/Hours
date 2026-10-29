@@ -789,7 +789,10 @@ struct SiteDayScreen: View {
             && (repository.site(id: site.id) ?? site).allowanceByDefault
         // A day not written yet starts with the site's usual times (1.2).
         let base = stored == nil && day.present.isEmpty ? day.startingWithUsualTimes(of: setup) : day
-        commit(base.togglingPresence(of: memberID, allowanceByDefault: byDefault))
+        commit(
+            base.togglingPresence(of: memberID, allowanceByDefault: byDefault)
+                .droppingUnusedUsualTimes(of: setup)
+        )
     }
 
     /// The row menu's switch: the allowance for one person, today.
