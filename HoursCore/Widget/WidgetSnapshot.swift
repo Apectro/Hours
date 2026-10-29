@@ -55,6 +55,34 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
     /// is that choice, and an older file reads as hours.
     var earnings: WidgetEarnings?
 
+    // The 1.2 widgets' figures (see `WidgetFigures.swift`). Empty or nil in
+    // a file an earlier version wrote, and that part of a widget waits for
+    // the app to run once.
+
+    /// The week containing the day the file was written, day by day.
+    var weekDays: [WidgetWeekDay]
+    /// The week's number in the user's own calendar, for "Week 43".
+    var weekNumber: Int?
+    /// A normal working day, for the week chart's target line.
+    var averageDayMinutes: Int
+    /// Every day of the month, as the month widget's dots.
+    var monthDays: [WidgetMonthDay]
+    /// The running balance; nil while the app keeps none.
+    var totalBalanceMinutes: Int?
+    /// The running balance as days off, in halves; nil with nothing to take.
+    var balanceDaysOffHalves: Int?
+    /// The leave year; nil for someone who has never mentioned leave.
+    var leave: WidgetLeave?
+    /// The month's earnings and their parts; nil without a rate.
+    var monthEarned: WidgetMonthEarned?
+    /// Whether the clock is switched on in the app, so Today offers Start.
+    var usesTimeClock: Bool
+
+    var balanceDaysOff: HalfDays? {
+        get { balanceDaysOffHalves.map(HalfDays.init(halves:)) }
+        set { balanceDaysOffHalves = newValue?.halves }
+    }
+
     static let empty = WidgetSnapshot(
         generatedAt: .distantPast,
         isClockRunning: false,
@@ -251,6 +279,8 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         case monthWorkedMinutes, monthExpectedMinutes, monthBalanceMinutes
         case showsBalance, unrecordedDayCount, durationStyle, isUnlocked
         case week, monthMarks, clockSiteName, todayDefaultEnd, site, earnings
+        case weekDays, weekNumber, averageDayMinutes, monthDays, totalBalanceMinutes, balanceDaysOffHalves
+        case leave, monthEarned, usesTimeClock
     }
 
     init(from decoder: Decoder) throws {
@@ -274,7 +304,16 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
             clockSiteName: container.lenientOptional(.clockSiteName, String.self),
             todayDefaultEnd: container.lenientOptional(.todayDefaultEnd, TimeOfDay.self),
             site: container.lenientOptional(.site, WidgetSite.self),
-            earnings: container.lenientOptional(.earnings, WidgetEarnings.self)
+            earnings: container.lenientOptional(.earnings, WidgetEarnings.self),
+            weekDays: container.lenient(.weekDays, []),
+            weekNumber: container.lenientOptional(.weekNumber, Int.self),
+            averageDayMinutes: container.lenient(.averageDayMinutes, 0),
+            monthDays: container.lenient(.monthDays, []),
+            totalBalanceMinutes: container.lenientOptional(.totalBalanceMinutes, Int.self),
+            balanceDaysOffHalves: container.lenientOptional(.balanceDaysOffHalves, Int.self),
+            leave: container.lenientOptional(.leave, WidgetLeave.self),
+            monthEarned: container.lenientOptional(.monthEarned, WidgetMonthEarned.self),
+            usesTimeClock: container.lenient(.usesTimeClock, true)
         )
     }
 
@@ -297,7 +336,16 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         clockSiteName: String? = nil,
         todayDefaultEnd: TimeOfDay? = nil,
         site: WidgetSite? = nil,
-        earnings: WidgetEarnings? = nil
+        earnings: WidgetEarnings? = nil,
+        weekDays: [WidgetWeekDay] = [],
+        weekNumber: Int? = nil,
+        averageDayMinutes: Int = 0,
+        monthDays: [WidgetMonthDay] = [],
+        totalBalanceMinutes: Int? = nil,
+        balanceDaysOffHalves: Int? = nil,
+        leave: WidgetLeave? = nil,
+        monthEarned: WidgetMonthEarned? = nil,
+        usesTimeClock: Bool = true
     ) {
         self.generatedAt = generatedAt
         self.isClockRunning = isClockRunning
@@ -318,6 +366,15 @@ struct WidgetSnapshot: Codable, Hashable, Sendable {
         self.todayDefaultEnd = todayDefaultEnd
         self.site = site
         self.earnings = earnings
+        self.weekDays = weekDays
+        self.weekNumber = weekNumber
+        self.averageDayMinutes = averageDayMinutes
+        self.monthDays = monthDays
+        self.totalBalanceMinutes = totalBalanceMinutes
+        self.balanceDaysOffHalves = balanceDaysOffHalves
+        self.leave = leave
+        self.monthEarned = monthEarned
+        self.usesTimeClock = usesTimeClock
     }
 }
 

@@ -54,6 +54,8 @@ struct WidgetSite: Codable, Hashable, Sendable {
     var initials: [String]
     var lastStart: TimeOfDay?
     var lastEnd: TimeOfDay?
+    /// The card's day, person by person: here, or why not (1.2).
+    var crew: [WidgetCrewRow]
 
     /// People present that day who have no face of their own: the "+3".
     var morePeople: Int {
@@ -69,7 +71,8 @@ struct WidgetSite: Codable, Hashable, Sendable {
         includesYou: Bool,
         initials: [String],
         lastStart: TimeOfDay?,
-        lastEnd: TimeOfDay?
+        lastEnd: TimeOfDay?,
+        crew: [WidgetCrewRow] = []
     ) {
         self.id = id
         self.name = name
@@ -80,10 +83,11 @@ struct WidgetSite: Codable, Hashable, Sendable {
         self.initials = initials
         self.lastStart = lastStart
         self.lastEnd = lastEnd
+        self.crew = crew
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, isTodayWritten, lastDay, lastDayPeople, includesYou, initials, lastStart, lastEnd
+        case id, name, isTodayWritten, lastDay, lastDayPeople, includesYou, initials, lastStart, lastEnd, crew
     }
 
     /// Strict about which site and its name, lenient about the rest. A card
@@ -100,7 +104,8 @@ struct WidgetSite: Codable, Hashable, Sendable {
             includesYou: container.lenient(.includesYou, false),
             initials: container.lenient(.initials, []),
             lastStart: container.lenientOptional(.lastStart),
-            lastEnd: container.lenientOptional(.lastEnd)
+            lastEnd: container.lenientOptional(.lastEnd),
+            crew: container.lenient(.crew, [])
         )
     }
 }

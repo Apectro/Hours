@@ -59,9 +59,25 @@ struct WidgetSnapshotWriter {
 
         let running = clock.running
         let allSites = sites.sites(includeArchived: true)
+        // One fetch of the whole weeks around the month and the week, for
+        // both earnings figures — only when a rate is set.
+        let earningsRecords = settings.earningsAreSetUp
+            ? repository.records(in: engine.earningsRange(covering: CalendarDateRange(
+                start: min(month.start, week.start),
+                end: max(month.end, week.end)
+            )))
+            : [:]
         let earned = settings.showsEarnings
-            ? earnings(engine: engine, month: month, week: week, today: today, holidays: holidays)
+            ? earnings(engine: engine, records: earningsRecords, month: month, week: week, today: today, holidays: holidays)
             : nil
+        let balance = settings.features.showsBalance
+            ? engine.runningBalance(
+                through: today,
+                holidays: holidays,
+                countingThrough: today,
+                records: { repository.records(in: $0) }
+            )
+            : 0
         return WidgetSnapshot(
             generatedAt: instant,
             isClockRunning: running != nil,
@@ -83,7 +99,41 @@ struct WidgetSnapshotWriter {
             clockSiteName: WidgetSnapshotBuilder.clockSiteName(for: running, among: allSites),
             todayDefaultEnd: WidgetSnapshotBuilder.defaultEnd(today: todayComputation, running: running, settings: settings),
             site: siteCard(among: allSites, today: today),
-            earnings: earned
+            earnings: earned,
+            weekDays: WidgetSnapshotBuilder.weekDays(weekDays, today: today, settings: settings, calendar: calendar),
+            weekNumber: calendar.component(.weekOfYear, from: today.date(in: calendar)),
+            averageDayMinutes: settings.averageWorkingDayMinutes(on: today),
+            monthDays: WidgetSnapshotBuilder.monthDays(monthDays, today: today),
+            totalBalanceMinutes: WidgetSnapshotBuilder.totalBalance(balance, settings: settings),
+            balanceDaysOffHalves: settings.features.showsBalance
+                ? WidgetSnapshotBuilder.daysOff(balanceMinutes: balance, on: today, settings: settings)?.halves
+                : nil,
+            leave: leave(engine: engine, today: today, holidays: holidays),
+            monthEarned: WidgetSnapshotBuilder.monthEarned(
+                summary: settings.earningsAreSetUp
+                    ? engine.earnings(in: month, records: earningsRecords, holidays: holidays, countingThrough: today)
+                    : nil,
+                days: monthDays,
+                settings: settings,
+                today: today,
+                currencyCode: settings.money.currencyCode
+            ),
+            usesTimeClock: settings.features.useTimeClock
+        )
+    }
+
+    /// The leave year containing today, fetched on its own: a leave year
+    /// from April does not line up with the month.
+    private func leave(engine: PeriodEngine, today: CalendarDate, holidays: [HolidayRule]) -> WidgetLeave? {
+        let year = settings.leave.leaveYear(containing: today, calendar: calendar)
+        let range = settings.leave.range(ofLeaveYear: year, calendar: calendar)
+        let days = engine.days(in: range, records: repository.records(in: range), holidays: holidays)
+        return WidgetSnapshotBuilder.leave(
+            balance: LeaveCalculator.balance(leaveYear: year, days: days, settings: settings, calendar: calendar, today: today),
+            days: days,
+            settings: settings,
+            today: today,
+            calendar: calendar
         )
     }
 
@@ -92,17 +142,13 @@ struct WidgetSnapshotWriter {
     /// counted from the week's first day, which the month may not hold.
     private func earnings(
         engine: PeriodEngine,
+        records: [Int: DayRecord],
         month: CalendarDateRange,
         week: CalendarDateRange,
         today: CalendarDate,
         holidays: [HolidayRule]
     ) -> WidgetEarnings? {
-        let fetched = engine.earningsRange(covering: CalendarDateRange(
-            start: min(month.start, week.start),
-            end: max(month.end, week.end)
-        ))
-        let records = repository.records(in: fetched)
-        return WidgetSnapshotBuilder.earnings(
+        WidgetSnapshotBuilder.earnings(
             month: engine.earnings(in: month, records: records, holidays: holidays, countingThrough: today),
             week: engine.earnings(in: week, records: records, holidays: holidays, countingThrough: today),
             today: today,
@@ -131,13 +177,16 @@ struct WidgetSnapshotWriter {
         // however long ago: the card says which day it is describing.
         let lastDay = sites.siteDay(siteID: site.id, on: today)
             ?? sites.lastSiteDay(siteID: site.id, before: today)
-        return WidgetSnapshotBuilder.site(
-            site,
-            today: today,
-            lastDay: lastDay,
-            // Hidden members included: a past day may name one.
-            crew: sites.crew(for: site.id, includeHidden: true)
+        // Hidden members included: a past day may name one.
+        let crew = sites.crew(for: site.id, includeHidden: true)
+        var card = WidgetSnapshotBuilder.site(site, today: today, lastDay: lastDay, crew: crew)
+        card.crew = WidgetSnapshotBuilder.crew(
+            day: lastDay,
+            crew: crew,
+            catalog: settings.dayTypeCatalog,
+            siteNames: Dictionary(allSites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
         )
+        return card
     }
 
     /// Writes the snapshot, asks the widget to reload, brings the clock's
