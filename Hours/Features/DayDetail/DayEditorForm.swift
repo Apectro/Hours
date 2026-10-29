@@ -341,6 +341,10 @@ struct DayEditorForm: View {
                    computation.warnings.contains(.siteHoursNotCounted) {
                     Label(DayWarning.siteHoursNotCounted.message, systemImage: "exclamationmark.triangle")
                 }
+                if shift.id == draft.shifts.first(where: { $0.siteID != nil })?.id,
+                   computation.warnings.contains(.ownHoursOverlapSite) {
+                    Label(DayWarning.ownHoursOverlapSite.message, systemImage: "info.circle")
+                }
             }
         }
     }

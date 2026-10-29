@@ -14,6 +14,7 @@ enum DayWarning: String, Hashable, Sendable, Identifiable, CaseIterable {
     case timeSkippedByClockChange
     case excludedFromTotals
     case siteHoursNotCounted
+    case ownHoursOverlapSite
 
     var id: String { rawValue }
 
@@ -30,12 +31,13 @@ enum DayWarning: String, Hashable, Sendable, Identifiable, CaseIterable {
         // The one warning shown in the phone's language; the others above are
         // still English-only and left alone for now.
         case .siteHoursNotCounted: return ExportLanguage.device(.siteHoursNotCounted)
+        case .ownHoursOverlapSite: return ExportLanguage.device(.ownHoursOverlapSite)
         }
     }
 
     var isProblem: Bool {
         switch self {
-        case .overlappingBreaksMerged, .excludedFromTotals, .siteHoursNotCounted: return false
+        case .overlappingBreaksMerged, .excludedFromTotals, .siteHoursNotCounted, .ownHoursOverlapSite: return false
         default: return true
         }
     }
