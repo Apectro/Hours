@@ -1582,11 +1582,19 @@ free pass.
 `Hours/Features/Shared/DesignSystem.swift` holds the spacing scale (`Metrics`:
 tiny 4, small 8, medium 12, large 16, extraLarge 24; corner radii 14 for cards,
 10 for smaller tiles, `chipCornerRadius` 8 for status chips) and the semantic
-colours. `hoursNegative` and `hoursPositive` are asset colours
-(`HoursWarningText`, `HoursPositiveText`) that pass contrast as text in Light
-mode — system orange and green on white do not, which matters in sunlight —
-and are the system colours in Dark; `hoursNegativeFill` is the bright orange,
-for washes only. A scrolling screen that is not a `Form` is `SectionHeading`
+colours, by the colour rule (1.2): every colour means one thing. The accent
+blue is "you can tap it"; `hoursPositive` (`hoursDone`) green is done or in
+your favour; `hoursAttention` orange is "look at this" (late, early, away,
+partly filled); `hoursMissing` red is missing or minus, a minus balance
+included (`hoursBalance`); grey is nothing expected. The text colours are
+assets (`HoursPositiveText`, `HoursWarningText`, `HoursMissingText`) that pass
+contrast as text in Light mode — system orange, green and red on white do not,
+which matters in sunlight — and are the system colours in Dark; the `…Fill`
+colours are the bright ones, for fills and washes only. `hoursNegative` is the
+old name for the orange. The daily actions use `BigActionButtonStyle`
+(`.bigAction(.primary)`), and Appearance › On site sets two environment
+values at the root, `biggerButtons` (taller big buttons) and `highContrast`
+(read through `.hoursSecondaryText` and `.hoursHairlineStyle`). A scrolling screen that is not a `Form` is `SectionHeading`
 over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
 every in-scroll section. Sheets that write something have Cancel on the left
 and Save (or a more precise verb, such as Sign) on the right; sheets that only
