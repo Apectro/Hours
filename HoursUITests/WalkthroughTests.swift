@@ -67,6 +67,8 @@ final class WalkthroughTests: XCTestCase {
         // Sample data and Pro, so the video shows the app doing its job rather
         // than an empty month and a column of padlocks.
         let app = XCUIApplication.hours(pro: true)
+        // The recording is for people to watch: keep the movement.
+        app.launchArguments.removeAll { $0 == "-hours-no-animations" }
         app.launchArguments += ["-hours-sample-data"]
         app.launch()
 

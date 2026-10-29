@@ -1,10 +1,17 @@
 import SwiftUI
+import UIKit
 import SwiftData
 import UserNotifications
 
 @main
 struct HoursApp: App {
     init() {
+        // UI tests only: every sheet and push appears at once instead of
+        // animating in, which takes minutes off the suite. The walkthrough
+        // video leaves this argument off, so it still moves.
+        if ProcessInfo.processInfo.arguments.contains("-hours-no-animations") {
+            UIView.setAnimationsEnabled(false)
+        }
         // Before launch finishes, because a tap that launched the app is
         // handed to the delegate as soon as it does.
         UNUserNotificationCenter.current().delegate = NotificationTapDelegate.shared
