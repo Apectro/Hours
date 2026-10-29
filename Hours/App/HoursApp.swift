@@ -37,6 +37,7 @@ struct HoursApp: App {
                 .environment(HoursStack.clock)
                 .environment(HoursStack.subscriptions)
                 .preferredColorScheme(HoursStack.settings.settings.appearance.colorScheme)
+                .onSiteAppearance(HoursStack.settings.settings)
         }
         // The same container Shortcuts and Siri use, rather than a second one
         // opened on the same file.
