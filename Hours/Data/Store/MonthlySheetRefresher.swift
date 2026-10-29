@@ -29,12 +29,15 @@ enum MonthlySheetRefresher {
         )
 
         let repository = SiteRepository(context: context)
+        let sites = repository.sites(includeArchived: false)
         let reminders = MonthlySheetReminderPlan.reminders(
-            sites: repository.sites(includeArchived: false),
+            sites: sites,
             siteDays: repository.siteDays(siteID: nil, in: month.range(in: calendar)),
             today: today,
             now: clock,
-            time: preferences.monthlySheetTime
+            time: preferences.monthlySheetTime,
+            // A site with the note switched off in its settings (1.2).
+            silenced: Set(sites.map(\.id).filter { !settingsStore.settings.siteSetup(for: $0).monthlySheet })
         )
         await scheduler.scheduleMonthlySheetReminders(
             reminders,

@@ -79,9 +79,27 @@ day, the year's balance, leave taken, and earnings when a rate is set. Share
 turns it into a picture; nothing about anybody else's hours is in it.
 
 **Sites** — a site's crew is entered once and the day's times once for all of
-them. A new site, or a crew screen, offers the people from your other crews to
-tick rather than type again. On the 1st, a note per site you worked on last
-month says its site sheet is ready for the boss, and opens it.
+them. The list says how many sites are active and how many still need today
+written; each card has the address, a line with a dot — "Today written · 5 of
+5 here · 42h 30m", "Today not written yet" on a day the site is worked, or "No
+work today" — and chips for the crew, the arrival reminder and the allowance.
+A site shows four buttons under its name — **Crew**, **Diary**, **Sheet** (the
+site export for the month) and **Extra work** — each with a count, and the gear
+opens its settings: name, address, job, a usual day (start, end, break), its
+work days, its extras and the arrival reminder. Crew sign-off is on the crew
+screen and on the sheet's export. On the 1st, a note per site you worked on
+last month says its site sheet is ready for the boss, and opens it.
+
+**New site (1.2)** — a wizard in six steps: how to start (copy a site's crew,
+usual day, work days and extras; start fresh from Settings › New sites start
+with; or several sites at once, names one per line), where it is (name,
+address, the arrival reminder), who works there (people from your other sites,
+"Tick all", and new names pasted one per line), a usual day and the work days,
+the extras (allowance by default, kilometres each day, the evening reminder,
+the note on the 1st, the site diary), and a check where every line leads back.
+"Create and set up another like it" keeps the crew, the day and the extras for
+the next site. A new day on the site starts with its usual times, and the
+reminders nag only on its work days.
 
 **Arrival reminder (1.2)** — off unless you turn it on in a site's settings.
 After an explanation, it saves where the site is from your current location
@@ -152,7 +170,8 @@ it ("1h · Marijo, Dusko" — one time for the job, never added up), photos and
 the client's optional finger signature. A job can run over several days: it is *in
 progress* until you tick it *finished* — the checkmark beside it, a long press,
 or "Work finished" in the editor — and the site's jobs still in progress are
-listed at the top of its report. The site's Report button tells the boss what
+listed at the top of its report. The site's Extra work button opens the report
+that tells the boss what
 is done — finished jobs not sent yet, this week or picked dates, and those still
 in progress only if you include them, in a section of their own — with the
 material used after the work, an optional signature under the lot, and sends a
@@ -169,7 +188,7 @@ night surcharges, and paid days off at the rate. A raise starts from a date, so
 the months before it keep the rate they were worked at. The balance is a setting
 away, and money never appears on a site, its sheet or anywhere about your crew.
 
-**Field allowance and travel** — off by default. Switched on in Settings ›
+**Field allowance and travel** — off by default. Switched on in Settings › Pay ›
 Allowance & travel, with your allowance per day and rate per kilometre, a day
 gets a field allowance switch (Auslöse, terenski dodatak), kilometres in your
 own car and travel time, which counts as work only if you say so. A site can
@@ -186,14 +205,20 @@ skippable: your name for the sheets, your week, paid breaks, where you work,
 the language of the reports for your boss (preselected from the country), whether
 you lead a crew, and optionally your hourly rate. "Show me around" then walks
 through the app in six stops — a dimmed screen with the real control lit up —
-and Settings › Show the tour again brings it back. It is never shown to anyone
-on its own.
+and Settings › Help & tour brings it back, with a short "what is where". It is
+never shown to anyone on its own.
 
-**Settings** — the contracted week (hours per weekday, not one number for all of
-them), pay, calculation rules, which fields exist, day types, holidays, calendar
-appearance, theme, export options, and backup.
+**Settings** — grouped by what they mean: Your work (working hours, overtime &
+balance, pay with the allowance and travel, leave, jobs), Sites & crews (new
+sites start with, reminders), Days & sheets (day types & holidays, sheets —
+the export options, your name on them and the columns —, fields, calendar) and
+App (appearance, iCloud & backup, privacy, help & tour, rating, feedback).
+Every row says in grey what it is set to now, and the search at the top finds
+a setting by its name, its value or a word it is known by ("overtime", "km",
+"iCloud").
 
-**Public holidays** — never guessed, but one tap away: Settings › Holidays ›
+**Public holidays** — never guessed, but one tap away: Settings › Day types &
+holidays › Holidays ›
 Add public holidays (or the first-run setup, or a one-time card on the
 calendar) → country → state or canton where it matters → the list with next
 dates → Add. Germany (all 16 states), Austria, Switzerland (12 cantons and the
@@ -371,7 +396,7 @@ own with the *HoursWatch* scheme.
 ## iCloud
 
 Off by default, and the app is designed to be complete without it. Turn it on
-in Settings › iCloud and your days, holidays, sites, crews, site diaries and
+in Settings › iCloud & backup › iCloud and your days, holidays, sites, crews, site diaries and
 signatures go into **your own** private iCloud database, which only your
 devices can read — no account to make, no server of ours, nothing that any
 third party sees. Your settings travel with them, through iCloud's key-value
@@ -550,5 +575,5 @@ the real ones are the ones above, and live in App Store Connect.
 
 Unless sync is on, nothing is kept anywhere else, so a backup file is the only
 copy that survives losing the device — and even with sync on, it is the only
-copy a deletion cannot reach. Settings › Backup and data writes plain, readable JSON
+copy a deletion cannot reach. Settings › iCloud & backup › Backup and data writes plain, readable JSON
 containing every day, every holiday and all your settings, and restores it.

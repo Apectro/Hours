@@ -129,7 +129,8 @@ final class FirstRunTests: XCTestCase {
         XCTAssertTrue(app.screen("screen-setup-finish").waitForExistence(timeout: 5), "the last screen did not come")
         app.buttons["setup-create-site"].tap()
 
-        XCTAssertTrue(app.textFields["site-name"].waitForExistence(timeout: 5), "the site editor did not open")
+        // The new-site wizard, on its first step.
+        XCTAssertTrue(app.buttons["wizard-start-fresh"].waitForExistence(timeout: 5), "the new-site wizard did not open")
     }
 
     /// "Show me around" ends the setup in the tour.

@@ -33,6 +33,10 @@ struct SiteDayScreen: View {
     var requestedDate: Binding<CalendarDate?> = .constant(nil)
     /// Opens the extra-work report, which the site screen presents.
     var onOpenReport: (() -> Void)? = nil
+    /// What the site has, on view above the day (1.2): its address and the
+    /// Crew, Diary, Sheet and Extra work buttons (`SiteActionsRow`), which
+    /// the site screen draws. Without it, the crew line as before.
+    var header: AnyView? = nil
 
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
@@ -123,12 +127,14 @@ struct SiteDayScreen: View {
         date: CalendarDate,
         appliesSameAsLastDay: Bool = false,
         requestedDate: Binding<CalendarDate?> = .constant(nil),
-        onOpenReport: (() -> Void)? = nil
+        onOpenReport: (() -> Void)? = nil,
+        header: AnyView? = nil
     ) {
         self.site = site
         self.isReadOnly = isReadOnly
         self.requestedDate = requestedDate
         self.onOpenReport = onOpenReport
+        self.header = header
         _requestsSameAsLastDay = State(initialValue: appliesSameAsLastDay)
         _date = State(initialValue: date)
         _month = State(initialValue: date.yearMonth)
@@ -138,10 +144,14 @@ struct SiteDayScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.large) {
-                Text(crewLine)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("site-crew-line")
+                if let header {
+                    header
+                } else {
+                    Text(crewLine)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("site-crew-line")
+                }
 
                 SiteDayNotice(
                     isLocked: isLocked,
@@ -213,8 +223,12 @@ struct SiteDayScreen: View {
                 // Not under the month lock (see `SiteDiaryRepository`): only a
                 // read-only site stops the diary. Rebuilt per date, so a draft
                 // never lands on another day.
-                SiteDiaryCard(siteID: site.id, date: date, canEdit: !isReadOnly, onChange: reloadDiaryMarks)
-                    .id(date.key)
+                // Unless the site's settings leave the diary out (1.2). A day
+                // that already has one still shows it.
+                if setup.keepsDiary || diaryDateKeys.contains(date.key) {
+                    SiteDiaryCard(siteID: site.id, date: date, canEdit: !isReadOnly, onChange: reloadDiaryMarks)
+                        .id(date.key)
+                }
 
                 // Last: the month's figures are read now and then, the day
                 // above is written every day.
@@ -260,10 +274,11 @@ struct SiteDayScreen: View {
                     )
                 }
             case .siteTimes:
+                // The site's usual day first (1.2), then the working week's.
                 SiteTimesSheet(
                     day: day,
-                    defaultStart: settings.primarySchedule(on: day.date).defaultStart,
-                    defaultEnd: settings.primarySchedule(on: day.date).defaultEnd,
+                    defaultStart: setup.start ?? settings.primarySchedule(on: day.date).defaultStart,
+                    defaultEnd: setup.end ?? settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: commit
                 )
             case let .move(memberID):
@@ -291,12 +306,13 @@ struct SiteDayScreen: View {
                             return nil
                         }
                     },
-                    onMove: applyMove
+                    onMove: applyMove,
+                    runningClock: HoursStack.clock.running
                 )
             case .weatherStop:
                 WeatherStopSheet(
                     day: day,
-                    suggested: day.end ?? settings.primarySchedule(on: day.date).defaultEnd,
+                    suggested: day.end ?? setup.end ?? settings.primarySchedule(on: day.date).defaultEnd,
                     onSave: { stop in commit(stoppedAt(stop)) }
                 )
             }
@@ -424,6 +440,7 @@ struct SiteDayScreen: View {
                 onToggleAllowance: toggleAllowance,
                 kilometres: $kilometresText,
                 isKilometresFocused: $isKilometresFocused,
+                asksKilometres: setup.asksKilometres,
                 canMove: canMove,
                 onMove: { activeSheet = .move($0) },
                 onUndoMove: undoMove
@@ -513,10 +530,29 @@ struct SiteDayScreen: View {
         commitKilometres()
         do {
             try repository.applyMove(try moveOutcome(choice))
+            followWithClock(choice)
             afterMove()
         } catch {
             refusal = error
         }
+    }
+
+    /// Your clock follows you (1.2): stopped at the time you left and
+    /// started again at the time you started there, through the same
+    /// `TimeClock` as the widgets and Siri. `afterMove` then refreshes the
+    /// widget, which brings the Live Activity in line.
+    private func followWithClock(_ choice: SiteMoveChoice) {
+        guard let handover = ClockFollowsMove.handover(
+            running: HoursStack.clock.running,
+            youMoved: choice.memberIDs.contains(CrewMember.youID),
+            date: date,
+            left: choice.left,
+            started: choice.started,
+            calendar: calendar
+        ) else { return }
+        let clock = HoursStack.timeClock
+        clock.clockOut(at: handover.stopAt)
+        clock.clockIn(at: handover.restartAt, jobID: (repository.site(id: choice.site.id) ?? choice.site).jobID)
     }
 
     private func undoMove(_ move: SiteMove) {
@@ -539,6 +575,8 @@ struct SiteDayScreen: View {
     // MARK: - Derived
 
     private var settings: AppSettings { settingsStore.settings }
+    /// The site's usual day and extras (1.2).
+    private var setup: SiteSetup { settings.siteSetup(for: site.id) }
     private var calendar: Calendar { settingsStore.workCalendar }
     private var formatting: CalendarFormatting { settingsStore.dateFormatting }
     private var formatter: DurationFormatting { settings.displayFormatting }
@@ -582,7 +620,7 @@ struct SiteDayScreen: View {
     /// schedule's when the day had none yet.
     private func stoppedAt(_ stop: TimeOfDay) -> SiteDay {
         var next = day
-        if next.start == nil { next.start = settings.primarySchedule(on: day.date).defaultStart }
+        if next.start == nil { next.start = setup.start ?? settings.primarySchedule(on: day.date).defaultStart }
         return next.stoppedForBadWeather(at: stop)
     }
 
@@ -749,7 +787,12 @@ struct SiteDayScreen: View {
         ticks += 1
         let byDefault = settings.allowance.isEnabled
             && (repository.site(id: site.id) ?? site).allowanceByDefault
-        commit(day.togglingPresence(of: memberID, allowanceByDefault: byDefault))
+        // A day not written yet starts with the site's usual times (1.2).
+        let base = stored == nil && day.present.isEmpty ? day.startingWithUsualTimes(of: setup) : day
+        commit(
+            base.togglingPresence(of: memberID, allowanceByDefault: byDefault)
+                .droppingUnusedUsualTimes(of: setup)
+        )
     }
 
     /// The row menu's switch: the allowance for one person, today.

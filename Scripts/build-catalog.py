@@ -71,6 +71,7 @@ COWORKERS = lambda n=1: plural("coworkers", n, "%lld coworker", "%lld coworkers"
 PEOPLE = lambda n=1: plural("people", n, "%lld person", "%lld people")
 EXTRA_JOBS = lambda n=1: plural("extraJobs", n, "%lld extra job", "%lld extra jobs")
 DIFFERENCES = lambda n=1: plural("differences", n, "%lld difference", "%lld differences")
+SITES = lambda n=1: plural("sites", n, "%lld site", "%lld sites")
 
 APP_STRINGS = {
     "^[%lld day](inflect: true)": entry("%#@days@", DAYS()),
@@ -150,6 +151,11 @@ APP_STRINGS = {
     # Insights › Month, under "Check your payslip": how many figures the
     # payslip shows differently. Zero is a separate string ("Checked").
     "^[%lld difference](inflect: true)": entry("%#@differences@", DIFFERENCES()),
+    # The new-site wizard's "Several sites at once" (1.2): how many the
+    # names make, on the check step and its Create button.
+    "^[%lld site](inflect: true)": entry("%#@sites@", SITES()),
+    "Create ^[%lld site](inflect: true)": entry("Create %#@sites@", SITES()),
+    "^[%lld site](inflect: true) to create": entry("%#@sites@ to create", SITES()),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
     "and stop counting towards your balance. The hours recorded on them are kept.": entry(

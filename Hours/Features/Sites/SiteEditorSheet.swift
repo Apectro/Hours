@@ -1,7 +1,10 @@
 import SwiftUI
 import SwiftData
 
-/// Creates a site, or renames, re-points and archives one.
+/// A site's settings (the gear on its screen): its name, address, job,
+/// usual day and work days, extras, arrival reminder and archiving. New
+/// sites are made with the wizard (`NewSiteWizard`); this still creates one
+/// when asked, starting from Settings › New sites start with.
 ///
 /// The job picker only appears for someone who tracks more than one job: with
 /// one job there is nothing to choose, and the site's hours count towards it
@@ -24,6 +27,10 @@ struct SiteEditorSheet: View {
     @State private var isFindingAddress = false
     /// It asked, and Apple Maps had no address for the place.
     @State private var foundNoAddress = false
+    /// The site's usual day and extras (1.2), kept in settings
+    /// (`AppSettings.siteSetups`); read once when the sheet opens.
+    @State private var setup = SiteSetup()
+    @State private var loadedSetup = false
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -110,6 +117,19 @@ struct SiteEditorSheet: View {
                     }
                 }
 
+                usualDaySection
+
+                Section {
+                    SiteExtrasRows(
+                        setup: $setup,
+                        allowanceByDefault: $draft.allowanceByDefault,
+                        showsAllowance: false,
+                        isDisabled: isReadOnly
+                    )
+                } header: {
+                    Text("Extras")
+                }
+
                 // The opt-in arrival reminder (1.2): off unless turned on here.
                 SiteArrivalSection(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
 
@@ -151,7 +171,83 @@ struct SiteEditorSheet: View {
                 }
             }
             .paywall(for: $paywallReason)
-            .task { loadCandidates() }
+            .task {
+                loadSetup()
+                loadCandidates()
+            }
+        }
+    }
+
+    // MARK: - Usual day (1.2)
+
+    @ViewBuilder
+    private var usualDaySection: some View {
+        Section {
+            Toggle("Usual times", isOn: hasUsualTimes)
+                .accessibilityIdentifier("site-editor-usual-times")
+                .disabled(isReadOnly)
+            if setup.hasUsualTimes {
+                UsualDayRows(
+                    start: timeBinding(\.start),
+                    end: timeBinding(\.end),
+                    breakMinutes: $setup.breakMinutes,
+                    calendar: settingsStore.workCalendar,
+                    isDisabled: isReadOnly
+                )
+            }
+        } header: {
+            Text("Usual day")
+        } footer: {
+            Text("A new day on this site starts with these times for everyone ticked. Change any day or person as usual.")
+        }
+        Section {
+            WorkDaysPicker(days: $setup.workDays, formatting: settingsStore.dateFormatting, isDisabled: isReadOnly)
+        } header: {
+            Text("Work days here")
+        } footer: {
+            Text("Reminders only nag on these days. With none ticked, they go by the days the site was worked lately.")
+        }
+    }
+
+    private var hasUsualTimes: Binding<Bool> {
+        Binding(
+            get: { setup.hasUsualTimes },
+            set: { on in
+                if on {
+                    let today = CalendarDate.today(in: settingsStore.workCalendar)
+                    let usual = settingsStore.settings.newSites.setup(
+                        schedule: settingsStore.settings.primarySchedule(on: today)
+                    )
+                    setup.start = usual.start
+                    setup.end = usual.end
+                    setup.breakMinutes = usual.breakMinutes
+                } else {
+                    setup.start = nil
+                    setup.end = nil
+                    setup.breakMinutes = 0
+                }
+            }
+        )
+    }
+
+    private func timeBinding(_ keyPath: WritableKeyPath<SiteSetup, TimeOfDay?>) -> Binding<TimeOfDay> {
+        Binding(
+            get: { setup[keyPath: keyPath] ?? TimeOfDay(hour: 7, minute: 0) },
+            set: { setup[keyPath: keyPath] = $0 }
+        )
+    }
+
+    /// The stored setup, or for a new site what new sites start with.
+    private func loadSetup() {
+        guard !loadedSetup else { return }
+        loadedSetup = true
+        let settings = settingsStore.settings
+        if isNew {
+            let today = CalendarDate.today(in: settingsStore.workCalendar)
+            setup = settings.newSites.setup(schedule: settings.primarySchedule(on: today))
+            draft.allowanceByDefault = settings.newSites.allowanceByDefault
+        } else {
+            setup = settings.siteSetup(for: draft.id)
         }
     }
 
@@ -234,6 +330,10 @@ struct SiteEditorSheet: View {
 
         let store = repository
         store.upsert(site)
+        if !isReadOnly {
+            let setup = self.setup
+            settingsStore.update { $0.setSiteSetup(setup, for: site.id) }
+        }
         if isNew {
             store.addCrew(candidates.filter { chosenCrew.contains($0.id) }, to: site.id)
         }
@@ -245,6 +345,14 @@ struct SiteEditorSheet: View {
         let context = modelContext
         let settings = settingsStore
         Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: settings) }
+        // And the evening reminder, which follows its work days.
+        Task {
+            await SiteReminderRefresher.refresh(
+                context: context,
+                preferences: settings.settings.reminders,
+                calendar: settings.workCalendar
+            )
+        }
         // An archived site's extra work is no longer counted as waiting.
         Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
         dismiss()

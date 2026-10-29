@@ -153,6 +153,8 @@ private struct SitesContent: View {
             VStack(spacing: Metrics.medium) {
                 if activeSites.isEmpty {
                     emptyState
+                } else {
+                    overview
                 }
 
                 ForEach(activeSites) { site in
@@ -160,7 +162,8 @@ private struct SitesContent: View {
                     SiteCard(
                         site: site,
                         coworkers: loaded.crewCounts[site.id] ?? 0,
-                        days: loaded.days[site.id] ?? [],
+                        today: loaded.today[site.id],
+                        isExpectedToday: loaded.expectedToday.contains(site.id),
                         isReadOnly: isReadOnly,
                         offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
                     )
@@ -179,12 +182,16 @@ private struct SitesContent: View {
         // A screen the UI tests wait for. The title beside it is translated.
         .accessibilityIdentifier("screen-sites")
         .toolbar {
+            // The way to a new site, said in words (1.2): the wizard.
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: addSite) {
-                    Image(systemName: "plus")
+                    Label("New site", systemImage: "plus")
+                        .labelStyle(.titleAndIcon)
+                        .font(.subheadline.weight(.semibold))
                         .proLock(needsProForAnotherSite)
                 }
-                .accessibilityLabel("Add a site")
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
                 .accessibilityIdentifier("sites-add")
             }
         }
@@ -199,11 +206,8 @@ private struct SitesContent: View {
         .navigationDestination(for: SiteCrewRoute.self) { route in
             CrewScreen(siteID: route.siteID)
         }
-        .sheet(isPresented: $isCreating) {
-            SiteEditorSheet(
-                site: Site(name: "", sortOrder: nextSortOrder),
-                isNew: true
-            )
+        .fullScreenCover(isPresented: $isCreating) {
+            NewSiteWizard()
         }
         .paywall(for: $paywallReason)
         .onChange(of: changeToken, initial: true) { _, _ in
@@ -219,11 +223,31 @@ private struct SitesContent: View {
         } description: {
             Text("Add the site you work on, then its crew. Each day the times are entered once, for everyone who was there.")
         } actions: {
-            Button("Add a site", action: addSite)
+            Button("New site", action: addSite)
                 .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("sites-empty-add")
         }
         .tourTarget(.sites)
         .padding(.top, Metrics.extraLarge)
+    }
+
+    /// "12 active · 3 need today written": how many sites, and how many are
+    /// expected today with nothing written yet (said only when there are).
+    private var overview: some View {
+        let active = activeSites.count
+        let missing = activeSites.filter { loaded.expectedToday.contains($0.id) && loaded.today[$0.id] == nil }.count
+        var parts = [String(localized: "\(active) active", comment: "Sites list: how many active sites")]
+        if missing > 0 {
+            parts.append(String(
+                localized: "\(missing) need today written",
+                comment: "Sites list: how many sites are expected today and have nothing written"
+            ))
+        }
+        return Text(verbatim: parts.joined(separator: " · "))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("sites-overview")
     }
 
     private var archivedSection: some View {
@@ -266,13 +290,6 @@ private struct SitesContent: View {
 
     private var activeSites: [Site] { loaded.sites.filter { !$0.isArchived } }
     private var archivedSites: [Site] { loaded.sites.filter(\.isArchived) }
-
-    /// After every site there is, archived ones included, so a new site never
-    /// takes the place of the one that stays free if Pro lapses — that is the
-    /// active site with the lowest sort order (see `SiteAccess`).
-    private var nextSortOrder: Int {
-        (loaded.sites.map(\.sortOrder).max() ?? -1) + 1
-    }
 
     /// The first site is free; a second active one is Pro.
     private var needsProForAnotherSite: Bool {
@@ -319,7 +336,41 @@ private struct SitesContent: View {
                 }
             }
         }
-        loaded = LoadedSites(sites: sites, crewCounts: counts, days: days, canCopyLastDay: canCopy)
+        // Whether each site is expected today (1.2): its work days, or the
+        // weekdays it was worked lately, and never on a public holiday off.
+        let settings = settingsStore.settings
+        let calendar = settingsStore.workCalendar
+        let recent = repository.siteDays(
+            siteID: nil,
+            in: CalendarDateRange(start: today.adding(days: -SiteWorkDays.lookBackDays, in: calendar), end: today)
+        )
+        var holidays = Set<Int>()
+        if settings.features.trackHolidays {
+            let rules = (try? modelContext.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
+            let range = CalendarDateRange(single: today)
+            holidays = HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOffKeys(in: range, calendar: calendar)
+        }
+        var expected = Set<UUID>()
+        for site in sites where !site.isArchived {
+            if SiteWorkDays.expects(
+                site.id, on: today, setup: settings.siteSetup(for: site.id),
+                siteDays: recent, calendar: calendar, holidays: holidays
+            ) {
+                expected.insert(site.id)
+            }
+        }
+        var todays: [UUID: SiteDay] = [:]
+        for (siteID, list) in days {
+            if let day = list.first(where: { $0.date == today }) { todays[siteID] = day }
+        }
+        loaded = LoadedSites(
+            sites: sites,
+            crewCounts: counts,
+            days: days,
+            canCopyLastDay: canCopy,
+            today: todays,
+            expectedToday: expected
+        )
     }
 }
 
@@ -336,10 +387,17 @@ private struct LoadedSites {
     var days: [UUID: [SiteDay]] = [:]
     /// Active sites whose today can be filled from their last day.
     var canCopyLastDay: Set<UUID> = []
+    /// Each site's day today, where one is written.
+    var today: [UUID: SiteDay] = [:]
+    /// Active sites a day is expected on today (`SiteWorkDays.expects`).
+    var expectedToday: Set<UUID> = []
 }
 
-/// One active site, as screen 1 of the mockup draws it, with a line saying
-/// whether today has been written up on it.
+/// One active site (1.2, mockup Main): its name and address, a line with a
+/// dot saying where today stands — written, with how many were there and the
+/// crew's hours; not written yet on a day it is worked; no work today — and
+/// small chips for what is on: the crew, the arrival reminder, the
+/// allowance.
 ///
 /// The upper part opens the site. While today is still to be written and
 /// there is a day to copy, the card also offers "Same as last day" — the
@@ -350,7 +408,9 @@ private struct SiteCard: View {
     /// The crew offered for a new day, not counting you. People hidden from
     /// the crew are left out: they are no longer on it.
     let coworkers: Int
-    let days: [SiteDay]
+    /// Today's day on the site, when it is written.
+    let today: SiteDay?
+    let isExpectedToday: Bool
     let isReadOnly: Bool
     let offersSameAsLastDay: Bool
 
@@ -374,10 +434,10 @@ private struct SiteCard: View {
     }
 
     private var summary: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
+        VStack(alignment: .leading, spacing: Metrics.small) {
             HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
                 Text(site.name)
-                    .font(.headline)
+                    .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
@@ -386,25 +446,20 @@ private struct SiteCard: View {
                     .accessibilityHidden(true)
             }
 
-            Text(crewLine)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            if !site.address.isEmpty {
+                Text(verbatim: SiteAddress.singleLine(site.address))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else if site.place == nil {
+                // Sites made several at once have neither yet.
+                Label("Add the place in the site's settings", systemImage: "mappin.and.ellipse")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
 
             todayLine
 
-            HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(
-                    label: String(localized: "Days this month"),
-                    value: "\(days.count)"
-                )
-                Divider().frame(maxHeight: .infinity)
-                StatTile(
-                    label: String(localized: "Crew hours"),
-                    value: settingsStore.settings.displayFormatting.string(crewMinutes)
-                )
-            }
-            // The divider as tall as the taller tile, at any text size.
-            .fixedSize(horizontal: false, vertical: true)
+            chips
 
             if isReadOnly {
                 Label {
@@ -458,33 +513,70 @@ private struct SiteCard: View {
         .accessibilityIdentifier("site-card-open")
     }
 
-    /// Whether today is written up yet: the one thing worth knowing before
-    /// opening a site at the end of a working day.
+    /// Where today stands: the one thing worth knowing before opening a
+    /// site at the end of a working day.
     private var todayLine: some View {
-        let isWritten = days.contains { $0.date == CalendarDate.today(in: settingsStore.workCalendar) }
-        return Label {
-            Text(isWritten ? String(localized: "Today: written") : String(localized: "Today: not written yet"))
-                .foregroundStyle(isWritten ? Color.secondary : Color.hoursNegative)
-        } icon: {
-            Image(systemName: isWritten ? "checkmark.circle.fill" : "circle.dashed")
-                .foregroundStyle(isWritten ? Color.accentColor : Color.hoursNegative)
+        let state = todayState
+        return HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+            Circle()
+                .fill(state.color)
+                .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
+            Text(verbatim: state.text)
+                .font(.subheadline)
+                .monospacedDigit()
+                .foregroundStyle(state.textColor)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .font(.subheadline)
         .accessibilityIdentifier("site-card-today")
     }
 
-    private var crewLine: String {
-        guard coworkers > 0 else { return String(localized: "Crew: just you") }
-        return String(inflected: "Crew: you + ^[\(coworkers) coworker](inflect: true)")
+    private var todayState: (text: String, color: Color, textColor: Color) {
+        if let today {
+            let calculator = SiteDayCalculator(settings: settingsStore.settings, calendar: settingsStore.workCalendar)
+            let minutes = calculator.compute(today).crewTotalMinutes
+            let hours = settingsStore.settings.displayFormatting.string(minutes)
+            let text = String(
+                localized: "Today written · \(today.present.count) of \(coworkers + 1) here · \(hours)",
+                comment: "Site card; the values are how many were there, how many could have been, and the crew's hours today"
+            )
+            return (text, Color.hoursPositive, Color.primary)
+        }
+        if isExpectedToday {
+            return (String(localized: "Today not written yet"), Color.hoursNegativeFill, Color.hoursNegative)
+        }
+        return (String(localized: "No work today"), Color.secondary, Color.secondary)
     }
 
-    /// Worked out the way the site day screen works it out, so the card and
-    /// the days behind it can never disagree.
-    private var crewMinutes: Int {
-        let calculator = SiteDayCalculator(
-            settings: settingsStore.settings,
-            calendar: settingsStore.workCalendar
-        )
-        return days.reduce(0) { $0 + calculator.compute($1).crewTotalMinutes }
+    /// What is on, in small grey chips.
+    private var chips: some View {
+        var labels = [String(localized: "Crew \(coworkers + 1)", comment: "Site card chip; the value is how many people, you included")]
+        if site.monitorsArrival {
+            labels.append(String(localized: "Arrival reminder"))
+        }
+        if settingsStore.settings.allowance.isEnabled && site.allowanceByDefault {
+            labels.append(String(localized: "Field allowance"))
+        }
+        // In a row while they fit; one under another at large text sizes.
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.tiny + 2) {
+                ForEach(labels, id: \.self, content: chip)
+            }
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                ForEach(labels, id: \.self, content: chip)
+            }
+        }
+    }
+
+    private func chip(_ label: String) -> some View {
+        Text(verbatim: label)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, Metrics.small)
+            .padding(.vertical, Metrics.tiny)
+            .background(
+                Color(uiColor: .tertiarySystemFill),
+                in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous)
+            )
     }
 }

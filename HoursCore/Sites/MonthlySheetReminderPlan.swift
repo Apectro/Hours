@@ -31,19 +31,22 @@ enum MonthlySheetReminderPlan {
 
     /// One note per active site with at least one day written in the covered
     /// month, in the order the sites are given. A site with nothing that
-    /// month has no sheet worth sending, and an archived one is finished.
+    /// month has no sheet worth sending, and an archived one is finished. A
+    /// site with the note switched off in its settings (`silenced`, 1.2)
+    /// gets none.
     static func reminders(
         sites: [Site],
         siteDays: [SiteDay],
         today: CalendarDate,
         now: TimeOfDay,
-        time: TimeOfDay
+        time: TimeOfDay,
+        silenced: Set<UUID> = []
     ) -> [MonthlySheetReminder] {
         let month = coveredMonth(today: today, now: now, time: time)
         let worked = Set(siteDays.filter { month.contains($0.date) }.map(\.siteID))
         let date = month.adding(months: 1).firstDay
         return sites
-            .filter { !$0.isArchived && worked.contains($0.id) }
+            .filter { !$0.isArchived && worked.contains($0.id) && !silenced.contains($0.id) }
             .map { MonthlySheetReminder(siteID: $0.id, siteName: $0.name, month: month, date: date) }
     }
 }

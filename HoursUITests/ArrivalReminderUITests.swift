@@ -31,6 +31,9 @@ final class ArrivalReminderUITests: XCTestCase {
 
         // The fake's place is saved, shown as coordinates and a map.
         let coordinates = app.descendants(matching: .any)["site-arrival-coordinates"].firstMatch
+        // The site's settings now hold the usual day and extras too, so the
+        // place can land below the fold, where a Form has not made it yet.
+        if !coordinates.waitForExistence(timeout: 5) { scroll(to: coordinates, in: app) }
         XCTAssertTrue(coordinates.waitForExistence(timeout: 5), "the site's place should show once saved")
         XCTAssertTrue(coordinates.label.contains("45.81302"), "the place should read as coordinates: \(coordinates.label)")
         XCTAssertTrue(app.descendants(matching: .any)["site-arrival-map"].firstMatch.exists, "a small map should show the place")
@@ -97,11 +100,9 @@ final class ArrivalReminderUITests: XCTestCase {
             XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
             card.tap()
         }
-        let more = app.buttons.matching(identifier: "site-more").firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
-        more.tap()
+        // The gear in the site's toolbar: its settings.
         let edit = app.buttons.matching(identifier: "site-edit").firstMatch
-        XCTAssertTrue(edit.waitForExistence(timeout: 5), "the site's menu has no Edit")
+        XCTAssertTrue(edit.waitForExistence(timeout: 5), "the site did not open")
         edit.tap()
         XCTAssertTrue(app.textFields["site-name"].waitForExistence(timeout: 5), "the site's settings did not open")
     }

@@ -46,6 +46,22 @@ struct PaySettingsScreen: View {
             }
 
             if showsGeneralSettings {
+                // Pay includes the field allowance and travel (1.2): what a
+                // day pays on top of its hours.
+                Section {
+                    NavigationLink {
+                        AllowanceSettingsScreen()
+                    } label: {
+                        SettingsRow(
+                            title: String(localized: "Allowance & travel"),
+                            value: settings.allowance.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                            systemImage: "car"
+                        )
+                    }
+                    .accessibilityIdentifier("settings-allowance")
+                } footer: {
+                    Text("A daily field allowance, kilometres and travel time, for every job.")
+                }
                 generalSection
             }
 

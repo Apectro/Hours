@@ -48,23 +48,12 @@ final class SitesTests: XCTestCase {
 
     /// From launch to a new site's crew list.
     private func openCrewOfANewSite(_ app: XCUIApplication, named siteName: String) {
-        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
-        app.tab(.sites).tap()
-        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "the Sites tab did not open")
-        app.buttons.matching(identifier: "sites-add").firstMatch.tap()
-        let name = app.textFields["site-name"]
-        XCTAssertTrue(name.waitForExistence(timeout: 5), "the site editor did not open")
-        name.tap()
-        name.typeText(siteName)
-        app.buttons.matching(identifier: "site-editor-save").firstMatch.tap()
+        app.createSiteWithWizard(named: siteName)
         let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the new site has no card")
         card.tap()
-        let more = app.buttons.matching(identifier: "site-more").firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
-        more.tap()
         let crewItem = app.buttons.matching(identifier: "site-crew").firstMatch
-        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site has no Crew button")
         crewItem.tap()
         XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
     }
@@ -73,30 +62,18 @@ final class SitesTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
 
-        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
-        app.tab(.sites).tap()
-        XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "the Sites tab did not open")
-
-        // A new site, named and saved.
-        app.buttons["sites-add"].tap()
-        let name = app.textFields["site-name"]
-        XCTAssertTrue(name.waitForExistence(timeout: 5), "the site editor did not open")
-        name.tap()
-        name.typeText("Kaiserstrasse 12")
-        app.buttons["site-editor-save"].tap()
+        // A new site, through the wizard.
+        app.createSiteWithWizard(named: "Kaiserstrasse 12")
 
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the new site has no card")
         XCTAssertTrue(card.label.contains("Kaiserstrasse 12"), "the card does not carry the site's name: \(card.label)")
         XCTAssertFalse(app.staticTexts["Unlock Zeitkonto Pro"].exists, "the first site must be free")
 
-        // Into the site and on to its crew, which is in the toolbar's menu.
+        // Into the site and on to its crew, a button under its name.
         card.tap()
-        let more = app.buttons["site-more"]
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
-        more.tap()
         let crewItem = app.buttons["site-crew"]
-        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site has no Crew button")
         crewItem.tap()
         XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
 
@@ -130,13 +107,13 @@ final class SitesTests: XCTestCase {
         // sit first in the bar; their titles are the site's name and a
         // translated word, and either may be shortened to fit.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "could not get back to the site")
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "could not get back to the site")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         let updated = app.buttons["site-card"].firstMatch
         XCTAssertTrue(updated.waitForExistence(timeout: 5))
         XCTAssertTrue(
-            updated.label.contains("Crew: you + 1 coworker"),
+            updated.label.contains("Crew 2"),
             "the card should count Ivan and not the hidden Marko: \(updated.label)"
         )
     }
