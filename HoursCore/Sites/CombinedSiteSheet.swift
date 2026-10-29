@@ -189,8 +189,11 @@ extension SiteSheetBuilder {
 
             // A row per site that day, as a timesheet splits a day: each
             // person's times and hours where they were, a dash where they
-            // were not. The date and the day on the first.
-            let isSplit = dayResults.count > 1
+            // were not. The date and the day on the first. They read as one
+            // group, closed by "Total", only when somebody's day was on more
+            // than one site: crews side by side on their own sites need no
+            // total, and a month of them would print three rows a day.
+            let isSplit = dayResults.count > 1 && sitesToday.contains { $0 > 1 }
             for (position, result) in dayResults.enumerated() {
                 let isFirst = position == 0
                 var values = isFirst ? [formatter.dateText(date), formatter.weekdayText(date)] : ["", ""]

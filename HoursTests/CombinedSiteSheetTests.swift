@@ -220,7 +220,8 @@ final class CombinedSiteSheetTests: XCTestCase {
         XCTAssertEqual(people(t), ["Ivan", "Marko"])
         XCTAssertEqual(cell(t, person: 0, day: 3, row: 0).times, "—", "worked on the other site, so not away")
         XCTAssertEqual(cell(t, person: 0, day: 3, row: 1).minutes, 510)
-        XCTAssertEqual(cell(t, person: 1, day: 3, row: 2).hours, "8h 30m", "everyone who worked has a total")
+        XCTAssertEqual(rows(t, day: 3).count, 2, "nobody was on both sites, so no total")
+        XCTAssertEqual(rows(t, day: 3).map(\.splitDay), [nil, nil])
         XCTAssertEqual(cell(t, person: 1, day: 3, row: 0).minutes, 510)
         XCTAssertEqual(cell(t, person: 1, day: 4).times, "Sick leave")
         XCTAssertEqual(closing(t, "Sick days")?[6], "1")
@@ -314,8 +315,8 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(trg, 4, present: [luka.id], end: Fixture.time(10), badWeather: true)
         ])
         let notes = t.columns.count - 1
-        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Bad weather", "", ""], "each site's own day")
-        XCTAssertEqual(rows(t, day: 4).map { $0.values[notes] }, ["Bad weather", "Bad weather", ""])
+        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Bad weather", ""], "each site's own day")
+        XCTAssertEqual(rows(t, day: 4).map { $0.values[notes] }, ["Bad weather", "Bad weather"])
         XCTAssertEqual(t.tiles.first { $0.label == "Bad-weather days" }?.value, "1")
     }
 
@@ -326,7 +327,7 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(trg, 4, present: [luka.id], note: "Scaffold")
         ])
         let notes = t.columns.count - 1
-        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Formwork", "Delivery", ""], "each on its site's row")
+        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Formwork", "Delivery"], "each on its site's row")
         XCTAssertEqual(rows(t, day: 4).map { $0.values[notes] }, ["Scaffold"])
     }
 
