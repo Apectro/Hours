@@ -27,49 +27,61 @@ struct TodayFigures {
     let calendar = Calendar.current
 
     var snapshot: WidgetSnapshot { entry.snapshot }
+    var state: WidgetTodayState { snapshot.todayState(at: entry.date, calendar: calendar) }
     var worked: Int { snapshot.todayIncludingRunningClock(at: entry.date, calendar: calendar) }
     var expected: Int { snapshot.expectedMinutes(at: entry.date, calendar: calendar) }
     var fraction: Double? { snapshot.todayFraction(at: entry.date, calendar: calendar) }
-    var monthBalance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
-    var monthWorked: Int { snapshot.monthWorked(at: entry.date, calendar: calendar) }
+    var chart: WidgetWeekChart? { snapshot.weekChart(at: entry.date, calendar: calendar) }
     var startedAt: Date? { snapshot.isClockRunning ? snapshot.clockStartedAt : nil }
-    /// Today's earnings as recorded, while they are what the app leads with.
-    var earnedToday: Int? { snapshot.todayEarnings(at: entry.date, calendar: calendar) }
-
-    /// "€120.00", when there are earnings to show.
-    var earnedTodayText: String? {
-        guard let earnedToday, let money = snapshot.money else { return nil }
-        return money.string(earnedToday)
-    }
 
     func duration(_ minutes: Int) -> String { snapshot.formatting.string(minutes) }
     func signed(_ minutes: Int) -> String { snapshot.formatting.signedString(minutes) }
 
-    /// "16:30" or "4:30 PM", as the phone tells the time.
-    func clockTime(_ date: Date) -> String {
-        date.formatted(date: .omitted, time: .shortened)
+    var isDayOff: Bool { state == .dayOff }
+
+    /// "of 8:00", when something is expected.
+    var ofExpected: String? {
+        expected > 0 ? String(localized: "of \(duration(expected))") : nil
     }
 
-    /// "Trg Pravde · off at 16:00": what the clock is for and when the day
-    /// is due to end, whichever of the two is known.
-    var footer: String? {
-        var parts: [String] = []
-        if snapshot.isClockRunning, let place = snapshot.clockPlace { parts.append(place) }
-        if let end = snapshot.defaultEnd(at: entry.date, calendar: calendar) {
-            let time = CalendarFormatting(locale: .current, calendar: calendar)
-                .time(end, on: CalendarDate(entry.date, calendar: calendar))
-            parts.append(String(localized: "off at \(time)", comment: "Widget, when today's work is due to end"))
-        }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    /// "since 07:02".
+    var since: String? {
+        startedAt.map { String(localized: "since \(WidgetText.clockTime($0))", comment: "Widget, the time the running clock was started") }
     }
 
-    /// "Month +3:30", or the month's hours when the balance is switched off.
-    var monthLine: String {
-        if let earnedTodayText {
-            return String(localized: "\(earnedTodayText) today", comment: "Lock Screen, what today has earned")
+    /// "off 15:30": when today's work is due to end.
+    var offAt: String? {
+        snapshot.defaultEnd(at: entry.date, calendar: calendar).map {
+            String(localized: "off \(WidgetText.time($0, on: entry.date))", comment: "Widget, when today's work is due to end, e.g. off 15:30")
         }
-        let figure = snapshot.showsBalance ? signed(monthBalance) : duration(monthWorked)
-        return String(localized: "Month \(figure)", comment: "Widget, the month's balance or hours on one line")
+    }
+
+    /// "usually 07:00", before anything is worked on a working day.
+    var usually: String? {
+        guard case let .idle(usualStart?) = state, worked == 0 else { return nil }
+        return String(localized: "usually \(WidgetText.time(usualStart, on: entry.date))", comment: "Widget, when work usually starts")
+    }
+
+    /// "Week 40:24 · +0:24", the balance left out where the app keeps none.
+    var weekLine: String? {
+        guard let chart else { return nil }
+        let total = String(localized: "Week \(duration(chart.paidMinutes))", comment: "Widget, the week's hours so far")
+        guard snapshot.showsBalance else { return total }
+        return total + " · " + signed(chart.balanceMinutes)
+    }
+
+    /// The line under the big figure on the small widget.
+    var smallLine: String? {
+        switch state {
+        case .running: return [ofExpected, since].compactMap { $0 }.joined(separator: " · ")
+        case .idle: return usually ?? ofExpected
+        case .dayOff: return weekLine
+        }
+    }
+
+    /// "6:09", or "Day off" on a day off.
+    var headline: String {
+        isDayOff ? String(localized: "Day off", comment: "Widget, today is not a working day") : duration(worked)
     }
 }
 
@@ -78,218 +90,203 @@ struct TodayWidgetView: View {
     let entry: HoursEntry
 
     var body: some View {
+        let figures = TodayFigures(entry: entry)
         Group {
             switch family {
-            case .accessoryCircular: TodayCircular(figures: TodayFigures(entry: entry))
-            case .accessoryRectangular: TodayRectangular(figures: TodayFigures(entry: entry))
-            case .accessoryInline: TodayInline(figures: TodayFigures(entry: entry))
-            case .systemMedium: TodayMedium(figures: TodayFigures(entry: entry))
-            default: TodaySmall(figures: TodayFigures(entry: entry))
+            case .accessoryCircular: TodayCircular(figures: figures)
+            case .accessoryRectangular: TodayRectangular(figures: figures)
+            case .accessoryInline: TodayInline(figures: figures)
+            case .systemMedium: TodayMedium(figures: figures)
+            default: TodaySmall(figures: figures)
             }
         }
-        .widgetCard(.navy, onHomeScreen: family == .systemSmall || family == .systemMedium)
+        .widgetSurface(onHomeScreen: family.isHomeScreen)
     }
 }
 
 // MARK: - Home Screen
 
-/// Board 11, top left: the ring, today's hours, and what the clock is doing.
+/// The clock wedge when something is worked, its rim alone otherwise.
+struct TodaySymbol: View {
+    let figures: TodayFigures
+
+    var body: some View {
+        if figures.worked > 0 || figures.startedAt != nil {
+            ClockMark().fill(WidgetTheme.accent)
+        } else {
+            ClockRim().fill(WidgetTheme.accent)
+        }
+    }
+}
+
+/// Small: today's figure, a line, and Start or Stop.
 struct TodaySmall: View {
     let figures: TodayFigures
 
     var body: some View {
-        if figures.entry.hasData {
-            VStack(alignment: .leading, spacing: 0) {
-                TodayHeader(figures: figures)
-                Spacer(minLength: 6)
-                TodayRingRow(figures: figures)
-                Spacer(minLength: 6)
-                if let footer = figures.footer {
-                    Text(footer)
-                        .font(.system(size: 12, design: .rounded))
-                        .foregroundStyle(WidgetPalette.mist)
-                        .lineLimit(1)
+        VStack(alignment: .leading, spacing: 0) {
+            WidgetHeader(title: String(localized: "Today")) { TodaySymbol(figures: figures) }
+            if figures.entry.hasData {
+                BigFigure(text: figures.headline)
+                    .padding(.top, 11)
+                    .accessibilityLabel(Text("Worked today"))
+                    .accessibilityValue(Text(verbatim: figures.headline))
+                if let line = figures.smallLine, !line.isEmpty {
+                    SecondaryLine(text: line).padding(.top, 5)
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        } else {
-            VStack(alignment: .leading, spacing: 0) {
-                WidgetHeading(text: Text("TODAY"), color: WidgetPalette.amber)
+                Spacer(minLength: 6)
+                if figures.snapshot.usesTimeClock {
+                    ClockButton(isRunning: figures.startedAt != nil)
+                }
+            } else {
                 Spacer(minLength: 0)
-                EmptyStateView(state: figures.entry.state, compact: false)
-                    .frame(maxWidth: .infinity)
+                EmptyStateView(state: figures.entry.state).frame(maxWidth: .infinity)
                 Spacer(minLength: 0)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
-/// The small widget's content beside what the running clock says live, or
-/// the month when no clock is running.
+/// Medium: today on the left, the week's bars on the right.
 struct TodayMedium: View {
     let figures: TodayFigures
 
     var body: some View {
-        HStack(spacing: 16) {
-            TodaySmall(figures: figures)
-            if figures.entry.hasData {
-                Divider().overlay(WidgetPalette.mist.opacity(0.3))
-                if let startedAt = figures.startedAt {
-                    RunningColumn(figures: figures, startedAt: startedAt)
+        HStack(alignment: .top, spacing: 17) {
+            VStack(alignment: .leading, spacing: 0) {
+                WidgetHeader(title: String(localized: "Today")) { TodaySymbol(figures: figures) }
+                if figures.entry.hasData {
+                    BigFigure(text: figures.headline).padding(.top, 11)
+                    if let line = figures.isDayOff ? figures.weekLine : figures.ofExpected {
+                        SecondaryLine(text: line).padding(.top, 5)
+                    }
+                    Spacer(minLength: 4)
+                    if let bottom = figures.since ?? figures.usually ?? figures.offAt {
+                        SecondaryLine(text: bottom)
+                    }
                 } else {
-                    MonthColumn(figures: figures)
+                    Spacer(minLength: 0)
+                    EmptyStateView(state: figures.entry.state).frame(maxWidth: .infinity)
+                    Spacer(minLength: 0)
                 }
+            }
+            .frame(width: 125, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .topLeading)
+
+            if figures.entry.hasData, let chart = figures.chart {
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(verbatim: WidgetText.week(figures.snapshot.weekNumber))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 4)
+                        Text(verbatim: figures.duration(chart.paidMinutes))
+                            .font(.system(size: 13, weight: .semibold).monospacedDigit())
+                    }
+                    Spacer(minLength: 6)
+                    WeekBarsView(chart: chart, height: 90, spacing: 7, cornerRadius: 3, showsLabels: true)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
 }
 
-struct TodayHeader: View {
-    let figures: TodayFigures
+// MARK: - The week's bars, shared by Today, Week and the Lock Screen
+
+/// Seven bars from the user's first weekday: worked filled in the accent,
+/// leave outlined at the hours it credits, today in the primary colour, and
+/// a dashed line where a normal day ends.
+struct WeekBarsView: View {
+    let chart: WidgetWeekChart
+    var height: CGFloat
+    var spacing: CGFloat
+    var cornerRadius: CGFloat
+    var showsLabels: Bool
+    /// Monochrome, for the Lock Screen: shades of the primary colour.
+    var isLockScreen: Bool = false
+    private let calendar = Calendar.current
 
     var body: some View {
-        HStack(spacing: 4) {
-            WidgetHeading(text: Text("TODAY"), color: WidgetPalette.amber)
-            Spacer(minLength: 4)
-            if let startedAt = figures.startedAt {
-                Circle()
-                    .fill(WidgetPalette.running)
-                    .frame(width: 7, height: 7)
-                    .shadow(color: WidgetPalette.running, radius: 3)
-                    .widgetAccentable()
-                Text(String(
-                    localized: "since \(figures.clockTime(startedAt))",
-                    comment: "Widget, the time the running clock was started"
-                ))
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(WidgetPalette.mist)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
-struct TodayRingRow: View {
-    let figures: TodayFigures
-
-    var body: some View {
-        HStack(spacing: 10) {
-            ZStack {
-                ProgressRing(fraction: figures.fraction ?? 0, tint: WidgetPalette.amber, lineWidth: 7)
-                if let fraction = figures.fraction {
-                    Text("\(Int((fraction * 100).rounded()))%")
-                        .font(.widgetFigure(size: 13))
-                        .foregroundStyle(WidgetPalette.amber)
-                        .minimumScaleFactor(0.6)
-                        .padding(.horizontal, 8)
-                        .widgetAccentable()
-                } else {
-                    // A ring at zero on a Sunday reads as a failure rather
-                    // than as a day off, so the mark sits there instead.
-                    ClockMark()
-                        .fill(WidgetPalette.amber)
-                        .frame(width: 20, height: 20)
-                        .widgetAccentable()
-                }
-            }
-            .frame(width: 56, height: 56)
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text(figures.duration(figures.worked))
-                    .font(.widgetFigure(size: 30))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                Group {
-                    if figures.expected > 0 {
-                        Text("of \(figures.duration(figures.expected))")
-                    } else {
-                        Text("Not a working day")
+        VStack(spacing: 5) {
+            ZStack(alignment: .bottom) {
+                HStack(alignment: .bottom, spacing: spacing) {
+                    ForEach(chart.columns, id: \.date) { column in
+                        bar(column)
+                            .frame(maxWidth: .infinity)
+                            .accessibilityElement()
+                            .accessibilityLabel(Text(column.date.date(in: calendar), format: .dateTime.weekday(.wide)))
+                            .accessibilityValue(Text(verbatim: column.minutes > 0 ? DurationFormatting(style: .hoursAndMinutes).string(column.minutes) : "–"))
                     }
                 }
-                .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(WidgetPalette.mist)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Worked today")
-        .accessibilityValue(figures.duration(figures.worked))
-    }
-}
+                .frame(height: height, alignment: .bottom)
 
-/// The running clock, ticking on its own between timeline entries.
-struct RunningColumn: View {
-    let figures: TodayFigures
-    let startedAt: Date
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Clocked in")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-                .foregroundStyle(WidgetPalette.running)
-                .widgetAccentable()
-            // `.timer` counts up by itself, so the figure stays live instead
-            // of freezing for the ten minutes between entries.
-            Text(startedAt, style: .timer)
-                .font(.widgetFigure(size: 24))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            if let place = figures.snapshot.clockPlace {
-                Text(place)
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(WidgetPalette.mist)
-                    .lineLimit(1)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-/// The month's balance and the days still to write, when no clock runs — or,
-/// with earnings as the main figure, what today has earned in its place.
-struct MonthColumn: View {
-    let figures: TodayFigures
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            if let earned = figures.earnedTodayText {
-                WidgetHeading(text: Text("EARNED TODAY"), color: WidgetPalette.amber)
-                Text(earned)
-                    .font(.widgetFigure(size: 24))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            } else {
-                WidgetHeading(text: Text("THIS MONTH"), color: WidgetPalette.amber)
-                if figures.snapshot.showsBalance {
-                    Text(figures.signed(figures.monthBalance))
-                        .font(.widgetFigure(size: 24))
-                        .foregroundStyle(WidgetPalette.balance(figures.monthBalance))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                } else {
-                    Text(figures.duration(figures.monthWorked))
-                        .font(.widgetFigure(size: 24))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
+                if let target = chart.targetFraction {
+                    TargetLine()
+                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                        .foregroundStyle(isLockScreen ? Color.primary.opacity(0.45) : Color.secondary.opacity(0.5))
+                        .frame(height: 1)
+                        .offset(y: -height * min(target, 1))
+                        .accessibilityHidden(true)
                 }
             }
-            if figures.snapshot.unrecordedDayCount > 0 {
-                Text(UnrecordedDays.text(figures.snapshot.unrecordedDayCount))
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(WidgetPalette.mist)
-                    .lineLimit(1)
+            .frame(height: height)
+
+            if showsLabels {
+                HStack(spacing: spacing) {
+                    ForEach(chart.columns, id: \.date) { column in
+                        Text(verbatim: WidgetText.weekdayLetter(column.date))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(column.isToday ? Color.primary : Color.secondary)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .accessibilityHidden(true)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func bar(_ column: WidgetWeekColumn) -> some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let barHeight = max(height * column.fraction, 2)
+        switch column.style {
+        case .worked:
+            shape
+                .fill(isLockScreen ? AnyShapeStyle(Color.primary.opacity(0.8)) : AnyShapeStyle(WidgetTheme.accent))
+                .frame(height: barHeight)
+                .widgetAccentable()
+        case .leave:
+            shape
+                .strokeBorder(isLockScreen ? Color.primary.opacity(0.8) : WidgetTheme.accent, lineWidth: 1.25)
+                .frame(height: barHeight)
+                .widgetAccentable()
+        case .today:
+            shape
+                .fill(Color.primary)
+                .frame(height: column.minutes > 0 ? barHeight : 2)
+        case .empty:
+            Capsule()
+                .fill(isLockScreen ? AnyShapeStyle(Color.primary.opacity(0.35)) : AnyShapeStyle(WidgetTheme.track))
+                .frame(height: 2.5)
+        }
+    }
+}
+
+/// A horizontal line across the chart.
+private struct TargetLine: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        return path
     }
 }
 
 // MARK: - Lock Screen
 
-/// Board 12: the ring around the clock mark and today's hours.
+/// The day filled like the app icon, the figure, and "of 8:00".
 struct TodayCircular: View {
     let figures: TodayFigures
 
@@ -297,18 +294,25 @@ struct TodayCircular: View {
         ZStack {
             AccessoryWidgetBackground()
             if figures.entry.hasData {
-                ProgressRing(fraction: figures.fraction ?? 0, tint: .primary, lineWidth: 4)
-                    .padding(3)
-                VStack(spacing: 1) {
-                    ClockMark()
-                        .frame(width: 10, height: 10)
-                        .widgetAccentable()
-                    Text(compactHours(figures.worked))
-                        .font(.widgetFigure(.caption, weight: .bold))
-                        .minimumScaleFactor(0.5)
+                DayWedge(fraction: figures.fraction ?? 0)
+                    .fill(Color.primary.opacity(0.28))
+                    .padding(2.5)
+                    .widgetAccentable()
+                Ticks()
+                    .stroke(Color.primary.opacity(0.7), lineWidth: 1)
+                VStack(spacing: 0) {
+                    Text(verbatim: compactHours(figures.worked))
+                        .font(.lockFigure(size: 20))
+                        .minimumScaleFactor(0.6)
                         .lineLimit(1)
+                    if figures.expected > 0 {
+                        Text(verbatim: String(localized: "of \(compactHours(figures.expected))"))
+                            .font(.system(size: 8.5))
+                            .opacity(0.75)
+                            .lineLimit(1)
+                    }
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 6)
             } else {
                 ClockMark()
                     .frame(width: 18, height: 18)
@@ -316,77 +320,121 @@ struct TodayCircular: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Worked today")
-        .accessibilityValue(figures.duration(figures.worked))
+        .accessibilityLabel(Text("Worked today"))
+        .accessibilityValue(Text(verbatim: figures.duration(figures.worked)))
     }
 
-    /// A circular accessory is about four characters wide inside its ring, so
-    /// the chosen duration style does not fit and clock notation is used
-    /// regardless. It is the one place in the app that overrides the
-    /// preference, and only because `8h 30m` there would render as an ellipsis.
+    /// A circular accessory is about four characters wide, so the chosen
+    /// duration style does not fit and clock notation is used regardless.
     private func compactHours(_ minutes: Int) -> String {
         String(format: "%d:%02d", minutes / 60, minutes % 60)
     }
 }
 
-/// Board 12: where the clock is, how long it has run, and the month.
+/// The quarter-hour ticks at twelve, three, six and nine.
+private struct Ticks: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let r = min(rect.width, rect.height) / 2
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        for (dx, dy) in [(0.0, -1.0), (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0)] {
+            path.move(to: CGPoint(x: c.x + dx * (r - 1), y: c.y + dy * (r - 1)))
+            path.addLine(to: CGPoint(x: c.x + dx * (r - 3), y: c.y + dy * (r - 3)))
+        }
+        return path
+    }
+}
+
+/// "TODAY / 6:09 / 8:00 / running since 07:02 · off 15:30". The label is
+/// said once, in the header; nothing under it says "today" again.
 struct TodayRectangular: View {
     let figures: TodayFigures
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        VStack(alignment: .leading, spacing: 2) {
             if figures.entry.hasData {
-                HStack(spacing: 4) {
-                    ClockMark()
-                        .frame(width: 10, height: 10)
-                        .widgetAccentable()
-                    Text(figures.snapshot.isClockRunning ? (figures.snapshot.clockPlace ?? String(localized: "Clocked in")) : String(localized: "Today"))
-                        .font(.caption.weight(.bold))
+                HStack(spacing: 5) {
+                    Group {
+                        if figures.isDayOff { ClockRim() } else { ClockMark() }
+                    }
+                    .frame(width: 12, height: 12)
+                    .widgetAccentable()
+                    Text(verbatim: label.uppercased())
+                        .font(.lockLabel)
+                        .tracking(0.6)
+                        .opacity(0.72)
                         .lineLimit(1)
                 }
-                if let startedAt = figures.startedAt {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(startedAt, style: .timer)
-                            .font(.widgetFigure(.headline, weight: .bold))
-                            .lineLimit(1)
-                        Text("running")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    .widgetAccentable()
-                } else {
-                    Text(figures.duration(figures.worked))
-                        .font(.widgetFigure(.headline, weight: .bold))
+                if figures.isDayOff {
+                    Text(verbatim: figures.headline)
+                        .font(.lockFigure())
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
                         .widgetAccentable()
+                } else {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text(verbatim: figures.duration(figures.worked))
+                            .font(.lockFigure())
+                            .lineLimit(1)
+                            .widgetAccentable()
+                        if figures.expected > 0 {
+                            Text(verbatim: "/ " + figures.duration(figures.expected))
+                                .font(.system(size: 14).monospacedDigit())
+                                .opacity(0.6)
+                                .lineLimit(1)
+                        }
+                    }
+                    .minimumScaleFactor(0.6)
                 }
-                Text(monthAndGaps)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if let line {
+                    Text(verbatim: line)
+                        .font(.lockLine)
+                        .opacity(0.78)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
             } else {
                 EmptyStateView(state: figures.entry.state, compact: true)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 
-    /// "Month +3:30 · 1 day to write".
-    private var monthAndGaps: String {
-        let gaps = figures.snapshot.unrecordedDayCount
-        guard gaps > 0 else { return figures.monthLine }
-        return figures.monthLine + " · " + UnrecordedDays.text(gaps)
+    /// "Today", or the weekday's name on a day off: "Saturday".
+    private var label: String {
+        figures.isDayOff
+            ? figures.entry.date.formatted(.dateTime.weekday(.wide))
+            : String(localized: "Today")
+    }
+
+    private var line: String? {
+        switch figures.state {
+        case let .running(since):
+            let running = String(
+                localized: "running since \(WidgetText.clockTime(since))",
+                comment: "Lock Screen, the running clock and when it started"
+            )
+            return [running, figures.offAt].compactMap { $0 }.joined(separator: " · ")
+        case .idle:
+            return figures.usually ?? figures.offAt ?? figures.weekLine
+        case .dayOff:
+            return figures.weekLine
+        }
     }
 }
 
-/// Above the clock: "⛑ 6:42 today · +3:30 month". Inline accessories draw
-/// text and at most one system image, so the mark is the emoji rather than
-/// the shape.
+/// Above the clock: "6:09 today · week 40:24".
 struct TodayInline: View {
     let figures: TodayFigures
 
     var body: some View {
         if figures.entry.hasData {
-            Text(line)
+            Label {
+                Text(verbatim: line)
+            } icon: {
+                Image(systemName: "clock")
+            }
         } else {
             Label("Open Zeitkonto", systemImage: "clock.badge.questionmark")
         }
@@ -397,19 +445,11 @@ struct TodayInline: View {
             localized: "\(figures.duration(figures.worked)) today",
             comment: "Lock Screen, the hours worked today"
         )
-        if let earned = figures.earnedTodayText { return "⛑ " + today + " · " + earned }
-        guard figures.snapshot.showsBalance else { return "⛑ " + today }
-        let month = String(
-            localized: "\(figures.signed(figures.monthBalance)) month",
-            comment: "Lock Screen and widgets, the month's balance in two words"
+        guard let chart = figures.chart else { return today }
+        let week = String(
+            localized: "week \(figures.duration(chart.paidMinutes))",
+            comment: "Lock Screen above the clock, the week's hours after today's"
         )
-        return "⛑ " + today + " · " + month
-    }
-}
-
-/// "2 days to write": recorded nowhere, in the fortnight the reminder looks at.
-enum UnrecordedDays {
-    static func text(_ count: Int) -> String {
-        String(inflected: "^[\(count) day](inflect: true) to write")
+        return today + " · " + week
     }
 }

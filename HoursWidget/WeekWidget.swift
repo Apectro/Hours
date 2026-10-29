@@ -10,163 +10,272 @@ struct WeekWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "HoursWeek", provider: HoursProvider()) { entry in
             WeekWidgetView(entry: entry)
-                .widgetCard(.navy, onHomeScreen: true)
         }
         .configurationDisplayName("This week")
         .description("Hours this week, day by day.")
-        .supportedFamilies([.systemMedium])
+        // Medium stays so a Week widget placed before 1.2 survives the
+        // update; the design adds small, large and the Lock Screen.
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular])
     }
 }
 
-/// Board 11, middle: the week's total and target on the left, seven bars on
-/// the right with today's in amber.
-struct WeekWidgetView: View {
+struct WeekFigures {
     let entry: HoursEntry
+    let calendar = Calendar.current
+
+    var snapshot: WidgetSnapshot { entry.snapshot }
+    var chart: WidgetWeekChart? { snapshot.weekChart(at: entry.date, calendar: calendar) }
+    var rows: [WidgetWeekRow]? { snapshot.weekRows(at: entry.date, calendar: calendar) }
+    var title: String { WidgetText.week(snapshot.weekNumber) }
+
+    func duration(_ minutes: Int) -> String { snapshot.formatting.string(minutes) }
+    func signed(_ minutes: Int) -> String { snapshot.formatting.signedString(minutes) }
+
+    /// "of 40:00", and "· +0:24" where the app keeps a balance.
+    var ofTarget: String? {
+        guard let chart, chart.expectedMinutes > 0 else { return nil }
+        let of = String(localized: "of \(duration(chart.expectedMinutes))")
+        return snapshot.showsBalance ? of + " · " + signed(chart.balanceMinutes) : of
+    }
+}
+
+struct WeekWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: HoursEntry
+
+    var body: some View {
+        let figures = WeekFigures(entry: entry)
+        Group {
+            switch family {
+            case .accessoryRectangular: WeekRectangular(figures: figures)
+            case .systemLarge: WeekLarge(figures: figures)
+            case .systemMedium: WeekMedium(figures: figures)
+            default: WeekSmall(figures: figures)
+            }
+        }
+        .widgetSurface(onHomeScreen: family.isHomeScreen)
+    }
+}
+
+/// The week's figure over seven small bars.
+struct WeekSmall: View {
+    let figures: WeekFigures
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            WidgetHeader(title: String(localized: "Week", comment: "Widget header, the week widget"), systemImage: "chart.bar.fill")
+            if figures.entry.hasData, let chart = figures.chart {
+                BigFigure(text: figures.duration(chart.paidMinutes)).padding(.top, 11)
+                if chart.expectedMinutes > 0 {
+                    SecondaryLine(text: String(localized: "of \(figures.duration(chart.expectedMinutes))")).padding(.top, 5)
+                }
+                Spacer(minLength: 6)
+                WeekBarsView(chart: chart, height: 31, spacing: 5, cornerRadius: 2, showsLabels: false)
+            } else {
+                WeekWaiting(entry: figures.entry)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+/// The week's figure on the left, its bars with the days on the right.
+struct WeekMedium: View {
+    let figures: WeekFigures
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 17) {
+            VStack(alignment: .leading, spacing: 0) {
+                WidgetHeader(title: figures.title, systemImage: "chart.bar.fill")
+                if figures.entry.hasData, let chart = figures.chart {
+                    BigFigure(text: figures.duration(chart.paidMinutes)).padding(.top, 11)
+                    if let line = figures.ofTarget { SecondaryLine(text: line).padding(.top, 5) }
+                    Spacer(minLength: 0)
+                } else {
+                    WeekWaiting(entry: figures.entry)
+                }
+            }
+            .frame(width: 125, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .topLeading)
+
+            if figures.entry.hasData, let chart = figures.chart {
+                WeekBarsView(chart: chart, height: 100, spacing: 7, cornerRadius: 3, showsLabels: true)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            }
+        }
+    }
+}
+
+/// Large: the time card as a list — each day's from–to and hours, leave in
+/// the secondary colour, today "now" while the clock runs, the days still to
+/// come dimmed, and the balance and the site at the foot.
+struct WeekLarge: View {
+    let figures: WeekFigures
     private let calendar = Calendar.current
 
-    private var snapshot: WidgetSnapshot { entry.snapshot }
-    private var bars: [WidgetWeekBar] { snapshot.weekBars(at: entry.date, calendar: calendar) ?? [] }
-    private var monthBalance: Int { snapshot.monthBalance(at: entry.date, calendar: calendar) }
-
     var body: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 0) {
-                WidgetHeading(text: Text("THIS WEEK"), color: WidgetPalette.amber)
-                Spacer(minLength: 4)
-                if entry.hasData {
-                    totals
-                    Spacer(minLength: 4)
-                    if let earned = snapshot.weekEarnings(at: entry.date, calendar: calendar), let money = snapshot.money {
-                        WidgetChip(
-                            text: String(
-                                localized: "\(money.string(earned, showsCents: false)) this week",
-                                comment: "Widget, the week's earnings in a chip"
-                            ),
-                            foreground: WidgetPalette.amber,
-                            background: WidgetPalette.amber.opacity(0.18)
-                        )
-                    } else if snapshot.showsBalance {
-                        WidgetChip(
-                            text: String(
-                                localized: "\(snapshot.formatting.signedString(monthBalance)) month",
-                                comment: "Lock Screen and widgets, the month's balance in two words"
-                            ),
-                            foreground: WidgetPalette.balance(monthBalance),
-                            background: WidgetPalette.balance(monthBalance).opacity(0.18)
-                        )
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    WidgetHeader(title: figures.title, systemImage: "chart.bar.fill")
+                    if let span {
+                        Text(verbatim: span).font(.system(size: 12)).foregroundStyle(.secondary)
                     }
-                } else {
-                    EmptyStateView(state: entry.state, compact: false)
-                    Spacer(minLength: 0)
+                }
+                Spacer(minLength: 8)
+                if figures.entry.hasData, let chart = figures.chart {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(verbatim: figures.duration(chart.paidMinutes))
+                            .font(.widgetFigure(size: 32))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                            .widgetAccentable()
+                        if let line = figures.ofTarget {
+                            Text(verbatim: line).font(.system(size: 12).monospacedDigit()).foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
-            .frame(width: 112, alignment: .leading)
-            .frame(maxHeight: .infinity, alignment: .leading)
 
-            if entry.hasData {
-                WeekBars(bars: bars, formatting: snapshot.formatting, calendar: calendar)
+            if figures.entry.hasData, let rows = figures.rows {
+                VStack(spacing: 0) {
+                    ForEach(rows, id: \.day.date) { row in
+                        WeekListRow(row: row, figures: figures)
+                    }
+                }
+                .padding(.top, 13)
+                Spacer(minLength: 6)
+                HStack {
+                    if let balance = figures.snapshot.totalBalanceMinutes {
+                        Text(verbatim: String(localized: "Balance \(figures.signed(balance))", comment: "Widget, the running balance"))
+                    }
+                    Spacer(minLength: 8)
+                    if let site = figures.snapshot.site?.name {
+                        Text(verbatim: site).lineLimit(1)
+                    }
+                }
+                .font(.system(size: 12).monospacedDigit())
+                .foregroundStyle(.secondary)
+            } else {
+                WeekWaiting(entry: figures.entry)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private var totals: some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text(snapshot.formatting.string(snapshot.weekWorked(at: entry.date, calendar: calendar)))
-                .font(.widgetFigure(size: 30))
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .widgetAccentable()
-            Text("of \(snapshot.formatting.string(snapshot.weekExpected(at: entry.date, calendar: calendar)))")
-                .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(WidgetPalette.mist)
-                .lineLimit(1)
+    /// "19–25 October".
+    private var span: String? {
+        guard let first = figures.rows?.first?.day.date, let last = figures.rows?.last?.day.date else { return nil }
+        let from = first.date(in: calendar)
+        let to = last.date(in: calendar)
+        if first.month == last.month {
+            return from.formatted(.dateTime.day()) + "–" + to.formatted(.dateTime.day().month(.wide))
         }
+        return from.formatted(.dateTime.day().month(.abbreviated)) + " – " + to.formatted(.dateTime.day().month(.abbreviated))
+    }
+}
+
+/// "Mon 19   07:00 – 15:30   8:00".
+struct WeekListRow: View {
+    let row: WidgetWeekRow
+    let figures: WeekFigures
+    private let calendar = Calendar.current
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Rectangle().fill(WidgetTheme.rule).frame(height: 0.75)
+            HStack(spacing: 8) {
+                Text(verbatim: dayName)
+                    .fontWeight(row.isToday ? .semibold : .regular)
+                    .foregroundStyle(row.isToday ? Color.primary : Color.secondary)
+                    .frame(width: 62, alignment: .leading)
+                middle
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(verbatim: figure)
+                    .fontWeight(row.isToday ? .semibold : .regular)
+                    .foregroundStyle(isQuiet ? Color.secondary : Color.primary)
+                    .frame(width: 54, alignment: .trailing)
+            }
+            .font(.system(size: 12.5).monospacedDigit())
+            .lineLimit(1)
+            .frame(height: 30)
+        }
+        .opacity(row.isFuture && row.paidMinutes == 0 && row.day.creditedMinutes == 0 ? 0.55 : 1)
         .accessibilityElement(children: .combine)
     }
-}
 
-/// Seven bars, Monday to Sunday or however the user's week runs, each with
-/// its hours above and its day below.
-struct WeekBars: View {
-    let bars: [WidgetWeekBar]
-    let formatting: DurationFormatting
-    let calendar: Calendar
-    @Environment(\.widgetRenderingMode) private var renderingMode
+    private var isQuiet: Bool { row.day.kind != .work && row.day.workedMinutes == 0 }
 
-    /// Ten hours reach the top; a longer day stops there rather than pushing
-    /// every other bar down to nothing.
-    private static let fullHeight = 86.0
-    private static let scaleMinutes = 600.0
+    private var dayName: String {
+        row.day.date.date(in: calendar).formatted(.dateTime.weekday(.abbreviated).day())
+    }
 
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 7) {
-            ForEach(bars, id: \.date) { bar in
-                VStack(spacing: 5) {
-                    BarValue(minutes: bar.minutes, formatting: formatting)
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(fill(for: bar))
-                        .frame(height: height(for: bar))
-                        .widgetAccentable(bar.isToday)
-                    Text(weekdayLetter(bar.date))
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundStyle(bar.isToday ? WidgetPalette.amber : WidgetPalette.mist)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text(bar.date.date(in: calendar), format: .dateTime.weekday(.wide)))
-                .accessibilityValue(formatting.string(bar.minutes))
+    private var figure: String {
+        if row.isToday { return figures.duration(row.paidMinutes) }
+        if row.isFuture && row.day.creditedMinutes == 0 { return "" }
+        return row.paidMinutes > 0 ? figures.duration(row.paidMinutes) : ""
+    }
+
+    @ViewBuilder
+    private var middle: some View {
+        if row.isRunning, let started = figures.snapshot.clockStartedAt {
+            HStack(spacing: 6) {
+                Text(verbatim: (row.day.start.map { WidgetText.time($0, on: figures.entry.date) } ?? WidgetText.clockTime(started)) + " –")
+                Circle().fill(WidgetTheme.accent).frame(width: 5.5, height: 5.5).widgetAccentable()
+                Text("now", comment: "Widget week list, the running clock's end")
+                    .foregroundStyle(WidgetTheme.accent)
+                    .widgetAccentable()
             }
+        } else if let start = row.day.start, let end = row.day.end, row.day.workedMinutes > 0 || row.isToday {
+            Text(verbatim: WidgetText.time(start, on: figures.entry.date) + " – " + WidgetText.time(end, on: figures.entry.date))
+        } else if let name = row.day.typeName {
+            Text(verbatim: name).foregroundStyle(.secondary)
+        } else {
+            Text(verbatim: "")
         }
-    }
-
-    private func height(for bar: WidgetWeekBar) -> Double {
-        guard bar.minutes > 0 else { return 4 }
-        return max(6, min(Double(bar.minutes) / Self.scaleMinutes, 1) * Self.fullHeight)
-    }
-
-    private func fill(for bar: WidgetWeekBar) -> AnyShapeStyle {
-        if bar.isToday {
-            return renderingMode.isFullColor
-                ? AnyShapeStyle(LinearGradient(colors: [WidgetPalette.amberLight, WidgetPalette.amber], startPoint: .top, endPoint: .bottom))
-                : AnyShapeStyle(Color.primary)
-        }
-        return AnyShapeStyle(Color.white.opacity(bar.minutes > 0 ? 0.85 : 0.15))
-    }
-
-    private func weekdayLetter(_ date: CalendarDate) -> String {
-        CalendarFormatting(locale: .current, calendar: calendar)
-            .veryShortWeekdaySymbol(for: date.weekday(in: calendar))
     }
 }
 
-/// The hours above a bar, never smaller than 11pt: 9pt could not be read
-/// outdoors. Where "8:30" does not fit the bar's width it becomes the
-/// nearest whole hour, and where even that does not fit it is left out.
-/// The bar's accessibility value always has the exact figure.
-private struct BarValue: View {
-    let minutes: Int
-    let formatting: DurationFormatting
+/// The empty states, under a header that is already drawn.
+private struct WeekWaiting: View {
+    let entry: HoursEntry
 
     var body: some View {
-        Group {
-            if minutes > 0 {
-                ViewThatFits(in: .horizontal) {
-                    label(formatting.string(minutes))
-                    label(String((minutes + 30) / 60))
-                    label(" ")
-                }
-            } else {
-                label(" ")
-            }
+        Spacer(minLength: 0)
+        if entry.hasData {
+            QuietNote(text: String(localized: "Open Zeitkonto once to fill this in"))
+        } else {
+            EmptyStateView(state: entry.state).frame(maxWidth: .infinity)
         }
-        .accessibilityHidden(true)
+        Spacer(minLength: 0)
     }
+}
 
-    private func label(_ text: String) -> some View {
-        Text(verbatim: text)
-            .font(.system(size: 11, design: .rounded).monospacedDigit())
-            .foregroundStyle(WidgetPalette.mist)
-            .lineLimit(1)
-            .fixedSize()
+// MARK: - Lock Screen
+
+/// "WEEK 43 · 40:24" over the bars and the days, leave outlined, today
+/// full white, the target dashed.
+struct WeekRectangular: View {
+    let figures: WeekFigures
+
+    var body: some View {
+        if figures.entry.hasData, let chart = figures.chart {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(verbatim: figures.title.uppercased())
+                        .font(.lockLabel)
+                        .tracking(0.6)
+                        .opacity(0.72)
+                    Spacer(minLength: 4)
+                    Text(verbatim: figures.duration(chart.paidMinutes))
+                        .font(.system(size: 12.5, weight: .semibold).monospacedDigit())
+                        .widgetAccentable()
+                }
+                WeekBarsView(chart: chart, height: 24, spacing: 5, cornerRadius: 2, showsLabels: true, isLockScreen: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            EmptyStateView(state: figures.entry.state, compact: true)
+        }
     }
 }

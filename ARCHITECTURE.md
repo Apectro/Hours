@@ -700,6 +700,27 @@ lapses with its day, week or month like the hours beside it. The running clock
 is not added to them: what its minutes pay depends on surcharges only the app
 works out, so the figure moves when the shift is saved.
 
+**The 1.2 widgets** (Clock, Balance, Leave and Earned beside the four
+kinds that were already placed) read more of the same file: the week day by
+day (`WidgetWeekDay`: from–to, worked, credited, balance, the day's kind and
+type name, when work usually starts), a dot per day of the month, the
+running balance and what it is in days off, the leave year (only once leave
+is in use — the Insights card's rule), the month's earnings split into hours,
+allowance and kilometres (whenever a rate is set), the site card's crew row
+by row with the reason each person is away, and whether the clock is
+switched on. `WidgetFigures.swift` decides all of it — bar heights and the
+target line, dot kinds, "≈ 1½ days off", the next stretch of leave across a
+weekend, which face Today shows — and each figure lapses with its day, week
+or month as the older ones do; past midnight the week still knows whether
+the new day is a working day. Names that reach the widget (day types, "You",
+another site) are resolved by the writer in the phone's language through the
+export word table, so the extension looks nothing up in settings. Today's
+**Clock in** and **Clock out** are real buttons: `ToggleClockIntent` set to
+on, and `StopClockIntent`, run in the app's process like the control's. The
+look is the system's widget background with one accent from the extension's
+asset catalogue; a timeline entry a minute while the clock runs keeps the
+minutes moving, and the seconds are system timers.
+
 **A widget cannot write, so its buttons are links.** The store lives in the
 app's own container, not the shared one. "Same as yesterday" on the site
 widget is `zeitkonto://site/<id>/same-as-last`; the app follows it by pushing a
