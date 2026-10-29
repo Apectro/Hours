@@ -202,8 +202,8 @@ final class ExportLanguageTests: XCTestCase {
         XCTAssertEqual(duration.signedString(-180), "-3h")
     }
 
-    /// And the workbook's number format spells out the same two units, so a
-    /// cell and the text beside it cannot disagree about what a duration is.
+    /// And the workbook's number format is the same plain hours-and-minutes in
+    /// every language, so no translation can break it.
     func testTheWorkbookMaskMatchesTheText() {
         for language in languages {
             var export = ExportPreferences()
@@ -218,7 +218,7 @@ final class ExportLanguageTests: XCTestCase {
             )
             let package = String(decoding: XLSXWriter.data(for: table, preferences: export), as: UTF8.self)
             XCTAssertTrue(
-                package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
+                package.contains("formatCode=\"[h]:mm;-[h]:mm\""),
                 "\(language.rawValue): the workbook mask has drifted from the text"
             )
         }

@@ -15,6 +15,18 @@ struct PDFPageDecorations {
 
     // MARK: - Header block
 
+    /// The eyebrow as it fits beside the tiles. "Timesheet · Site A · Site B"
+    /// that is too long loses "Timesheet" first, so the sites — the part that
+    /// says something — are what is left whole; only then is it cut short.
+    static func fittedEyebrow(_ text: String, width: CGFloat) -> String {
+        func fits(_ candidate: String) -> Bool {
+            let attributes: [NSAttributedString.Key: Any] = [.font: PDFReportStyle.eyebrowFont, .kern: 0.8]
+            return (candidate as NSString).size(withAttributes: attributes).width <= width
+        }
+        guard !fits(text), let range = text.range(of: " · ") else { return text }
+        return String(text[range.upperBound...])
+    }
+
     /// Eyebrow, headline and byline on the left, the tiles on the right, and
     /// a heavy rule under both. A site's address is one smaller line under
     /// the byline, in its grey.
@@ -28,7 +40,7 @@ struct PDFPageDecorations {
         let textWidth = PDFReportStyle.contentWidth - tilesWidth - (tiles.isEmpty ? 0 : 16)
 
         PDFReportStyle.draw(
-            table.eyebrow.uppercased(with: table.language.locale),
+            Self.fittedEyebrow(table.eyebrow.uppercased(with: table.language.locale), width: textWidth),
             in: CGRect(x: margin, y: y, width: textWidth, height: 11),
             font: PDFReportStyle.eyebrowFont,
             color: PDFReportStyle.accent,
