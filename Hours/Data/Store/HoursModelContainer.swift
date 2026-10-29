@@ -5,7 +5,7 @@ import SwiftData
 enum HoursModelContainer {
     /// Always the current version's schema. The older ones are reachable through
     /// `HoursMigrationPlan`, which is what gets a store from there to here.
-    static let schema = Schema(versionedSchema: HoursSchemaV8.self)
+    static let schema = Schema(versionedSchema: HoursSchemaV9.self)
 
     /// Synced or not, this is the same store file: the configuration's name,
     /// and so its URL, does not depend on `cloudKitDatabase`. That is what
