@@ -184,13 +184,17 @@ struct ExportScreen: View {
                 ExportFormatCards(selection: $format)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
-                if selectedSite != nil {
+            }
+            // A section of its own: a grouped row under the cards in the same
+            // section was drawn over the selected card's outline.
+            if selectedSite != nil {
+                Section {
                     Toggle("One sheet per person", isOn: $perPerson)
                         .accessibilityIdentifier("export-per-person")
-                }
-            } footer: {
-                if selectedSite != nil && perPerson {
-                    Text("A file for each person, with their days on every site. They all go in one share.")
+                } footer: {
+                    if perPerson {
+                        Text("A file for each person, with their days on every site. They all go in one share.")
+                    }
                 }
             }
             nameSection
@@ -245,7 +249,7 @@ struct ExportScreen: View {
 
     @ViewBuilder
     private var previewSection: some View {
-        Section("Preview") {
+        Section {
             if let tables, tables.hasContent {
                 if showsPersonSheets, let first = personSheets.first {
                     personPreview(first)
@@ -268,6 +272,17 @@ struct ExportScreen: View {
                     systemImage: "tray",
                     description: Text("Pick a different range, or switch on “Include days with no entry” in export options.")
                 )
+            }
+        } header: {
+            Text("Preview")
+        } footer: {
+            // Under the section, not a row of it: a grouped row under the
+            // clear page preview left a seam.
+            if tables?.hasContent == true, showsPersonSheets, let first = personSheets.first {
+                Text(String(
+                        localized: "Preview: \(first.tables.preview.ownerName). Everyone on the sheet gets a file of their own.",
+                        comment: "Under the export preview with one sheet per person; the value is the first person's name"
+                    ))
             }
         }
     }
@@ -301,12 +316,6 @@ struct ExportScreen: View {
         } else {
             tablePreview(sheet.tables.preview)
         }
-        Text(String(
-                localized: "Preview: \(sheet.tables.preview.ownerName). Everyone on the sheet gets a file of their own.",
-                comment: "Under the export preview with one sheet per person; the value is the first person's name"
-            ))
-            .font(.footnote)
-            .foregroundStyle(.secondary)
     }
 
     private var nameSection: some View {
