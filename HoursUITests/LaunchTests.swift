@@ -162,7 +162,7 @@ extension XCUIApplication {
     /// on the machine running it, and would write to it.
     static func hours(pro: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-hours-ui-testing"]
+        app.launchArguments += ["-hours-ui-testing", "-hours-no-animations"]
         // Unpaid by default, so what gets exercised is the app most people
         // open on day one.
         if pro { app.launchArguments += ["-hours-pro"] }
