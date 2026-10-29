@@ -15,11 +15,11 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
 
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
         XCTAssertTrue(app.tabBars.buttons["Sites"].exists)
         XCTAssertTrue(app.tabBars.buttons["Insights"].exists)
         XCTAssertTrue(app.tabBars.buttons["Settings"].exists)
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].isSelected, "the calendar is the landing screen")
+        XCTAssertTrue(app.tab(.calendar).isSelected, "the calendar is the landing screen")
     }
 
     /// The store failing to open shows a banner. It must not be there on a
@@ -28,14 +28,14 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
 
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Your data could not be opened, so this session is temporary. Nothing you enter now will be saved."].exists)
     }
 
     func testEveryTabOpens() {
         let app = XCUIApplication.hours()
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
 
         app.tabBars.buttons["Sites"].tap()
         XCTAssertTrue(app.navigationBars["Sites"].waitForExistence(timeout: 5))
@@ -46,8 +46,8 @@ final class LaunchTests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
 
-        app.tabBars.buttons["Calendar"].tap()
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].isSelected)
+        app.tab(.calendar).tap()
+        XCTAssertTrue(app.tab(.calendar).isSelected)
     }
 
     /// Every settings screen, opened once. A crash on entering one of these is
@@ -114,7 +114,7 @@ final class LaunchTests: XCTestCase {
         // pre-filled from the schedule and a Sunday opens blank, so what a save
         // leaves behind depends on the day the test happens to run — while
         // "the editor opened and closed again" is true every day of the week.
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 5))
         XCTAssertFalse(save.exists, "the editor stayed open after saving")
     }
 
@@ -150,7 +150,7 @@ final class LaunchTests: XCTestCase {
         // process did not go down with it.
         XCTAssertTrue(save.waitForExistence(timeout: 5), "the editor did not survive removing a block")
         app.buttons["day-editor-cancel"].tap()
-        XCTAssertTrue(app.tabBars.buttons["Calendar"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 5))
     }
 
     private static var todayKey: Int { XCUIApplication.todayKey }

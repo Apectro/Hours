@@ -283,7 +283,7 @@ struct RootView: View {
     private var tabs: some View {
         TabView(selection: $selection) {
             CalendarScreen()
-                .tabItem { Label("Calendar", systemImage: "calendar") }
+                .tabItem { Label("Today", systemImage: "sun.max") }
                 .tag(Destination.calendar)
 
             SitesScreen(link: $siteLink)
