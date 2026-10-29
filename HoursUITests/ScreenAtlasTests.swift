@@ -539,7 +539,34 @@ final class ScreenAtlasTests: XCTestCase {
         if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
            tap(app.buttons.matching(identifier: "site-edit").firstMatch, "Edit site", app) {
             capture("site-edit", app)
+            arrivalReminderScreens(app)
             close(app, "site-editor-cancel")
+        }
+    }
+
+    /// The arrival reminder in the site's settings (1.2): the explanation
+    /// before anything is asked, then the saved place with its map. The
+    /// location is the UI tests' fake, so no permission prompt appears; the
+    /// editor is cancelled afterwards, so nothing is kept.
+    private func arrivalReminderScreens(_ app: XCUIApplication) {
+        let arrival = app.switches["site-editor-arrival"].firstMatch
+        guard bringIntoView(arrival, app) else {
+            miss("site-arrival-explanation (no arrival switch)")
+            return
+        }
+        flip(arrival)
+        guard app.staticTexts["site-arrival-explanation"].firstMatch.waitForExistence(timeout: 5) else {
+            miss("site-arrival-explanation (the explanation did not open)")
+            return
+        }
+        capture("site-arrival-explanation", app)
+        tapAnyway(app.buttons.matching(identifier: "site-arrival-continue").firstMatch)
+        let coordinates = app.descendants(matching: .any)["site-arrival-coordinates"].firstMatch
+        if coordinates.waitForExistence(timeout: 5) {
+            _ = bringIntoView(app.descendants(matching: .any)["site-arrival-map"].firstMatch, app)
+            capture("site-edit-arrival-place", app)
+        } else {
+            miss("site-edit-arrival-place (no place was saved)")
         }
     }
 

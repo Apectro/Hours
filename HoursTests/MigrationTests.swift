@@ -543,18 +543,31 @@ final class MigrationTests: XCTestCase {
         let entry = SiteEntry(site: site)
         entry.latitude = 45.8
         entry.longitude = 15.97
-        entry.arrivalRadius = 200
+        entry.arrivalRadius = 300
         entry.remindsOnArrival = true
         context.insert(entry)
         try context.save()
 
-        var renamed = site
+        // The site a screen edits is read from the entry, so it carries them.
+        var renamed = entry.site
+        XCTAssertEqual(renamed.place, SitePlace(latitude: 45.8, longitude: 15.97))
+        XCTAssertEqual(renamed.arrivalRadius, 300)
+        XCTAssertTrue(renamed.remindsOnArrival)
         renamed.name = "Bau Nord"
         entry.apply(renamed)
         XCTAssertEqual(entry.latitude, 45.8)
         XCTAssertEqual(entry.longitude, 15.97)
-        XCTAssertEqual(entry.arrivalRadius, 200)
+        XCTAssertEqual(entry.arrivalRadius, 300)
         XCTAssertTrue(entry.remindsOnArrival)
+
+        // "Clear location" clears them.
+        var cleared = entry.site
+        cleared.place = nil
+        cleared.remindsOnArrival = false
+        entry.apply(cleared)
+        XCTAssertNil(entry.latitude)
+        XCTAssertNil(entry.longitude)
+        XCTAssertFalse(entry.remindsOnArrival)
     }
 
     func testDayAndSiteDayEntriesKeepTheAllowance() {

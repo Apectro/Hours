@@ -6964,6 +6964,124 @@
         }
       }
     },
+    "Arrival reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ankunftserinnerung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio de llegada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappel d’arrivée"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podsjetnik na dolazak"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promemoria di arrivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aankomstherinnering"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przypomnienie o przyjeździe"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lembrete de chegada"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opomnik ob prihodu"
+          }
+        }
+      }
+    },
+    "Arrived at %@ — start the clock?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei %@ angekommen – Uhr starten?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegada a %@: ¿iniciar el reloj?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivée à %@ — démarrer le pointage ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dolazak na %@ — pokrenuti sat?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivo a %@: avvio il timer?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aangekomen bij %@ — klok starten?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przyjazd na %@ — włączyć zegar?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chegada a %@ — iniciar o relógio?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prihod na %@ — zaženem uro?"
+          }
+        }
+      }
+    },
     "At %@": {
       "extractionState": "manual",
       "localizations": {
@@ -11390,6 +11508,65 @@
         }
       }
     },
+    "Clear location": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ort entfernen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar ubicación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer le lieu"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukloni lokaciju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi posizione"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie wissen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń lokalizację"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar localização"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstrani lokacijo"
+          }
+        }
+      }
+    },
     "Client confirms": {
       "extractionState": "manual",
       "localizations": {
@@ -13805,6 +13982,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Šteje kot"
+          }
+        }
+      }
+    },
+    "Counts as arrived within": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als angekommen ab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegada a menos de"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivée dans un rayon de"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dolazak unutar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivato entro"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aangekomen binnen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przyjazd w promieniu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chegada a menos de"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prihod znotraj"
           }
         }
       }
@@ -20811,6 +21047,65 @@
         }
       }
     },
+    "Finding your location…": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort wird ermittelt …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscando tu ubicación…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de votre position…"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tražim tvoju lokaciju…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerco la tua posizione…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je locatie wordt bepaald…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Szukam twojej lokalizacji…"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A procurar a tua localização…"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iščem tvojo lokacijo …"
+          }
+        }
+      }
+    },
     "Finish work in ${applicationName}": {
       "extractionState": "manual",
       "localizations": {
@@ -21102,6 +21397,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prvi"
+          }
+        }
+      }
+    },
+    "First it saves where the site is, from your current location — so do this standing at the site.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuerst speichert es, wo die Baustelle ist, aus deinem aktuellen Standort – mach das also auf der Baustelle."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Primero guarda dónde está la obra a partir de tu ubicación actual, así que hazlo estando en la obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’abord, il enregistre l’emplacement du chantier à partir de votre position actuelle : faites-le donc sur le chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najprije sprema gdje je gradilište, iz tvoje trenutne lokacije — zato to napravi dok stojiš na gradilištu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima salva dove si trova il cantiere, dalla tua posizione attuale: fallo quindi mentre sei in cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eerst bewaart het waar de bouwplaats is, vanaf je huidige locatie — doe dit dus terwijl je op de bouwplaats staat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najpierw zapisuje, gdzie jest budowa, na podstawie twojej bieżącej lokalizacji — zrób to więc, stojąc na budowie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Primeiro guarda onde fica a obra a partir da tua localização atual — por isso faz isto estando na obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Najprej shrani, kje je gradbišče, iz tvoje trenutne lokacije — zato to naredi, ko stojiš na gradbišču."
           }
         }
       }
@@ -25708,6 +26062,65 @@
         }
       }
     },
+    "Left %@ — stop the clock?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verlassen – Uhr stoppen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida de %@: ¿parar el reloj?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Départ de %@ — arrêter le pointage ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odlazak s %@ — zaustaviti sat?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscita da %@: fermo il timer?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verlaten — klok stoppen?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyjazd z %@ — zatrzymać zegar?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saída de %@ — parar o relógio?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odhod z %@ — ustavim uro?"
+          }
+        }
+      }
+    },
     "Left early": {
       "extractionState": "manual",
       "localizations": {
@@ -26062,6 +26475,183 @@
         }
       }
     },
+    "Location is off for Zeitkonto, so the site's place can't be saved. Turn it on in Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Standort ist für Zeitkonto aus, daher kann der Ort der Baustelle nicht gespeichert werden. Schalte ihn in den Einstellungen ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La ubicación está desactivada para Zeitkonto, así que no se puede guardar el lugar de la obra. Actívala en Ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La localisation est désactivée pour Zeitkonto, l’emplacement du chantier ne peut donc pas être enregistré. Activez-la dans Réglages."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija je za Zeitkonto isključena, pa se mjesto gradilišta ne može spremiti. Uključi je u Postavkama."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La posizione è disattivata per Zeitkonto, quindi il luogo del cantiere non può essere salvato. Attivala in Impostazioni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie staat uit voor Zeitkonto, dus de plek van de bouwplaats kan niet worden bewaard. Zet hem aan in Instellingen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalizacja jest wyłączona dla Zeitkonto, więc nie można zapisać miejsca budowy. Włącz ją w Ustawieniach."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A localização está desativada para o Zeitkonto, por isso o local da obra não pode ser guardado. Ativa-a nas Definições."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija je za Zeitkonto izklopljena, zato kraja gradbišča ni mogoče shraniti. Vklopi jo v Nastavitvah."
+          }
+        }
+      }
+    },
+    "Location only for arrival reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort nur für Ankunftserinnerungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación solo para recordatorios de llegada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position seulement pour les rappels d’arrivée"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija samo za podsjetnike na dolazak"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione solo per i promemoria di arrivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie alleen voor aankomstherinneringen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalizacja tylko dla przypomnień o przyjeździe"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Localização só para lembretes de chegada"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija samo za opomnike ob prihodu"
+          }
+        }
+      }
+    },
+    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. El campo de lugar de un día es una nota que escribes tú."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. Le champ lieu d’un jour est une note que vous tapez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. Polje lokacije na danu je tekstualna bilješka koju upisuješ."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. Il campo luogo di un giorno è una nota che scrivi tu."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. Het locatieveld op een dag is een notitie die je typt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. Pole miejsca w dniu to notatka, którą wpisujesz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. O campo de local de um dia é uma nota que escreves."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš."
+          }
+        }
+      }
+    },
     "Longest day": {
       "extractionState": "manual",
       "localizations": {
@@ -26353,6 +26943,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ročni popravki"
+          }
+        }
+      }
+    },
+    "Map of the site's place": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karte mit dem Ort der Baustelle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa con el lugar de la obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carte de l’emplacement du chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karta s mjestom gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mappa con il luogo del cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaart met de plek van de bouwplaats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa z miejscem budowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa com o local da obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zemljevid s krajem gradbišča"
           }
         }
       }
@@ -29244,65 +29893,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Brez črte za podpis in brez strani s podpisi. Že dani podpisi ostanejo shranjeni."
-          }
-        }
-      }
-    },
-    "No location access": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kein Zugriff auf den Standort"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin acceso a la ubicación"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun accès à la localisation"
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nema pristupa lokaciji"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun accesso alla posizione"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geen locatietoegang"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brak dostępu do lokalizacji"
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sem acesso à localização"
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ni dostopa do lokacije"
           }
         }
       }
@@ -33398,6 +33988,65 @@
         }
       }
     },
+    "Open Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Réglages"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori Postavke"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Instellingen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Ustawienia"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Definições"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri Nastavitve"
+          }
+        }
+      }
+    },
     "Open Zeitkonto": {
       "extractionState": "manual",
       "localizations": {
@@ -36053,6 +36702,65 @@
         }
       }
     },
+    "Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ort"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lugar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lieu"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mjesto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luogo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plek"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miejsce"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraj"
+          }
+        }
+      }
+    },
     "Plain data": {
       "extractionState": "manual",
       "localizations": {
@@ -36167,6 +36875,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Poleg tega %lld km s tvojega dneva na gradbišču."
+          }
+        }
+      }
+    },
+    "Precise Location is off for Zeitkonto, so arriving can't be noticed. Turn it on in Settings › Zeitkonto › Location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Genauer Standort“ ist für Zeitkonto aus, daher kann die Ankunft nicht bemerkt werden. Schalte ihn unter Einstellungen › Zeitkonto › Standort ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Ubicación exacta» está desactivada para Zeitkonto, así que no se puede notar la llegada. Actívala en Ajustes › Zeitkonto › Ubicación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Position exacte » est désactivée pour Zeitkonto, votre arrivée ne peut donc pas être détectée. Activez-la dans Réglages › Zeitkonto › Position."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Precizna lokacija” je za Zeitkonto isključena, pa se dolazak ne može primijetiti. Uključi je u Postavke › Zeitkonto › Lokacija."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Posizione esatta” è disattivata per Zeitkonto, quindi l’arrivo non può essere notato. Attivala in Impostazioni › Zeitkonto › Posizione."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Exacte locatie’ staat uit voor Zeitkonto, dus aankomst kan niet worden opgemerkt. Zet hem aan in Instellingen › Zeitkonto › Locatie."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Dokładna lokalizacja” jest wyłączona dla Zeitkonto, więc nie można zauważyć przyjazdu. Włącz ją w Ustawienia › Zeitkonto › Lokalizacja."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Localização exata» está desativada para o Zeitkonto, por isso a chegada não pode ser notada. Ativa-a em Definições › Zeitkonto › Localização."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Natančna lokacija« je za Zeitkonto izklopljena, zato prihoda ni mogoče zaznati. Vklopi jo v Nastavitve › Zeitkonto › Lokacija."
           }
         }
       }
@@ -37823,6 +38590,65 @@
         }
       }
     },
+    "Remind me when I arrive": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Ankunft erinnern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avísame cuando llegue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me rappeler à mon arrivée"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podsjeti me kad stignem"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvisami quando arrivo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herinner me bij aankomst"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przypomnij, gdy dojadę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avisa-me quando chegar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opomni me ob prihodu"
+          }
+        }
+      }
+    },
     "Reminders": {
       "extractionState": "manual",
       "localizations": {
@@ -37878,6 +38704,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opomniki"
+          }
+        }
+      }
+    },
+    "Reminders only work when Zeitkonto may use your location “Always”. Change it in Settings › Zeitkonto › Location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungen funktionieren nur, wenn Zeitkonto deinen Standort „Immer“ verwenden darf. Ändere das unter Einstellungen › Zeitkonto › Standort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los recordatorios solo funcionan si Zeitkonto puede usar tu ubicación «Siempre». Cámbialo en Ajustes › Zeitkonto › Ubicación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels ne fonctionnent que si Zeitkonto peut utiliser votre position « Toujours ». Modifiez-le dans Réglages › Zeitkonto › Position."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podsjetnici rade samo kad Zeitkonto smije koristiti tvoju lokaciju „Uvijek”. Promijeni to u Postavke › Zeitkonto › Lokacija."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I promemoria funzionano solo se Zeitkonto può usare la tua posizione “Sempre”. Cambialo in Impostazioni › Zeitkonto › Posizione."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herinneringen werken alleen als Zeitkonto je locatie ‘Altijd’ mag gebruiken. Wijzig dit in Instellingen › Zeitkonto › Locatie."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przypomnienia działają tylko wtedy, gdy Zeitkonto może używać twojej lokalizacji „Zawsze”. Zmień to w Ustawienia › Zeitkonto › Lokalizacja."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os lembretes só funcionam se o Zeitkonto puder usar a tua localização «Sempre». Muda isso em Definições › Zeitkonto › Localização."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opomniki delujejo samo, če sme Zeitkonto uporabljati tvojo lokacijo »Vedno«. Spremeni to v Nastavitve › Zeitkonto › Lokacija."
           }
         }
       }
@@ -45291,6 +46176,65 @@
         }
       }
     },
+    "Start clock": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uhr starten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar reloj"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer le pointage"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokreni sat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvia timer"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klok starten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Włącz zegar"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar relógio"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaženi uro"
+          }
+        }
+      }
+    },
     "Start date": {
       "extractionState": "manual",
       "localizations": {
@@ -45877,6 +46821,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Še v teku"
+          }
+        }
+      }
+    },
+    "Stop clock": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uhr stoppen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar reloj"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter le pointage"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaustavi sat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferma timer"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klok stoppen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatrzymaj zegar"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar relógio"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustavi uro"
           }
         }
       }
@@ -49671,65 +50674,6 @@
         }
       }
     },
-    "The optional location field is a text note you type. The app never asks the system where you are.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das optionale Ortsfeld ist eine Textnotiz, die du eintippst. Die App fragt das System nie nach deinem Standort."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El campo opcional de lugar es una nota de texto que escribes tú. La app nunca pregunta al sistema dónde estás."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le champ lieu, facultatif, est une note que vous saisissez. L’app ne demande jamais au système où vous êtes."
-          }
-        },
-        "hr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neobavezno polje mjesta je tekstualna bilješka koju upišeš. Aplikacija nikad ne pita sustav gdje si."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il campo facoltativo del luogo è una nota di testo che scrivi tu. L’app non chiede mai al sistema dove ti trovi."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Het optionele locatieveld is een tekstnotitie die je zelf typt. De app vraagt het systeem nooit waar je bent."
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opcjonalne pole miejsca to notatka tekstowa, którą wpisujesz. Aplikacja nigdy nie pyta systemu, gdzie jesteś."
-          }
-        },
-        "pt": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O campo opcional de local é uma nota de texto que escreves. A app nunca pergunta ao sistema onde estás."
-          }
-        },
-        "sl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neobvezno polje kraja je besedilna opomba, ki jo vpišeš. Aplikacija sistema nikoli ne vpraša, kje si."
-          }
-        }
-      }
-    },
     "The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
       "extractionState": "manual",
       "localizations": {
@@ -51618,6 +52562,65 @@
         }
       }
     },
+    "To notice you arriving while the app is closed, iPhone has to let Zeitkonto use your location “Always”. iPhone asks next: allow it while using the app, then change it to Always.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit Zeitkonto deine Ankunft auch bei geschlossener App bemerkt, muss das iPhone den Standort „Immer“ erlauben. Das iPhone fragt gleich: erst „Beim Verwenden der App erlauben“, dann zu „Immer“ wechseln."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para notar tu llegada con la app cerrada, el iPhone tiene que dejar que Zeitkonto use tu ubicación «Siempre». Ahora el iPhone pregunta: primero permitir al usar la app y luego cambiar a Siempre."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour remarquer votre arrivée même app fermée, l’iPhone doit autoriser Zeitkonto à utiliser votre position « Toujours ». L’iPhone va demander : autorisez d’abord lorsque l’app est active, puis passez à Toujours."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da bi Zeitkonto primijetio tvoj dolazak i kad je aplikacija zatvorena, iPhone mu mora dopustiti lokaciju „Uvijek”. iPhone sada pita: najprije dopusti tijekom korištenja aplikacije, zatim promijeni u Uvijek."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per accorgersi del tuo arrivo anche ad app chiusa, l’iPhone deve permettere a Zeitkonto di usare la posizione “Sempre”. Ora l’iPhone chiede: prima consenti mentre usi l’app, poi passa a Sempre."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om je aankomst te merken terwijl de app dicht is, moet de iPhone Zeitkonto je locatie ‘Altijd’ laten gebruiken. De iPhone vraagt zo: eerst toestaan bij gebruik van de app, dan wijzigen in Altijd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aby zauważyć twój przyjazd przy zamkniętej aplikacji, iPhone musi pozwolić Zeitkonto używać lokalizacji „Zawsze”. iPhone zaraz zapyta: najpierw zezwól podczas używania aplikacji, potem zmień na Zawsze."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para notar a tua chegada com a app fechada, o iPhone tem de deixar o Zeitkonto usar a tua localização «Sempre». O iPhone pergunta a seguir: primeiro permitir ao usar a app, depois mudar para Sempre."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da Zeitkonto opazi tvoj prihod tudi, ko je aplikacija zaprta, mu mora iPhone dovoliti lokacijo »Vedno«. iPhone zdaj vpraša: najprej dovoli med uporabo aplikacije, nato spremeni v Vedno."
+          }
+        }
+      }
+    },
     "To print or send": {
       "extractionState": "manual",
       "localizations": {
@@ -53270,6 +54273,65 @@
         }
       }
     },
+    "Use my current location": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuellen Standort verwenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar mi ubicación actual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utiliser ma position actuelle"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koristi moju trenutnu lokaciju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa la mia posizione attuale"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mijn huidige locatie gebruiken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Użyj mojej bieżącej lokalizacji"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar a minha localização atual"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uporabi mojo trenutno lokacijo"
+          }
+        }
+      }
+    },
     "Use site times": {
       "extractionState": "manual",
       "localizations": {
@@ -54859,6 +55921,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Od kdaj velja ta sprememba?"
+          }
+        }
+      }
+    },
+    "When you reach this site, Zeitkonto asks whether to start the clock, and when you leave with the clock running, whether to stop it. Your location never leaves your phone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn du diese Baustelle erreichst, fragt Zeitkonto, ob die Uhr starten soll, und wenn du sie mit laufender Uhr verlässt, ob sie stoppen soll. Dein Standort verlässt nie dein Telefon."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando llegas a esta obra, Zeitkonto pregunta si iniciar el reloj, y cuando te vas con el reloj en marcha, si pararlo. Tu ubicación nunca sale de tu teléfono."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand vous arrivez sur ce chantier, Zeitkonto demande s’il faut démarrer le pointage, et quand vous partez pendant qu’il tourne, s’il faut l’arrêter. Votre position ne quitte jamais votre téléphone."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kad stigneš na ovo gradilište, Zeitkonto pita treba li pokrenuti sat, a kad odeš dok sat radi, treba li ga zaustaviti. Tvoja lokacija nikad ne napušta tvoj telefon."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando arrivi in questo cantiere, Zeitkonto chiede se avviare il timer, e quando te ne vai con il timer in corso, se fermarlo. La tua posizione non lascia mai il tuo telefono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als je bij deze bouwplaats aankomt, vraagt Zeitkonto of de klok moet starten, en als je weggaat terwijl de klok loopt, of hij moet stoppen. Je locatie verlaat nooit je telefoon."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gdy dojedziesz na tę budowę, Zeitkonto zapyta, czy włączyć zegar, a gdy odjedziesz z włączonym zegarem — czy go zatrzymać. Twoja lokalizacja nigdy nie opuszcza twojego telefonu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando chegas a esta obra, o Zeitkonto pergunta se deve iniciar o relógio e, quando sais com o relógio a contar, se o deve parar. A tua localização nunca sai do teu telefone."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ko prispeš na to gradbišče, Zeitkonto vpraša, ali naj zažene uro, in ko odideš, medtem ko ura teče, ali naj jo ustavi. Tvoja lokacija nikoli ne zapusti tvojega telefona."
+          }
+        }
+      }
+    },
+    "When you reach this site, Zeitkonto asks whether to start the clock. When you leave with the clock running, it asks whether to stop it. Not on days off, and not twice within two hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn du diese Baustelle erreichst, fragt Zeitkonto, ob die Uhr starten soll. Wenn du sie mit laufender Uhr verlässt, fragt es, ob sie stoppen soll. Nicht an freien Tagen und nicht zweimal innerhalb von zwei Stunden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando llegas a esta obra, Zeitkonto pregunta si iniciar el reloj. Cuando te vas con el reloj en marcha, pregunta si pararlo. No en días libres, ni dos veces en dos horas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand vous arrivez sur ce chantier, Zeitkonto demande s’il faut démarrer le pointage. Quand vous partez pendant qu’il tourne, il demande s’il faut l’arrêter. Pas les jours de repos, ni deux fois en deux heures."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kad stigneš na ovo gradilište, Zeitkonto pita treba li pokrenuti sat. Kad odeš dok sat radi, pita treba li ga zaustaviti. Ne u slobodne dane i ne dvaput unutar dva sata."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando arrivi in questo cantiere, Zeitkonto chiede se avviare il timer. Quando te ne vai con il timer in corso, chiede se fermarlo. Non nei giorni liberi e non due volte entro due ore."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als je bij deze bouwplaats aankomt, vraagt Zeitkonto of de klok moet starten. Als je weggaat terwijl de klok loopt, vraagt het of hij moet stoppen. Niet op vrije dagen en niet twee keer binnen twee uur."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gdy dojedziesz na tę budowę, Zeitkonto zapyta, czy włączyć zegar. Gdy odjedziesz z włączonym zegarem, zapyta, czy go zatrzymać. Nie w dni wolne i nie dwa razy w ciągu dwóch godzin."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando chegas a esta obra, o Zeitkonto pergunta se deve iniciar o relógio. Quando sais com o relógio a contar, pergunta se o deve parar. Não em dias de folga, nem duas vezes em duas horas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ko prispeš na to gradbišče, Zeitkonto vpraša, ali naj zažene uro. Ko odideš, medtem ko ura teče, vpraša, ali naj jo ustavi. Ne ob prostih dneh in ne dvakrat v dveh urah."
           }
         }
       }
@@ -58301,6 +59481,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vaše ure so shranjene lokalno in nikjer drugje. %@ %@"
+          }
+        }
+      }
+    },
+    "Your location couldn't be found. Try again outdoors.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort wurde nicht gefunden. Versuch es draußen noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha encontrado tu ubicación. Vuelve a intentarlo al aire libre."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre position est introuvable. Réessayez à l’extérieur."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja lokacija nije pronađena. Pokušaj ponovno na otvorenom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile trovare la tua posizione. Riprova all’aperto."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je locatie is niet gevonden. Probeer het buiten opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się znaleźć twojej lokalizacji. Spróbuj ponownie na zewnątrz."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível encontrar a tua localização. Tenta de novo ao ar livre."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje lokacije ni bilo mogoče najti. Poskusi znova na prostem."
+          }
+        }
+      }
+    },
+    "Your location never leaves your phone. Zeitkonto keeps only the site's saved place, and nothing is sent anywhere.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle, und nichts wird irgendwohin gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu ubicación nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra y no se envía nada a ninguna parte."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre position ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier, et rien n’est envoyé nulle part."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja lokacija nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta i ništa se nikamo ne šalje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua posizione non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere e nulla viene inviato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je locatie verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats en er wordt niets verstuurd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja lokalizacja nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy i nic nie jest nigdzie wysyłane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua localização nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra e nada é enviado para lado nenhum."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja lokacija nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča in nič se nikamor ne pošilja."
           }
         }
       }
@@ -64731,6 +66029,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sinhronizacija z iCloudom je izklopljena. Tvoji podatki so v lastnem prostoru te aplikacije in so vključeni v šifrirano varnostno kopijo naprave, če jo ustvariš. Vklopi v Nastavitve › iCloud."
+          }
+        }
+      }
+    },
+    "iPhone watches at most 20 sites for one app. This one is past the first 20 sites with a reminder, so it isn't watched.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das iPhone überwacht höchstens 20 Baustellen pro App. Diese liegt hinter den ersten 20 Baustellen mit Erinnerung und wird daher nicht überwacht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El iPhone vigila como máximo 20 obras por app. Esta va después de las primeras 20 obras con recordatorio, así que no se vigila."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’iPhone surveille au plus 20 chantiers par app. Celui-ci vient après les 20 premiers chantiers avec rappel : il n’est donc pas surveillé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone prati najviše 20 gradilišta po aplikaciji. Ovo je iza prvih 20 gradilišta s podsjetnikom, pa se ne prati."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’iPhone controlla al massimo 20 cantieri per app. Questo viene dopo i primi 20 cantieri con promemoria, quindi non è controllato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De iPhone houdt per app hoogstens 20 bouwplaatsen in de gaten. Deze komt na de eerste 20 bouwplaatsen met herinnering en wordt dus niet gevolgd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone obserwuje najwyżej 20 budów na aplikację. Ta jest za pierwszymi 20 budowami z przypomnieniem, więc nie jest obserwowana."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O iPhone vigia no máximo 20 obras por app. Esta vem depois das primeiras 20 obras com lembrete, por isso não é vigiada."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone spremlja največ 20 gradbišč na aplikacijo. To je za prvimi 20 gradbišči z opomnikom, zato se ne spremlja."
           }
         }
       }

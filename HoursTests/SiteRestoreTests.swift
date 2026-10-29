@@ -80,6 +80,33 @@ final class SiteRestoreTests: XCTestCase {
         XCTAssertEqual(siteShifts(WorkdayRepository(context: target).record(on: date)).count, 1)
     }
 
+    /// The arrival reminder's place, radius and switch live on `SiteEntry`,
+    /// and a restore rebuilds entries from `Site`: they must travel both ways.
+    func testTheArrivalPlaceRoundTripsThroughBackupAndRestore() throws {
+        let source = makeContext()
+        var placed = Site(name: "Trg Pravde", sortOrder: 1)
+        placed.place = SitePlace(latitude: 45.8150, longitude: 15.9819)
+        placed.arrivalRadius = 300
+        placed.remindsOnArrival = true
+        SiteRepository(context: source).upsert(placed)
+        let data = try BackupRestorer(context: source).makeArchive(settings: Fixture.settings()).encoded()
+
+        let target = makeContext()
+        SiteRepository(context: target).upsert(Site(name: "Wiped by the restore"))
+        BackupRestorer(context: target).restore(try BackupArchive.decoded(from: data))
+
+        let restored = try XCTUnwrap(SiteRepository(context: target).site(id: placed.id))
+        XCTAssertEqual(restored, placed)
+        XCTAssertEqual(restored.place, SitePlace(latitude: 45.8150, longitude: 15.9819))
+        XCTAssertEqual(restored.arrivalRadius, 300)
+        XCTAssertTrue(restored.remindsOnArrival)
+        let entry = try XCTUnwrap(target.fetch(FetchDescriptor<SiteEntry>()).first { $0.siteID == placed.id.uuidString })
+        XCTAssertEqual(entry.latitude, 45.8150)
+        XCTAssertEqual(entry.longitude, 15.9819)
+        XCTAssertEqual(entry.arrivalRadius, 300)
+        XCTAssertTrue(entry.remindsOnArrival)
+    }
+
     // MARK: - Restoring
 
     func testRestoringOldBackupKeepsSites() throws {
