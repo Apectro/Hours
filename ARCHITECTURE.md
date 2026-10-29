@@ -431,6 +431,21 @@ site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
 Custom day types live in settings rather than SwiftData because they are
 configuration that must be available wherever a day is rendered.
 
+**A site's usual day and extras (1.2)** live there too, keyed by the site's
+id: `AppSettings.siteSetups` (`SiteSetup` — usual start, end and break, work
+days, and whether the day asks for kilometres, the evening reminder and the
+note on the 1st speak about the site, and the day shows the diary), and
+`AppSettings.newSites` (`NewSiteDefaults`, Settings › New sites start with,
+where an unset time or work days follow the working week). Not on `Site`: a
+column means V10, a migration stage and a CloudKit schema to deploy again
+while V9 is on TestFlight, for configuration the settings blob already
+carries — through iCloud's key-value store and in every backup. Both decode
+leniently, site by site; a setup with nothing in it is not kept, so a site
+never set up has every extra on and no usual day, exactly as before; the keys
+are written only once set, and 1.0 and 1.1 skip them. A new site day starts
+with the site's usual times on the first tick (`SiteDay.startingWithUsualTimes`),
+and the site's times sheet and bad-weather stop offer them first.
+
 **Migration.** SwiftData models store primitives only — no enums, no
 associated values, no `Date`s — so adding a property is an additive,
 lightweight migration. Settings decode leniently: every field falls back to its
@@ -646,6 +661,55 @@ last. At accessibility text sizes a day cell of the site's week or month
 shows one mark under its number (the crew count, else rain, else one dot for a
 diary or extra work) instead of three; VoiceOver still names every one. Export is reachable from the calendar toolbar and from Settings.
 
+**A clearer app (1.2).** Nothing is reachable only from a "…" menu, and every
+screen says what it is. The Sites list leads with "12 active · 3 need today
+written" and a **New site** capsule in the toolbar; a card has the address, a
+status line with a dot — "Today written · 5 of 5 here · 42h 30m", "Today not
+written yet" only on a day the site is expected (`SiteWorkDays.expects`: its
+work days, else the weekdays it was worked in the last two weeks, never a
+public holiday off), "No work today" — and chips for the crew, the arrival
+reminder and the allowance. A site has, under its name and address, four
+buttons of one height (`SiteActionsRow`, two by two at accessibility sizes):
+**Crew** (pushed by value), **Diary** (the diary list), **Sheet** (the site
+export, on `SignOff.defaultMonth`) and **Extra work** (the report), each with
+a one-line count; the gear is the site's settings (`SiteEditorSheet`, which
+now also holds the usual day, the work days and the extras). Crew sign-off,
+once in the menu, is on the crew screen's toolbar and stays on the export's
+sign-off row; ExportScreen is unchanged.
+
+**The new-site wizard** (`NewSiteWizard`, a full-screen cover from New site
+and the first run's "Create a site"): Step n of 6 with a progress bar,
+Back/Cancel and a big Next. 1 · how to start — copy a site
+(`SiteBlueprint.copying`: its crew without hidden people, usual day, work days,
+extras, job and allowance by default, never its name, address or place; a site
+set up before usual days existed gives its latest day's times and its recent
+weekdays), start fresh (`SiteBlueprint.fresh` from Settings › New sites start
+with), or several at once (`NameList`: one per line, tidied, each name once by
+`CrewCandidates.key`, names a site already has left out). 2 · where — name
+(required, unique among all sites), address, job, and the site's own
+`SiteArrivalSection` on the draft, so the explanation and the one fix are the
+same code. 3 · crew — `CrewPicking.choices` (everyone on an active crew once,
+with the sites they are on), Tick all, and "New people" pasted one per line;
+"N on the crew, you included". 4 · the usual day and work days. 5 · extras.
+6 · check, each line back to its step; **Create site**, or **Create and set up
+another like it**, which starts again at step 2 with the same blueprint. A
+crew sign-off switch is not offered: whether a sheet is signed is the
+export's Signatures switch, for every site at once, and a per-site switch
+would need ExportScreen to read it.
+
+**Settings by meaning, with search.** The index is a list of `SettingsEntry`
+values — title, the current value in grey, localized keywords, symbol,
+destination — grouped as Your work (Working hours, Overtime & balance, Pay,
+Leave, Jobs), Sites & crews (New sites start with, Reminders), Days & sheets
+(Day types & holidays, Sheets, Fields, Calendar) and App (Appearance, iCloud
+& backup, Privacy, Help & tour, Rate, Feedback). Allowance & travel moved
+under Pay; Day types & holidays and iCloud & backup are small screens over
+the screens they always were. `.searchable` filters every entry, and a few
+one level down (Allowance & travel, Day types, Holidays, Backup and data),
+by title, value and keywords, case and accents aside. No engine: it is the
+words on the screen. Screens renamed to match their rows: Working hours,
+Overtime & balance, Sheets, Appearance.
+
 **The calendar, top to bottom (1.1).** The grid, then the selected day's card
 (its Write hours / Edit day button must be on screen when a day is tapped),
 then the period's totals with their own Export button, then the week list in
@@ -812,7 +876,10 @@ without touching the others: the weekly gap reminder (`GapFinder`), the evening
 site reminder (`SiteReminderPlan`), the note on the 1st that a site sheet
 is ready for the boss (`MonthlySheetReminderPlan`), and the weekly note
 that finished extra work has not been sent to the boss
-(`ExtraWorkReminderPlan`). None of them asks for permission until its switch is
+(`ExtraWorkReminderPlan`). A site's work days (`SiteSetup.workDays`, 1.2) replace the
+weekdays its history says for the evening reminder, a new site with none
+written yet included, and a site with the evening reminder or the note on the
+1st switched off in its settings is left out of that one (`silenced`). None of them asks for permission until its switch is
 turned on; the two site ones are on by default and simply schedule nothing
 while notifications are not allowed, and the extra-work one is off by default.
 
@@ -954,7 +1021,8 @@ shows the address to copy when no mail account is set up.
 
 ## The guided tour
 
-"Show me around" on the setup's last screen, or Settings › Show the tour again,
+"Show me around" on the setup's last screen, or Settings › Help & tour › Show
+the tour again (which goes back to Settings first, where the last stop is),
 starts six stops (`GuidedTour`, `TourStop` in the engine): a welcome in the
 middle, today's cell, the month's totals, Sites, Insights, and Export options
 naming the report language. Skip on any setup step ends the setup without it,
@@ -1081,6 +1149,15 @@ and takes away a day the move made unless something was written on it since.
 and your calendar day in one save under the lock, so when you went your day
 gets two site shifts through `SiteCalendarSync` like any two site days.
 
+**Your clock moves too.** When you are among those who went and your clock
+is running on that date from before the time you left,
+`ClockFollowsMove.handover` gives the instants: the clock stops at the time
+you left and starts again at the time you started there (never before the
+stop), through `HoursStack.timeClock` — the path Siri and the widgets take —
+with the other site's job; the widget refresh after the move brings the Live
+Activity in line. The sheet's summary says "Your clock moves too." by the same
+rule. Undo does not move the clock back.
+
 The moves are stored without a schema version: V9 is on TestFlight, and a
 new column means V10, a migration stage and a CloudKit schema to deploy
 again for an undo record. They ride in `absenceData` as entries of their own
@@ -1113,7 +1190,8 @@ leaves out both the line to sign on and the sign-off boxes, and the export's
 sign-off row stays, greyed, saying it is turned off for that sheet. Signatures
 already given stay stored. The sign-off is also in the site's own menu, as a
 sheet with a month stepper that opens on `SignOff.defaultMonth` (last month
-during the first ten days, this month after). Removing a signature asks first.
+during the first ten days, this month after), from the crew screen's toolbar
+(1.2; it was in the site's menu). Removing a signature asks first.
 
 **A sheet for each person (1.2).** At month end each worker wants their own
 hours to check against their payslip, and the supervisor wants to hand each of
