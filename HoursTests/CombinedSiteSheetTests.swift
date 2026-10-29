@@ -252,6 +252,25 @@ final class CombinedSiteSheetTests: XCTestCase {
         XCTAssertEqual(closing(t, "Kilometres")?.last, "65 km")
     }
 
+    func testEachPersonsHoursOnEachSiteCloseTheSheet() {
+        let t = table([haupt, trg], days: [
+            day(haupt, 3, present: [ivan.id], end: Fixture.time(11, 30), breakMinutes: 0),
+            day(trg, 3, present: [ivanThere.id, luka.id], start: Fixture.time(12), end: Fixture.time(16), breakMinutes: 30),
+            day(haupt, 4, present: [ivan.id, marko.id])
+        ])
+        XCTAssertEqual(people(t), ["Ivan", "Marko", "Luka"])
+        let labels = t.rows.filter { $0.role != .day }.map { $0.values[0] }
+        XCTAssertEqual(labels, ["Month total", "Days worked", "Hauptstraße 12", "Trg Pravde"])
+        XCTAssertEqual(closing(t, "Hauptstraße 12")?[4], "13h", "4:30 and 8:30")
+        XCTAssertEqual(closing(t, "Trg Pravde")?[4], "3h 30m")
+        XCTAssertEqual(closing(t, "Hauptstraße 12")?[8], "", "Luka was never there")
+        XCTAssertEqual(closing(t, "Trg Pravde")?[8], "3h 30m")
+        XCTAssertEqual(closing(t, "Month total")?[4], "16h 30m", "the sites add up to the month")
+        let row = t.rows.first { $0.values[0] == "Trg Pravde" && $0.role == .count }
+        XCTAssertEqual(row?.minutes[4], 210, "hours a workbook can add up")
+        XCTAssertEqual(t.trailingSummaryRows, 4)
+    }
+
     func testBySiteHasEachSitesHoursTheAddressAndTheTotal() {
         let t = table([haupt, trg], days: [
             day(haupt, 3, present: [CrewMember.youID, ivan.id]),

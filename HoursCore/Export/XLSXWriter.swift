@@ -404,6 +404,8 @@ enum XLSXWriter {
                     style: .groupTotal
                 )
             case .count:
+                // A combined site sheet's hours per site, under the total.
+                if let minutes { return .number(dayFraction(minutes: minutes), style: .duration(rest: false)) }
                 if let count = Int(value) { return .number(Double(count), style: .mutedCount) }
                 return .text(value, style: .summaryLabel)
             case .day:

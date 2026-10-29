@@ -132,6 +132,8 @@ extension SiteSheetBuilder {
         var leaveDays = Array(repeating: 0, count: people.count)
         var allowanceDays = Array(repeating: 0, count: people.count)
         var siteMinutes = Array(repeating: 0, count: sites.count)
+        /// Each person's hours on each site, for the closing rows.
+        var personSiteMinutes = Array(repeating: Array(repeating: 0, count: people.count), count: sites.count)
         let tracksAllowance = settings.allowance.isEnabled
         let catalog = settings.dayTypeCatalog
 
@@ -175,6 +177,7 @@ extension SiteSheetBuilder {
                 let worked = entries.reduce(0) { $0 + $1.entry.workedMinutes }
                 for (siteID, entry) in entries {
                     siteMinutes[siteIndex[siteID] ?? 0] += entry.workedMinutes
+                    personSiteMinutes[siteIndex[siteID] ?? 0][index] += entry.workedMinutes
                 }
                 dayWorked[index] = worked
                 isThere[index] = true
@@ -263,6 +266,19 @@ extension SiteSheetBuilder {
         totalValues.append("")
         totalCells.append(nil)
         countValues.append("")
+        // How much each person worked on each site, a row per site under
+        // the days worked: the month total divided by where. Figures, not
+        // sums, so a workbook writes them as hours.
+        var closingRows: [(values: [String], minutes: [Int?])] = []
+        for (index, site) in sites.enumerated() {
+            var values = [site.name, "", ""]
+            var minutes: [Int?] = [nil, nil, nil]
+            for worked in personSiteMinutes[index] {
+                values += ["", worked > 0 ? duration.string(worked) : ""]
+                minutes += [nil, worked > 0 ? worked : nil]
+            }
+            closingRows.append((values + [""], minutes + [nil]))
+        }
         var absenceRows: [[String]] = []
         for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.allowanceDays, allowanceDays)]
         where counts.contains(where: { $0 > 0 }) {
@@ -282,9 +298,10 @@ extension SiteSheetBuilder {
             id: 1, values: countValues, minutes: Array(repeating: nil, count: countValues.count),
             isWorkingDay: true, balanceMinutes: 0, hasEntry: true, role: .count
         ))
-        for (offset, values) in absenceRows.enumerated() {
+        closingRows += absenceRows.map { ($0, Array(repeating: nil, count: $0.count)) }
+        for (offset, row) in closingRows.enumerated() {
             rows.append(ReportRow(
-                id: 2 + offset, values: values, minutes: Array(repeating: nil, count: values.count),
+                id: 2 + offset, values: row.values, minutes: row.minutes,
                 isWorkingDay: true, balanceMinutes: 0, hasEntry: true, role: .count
             ))
         }
@@ -308,7 +325,7 @@ extension SiteSheetBuilder {
             headingOverrides: leadingKinds.map { $0.heading(in: language) }
                 + people.flatMap { _ in [language(.fromTo), language(.hours)] }
                 + [language(.notes)],
-            trailingSummaryRows: 2 + absenceRows.count
+            trailingSummaryRows: 2 + closingRows.count
         )
         table.kind = .siteSheet
         table.eyebrow = "\(language(.siteHours)) · \(month)"
