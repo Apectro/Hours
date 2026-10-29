@@ -61,7 +61,7 @@ struct ScheduleSettingsScreen: View {
                 }
             }
         }
-        .navigationTitle(settings.tracksMultipleJobs ? settings.primaryJob.displayName() : "Working schedule")
+        .navigationTitle(settings.tracksMultipleJobs ? settings.primaryJob.displayName() : String(localized: "Working hours"))
         .navigationBarTitleDisplayMode(.inline)
         // Leaving with an unsaved week would quietly drop it, so while there
         // is one the way out is Discard or Save.

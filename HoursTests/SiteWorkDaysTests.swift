@@ -53,6 +53,19 @@ final class SiteWorkDaysTests: XCTestCase {
         ], before: thursday, calendar: calendar), [2, 3], "Monday and Tuesday; the 10th is too long ago")
     }
 
+    // MARK: - Saying which days
+
+    /// "Mon–Fri" and "Mon–Wed, Sat": runs in the week's own order.
+    func testWorkDaysAreReadAsRunsInTheWeeksOrder() {
+        XCTAssertEqual(SiteWorkDays.runs([2, 3, 4, 5, 6], firstWeekday: 2), [[2, 3, 4, 5, 6]])
+        XCTAssertEqual(SiteWorkDays.runs([2, 3, 4, 7], firstWeekday: 2), [[2, 3, 4], [7]])
+        // Saturday and Sunday run together in a week that starts on Monday…
+        XCTAssertEqual(SiteWorkDays.runs([7, 1], firstWeekday: 2), [[7, 1]])
+        // …and not in one that starts on Sunday.
+        XCTAssertEqual(SiteWorkDays.runs([7, 1], firstWeekday: 1), [[1], [7]])
+        XCTAssertEqual(SiteWorkDays.runs([], firstWeekday: 2), [])
+    }
+
     // MARK: - The evening reminder
 
     /// A brand-new site with work days but no days yet is nagged about on

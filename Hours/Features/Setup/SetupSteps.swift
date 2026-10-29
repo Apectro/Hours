@@ -186,7 +186,7 @@ struct SetupHolidaysStep: View {
                     }
                 }
                 if country != nil {
-                    Text("You can see, change or remove them later in Settings › Holidays.")
+                    Text("You can see, change or remove them later in Settings › Day types & holidays.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -232,7 +232,7 @@ struct SetupLanguageStep: View {
                     }
                     .accessibilityIdentifier("setup-language-\(choice.rawValue)")
                 }
-                Text("You can change it later in Settings › Export options.")
+                Text("You can change it later in Settings › Sheets.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -290,7 +290,7 @@ struct SetupPayStep: View {
     var body: some View {
         SetupPage(
             heading: "What do you earn an hour?",
-            message: "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Export options; a site sheet never does.",
+            message: "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Sheets; a site sheet never does.",
             identifier: "screen-setup-pay"
         ) {
             VStack(alignment: .leading, spacing: Metrics.small) {

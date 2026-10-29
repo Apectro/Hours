@@ -70,7 +70,7 @@ struct CalculationSettingsScreen: View {
             carryOverSection
             monthLockSection
         }
-        .navigationTitle("Balance & rounding")
+        .navigationTitle("Overtime & balance")
         .navigationBarTitleDisplayMode(.inline)
     }
 

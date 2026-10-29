@@ -48,6 +48,9 @@ struct SiteDayCard: View {
     var onToggleAllowance: (UUID) -> Void = { _ in }
     var kilometres: Binding<String> = .constant("")
     var isKilometresFocused: FocusState<Bool>.Binding? = nil
+    /// The site asks for the van's kilometres (its settings, 1.2). Only
+    /// read while the allowance is tracked.
+    var asksKilometres = true
     /// "Moved to another site…" (1.2): offered while someone ticked has not
     /// moved yet and there is another active site. Nil is everyone ticked;
     /// a row's menu passes one person.
@@ -133,7 +136,8 @@ struct SiteDayCard: View {
             .buttonStyle(.borderless)
             .accessibilityIdentifier("site-day-edit-crew")
 
-            if tracksAllowance {
+            // A day that already has kilometres shows them, asked or not.
+            if tracksAllowance, asksKilometres || day.kilometres > 0 {
                 kilometresRow
             }
 

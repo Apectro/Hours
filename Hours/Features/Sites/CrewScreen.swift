@@ -32,6 +32,9 @@ struct CrewScreen: View {
     @State private var isPicking = false
     /// Whose own sheet is open, to read and share.
     @State private var sharing: CrewMember?
+    /// Crew sign-off, from the toolbar (1.2): with the site's "…" menu gone,
+    /// this and the site's Sheet are where people sign their month.
+    @State private var signingOff: Site?
     @FocusState private var isAddingFocused: Bool
 
     init(siteID: UUID) {
@@ -106,10 +109,22 @@ struct CrewScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    signingOff = sites.first { $0.id == siteID }
+                } label: {
+                    Label("Crew sign-off", systemImage: "signature")
+                }
+                .disabled(!sites.contains { $0.id == siteID })
+                .accessibilityIdentifier("site-sign-off")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 if !isReadOnly && visible.count > 1 {
                     EditButton()
                 }
             }
+        }
+        .sheet(item: $signingOff) { site in
+            SiteSignOffSheet(site: site)
         }
         .alert("Rename", isPresented: isRenaming, presenting: renaming) { member in
             TextField("Name", text: $renameText)

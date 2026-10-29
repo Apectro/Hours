@@ -27,7 +27,7 @@ struct AboutScreen: View {
                     PrivacyPoint(
                         symbol: "icloud",
                         title: String(localized: "Your own iCloud"),
-                        detail: String(localized: "You turned sync on, so your days, holidays, sites and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud.")
+                        detail: String(localized: "You turned sync on, so your days, holidays, sites and settings are kept in your private iCloud storage. Only your devices, signed in as you, can read it. Turn it off in Settings › iCloud & backup.")
                     )
                 } else {
                     PrivacyPoint(
@@ -35,7 +35,7 @@ struct AboutScreen: View {
                         title: String(localized: "No sync"),
                         // Without sync in this build there is no setting to point at.
                         detail: SyncPreference.isAvailable
-                            ? String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud.")
+                            ? String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud & backup.")
                             : String(localized: "Your data lives in this app's own storage and is included in an encrypted device backup if you make one.")
                     )
                 }
@@ -60,8 +60,8 @@ struct AboutScreen: View {
                     symbol: "externaldrive",
                     title: String(localized: "Make a backup"),
                     detail: isSyncing
-                        ? String(localized: "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › Backup and data.")
-                        : String(localized: "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › Backup and data.")
+                        ? String(localized: "Sync is not a backup: a day you delete is deleted on every device. A backup file is the copy that survives that. Settings › iCloud & backup.")
+                        : String(localized: "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › iCloud & backup.")
                 )
             }
         }

@@ -131,7 +131,8 @@ struct SyncSettingsScreen: View {
                 Text(
                     """
                     Sync is not a backup. A day you delete is deleted \
-                    everywhere. Settings › Backup and data writes a file that \
+                    everywhere. Settings › iCloud & backup › Backup and data \
+                    writes a file that \
                     keeps a copy no sync can undo.
                     """
                 )

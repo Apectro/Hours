@@ -1,9 +1,11 @@
 import SwiftUI
 import SwiftData
 
-/// One site: its month and day screen under the site's name, with the
-/// extra-work report in the toolbar and the crew, sign-off, diary, export and
-/// the editor for the site's name, job and archiving folded into one menu.
+/// One site: its name and address, four buttons for what it has — Crew,
+/// Diary, Sheet, Extra work — and its month and day screen under them, with
+/// the gear for the site's settings (1.2, mockup SiteHome). Nothing is
+/// reachable only from a menu: crew sign-off is on the crew screen and on
+/// the sheet's export screen.
 ///
 /// Opens on today, or on the date it is given — the personal day editor's
 /// "Open on site" passes the day it came from.
@@ -20,6 +22,9 @@ struct SiteDetailScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
     @Environment(\.openSiteCrew) private var openSiteCrew
+    // Not private: the memberwise initializer the Sites tab calls would
+    // become private with it.
+    @Environment(\.modelContext) var modelContext
 
     // Every site rather than this one: whether this one is read-only depends
     // on the others (see `SiteAccess.isReadOnly`).
@@ -28,12 +33,13 @@ struct SiteDetailScreen: View {
     @State private var editing: Site?
     @State private var exporting: Site?
     @State private var readingDiary: Site?
-    @State private var signingOff: Site?
+    /// The buttons' counts, read on appearing and when a sheet closes.
+    @State private var counts = SiteCounts()
     /// A date picked in the diary list, for the day screen to show.
     @State private var requestedDate: CalendarDate?
-    /// The extra-work report, from the toolbar's Report button.
+    /// The extra-work report, from the Extra work button.
     @State private var reporting: Site?
-    /// The month the export opens on; `nil` is last month, as the menu does.
+    /// The month the export opens on; `nil` is the Sheet button's month.
     @State private var exportingMonth: YearMonth?
     /// The link's export is opened once. Coming back to the site from the
     /// sheet must not open it again.
@@ -50,7 +56,8 @@ struct SiteDetailScreen: View {
                     date: initialDate ?? CalendarDate.today(in: settingsStore.workCalendar),
                     appliesSameAsLastDay: appliesSameAsLastDay,
                     requestedDate: $requestedDate,
-                    onOpenReport: { reporting = site }
+                    onOpenReport: { reporting = site },
+                    header: AnyView(actions(for: site))
                 )
             } else {
                 Color.hoursCanvas
@@ -59,87 +66,27 @@ struct SiteDetailScreen: View {
         .navigationTitle(site?.name ?? "")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            // The Extra-work report for the boss (mockup 13): a sheet, like
-            // the export. Open on a read-only site too, as the export is.
+            // The site's settings (the editor: name, address, job, usual
+            // day, extras, arrival reminder, archiving). Everything else the
+            // site has is a button on the screen itself (`SiteActionsRow`).
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    reporting = site
+                    editing = site
                 } label: {
-                    Label("Report", systemImage: "doc.text")
-                        .labelStyle(.titleAndIcon)
+                    Image(systemName: "gearshape")
                 }
                 .disabled(site == nil)
-                .accessibilityLabel(String(localized: "Extra-work report"))
-                .accessibilityIdentifier("site-extra-work-report")
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    // Pushed by value onto whichever stack this screen is in
-                    // (the Sites tab, or the day editor that opened it): a
-                    // presented-binding destination here is what once left
-                    // the app never going idle. A NavigationLink cannot sit
-                    // in a Menu, so the stack's root hands down the push.
-                    Button {
-                        openSiteCrew(SiteCrewRoute(siteID: siteID))
-                    } label: {
-                        Label("Crew", systemImage: "person.2")
-                    }
-                    // On the control, not on its label: the element a UI
-                    // test can tap is the button.
-                    .accessibilityIdentifier("site-crew")
-
-                    // Its own way in: people sign on site, face to face, at
-                    // the end of the month, not while an export is open.
-                    Button {
-                        signingOff = site
-                    } label: {
-                        Label("Crew sign-off", systemImage: "signature")
-                    }
-                    .disabled(site == nil)
-                    .accessibilityIdentifier("site-sign-off")
-
-                    // A sheet rather than a push: the diary is read here and
-                    // written on the day screen underneath.
-                    Button {
-                        readingDiary = site
-                    } label: {
-                        Label("Site diary", systemImage: "text.book.closed")
-                    }
-                    .disabled(site == nil)
-                    .accessibilityIdentifier("site-diary-list")
-
-                    // Open on a read-only site too: an archived site's months
-                    // are still the boss's to ask for.
-                    Button {
-                        exportingMonth = nil
-                        exporting = site
-                    } label: {
-                        Label("Export", systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(site == nil)
-                    .accessibilityIdentifier("site-export")
-
-                    Button {
-                        editing = site
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    .disabled(site == nil)
-                    .accessibilityIdentifier("site-edit")
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-                .accessibilityLabel("More")
-                .accessibilityIdentifier("site-more")
+                .accessibilityLabel(String(localized: "Site settings"))
+                .accessibilityIdentifier("site-edit")
             }
         }
+        .onAppear(perform: loadCounts)
+        .onChange(of: editing) { _, now in if now == nil { loadCounts() } }
+        .onChange(of: reporting) { _, now in if now == nil { loadCounts() } }
+        .onChange(of: readingDiary) { _, now in if now == nil { loadCounts() } }
         .sheet(item: $exporting) { site in
-            // Last month: the boss asks for it at the start of the next one.
-            SiteExportScreen(
-                site: site,
-                month: exportingMonth
-                    ?? CalendarDate.today(in: settingsStore.workCalendar).yearMonth.adding(months: -1)
-            )
+            // The Sheet button's month, or the one a link asked for.
+            SiteExportScreen(site: site, month: exportingMonth ?? sheetMonth)
         }
         // `initial`, and keyed on the site arriving, because the query may
         // not have it yet the first time the screen is drawn.
@@ -149,9 +96,6 @@ struct SiteDetailScreen: View {
         }
         .sheet(item: $readingDiary) { site in
             SiteDiaryListSheet(site: site) { requestedDate = $0 }
-        }
-        .sheet(item: $signingOff) { site in
-            SiteSignOffSheet(site: site)
         }
         .sheet(item: $reporting) { site in
             ExtraWorkReportScreen(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites))
@@ -189,4 +133,56 @@ struct SiteDetailScreen: View {
     private var site: Site? {
         sites.first { $0.id == siteID }
     }
+
+    // MARK: - The buttons
+
+    /// The month the Sheet button opens: last month during the first ten
+    /// days, when the boss asks for it, this month after (`SignOff.defaultMonth`).
+    private var sheetMonth: YearMonth {
+        SignOff.defaultMonth(today: CalendarDate.today(in: settingsStore.workCalendar))
+    }
+
+    private func actions(for site: Site) -> some View {
+        let setup = settingsStore.settings.siteSetup(for: site.id)
+        return SiteActionsRow(
+            address: site.address,
+            crewCount: counts.crew + 1,
+            diaryCount: setup.keepsDiary || counts.diary > 0 ? counts.diary : nil,
+            sheetMonth: settingsStore.dateFormatting.monthName(sheetMonth),
+            openExtraWork: counts.openExtraWork,
+            onCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) },
+            onDiary: { readingDiary = site },
+            onSheet: {
+                exportingMonth = nil
+                exporting = site
+            },
+            onExtraWork: { reporting = site }
+        )
+    }
+
+    /// Read outside of `body`: the repositories' reads collapse duplicates,
+    /// which writes.
+    private func loadCounts() {
+        let calendar = settingsStore.workCalendar
+        let month = CalendarDate.today(in: calendar).yearMonth.range(in: calendar)
+        let repository = SiteRepository(context: modelContext)
+        counts = SiteCounts(
+            crew: repository.crew(for: siteID, includeHidden: false).count,
+            diary: SiteDiaryRepository(context: modelContext).datesWithEntries(siteID: siteID, in: month).count,
+            openExtraWork: ExtraWorkRepository(context: modelContext)
+                .jobs(siteID: siteID)
+                .filter { !$0.isDone || $0.awaitsReport }
+                .count
+        )
+    }
+}
+
+/// What the site's buttons count.
+private struct SiteCounts: Equatable {
+    /// The crew offered for a new day, not counting you.
+    var crew = 0
+    /// Days this month with a diary.
+    var diary = 0
+    /// Extra-work jobs still in progress or not sent to the boss yet.
+    var openExtraWork = 0
 }

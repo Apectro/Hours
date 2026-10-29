@@ -91,7 +91,7 @@ struct ExportSettingsScreen: View {
 
             columnSections
         }
-        .navigationTitle("Export options")
+        .navigationTitle("Sheets")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

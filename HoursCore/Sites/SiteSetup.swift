@@ -218,6 +218,26 @@ enum SiteWorkDays {
         )
     }
 
+    /// The days as runs of consecutive weekdays in the week's own order,
+    /// starting at `firstWeekday`, so a screen can say "Mon–Fri" or
+    /// "Mon–Wed, Sat". The week does not wrap: Sunday after Saturday joins
+    /// the run only when the week starts on Monday.
+    static func runs(_ days: Set<Int>, firstWeekday: Int) -> [[Int]] {
+        let order = (0..<7).map { ((firstWeekday - 1 + $0) % 7) + 1 }
+        var runs: [[Int]] = []
+        var current: [Int] = []
+        for weekday in order {
+            if days.contains(weekday) {
+                current.append(weekday)
+            } else if !current.isEmpty {
+                runs.append(current)
+                current = []
+            }
+        }
+        if !current.isEmpty { runs.append(current) }
+        return runs
+    }
+
     /// The weekdays the site is worked, as of `date`.
     static func weekdays(of siteID: UUID, setup: SiteSetup, siteDays: [SiteDay], before date: CalendarDate, calendar: Calendar) -> Set<Int> {
         setup.workDays.isEmpty ? inferred(siteID: siteID, siteDays: siteDays, before: date, calendar: calendar) : setup.workDays

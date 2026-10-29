@@ -77,7 +77,8 @@ struct RootView: View {
             case .writeToday:
                 DayEditorSheet(date: CalendarDate.today(in: settingsStore.workCalendar))
             case .createSite:
-                SiteEditorSheet(site: Site(name: ""), isNew: true)
+                // The new-site wizard, as the Sites tab's New site opens it.
+                NewSiteWizard()
             case .tour:
                 // Never set: the tour is not a sheet (see `setupDismissed`).
                 EmptyView()

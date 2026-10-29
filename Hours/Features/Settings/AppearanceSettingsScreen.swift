@@ -27,7 +27,7 @@ struct AppearanceSettingsScreen: View {
                 Text("How hours are written throughout the app. Exports have their own setting.")
             }
         }
-        .navigationTitle("Theme")
+        .navigationTitle("Appearance")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -28,6 +28,9 @@ struct SiteMoveSheet: View {
     /// Whether the choice can be made; nil when it can.
     let check: (SiteMoveChoice) -> SiteMoveError?
     let onMove: (SiteMoveChoice) -> Void
+    /// Your running clock, if any (1.2): when you go, it goes with you, and
+    /// the summary says so (`ClockFollowsMove`).
+    var runningClock: RunningShift? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(SettingsStore.self) private var settingsStore
@@ -47,7 +50,8 @@ struct SiteMoveSheet: View {
         otherSites: [Site],
         suggestedLeft: TimeOfDay,
         check: @escaping (SiteMoveChoice) -> SiteMoveError?,
-        onMove: @escaping (SiteMoveChoice) -> Void
+        onMove: @escaping (SiteMoveChoice) -> Void,
+        runningClock: RunningShift? = nil
     ) {
         self.site = site
         self.day = day
@@ -56,6 +60,7 @@ struct SiteMoveSheet: View {
         self.suggestedLeft = suggestedLeft
         self.check = check
         self.onMove = onMove
+        self.runningClock = runningClock
         _siteID = State(initialValue: otherSites.count == 1 ? otherSites.first?.id : nil)
         _left = State(initialValue: suggestedLeft)
         _started = State(initialValue: suggestedLeft)
@@ -236,6 +241,17 @@ struct SiteMoveSheet: View {
                 localized: "Staying here until \(formatting.time(end, on: day.date)): \(names).",
                 comment: "Move sheet summary; the values are the day's end and the names of who stays"
             ))
+        }
+        let clockMoves = ClockFollowsMove.handover(
+            running: runningClock,
+            youMoved: going.contains(CrewMember.youID),
+            date: day.date,
+            left: left,
+            started: started,
+            calendar: calendar
+        ) != nil
+        if clockMoves {
+            sentences.append(String(localized: "Your clock moves too."))
         }
         return sentences.joined(separator: " ")
     }

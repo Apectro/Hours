@@ -28,7 +28,18 @@ enum SiteReminderRefresher {
             start: today.adding(days: -lookBackDays, in: calendar),
             end: today
         )
-        let siteDays = SiteRepository(context: context).siteDays(siteID: nil, in: window)
+        let repository = SiteRepository(context: context)
+        let siteDays = repository.siteDays(siteID: nil, in: window)
+        // Each active site's own say (1.2): its work days when set, and
+        // whether it wants the evening reminder at all.
+        let settings = HoursStack.settings.settings
+        var workDays: [UUID: Set<Int>] = [:]
+        var silenced = Set<UUID>()
+        for site in repository.sites(includeArchived: false) {
+            let setup = settings.siteSetup(for: site.id)
+            if !setup.workDays.isEmpty { workDays[site.id] = setup.workDays }
+            if !setup.eveningReminder { silenced.insert(site.id) }
+        }
         // No evening nudge on a public holiday off.
         let ahead = CalendarDateRange(start: today, end: today.adding(days: 7, in: calendar))
         let rules = (try? context.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
@@ -41,7 +52,9 @@ enum SiteReminderRefresher {
             lookBackDays: lookBackDays,
             holidays: holidays,
             // Asked "write today's hours?" on leaving: one question a day.
-            askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today)
+            askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today),
+            workDays: workDays,
+            silenced: silenced
         )
         await scheduler.scheduleSiteReminders(
             dates: dates,
