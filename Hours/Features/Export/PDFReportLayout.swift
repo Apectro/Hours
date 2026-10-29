@@ -48,6 +48,15 @@ struct PDFReportLayout {
         let closingRows = table.rows.count - days + (table.totalRow == nil ? 0 : 1)
         let room = PDFReportStyle.contentBottom - PDFReportStyle.topMargin - titleHeight - headingHeight
             - CGFloat(closingRows) * PDFReportStyle.closingRowHeight
+        // A sheet for several sites keeps its By site block on the page too
+        // when the rows can make room for it; otherwise the block goes on,
+        // as a summary does.
+        if table.kind == .siteSheet && !table.bySite.isEmpty {
+            let withBlock = room - 10 - bySiteOnlyHeight(lines: table.bySite.count)
+            for height in stride(from: PDFReportStyle.rowHeight, through: 12, by: -0.5) where CGFloat(days) * height <= withBlock {
+                return height
+            }
+        }
         for height in stride(from: PDFReportStyle.rowHeight, through: 12, by: -0.5) where CGFloat(days) * height <= room {
             return height
         }
@@ -159,15 +168,23 @@ struct PDFReportLayout {
 
     /// The summary with the gap above it, without the total row.
     var summaryBlockHeight: CGFloat {
-        table.totals.isEmpty ? 0 : 10 + summaryHeight
+        table.totals.isEmpty && table.bySite.isEmpty ? 0 : 10 + summaryHeight
     }
 
     /// Three columns of label and figure under a small heading; two beside
-    /// the "By site" block when the period has more than one site.
+    /// the "By site" block when the period has more than one site. A sheet
+    /// for several sites' month has the By site block alone.
     var summaryHeight: CGFloat {
-        guard !table.totals.isEmpty else { return 0 }
+        guard !table.totals.isEmpty else {
+            return table.bySite.isEmpty ? 0 : Self.bySiteOnlyHeight(lines: table.bySite.count)
+        }
         let lines = table.bySite.isEmpty ? summaryLinesPerColumn : max(summaryLinesPerColumn, table.bySite.count)
         return 14 + CGFloat(lines) * 12
+    }
+
+    /// The By site block on its own: a heading and a line per site.
+    private static func bySiteOnlyHeight(lines: Int) -> CGFloat {
+        14 + CGFloat(lines) * 12
     }
 
     static let summaryColumns = 3

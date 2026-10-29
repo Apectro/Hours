@@ -117,6 +117,16 @@ timesheet then has a Site column, a day on two sites as a row per site with a
 "Day" row under them, the sites in its title and "By site" beside the
 summary; Export can also make it for one site's hours alone.
 
+**One sheet for several sites (1.2)** — in a site's export, "Sites on this
+sheet" adds other sites (each listed with the month's crew hours) to make one
+director's sheet for the month: the crews joined by name, each person's hours a
+day added up across the sites — a day someone moved reads as the whole day —
+the sites in the title, "Hauptstraße 12 · Trg Pravde", and a "By site" block
+with each site's address and hours and the total. The same grid, title block
+and closing rows as one site's sheet; PDF, Excel and CSV alike. "One sheet per
+person" then covers only those sites, and each site's diary follows under its
+name. Drawn sign-offs stay on each site's own sheet.
+
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
 problems and visitors, and up to six photos, stripped of their location. A

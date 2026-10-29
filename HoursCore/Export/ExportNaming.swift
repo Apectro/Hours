@@ -66,6 +66,21 @@ struct ExportNaming: Sendable {
         "\(site.name) \(monthStamp(month))"
     }
 
+    /// The site export's file: one site's name and month as `siteFileName`;
+    /// several, "Hauptstraße 12 + Trg Pravde – August 2026", and beyond
+    /// three the first two and "+2 more". The file writer takes out what a
+    /// file name cannot hold.
+    func siteSheetFileName(_ sites: [Site], month: YearMonth) -> String {
+        guard sites.count > 1 else {
+            return sites.first.map { siteFileName($0, month: month) } ?? monthStamp(month)
+        }
+        let names = sites.map { $0.name.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        let joined = names.count > 3
+            ? names.prefix(2).joined(separator: " + ") + " " + language.moreSites(names.count - 2)
+            : names.joined(separator: " + ")
+        return "\(joined) – \(formatting.monthTitle(month))"
+    }
+
     /// A crew member's own sheet: "Ana Horvat – August 2026", the month in
     /// the export language, or the dates of a range that is not a month. The
     /// person handed it looks for their name first. The file writer takes

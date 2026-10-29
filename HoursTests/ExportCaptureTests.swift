@@ -646,6 +646,60 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(text.components(separatedBy: "NOTES").count - 1, parts.count, "a part has no Notes")
     }
 
+    /// One sheet for two sites' month (1.2): ten people across both crews,
+    /// Ivan Horvat on both and moving between them on Tuesdays. It prints
+    /// on as many pages as the one site's sheet for ten does, with By site
+    /// on the last, after everyone.
+    func testCaptureACombinedSheetForTwoSites() throws {
+        let first = Site(name: "Hauptstraße 12", address: "Hauptstraße 12\n10115 Berlin")
+        let second = Site(name: "Trg Pravde")
+        var export = ExportPreferences()
+        export.ownerName = "Marijo Mikša"
+        let settings = Fixture.settings(export: export)
+        let crewHere = Self.bigCrew.prefix(5).enumerated().map { CrewMember(siteID: first.id, name: $1, sortOrder: $0) }
+        let crewThere = (["Ivan Horvat"] + Self.bigCrew.suffix(4)).enumerated()
+            .map { CrewMember(siteID: second.id, name: $1, sortOrder: $0) }
+        var days: [SiteDay] = []
+        for day in 1...31 {
+            let date = Fixture.date(2026, 8, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            let moves = weekday == 3
+            var here = ([CrewMember.youID] + crewHere.map(\.id)).map { Attendance(memberID: $0) }
+            if moves { here[1] = Attendance(memberID: crewHere[0].id, end: Fixture.time(11, 30), breakMinutes: 0) }
+            var there = crewThere.dropFirst().map { Attendance(memberID: $0.id) }
+            if moves { there.insert(Attendance(memberID: crewThere[0].id, start: Fixture.time(12)), at: 0) }
+            days.append(SiteDay(siteID: first.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
+                                breakMinutes: 30, present: here, note: day == 12 ? "Crane delivery" : ""))
+            days.append(SiteDay(siteID: second.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
+                                breakMinutes: 30, present: there))
+        }
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        let table = SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "")
+            .makeTable(
+                sites: [first, second],
+                crew: crewHere + crewThere,
+                results: days.map(calculator.compute),
+                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
+            )
+        XCTAssertEqual(SiteSheetBuilder.peopleCount(in: table), 10, "you and nine, Ivan Horvat once")
+
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(4).enumerated() {
+            attach(image, named: "17b-site-pdf-combined-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        let single = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: siteTable(crew: Self.bigCrew))))
+        XCTAssertEqual(document.pageCount, single.pageCount, "two sites print on as many pages as one does")
+        let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
+        XCTAssertTrue(pageTexts[0].contains("Hauptstraße 12 · Trg Pravde"), "the title does not name both sites")
+        let last = try XCTUnwrap(pageTexts.last)
+        XCTAssertTrue(last.contains("By site"), "By site is not on the last page")
+        XCTAssertTrue(last.contains("Hauptstraße 12, 10115 Berlin"), "the address is not in By site")
+        XCTAssertEqual(pageTexts.joined().components(separatedBy: "By site").count - 1, 1, "By site is printed once")
+        XCTAssertTrue(pageTexts.joined().contains("2026-08-31"))
+    }
+
     /// Whatever the crew, no time and no hours are cut short: the sheet is
     /// split as far as it has to be and no further. A crew that fits prints
     /// exactly as it always did — one table, no "People 1–5 of 5".

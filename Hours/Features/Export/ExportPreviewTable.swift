@@ -36,6 +36,10 @@ struct ExportPreviewTable: View {
                 if !table.totals.isEmpty {
                     totalsBlock
                 }
+                // A sheet for several sites' month: its hours per site (1.2).
+                if table.kind == .siteSheet && !table.bySite.isEmpty {
+                    bySiteBlock
+                }
             }
             .padding(.horizontal, Metrics.large)
         }
@@ -122,6 +126,32 @@ struct ExportPreviewTable: View {
                 }
                 .frame(minWidth: 260, alignment: .leading)
                 .fixedSize()
+            }
+        }
+        .padding(.bottom, Metrics.small)
+    }
+
+    /// "By site" in the summary's style: each site, its address, its hours,
+    /// and the total.
+    private var bySiteBlock: some View {
+        VStack(alignment: .leading, spacing: Metrics.tiny) {
+            Text(table.language(.bySite))
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.top, Metrics.small)
+            ForEach(Array(table.bySite.enumerated()), id: \.offset) { _, site in
+                HStack {
+                    Text(site.address.isEmpty ? site.name : "\(site.name) · \(site.address)")
+                        .font(.caption.weight(site.isTotal ? .semibold : .regular))
+                        .foregroundStyle(site.isTotal ? .primary : .secondary)
+                    Spacer(minLength: Metrics.large)
+                    Text(site.value)
+                        .font(.caption.weight(.semibold))
+                        .monospacedDigit()
+                }
+                .frame(minWidth: 260, alignment: .leading)
+                .fixedSize()
+                .accessibilityElement(children: .combine)
             }
         }
         .padding(.bottom, Metrics.small)

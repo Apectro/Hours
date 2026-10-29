@@ -10,6 +10,9 @@ import PDFKit
 /// before it is sent.
 struct ExportPagePreview: View {
     let image: UIImage?
+    /// The sheet's title, read out after "First page of the PDF" (and how a
+    /// UI test knows which sheet it is).
+    var title: String = ""
     let onOpen: () -> Void
 
     var body: some View {
@@ -28,6 +31,7 @@ struct ExportPagePreview: View {
         .buttonStyle(.plain)
         .disabled(image == nil)
         .accessibilityLabel(Text("First page of the PDF"))
+        .accessibilityValue(Text(verbatim: title))
         .accessibilityHint(Text("Tap to open full size"))
         .accessibilityIdentifier("export-preview-page")
     }

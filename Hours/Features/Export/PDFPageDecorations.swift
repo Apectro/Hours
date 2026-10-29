@@ -119,6 +119,13 @@ struct PDFPageDecorations {
     /// out of the finished page to be sure the summary was never dropped.
     func drawSummary(at y: CGFloat) -> CGFloat {
         let margin = PDFReportStyle.margin
+        // A sheet for several sites' month has no summary of its own: its
+        // By site block stands where the summary would, in the same style.
+        guard !table.totals.isEmpty else {
+            let columnWidth = min(240, PDFReportStyle.contentWidth / CGFloat(PDFReportLayout.summaryColumns))
+            drawBySite(at: y, x: margin, width: columnWidth * 1.5)
+            return y + layout.summaryHeight
+        }
         PDFReportStyle.draw(
             table.language(.summary),
             in: CGRect(x: margin, y: y, width: 200, height: 12),
@@ -152,9 +159,9 @@ struct PDFPageDecorations {
     /// Hours per site beside the summary (1.2): the name, its address in
     /// grey after it, the hours on the right. Only for a period on more than
     /// one site.
-    private func drawBySite(at y: CGFloat, x: CGFloat) {
+    private func drawBySite(at y: CGFloat, x: CGFloat, width fixedWidth: CGFloat? = nil) {
         guard !table.bySite.isEmpty else { return }
-        let width = PDFReportStyle.margin + PDFReportStyle.contentWidth - x
+        let width = fixedWidth ?? (PDFReportStyle.margin + PDFReportStyle.contentWidth - x)
         PDFReportStyle.draw(
             table.language(.bySite),
             in: CGRect(x: x, y: y, width: width, height: 12),
@@ -164,9 +171,21 @@ struct PDFPageDecorations {
         let valueWidth: CGFloat = 60
         for (index, site) in table.bySite.enumerated() {
             let rowY = y + 14 + CGFloat(index) * 12
+            // The total line adds up the sites above it, ruled off from them.
+            if site.isTotal {
+                PDFReportStyle.line(
+                    from: CGPoint(x: x, y: rowY),
+                    to: CGPoint(x: x + width, y: rowY),
+                    width: 0.6,
+                    color: PDFReportStyle.ink
+                )
+            }
             let label = NSMutableAttributedString(
                 string: site.name,
-                attributes: [.font: PDFReportStyle.smallFont, .foregroundColor: PDFReportStyle.ink]
+                attributes: [
+                    .font: site.isTotal ? PDFReportStyle.cellBoldFont : PDFReportStyle.smallFont,
+                    .foregroundColor: PDFReportStyle.ink
+                ]
             )
             if !site.address.isEmpty {
                 label.append(NSAttributedString(

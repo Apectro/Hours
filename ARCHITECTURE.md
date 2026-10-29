@@ -1332,6 +1332,50 @@ that site's hours only, so nothing owed, no balance, no money and no
 allowance, titled after the site with its address. Site sheets and crew
 members' sheets read the site days, which a move already splits.
 
+**One sheet for several sites (1.2).** The site export's "Sites on this
+sheet" adds other sites — the active ones, and archived ones with days in the
+month, each listed with the month's crew hours (`ExportTableMaker.siteMonthHours`)
+— to the site the export is of, for that export only; nothing is remembered.
+`SiteSheetBuilder.makeTable(sites:)` (engine, `CombinedSiteSheet.swift`) makes
+one director's sheet of them; with one site it is `makeTable(site:)` itself,
+so the sheet everyone had is unchanged, which a test holds it to. With several
+it is the site sheet's own grid, title block, tiles and closing rows:
+
+- The crew is the union of the sites' crews, people matched by name
+  (`CrewCandidates.key`) as crew sheets and moves match them, you once; you
+  first, then the first site's crew in its order, then newcomers in the next
+  site's.
+- A day cell is the person's hours that day added up across the sites, its
+  times from the first start to the last end, so a day someone moved reads
+  "07:00–16:00 · 8h" once. A span across sites is never flagged late or early:
+  that is one site's word. A reason for being away shows only when they
+  worked on none of the sites that day, and "on another site" naming one of
+  them is not away. Bad weather leads the note only when every site that
+  worked that day was rained off, and so counts for the tile; notes of a day
+  on two sites are each led by the site's name.
+- The closing rows are the site sheet's: allowance days count a day once per
+  person, kilometres are every site's added up.
+- `ReportTable.bySite` holds each site's name, address and hours, then a
+  total line (`ReportSiteTotal.isTotal`), the crew's hours. The PDF prints it
+  where a summary would stand, in the summary's style, keeping it on the
+  page when the day rows can shrink to make room (`PDFReportLayout.dayRowHeight`)
+  and otherwise on the next with the lines to sign on; a split sheet keeps it
+  for its last part only. The workbook writes it under the days, the figure in
+  the notes column, the CSV after a blank line; the on-screen preview under the
+  closing rows.
+- The title is the site names in the order chosen
+  (`ExportLanguage.combinedSiteNames`); no address in the header block, since
+  the addresses are in By site. The file is "Hauptstraße 12 + Trg Pravde –
+  August 2026" (`ExportNaming.siteSheetFileName`).
+- The line to sign on stays; drawn sign-offs belong to one site's month and
+  are left out, and when any site of the sheet has one the legend ends with
+  "Crew sign-offs are on each site's own sheet."
+
+The diary option takes each site's diary under its name
+(`SiteDiaryReport.combined`: each day's heading led by the site). "One sheet per
+person" covers everyone on any of the sites, each sheet holding only those
+sites' days.
+
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and
 duration style. XLSX is written directly as an OOXML package with inline
