@@ -37,6 +37,14 @@ final class ActiveShiftStore {
         return finished
     }
 
+    /// Replaces the running clock with a changed copy of itself, such as one
+    /// with a break begun or ended. Does nothing while no clock runs.
+    func update(_ shift: RunningShift) {
+        guard running != nil else { return }
+        running = shift
+        persist()
+    }
+
     func updateJob(_ jobID: UUID?) {
         guard var shift = running else { return }
         shift.jobID = jobID
