@@ -31,6 +31,9 @@ final class ArrivalReminderUITests: XCTestCase {
 
         // The fake's place is saved, shown as coordinates and a map.
         let coordinates = app.descendants(matching: .any)["site-arrival-coordinates"].firstMatch
+        // The site's settings now hold the usual day and extras too, so the
+        // place can land below the fold, where a Form has not made it yet.
+        if !coordinates.waitForExistence(timeout: 5) { scroll(to: coordinates, in: app) }
         XCTAssertTrue(coordinates.waitForExistence(timeout: 5), "the site's place should show once saved")
         XCTAssertTrue(coordinates.label.contains("45.81302"), "the place should read as coordinates: \(coordinates.label)")
         XCTAssertTrue(app.descendants(matching: .any)["site-arrival-map"].firstMatch.exists, "a small map should show the place")

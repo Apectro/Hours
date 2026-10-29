@@ -91,8 +91,13 @@ final class PaywallTests: XCTestCase {
         let app = XCUIApplication.hours()
         openSettings(app)
 
+        // Backup lives under "iCloud & backup" since Settings was regrouped.
+        let hub = app.staticTexts["iCloud & backup"]
+        XCTAssertTrue(reveal(hub, in: app), "iCloud & backup should be reachable without paying")
+        _ = XCTWaiter().wait(for: [XCTestExpectation(description: "the list settles")], timeout: 1)
+        hub.tap()
         let row = app.staticTexts["Backup and data"]
-        XCTAssertTrue(reveal(row, in: app), "the backup row should be reachable without paying")
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the backup row should be reachable without paying")
         // reveal() stops swiping as soon as the row is on screen, while the
         // list is still gliding; a tap in that moment can land on nothing,
         // and Settings now holds enough rows (iCloud among them) for the
@@ -100,7 +105,7 @@ final class PaywallTests: XCTestCase {
         _ = XCTWaiter().wait(for: [XCTestExpectation(description: "the list settles")], timeout: 1)
         row.tap()
 
-        XCTAssertTrue(app.navigationBars.buttons["Settings"].waitForExistence(timeout: 10), "the backup screen did not open")
+        XCTAssertTrue(app.navigationBars["Backup and data"].waitForExistence(timeout: 10), "the backup screen did not open")
         XCTAssertFalse(app.buttons["Not now"].exists, "no paywall stands in front of your own data")
     }
 }
