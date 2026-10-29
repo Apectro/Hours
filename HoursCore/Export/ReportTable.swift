@@ -11,6 +11,25 @@ enum ReportRowRole: String, Hashable, Sendable {
     case count
 }
 
+/// A row of a day worked on more than one site (1.2): the day prints as a
+/// row per site under one date, then a row with the day's own figures.
+enum SplitDayRow: String, Hashable, Sendable {
+    /// One site's hours; the first carries the date and the day.
+    case site
+    /// "Day": the day's worked hours, counted once, and its balance.
+    case subtotal
+}
+
+/// One site's line in a timesheet's "By site" block (1.2).
+struct ReportSiteTotal: Hashable, Sendable {
+    var name: String
+    /// On one line; empty when the site has none.
+    var address: String
+    var minutes: Int
+    /// The hours as the file writes them.
+    var value: String
+}
+
 /// One row of a report, already formatted.
 struct ReportRow: Identifiable, Hashable, Sendable {
     var id: Int
@@ -41,6 +60,9 @@ struct ReportRow: Identifiable, Hashable, Sendable {
     /// of material — so a workbook writes a number it can add up. Empty for
     /// every report that has none.
     var numbers: [Double?] = []
+    /// Set on the rows of a day worked on more than one site, which the page
+    /// shades lightly as one group; nil for every other row.
+    var splitDay: SplitDayRow? = nil
 }
 
 /// A run of neighbouring columns under one heading: on the director's sheet,
@@ -163,6 +185,9 @@ struct ReportTable: Hashable, Sendable {
     /// small under the headline of a sheet that is about one site; a row of
     /// its own in the workbook and the CSV. Empty prints nothing.
     var address: String = ""
+    /// A timesheet's hours per site, beside its summary, when the period has
+    /// more than one site (1.2). Empty prints nothing.
+    var bySite: [ReportSiteTotal] = []
 
     var isEmpty: Bool { rows.isEmpty }
 

@@ -15,6 +15,20 @@ struct ReportBuilder: Sendable {
     /// column, on one line; a location typed on the day stays the day's. Only
     /// where that column is on: nothing adds it.
     var siteAddresses: [UUID: String] = [:]
+    /// Each site's name, by site id (1.2), for the Site column, the "By
+    /// site" block and the eyebrow of a period worked on more than one site.
+    var siteNames: [UUID: String] = [:]
+    /// Only this site's hours (1.2): the export screen's Sites picker. Each
+    /// day keeps the shifts worked there and nothing it owes, so the figures
+    /// are that site's hours alone, and the sheet is titled after it.
+    var siteFilter: UUID? = nil
+    /// The one site a filtered table is about; set by the builder the filter
+    /// makes, never from outside.
+    private var onlySite: UUID? = nil
+
+    /// The header's tiles stop at five: past that the boxes squeeze the name
+    /// beside them, so the Sites tile is added only while there is room.
+    static let maximumTiles = 5
 
     init(settings: AppSettings, calendar: Calendar, emptyPlaceholder: String = "") {
         self.settings = settings
@@ -59,13 +73,27 @@ struct ReportBuilder: Sendable {
         earnings: EarningsSummary? = nil,
         currencyCode: String = ""
     ) -> ReportTable {
+        if let siteFilter {
+            return filteredBuilder(siteFilter).makeTable(
+                days: days.compactMap { $0.restricted(toSite: siteFilter) },
+                range: range,
+                title: title,
+                period: period,
+                countingThrough: countingThrough,
+                currencyCode: currencyCode
+            )
+        }
         // Off by default, and with no rate there is nothing to write.
         let earnings = settings.export.includeEarnings ? earnings : nil
         let earnedByDay = Dictionary(
             (earnings?.days ?? []).map { ($0.date.key, $0.totalCents) },
             uniquingKeysWith: { first, _ in first }
         )
-        let columns = withAllowanceColumns(settings.effectiveExportColumns, days: days)
+        // Two sites or more: a Site column after the day, and a day worked on
+        // several of them as a row per site (1.2).
+        let siteOrder = Self.siteIDs(in: days)
+        let splitsSites = onlySite == nil && siteOrder.count > 1
+        let columns = withSiteColumn(withAllowanceColumns(settings.effectiveExportColumns, days: days), if: splitsSites)
             + (earnings == nil ? [] : [.earnings])
         func isShown(_ day: DayComputation) -> Bool {
             settings.export.includeEmptyDays || day.hasEntry || day.workedMinutes > 0 || day.creditedMinutes > 0
@@ -83,7 +111,12 @@ struct ReportBuilder: Sendable {
         for day in days {
             if day.counts(through: countingThrough) { running += day.balanceMinutes }
             guard isShown(day) else { continue }
-            rows.append(makeRow(day: day, columns: columns, runningBalance: running, earnedCents: earnedByDay[day.date.key]))
+            let row = makeRow(day: day, columns: columns, runningBalance: running, earnedCents: earnedByDay[day.date.key])
+            if splitsSites, Self.isSplitAcrossSites(day) {
+                rows += splitRows(day: day, full: row, columns: columns)
+            } else {
+                rows.append(row)
+            }
         }
 
         let summary = PeriodAggregator.summarize(days, range: range, countingThrough: countingThrough)
@@ -141,6 +174,7 @@ struct ReportBuilder: Sendable {
             }
         }
         table.signatures = [language(.employeeSignature), language(.employerSignature)]
+        nameSites(of: &table, order: siteOrder, splits: splitsSites, days: days, countingThrough: countingThrough)
         return table
     }
 
@@ -295,6 +329,12 @@ struct ReportBuilder: Sendable {
         case .travel:
             guard day.travelMinutes > 0 else { return (emptyPlaceholder, nil) }
             return (duration.string(day.travelMinutes), day.travelMinutes)
+        case .site:
+            var seen = Set<UUID>()
+            let names = day.shifts.compactMap(\.siteID)
+                .filter { seen.insert($0).inserted }
+                .compactMap { siteNames[$0] }
+            return (names.isEmpty ? emptyPlaceholder : names.joined(separator: ", "), nil)
         }
     }
 
@@ -504,5 +544,192 @@ extension ReportBuilder {
             .compactMap { siteAddresses[$0].map(SiteAddress.singleLine) }
             .filter { !$0.isEmpty }
             .joined(separator: "; ")
+    }
+}
+
+// MARK: - Two sites in one day (1.2)
+
+extension ReportBuilder {
+    /// The sites the days were worked on, each once, in the order first
+    /// worked.
+    static func siteIDs(in days: [DayComputation]) -> [UUID] {
+        var seen = Set<UUID>()
+        return days.flatMap { $0.shifts.compactMap(\.siteID) }.filter { seen.insert($0).inserted }
+    }
+
+    /// A day whose shifts came from more than one place: two sites, or a site
+    /// and hours written by hand.
+    static func isSplitAcrossSites(_ day: DayComputation) -> Bool {
+        let sources = Set(day.shifts.map(\.siteID))
+        return sources.count > 1 && sources.contains { $0 != nil }
+    }
+
+    /// The tiles with "Sites: N" beside Worked, while the row has room.
+    static func addingSitesTile(_ count: Int, to tiles: [ReportTile], language: ExportLanguage) -> [ReportTile] {
+        guard tiles.count < maximumTiles else { return tiles }
+        var result = tiles
+        result.insert(ReportTile(label: language(.sites), value: "\(count)"), at: min(1, result.count))
+        return result
+    }
+
+    fileprivate func withSiteColumn(_ columns: [ReportColumn], if adds: Bool) -> [ReportColumn] {
+        guard adds, !columns.contains(.site) else { return columns }
+        var result = columns
+        let after = result.firstIndex(of: .weekday) ?? result.firstIndex(of: .date)
+        result.insert(.site, at: after.map { $0 + 1 } ?? 0)
+        return result
+    }
+
+    /// A day worked on several sites: a row per site under one date — the
+    /// date, the day and what is written about the day on the first — then
+    /// "Day" with the day's own figures, its worked hours counted once.
+    fileprivate func splitRows(day: DayComputation, full: ReportRow, columns: [ReportColumn]) -> [ReportRow] {
+        let dayWide: Set<ReportColumn> = [.date, .weekday, .dayType, .holiday, .location, .tags, .note]
+        let daysOwn: Set<ReportColumn> = [.credited, .expected, .overtime, .balance, .cumulativeBalance, .earnings, .allowance, .kilometres, .travel]
+        var rows: [ReportRow] = []
+        func row(id: Int, values: [String], minutes: [Int?], part: SplitDayRow) -> ReportRow {
+            var row = full
+            row.id = id
+            row.values = values
+            row.minutes = minutes
+            row.splitDay = part
+            row.numbers = []
+            return row
+        }
+
+        for (index, shift) in day.shifts.enumerated() {
+            var values: [String] = []
+            var minutes: [Int?] = []
+            for (position, column) in columns.enumerated() {
+                var cell: (String, Int?) = ("", nil)
+                switch column {
+                case _ where dayWide.contains(column):
+                    if index == 0 { cell = (full.values[position], full.minutes[position]) }
+                case .site:
+                    cell = (shift.siteID.flatMap { siteNames[$0] } ?? emptyPlaceholder, nil)
+                case .start:
+                    cell = (startText(shift.start), nil)
+                case .end:
+                    cell = (endText(shift.end, crossesMidnight: shift.crossesMidnight), nil)
+                case .times:
+                    cell = (timesText(start: shift.start, end: shift.end, crossesMidnight: shift.crossesMidnight), nil)
+                case .breakTime:
+                    if shift.breakMinutes > 0 { cell = (duration.string(shift.breakMinutes), shift.breakMinutes) }
+                case .worked:
+                    cell = (duration.string(shift.workedMinutes), shift.workedMinutes)
+                case .job:
+                    cell = (settings.job(shift.jobID).displayName(in: language), nil)
+                default:
+                    break
+                }
+                values.append(cell.0)
+                minutes.append(cell.1)
+            }
+            let id = index == 0 ? day.date.key : -(day.date.key * 10 + index)
+            rows.append(row(id: id, values: values, minutes: minutes, part: .site))
+        }
+
+        var values: [String] = []
+        var minutes: [Int?] = []
+        for (position, column) in columns.enumerated() {
+            switch column {
+            case .site:
+                values.append(language(.day)); minutes.append(nil)
+            case .worked:
+                // Text in a workbook, not a figure: its sum is the sites'.
+                values.append(duration.string(day.workedMinutes)); minutes.append(nil)
+            case _ where daysOwn.contains(column):
+                values.append(full.values[position]); minutes.append(full.minutes[position])
+            default:
+                values.append(""); minutes.append(nil)
+            }
+        }
+        var subtotal = row(id: -(day.date.key * 10 + 9), values: values, minutes: minutes, part: .subtotal)
+        subtotal.numbers = full.numbers
+        rows.append(subtotal)
+        return rows
+    }
+
+    /// The sites in the eyebrow and the title — "Timesheet · Hauptstraße 12 ·
+    /// Trg Pravde" — and, for more than one, the "By site" block and the
+    /// Sites tile; a table filtered to one site names that site and its
+    /// address. One site and no filter: as before.
+    fileprivate func nameSites(
+        of table: inout ReportTable,
+        order: [UUID],
+        splits: Bool,
+        days: [DayComputation],
+        countingThrough: CalendarDate?
+    ) {
+        if let onlySite {
+            let name = siteNames[onlySite] ?? ""
+            if !name.isEmpty {
+                table.eyebrow = "\(language(.timesheet)) · \(name)"
+                table.title = "\(table.title) — \(name)"
+            }
+            table.address = SiteAddress.singleLine(siteAddresses[onlySite] ?? "")
+            return
+        }
+        guard splits else { return }
+        let names = language.combinedSiteNames(order.compactMap { siteNames[$0] })
+        if !names.isEmpty {
+            table.eyebrow = "\(language(.timesheet)) · \(names)"
+            table.title = "\(table.title) — \(names)"
+        }
+        let counted = days.filter { $0.counts(through: countingThrough) }
+        table.bySite = order.map { id in
+            let minutes = counted.reduce(0) { sum, day in
+                sum + day.shifts.filter { $0.siteID == id }.reduce(0) { $0 + $1.workedMinutes }
+            }
+            return ReportSiteTotal(
+                name: siteNames[id] ?? language(.otherSite),
+                address: SiteAddress.singleLine(siteAddresses[id] ?? ""),
+                minutes: minutes,
+                value: duration.string(minutes)
+            )
+        }
+        table.tiles = Self.addingSitesTile(order.count, to: table.tiles, language: language)
+    }
+
+    /// The builder for one site's hours: nothing owed, no money, no
+    /// allowance — a site's share of a day has none of its own.
+    fileprivate func filteredBuilder(_ siteID: UUID) -> ReportBuilder {
+        var restricted = settings
+        restricted.features.trackExpectedHours = false
+        restricted.export.includeEarnings = false
+        restricted.allowance.isEnabled = false
+        var builder = ReportBuilder(settings: restricted, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
+        builder.siteNames = siteNames
+        builder.siteAddresses = siteAddresses
+        builder.onlySite = siteID
+        return builder
+    }
+}
+
+extension DayComputation {
+    /// The day as one site saw it: only the shifts worked there, their
+    /// hours and breaks, and nothing owed or credited. Nil when nothing of
+    /// the day was worked there.
+    func restricted(toSite siteID: UUID) -> DayComputation? {
+        let mine = shifts.filter { $0.siteID == siteID }
+        guard !mine.isEmpty else { return nil }
+        var day = self
+        day.shifts = mine
+        day.start = mine.first?.start
+        day.end = mine.last?.end
+        day.breakMinutes = mine.reduce(0) { $0 + $1.breakMinutes }
+        day.workedMinutes = mine.reduce(0) { $0 + $1.workedMinutes }
+        day.crossesMidnight = mine.contains(where: \.crossesMidnight)
+        day.creditedMinutes = 0
+        day.expectedMinutes = 0
+        day.adjustmentMinutes = 0
+        day.balanceMinutes = 0
+        day.hasEntry = true
+        day.hasFieldAllowance = false
+        day.kilometres = 0
+        day.travelMinutes = 0
+        day.countedTravelMinutes = 0
+        day.warnings = []
+        return day
     }
 }

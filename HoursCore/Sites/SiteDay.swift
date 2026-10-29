@@ -153,6 +153,10 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// Kilometres the crew's vehicle drove for this day: one number for the
     /// day, not per person (1.2).
     var kilometres: Int
+    /// People who left this day for another of your sites (1.2), each with
+    /// what Undo needs: see `SiteMove` and `SiteMoving`. Never copied to the
+    /// next day.
+    var moves: [SiteMove]
 
     init(
         siteID: UUID,
@@ -166,7 +170,8 @@ struct SiteDay: Hashable, Codable, Sendable {
         isBadWeatherStop: Bool = false,
         absences: [CrewAbsence] = [],
         allowanceMemberIDs: [UUID] = [],
-        kilometres: Int = 0
+        kilometres: Int = 0,
+        moves: [SiteMove] = []
     ) {
         self.siteID = siteID
         self.date = date
@@ -180,6 +185,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         self.absences = absences
         self.allowanceMemberIDs = allowanceMemberIDs
         self.kilometres = max(0, kilometres)
+        self.moves = moves
     }
 
     func attendance(for memberID: UUID) -> Attendance? {
@@ -365,7 +371,7 @@ struct SiteDay: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop, absences
-        case allowanceMemberIDs, kilometres
+        case allowanceMemberIDs, kilometres, moves
     }
 
     init(from decoder: Decoder) throws {
@@ -383,7 +389,8 @@ struct SiteDay: Hashable, Codable, Sendable {
             // Entry by entry: one that cannot be read is left out, not the day's list.
             absences: container.lenient(.absences, [CrewAbsence.Lossy]()).compactMap(\.value),
             allowanceMemberIDs: container.lenient(.allowanceMemberIDs, []),
-            kilometres: container.lenient(.kilometres, 0)
+            kilometres: container.lenient(.kilometres, 0),
+            moves: container.lenient(.moves, [SiteMove.Lossy<SiteMove>]()).compactMap(\.value)
         )
     }
 
@@ -403,5 +410,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         try container.encode(absences, forKey: .absences)
         if !allowanceMemberIDs.isEmpty { try container.encode(allowanceMemberIDs, forKey: .allowanceMemberIDs) }
         if kilometres != 0 { try container.encode(kilometres, forKey: .kilometres) }
+        // 1.0 and 1.1 decode a site day by its keys and skip this one.
+        if !moves.isEmpty { try container.encode(moves, forKey: .moves) }
     }
 }

@@ -293,6 +293,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         absenceScreens(app)
+        siteMoveScreens(app)
 
         let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
         if tap(weather, "the rained-off menu", app) {
@@ -846,6 +847,52 @@ final class ScreenAtlasTests: XCTestCase {
     /// reasons the button beside them offers, and their row once marked
     /// sick. Ticked again at the end, which clears the reason, so the
     /// pictures after this see the day as it was.
+    /// "Moved to another site…" (1.2): the sheet, the day after the move with
+    /// its banner and the movers' rows, your calendar day on two sites, and
+    /// the export's Sites picker for the month. Undone at the end, so nothing
+    /// after this sees the move.
+    private func siteMoveScreens(_ app: XCUIApplication) {
+        guard tap(app.buttons.matching(identifier: "site-day-move").firstMatch, "Moved to another site", app) else { return }
+        pause(0.8)
+        capture("site-move-sheet", app)
+        guard tap(app.buttons.matching(identifier: "site-move-to-0").firstMatch, "the other site", app) else {
+            close(app, "site-move-cancel")
+            return
+        }
+        capture("site-move-sheet-chosen", app)
+        guard tap(app.buttons.matching(identifier: "site-move-confirm").firstMatch, "Move", app) else {
+            close(app, "site-move-cancel")
+            return
+        }
+        pause(1)
+        bringIntoView(app.descendants(matching: .any)["site-move-banner"].firstMatch, app)
+        capture("site-day-after-move", app)
+
+        // Your own day, now on two sites.
+        app.tab(.calendar).tap()
+        pause(1)
+        if tap(app.buttons.matching(identifier: "day-\(Self.todayKey)").firstMatch, "today in the calendar", app) {
+            bringIntoView(app.descendants(matching: .any)["day-card-site-0"].firstMatch, app)
+            capture("calendar-day-two-sites", app)
+        }
+        swipeDown(app, times: 3)
+        if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
+            if bringIntoView(app.descendants(matching: .any)["export-sites"].firstMatch, app) {
+                capture("export-sites-option", app)
+            } else {
+                miss("export-sites-option (no Sites row)")
+            }
+            close(app, "export-done")
+        }
+
+        app.tab(.sites).tap()
+        pause(1)
+        if tap(app.buttons.matching(identifier: "site-move-undo").firstMatch, "Undo the move", app) {
+            pause(1)
+        }
+        swipeDown(app, times: 2)
+    }
+
     private func absenceScreens(_ app: XCUIApplication) {
         let crew = app.buttons.matching(NSPredicate(
             format: "identifier BEGINSWITH 'site-person-' AND identifier != 'site-person-you'"

@@ -100,6 +100,24 @@ extension ExportLanguage {
             .replacingOccurrences(of: "{total}", with: String(total))
     }
 
+    /// "+2 more", after the first site names of a sheet's title.
+    func moreSites(_ count: Int) -> String {
+        self(.moreSites).replacingOccurrences(of: "{count}", with: String(count))
+    }
+
+    /// The sites a sheet covers, in the order they were first worked:
+    /// "Hauptstraße 12 · Trg Pravde"; up to three by name, and beyond that
+    /// the first two and "+2 more", so the eyebrow stays one line. Blank
+    /// names are left out and a name given twice counts once.
+    func combinedSiteNames(_ names: [String]) -> String {
+        var seen = Set<String>()
+        let unique = names
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && seen.insert($0).inserted }
+        guard unique.count > 3 else { return unique.joined(separator: " · ") }
+        return unique.prefix(2).joined(separator: " · ") + " " + moreSites(unique.count - 2)
+    }
+
     /// A heading as it reads inside a longer one — "Ana hours" rather than
     /// "Ana Hours". German keeps its capital: nearly every heading is a noun,
     /// and a German noun in lower case is a spelling mistake.

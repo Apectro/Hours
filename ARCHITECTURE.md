@@ -1061,6 +1061,44 @@ The site sheet has an "Allowance days" closing row per person, only when
 anyone has one, and a "Kilometres" row with the month's total in the notes
 column, which every split part keeps; never an amount.
 
+**Two sites in one day (1.2).** "Moved to another site…" records that some
+of the crew left a site mid-day for another of your sites. `SiteMoving.apply`
+(engine) works on the two site days: each person who went keeps their start
+here and ends at the time they left; on the other site's day for the date —
+made when there is none, freezing that site's job as any new day does — they
+are ticked from when they started until their original end here. The break
+goes here, there or half on each (`BreakPlacement`); unless chosen it goes
+where it falls in time — an untimed break sits in the middle of the shift, as
+`EarningsCalculator` places one — and to the other site when the move cuts it.
+People are matched to the other site's crew by name (`CrewCandidates.key`),
+someone hidden there is shown again and someone missing is added. Nobody who
+stays changes, a reason someone is away is never moved, the allowance is not
+given twice for one day, and a closed month refuses. The result is a
+`SiteMove` on the day they left (`SiteDay.moves`) holding each person's
+attendance on both days before, so `SiteMoving.undo` restores both exactly,
+and takes away a day the move made unless something was written on it since.
+`SiteRepository.applyMove` and `undoMove` write both site days, the new crew
+and your calendar day in one save under the lock, so when you went your day
+gets two site shifts through `SiteCalendarSync` like any two site days.
+
+The moves are stored without a schema version: V9 is on TestFlight, and a
+new column means V10, a migration stage and a CloudKit schema to deploy
+again for an undo record. They ride in `absenceData` as entries of their own
+kind, `{"memberID": <move id>, "kind": "move", "move": …}`
+(`SiteDayStorage`). Every reader since 1.1 decodes that list entry by entry
+and leaves out an entry whose kind it does not know, so an older 1.2 build
+reads the day's reasons exactly as before; the worst it can do is write the
+day again without the move, which loses the banner and Undo, never hours. A
+backup carries them as the site day's `moves` key, written only when there
+are some, which 1.0 and 1.1 skip.
+
+Your calendar day on two sites (`DaySiteSplit`) shows a thin bar with a colour
+per site and a gap where neither was worked, a row per site — "Trg Pravde ·
+12:00 – 16:00 · 3h 30m" — the break with the site it was taken on, and a
+button to each site's day, pushed by value on the calendar's own stack. The
+day's Worked and balance are the day's, counted once; the month cell is
+unchanged.
+
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
 few hundred numbers in a backup) and a fingerprint of that person's hours at the
@@ -1271,6 +1309,28 @@ identification block. Nothing else about the sheets changes. A personal
 timesheet's Location column, only when it is on, falls back to the address of
 the site a day's shift came from when the day has no location of its own
 (`ReportBuilder.siteAddresses`); a typed location stays the day's.
+
+**Two sites on a timesheet (1.2).** When the period's shifts come from more
+than one site, `ReportBuilder` adds a Site column after the day (never chosen:
+`ReportColumn.site`), and a day worked on several sites prints as a row per
+site under one date — the date, the day and what is written about the day on
+the first, each site's times, break and hours on its own — then a "Day" row
+with the day's own figures (`SplitDayRow`): its worked hours, counted once,
+and what it owed, its balance and its money. The site rows' hours are figures
+in the workbook and the Day row's are text, so its SUM counts each minute
+once; the totals and the summary are the period's as always. The PDF shades
+the group lightly and rules it once. "By site" (`ReportTable.bySite`: name,
+address, hours) stands beside the summary in the PDF and under it in the
+workbook and the CSV; a "Sites" tile goes beside Worked only while the header
+has fewer than five tiles. The eyebrow and the title name the sites in the
+order first worked, "Hauptstraße 12 · Trg Pravde", and beyond three the first
+two and "+2 more" in the export language (`ExportLanguage.combinedSiteNames`),
+as a crew member's sheet now does too; the PDF cuts the eyebrow with an
+ellipsis rather than wrapping it. Export's Sites picker ("All sites" or one)
+filters the timesheet to one site's shifts (`DayComputation.restricted`):
+that site's hours only, so nothing owed, no balance, no money and no
+allowance, titled after the site with its address. Site sheets and crew
+members' sheets read the site days, which a move already splits.
 
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and

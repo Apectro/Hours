@@ -40,6 +40,14 @@ enum CSVExporter {
             for total in table.totals {
                 lines.append(row([total.label, total.value], separator: separator))
             }
+            // Hours per site, for a period worked on more than one (1.2).
+            if !table.bySite.isEmpty {
+                lines.append("")
+                lines.append(row([table.language(.bySite)], separator: separator))
+                for site in table.bySite {
+                    lines.append(row([site.name, site.address, site.value], separator: separator))
+                }
+            }
         }
 
         return lines.joined(separator: "\r\n") + "\r\n"

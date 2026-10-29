@@ -16,6 +16,9 @@ struct ExportTables {
     /// The diary photos the file's PDF prints, by id. The bytes are read by
     /// the export screen, and only for a PDF.
     var photoIDs: Set<UUID> = []
+    /// The sites your hours in the range were worked on, in the order first
+    /// worked: the export screen offers its Sites picker for more than one.
+    var sites: [Site] = []
 
     /// Whether there is anything to share. A site's sheet always ends with
     /// its two summary rows, so a month with no site days has those and
@@ -36,7 +39,8 @@ struct ExportTableMaker {
 
     // MARK: - Your hours
 
-    func personal(range: CalendarDateRange, title: String, period: String) -> ExportTables {
+    /// - Parameter siteFilter: only this site's hours, from the Sites picker.
+    func personal(range: CalendarDateRange, title: String, period: String, siteFilter: UUID? = nil) -> ExportTables {
         let repository = WorkdayRepository(context: context)
         let holidays = repository.holidayRules()
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
@@ -54,18 +58,21 @@ struct ExportTableMaker {
             )
             : nil
 
-        // A day written from a site with no location of its own shows the
-        // site's address in the Location column, when that column is on.
-        let siteAddresses: [UUID: String] = settings.effectiveExportColumns.contains(.location)
-            ? Dictionary(
-                SiteRepository(context: context).sites(includeArchived: true).map { ($0.id, $0.address) },
-                uniquingKeysWith: { first, _ in first }
-            )
-            : [:]
+        // Each site's address: for the Location column, when it is on, of a
+        // day with no location of its own, and for the "By site" block and a
+        // sheet filtered to one site. Names for the Site column (1.2).
+        let allSites = SiteRepository(context: context).sites(includeArchived: true)
+        let siteAddresses = Dictionary(allSites.map { ($0.id, $0.address) }, uniquingKeysWith: { first, _ in first })
+        let siteNames = Dictionary(allSites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+        let worked = ReportBuilder.siteIDs(in: days)
+        // A filter to a site the range no longer has falls back to all.
+        let filter = siteFilter.flatMap { worked.count > 1 && worked.contains($0) ? $0 : nil }
 
         func build(_ placeholder: String) -> ReportTable {
             var builder = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
             builder.siteAddresses = siteAddresses
+            builder.siteNames = siteNames
+            builder.siteFilter = filter
             return builder
                 .makeTable(
                     days: days,
@@ -78,7 +85,9 @@ struct ExportTableMaker {
                     currencyCode: settings.money.currencyCode
                 )
         }
-        return ExportTables(file: build(""), preview: build("—"))
+        var tables = ExportTables(file: build(""), preview: build("—"))
+        tables.sites = worked.compactMap { id in allSites.first { $0.id == id } }
+        return tables
     }
 
     /// The balance carried into the range, so a running-balance column starts

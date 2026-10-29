@@ -145,7 +145,48 @@ struct PDFPageDecorations {
                 alignment: .right
             )
         }
+        drawBySite(at: y, x: margin + CGFloat(layout.summaryFigureColumns) * columnWidth + 16)
         return y + layout.summaryHeight
+    }
+
+    /// Hours per site beside the summary (1.2): the name, its address in
+    /// grey after it, the hours on the right. Only for a period on more than
+    /// one site.
+    private func drawBySite(at y: CGFloat, x: CGFloat) {
+        guard !table.bySite.isEmpty else { return }
+        let width = PDFReportStyle.margin + PDFReportStyle.contentWidth - x
+        PDFReportStyle.draw(
+            table.language(.bySite),
+            in: CGRect(x: x, y: y, width: width, height: 12),
+            font: PDFReportStyle.cellBoldFont,
+            color: PDFReportStyle.ink
+        )
+        let valueWidth: CGFloat = 60
+        for (index, site) in table.bySite.enumerated() {
+            let rowY = y + 14 + CGFloat(index) * 12
+            let label = NSMutableAttributedString(
+                string: site.name,
+                attributes: [.font: PDFReportStyle.smallFont, .foregroundColor: PDFReportStyle.ink]
+            )
+            if !site.address.isEmpty {
+                label.append(NSAttributedString(
+                    string: " · \(site.address)",
+                    attributes: [.font: PDFReportStyle.smallFont, .foregroundColor: PDFReportStyle.secondary]
+                ))
+            }
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byTruncatingTail
+            label.addAttribute(.paragraphStyle, value: paragraph, range: NSRange(location: 0, length: label.length))
+            let lineHeight = PDFReportStyle.smallFont.lineHeight
+            label.draw(in: CGRect(x: x, y: rowY + (12 - lineHeight) / 2, width: width - valueWidth - 6, height: lineHeight))
+            PDFReportStyle.draw(
+                site.value,
+                in: CGRect(x: x + width - valueWidth, y: rowY, width: valueWidth, height: 12),
+                font: PDFReportStyle.cellBoldFont,
+                color: PDFReportStyle.ink,
+                alignment: .right
+            )
+        }
     }
 
     // MARK: - Footer

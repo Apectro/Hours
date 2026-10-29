@@ -249,6 +249,74 @@ struct SiteRepository {
         persist()
     }
 
+    // MARK: - Moving to another site
+
+    /// Stores a move (`SiteMoving.apply`): both site days, the crew the
+    /// other site gains, and your calendar day — two site shifts when you
+    /// went — in one save. Throws `MonthLock.Refusal` for a closed month,
+    /// before anything is touched.
+    func applyMove(_ outcome: SiteMoveOutcome) throws {
+        try lock.check(outcome.source.date)
+        for member in outcome.crewChanges {
+            let key = member.id.uuidString
+            let descriptor = FetchDescriptor<CrewMemberEntry>(predicate: #Predicate<CrewMemberEntry> { $0.memberID == key })
+            if let existing = deduplicatedCrew(fetch(descriptor)).first {
+                existing.apply(member)
+            } else {
+                context.insert(CrewMemberEntry(member: member))
+            }
+        }
+        try write([outcome.source, outcome.target], removing: [], on: outcome.source.date)
+    }
+
+    /// Takes a move back (`SiteMoving.undo`): the day they left and the
+    /// other site's day as they were, the other day gone if the move made it
+    /// and nothing was written on it since. Under the month lock.
+    func undoMove(_ move: SiteMove, from source: SiteDay) throws {
+        try lock.check(source.date)
+        let target = siteDay(siteID: move.toSiteID, on: source.date)
+        let undone = SiteMoving.undo(move, source: source, target: target)
+        try write(
+            [undone.source] + (undone.target.map { [$0] } ?? []),
+            removing: undone.target == nil && target != nil ? [move.toSiteID] : [],
+            on: source.date
+        )
+    }
+
+    /// Several site days of one date written together with your calendar
+    /// day, as `save` writes one.
+    private func write(_ days: [SiteDay], removing removed: [UUID], on date: CalendarDate) throws {
+        let workdays = WorkdayRepository(context: context, lock: lock)
+        let personal = workdays.record(on: date)
+        let onThatDate = siteDayEntries(on: date)
+        let written = Set(days.map(\.siteID.uuidString))
+        let gone = Set(removed.map(\.uuidString))
+
+        let others = firstOfEach(
+            onThatDate.filter { !written.contains($0.siteID) && !gone.contains($0.siteID) },
+            by: \.identity
+        ).map(\.siteDay)
+        try carryIntoCalendar(
+            on: date,
+            personal: personal,
+            siteDays: inSiteOrder(others + days),
+            previous: firstOfEach(onThatDate, by: \.identity).map(\.siteDay),
+            through: workdays,
+            afterWriting: {
+                for day in days {
+                    let id = day.siteID.uuidString
+                    if let existing = onThatDate.first(where: { $0.siteID == id }) {
+                        existing.apply(day)
+                    } else {
+                        context.insert(SiteDayEntry(day: day))
+                    }
+                }
+                for entry in onThatDate where gone.contains(entry.siteID) { context.delete(entry) }
+            }
+        )
+        persist()
+    }
+
     /// Every site day on a date, across all sites, duplicates collapsed but
     /// the calendar left alone — the caller is about to write it.
     private func siteDayEntries(on date: CalendarDate) -> [SiteDayEntry] {

@@ -197,6 +197,26 @@ enum XLSXWriter {
                 }
                 emit(cells, sizing: sizing)
             }
+
+            // Hours per site, for a period on more than one (1.2): the name
+            // and its address as the label, the hours as a figure.
+            if !table.bySite.isEmpty {
+                blank()
+                merge(0, columns - 1, row: rowNumber)
+                emit([Cell.text(table.language(.bySite), style: .section)], sizing: [], height: 20)
+                for site in table.bySite {
+                    var cells = Array(repeating: Cell.gap, count: columns)
+                    var sizing = cells
+                    let label = site.address.isEmpty ? site.name : "\(site.name) · \(site.address)"
+                    merge(0, labelEnd, row: rowNumber)
+                    cells[0] = .text(label, style: .summaryLabel)
+                    if valueColumn > 0 && valueColumn < columns {
+                        cells[valueColumn] = .number(dayFraction(minutes: site.minutes), style: .summaryValue)
+                        sizing[valueColumn] = cells[valueColumn]
+                    }
+                    emit(cells, sizing: sizing)
+                }
+            }
             blank()
         }
 

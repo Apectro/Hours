@@ -39,6 +39,9 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     case allowance
     case kilometres
     case travel
+    /// The site a row's hours were worked on (1.2). Never chosen: added to a
+    /// personal timesheet after the day when the period has more than one site.
+    case site
 
     var id: String { rawValue }
 
@@ -74,6 +77,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
         case .allowance: return .allowance
         case .kilometres: return .kilometresShort
         case .travel: return .travel
+        case .site: return .site
         }
     }
 
@@ -99,7 +103,7 @@ enum ReportColumn: String, Codable, CaseIterable, Hashable, Sendable, Identifiab
     /// rest keep theirs.
     var mayTruncate: Bool {
         switch self {
-        case .note, .location, .tags, .job, .holiday: return true
+        case .note, .location, .tags, .job, .holiday, .site: return true
         // A clock time cut short is a wrong time, as a date is a wrong date.
         default: return false
         }

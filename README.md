@@ -105,6 +105,18 @@ in their workbooks and CSVs. In the personal timesheet's Location column, when
 that column is on, a day written from a site with no location of its own shows
 the site's address.
 
+**Two sites in one day (1.2)** — when part of the crew leaves a site in the
+middle of the day, "Moved to another site…" under the crew (or one person's
+row menu) picks the other site, when they left and started there, where the
+break goes and who went. Each of them then ends here when they left and is
+ticked on the other site's day from when they started — the day is made if
+there is none — and the site day says "4 went to Trg Pravde at 11:30" with
+Undo, which puts both days back. If you went too, your calendar day has both
+site shifts: a split bar, a row per site and a button to open each. Your
+timesheet then has a Site column, a day on two sites as a row per site with a
+"Day" row under them, the sites in its title and "By site" beside the
+summary; Export can also make it for one site's hours alone.
+
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
 problems and visitors, and up to six photos, stripped of their location. A

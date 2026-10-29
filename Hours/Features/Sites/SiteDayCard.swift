@@ -48,6 +48,12 @@ struct SiteDayCard: View {
     var onToggleAllowance: (UUID) -> Void = { _ in }
     var kilometres: Binding<String> = .constant("")
     var isKilometresFocused: FocusState<Bool>.Binding? = nil
+    /// "Moved to another site…" (1.2): offered while someone ticked has not
+    /// moved yet and there is another active site. Nil is everyone ticked;
+    /// a row's menu passes one person.
+    var canMove = false
+    var onMove: (UUID?) -> Void = { _ in }
+    var onUndoMove: (SiteMove) -> Void = { _ in }
 
     // Not private: a private property would make the memberwise initializer
     // the site screen calls private too.
@@ -58,6 +64,9 @@ struct SiteDayCard: View {
             header
             timesRow
             warningsView
+            ForEach(day.moves) { move in
+                moveBanner(move)
+            }
 
             // The app's one section-heading style (`SectionHeading`), as
             // "Extra work" below uses.
@@ -90,9 +99,26 @@ struct SiteDayCard: View {
                         onEdit: { onEditPerson(row) },
                         hasAllowance: day.hasAllowance(for: row.id),
                         tracksAllowance: tracksAllowance,
-                        onToggleAllowance: { onToggleAllowance(row.id) }
+                        onToggleAllowance: { onToggleAllowance(row.id) },
+                        movedTo: movedSiteName(of: row.id),
+                        canMove: canMove && day.move(of: row.id) == nil,
+                        onMove: { onMove(row.id) }
                     )
                 }
+            }
+
+            if canMove {
+                Button {
+                    onMove(nil)
+                } label: {
+                    Label("Moved to another site…", systemImage: "arrow.left.arrow.right")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .padding(.horizontal, Metrics.small)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier("site-day-move")
             }
 
             // Open even when the day cannot be changed: the crew list says
@@ -136,6 +162,60 @@ struct SiteDayCard: View {
         .padding(Metrics.large)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
+    // MARK: - Moves
+
+    /// The other site's name for someone who left this day for it, while
+    /// they are still ticked here with the end the move gave them.
+    private func movedSiteName(of memberID: UUID) -> String? {
+        guard let move = day.move(of: memberID),
+              let mine = day.resolved(for: memberID), mine.end == move.left
+        else { return nil }
+        return siteNames[move.toSiteID] ?? String(localized: "Another site")
+    }
+
+    /// "4 went to Trg Pravde at 11:30", with Undo (mockup After).
+    private func moveBanner(_ move: SiteMove) -> some View {
+        HStack(spacing: Metrics.small) {
+            Image(systemName: "arrow.left.arrow.right")
+                .foregroundStyle(Color.accentColor)
+                .accessibilityHidden(true)
+            Text(moveText(move))
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("site-move-banner")
+            if canEdit {
+                Button("Undo") { onUndoMove(move) }
+                    .font(.subheadline.weight(.semibold))
+                    .buttonStyle(.borderless)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityIdentifier("site-move-undo")
+            }
+        }
+        .padding(.horizontal, Metrics.medium)
+        .padding(.vertical, Metrics.tiny)
+        .background(
+            Color.accentColor.opacity(0.10),
+            in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
+        )
+        .accessibilityElement(children: .contain)
+    }
+
+    /// One sentence, the who and where in bold: "**4 went to Trg Pravde** at
+    /// 11:30".
+    private func moveText(_ move: SiteMove) -> AttributedString {
+        let site = siteNames[move.toSiteID] ?? String(localized: "Another site")
+        let time = formatting.time(move.left, on: day.date)
+        let ids = move.memberIDs
+        if ids == [CrewMember.youID] {
+            return AttributedString(localized: "**You went to \(site)** at \(time)", comment: "Site day banner, you alone moved; the values are the other site and a time")
+        }
+        if ids.count == 1, let name = rows.first(where: { $0.id == ids[0] })?.name {
+            return AttributedString(localized: "**\(name) went to \(site)** at \(time)", comment: "Site day banner; the values are a person, the other site and a time")
+        }
+        return AttributedString(localized: "**\(ids.count) went to \(site)** at \(time)", comment: "Site day banner; the values are how many moved, the other site and a time")
     }
 
     // MARK: - Kilometres
@@ -313,6 +393,12 @@ struct SitePersonRow: View {
     var hasAllowance = false
     var tracksAllowance = false
     var onToggleAllowance: () -> Void = {}
+    /// The site they left for (1.2): their times read "7:00 – 11:30 → Trg
+    /// Pravde" in the accent colour rather than as leaving early.
+    var movedTo: String? = nil
+    /// Whether the menu offers "Moved to another site…" for them alone.
+    var canMove = false
+    var onMove: () -> Void = {}
 
     // Not `private`: that would make the memberwise initializer private too.
     @ScaledMetric(relativeTo: .subheadline) var initialsDiameter: CGFloat = 36
@@ -370,6 +456,10 @@ struct SitePersonRow: View {
                             // confirms it.
                             AbsenceChip(title: atSite(hint), color: .gray)
                                 .opacity(0.55)
+                        } else if let movedTo, let person {
+                            Text(verbatim: "\(timeRange(person)) → \(movedTo)")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.accentColor)
                         } else {
                             Text(subtitle)
                                 .font(.subheadline)
@@ -401,6 +491,9 @@ struct SitePersonRow: View {
             .accessibilityIdentifier(isYou ? "site-person-you" : "site-person-\(row.name)")
             // The menu's allowance switch, for VoiceOver without a long press.
             .accessibilityActions {
+                if canEdit && canMove && isHere {
+                    Button("Moved to another site…", action: onMove)
+                }
                 if canEdit && tracksAllowance && isHere {
                     if hasAllowance {
                         Button("Take off the field allowance", action: onToggleAllowance)
@@ -431,7 +524,7 @@ struct SitePersonRow: View {
         }
         .padding(.horizontal, Metrics.small)
         .background(
-            exception != nil ? Color.hoursNegativeFill.opacity(0.10) : Color.clear,
+            exception != nil && movedTo == nil ? Color.hoursNegativeFill.opacity(0.10) : Color.clear,
             in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
         )
         .contextMenu {
@@ -446,6 +539,12 @@ struct SitePersonRow: View {
                 if isHere {
                     Button(action: onEdit) {
                         Label("Change times", systemImage: "clock")
+                    }
+                    if canMove {
+                        Button(action: onMove) {
+                            Label("Moved to another site…", systemImage: "arrow.left.arrow.right")
+                        }
+                        .accessibilityIdentifier("site-person-move")
                     }
                     if tracksAllowance {
                         Button(action: onToggleAllowance) {
@@ -634,6 +733,9 @@ struct SitePersonRow: View {
         if let hint { return atSiteInRunningText(hint) }
         guard let person else { return String(localized: "Not here") }
         var parts = [String(localized: "Here"), durations.string(person.workedMinutes)]
+        if let movedTo {
+            parts.append(String(localized: "then at \(movedTo)", comment: "VoiceOver after a crew member's hours: they moved on to another site; the value is its name"))
+        }
         if showsAllowance { parts.append(String(localized: "field allowance")) }
         return parts.joined(separator: ", ")
     }

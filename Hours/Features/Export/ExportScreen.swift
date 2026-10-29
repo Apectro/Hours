@@ -34,6 +34,9 @@ struct ExportScreen: View {
     /// is the month the director asks for at the start of this one.
     @State private var siteMonth: YearMonth?
     @State private var format: ExportFormat = .pdf
+    /// Your hours on one site only, for a range worked on more than one
+    /// (1.2); nil is all sites.
+    @State private var siteFilter: UUID?
 
     /// What the timesheet file will be called, without its extension.
     ///
@@ -178,6 +181,7 @@ struct ExportScreen: View {
                     ),
                     onStep: step
                 )
+                sitesSection
             }
             previewSection
             Section {
@@ -245,6 +249,33 @@ struct ExportScreen: View {
                 }
             }
         }
+    }
+
+    /// "All sites" or one of them, only when the range has hours on more
+    /// than one site.
+    @ViewBuilder
+    private var sitesSection: some View {
+        if let sites = tables?.sites, sites.count > 1 {
+            Section {
+                Picker("Sites", selection: $siteFilter) {
+                    Text("All sites").tag(UUID?.none)
+                    ForEach(sites) { site in
+                        Text(verbatim: site.name).tag(UUID?.some(site.id))
+                    }
+                }
+                .accessibilityIdentifier("export-sites")
+            } footer: {
+                if siteFilter != nil {
+                    Text("Only the hours worked on this site. Expected hours, the balance and earnings belong to the whole day, so they are left out.")
+                }
+            }
+        }
+    }
+
+    /// The site the timesheet is filtered to, while the range still has it.
+    private var filteredSite: Site? {
+        guard let siteFilter, let sites = tables?.sites, sites.count > 1 else { return nil }
+        return sites.first { $0.id == siteFilter }
     }
 
     @ViewBuilder
@@ -468,7 +499,8 @@ struct ExportScreen: View {
     /// range, a site's is the site and the month.
     private var suggestedFileName: String {
         if let site = selectedSite { return exportNaming.siteFileName(site, month: month) }
-        return exportNaming.timesheetFileName(rangeKind: rangeKind, range: resolvedRange)
+        let name = exportNaming.timesheetFileName(rangeKind: rangeKind, range: resolvedRange)
+        return filteredSite.map { "\(name) - \($0.name)" } ?? name
     }
 
     /// Typing marks the name as the person's own; clearing the field hands it
@@ -499,6 +531,7 @@ struct ExportScreen: View {
         let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
         return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
             + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)-\(perPerson)"
+            + "-\(siteFilter?.uuidString ?? "all")"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -521,10 +554,14 @@ struct ExportScreen: View {
             built = maker.personal(
                 range: resolvedRange,
                 title: exportNaming.reportTitle(rangeKind: rangeKind, anchor: anchor, range: resolvedRange),
-                period: exportNaming.period(rangeKind: rangeKind, anchor: anchor, range: resolvedRange)
+                period: exportNaming.period(rangeKind: rangeKind, anchor: anchor, range: resolvedRange),
+                siteFilter: siteFilter
             )
         }
         tables = built
+        // Again, now the range's sites are known: a filtered sheet's name
+        // carries its site.
+        if !fileNameEdited { fileName = suggestedFileName }
         personSheets = []
         fileURLs = []
         if let site = selectedSite, perPerson {

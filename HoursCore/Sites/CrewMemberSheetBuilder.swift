@@ -164,8 +164,11 @@ struct CrewMemberSheetBuilder: Sendable {
         // The sites they worked on, in the sites' order; for someone away
         // the whole period, the sites that gave the reasons.
         let shownSites = Set(worked.compactMap(\.siteID))
-        let titleSiteIDs = (shownSites.isEmpty ? Set(lines.compactMap(\.siteID)) : shownSites)
-            .sorted { order($0) != order($1) ? order($0) < order($1) : $0.uuidString < $1.uuidString }
+        // In the order first worked, as the personal timesheet names them
+        // (lines are in date order, then the sites' order).
+        let titleSet = shownSites.isEmpty ? Set(lines.compactMap(\.siteID)) : shownSites
+        var seenSites = Set<UUID>()
+        let titleSiteIDs = lines.compactMap(\.siteID).filter { titleSet.contains($0) && seenSites.insert($0).inserted }
         let titleSites = titleSiteIDs.compactMap { siteNames[$0] }
         let showsSite = shownSites.count > 1
         let showsReason = lines.contains { $0.reason != nil }
@@ -277,7 +280,8 @@ struct CrewMemberSheetBuilder: Sendable {
         let formatting = CalendarFormatting(locale: language.locale, calendar: calendar)
         let dates = formatter.subtitle(for: range)
         let period = isMonth ? formatting.monthTitle(range.start.yearMonth) : dates
-        let sitesText = titleSites.joined(separator: ", ")
+        // "Hauptstraße 12 · Trg Pravde", or the first two and "+2 more".
+        let sitesText = language.combinedSiteNames(titleSites)
 
         var table = ReportTable(
             title: sitesText.isEmpty ? "\(language(.hours)) — \(period)" : "\(sitesText) — \(period)",

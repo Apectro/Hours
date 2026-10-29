@@ -131,8 +131,8 @@ final class CrewMemberSheetTests: XCTestCase {
         XCTAssertNil(rows[0].minutes[3])
 
         // The sites, in their order, in the title block.
-        XCTAssertEqual(t.eyebrow, "Timesheet · Bau Süd, Halle 3")
-        XCTAssertEqual(t.title, "Bau Süd, Halle 3 — August 2026")
+        XCTAssertEqual(t.eyebrow, "Timesheet · Bau Süd · Halle 3")
+        XCTAssertEqual(t.title, "Bau Süd · Halle 3 — August 2026")
         XCTAssertTrue(t.byline.contains("August 2026"), t.byline)
         XCTAssertTrue(t.byline.contains("Recorded by Marijo"), t.byline)
     }
@@ -323,8 +323,8 @@ final class CrewMemberSheetTests: XCTestCase {
         XCTAssertEqual(rows[0].values[1], "Mo")
         XCTAssertEqual(value(t, rows[2], .dayType), "Krankheit")
         XCTAssertEqual(value(t, rows[3], .dayType), "Urlaub")
-        XCTAssertEqual(t.eyebrow, "Stundenzettel · Bau Süd, Halle 3")
-        XCTAssertEqual(t.title, "Bau Süd, Halle 3 — August 2026")
+        XCTAssertEqual(t.eyebrow, "Stundenzettel · Bau Süd · Halle 3")
+        XCTAssertEqual(t.title, "Bau Süd · Halle 3 — August 2026")
         XCTAssertEqual(
             t.totals.map(\.label),
             ["Gesamt gearbeitet", "Tage auf der Baustelle", "Krankheitstage", "Urlaubstage"]
