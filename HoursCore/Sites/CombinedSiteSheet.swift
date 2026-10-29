@@ -148,7 +148,6 @@ extension SiteSheetBuilder {
             // The day's figures, counted once however many sites gave them.
             var dayWorked = Array(repeating: 0, count: people.count)
             var awayText: [String?] = Array(repeating: nil, count: people.count)
-            var isThere = Array(repeating: false, count: people.count)
             var sitesToday = Array(repeating: 0, count: people.count)
             for (index, person) in people.enumerated() {
                 let entries = dayResults.flatMap { result in
@@ -180,7 +179,6 @@ extension SiteSheetBuilder {
                     personSiteMinutes[siteIndex[siteID] ?? 0][index] += entry.workedMinutes
                 }
                 dayWorked[index] = worked
-                isThere[index] = true
                 sitesToday[index] = Set(entries.map(\.siteID)).count
                 totalMinutes[index] += worked
                 if worked > 0 { daysWorked[index] += 1 }
@@ -193,8 +191,18 @@ extension SiteSheetBuilder {
             // group, closed by "Total", only when somebody's day was on more
             // than one site: crews side by side on their own sites need no
             // total, and a month of them would print three rows a day.
-            let isSplit = dayResults.count > 1 && sitesToday.contains { $0 > 1 }
-            for (position, result) in dayResults.enumerated() {
+            //
+            // A site nobody on this sheet worked that day, with nothing
+            // written about it, is no row while another site has the day: a
+            // line of dashes says nothing the other row does not.
+            let worksHere = { (result: SiteDayResult) in
+                result.people.contains { entry in people.contains { $0.memberIDs.contains(entry.memberID) } }
+            }
+            let shown = dayResults.contains(where: worksHere)
+                ? dayResults.filter { worksHere($0) || !note(of: $0.day, language: language).isEmpty }
+                : dayResults
+            let isSplit = shown.count > 1 && sitesToday.contains { $0 > 1 }
+            for (position, result) in shown.enumerated() {
                 let isFirst = position == 0
                 var values = isFirst ? [formatter.dateText(date), formatter.weekdayText(date)] : ["", ""]
                 values.append(siteName[result.day.siteID] ?? "")
@@ -237,12 +245,14 @@ extension SiteSheetBuilder {
                 rows.append(row)
             }
 
-            // "Total": each person's day on all the sites together. Text in a
-            // workbook, not a figure, so the month's sum counts the sites'.
+            // "Total": the day added up for each person who worked on more
+            // than one site; anyone else's hours are already on their one
+            // row. Text in a workbook, not a figure, so the month's sum
+            // counts the sites'.
             guard isSplit else { continue }
             var values = ["", "", language(.total)]
             for (index, worked) in dayWorked.enumerated() {
-                values += ["", isThere[index] ? duration.string(worked) : ""]
+                values += ["", sitesToday[index] > 1 ? duration.string(worked) : ""]
             }
             values.append("")
             var subtotal = ReportRow(

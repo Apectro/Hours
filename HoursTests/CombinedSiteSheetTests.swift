@@ -206,7 +206,23 @@ final class CombinedSiteSheetTests: XCTestCase {
         XCTAssertFalse(there.flagged)
         XCTAssertEqual(cell(t, person: 2, day: 4).minutes, 510)
         XCTAssertEqual(cell(t, person: 2, day: 4, row: 1).times, "—", "Marko stayed")
-        XCTAssertEqual(cell(t, person: 2, day: 4, row: 2).hours, "8h 30m")
+        XCTAssertEqual(cell(t, person: 2, day: 4, row: 2).hours, "", "one site, so no total: his hours are on his row")
+        XCTAssertEqual(cell(t, person: 0, day: 4, row: 2).hours, "", "you stayed too")
+    }
+
+    func testASiteNobodyWorkedThatDayIsNoRow() {
+        let t = table([haupt, trg], days: [
+            day(haupt, 3, present: []),
+            day(trg, 3, present: [ivanThere.id, luka.id]),
+            day(haupt, 4, present: [], note: "Inspection"),
+            day(trg, 4, present: [luka.id]),
+            day(haupt, 5, present: [], badWeather: true),
+            day(trg, 5, present: [luka.id])
+        ])
+        XCTAssertEqual(rows(t, day: 3).map { $0.values[2] }, ["Trg Pravde"], "a row of dashes says nothing")
+        XCTAssertFalse(rows(t, day: 3)[0].values[0].isEmpty, "the date moves to the first row shown")
+        XCTAssertEqual(rows(t, day: 4).map { $0.values[2] }, ["Hauptstraße 12", "Trg Pravde"], "a note keeps its row")
+        XCTAssertEqual(rows(t, day: 5).count, 2, "so does bad weather")
     }
 
     // MARK: - Away

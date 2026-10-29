@@ -288,11 +288,18 @@ struct PDFReportLayout {
         var everyRow = table.rows
         if let totalRow = table.totalRow { everyRow.append(totalRow) }
 
+        // On a site sheet the site is what the row is about, so it is never
+        // cut to "Trg Pravde Za…".
+        let measured = { (column: ReportColumn) in
+            !column.mayTruncate || (column == .site && self.table.kind == .siteSheet)
+        }
         var minimum = columns.indices.map { index -> CGFloat in
             let column = columns[index]
             var needed = PDFReportStyle.width(of: headings[index], font: PDFReportStyle.headingFont)
-            if !column.mayTruncate {
+            if measured(column) {
                 for row in everyRow where index < row.values.count {
+                    // A closing label runs on over the empty cells beside it.
+                    if index == 0 && labelSpan(of: row).count > 1 { continue }
                     // A dash spanning an absent person's group draws across
                     // the whole group, not in this column.
                     let font = PDFReportLayout.font(for: column, role: row.role)
@@ -309,7 +316,32 @@ struct PDFReportLayout {
                 minimum[last] += title + padding - have
             }
         }
+        for row in everyRow {
+            let range = labelSpan(of: row)
+            guard range.count > 1, let first = row.values.first, let last = range.last else { continue }
+            let label = PDFReportStyle.width(of: first, font: PDFReportLayout.font(for: columns[0], role: row.role))
+            let have = range.reduce(CGFloat(0)) { $0 + minimum[$1] }
+            if have < label + padding {
+                minimum[last] += label + padding - have
+            }
+        }
         return minimum
+    }
+
+    /// The columns a site sheet's closing label — "Month total", a site's
+    /// name — is drawn across: the date's, and the empty day and site cells
+    /// beside it. Measured against the date column alone, "Month total"
+    /// made the dates twice as wide as they are. Any other row: the first
+    /// column alone.
+    func labelSpan(of row: ReportRow) -> Range<Int> {
+        let columns = table.columns
+        guard table.kind == .siteSheet, row.role != .day, !columns.isEmpty else { return 0..<1 }
+        var end = 1
+        while end < columns.count, end < row.values.count,
+              [ReportColumn.weekday, .site].contains(columns[end]), row.values[end].isEmpty {
+            end += 1
+        }
+        return 0..<end
     }
 
     // MARK: - Parts

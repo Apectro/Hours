@@ -194,14 +194,18 @@ struct PDFTablePainter {
             )
         }
 
-        let covered = drawMergedGroups(of: row, at: y, height: height)
+        var covered = drawMergedGroups(of: row, at: y, height: height)
         let xs = origins
         let padding = PDFReportStyle.cellPadding
+        // A closing label across the empty date, day and site cells.
+        let label = layout.labelSpan(of: row)
+        covered.formUnion(label.dropFirst())
         for (index, column) in table.columns.enumerated() where index < row.values.count && index < widths.count {
             guard !covered.contains(index) else { continue }
+            let width = index == 0 ? label.reduce(CGFloat(0), { $0 + widths[$1] }) : widths[index]
             draw(
                 row.values[index],
-                in: CGRect(x: xs[index] + padding, y: y, width: widths[index] - padding * 2, height: height),
+                in: CGRect(x: xs[index] + padding, y: y, width: width - padding * 2, height: height),
                 font: row.splitDay == .subtotal
                     ? PDFReportStyle.cellBoldFont
                     : PDFReportLayout.font(for: column, role: row.role),
