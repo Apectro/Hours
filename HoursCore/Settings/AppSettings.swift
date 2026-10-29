@@ -95,6 +95,12 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// What a new site starts with (1.2): Settings › New sites start with.
     /// Written only once changed.
     var newSites: NewSiteDefaults
+    /// Appearance › On site (1.2): the daily actions' big buttons drawn
+    /// taller, for gloves. Written only when on; absent reads as off.
+    var biggerButtons: Bool
+    /// Appearance › On site (1.2): secondary text and hairlines drawn
+    /// darker, for sunlight. Written only when on; absent reads as off.
+    var highContrast: Bool
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -125,7 +131,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         allowance: AllowancePreferences = AllowancePreferences(),
         payslipChecks: [String: PayslipEntry] = [:],
         siteSetups: [String: SiteSetup] = [:],
-        newSites: NewSiteDefaults = NewSiteDefaults()
+        newSites: NewSiteDefaults = NewSiteDefaults(),
+        biggerButtons: Bool = false,
+        highContrast: Bool = false
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -155,6 +163,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.payslipChecks = payslipChecks
         self.siteSetups = siteSetups
         self.newSites = newSites
+        self.biggerButtons = biggerButtons
+        self.highContrast = highContrast
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -226,6 +236,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case allowance
         case payslipChecks
         case siteSetups, newSites
+        case biggerButtons, highContrast
     }
 
     init(from decoder: Decoder) throws {
@@ -272,7 +283,9 @@ struct AppSettings: Hashable, Codable, Sendable {
                 .lenient(.siteSetups, [String: LenientSiteSetup]())
                 .filter { UUID(uuidString: $0.key) != nil }
                 .compactMapValues(\.setup),
-            newSites: container.lenient(.newSites, defaults.newSites)
+            newSites: container.lenient(.newSites, defaults.newSites),
+            biggerButtons: container.lenient(.biggerButtons, defaults.biggerButtons),
+            highContrast: container.lenient(.highContrast, defaults.highContrast)
         )
     }
 
@@ -311,6 +324,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         if !payslipChecks.isEmpty { try container.encode(payslipChecks, forKey: .payslipChecks) }
         if !siteSetups.isEmpty { try container.encode(siteSetups, forKey: .siteSetups) }
         if newSites != NewSiteDefaults() { try container.encode(newSites, forKey: .newSites) }
+        if biggerButtons { try container.encode(biggerButtons, forKey: .biggerButtons) }
+        if highContrast { try container.encode(highContrast, forKey: .highContrast) }
     }
 }
 
