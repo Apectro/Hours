@@ -2,8 +2,9 @@ import XCTest
 @testable import Hours
 
 /// One director's sheet for several sites' month (1.2): the crews joined by
-/// name, each person's hours a day added up across the sites, a "By site"
-/// block, and the sites in the title. One site is exactly the site sheet.
+/// name, a Site column, a day on two sites as a row per site and a "Total",
+/// a "By site" block, and the sites in the title. One site is exactly the
+/// site sheet.
 final class CombinedSiteSheetTests: XCTestCase {
     private let calendar = Fixture.calendar()
     private let august = CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
@@ -78,15 +79,22 @@ final class CombinedSiteSheetTests: XCTestCase {
     }
 
     private func people(_ table: ReportTable) -> [String] {
-        table.columnGroups.dropFirst(2).dropLast().map(\.title)
+        table.columnGroups.dropFirst(3).dropLast().map(\.title)
+    }
+
+    /// The rows for `d`: one per site, then "Total" on a day on more than one.
+    private func rows(_ table: ReportTable, day d: Int) -> [ReportRow] {
+        let key = Fixture.date(2026, 8, d).key
+        return table.rows.filter { $0.role == .day && ($0.id == key || (-$0.id) / 10 == key) }
     }
 
     /// The times and hours of `person` (0 is the first column group after
-    /// the date and the day) on the row for `d`.
-    private func cell(_ table: ReportTable, person: Int, day d: Int) -> (times: String, hours: String, minutes: Int?, flagged: Bool) {
-        let key = Fixture.date(2026, 8, d).key
-        guard let row = table.rows.first(where: { $0.id == key }) else { return ("", "", nil, false) }
-        let column = 2 + person * 2
+    /// the date, the day and the site) on the `row`th row for `d`.
+    private func cell(_ table: ReportTable, person: Int, day d: Int, row index: Int = 0) -> (times: String, hours: String, minutes: Int?, flagged: Bool) {
+        let dayRows = rows(table, day: d)
+        guard index < dayRows.count else { return ("", "", nil, false) }
+        let row = dayRows[index]
+        let column = 3 + person * 2
         return (row.values[column], row.values[column + 1], row.minutes[column + 1], row.flagged.contains(column))
     }
 
@@ -152,14 +160,23 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(trg, 3, present: [ivanThere.id], start: Fixture.time(12), end: Fixture.time(16), breakMinutes: 30),
             day(trg, 4, present: [ivanThere.id])
         ])
-        let monday = cell(t, person: 0, day: 3)
-        XCTAssertEqual(monday.minutes, 270 + 210)
-        XCTAssertEqual(monday.hours, "8h")
-        XCTAssertEqual(monday.times, "07:00–16:00", "from the first start to the last end")
+        let monday = rows(t, day: 3)
+        XCTAssertEqual(monday.map { $0.values[2] }, ["Hauptstraße 12", "Trg Pravde", "Total"])
+        XCTAssertEqual(monday.map(\.splitDay), [.site, .site, .subtotal])
+        XCTAssertFalse(monday[0].values[0].isEmpty, "the date on the first row")
+        XCTAssertEqual(monday.dropFirst().map { $0.values[0] }, ["", ""], "and only there")
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 0).times, "07:00–11:30")
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 0).minutes, 270)
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 1).times, "12:00–16:00")
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 1).minutes, 210)
+        let total = cell(t, person: 0, day: 3, row: 2)
+        XCTAssertEqual(total.hours, "8h", "the day on both sites added up")
+        XCTAssertNil(total.minutes, "text, so the month's sum counts the sites' rows only")
         XCTAssertEqual(cell(t, person: 0, day: 4).minutes, 510)
-        XCTAssertEqual(closing(t, "Month total")?[3], "16h 30m")
-        XCTAssertEqual(closing(t, "Days worked")?[3], "2", "a day on two sites is one day")
-        XCTAssertEqual(t.rows.filter { $0.role == .day }.count, 2, "a row per date, not per site day")
+        XCTAssertEqual(rows(t, day: 4).map(\.splitDay), [nil], "a day on one site is one row")
+        XCTAssertEqual(rows(t, day: 4).first?.values[2], "Trg Pravde", "and still says where")
+        XCTAssertEqual(closing(t, "Month total")?[4], "16h 30m")
+        XCTAssertEqual(closing(t, "Days worked")?[4], "2", "a day on two sites is one day")
     }
 
     func testAMovedDayShowsTheWholeDayOnce() throws {
@@ -179,11 +196,17 @@ final class CombinedSiteSheetTests: XCTestCase {
         ))
         let t = table([haupt, trg], days: [outcome.source, outcome.target])
         XCTAssertEqual(people(t), ["Marijo", "Ivan", "Marko"])
-        let ivanCell = cell(t, person: 1, day: 4)
-        XCTAssertEqual(ivanCell.minutes, 480, "4:30 here and 3:30 there")
-        XCTAssertEqual(ivanCell.times, "07:00–16:00")
-        XCTAssertFalse(ivanCell.flagged, "a whole day across two sites is not someone leaving early")
+        let here = cell(t, person: 1, day: 4, row: 0)
+        let there = cell(t, person: 1, day: 4, row: 1)
+        XCTAssertEqual(here.times, "07:00–11:30")
+        XCTAssertEqual(there.times, "12:00–16:00")
+        XCTAssertEqual((here.minutes ?? 0) + (there.minutes ?? 0), 480, "4:30 here and 3:30 there")
+        XCTAssertEqual(cell(t, person: 1, day: 4, row: 2).hours, "8h")
+        XCTAssertFalse(here.flagged, "leaving one site for another is not leaving early")
+        XCTAssertFalse(there.flagged)
         XCTAssertEqual(cell(t, person: 2, day: 4).minutes, 510)
+        XCTAssertEqual(cell(t, person: 2, day: 4, row: 1).times, "—", "Marko stayed")
+        XCTAssertEqual(cell(t, person: 2, day: 4, row: 2).hours, "8h 30m")
     }
 
     // MARK: - Away
@@ -195,10 +218,14 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(haupt, 4, present: [ivan.id], absences: [CrewAbsence(memberID: marko.id, dayTypeID: .sick)])
         ])
         XCTAssertEqual(people(t), ["Ivan", "Marko"])
-        XCTAssertEqual(cell(t, person: 0, day: 3).minutes, 510, "worked on the other site, so not away")
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 0).times, "—", "worked on the other site, so not away")
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 1).minutes, 510)
+        XCTAssertEqual(rows(t, day: 3).count, 2, "nobody was on both sites, so no total")
+        XCTAssertEqual(rows(t, day: 3).map(\.splitDay), [nil, nil])
+        XCTAssertEqual(cell(t, person: 1, day: 3, row: 0).minutes, 510)
         XCTAssertEqual(cell(t, person: 1, day: 4).times, "Sick leave")
-        XCTAssertEqual(closing(t, "Sick days")?[5], "1")
-        XCTAssertEqual(closing(t, "Sick days")?[3], "", "Ivan's sick note on the 3rd counts for nothing")
+        XCTAssertEqual(closing(t, "Sick days")?[6], "1")
+        XCTAssertEqual(closing(t, "Sick days")?[4], "", "Ivan's sick note on the 3rd counts for nothing")
     }
 
     func testOnAnotherChosenSiteIsNotAway() {
@@ -209,7 +236,7 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(haupt, 4, present: [ivan.id], absences: [CrewAbsence(memberID: marko.id, reason: .otherSite(trg.id))]),
             day(haupt, 5, present: [ivan.id], absences: [CrewAbsence(memberID: marko.id, reason: .otherSite(elsewhere))])
         ], siteNames: [elsewhere: "Schulweg 4", trg.id: trg.name])
-        XCTAssertEqual(cell(t, person: 0, day: 3).minutes, 510)
+        XCTAssertEqual(cell(t, person: 0, day: 3, row: 1).minutes, 510)
         XCTAssertEqual(cell(t, person: 1, day: 4).times, "—", "pointing at a site on this sheet is no reason to print")
         XCTAssertEqual(cell(t, person: 1, day: 5).times, "Schulweg 4", "a site not on the sheet is named, as on a site sheet")
     }
@@ -222,8 +249,27 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(trg, 3, present: [ivanThere.id], start: Fixture.time(12), allowance: [ivanThere.id], km: 25),
             day(trg, 4, present: [ivanThere.id], allowance: [ivanThere.id])
         ], settings: settings(allowance: true))
-        XCTAssertEqual(closing(t, "Allowance days")?[3], "2")
+        XCTAssertEqual(closing(t, "Allowance days")?[4], "2")
         XCTAssertEqual(closing(t, "Kilometres")?.last, "65 km")
+    }
+
+    func testEachPersonsHoursOnEachSiteCloseTheSheet() {
+        let t = table([haupt, trg], days: [
+            day(haupt, 3, present: [ivan.id], end: Fixture.time(11, 30), breakMinutes: 0),
+            day(trg, 3, present: [ivanThere.id, luka.id], start: Fixture.time(12), end: Fixture.time(16), breakMinutes: 30),
+            day(haupt, 4, present: [ivan.id, marko.id])
+        ])
+        XCTAssertEqual(people(t), ["Ivan", "Marko", "Luka"])
+        let labels = t.rows.filter { $0.role != .day }.map { $0.values[0] }
+        XCTAssertEqual(labels, ["Month total", "Days worked", "Hauptstraße 12", "Trg Pravde"])
+        XCTAssertEqual(closing(t, "Hauptstraße 12")?[4], "13h", "4:30 and 8:30")
+        XCTAssertEqual(closing(t, "Trg Pravde")?[4], "3h 30m")
+        XCTAssertEqual(closing(t, "Hauptstraße 12")?[8], "", "Luka was never there")
+        XCTAssertEqual(closing(t, "Trg Pravde")?[8], "3h 30m")
+        XCTAssertEqual(closing(t, "Month total")?[4], "16h 30m", "the sites add up to the month")
+        let row = t.rows.first { $0.values[0] == "Trg Pravde" && $0.role == .count }
+        XCTAssertEqual(row?.minutes[4], 210, "hours a workbook can add up")
+        XCTAssertEqual(t.trailingSummaryRows, 4)
     }
 
     func testBySiteHasEachSitesHoursTheAddressAndTheTotal() {
@@ -261,7 +307,7 @@ final class CombinedSiteSheetTests: XCTestCase {
         XCTAssertEqual(t.bySite.count, 5)
     }
 
-    func testBadWeatherOnlyWhenEverySiteThatDayWasRainedOff() {
+    func testBadWeatherIsEachSitesOwnAndADayOnlyWhenEverySiteWasRainedOff() {
         let t = table([haupt, trg], days: [
             day(haupt, 3, present: [ivan.id], end: Fixture.time(11), badWeather: true),
             day(trg, 3, present: [luka.id]),
@@ -269,20 +315,20 @@ final class CombinedSiteSheetTests: XCTestCase {
             day(trg, 4, present: [luka.id], end: Fixture.time(10), badWeather: true)
         ])
         let notes = t.columns.count - 1
-        XCTAssertEqual(t.rows.first { $0.id == Fixture.date(2026, 8, 3).key }?.values[notes], "")
-        XCTAssertEqual(t.rows.first { $0.id == Fixture.date(2026, 8, 4).key }?.values[notes], "Bad weather")
+        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Bad weather", ""], "each site's own day")
+        XCTAssertEqual(rows(t, day: 4).map { $0.values[notes] }, ["Bad weather", "Bad weather"])
         XCTAssertEqual(t.tiles.first { $0.label == "Bad-weather days" }?.value, "1")
     }
 
-    func testNotesNameTheirSiteOnADayOnTwo() {
+    func testNotesSitOnTheirSitesRow() {
         let t = table([haupt, trg], days: [
             day(haupt, 3, present: [ivan.id], note: "Formwork"),
             day(trg, 3, present: [luka.id], note: "Delivery"),
             day(trg, 4, present: [luka.id], note: "Scaffold")
         ])
         let notes = t.columns.count - 1
-        XCTAssertEqual(t.rows.first { $0.id == Fixture.date(2026, 8, 3).key }?.values[notes], "Hauptstraße 12: Formwork · Trg Pravde: Delivery")
-        XCTAssertEqual(t.rows.first { $0.id == Fixture.date(2026, 8, 4).key }?.values[notes], "Scaffold")
+        XCTAssertEqual(rows(t, day: 3).map { $0.values[notes] }, ["Formwork", "Delivery"], "each on its site's row")
+        XCTAssertEqual(rows(t, day: 4).map { $0.values[notes] }, ["Scaffold"])
     }
 
     // MARK: - Signatures

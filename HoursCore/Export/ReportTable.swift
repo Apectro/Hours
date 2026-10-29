@@ -16,7 +16,7 @@ enum ReportRowRole: String, Hashable, Sendable {
 enum SplitDayRow: String, Hashable, Sendable {
     /// One site's hours; the first carries the date and the day.
     case site
-    /// "Day": the day's worked hours, counted once, and its balance.
+    /// "Total": the day's worked hours, counted once, and its balance.
     case subtotal
 }
 

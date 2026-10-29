@@ -647,9 +647,9 @@ final class ExportCaptureTests: XCTestCase {
     }
 
     /// One sheet for two sites' month (1.2): ten people across both crews,
-    /// Ivan Horvat on both and moving between them on Tuesdays. It prints
-    /// on as many pages as the one site's sheet for ten does, with By site
-    /// on the last, after everyone.
+    /// Ivan Horvat on both and moving between them on Tuesdays. Both crews
+    /// work every weekday, so a day is a row per site, and a Tuesday adds
+    /// Ivan's total; By site is on the last page, after everyone.
     func testCaptureACombinedSheetForTwoSites() throws {
         let first = Site(name: "Hauptstraße 12", address: "Hauptstraße 12\n10115 Berlin")
         let second = Site(name: "Trg Pravde")
@@ -690,7 +690,8 @@ final class ExportCaptureTests: XCTestCase {
         }
         let document = try XCTUnwrap(PDFDocument(data: data))
         let single = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: siteTable(crew: Self.bigCrew))))
-        XCTAssertEqual(document.pageCount, single.pageCount, "two sites print on as many pages as one does")
+        XCTAssertGreaterThanOrEqual(document.pageCount, single.pageCount)
+        XCTAssertLessThanOrEqual(document.pageCount, single.pageCount * 3, "a row per site a day, not more")
         let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
         XCTAssertTrue(pageTexts[0].contains("Hauptstraße 12 · Trg Pravde"), "the title does not name both sites")
         let last = try XCTUnwrap(pageTexts.last)

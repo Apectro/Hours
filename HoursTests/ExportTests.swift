@@ -238,10 +238,10 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("s=\"1\""), "no cell uses the duration format")
         XCTAssertTrue(package.contains("numFmtId=\"164\""), "no duration format is declared")
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""), "no whole-number format")
-        // Twenty-six formats are declared and Style indexes them 0...25; a
+        // Twenty-seven formats are declared and Style indexes them 0...26; a
         // cell asking for another renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"26\">"))
-        XCTAssertFalse(package.contains("s=\"26\""), "a cell points past the end of cellXfs")
+        XCTAssertTrue(package.contains("<cellXfs count=\"27\">"))
+        XCTAssertFalse(package.contains("s=\"27\""), "a cell points past the end of cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are
@@ -488,12 +488,12 @@ final class ExportTests: XCTestCase {
         )
     }
 
-    /// A duration has to read like a duration and still add up.
+    /// A duration has to read like a duration, still add up, and open the
+    /// same everywhere.
     ///
-    /// Decimal hours summed perfectly and looked like a database export. The
-    /// value is now a fraction of a day behind an `[h]"h" mm"m"` mask, so the
-    /// cell shows 9h 45m and SUM still works — and the zero section keeps a
-    /// weekend reading "0h" rather than "0h 00m" down thirty-one rows.
+    /// The value is a fraction of a day behind a plain `[h]:mm` mask, so the
+    /// cell shows 9:45 and SUM still works. No conditional arms: the iPhone's
+    /// own preview printed the raw code of the old "[<0]…" mask in every cell.
     func testDurationsAreTimeValuesBehindAnHoursAndMinutesMask() {
         let package = String(
             decoding: XLSXWriter.data(for: sampleTable(), preferences: ExportPreferences()),
@@ -501,20 +501,10 @@ final class ExportTests: XCTestCase {
         )
 
         XCTAssertTrue(
-            package.contains("[h]&quot;h&quot; mm&quot;m&quot;"),
+            package.contains("formatCode=\"[h]:mm;-[h]:mm\""),
             "durations are not shown as hours and minutes"
         )
-        // Three arms, and the order is what makes them work: a negative is
-        // caught before the under-an-hour arm, which would otherwise render a
-        // shortfall as a count of minutes.
-        XCTAssertTrue(package.contains("[&lt;0][h]"), "a negative balance is not handled first")
-        XCTAssertTrue(
-            package.contains("[&lt;0.0416666][m]&quot;m&quot;"),
-            "a half-hour break will read 0h 30m"
-        )
-        // Elapsed minutes in brackets. A bare m is the month, and writing it
-        // that way rendered every break in the file as 1m.
-        XCTAssertFalse(package.contains(";m&quot;m&quot;"), "a bare m means month, not minutes")
+        XCTAssertFalse(package.contains("[&lt;"), "a conditional arm is back, and previews cannot read it")
         // Eight hours as a fraction of a day.
         XCTAssertTrue(package.contains("<v>0.333333</v>"), "8h is not stored as a third of a day")
 

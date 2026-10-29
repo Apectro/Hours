@@ -243,7 +243,7 @@ private struct ExportPreviewRow: View {
     }
 
     private func font(for column: ReportColumn) -> Font {
-        isSummary || column == .worked || (row.splitDay == .subtotal && column != .site)
+        isSummary || column == .worked || row.splitDay == .subtotal
             ? .caption.weight(.semibold)
             : .caption
     }
@@ -253,7 +253,6 @@ private struct ExportPreviewRow: View {
     private func color(index: Int, column: ReportColumn) -> Color {
         if row.flagged.contains(index) { return ExportPreviewWidths.accent }
         if column == .times || row.role == .count || !row.hasEntry { return .secondary }
-        if row.splitDay == .subtotal && column == .site { return .secondary }
         return .primary
     }
 
