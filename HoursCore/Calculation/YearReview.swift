@@ -64,6 +64,9 @@ struct YearReview: Hashable, Sendable {
     /// Nothing worked and nothing recorded: the year has no review, only a
     /// friendly word.
     var isEmpty: Bool
+    /// How many sites a shift was written from, deleted ones too: "on 4
+    /// sites", on the first card (1.2).
+    var sitesWorked: Int = 0
 
     var cards: [Card] {
         guard !isEmpty else { return [] }
@@ -146,7 +149,8 @@ struct YearReview: Hashable, Sendable {
             vacationDays: HalfDays(halves: vacation),
             earningsCents: earnings?.totalCents,
             badWeatherDays: hasBadWeatherType && badWeather > 0 ? badWeather : nil,
-            isEmpty: summary.workedMinutes == 0 && summary.daysWithEntries == 0
+            isEmpty: summary.workedMinutes == 0 && summary.daysWithEntries == 0,
+            sitesWorked: siteDays.count
         )
     }
 

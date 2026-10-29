@@ -113,6 +113,13 @@ final class YearReviewTests: XCTestCase {
         XCTAssertNil(review(plain).badWeatherDays)
     }
 
+    /// "On 2 sites", for the first card (1.2): every site worked on, named
+    /// or not.
+    func testItCountsTheSitesWorkedOn() {
+        XCTAssertEqual(review(records).sitesWorked, 2)
+        XCTAssertEqual(review([:]).sitesWorked, 0)
+    }
+
     func testTheCardsAreTheOnesWithSomethingToSay() {
         XCTAssertEqual(review(records).cards, [.hours, .sites, .busiestMonth, .longestDay, .balance, .vacation, .badWeather])
 
