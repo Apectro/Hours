@@ -117,6 +117,13 @@ enum XLSXWriter {
             merge(0, columns - 1, row: rowNumber)
             emit([Cell.text(table.ownerName, style: .bold)], sizing: [])
         }
+        // The site's address, under the site's name as the PDF prints it.
+        // Two cells, the word and the address, as the CSV has them: no colon
+        // to get wrong in ten languages.
+        if !table.address.isEmpty {
+            merge(1, columns - 1, row: rowNumber)
+            emit([Cell.text(table.language(.address), style: .bold), Cell.text(table.address, style: .subtitle)], sizing: [])
+        }
         merge(0, columns - 1, row: rowNumber)
         emit([Cell.text(subtitleLine(for: table, generatedOn: generatedOn), style: .subtitle)], sizing: [])
         blank()

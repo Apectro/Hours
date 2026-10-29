@@ -138,6 +138,7 @@ struct ExtraWorkReportLayout {
     private var eyebrowFont: UIFont { scaled(PDFReportStyle.eyebrowFont) }
     private var titleFont: UIFont { scaled(PDFReportStyle.titleFont) }
     private var bylineFont: UIFont { scaled(PDFReportStyle.bylineFont) }
+    private var addressFont: UIFont { scaled(PDFReportStyle.addressFont) }
     private var tileLabelFont: UIFont { scaled(PDFReportStyle.tileLabelFont) }
     private var tileValueFont: UIFont { scaled(PDFReportStyle.tileValueFont) }
     private var smallFont: UIFont { scaled(PDFReportStyle.smallFont) }
@@ -233,7 +234,23 @@ struct ExtraWorkReportLayout {
     }
 
     private var headerHeight: CGFloat {
-        titleFitsBesideTiles ? headerBase : headerBase + tileHeight + 8 * k
+        (titleFitsBesideTiles ? headerBase : headerBase + tileHeight + 8 * k) + addressExtra
+    }
+
+    /// The site's address goes under the byline, one smaller line, as on the
+    /// site sheet. It sits in the byline's two-line slot when there is room,
+    /// and pushes the rest of the header down only by what it needs.
+    private var addressTop: CGFloat {
+        guard !document.byline.isEmpty else { return 43 * k }
+        let byline = min(24 * k, textHeight(document.byline, font: bylineFont, width: width))
+        return 43 * k + byline + 1 * k
+    }
+
+    private var addressLineHeight: CGFloat { 11 * k }
+
+    private var addressExtra: CGFloat {
+        guard !document.address.isEmpty else { return 0 }
+        return max(0, addressTop + addressLineHeight - 67 * k)
     }
 
     // MARK: - Drawing
@@ -297,8 +314,17 @@ struct ExtraWorkReportLayout {
             color: PDFReportStyle.secondary
         )
 
+        if !document.address.isEmpty {
+            PDFReportStyle.draw(
+                document.address,
+                in: CGRect(x: margin, y: y + addressTop, width: width, height: addressLineHeight),
+                font: addressFont,
+                color: PDFReportStyle.secondary
+            )
+        }
+
         var x = besides ? margin + width - tileRowWidth : margin
-        let tilesTop = besides ? y : y + 66 * k
+        let tilesTop = besides ? y : y + 66 * k + addressExtra
         let tileWidth = metrics.tileWidth
         for tile in tiles {
             let rect = CGRect(x: x, y: tilesTop, width: tileWidth, height: tileHeight)

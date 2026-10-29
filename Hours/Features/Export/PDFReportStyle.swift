@@ -39,6 +39,8 @@ enum PDFReportStyle {
     static let eyebrowFont = UIFont.systemFont(ofSize: 8, weight: .bold)
     static let titleFont = UIFont.systemFont(ofSize: 24, weight: .bold)
     static let bylineFont = UIFont.systemFont(ofSize: 9.5)
+    /// A site's address under the byline: the byline's look, a size down.
+    static let addressFont = UIFont.systemFont(ofSize: 8.5)
     static let tileLabelFont = UIFont.systemFont(ofSize: 7.5)
     static let tileValueFont = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .bold)
     static let smallFont = UIFont.systemFont(ofSize: 7.5)

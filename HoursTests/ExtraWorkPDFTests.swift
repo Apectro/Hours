@@ -11,7 +11,13 @@ final class ExtraWorkPDFTests: XCTestCase {
     private let site = Site(name: "Trg Pravde Zagreb")
     private let calendar = Fixture.calendar()
 
-    private func document(_ language: ExportLanguage, jobs count: Int = 3, signed: Bool = false, inProgress: Bool = false) -> ExtraWorkDocument {
+    private func document(
+        _ language: ExportLanguage,
+        jobs count: Int = 3,
+        signed: Bool = false,
+        inProgress: Bool = false,
+        address: String = ""
+    ) -> ExtraWorkDocument {
         let settings = Fixture.settings(export: ExportPreferences(language: language, ownerName: "Marijo Mikša"))
         let jobs = (0..<count).map { index in
             ExtraWorkJob(
@@ -31,7 +37,19 @@ final class ExtraWorkPDFTests: XCTestCase {
                                  strokes: [[SignaturePoint(x: 0.1, y: 0.5), SignaturePoint(x: 2.5, y: 0.3)]])
             : nil
         return ExtraWorkDocumentBuilder(settings: settings, calendar: calendar)
-            .make(report: ExtraWorkReport(siteID: site.id, jobs: jobs, clientSignature: signature), siteName: site.name)
+            .make(report: ExtraWorkReport(siteID: site.id, jobs: jobs, clientSignature: signature), siteName: site.name, siteAddress: address)
+    }
+
+    /// The site's address (1.2): one line under the byline, the work still
+    /// where it was.
+    func testTheAddressIsALineUnderTheByline() throws {
+        let text = try pages(document(.english, address: "Trg pravde 1\n10000 Zagreb")).joined(separator: "\n")
+        let byline = try XCTUnwrap(text.range(of: "Recorded by Marijo Mikša"))
+        let address = try XCTUnwrap(text.range(of: "Trg pravde 1, 10000 Zagreb"), text)
+        let work = try XCTUnwrap(text.range(of: "WORK DONE, DAY BY DAY"))
+        XCTAssertLessThan(byline.lowerBound, address.lowerBound)
+        XCTAssertLessThan(address.lowerBound, work.lowerBound)
+        XCTAssertFalse(try pages(document(.english)).joined().contains("10000 Zagreb"))
     }
 
     private func pages(_ document: ExtraWorkDocument) throws -> [String] {

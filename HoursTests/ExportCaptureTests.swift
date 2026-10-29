@@ -364,8 +364,8 @@ final class ExportCaptureTests: XCTestCase {
     /// A site's month with the cases its page has to show: someone off for a
     /// day, someone leaving early, and a note. `crew` after the first two
     /// are there every working day, the odd one leaving early.
-    private func siteTable(crew names: [String] = ["Ivan Horvat", "Marko Kovač"]) -> ReportTable {
-        let site = Site(name: "Trg Pravde Zagreb")
+    private func siteTable(crew names: [String] = ["Ivan Horvat", "Marko Kovač"], address: String = "") -> ReportTable {
+        let site = Site(name: "Trg Pravde Zagreb", address: address)
         var export = ExportPreferences()
         export.ownerName = "Marijo Mikša"
         let settings = Fixture.settings(export: export)
@@ -437,6 +437,29 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertTrue(text.contains("2026-08-03"), "the date is not in the export's date style")
         XCTAssertTrue(text.contains("Month total"))
         XCTAssertTrue(text.contains("Checked"), "the signature line is missing")
+    }
+
+    /// The site's address is one small line under the byline (1.2): the
+    /// month, its closing rows and the line to sign on still fit one page,
+    /// and every part of a split sheet carries it.
+    func testCaptureTheSiteSheetWithAnAddress() throws {
+        let table = siteTable(address: "Trg pravde 1\n10000 Zagreb")
+        XCTAssertEqual(table.address, "Trg pravde 1, 10000 Zagreb")
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).prefix(1).enumerated() {
+            attach(image, named: "14b-site-pdf-address-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertEqual(document.pageCount, 1, "an address must not push a normal crew's month onto a second page")
+        let text = document.page(at: 0)?.string ?? ""
+        XCTAssertTrue(text.contains("Trg pravde 1, 10000 Zagreb"), "the address is not under the site's name")
+        XCTAssertTrue(text.contains("2026-08-31"), "the 31st is not on the first page")
+        XCTAssertTrue(text.contains("Month total"))
+        XCTAssertTrue(text.contains("Checked"), "the signature line is missing")
+
+        let parts = PDFReportRenderer.parts(of: siteTable(crew: Self.bigCrew, address: "Trg pravde 1"))
+        XCTAssertGreaterThan(parts.count, 1)
+        XCTAssertTrue(parts.allSatisfy { $0.address == "Trg pravde 1" })
     }
 
     /// Ten people for a whole month, to be looked at: whether a big crew's

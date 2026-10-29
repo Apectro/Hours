@@ -233,6 +233,7 @@ struct SiteSheetBuilder: Sendable {
             trailingSummaryRows: 2 + absenceRows.count
         )
         table.kind = .siteSheet
+        table.address = SiteAddress.singleLine(site.address)
         table.eyebrow = "\(language(.siteHours)) · \(month)"
         table.detail = (recorded + [language.people(people.count), language.daysOnSite(dates.count)])
             .joined(separator: " · ")

@@ -611,6 +611,12 @@ struct ExtraWorkReportScreen: View {
         .accessibilityIdentifier("extra-work-report-notice")
     }
 
+    /// The site's address as stored now, in case it was edited since this
+    /// screen opened.
+    private var currentAddress: String {
+        SiteRepository(context: modelContext).site(id: site.id)?.address ?? site.address
+    }
+
     private func share(_ output: ReportOutput) {
         let report = self.report
         guard !report.isEmpty else { return }
@@ -621,7 +627,7 @@ struct ExtraWorkReportScreen: View {
         // and the count is one of the tiles.
         let photoIDs = repository.photoIDs(siteID: site.id, jobIDs: Set(report.jobs.map(\.id)))
         let document = ExtraWorkDocumentBuilder(settings: settingsStore.settings, calendar: settingsStore.workCalendar)
-            .make(report: report, siteName: site.name, photoIDs: photoIDs)
+            .make(report: report, siteName: site.name, siteAddress: currentAddress, photoIDs: photoIDs)
 
         Task { @MainActor in
             // A turn of the run loop, so the spinner shows before a PDF with

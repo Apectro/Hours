@@ -61,6 +61,9 @@ struct ExtraWorkDocument: Hashable, Sendable {
     var period: String
     /// "Recorded by Marijo Mikša"; empty without a name in Settings.
     var byline: String
+    /// The site's address on one line, under the headline; empty prints
+    /// nothing.
+    var address: String = ""
     var tiles: [ReportTile]
 
     /// "Work done, day by day": the finished jobs, newest day first.
@@ -113,6 +116,7 @@ struct ExtraWorkDocument: Hashable, Sendable {
         table.kind = .extraWork
         table.eyebrow = language(.extraWorkDone)
         table.detail = byline
+        table.address = address
         table.legend = legend
         return table
     }
@@ -254,7 +258,14 @@ struct ExtraWorkDocumentBuilder: Sendable {
 
     /// - Parameter photoIDs: each job's photos, in order, by job id. Their
     ///   bytes are the app's business.
-    func make(report: ExtraWorkReport, siteName: String, photoIDs: [UUID: [UUID]] = [:]) -> ExtraWorkDocument {
+    /// - Parameter siteAddress: the site's address as typed; printed on one
+    ///   line under its name.
+    func make(
+        report: ExtraWorkReport,
+        siteName: String,
+        siteAddress: String = "",
+        photoIDs: [UUID: [UUID]] = [:]
+    ) -> ExtraWorkDocument {
         let language = settings.export.language
         let reportBuilder = ReportBuilder(settings: settings, calendar: calendar)
         let duration = reportBuilder.duration
@@ -332,7 +343,7 @@ struct ExtraWorkDocumentBuilder: Sendable {
             fileName = "\(siteName) - \(word)"
         }
 
-        return ExtraWorkDocument(
+        var document = ExtraWorkDocument(
             language: language,
             title: siteName,
             eyebrow: period.isEmpty ? word : "\(word) · \(period)",
@@ -356,6 +367,8 @@ struct ExtraWorkDocumentBuilder: Sendable {
             durationFormatting: duration,
             decimalSeparator: decimal
         )
+        document.address = SiteAddress.singleLine(siteAddress)
+        return document
     }
 
     // MARK: - Dates

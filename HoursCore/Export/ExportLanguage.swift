@@ -430,6 +430,9 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .site:           return pick(en: "Site", de: "Baustelle", hr: "Gradilište", sl: "Gradbišče",
                                           it: "Cantiere", fr: "Chantier", es: "Obra", pt: "Obra",
                                           nl: "Bouwplaats", pl: "Budowa")
+        case .address:        return pick(en: "Address", de: "Adresse", hr: "Adresa", sl: "Naslov",
+                                          it: "Indirizzo", fr: "Adresse", es: "Dirección", pt: "Morada",
+                                          nl: "Adres", pl: "Adres")
         case .reason:         return pick(en: "Reason", de: "Grund", hr: "Razlog", sl: "Razlog", it: "Motivo",
                                           fr: "Motif", es: "Motivo", pt: "Motivo", nl: "Reden", pl: "Powód")
 
@@ -588,6 +591,8 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// A crew member's own sheet: which site a day was on, and why they were
     /// not there.
     case site, reason
+    /// A site's address, in the workbook and the CSV (1.2).
+    case address
 
     /// Field allowance, kilometres and travel (1.2). `kilometresShort` is the
     /// unit, "km" everywhere; `kilometres` the word, for a line's label.
