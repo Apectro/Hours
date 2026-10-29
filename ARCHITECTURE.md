@@ -439,7 +439,7 @@ a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
 **Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7
-→ V8, every stage lightweight. The live classes are always the newest version; the moment
+→ V8 → V9, every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
 describing exactly what stores written by it hold. V4 (1.1) adds
@@ -467,7 +467,10 @@ them — and on
 the site day `allowanceData` (optional JSON `[UUID]`, who gets the
 allowance) and `kilometres` (0). `allowanceData` is a column of its own for
 `absenceData`'s reason: a field inside each attendance in `presentData`
-would be dropped by any older build that wrote the day again. Every
+would be dropped by any older build that wrote the day again. V9 (1.2)
+freezes V8's twelve classes — TestFlight installs already hold V8 stores, so
+V8 is never changed in place — and adds the site's `address` (optional text,
+nil and empty both none). Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -528,7 +531,7 @@ still only "open" or "sent". The allowance (1.2) is keys in the same way: the
 settings' `allowance`, a day's `hasFieldAllowance`, `kilometres` and
 `travelMinutes`, a site's `allowanceByDefault` and its arrival reminder's
 `latitude`, `longitude`, `arrivalRadius` (written when not 150) and
-`remindsOnArrival`, a site day's
+`remindsOnArrival`, and its `address`, a site day's
 `allowanceMemberIDs` and `kilometres`, and a site shift's `fieldAllowance`
 and `kilometres` — each written only when set, missing reads as none, and
 nothing new goes inside an attendance, which every older decoder reads as
@@ -555,7 +558,7 @@ version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
 every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
 initialises the live version's models; each version that adds a column (V6,
-V7 and V8 do) has to be initialised and deployed to Production again.
+V7, V8 and V9 do) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -841,14 +844,33 @@ of the user's own — never Work, Other or the weekend, since someone at the
 site on a Saturday is there to work); leaving asks to stop it only while it
 runs, any day; and the same site is not asked the same way twice within two
 hours (`ArrivalReminderLog`, this phone's `UserDefaults`, never in settings
-or a backup). The notification has a category per way, with Start clock /
-Stop clock and Not now, answered by `NotificationTapDelegate` without
+or a backup).
+
+**Leaving with nothing written (1.2).** Leaving with no clock running asks
+"Left <site> — write today's hours?" instead (`.askToWrite`) when the site
+has no day for today — written means any site day stored for that site and
+date, the evening site reminder's rule (`SiteReminderPlan.isWritten`) — and
+today is not a day off; it shares leaving's two hours. The body gives the
+last day's times ("07:00–15:30 like last time"). With a last day that copies
+to something (`SiteRepository.sameAsLastDay`, not blank) the notification has
+Same as last day and Not now: Same as last day saves exactly what the site
+screen's button would, from the delegate without opening the app, under the
+month lock — a closed month is told in a notification of its own, as the
+stop is — then refreshes the widget, the evening and the monthly reminders.
+Without one there are no buttons. A tap on the notification itself follows
+its `AppLink.site` link to the site on today, as any notification link is
+followed. It does not double up with the evening site reminder: the log
+remembers which sites were asked today, and `SiteReminderPlan.dates` leaves
+those sites out of today (`askedWhenLeavingToday`), so the evening one is
+only for sites nobody asked about; the refresh runs as the question is
+posted. The notification has a category per question, with Start clock /
+Stop clock / Same as last day and Not now, answered by `NotificationTapDelegate` without
 opening the app: `TimeClock.clockIn(at:jobID:)` with the site's job, or
 `clockOut(at:)`, at the moment you arrived or left when that is within
 twelve hours and after the clock started (`clockInstant`), then the widget
 refresh. As with a tap on the watch, the Live Activity of a clock started
 this way appears when the app next comes forward. The delegate shows these
-two categories as banners while the app is open; the other reminders are
+categories as banners while the app is open; the other reminders are
 still not shown then.
 
 UI tests never make a `CLLocationManager`: `ArrivalLocation` is a fake that
@@ -1236,6 +1258,20 @@ small JPEGs (900 px) so the PDF keeps the compressed bytes instead of every
 pixel. In the workbook the diary is a second sheet, a row per day. The CSV
 stays one table, which is what a CSV importer expects: no diary there.
 
+**A site's address (1.2).** `Site.address` is free text, one or two lines,
+typed in the site's settings or filled in from its saved place.
+`ReportTable.address` carries it on one line (`SiteAddress.singleLine`) for
+the site sheet (every split part keeps it), a crew member's sheet when it
+covers exactly one site, and the extra-work report. The PDF prints it as one
+line under the byline, in the byline's grey a size smaller; the header block
+grows by 11 points, which a 31-day month with its closing rows still fits.
+The workbook has a row of its own under the title block ("Address" in the
+export language, then the address) and the CSV a line after the name in its
+identification block. Nothing else about the sheets changes. A personal
+timesheet's Location column, only when it is on, falls back to the address of
+the site a day's shift came from when the day has no location of its own
+(`ReportBuilder.siteAddresses`); a typed location stays the day's.
+
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and
 duration style. XLSX is written directly as an OOXML package with inline
@@ -1250,7 +1286,9 @@ configuration and no third-party code of any kind. Two Apple frameworks make
 network calls on its behalf and nothing else does: StoreKit, to ask whether Pro
 has been paid for, and — only when the user turns it on — CloudKit. Neither
 carries a single recorded hour anywhere we can see. (MapKit loads Apple's map
-tiles for the small map of a site's place, shown only once a site has one.) The
+tiles for the small map of a site's place, shown only once a site has one, and
+`CLGeocoder` asks Apple Maps for the address of a site's saved place only when
+"Fill in from the saved place" is tapped — that one place, nothing else.) The
 only data that leaves deliberately is a file the user exports through the
 system share sheet.
 
