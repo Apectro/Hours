@@ -48,8 +48,9 @@ extension SiteSheetBuilder {
         guard let people = peopleCount(in: table), people > max(1, peoplePerPage) else { return [table] }
         var parts: [ReportTable] = []
         var first = 0
-        for size in groupSizes(people: people, perPage: peoplePerPage) {
-            parts.append(part(of: table, people: first..<(first + size), of: people))
+        let sizes = groupSizes(people: people, perPage: peoplePerPage)
+        for (index, size) in sizes.enumerated() {
+            parts.append(part(of: table, people: first..<(first + size), of: people, isLast: index == sizes.count - 1))
             first += size
         }
         return parts
@@ -57,7 +58,7 @@ extension SiteSheetBuilder {
 
     /// One part: the leading columns, `people`'s groups and the notes, every
     /// mark moved along with its person.
-    private static func part(of table: ReportTable, people: Range<Int>, of total: Int) -> ReportTable {
+    private static func part(of table: ReportTable, people: Range<Int>, of total: Int, isLast: Bool) -> ReportTable {
         let lead = leadingColumns
         let noteColumn = table.columns.count - 1
         let noteGroup = table.validGroups.count - 1
@@ -120,6 +121,9 @@ extension SiteSheetBuilder {
         // last part, rather than after each.
         part.signOff = []
         part.diary = nil
+        // A sheet for several sites ends with its hours per site, which
+        // belong to the whole crew: on the last part, after everyone.
+        if !isLast { part.bySite = [] }
         return part
     }
 }

@@ -101,6 +101,25 @@ enum XLSXWriter {
         }
 
         let columns = max(1, table.columns.count)
+        /// "By site" and a line per site: the name and its address as the
+        /// label, the hours as a figure.
+        func emitBySite(labelEnd: Int, valueColumn: Int) {
+            merge(0, columns - 1, row: rowNumber)
+            emit([Cell.text(table.language(.bySite), style: .section)], sizing: [], height: 20)
+            for site in table.bySite {
+                var cells = Array(repeating: Cell.gap, count: columns)
+                var sizing = cells
+                let label = site.address.isEmpty ? site.name : "\(site.name) · \(site.address)"
+                merge(0, labelEnd, row: rowNumber)
+                cells[0] = .text(label, style: .summaryLabel)
+                if valueColumn > 0 && valueColumn < columns {
+                    cells[valueColumn] = .number(dayFraction(minutes: site.minutes), style: .summaryValue)
+                    sizing[valueColumn] = cells[valueColumn]
+                }
+                emit(cells, sizing: sizing)
+            }
+        }
+
         // The diary's sheet is headed the way the director's sheet is.
         let isSiteSheet = table.kind != .timesheet
 
@@ -202,20 +221,7 @@ enum XLSXWriter {
             // and its address as the label, the hours as a figure.
             if !table.bySite.isEmpty {
                 blank()
-                merge(0, columns - 1, row: rowNumber)
-                emit([Cell.text(table.language(.bySite), style: .section)], sizing: [], height: 20)
-                for site in table.bySite {
-                    var cells = Array(repeating: Cell.gap, count: columns)
-                    var sizing = cells
-                    let label = site.address.isEmpty ? site.name : "\(site.name) · \(site.address)"
-                    merge(0, labelEnd, row: rowNumber)
-                    cells[0] = .text(label, style: .summaryLabel)
-                    if valueColumn > 0 && valueColumn < columns {
-                        cells[valueColumn] = .number(dayFraction(minutes: site.minutes), style: .summaryValue)
-                        sizing[valueColumn] = cells[valueColumn]
-                    }
-                    emit(cells, sizing: sizing)
-                }
+                emitBySite(labelEnd: labelEnd, valueColumn: valueColumn)
             }
             blank()
         }
@@ -294,6 +300,13 @@ enum XLSXWriter {
                 }
             }
             emit(totals, height: 20)
+        }
+
+        // A sheet for several sites' month: its hours per site under the
+        // days, the figure in the notes column (1.2).
+        if table.kind == .siteSheet && !table.bySite.isEmpty && columns > 1 {
+            blank()
+            emitBySite(labelEnd: columns - 2, valueColumn: columns - 1)
         }
 
         // How to read the director's sheet, under it, as the PDF has it.

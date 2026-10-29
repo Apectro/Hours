@@ -324,7 +324,7 @@ struct SiteSheetBuilder: Sendable {
 
     /// The day's note, led by "Bad weather" on a day the crew was rained
     /// off, so a director scanning the notes sees why the hours stop short.
-    private func noteText(for day: SiteDay, language: ExportLanguage) -> String {
+    func noteText(for day: SiteDay, language: ExportLanguage) -> String {
         guard day.isBadWeatherStop else { return day.note }
         let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
         return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
@@ -344,7 +344,7 @@ struct SiteSheetBuilder: Sendable {
     }
 
     /// The same test the timesheet's end column uses for "(+1)".
-    private func crosses(_ entry: PersonDay) -> Bool {
+    func crosses(_ entry: PersonDay) -> Bool {
         guard let start = entry.start, let end = entry.end else { return false }
         return end.minutes < start.minutes
     }

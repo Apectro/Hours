@@ -28,6 +28,9 @@ struct ReportSiteTotal: Hashable, Sendable {
     var minutes: Int
     /// The hours as the file writes them.
     var value: String
+    /// The line under the sites that adds them up, on a sheet for several
+    /// sites' month; never on a timesheet, whose summary has the total.
+    var isTotal: Bool = false
 }
 
 /// One row of a report, already formatted.
@@ -186,7 +189,8 @@ struct ReportTable: Hashable, Sendable {
     /// its own in the workbook and the CSV. Empty prints nothing.
     var address: String = ""
     /// A timesheet's hours per site, beside its summary, when the period has
-    /// more than one site (1.2). Empty prints nothing.
+    /// more than one site (1.2); a sheet for several sites' month has it
+    /// under the days, with a total line. Empty prints nothing.
     var bySite: [ReportSiteTotal] = []
 
     var isEmpty: Bool { rows.isEmpty }
