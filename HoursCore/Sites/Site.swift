@@ -18,6 +18,17 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
     /// got it (`SiteDay.allowanceMemberIDs`), so changing this later never
     /// rewrites a day already written.
     var allowanceByDefault: Bool
+    /// Where the site is, for the opt-in arrival reminder (1.2): both or
+    /// neither, read through `place`. Set only from "Use my current
+    /// location" in the site's settings; nothing else ever reads the phone's
+    /// location, and these never leave the phone except in a backup.
+    var latitude: Double?
+    var longitude: Double?
+    /// How close counts as arrived, in metres (`arrivalRadii`).
+    var arrivalRadius: Double
+    /// Whether reaching or leaving the site asks about the clock. Off unless
+    /// turned on; with no `place` it watches nothing (`monitorsArrival`).
+    var remindsOnArrival: Bool
 
     init(
         id: UUID = UUID(),
@@ -25,7 +36,11 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         jobID: UUID? = nil,
         isArchived: Bool = false,
         sortOrder: Int = 0,
-        allowanceByDefault: Bool = false
+        allowanceByDefault: Bool = false,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        arrivalRadius: Double = Site.defaultArrivalRadius,
+        remindsOnArrival: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -33,10 +48,15 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         self.isArchived = isArchived
         self.sortOrder = sortOrder
         self.allowanceByDefault = allowanceByDefault
+        self.latitude = latitude
+        self.longitude = longitude
+        self.arrivalRadius = arrivalRadius
+        self.remindsOnArrival = remindsOnArrival
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, jobID, isArchived, sortOrder, allowanceByDefault
+        case latitude, longitude, arrivalRadius, remindsOnArrival
     }
 
     init(from decoder: Decoder) throws {
@@ -47,12 +67,17 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
             jobID: container.lenientOptional(.jobID),
             isArchived: container.lenient(.isArchived, false),
             sortOrder: container.lenient(.sortOrder, 0),
-            allowanceByDefault: container.lenient(.allowanceByDefault, false)
+            allowanceByDefault: container.lenient(.allowanceByDefault, false),
+            latitude: container.lenientOptional(.latitude),
+            longitude: container.lenientOptional(.longitude),
+            arrivalRadius: container.lenient(.arrivalRadius, Site.defaultArrivalRadius),
+            remindsOnArrival: container.lenient(.remindsOnArrival, false)
         )
     }
 
-    /// Written by hand so `allowanceByDefault` goes in only when set, and a
-    /// site without it is written exactly as before.
+    /// Written by hand so `allowanceByDefault` and the arrival keys go in
+    /// only when set, and a site without them is written exactly as before.
+    /// 1.0 and 1.1 decode a site by its keys and skip these.
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -61,5 +86,9 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         try container.encode(isArchived, forKey: .isArchived)
         try container.encode(sortOrder, forKey: .sortOrder)
         if allowanceByDefault { try container.encode(allowanceByDefault, forKey: .allowanceByDefault) }
+        try container.encodeIfPresent(latitude, forKey: .latitude)
+        try container.encodeIfPresent(longitude, forKey: .longitude)
+        if arrivalRadius != Site.defaultArrivalRadius { try container.encode(arrivalRadius, forKey: .arrivalRadius) }
+        if remindsOnArrival { try container.encode(remindsOnArrival, forKey: .remindsOnArrival) }
     }
 }

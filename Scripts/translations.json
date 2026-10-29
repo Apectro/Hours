@@ -3159,17 +3159,6 @@
       "Nog geen feestdagen",
       "Brak świąt"
     ],
-    "No location access": [
-      "Kein Zugriff auf den Standort",
-      "Nema pristupa lokaciji",
-      "Ni dostopa do lokacije",
-      "Nessun accesso alla posizione",
-      "Aucun accès à la localisation",
-      "Sin acceso a la ubicación",
-      "Sem acesso à localização",
-      "Geen locatietoegang",
-      "Brak dostępu do lokalizacji"
-    ],
     "No sites yet": [
       "Noch keine Baustellen",
       "Još nema gradilišta",
@@ -4280,17 +4269,6 @@
       "O trabalho para o qual contam as horas desta obra. Os dias já registados mantêm o trabalho com que foram registados.",
       "De functie waarvoor de uren van deze bouwplaats tellen. Al vastgelegde dagen houden de functie waarmee ze zijn vastgelegd.",
       "Praca, do której liczą się godziny z tej budowy. Już zapisane dni zachowują pracę, z którą je zapisano."
-    ],
-    "The optional location field is a text note you type. The app never asks the system where you are.": [
-      "Das optionale Ortsfeld ist eine Textnotiz, die du eintippst. Die App fragt das System nie nach deinem Standort.",
-      "Neobavezno polje mjesta je tekstualna bilješka koju upišeš. Aplikacija nikad ne pita sustav gdje si.",
-      "Neobvezno polje kraja je besedilna opomba, ki jo vpišeš. Aplikacija sistema nikoli ne vpraša, kje si.",
-      "Il campo facoltativo del luogo è una nota di testo che scrivi tu. L’app non chiede mai al sistema dove ti trovi.",
-      "Le champ lieu, facultatif, est une note que vous saisissez. L’app ne demande jamais au système où vous êtes.",
-      "El campo opcional de lugar es una nota de texto que escribes tú. La app nunca pregunta al sistema dónde estás.",
-      "O campo opcional de local é uma nota de texto que escreves. A app nunca pergunta ao sistema onde estás.",
-      "Het optionele locatieveld is een tekstnotitie die je zelf typt. De app vraagt het systeem nooit waar je bent.",
-      "Opcjonalne pole miejsca to notatka tekstowa, którą wpisujesz. Aplikacja nigdy nie pyta systemu, gdzie jesteś."
     ],
     "The words the app writes — column titles, day types and the summary — plus the names of months and days. Anything you typed yourself is left exactly as you wrote it.": [
       "Die Wörter, die die App schreibt – Spaltentitel, Tagesarten und die Zusammenfassung – sowie Monats- und Tagesnamen. Alles, was du selbst getippt hast, bleibt genau so stehen.",
@@ -11595,6 +11573,281 @@
       "A equipa de hoje na tua obra: quem está e porque faltam os outros.",
       "De ploeg van vandaag op je bouwplaats: wie er is en waarom de anderen niet.",
       "Dzisiejsza ekipa na budowie: kto jest i dlaczego reszty nie ma."
+    ],
+    "Remind me when I arrive": [
+      "Bei Ankunft erinnern",
+      "Podsjeti me kad stignem",
+      "Opomni me ob prihodu",
+      "Avvisami quando arrivo",
+      "Me rappeler à mon arrivée",
+      "Avísame cuando llegue",
+      "Avisa-me quando chegar",
+      "Herinner me bij aankomst",
+      "Przypomnij, gdy dojadę"
+    ],
+    "Arrival reminder": [
+      "Ankunftserinnerung",
+      "Podsjetnik na dolazak",
+      "Opomnik ob prihodu",
+      "Promemoria di arrivo",
+      "Rappel d’arrivée",
+      "Recordatorio de llegada",
+      "Lembrete de chegada",
+      "Aankomstherinnering",
+      "Przypomnienie o przyjeździe"
+    ],
+    "Finding your location…": [
+      "Standort wird ermittelt …",
+      "Tražim tvoju lokaciju…",
+      "Iščem tvojo lokacijo …",
+      "Cerco la tua posizione…",
+      "Recherche de votre position…",
+      "Buscando tu ubicación…",
+      "A procurar a tua localização…",
+      "Je locatie wordt bepaald…",
+      "Szukam twojej lokalizacji…"
+    ],
+    "Place": [
+      "Ort",
+      "Mjesto",
+      "Kraj",
+      "Luogo",
+      "Lieu",
+      "Lugar",
+      "Local",
+      "Plek",
+      "Miejsce"
+    ],
+    "Counts as arrived within": [
+      "Als angekommen ab",
+      "Dolazak unutar",
+      "Prihod znotraj",
+      "Arrivato entro",
+      "Arrivée dans un rayon de",
+      "Llegada a menos de",
+      "Chegada a menos de",
+      "Aangekomen binnen",
+      "Przyjazd w promieniu"
+    ],
+    "Use my current location": [
+      "Aktuellen Standort verwenden",
+      "Koristi moju trenutnu lokaciju",
+      "Uporabi mojo trenutno lokacijo",
+      "Usa la mia posizione attuale",
+      "Utiliser ma position actuelle",
+      "Usar mi ubicación actual",
+      "Usar a minha localização atual",
+      "Mijn huidige locatie gebruiken",
+      "Użyj mojej bieżącej lokalizacji"
+    ],
+    "Clear location": [
+      "Ort entfernen",
+      "Ukloni lokaciju",
+      "Odstrani lokacijo",
+      "Rimuovi posizione",
+      "Effacer le lieu",
+      "Borrar ubicación",
+      "Apagar localização",
+      "Locatie wissen",
+      "Usuń lokalizację"
+    ],
+    "Open Settings": [
+      "Einstellungen öffnen",
+      "Otvori Postavke",
+      "Odpri Nastavitve",
+      "Apri Impostazioni",
+      "Ouvrir Réglages",
+      "Abrir Ajustes",
+      "Abrir Definições",
+      "Open Instellingen",
+      "Otwórz Ustawienia"
+    ],
+    "Map of the site's place": [
+      "Karte mit dem Ort der Baustelle",
+      "Karta s mjestom gradilišta",
+      "Zemljevid s krajem gradbišča",
+      "Mappa con il luogo del cantiere",
+      "Carte de l’emplacement du chantier",
+      "Mapa con el lugar de la obra",
+      "Mapa com o local da obra",
+      "Kaart met de plek van de bouwplaats",
+      "Mapa z miejscem budowy"
+    ],
+    "When you reach this site, Zeitkonto asks whether to start the clock, and when you leave with the clock running, whether to stop it. Your location never leaves your phone.": [
+      "Wenn du diese Baustelle erreichst, fragt Zeitkonto, ob die Uhr starten soll, und wenn du sie mit laufender Uhr verlässt, ob sie stoppen soll. Dein Standort verlässt nie dein Telefon.",
+      "Kad stigneš na ovo gradilište, Zeitkonto pita treba li pokrenuti sat, a kad odeš dok sat radi, treba li ga zaustaviti. Tvoja lokacija nikad ne napušta tvoj telefon.",
+      "Ko prispeš na to gradbišče, Zeitkonto vpraša, ali naj zažene uro, in ko odideš, medtem ko ura teče, ali naj jo ustavi. Tvoja lokacija nikoli ne zapusti tvojega telefona.",
+      "Quando arrivi in questo cantiere, Zeitkonto chiede se avviare il timer, e quando te ne vai con il timer in corso, se fermarlo. La tua posizione non lascia mai il tuo telefono.",
+      "Quand vous arrivez sur ce chantier, Zeitkonto demande s’il faut démarrer le pointage, et quand vous partez pendant qu’il tourne, s’il faut l’arrêter. Votre position ne quitte jamais votre téléphone.",
+      "Cuando llegas a esta obra, Zeitkonto pregunta si iniciar el reloj, y cuando te vas con el reloj en marcha, si pararlo. Tu ubicación nunca sale de tu teléfono.",
+      "Quando chegas a esta obra, o Zeitkonto pergunta se deve iniciar o relógio e, quando sais com o relógio a contar, se o deve parar. A tua localização nunca sai do teu telefone.",
+      "Als je bij deze bouwplaats aankomt, vraagt Zeitkonto of de klok moet starten, en als je weggaat terwijl de klok loopt, of hij moet stoppen. Je locatie verlaat nooit je telefoon.",
+      "Gdy dojedziesz na tę budowę, Zeitkonto zapyta, czy włączyć zegar, a gdy odjedziesz z włączonym zegarem — czy go zatrzymać. Twoja lokalizacja nigdy nie opuszcza twojego telefonu."
+    ],
+    "Location is off for Zeitkonto, so the site's place can't be saved. Turn it on in Settings.": [
+      "Der Standort ist für Zeitkonto aus, daher kann der Ort der Baustelle nicht gespeichert werden. Schalte ihn in den Einstellungen ein.",
+      "Lokacija je za Zeitkonto isključena, pa se mjesto gradilišta ne može spremiti. Uključi je u Postavkama.",
+      "Lokacija je za Zeitkonto izklopljena, zato kraja gradbišča ni mogoče shraniti. Vklopi jo v Nastavitvah.",
+      "La posizione è disattivata per Zeitkonto, quindi il luogo del cantiere non può essere salvato. Attivala in Impostazioni.",
+      "La localisation est désactivée pour Zeitkonto, l’emplacement du chantier ne peut donc pas être enregistré. Activez-la dans Réglages.",
+      "La ubicación está desactivada para Zeitkonto, así que no se puede guardar el lugar de la obra. Actívala en Ajustes.",
+      "A localização está desativada para o Zeitkonto, por isso o local da obra não pode ser guardado. Ativa-a nas Definições.",
+      "Locatie staat uit voor Zeitkonto, dus de plek van de bouwplaats kan niet worden bewaard. Zet hem aan in Instellingen.",
+      "Lokalizacja jest wyłączona dla Zeitkonto, więc nie można zapisać miejsca budowy. Włącz ją w Ustawieniach."
+    ],
+    "Your location couldn't be found. Try again outdoors.": [
+      "Dein Standort wurde nicht gefunden. Versuch es draußen noch einmal.",
+      "Tvoja lokacija nije pronađena. Pokušaj ponovno na otvorenom.",
+      "Tvoje lokacije ni bilo mogoče najti. Poskusi znova na prostem.",
+      "Non è stato possibile trovare la tua posizione. Riprova all’aperto.",
+      "Votre position est introuvable. Réessayez à l’extérieur.",
+      "No se ha encontrado tu ubicación. Vuelve a intentarlo al aire libre.",
+      "Não foi possível encontrar a tua localização. Tenta de novo ao ar livre.",
+      "Je locatie is niet gevonden. Probeer het buiten opnieuw.",
+      "Nie udało się znaleźć twojej lokalizacji. Spróbuj ponownie na zewnątrz."
+    ],
+    "Reminders only work when Zeitkonto may use your location “Always”. Change it in Settings › Zeitkonto › Location.": [
+      "Erinnerungen funktionieren nur, wenn Zeitkonto deinen Standort „Immer“ verwenden darf. Ändere das unter Einstellungen › Zeitkonto › Standort.",
+      "Podsjetnici rade samo kad Zeitkonto smije koristiti tvoju lokaciju „Uvijek”. Promijeni to u Postavke › Zeitkonto › Lokacija.",
+      "Opomniki delujejo samo, če sme Zeitkonto uporabljati tvojo lokacijo »Vedno«. Spremeni to v Nastavitve › Zeitkonto › Lokacija.",
+      "I promemoria funzionano solo se Zeitkonto può usare la tua posizione “Sempre”. Cambialo in Impostazioni › Zeitkonto › Posizione.",
+      "Les rappels ne fonctionnent que si Zeitkonto peut utiliser votre position « Toujours ». Modifiez-le dans Réglages › Zeitkonto › Position.",
+      "Los recordatorios solo funcionan si Zeitkonto puede usar tu ubicación «Siempre». Cámbialo en Ajustes › Zeitkonto › Ubicación.",
+      "Os lembretes só funcionam se o Zeitkonto puder usar a tua localização «Sempre». Muda isso em Definições › Zeitkonto › Localização.",
+      "Herinneringen werken alleen als Zeitkonto je locatie ‘Altijd’ mag gebruiken. Wijzig dit in Instellingen › Zeitkonto › Locatie.",
+      "Przypomnienia działają tylko wtedy, gdy Zeitkonto może używać twojej lokalizacji „Zawsze”. Zmień to w Ustawienia › Zeitkonto › Lokalizacja."
+    ],
+    "Precise Location is off for Zeitkonto, so arriving can't be noticed. Turn it on in Settings › Zeitkonto › Location.": [
+      "„Genauer Standort“ ist für Zeitkonto aus, daher kann die Ankunft nicht bemerkt werden. Schalte ihn unter Einstellungen › Zeitkonto › Standort ein.",
+      "„Precizna lokacija” je za Zeitkonto isključena, pa se dolazak ne može primijetiti. Uključi je u Postavke › Zeitkonto › Lokacija.",
+      "»Natančna lokacija« je za Zeitkonto izklopljena, zato prihoda ni mogoče zaznati. Vklopi jo v Nastavitve › Zeitkonto › Lokacija.",
+      "“Posizione esatta” è disattivata per Zeitkonto, quindi l’arrivo non può essere notato. Attivala in Impostazioni › Zeitkonto › Posizione.",
+      "« Position exacte » est désactivée pour Zeitkonto, votre arrivée ne peut donc pas être détectée. Activez-la dans Réglages › Zeitkonto › Position.",
+      "«Ubicación exacta» está desactivada para Zeitkonto, así que no se puede notar la llegada. Actívala en Ajustes › Zeitkonto › Ubicación.",
+      "«Localização exata» está desativada para o Zeitkonto, por isso a chegada não pode ser notada. Ativa-a em Definições › Zeitkonto › Localização.",
+      "‘Exacte locatie’ staat uit voor Zeitkonto, dus aankomst kan niet worden opgemerkt. Zet hem aan in Instellingen › Zeitkonto › Locatie.",
+      "„Dokładna lokalizacja” jest wyłączona dla Zeitkonto, więc nie można zauważyć przyjazdu. Włącz ją w Ustawienia › Zeitkonto › Lokalizacja."
+    ],
+    "iPhone watches at most 20 sites for one app. This one is past the first 20 sites with a reminder, so it isn't watched.": [
+      "Das iPhone überwacht höchstens 20 Baustellen pro App. Diese liegt hinter den ersten 20 Baustellen mit Erinnerung und wird daher nicht überwacht.",
+      "iPhone prati najviše 20 gradilišta po aplikaciji. Ovo je iza prvih 20 gradilišta s podsjetnikom, pa se ne prati.",
+      "iPhone spremlja največ 20 gradbišč na aplikacijo. To je za prvimi 20 gradbišči z opomnikom, zato se ne spremlja.",
+      "L’iPhone controlla al massimo 20 cantieri per app. Questo viene dopo i primi 20 cantieri con promemoria, quindi non è controllato.",
+      "L’iPhone surveille au plus 20 chantiers par app. Celui-ci vient après les 20 premiers chantiers avec rappel : il n’est donc pas surveillé.",
+      "El iPhone vigila como máximo 20 obras por app. Esta va después de las primeras 20 obras con recordatorio, así que no se vigila.",
+      "O iPhone vigia no máximo 20 obras por app. Esta vem depois das primeiras 20 obras com lembrete, por isso não é vigiada.",
+      "De iPhone houdt per app hoogstens 20 bouwplaatsen in de gaten. Deze komt na de eerste 20 bouwplaatsen met herinnering en wordt dus niet gevolgd.",
+      "iPhone obserwuje najwyżej 20 budów na aplikację. Ta jest za pierwszymi 20 budowami z przypomnieniem, więc nie jest obserwowana."
+    ],
+    "When you reach this site, Zeitkonto asks whether to start the clock. When you leave with the clock running, it asks whether to stop it. Not on days off, and not twice within two hours.": [
+      "Wenn du diese Baustelle erreichst, fragt Zeitkonto, ob die Uhr starten soll. Wenn du sie mit laufender Uhr verlässt, fragt es, ob sie stoppen soll. Nicht an freien Tagen und nicht zweimal innerhalb von zwei Stunden.",
+      "Kad stigneš na ovo gradilište, Zeitkonto pita treba li pokrenuti sat. Kad odeš dok sat radi, pita treba li ga zaustaviti. Ne u slobodne dane i ne dvaput unutar dva sata.",
+      "Ko prispeš na to gradbišče, Zeitkonto vpraša, ali naj zažene uro. Ko odideš, medtem ko ura teče, vpraša, ali naj jo ustavi. Ne ob prostih dneh in ne dvakrat v dveh urah.",
+      "Quando arrivi in questo cantiere, Zeitkonto chiede se avviare il timer. Quando te ne vai con il timer in corso, chiede se fermarlo. Non nei giorni liberi e non due volte entro due ore.",
+      "Quand vous arrivez sur ce chantier, Zeitkonto demande s’il faut démarrer le pointage. Quand vous partez pendant qu’il tourne, il demande s’il faut l’arrêter. Pas les jours de repos, ni deux fois en deux heures.",
+      "Cuando llegas a esta obra, Zeitkonto pregunta si iniciar el reloj. Cuando te vas con el reloj en marcha, pregunta si pararlo. No en días libres, ni dos veces en dos horas.",
+      "Quando chegas a esta obra, o Zeitkonto pergunta se deve iniciar o relógio. Quando sais com o relógio a contar, pergunta se o deve parar. Não em dias de folga, nem duas vezes em duas horas.",
+      "Als je bij deze bouwplaats aankomt, vraagt Zeitkonto of de klok moet starten. Als je weggaat terwijl de klok loopt, vraagt het of hij moet stoppen. Niet op vrije dagen en niet twee keer binnen twee uur.",
+      "Gdy dojedziesz na tę budowę, Zeitkonto zapyta, czy włączyć zegar. Gdy odjedziesz z włączonym zegarem, zapyta, czy go zatrzymać. Nie w dni wolne i nie dwa razy w ciągu dwóch godzin."
+    ],
+    "First it saves where the site is, from your current location — so do this standing at the site.": [
+      "Zuerst speichert es, wo die Baustelle ist, aus deinem aktuellen Standort – mach das also auf der Baustelle.",
+      "Najprije sprema gdje je gradilište, iz tvoje trenutne lokacije — zato to napravi dok stojiš na gradilištu.",
+      "Najprej shrani, kje je gradbišče, iz tvoje trenutne lokacije — zato to naredi, ko stojiš na gradbišču.",
+      "Prima salva dove si trova il cantiere, dalla tua posizione attuale: fallo quindi mentre sei in cantiere.",
+      "D’abord, il enregistre l’emplacement du chantier à partir de votre position actuelle : faites-le donc sur le chantier.",
+      "Primero guarda dónde está la obra a partir de tu ubicación actual, así que hazlo estando en la obra.",
+      "Primeiro guarda onde fica a obra a partir da tua localização atual — por isso faz isto estando na obra.",
+      "Eerst bewaart het waar de bouwplaats is, vanaf je huidige locatie — doe dit dus terwijl je op de bouwplaats staat.",
+      "Najpierw zapisuje, gdzie jest budowa, na podstawie twojej bieżącej lokalizacji — zrób to więc, stojąc na budowie."
+    ],
+    "To notice you arriving while the app is closed, iPhone has to let Zeitkonto use your location “Always”. iPhone asks next: allow it while using the app, then change it to Always.": [
+      "Damit Zeitkonto deine Ankunft auch bei geschlossener App bemerkt, muss das iPhone den Standort „Immer“ erlauben. Das iPhone fragt gleich: erst „Beim Verwenden der App erlauben“, dann zu „Immer“ wechseln.",
+      "Da bi Zeitkonto primijetio tvoj dolazak i kad je aplikacija zatvorena, iPhone mu mora dopustiti lokaciju „Uvijek”. iPhone sada pita: najprije dopusti tijekom korištenja aplikacije, zatim promijeni u Uvijek.",
+      "Da Zeitkonto opazi tvoj prihod tudi, ko je aplikacija zaprta, mu mora iPhone dovoliti lokacijo »Vedno«. iPhone zdaj vpraša: najprej dovoli med uporabo aplikacije, nato spremeni v Vedno.",
+      "Per accorgersi del tuo arrivo anche ad app chiusa, l’iPhone deve permettere a Zeitkonto di usare la posizione “Sempre”. Ora l’iPhone chiede: prima consenti mentre usi l’app, poi passa a Sempre.",
+      "Pour remarquer votre arrivée même app fermée, l’iPhone doit autoriser Zeitkonto à utiliser votre position « Toujours ». L’iPhone va demander : autorisez d’abord lorsque l’app est active, puis passez à Toujours.",
+      "Para notar tu llegada con la app cerrada, el iPhone tiene que dejar que Zeitkonto use tu ubicación «Siempre». Ahora el iPhone pregunta: primero permitir al usar la app y luego cambiar a Siempre.",
+      "Para notar a tua chegada com a app fechada, o iPhone tem de deixar o Zeitkonto usar a tua localização «Sempre». O iPhone pergunta a seguir: primeiro permitir ao usar a app, depois mudar para Sempre.",
+      "Om je aankomst te merken terwijl de app dicht is, moet de iPhone Zeitkonto je locatie ‘Altijd’ laten gebruiken. De iPhone vraagt zo: eerst toestaan bij gebruik van de app, dan wijzigen in Altijd.",
+      "Aby zauważyć twój przyjazd przy zamkniętej aplikacji, iPhone musi pozwolić Zeitkonto używać lokalizacji „Zawsze”. iPhone zaraz zapyta: najpierw zezwól podczas używania aplikacji, potem zmień na Zawsze."
+    ],
+    "Your location never leaves your phone. Zeitkonto keeps only the site's saved place, and nothing is sent anywhere.": [
+      "Dein Standort verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle, und nichts wird irgendwohin gesendet.",
+      "Tvoja lokacija nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta i ništa se nikamo ne šalje.",
+      "Tvoja lokacija nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča in nič se nikamor ne pošilja.",
+      "La tua posizione non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere e nulla viene inviato.",
+      "Votre position ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier, et rien n’est envoyé nulle part.",
+      "Tu ubicación nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra y no se envía nada a ninguna parte.",
+      "A tua localização nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra e nada é enviado para lado nenhum.",
+      "Je locatie verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats en er wordt niets verstuurd.",
+      "Twoja lokalizacja nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy i nic nie jest nigdzie wysyłane."
+    ],
+    "Start clock": [
+      "Uhr starten",
+      "Pokreni sat",
+      "Zaženi uro",
+      "Avvia timer",
+      "Démarrer le pointage",
+      "Iniciar reloj",
+      "Iniciar relógio",
+      "Klok starten",
+      "Włącz zegar"
+    ],
+    "Stop clock": [
+      "Uhr stoppen",
+      "Zaustavi sat",
+      "Ustavi uro",
+      "Ferma timer",
+      "Arrêter le pointage",
+      "Parar reloj",
+      "Parar relógio",
+      "Klok stoppen",
+      "Zatrzymaj zegar"
+    ],
+    "Arrived at %@ — start the clock?": [
+      "Bei %@ angekommen – Uhr starten?",
+      "Dolazak na %@ — pokrenuti sat?",
+      "Prihod na %@ — zaženem uro?",
+      "Arrivo a %@: avvio il timer?",
+      "Arrivée à %@ — démarrer le pointage ?",
+      "Llegada a %@: ¿iniciar el reloj?",
+      "Chegada a %@ — iniciar o relógio?",
+      "Aangekomen bij %@ — klok starten?",
+      "Przyjazd na %@ — włączyć zegar?"
+    ],
+    "Left %@ — stop the clock?": [
+      "%@ verlassen – Uhr stoppen?",
+      "Odlazak s %@ — zaustaviti sat?",
+      "Odhod z %@ — ustavim uro?",
+      "Uscita da %@: fermo il timer?",
+      "Départ de %@ — arrêter le pointage ?",
+      "Salida de %@: ¿parar el reloj?",
+      "Saída de %@ — parar o relógio?",
+      "%@ verlaten — klok stoppen?",
+      "Wyjazd z %@ — zatrzymać zegar?"
+    ],
+    "Location only for arrival reminders": [
+      "Standort nur für Ankunftserinnerungen",
+      "Lokacija samo za podsjetnike na dolazak",
+      "Lokacija samo za opomnike ob prihodu",
+      "Posizione solo per i promemoria di arrivo",
+      "Position seulement pour les rappels d’arrivée",
+      "Ubicación solo para recordatorios de llegada",
+      "Localização só para lembretes de chegada",
+      "Locatie alleen voor aankomstherinneringen",
+      "Lokalizacja tylko dla przypomnień o przyjeździe"
+    ],
+    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.": [
+      "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst.",
+      "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. Polje lokacije na danu je tekstualna bilješka koju upisuješ.",
+      "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš.",
+      "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. Il campo luogo di un giorno è una nota che scrivi tu.",
+      "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. Le champ lieu d’un jour est une note que vous tapez.",
+      "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. El campo de lugar de un día es una nota que escribes tú.",
+      "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. O campo de local de um dia é uma nota que escreves.",
+      "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. Het locatieveld op een dag is een notitie die je typt.",
+      "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. Pole miejsca w dniu to notatka, którą wpisujesz."
     ]
   },
   "sameAsEnglishOnPurpose": [

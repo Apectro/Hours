@@ -5,7 +5,8 @@
 A private work-hours calendar for iOS. Your hours stay on the device: no
 account, no server of ours, no analytics, no third-party code. The only network
 call the app makes is to the App Store, to ask whether Zeitkonto Pro has been paid
-for — and to your own iCloud, if you switch sync on.
+for — and to your own iCloud, if you switch sync on. Location only if you turn on
+an arrival reminder for a site, and it never leaves your phone.
 
 - **Requirements:** Xcode 16 or later, iOS 18 or later.
 > **On the two names.** The product is Zeitkonto: that is the display name, the
@@ -80,6 +81,16 @@ turns it into a picture; nothing about anybody else's hours is in it.
 them. A new site, or a crew screen, offers the people from your other crews to
 tick rather than type again. On the 1st, a note per site you worked on last
 month says its site sheet is ready for the boss, and opens it.
+
+**Arrival reminder (1.2)** — off unless you turn it on in a site's settings.
+After an explanation, it saves where the site is from your current location
+(shown as coordinates and a small map, with a radius of 100, 150, 300 or
+500 m) and asks for location "Always". Reaching the site with no clock running
+then asks "Arrived at Trg Pravde — start the clock?", and leaving it with the
+clock running "Left Trg Pravde — stop the clock?"; Start clock and Stop clock
+work from the notification, at the time you arrived or left. Never on a day off
+or a public holiday, never twice within two hours, at most 20 sites. The
+location never leaves the phone.
 
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
@@ -478,7 +489,8 @@ Manager role to create products.
 4. **App Privacy** — "Data Not Collected". True here: no analytics, no
    third-party code, no account, nothing sent to us or anyone else; sync goes to
    the user's own private iCloud, which Apple does not count as collection by
-   the developer.
+   the developer. The 1.2 arrival reminder uses location on the device only
+   and keeps nothing but the site's saved place (`notes/listing-1.2/privacy.md`).
 5. **App Review contact** — name, phone and email under App Review
    Information. Deliberately not in this repository.
 6. **A review screenshot for each product** — a picture of the paywall, on each
