@@ -428,4 +428,81 @@ final class SiteRepositoryTests: XCTestCase {
         XCTAssertEqual(repository.siteDays(siteID: nil, in: CalendarDateRange(start: date, end: date)), [day])
         XCTAssertEqual(siteDayCount(context), 1)
     }
+
+    // MARK: - Moving to another site (1.2)
+
+    private func move(_ repository: SiteRepository, to other: Site, crew: [CrewMember] = []) throws -> SiteMoveOutcome {
+        let source = try XCTUnwrap(repository.siteDay(siteID: site.id, on: date))
+        let outcome = try SiteMoving.apply(SiteMoveRequest(
+            source: source,
+            target: repository.siteDay(siteID: other.id, on: date),
+            targetSite: other,
+            sourceCrew: crew,
+            targetCrew: repository.crew(for: other.id, includeHidden: true),
+            memberIDs: [CrewMember.youID, ivan],
+            left: Fixture.time(11),
+            started: Fixture.time(12),
+            breakPlacement: .there,
+            lock: repository.lock,
+            tracksAllowance: false
+        ))
+        try repository.applyMove(outcome)
+        return outcome
+    }
+
+    func testAMoveStoresBothDaysTheNewCrewAndTwoShiftsInYourCalendar() throws {
+        let context = makeContext()
+        let repository = SiteRepository(context: context)
+        let other = Site(name: "Trg Pravde", jobID: UUID())
+        repository.upsert(site)
+        repository.upsert(other)
+        let member = CrewMember(id: ivan, siteID: site.id, name: "Ivan")
+        repository.upsert(member)
+        try repository.save(crewDay())
+
+        let outcome = try move(repository, to: other, crew: [member])
+
+        let stored = try XCTUnwrap(repository.siteDay(siteID: site.id, on: date))
+        XCTAssertEqual(stored.moves, [outcome.move], "the move survives the store")
+        XCTAssertEqual(stored.resolved(for: ivan)?.end, Fixture.time(11))
+        XCTAssertEqual(repository.siteDay(siteID: other.id, on: date), outcome.target)
+        XCTAssertEqual(repository.crew(for: other.id, includeHidden: true).map(\.name), ["Ivan"])
+
+        let record = WorkdayRepository(context: context).record(on: date)
+        XCTAssertEqual(Set(siteShifts(record).compactMap(\.siteID)), [site.id, other.id])
+    }
+
+    func testUndoingAMoveTakesBothDaysAndYourCalendarBack() throws {
+        let context = makeContext()
+        let repository = SiteRepository(context: context)
+        let other = Site(name: "Trg Pravde")
+        repository.upsert(site)
+        repository.upsert(other)
+        try repository.save(crewDay())
+        let before = try XCTUnwrap(repository.siteDay(siteID: site.id, on: date))
+        let outcome = try move(repository, to: other)
+
+        try repository.undoMove(outcome.move, from: outcome.source)
+
+        XCTAssertEqual(repository.siteDay(siteID: site.id, on: date), before)
+        XCTAssertNil(repository.siteDay(siteID: other.id, on: date))
+        let record = WorkdayRepository(context: context).record(on: date)
+        XCTAssertEqual(siteShifts(record).map(\.siteID), [site.id])
+        XCTAssertEqual(siteShifts(record).first?.end, Fixture.time(16))
+    }
+
+    func testAMoveIntoAClosedMonthIsRefused() throws {
+        let context = makeContext()
+        let open = SiteRepository(context: context)
+        let other = Site(name: "Trg Pravde")
+        open.upsert(site)
+        open.upsert(other)
+        try open.save(crewDay())
+        let outcome = try move(open, to: other)
+        let locked = SiteRepository(context: context, lock: MonthLock(months: [YearMonth(date)]))
+
+        XCTAssertThrowsError(try locked.applyMove(outcome))
+        XCTAssertThrowsError(try locked.undoMove(outcome.move, from: outcome.source))
+        XCTAssertEqual(open.siteDay(siteID: site.id, on: date)?.moves, [outcome.move])
+    }
 }

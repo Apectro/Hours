@@ -433,6 +433,18 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .address:        return pick(en: "Address", de: "Adresse", hr: "Adresa", sl: "Naslov",
                                           it: "Indirizzo", fr: "Adresse", es: "Dirección", pt: "Morada",
                                           nl: "Adres", pl: "Adres")
+        // Two sites in one day (1.2): the summary's block per site, the
+        // header tile, and "+2 more" after the first site names of a title.
+        case .bySite:         return pick(en: "By site", de: "Nach Baustelle", hr: "Po gradilištu",
+                                          sl: "Po gradbišču", it: "Per cantiere", fr: "Par chantier",
+                                          es: "Por obra", pt: "Por obra", nl: "Per bouwplaats", pl: "Według budowy")
+        case .sites:          return pick(en: "Sites", de: "Baustellen", hr: "Gradilišta", sl: "Gradbišča",
+                                          it: "Cantieri", fr: "Chantiers", es: "Obras", pt: "Obras",
+                                          nl: "Bouwplaatsen", pl: "Budowy")
+        case .moreSites:      return pick(en: "+{count} more", de: "+{count} weitere", hr: "+ još {count}",
+                                          sl: "+ še {count}", it: "+ altri {count}", fr: "+ {count} autres",
+                                          es: "+ {count} más", pt: "+ mais {count}", nl: "+ nog {count}",
+                                          pl: "+ {count} więcej")
         case .reason:         return pick(en: "Reason", de: "Grund", hr: "Razlog", sl: "Razlog", it: "Motivo",
                                           fr: "Motif", es: "Motivo", pt: "Motivo", nl: "Reden", pl: "Powód")
 
@@ -593,6 +605,10 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case site, reason
     /// A site's address, in the workbook and the CSV (1.2).
     case address
+    /// Two sites in one day (1.2): the summary's block per site, the header
+    /// tile, and the "+2 more" a long list of site names ends with
+    /// (`ExportLanguage.moreSites(_:)`).
+    case bySite, sites, moreSites
 
     /// Field allowance, kilometres and travel (1.2). `kilometresShort` is the
     /// unit, "km" everywhere; `kilometres` the word, for a line's label.

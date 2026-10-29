@@ -34,7 +34,9 @@ final class SiteDayEntry {
     /// JSON-encoded `[CrewAbsence]`: why people not ticked were away, as
     /// `presentData` holds who was there. Added in schema V7, optional, so a
     /// row written before it reads as a day with no absences; `nil` also
-    /// means none.
+    /// means none. Since 1.2 it also carries the day's moves to another
+    /// site (`SiteDay.moves`) as entries of their own kind, which every
+    /// reader of the reasons leaves out (`SiteDayStorage`).
     var absenceData: Data?
     /// JSON-encoded `[UUID]`: who on the crew gets the field allowance
     /// (`SiteDay.allowanceMemberIDs`). Added in schema V8, optional, so a row
@@ -80,7 +82,8 @@ extension SiteDayEntry {
             isBadWeatherStop: isBadWeatherStop,
             absences: SiteDayEntry.decodeAbsences(absenceData),
             allowanceMemberIDs: SiteDayEntry.decodeAllowance(allowanceData),
-            kilometres: kilometres
+            kilometres: kilometres,
+            moves: SiteDayStorage.moves(fromAbsenceData: absenceData)
         )
     }
 
@@ -95,7 +98,7 @@ extension SiteDayEntry {
         note = day.note
         jobID = day.jobID?.uuidString
         isBadWeatherStop = day.isBadWeatherStop
-        absenceData = SiteDayEntry.encodeAbsences(day.absences)
+        absenceData = SiteDayStorage.absenceData(absences: day.absences, moves: day.moves)
         allowanceData = SiteDayEntry.encodeAllowance(day.allowanceMemberIDs)
         kilometres = day.kilometres
         updatedAt = Date()
