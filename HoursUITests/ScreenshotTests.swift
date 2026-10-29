@@ -140,9 +140,8 @@ final class ScreenshotTests: XCTestCase {
 
         // 5 — the site sheet: last month, one column group per person,
         // previewed as the PDF's first page.
-        app.buttons["site-more"].tap()
         let export = app.buttons["site-export"]
-        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site has no Sheet button")
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
         let page = app.descendants(matching: .any)["export-preview-page"]

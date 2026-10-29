@@ -224,10 +224,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
         capture("sites-list", app)
 
-        if tap(app.buttons.matching(identifier: "sites-add").firstMatch, "Add a site", app) {
-            capture("site-new", app)
-            close(app, "site-editor-cancel")
-        }
+        newSiteWizardScreens(app)
 
         tapAnyway(app.buttons.matching(identifier: "site-card").firstMatch)
         guard app.screen("screen-site-day").waitForExistence(timeout: 10) else {
@@ -245,8 +242,7 @@ final class ScreenAtlasTests: XCTestCase {
         back(app)
         let second = app.buttons.matching(identifier: "site-card").element(boundBy: 1)
         if tap(second, "the second site", app),
-           tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
-           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "Edit site", app) {
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
             let archived = app.switches["site-editor-archived"]
             if archived.waitForExistence(timeout: 5) {
                 flip(archived)
@@ -425,12 +421,12 @@ final class ScreenAtlasTests: XCTestCase {
         }
     }
 
-    /// Everything behind the site's menu: crew, diary, export and sign-off,
-    /// and the site's own editor.
+    /// Everything behind the site's buttons (1.2): crew (and from it the
+    /// sign-off), diary, the sheet's export, and the gear's settings.
     private func siteMenuScreens(_ app: XCUIApplication) {
         swipeDown(app, times: 8)
-        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app) {
-            capture("site-menu", app)
+        capture("site-buttons", app)
+        do {
             if tap(app.buttons.matching(identifier: "site-crew").firstMatch, "the crew", app),
                app.screen("screen-crew").waitForExistence(timeout: 10) {
                 pause(0.5)
@@ -473,19 +469,18 @@ final class ScreenAtlasTests: XCTestCase {
                     capture("crew-add-from-other-sites", app)
                     close(app, "crew-picker-cancel")
                 }
+                signOffScreens(app)
                 back(app)
             }
         }
 
-        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
-           tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
+        if tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
             pause(1)
             capture("site-diary-list", app)
             close(app, "site-diary-list-done")
         }
 
-        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
-           tap(app.buttons.matching(identifier: "site-export").firstMatch, "the site's export", app),
+        if tap(app.buttons.matching(identifier: "site-export").firstMatch, "the site's Sheet", app),
            app.screen("screen-site-export").waitForExistence(timeout: 10) {
             exportScreens(app, prefix: "site-export")
             // One sheet per person: the option, and the first person's page.
@@ -504,10 +499,20 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "export-done")
         }
 
-        // Crew sign-off has its own place in the site's menu: a sheet with
-        // the month, each person, and the line they sign on.
-        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
-           tap(app.buttons.matching(identifier: "site-sign-off").firstMatch, "Crew sign-off", app) {
+        if tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
+            capture("site-edit", app)
+            swipeUp(app)
+            capture("site-edit-usual-day", app)
+            swipeDown(app, times: 3)
+            arrivalReminderScreens(app)
+            close(app, "site-editor-cancel")
+        }
+    }
+
+    /// Crew sign-off, from the crew's toolbar (1.2): a sheet with the month,
+    /// each person, and the line they sign on.
+    private func signOffScreens(_ app: XCUIApplication) {
+        if tap(app.buttons.matching(identifier: "site-sign-off").firstMatch, "Crew sign-off", app) {
             if app.screen("screen-sign-off").waitForExistence(timeout: 10) {
                 pause(1)
                 capture("site-sign-off", app)
@@ -536,13 +541,47 @@ final class ScreenAtlasTests: XCTestCase {
             }
             close(app, "sign-off-done")
         }
+    }
 
-        if tap(app.buttons.matching(identifier: "site-more").firstMatch, "the site's menu", app),
-           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "Edit site", app) {
-            capture("site-edit", app)
-            arrivalReminderScreens(app)
-            close(app, "site-editor-cancel")
+    /// The new-site wizard (1.2), every step, from "Copy from a site", then
+    /// "Several sites at once" with names typed in. Cancelled each time, so
+    /// the sample's sites stay as they are.
+    private func newSiteWizardScreens(_ app: XCUIApplication) {
+        guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site", app) else { return }
+        capture("wizard-1-start", app)
+        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy from a site", app) {
+            capture("wizard-1-copy", app)
         }
+        if tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the place", app) {
+            let name = app.textFields["site-name"].firstMatch
+            if name.waitForExistence(timeout: 5) {
+                name.tap()
+                name.typeText("Trg Pravde")
+            }
+            capture("wizard-2-where", app)
+        }
+        let steps = ["wizard-3-crew", "wizard-4-usual-day", "wizard-5-extras", "wizard-6-check"]
+        for step in steps {
+            guard tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to \(step)", app) else { break }
+            capture(step, app)
+        }
+        close(app, "wizard-cancel")
+
+        guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site again", app) else { return }
+        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several sites at once", app),
+           tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the names", app) {
+            let names = app.descendants(matching: .any).matching(identifier: "wizard-several-names").firstMatch
+            if names.waitForExistence(timeout: 5) {
+                names.tap()
+                names.typeText("Solarka\nVukovarska 5\nJarun")
+            }
+            capture("wizard-2-several", app)
+            for _ in 0..<4 {
+                tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next", app)
+            }
+            capture("wizard-6-several-check", app)
+        }
+        close(app, "wizard-cancel")
     }
 
     /// The arrival reminder in the site's settings (1.2): the explanation
@@ -683,7 +722,7 @@ final class ScreenAtlasTests: XCTestCase {
 
         // The root, a screen height at a time, until the last row is up.
         capture("settings-1", app)
-        let last = app.buttons.matching(identifier: "settings-show-tour").firstMatch
+        let last = app.buttons.matching(identifier: "settings-feedback").firstMatch
         var page = 1
         while page < 5, !(last.exists && last.isHittable) {
             swipeUp(app)
@@ -697,18 +736,23 @@ final class ScreenAtlasTests: XCTestCase {
         settingsPage("settings-pay", "settings-pay", app) {
             self.swipeUp(app)
             self.capture("settings-pay-lower", app)
-        }
-        // Allowance & travel, off as shipped, then switched on: the rates
-        // and travel. Left on, for `allowanceScreens` after Settings.
-        settingsPage("settings-allowance", "settings-allowance", app) {
-            let enabled = app.switches["allowance-enabled"].firstMatch
-            if enabled.waitForExistence(timeout: 5) {
-                self.flip(enabled)
-                self.pause(0.5)
-                self.capture("settings-allowance-on", app)
-            } else {
-                self.miss("settings-allowance-on (no switch)")
+            // Allowance & travel, under Pay (1.2), off as shipped, then
+            // switched on: the rates and travel. Left on, for
+            // `allowanceScreens` after Settings.
+            self.settingsPage("settings-allowance", "settings-allowance", app) {
+                let enabled = app.switches["allowance-enabled"].firstMatch
+                if enabled.waitForExistence(timeout: 5) {
+                    self.flip(enabled)
+                    self.pause(0.5)
+                    self.capture("settings-allowance-on", app)
+                } else {
+                    self.miss("settings-allowance-on (no switch)")
+                }
             }
+        }
+        settingsPage("settings-new-sites", "settings-new-sites", app) {
+            self.swipeUp(app)
+            self.capture("settings-new-sites-lower", app)
         }
         settingsPage("settings-jobs", "settings-jobs", app) {
             if self.tap(app.buttons.matching(identifier: "jobs-row").firstMatch, "a job", app) {
@@ -734,7 +778,51 @@ final class ScreenAtlasTests: XCTestCase {
                 self.back(app)
             }
         }
+        settingsPage("settings-reminders", "settings-reminders", app) {
+            self.swipeUp(app)
+            self.capture("settings-reminders-lower", app)
+        }
         settingsPage("settings-fields", "settings-fields", app)
+        settingsPage("settings-day-types-holidays", "settings-day-types-holidays", app) {
+            self.dayTypeAndHolidayScreens(app)
+        }
+        settingsPage("settings-calendar", "settings-calendar", app)
+        settingsPage("settings-theme", "settings-theme", app)
+        settingsPage("settings-export-options", "settings-export-options", app) {
+            self.swipeUp(app)
+            self.capture("settings-export-options-lower", app)
+        }
+        settingsPage("settings-icloud-backup", "settings-icloud-backup", app) {
+            self.settingsPage("settings-icloud", "settings-icloud", app)
+            self.settingsPage("settings-data", "settings-backup-and-data", app)
+        }
+        settingsPage("settings-privacy", "settings-privacy", app) {
+            self.swipeUp(app)
+            self.capture("settings-privacy-lower", app)
+        }
+        settingsPage("settings-help", "settings-help", app)
+        settingsSearchScreens(app)
+    }
+
+    /// Searching Settings (1.2): a word the rows are known by.
+    private func settingsSearchScreens(_ app: XCUIApplication) {
+        swipeDown(app, times: 3)
+        let search = app.searchFields.firstMatch
+        guard search.waitForExistence(timeout: 5) else {
+            miss("settings-search (no search field)")
+            return
+        }
+        search.tap()
+        search.typeText("overtime")
+        pause(0.8)
+        capture("settings-search", app)
+        let cancel = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "Cancel", "Cancel")).firstMatch
+        if cancel.exists { cancel.tap() } else { search.buttons.firstMatch.tap() }
+        pause(0.5)
+    }
+
+    /// Settings › Day types & holidays: the two screens under it.
+    private func dayTypeAndHolidayScreens(_ app: XCUIApplication) {
         settingsPage("settings-day-types", "settings-day-types", app) {
             if self.tap(app.buttons.matching(identifier: "day-types-row").firstMatch, "a day type", app) {
                 self.capture("settings-day-type-editor", app)
@@ -753,10 +841,6 @@ final class ScreenAtlasTests: XCTestCase {
                 self.close(app, "day-type-editor-cancel")
             }
         }
-        settingsPage("settings-reminders", "settings-reminders", app) {
-            self.swipeUp(app)
-            self.capture("settings-reminders-lower", app)
-        }
         settingsPage("settings-holidays", "settings-holidays", app) {
             if self.tap(app.buttons.matching(identifier: "holidays-row").firstMatch, "a holiday", app) {
                 self.capture("settings-holiday-editor", app)
@@ -769,18 +853,6 @@ final class ScreenAtlasTests: XCTestCase {
             if self.tap(app.buttons.matching(identifier: "public-holidays-open").firstMatch, "Add public holidays", app) {
                 self.publicHolidayPicker(app, prefix: "settings-public-holidays")
             }
-        }
-        settingsPage("settings-calendar", "settings-calendar", app)
-        settingsPage("settings-theme", "settings-theme", app)
-        settingsPage("settings-export-options", "settings-export-options", app) {
-            self.swipeUp(app)
-            self.capture("settings-export-options-lower", app)
-        }
-        settingsPage("settings-icloud", "settings-icloud", app)
-        settingsPage("settings-data", "settings-backup-and-data", app)
-        settingsPage("settings-privacy", "settings-privacy", app) {
-            self.swipeUp(app)
-            self.capture("settings-privacy-lower", app)
         }
     }
 

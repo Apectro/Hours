@@ -23,12 +23,9 @@ final class SiteExportTests: XCTestCase {
         card.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
 
-        // Export is in the toolbar's menu, with Crew and Edit.
-        let more = app.buttons["site-more"]
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
-        more.tap()
+        // The site's Sheet button, beside Crew, Diary and Extra work.
         let export = app.buttons["site-export"]
-        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site's menu has no Export")
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "the site has no Sheet button")
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
@@ -67,11 +64,8 @@ final class SiteExportTests: XCTestCase {
         let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        let more = app.buttons.matching(identifier: "site-more").firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site has no menu")
-        more.tap()
         let crewItem = app.buttons.matching(identifier: "site-crew").firstMatch
-        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site's menu has no Crew")
+        XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site has no Crew button")
         crewItem.tap()
         if !app.screen("screen-crew").waitForExistence(timeout: 5) {
             // What was on screen instead, for the log.

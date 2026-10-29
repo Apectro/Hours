@@ -72,9 +72,13 @@ final class TourTests: XCTestCase {
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 5))
 
+        // Under Help & tour.
+        let help = app.buttons["settings-help"]
+        for _ in 0..<6 where !(help.exists && help.isHittable) { app.swipeUp() }
+        XCTAssertTrue(hittable(help, timeout: 5), "Settings has no Help & tour")
+        help.tap()
         let again = app.buttons["settings-show-tour"]
-        for _ in 0..<6 where !(again.exists && again.isHittable) { app.swipeUp() }
-        XCTAssertTrue(hittable(again, timeout: 5), "Show the tour again was not in Settings")
+        XCTAssertTrue(hittable(again, timeout: 5), "Show the tour again was not in Help & tour")
         again.tap()
 
         // The card is modal to accessibility, so the tab bar is not

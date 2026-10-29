@@ -43,11 +43,9 @@ final class SiteAddressUITests: XCTestCase {
             XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
             card.tap()
         }
-        let more = app.buttons.matching(identifier: "site-more").firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 5), "the site did not open")
-        more.tap()
+        // The gear in the site's toolbar: its settings.
         let edit = app.buttons.matching(identifier: "site-edit").firstMatch
-        XCTAssertTrue(edit.waitForExistence(timeout: 5), "the site's menu has no Edit")
+        XCTAssertTrue(edit.waitForExistence(timeout: 5), "the site did not open")
         edit.tap()
         XCTAssertTrue(app.textFields["site-name"].waitForExistence(timeout: 5), "the site's settings did not open")
     }

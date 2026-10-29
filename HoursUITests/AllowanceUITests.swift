@@ -86,6 +86,10 @@ final class AllowanceUITests: XCTestCase {
     private func switchOnAllowance(_ app: XCUIApplication) {
         XCTAssertTrue(app.tab(.settings).waitForExistence(timeout: 10))
         app.tab(.settings).tap()
+        // Under Pay, which includes the allowance and travel.
+        let pay = app.buttons["settings-pay"].firstMatch
+        scroll(to: pay, in: app)
+        pay.tap()
         let row = app.buttons["settings-allowance"].firstMatch
         scroll(to: row, in: app)
         row.tap()
