@@ -6,7 +6,8 @@ A private work-hours calendar for iOS. Your hours stay on the device: no
 account, no server of ours, no analytics, no third-party code. The only network
 call the app makes is to the App Store, to ask whether Zeitkonto Pro has been paid
 for — and to your own iCloud, if you switch sync on. Location only if you turn on
-an arrival reminder for a site, and it never leaves your phone.
+an arrival reminder for a site, and it never leaves your phone; a site's address
+is looked up from Apple Maps only when you tap "Fill in from the saved place".
 
 - **Requirements:** Xcode 16 or later, iOS 18 or later.
 > **On the two names.** The product is Zeitkonto: that is the display name, the
@@ -88,9 +89,21 @@ After an explanation, it saves where the site is from your current location
 500 m) and asks for location "Always". Reaching the site with no clock running
 then asks "Arrived at Trg Pravde — start the clock?", and leaving it with the
 clock running "Left Trg Pravde — stop the clock?"; Start clock and Stop clock
-work from the notification, at the time you arrived or left. Never on a day off
-or a public holiday, never twice within two hours, at most 20 sites. The
-location never leaves the phone.
+work from the notification, at the time you arrived or left. Leaving with no
+clock running while the site's day is not written yet asks "Left Trg Pravde —
+write today's hours?" ("07:00–15:30 like last time"): Same as last day writes it
+from the notification, a tap opens the site's day, and that site gets no
+evening reminder that day. Never on a day off or a public holiday, never twice
+within two hours each way, at most 20 sites. The location never leaves the
+phone.
+
+**A site's address (1.2)** — typed in the site's settings, or filled in from its
+saved place (Apple Maps is asked about that one place, only on the tap). It is
+printed in one small line under the site's name on the site sheet, on a crew
+member's sheet of one site and on the extra-work report, and is a row of its own
+in their workbooks and CSVs. In the personal timesheet's Location column, when
+that column is on, a day written from a site with no location of its own shows
+the site's address.
 
 **Site diary, bad weather and sign-off** — under each site day, a short diary
 (Bautagebuch): the weather, a temperature typed by hand, work done, deliveries,
@@ -386,8 +399,9 @@ falls back to the phone's own. See ARCHITECTURE.md, *Persistence*.
 
 Steps 3 and 4 are needed again whenever a release adds columns to the store:
 1.2's schema V8 (field allowance, kilometres, travel and the site's arrival
-fields) does, so it must be initialised and deployed to Production before 1.2
-ships, or a syncing 1.2 device cannot upload what it records.
+fields) and V9 (the site's address) do, so they must be initialised and
+deployed to Production before 1.2 ships, or a syncing 1.2 device cannot upload
+what it records.
 
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new
@@ -490,7 +504,8 @@ Manager role to create products.
    third-party code, no account, nothing sent to us or anyone else; sync goes to
    the user's own private iCloud, which Apple does not count as collection by
    the developer. The 1.2 arrival reminder uses location on the device only
-   and keeps nothing but the site's saved place (`notes/listing-1.2/privacy.md`).
+   and keeps nothing but the site's saved place; a site's address is looked up
+   from Apple Maps only on the user's tap (`notes/listing-1.2/privacy.md`).
 5. **App Review contact** — name, phone and email under App Review
    Information. Deliberately not in this repository.
 6. **A review screenshot for each product** — a picture of the paywall, on each

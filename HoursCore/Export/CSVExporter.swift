@@ -21,7 +21,7 @@ enum CSVExporter {
         // block is strictly tabular on purpose: an importer reading line one
         // as the column titles has to keep getting clean columns.
         let summarised = preferences.includeSummaryRows && !table.totals.isEmpty
-        if summarised || !table.ownerName.isEmpty {
+        if summarised || !table.ownerName.isEmpty || !table.address.isEmpty {
             lines.append("")
         }
         // The name is identification, not analysis, so it does not belong to
@@ -30,6 +30,10 @@ enum CSVExporter {
         // has to ask about — which is the whole reason the field exists.
         if !table.ownerName.isEmpty {
             lines.append(row([table.language(.name), table.ownerName], separator: separator))
+        }
+        // The site's address, identification as the name is.
+        if !table.address.isEmpty {
+            lines.append(row([table.language(.address), table.address], separator: separator))
         }
         if summarised {
             lines.append(row([table.language(.summary), table.subtitle], separator: separator))

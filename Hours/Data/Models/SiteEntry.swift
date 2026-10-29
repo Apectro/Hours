@@ -33,6 +33,10 @@ final class SiteEntry {
     var arrivalRadius: Double = 150
     var remindsOnArrival: Bool = false
 
+    /// `Site.address`, for the sheets. Added in schema V9, optional, so a
+    /// site written before it has none; `nil` and empty both mean none.
+    var address: String?
+
     var updatedAt: Date = Date()
 
     init(site: Site) {
@@ -60,7 +64,8 @@ extension SiteEntry {
             latitude: latitude,
             longitude: longitude,
             arrivalRadius: arrivalRadius,
-            remindsOnArrival: remindsOnArrival
+            remindsOnArrival: remindsOnArrival,
+            address: address ?? ""
         )
     }
 
@@ -76,6 +81,7 @@ extension SiteEntry {
         longitude = site.longitude
         arrivalRadius = site.arrivalRadius
         remindsOnArrival = site.remindsOnArrival
+        address = site.address.isEmpty ? nil : site.address
         updatedAt = Date()
     }
 }

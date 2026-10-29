@@ -132,7 +132,7 @@ export const en = {
       { claim: "No analytics, no tracking", evidence: "no third-party code of any kind in the app" },
       { claim: "Nothing leaves the device", evidence: "unless you export a file and send it yourself, or turn on sync to your own private iCloud (from 1.1)" },
       { claim: "Your crew and your pay stay yours", evidence: "sites, names and rates are stored on the phone; money never goes on a site's sheet" },
-      { claim: "Location only if you turn on an arrival reminder for a site, and it never leaves your phone", evidence: "one fix saves the site's place (from 1.2); iOS watches the area, the app keeps no history and sends nothing" },
+      { claim: "Location only if you turn on an arrival reminder for a site, and it never leaves your phone", evidence: "one fix saves the site's place (from 1.2); iOS watches the area, the app keeps no history and sends nothing; a site's address is looked up from Apple Maps only when you tap “Fill in from the saved place”" },
       { claim: "Reminders are local", evidence: "UNCalendarNotificationTrigger, scheduled on the device" },
     ],
   },

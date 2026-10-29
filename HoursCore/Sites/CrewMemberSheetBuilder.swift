@@ -164,9 +164,9 @@ struct CrewMemberSheetBuilder: Sendable {
         // The sites they worked on, in the sites' order; for someone away
         // the whole period, the sites that gave the reasons.
         let shownSites = Set(worked.compactMap(\.siteID))
-        let titleSites = (shownSites.isEmpty ? Set(lines.compactMap(\.siteID)) : shownSites)
+        let titleSiteIDs = (shownSites.isEmpty ? Set(lines.compactMap(\.siteID)) : shownSites)
             .sorted { order($0) != order($1) ? order($0) < order($1) : $0.uuidString < $1.uuidString }
-            .compactMap { siteNames[$0] }
+        let titleSites = titleSiteIDs.compactMap { siteNames[$0] }
         let showsSite = shownSites.count > 1
         let showsReason = lines.contains { $0.reason != nil }
         let showsNote = lines.contains { !noteText(for: $0).isEmpty }
@@ -290,6 +290,10 @@ struct CrewMemberSheetBuilder: Sendable {
             headingOverrides: headings
         )
         table.kind = .timesheet
+        // One site's sheet says where it is; across several, no one address.
+        if titleSiteIDs.count == 1, let site = sites.first(where: { $0.id == titleSiteIDs[0] }) {
+            table.address = SiteAddress.singleLine(site.address)
+        }
         table.eyebrow = sitesText.isEmpty ? language(.timesheet) : "\(language(.timesheet)) · \(sitesText)"
         let recorded = person.isYou || owner.isEmpty ? [] : ["\(language(.recordedBy)) \(owner)"]
         table.detail = ((isMonth ? [period, dates] : [dates]) + recorded).joined(separator: " · ")

@@ -159,6 +159,10 @@ struct ReportTable: Hashable, Sendable {
     /// small under the header block. Empty, as on every table that was not
     /// split (`SiteSheetBuilder.split`), prints nothing.
     var partLabel: String = ""
+    /// The site's address on one line (`SiteAddress.singleLine`), printed
+    /// small under the headline of a sheet that is about one site; a row of
+    /// its own in the workbook and the CSV. Empty prints nothing.
+    var address: String = ""
 
     var isEmpty: Bool { rows.isEmpty }
 

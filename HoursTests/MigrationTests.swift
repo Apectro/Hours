@@ -313,7 +313,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertNoThrow(try context.save())
     }
 
-    /// The oldest stores go the whole way, V1 to V8, in one open.
+    /// The oldest stores go the whole way, V1 to V9, in one open.
     func testAVersionOneStoreReachesTheNewestVersion() throws {
         try writeVersionOneStore(days: [(20_260_803, "Monday")], holidays: 1)
         let context = ModelContext(try HoursModelContainer.make(at: storeURL))
@@ -337,6 +337,11 @@ final class MigrationTests: XCTestCase {
                                 allowanceMemberIDs: [CrewMember.youID], kilometres: 40)
         context.insert(SiteDayEntry(day: allowance))
         XCTAssertNoThrow(try context.save())
+
+        // And a site with its address (V9).
+        let sites = SiteRepository(context: context)
+        sites.upsert(Site(id: siteID, name: "Bau Süd", address: "Kaiserstraße 12\n10115 Berlin"))
+        XCTAssertEqual(SiteRepository(context: context).site(id: siteID)?.address, "Kaiserstraße 12\n10115 Berlin")
     }
 
     // MARK: - Done (V5 to V6)
@@ -535,6 +540,78 @@ final class MigrationTests: XCTestCase {
         let yours = try XCTUnwrap(WorkdayRepository(context: context).record(on: day.date))
         XCTAssertEqual(yours.shifts.first?.fieldAllowance, true)
         XCTAssertEqual(yours.shifts.first?.kilometres, 62)
+    }
+
+    // MARK: - The site's address (V8 to V9)
+
+    /// Writes a store as the first 1.2 builds left one: V8's frozen copies,
+    /// with a site that has a place and an arrival reminder, and a site day.
+    private func writeVersionEightStore() throws -> UUID {
+        let schema = Schema(versionedSchema: HoursSchemaV8.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV8.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        site.allowanceByDefault = true
+        site.latitude = 45.8
+        site.longitude = 15.97
+        site.arrivalRadius = 300
+        site.remindsOnArrival = true
+        context.insert(site)
+        let day = HoursSchemaV8.SiteDayEntry(siteID: siteID.uuidString, dateKey: 20_261_027)
+        day.startMinutes = 7 * 60
+        day.endMinutes = 15 * 60 + 30
+        day.presentData = SiteDayEntry.encodePresent([Attendance(memberID: CrewMember.youID)])
+        day.kilometres = 40
+        context.insert(day)
+        let own = HoursSchemaV8.DayEntry(dateKey: 20_261_026)
+        own.note = "Office"
+        own.kilometres = 12
+        context.insert(own)
+        try context.save()
+        return siteID
+    }
+
+    /// A V8 store opens as V9 with every site, place and day as it was and
+    /// no address, and then takes one.
+    func testAVersionEightStoreOpensWithNoAddressAndTakesOne() throws {
+        let siteID = try writeVersionEightStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        let sites = SiteRepository(context: context)
+        let site = try XCTUnwrap(sites.site(id: siteID))
+        XCTAssertEqual(site.name, "Trg Pravde Zagreb")
+        XCTAssertTrue(site.allowanceByDefault)
+        XCTAssertEqual(site.place, SitePlace(latitude: 45.8, longitude: 15.97))
+        XCTAssertEqual(site.arrivalRadius, 300)
+        XCTAssertTrue(site.remindsOnArrival)
+        XCTAssertEqual(site.address, "")
+        XCTAssertNil(try XCTUnwrap(context.fetch(FetchDescriptor<SiteEntry>()).first).address)
+
+        let day = try XCTUnwrap(sites.siteDay(siteID: siteID, on: Fixture.date(2026, 10, 27)))
+        XCTAssertEqual(day.start, TimeOfDay(hour: 7, minute: 0))
+        XCTAssertEqual(day.kilometres, 40)
+        XCTAssertEqual(WorkdayRepository(context: context).record(on: Fixture.date(2026, 10, 26))?.kilometres, 12)
+
+        var addressed = site
+        addressed.address = "Trg pravde 1\n10000 Zagreb"
+        sites.upsert(addressed)
+        let reread = try XCTUnwrap(SiteRepository(context: context).site(id: siteID))
+        XCTAssertEqual(reread.address, "Trg pravde 1\n10000 Zagreb")
+        XCTAssertEqual(reread.place, site.place, "the address leaves the place alone")
+    }
+
+    func testAnAddressIsStoredOnlyWhenSet() {
+        let entry = SiteEntry(site: Site(name: "Bau Süd"))
+        XCTAssertNil(entry.address)
+        entry.apply(Site(name: "Bau Süd", address: "Kaiserstraße 12"))
+        XCTAssertEqual(entry.address, "Kaiserstraße 12")
+        XCTAssertEqual(entry.site.address, "Kaiserstraße 12")
+        entry.apply(Site(name: "Bau Süd"))
+        XCTAssertNil(entry.address)
+        XCTAssertEqual(entry.site.address, "")
     }
 
     func testTheArrivalFieldsSurviveEditingTheSite() throws {
@@ -766,8 +843,8 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 8)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 7)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 9)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 8)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
@@ -776,6 +853,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(HoursSchemaV6.versionIdentifier, Schema.Version(6, 0, 0))
         XCTAssertEqual(HoursSchemaV7.versionIdentifier, Schema.Version(7, 0, 0))
         XCTAssertEqual(HoursSchemaV8.versionIdentifier, Schema.Version(8, 0, 0))
+        XCTAssertEqual(HoursSchemaV9.versionIdentifier, Schema.Version(9, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is

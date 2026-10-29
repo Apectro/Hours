@@ -29,6 +29,10 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
     /// Whether reaching or leaving the site asks about the clock. Off unless
     /// turned on; with no `place` it watches nothing (`monitorsArrival`).
     var remindsOnArrival: Bool
+    /// Where the site is in words, for the sheets (1.2): one or two lines as
+    /// typed ("Kaiserstraße 12" over "10115 Berlin"), or filled in from the
+    /// saved place on request. Empty means none, and nothing is printed.
+    var address: String
 
     init(
         id: UUID = UUID(),
@@ -40,7 +44,8 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         latitude: Double? = nil,
         longitude: Double? = nil,
         arrivalRadius: Double = Site.defaultArrivalRadius,
-        remindsOnArrival: Bool = false
+        remindsOnArrival: Bool = false,
+        address: String = ""
     ) {
         self.id = id
         self.name = name
@@ -52,11 +57,13 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         self.longitude = longitude
         self.arrivalRadius = arrivalRadius
         self.remindsOnArrival = remindsOnArrival
+        self.address = address
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, name, jobID, isArchived, sortOrder, allowanceByDefault
         case latitude, longitude, arrivalRadius, remindsOnArrival
+        case address
     }
 
     init(from decoder: Decoder) throws {
@@ -71,12 +78,13 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
             latitude: container.lenientOptional(.latitude),
             longitude: container.lenientOptional(.longitude),
             arrivalRadius: container.lenient(.arrivalRadius, Site.defaultArrivalRadius),
-            remindsOnArrival: container.lenient(.remindsOnArrival, false)
+            remindsOnArrival: container.lenient(.remindsOnArrival, false),
+            address: container.lenient(.address, "")
         )
     }
 
-    /// Written by hand so `allowanceByDefault` and the arrival keys go in
-    /// only when set, and a site without them is written exactly as before.
+    /// Written by hand so `allowanceByDefault`, the arrival keys and the
+    /// address go in only when set, and a site without them is written exactly as before.
     /// 1.0 and 1.1 decode a site by its keys and skip these.
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -90,5 +98,6 @@ struct Site: Identifiable, Hashable, Codable, Sendable {
         try container.encodeIfPresent(longitude, forKey: .longitude)
         if arrivalRadius != Site.defaultArrivalRadius { try container.encode(arrivalRadius, forKey: .arrivalRadius) }
         if remindsOnArrival { try container.encode(remindsOnArrival, forKey: .remindsOnArrival) }
+        if !address.isEmpty { try container.encode(address, forKey: .address) }
     }
 }

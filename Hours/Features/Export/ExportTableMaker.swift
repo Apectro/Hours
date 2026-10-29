@@ -54,8 +54,19 @@ struct ExportTableMaker {
             )
             : nil
 
+        // A day written from a site with no location of its own shows the
+        // site's address in the Location column, when that column is on.
+        let siteAddresses: [UUID: String] = settings.effectiveExportColumns.contains(.location)
+            ? Dictionary(
+                SiteRepository(context: context).sites(includeArchived: true).map { ($0.id, $0.address) },
+                uniquingKeysWith: { first, _ in first }
+            )
+            : [:]
+
         func build(_ placeholder: String) -> ReportTable {
-            ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
+            var builder = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
+            builder.siteAddresses = siteAddresses
+            return builder
                 .makeTable(
                     days: days,
                     range: range,
@@ -109,6 +120,9 @@ struct ExportTableMaker {
     ///     once anyone has signed, the crew's sign-off. Signing is optional.
     func site(_ site: Site, month: YearMonth, includeDiary: Bool = true, includeSignatures: Bool = true) -> ExportTables {
         let repository = SiteRepository(context: context)
+        // As stored now: the address may have been edited since the screen
+        // that asked was opened.
+        let site = repository.site(id: site.id) ?? site
         let range = month.range(in: calendar)
         // Hidden people stay on the sheet: hiding only stops them being
         // offered for new days, and they worked the days they worked.

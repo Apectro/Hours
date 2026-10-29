@@ -39,7 +39,9 @@ enum SiteReminderRefresher {
             today: today,
             calendar: calendar,
             lookBackDays: lookBackDays,
-            holidays: holidays
+            holidays: holidays,
+            // Asked "write today's hours?" on leaving: one question a day.
+            askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today)
         )
         await scheduler.scheduleSiteReminders(
             dates: dates,

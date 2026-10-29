@@ -33,7 +33,7 @@ struct PDFReportLayout {
         self.table = table
         self.dayRowHeight = Self.fittedDayRowHeight(
             for: table,
-            titleHeight: table.partLabel.isEmpty ? 70 : 84,
+            titleHeight: Self.headerBlockHeight(for: table),
             headingHeight: PDFReportStyle.headingHeight + 2
         )
     }
@@ -131,8 +131,17 @@ struct PDFReportLayout {
     // MARK: - Heights
 
     /// Eyebrow, headline and byline beside the tiles, then the rule under
-    /// them; on a part of a split sheet, the "People 1–5 of 9" line too.
-    var titleBlockHeight: CGFloat { table.partLabel.isEmpty ? 70 : 84 }
+    /// them; on a part of a split sheet, the "People 1–5 of 9" line too;
+    /// with a site's address, its line under the byline.
+    var titleBlockHeight: CGFloat { Self.headerBlockHeight(for: table) }
+
+    /// The address line's share of the header block: small, so a 31-day
+    /// month with its closing rows still fits the first page.
+    static let addressLineHeight: CGFloat = 11
+
+    static func headerBlockHeight(for table: ReportTable) -> CGFloat {
+        (table.partLabel.isEmpty ? 70 : 84) + (table.address.isEmpty ? 0 : addressLineHeight)
+    }
 
     var headingBlockHeight: CGFloat { PDFReportStyle.headingHeight + 2 }
 

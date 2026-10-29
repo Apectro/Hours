@@ -39,6 +39,7 @@ final class ArrivalReminderPolicyTests: XCTestCase {
         site: Site? = nil,
         day: DayComputation? = nil,
         clockRunning: Bool = false,
+        siteToday: ArrivalReminderPolicy.SiteToday = .written,
         log: ArrivalReminderLog = ArrivalReminderLog(),
         at instant: Date? = nil
     ) -> ArrivalReminderPolicy.Decision {
@@ -47,6 +48,7 @@ final class ArrivalReminderPolicyTests: XCTestCase {
             site: site ?? self.site(),
             today: day ?? today(),
             isClockRunning: clockRunning,
+            siteToday: siteToday,
             log: log,
             now: instant ?? now
         )
@@ -109,8 +111,143 @@ final class ArrivalReminderPolicyTests: XCTestCase {
         XCTAssertEqual(decide(.left, clockRunning: true), .remind)
     }
 
-    func testLeavingWithNoClockSaysNothing() {
-        XCTAssertEqual(decide(.left), .quiet(.noClockRunning))
+    func testLeavingWithNoClockAndTodayWrittenSaysNothing() {
+        XCTAssertEqual(decide(.left), .quiet(.alreadyWritten))
+    }
+
+    // MARK: - Leaving: write today's hours?
+
+    private func lastDay(start: TimeOfDay? = TimeOfDay(hour: 7, minute: 0), end: TimeOfDay? = TimeOfDay(hour: 15, minute: 30)) -> SiteDay {
+        SiteDay(
+            siteID: UUID(),
+            date: Fixture.workingTuesday,
+            start: start,
+            end: end,
+            breakMinutes: 30,
+            present: [Attendance(memberID: CrewMember.youID)]
+        )
+    }
+
+    func testLeavingWithNoClockAndTodayUnwrittenAsksToWriteIt() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        XCTAssertEqual(decide(.left, siteToday: unwritten), .askToWrite(offersSameAsLastDay: true))
+    }
+
+    func testWithoutALastDayOnlyTheTapIsOffered() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: nil)
+        XCTAssertEqual(decide(.left, siteToday: unwritten), .askToWrite(offersSameAsLastDay: false))
+    }
+
+    func testALastDayThatCopiesToNothingIsNotOffered() {
+        // A last day that was only reasons for being away copies to a blank
+        // day, which "Same as last day" would not store.
+        let blank = SiteDay(siteID: UUID(), date: Fixture.workingTuesday)
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: blank)
+        XCTAssertEqual(decide(.left, siteToday: unwritten), .askToWrite(offersSameAsLastDay: false))
+    }
+
+    func testLeavingOnADayOffDoesNotAskToWrite() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        for type: DayTypeID in [.vacation, .sick, .holiday, .badWeather] {
+            XCTAssertEqual(decide(.left, day: today(type: type), siteToday: unwritten), .quiet(.dayOff), "\(type.rawValue)")
+        }
+        let holiday = HolidayRule(name: "Dan pobjede", recurrence: .once(on: Fixture.workingTuesday))
+        XCTAssertEqual(decide(.left, day: today(holidays: [holiday]), siteToday: unwritten), .quiet(.dayOff))
+    }
+
+    func testLeavingOnASaturdayStillAsksToWrite() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        let saturday = today(on: Fixture.saturday)
+        XCTAssertEqual(
+            decide(.left, day: saturday, siteToday: unwritten, at: instant(Fixture.saturday, hour: 15)),
+            .askToWrite(offersSameAsLastDay: true)
+        )
+    }
+
+    func testWithTheClockRunningLeavingStillAsksToStopItNotToWrite() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        XCTAssertEqual(decide(.left, clockRunning: true, siteToday: unwritten), .remind)
+    }
+
+    func testArrivingIsUnchangedByWhetherTodayIsWritten() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        XCTAssertEqual(decide(.arrived, siteToday: unwritten), .remind)
+        XCTAssertEqual(decide(.arrived, clockRunning: true, siteToday: unwritten), .quiet(.clockAlreadyRunning))
+    }
+
+    func testTheWriteQuestionKeepsTheTwoHoursOfLeaving() {
+        let site = site()
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        var log = ArrivalReminderLog()
+        log.record(.left, siteID: site.id, at: instant(hour: 14))
+        XCTAssertEqual(decide(.left, site: site, siteToday: unwritten, log: log, at: instant(hour: 15)), .quiet(.askedRecently))
+        XCTAssertEqual(
+            decide(.left, site: site, siteToday: unwritten, log: log, at: instant(hour: 16)),
+            .askToWrite(offersSameAsLastDay: true)
+        )
+        var arrivedOnly = ArrivalReminderLog()
+        arrivedOnly.record(.arrived, siteID: site.id, at: instant(hour: 14))
+        XCTAssertEqual(
+            decide(.left, site: site, siteToday: unwritten, log: arrivedOnly, at: instant(hour: 15)),
+            .askToWrite(offersSameAsLastDay: true),
+            "arriving does not silence leaving"
+        )
+    }
+
+    func testAnUnwatchedSiteDoesNotAskToWrite() {
+        let unwritten = ArrivalReminderPolicy.SiteToday(isWritten: false, sameAsLastDay: lastDay())
+        XCTAssertEqual(decide(.left, site: site(reminds: false), siteToday: unwritten), .quiet(.notWatched))
+    }
+
+    func testWrittenMeansTheEveningReminderRule() {
+        let siteID = UUID()
+        let date = Fixture.workingTuesday
+        XCTAssertFalse(SiteReminderPlan.isWritten(siteID: siteID, on: date, siteDays: []))
+        XCTAssertFalse(SiteReminderPlan.isWritten(
+            siteID: siteID, on: date, siteDays: [SiteDay(siteID: UUID(), date: date), SiteDay(siteID: siteID, date: date.adding(days: -1, in: calendar))]
+        ), "another site's day or yesterday's is not this site's today")
+        XCTAssertTrue(SiteReminderPlan.isWritten(siteID: siteID, on: date, siteDays: [SiteDay(siteID: siteID, date: date)]))
+    }
+
+    func testTheBodyNamesTheLastDaysTimes() {
+        let times = ArrivalReminderPolicy.lastTimes(lastDay())
+        XCTAssertEqual(times?.start, TimeOfDay(hour: 7, minute: 0))
+        XCTAssertEqual(times?.end, TimeOfDay(hour: 15, minute: 30))
+        XCTAssertNil(ArrivalReminderPolicy.lastTimes(lastDay(start: nil)))
+        XCTAssertNil(ArrivalReminderPolicy.lastTimes(lastDay(end: nil)))
+        XCTAssertNil(ArrivalReminderPolicy.lastTimes(nil))
+    }
+
+    // MARK: - Asked when leaving, so no evening reminder
+
+    func testTheLogRemembersWhichSitesWereAskedToWriteToday() throws {
+        let site = site()
+        let other = UUID()
+        let date = Fixture.workingTuesday
+        var log = ArrivalReminderLog()
+        XCTAssertEqual(log.sitesAskedToWrite(on: date), [])
+        log.recordAskedToWrite(siteID: site.id, on: date)
+        XCTAssertEqual(log.sitesAskedToWrite(on: date), [site.id])
+        XCTAssertEqual(log.sitesAskedToWrite(on: date.adding(days: 1, in: calendar)), [])
+
+        let decoded = try JSONDecoder().decode(ArrivalReminderLog.self, from: JSONEncoder().encode(log))
+        XCTAssertEqual(decoded, log)
+
+        // Hours later the two-hour entries go, but today's question stays
+        // for the evening reminder; another day's goes.
+        log.recordAskedToWrite(siteID: other, on: date.adding(days: -1, in: calendar))
+        let pruned = log.pruned(now: instant(hour: 20), today: date)
+        XCTAssertEqual(pruned.sitesAskedToWrite(on: date), [site.id])
+        XCTAssertEqual(pruned.sitesAskedToWrite(on: date.adding(days: -1, in: calendar)), [])
+    }
+
+    func testALogFromBeforeTheWriteQuestionStillReads() throws {
+        let site = site()
+        var log = ArrivalReminderLog()
+        log.record(.left, siteID: site.id, at: instant(hour: 14))
+        let old = try JSONEncoder().encode(["entries": [site.id.uuidString + "|left": instant(hour: 14)]])
+        let decoded = try JSONDecoder().decode(ArrivalReminderLog.self, from: old)
+        XCTAssertEqual(decoded, log)
     }
 
     func testLeavingWithTheClockRunningAsksEvenOnADayOff() {

@@ -16,7 +16,8 @@ struct PDFPageDecorations {
     // MARK: - Header block
 
     /// Eyebrow, headline and byline on the left, the tiles on the right, and
-    /// a heavy rule under both.
+    /// a heavy rule under both. A site's address is one smaller line under
+    /// the byline, in its grey.
     func drawHeader(at y: CGFloat) -> CGFloat {
         let margin = PDFReportStyle.margin
         let tiles = table.tiles
@@ -46,13 +47,23 @@ struct PDFPageDecorations {
             color: PDFReportStyle.secondary
         )
 
+        let addressHeight = table.address.isEmpty ? 0 : PDFReportLayout.addressLineHeight
+        if !table.address.isEmpty {
+            PDFReportStyle.draw(
+                table.address,
+                in: CGRect(x: margin, y: y + 56, width: textWidth, height: addressHeight),
+                font: PDFReportStyle.addressFont,
+                color: PDFReportStyle.secondary
+            )
+        }
+
         var x = margin + PDFReportStyle.contentWidth - tilesWidth
         for (tile, width) in zip(tiles, widths) {
             drawTile(tile, in: CGRect(x: x, y: y, width: width, height: PDFPageDecorations.tileHeight))
             x += width + PDFPageDecorations.tileGap
         }
 
-        let ruleY = y + 60
+        let ruleY = y + 60 + addressHeight
         PDFReportStyle.line(
             from: CGPoint(x: margin, y: ruleY),
             to: CGPoint(x: margin + PDFReportStyle.contentWidth, y: ruleY),

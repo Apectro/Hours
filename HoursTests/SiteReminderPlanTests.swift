@@ -51,6 +51,25 @@ final class SiteReminderPlanTests: XCTestCase {
         XCTAssertEqual(result, [today])
     }
 
+    func testASiteAskedWhenLeavingTodayGetsNoEveningReminderToday() {
+        // Both sites work Tuesdays; neither is written today. The phone asked
+        // about A as you left, so tonight's reminder is only for B; with both
+        // asked, there is none tonight. Other days are untouched.
+        let days = [
+            day(siteA, Fixture.date(2026, 10, 13)), day(siteB, Fixture.date(2026, 10, 13)),
+            day(siteA, Fixture.date(2026, 10, 14))
+        ]
+        let wednesday = Fixture.date(2026, 10, 21)
+        XCTAssertEqual(
+            SiteReminderPlan.dates(siteDays: days, today: today, calendar: calendar, askedWhenLeavingToday: [siteA]),
+            [today, wednesday]
+        )
+        XCTAssertEqual(
+            SiteReminderPlan.dates(siteDays: days, today: today, calendar: calendar, askedWhenLeavingToday: [siteA, siteB]),
+            [wednesday]
+        )
+    }
+
     func testOldPreferencesDecodeWithDefaults() throws {
         let json = #"{"isEnabled":true,"weekday":5,"time":{"hour":16,"minute":0},"lookBackDays":10}"#
         let prefs = try JSONDecoder().decode(ReminderPreferences.self, from: Data(json.utf8))

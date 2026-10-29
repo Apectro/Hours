@@ -10,6 +10,11 @@ struct ReportBuilder: Sendable {
     /// What to write where there is no value. Files want an empty cell; the
     /// on-screen preview and the PDF want a dash.
     let emptyPlaceholder: String
+    /// Each site's address, by site id (1.2). A day written from a site with
+    /// no location of its own shows the site's address in the Location
+    /// column, on one line; a location typed on the day stays the day's. Only
+    /// where that column is on: nothing adds it.
+    var siteAddresses: [UUID: String] = [:]
 
     init(settings: AppSettings, calendar: Calendar, emptyPlaceholder: String = "") {
         self.settings = settings
@@ -271,7 +276,8 @@ struct ReportBuilder: Sendable {
         case .holiday:
             return (day.holidayName ?? emptyPlaceholder, nil)
         case .location:
-            return (day.location.isEmpty ? emptyPlaceholder : day.location, nil)
+            let location = day.location.isEmpty ? siteAddress(of: day) : day.location
+            return (location.isEmpty ? emptyPlaceholder : location, nil)
         case .tags:
             return (day.tags.isEmpty ? emptyPlaceholder : day.tags.joined(separator: ", "), nil)
         case .note:
@@ -483,5 +489,20 @@ struct ReportBuilder: Sendable {
         let start = settings.export.dateStyle.string(for: range.start)
         let end = settings.export.dateStyle.string(for: range.end)
         return range.start == range.end ? start : "\(start) – \(end)"
+    }
+}
+
+extension ReportBuilder {
+    /// The addresses of the sites the day's shifts came from, in the order
+    /// they were worked, each once.
+    fileprivate func siteAddress(of day: DayComputation) -> String {
+        guard !siteAddresses.isEmpty else { return "" }
+        var seen = Set<UUID>()
+        return day.shifts
+            .compactMap(\.siteID)
+            .filter { seen.insert($0).inserted }
+            .compactMap { siteAddresses[$0].map(SiteAddress.singleLine) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "; ")
     }
 }

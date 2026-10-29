@@ -11838,16 +11838,104 @@
       "Locatie alleen voor aankomstherinneringen",
       "Lokalizacja tylko dla przypomnień o przyjeździe"
     ],
-    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.": [
-      "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst.",
-      "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. Polje lokacije na danu je tekstualna bilješka koju upisuješ.",
-      "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš.",
-      "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. Il campo luogo di un giorno è una nota che scrivi tu.",
-      "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. Le champ lieu d’un jour est une note que vous tapez.",
-      "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. El campo de lugar de un día es una nota que escribes tú.",
-      "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. O campo de local de um dia é uma nota que escreves.",
-      "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. Het locatieveld op een dag is een notitie die je typt.",
-      "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. Pole miejsca w dniu to notatka, którą wpisujesz."
+    "Left %@ — write today's hours?": [
+      "%@ verlassen – heutige Stunden eintragen?",
+      "Odlazak s %@ — upisati današnje sate?",
+      "Odhod z %@ — vpišem današnje ure?",
+      "Uscita da %@: scrivo le ore di oggi?",
+      "Départ de %@ — saisir les heures d’aujourd’hui ?",
+      "Salida de %@: ¿anotar las horas de hoy?",
+      "Saída de %@ — registar as horas de hoje?",
+      "%@ verlaten — uren van vandaag invullen?",
+      "Wyjazd z %@ — wpisać dzisiejsze godziny?"
+    ],
+    "%@ like last time": [
+      "%@ wie beim letzten Mal",
+      "%@ kao prošli put",
+      "%@ kot zadnjič",
+      "%@ come l’ultima volta",
+      "%@ comme la dernière fois",
+      "%@ como la última vez",
+      "%@ como da última vez",
+      "%@ zoals de vorige keer",
+      "%@ jak ostatnio"
+    ],
+    "%@ is closed, so today's hours were not written.": [
+      "%@ ist abgeschlossen, daher wurden die heutigen Stunden nicht eingetragen.",
+      "%@ je zatvoren, pa današnji sati nisu upisani.",
+      "%@ je zaprt, zato današnje ure niso bile vpisane.",
+      "%@ è chiuso, quindi le ore di oggi non sono state scritte.",
+      "%@ est clôturé, les heures d’aujourd’hui n’ont donc pas été enregistrées.",
+      "%@ está cerrado, así que las horas de hoy no se anotaron.",
+      "%@ está fechado, por isso as horas de hoje não foram registadas.",
+      "%@ is afgesloten, dus de uren van vandaag zijn niet ingevuld.",
+      "%@ jest zamknięty, więc dzisiejsze godziny nie zostały wpisane."
+    ],
+    "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. “Fill in from the saved place” asks Apple Maps for that one place's address, only when you tap it. The location field on a day is a text note you type.": [
+      "Standort nur, wenn du für eine Baustelle eine Ankunftserinnerung einschaltest, und er verlässt nie dein Telefon. Zeitkonto behält nur den gespeicherten Ort der Baustelle; die kleine Karte dazu zeichnet Apple Karten. „Vom gespeicherten Ort ausfüllen“ fragt Apple Karten nach der Adresse dieses einen Orts, nur wenn du darauf tippst. Das Ortsfeld an einem Tag ist eine Textnotiz, die du tippst.",
+      "Lokacija samo ako uključiš podsjetnik na dolazak za gradilište, i nikad ne napušta tvoj telefon. Zeitkonto čuva samo spremljeno mjesto gradilišta; malu kartu crta Apple Karte. „Ispuni iz spremljenog mjesta” pita Apple Karte za adresu tog jednog mjesta, samo kad to dodirneš. Polje lokacije na danu je tekstualna bilješka koju upisuješ.",
+      "Lokacija samo, če za gradbišče vklopiš opomnik ob prihodu, in nikoli ne zapusti tvojega telefona. Zeitkonto hrani samo shranjeni kraj gradbišča; mali zemljevid nariše Apple Zemljevidi. »Izpolni iz shranjenega kraja« vpraša Apple Zemljevide za naslov tega enega kraja, samo ko se ga dotakneš. Polje lokacije na dnevu je besedilna opomba, ki jo vpišeš.",
+      "Posizione solo se attivi un promemoria di arrivo per un cantiere, e non lascia mai il tuo telefono. Zeitkonto conserva solo il luogo salvato del cantiere; la piccola mappa è disegnata da Mappe di Apple. «Compila dal luogo salvato» chiede a Mappe di Apple l’indirizzo di quel solo luogo, solo quando lo tocchi. Il campo luogo di un giorno è una nota che scrivi tu.",
+      "La position seulement si vous activez un rappel d’arrivée pour un chantier, et elle ne quitte jamais votre téléphone. Zeitkonto ne garde que l’emplacement enregistré du chantier ; sa petite carte est dessinée par Plans d’Apple. « Remplir depuis l’emplacement enregistré » demande à Plans l’adresse de ce seul emplacement, uniquement quand vous le touchez. Le champ lieu d’un jour est une note que vous tapez.",
+      "Ubicación solo si activas un recordatorio de llegada para una obra, y nunca sale de tu teléfono. Zeitkonto solo guarda el lugar de la obra; su pequeño mapa lo dibuja Mapas de Apple. «Rellenar desde el lugar guardado» pide a Mapas de Apple la dirección de ese único lugar, solo cuando lo tocas. El campo de lugar de un día es una nota que escribes tú.",
+      "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. «Preencher a partir do local guardado» pede aos Mapas da Apple a morada desse único local, só quando tocas nele. O campo de local de um dia é uma nota que escreves.",
+      "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. ‘Invullen vanaf de opgeslagen plek’ vraagt Apple Kaarten om het adres van die ene plek, alleen als je erop tikt. Het locatieveld op een dag is een notitie die je typt.",
+      "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. „Uzupełnij z zapisanego miejsca” pyta Mapy Apple o adres tego jednego miejsca, tylko gdy to stukniesz. Pole miejsca w dniu to notatka, którą wpisujesz."
+    ],
+    "Address": [
+      "Adresse",
+      "Adresa",
+      "Naslov",
+      "Indirizzo",
+      "Adresse",
+      "Dirección",
+      "Morada",
+      "Adres",
+      "Adres"
+    ],
+    "Fill in from the saved place": [
+      "Vom gespeicherten Ort ausfüllen",
+      "Ispuni iz spremljenog mjesta",
+      "Izpolni iz shranjenega kraja",
+      "Compila dal luogo salvato",
+      "Remplir depuis l’emplacement enregistré",
+      "Rellenar desde el lugar guardado",
+      "Preencher a partir do local guardado",
+      "Invullen vanaf de opgeslagen plek",
+      "Uzupełnij z zapisanego miejsca"
+    ],
+    "Apple Maps has no address for the saved place. Type it instead.": [
+      "Apple Karten hat keine Adresse für den gespeicherten Ort. Tippe sie stattdessen ein.",
+      "Apple Karte nema adresu za spremljeno mjesto. Upiši je ručno.",
+      "Apple Zemljevidi nimajo naslova za shranjeni kraj. Vpiši ga sam.",
+      "Mappe di Apple non ha un indirizzo per il luogo salvato. Scrivilo tu.",
+      "Plans n’a pas d’adresse pour l’emplacement enregistré. Saisissez-la vous-même.",
+      "Mapas de Apple no tiene una dirección para el lugar guardado. Escríbela tú.",
+      "Os Mapas da Apple não têm morada para o local guardado. Escreve-a tu.",
+      "Apple Kaarten heeft geen adres voor de opgeslagen plek. Typ het zelf.",
+      "Mapy Apple nie mają adresu dla zapisanego miejsca. Wpisz go sam."
+    ],
+    "Printed under the site's name on its sheets.": [
+      "Steht auf den Blättern der Baustelle unter ihrem Namen.",
+      "Ispisuje se ispod naziva gradilišta na njegovim listama.",
+      "Izpiše se pod imenom gradbišča na njegovih listih.",
+      "Stampato sotto il nome del cantiere sui suoi fogli.",
+      "Imprimée sous le nom du chantier sur ses feuilles.",
+      "Se imprime bajo el nombre de la obra en sus hojas.",
+      "Impressa por baixo do nome da obra nas suas folhas.",
+      "Staat op de lijsten van de bouwplaats onder de naam.",
+      "Drukowany pod nazwą budowy na jej arkuszach."
+    ],
+    "Printed under the site's name on its sheets. “Fill in from the saved place” asks Apple Maps for the address of that one place, only when you tap it.": [
+      "Steht auf den Blättern der Baustelle unter ihrem Namen. „Vom gespeicherten Ort ausfüllen“ fragt Apple Karten nach der Adresse dieses einen Orts, nur wenn du darauf tippst.",
+      "Ispisuje se ispod naziva gradilišta na njegovim listama. „Ispuni iz spremljenog mjesta” pita Apple Karte za adresu tog jednog mjesta, samo kad to dodirneš.",
+      "Izpiše se pod imenom gradbišča na njegovih listih. »Izpolni iz shranjenega kraja« vpraša Apple Zemljevide za naslov tega enega kraja, samo ko se ga dotakneš.",
+      "Stampato sotto il nome del cantiere sui suoi fogli. «Compila dal luogo salvato» chiede a Mappe di Apple l’indirizzo di quel solo luogo, solo quando lo tocchi.",
+      "Imprimée sous le nom du chantier sur ses feuilles. « Remplir depuis l’emplacement enregistré » demande à Plans l’adresse de ce seul emplacement, uniquement quand vous le touchez.",
+      "Se imprime bajo el nombre de la obra en sus hojas. «Rellenar desde el lugar guardado» pide a Mapas de Apple la dirección de ese único lugar, solo cuando lo tocas.",
+      "Impressa por baixo do nome da obra nas suas folhas. «Preencher a partir do local guardado» pede aos Mapas da Apple a morada desse único local, só quando tocas nele.",
+      "Staat op de lijsten van de bouwplaats onder de naam. ‘Invullen vanaf de opgeslagen plek’ vraagt Apple Kaarten om het adres van die ene plek, alleen als je erop tikt.",
+      "Drukowany pod nazwą budowy na jej arkuszach. „Uzupełnij z zapisanego miejsca” pyta Mapy Apple o adres tego jednego miejsca, tylko gdy to stukniesz."
     ]
   },
   "sameAsEnglishOnPurpose": [

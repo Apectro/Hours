@@ -32,6 +32,14 @@ The small map in the site's settings is MapKit's `Map`, which loads Apple's
 map tiles for that area, as every map does. The app makes no network call of
 its own for it.
 
+**A site's address.** A site can carry an address for its sheets, typed by the
+user. For a site with a saved place, "Fill in from the saved place" asks Apple
+Maps (`CLGeocoder`, a system service) for the address at those coordinates —
+only when tapped, only that one place, and the answer is put in the field for
+the user to keep or change. That is the device asking Apple for an address on
+the user's request, like the map tiles; nothing reaches us or a third party,
+and nothing is looked up otherwise. It does not change the answer below.
+
 So the answer for **Location → Precise Location** and **Coarse Location** is
 "not collected", and the overall label stays **Data Not Collected**.
 
@@ -68,3 +76,6 @@ asks for location permission and links no location framework" to:
 - The website's privacy claims (`web/src/copy/en.ts`, `de.ts`), built into
   `docs/` by `npm run publish`.
 - `README.md` and `ARCHITECTURE.md`, *Privacy*.
+
+Each also says, since the site's address, that "Fill in from the saved place"
+asks Apple Maps for that one place's address, only when tapped.

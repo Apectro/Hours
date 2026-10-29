@@ -44,7 +44,7 @@ struct AboutScreen: View {
                 PrivacyPoint(
                     symbol: "location",
                     title: String(localized: "Location only for arrival reminders"),
-                    detail: String(localized: "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. The location field on a day is a text note you type.")
+                    detail: String(localized: "Location only if you turn on an arrival reminder for a site, and it never leaves your phone. Zeitkonto keeps only the site's saved place; its small map is drawn by Apple Maps. “Fill in from the saved place” asks Apple Maps for that one place's address, only when you tap it. The location field on a day is a text note you type.")
                 )
                 if subscriptions.offersPurchases {
                     PrivacyPoint(

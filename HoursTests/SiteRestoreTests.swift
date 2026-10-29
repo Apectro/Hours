@@ -107,6 +107,21 @@ final class SiteRestoreTests: XCTestCase {
         XCTAssertTrue(entry.remindsOnArrival)
     }
 
+    /// The address (1.2, schema V9) travels the same way.
+    func testTheAddressRoundTripsThroughBackupAndRestore() throws {
+        let source = makeContext()
+        let addressed = Site(name: "Bau Süd", address: "Kaiserstraße 12\n10115 Berlin")
+        SiteRepository(context: source).upsert(addressed)
+        let data = try BackupRestorer(context: source).makeArchive(settings: Fixture.settings()).encoded()
+        XCTAssertTrue(String(decoding: data, as: UTF8.self).contains("Kaiserstra"))
+
+        let target = makeContext()
+        BackupRestorer(context: target).restore(try BackupArchive.decoded(from: data))
+        let restored = try XCTUnwrap(SiteRepository(context: target).site(id: addressed.id))
+        XCTAssertEqual(restored.address, "Kaiserstraße 12\n10115 Berlin")
+        XCTAssertEqual(restored, addressed)
+    }
+
     // MARK: - Restoring
 
     func testRestoringOldBackupKeepsSites() throws {
