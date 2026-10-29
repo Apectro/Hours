@@ -18,14 +18,21 @@ extension SiteSheetBuilder {
     static func peopleCount(in table: ReportTable) -> Int? {
         guard table.kind == .siteSheet else { return nil }
         let groups = table.validGroups
-        let people = groups.count - leadingColumns - 1
+        let lead = leadingColumns(of: table)
+        let people = groups.count - lead - 1
         guard people >= 0,
-              table.columns.count == leadingColumns + people * 2 + 1,
-              groups.prefix(leadingColumns).allSatisfy({ $0.span == 1 }),
-              groups.dropFirst(leadingColumns).dropLast().allSatisfy({ $0.span == 2 }),
+              table.columns.count == lead + people * 2 + 1,
+              groups.prefix(lead).allSatisfy({ $0.span == 1 }),
+              groups.dropFirst(lead).dropLast().allSatisfy({ $0.span == 2 }),
               groups.last?.span == 1
         else { return nil }
         return people
+    }
+
+    /// The columns before the people: the date and the day, and on a sheet
+    /// for several sites the site.
+    static func leadingColumns(of table: ReportTable) -> Int {
+        table.columns.prefix { [.date, .weekday, .site].contains($0) }.count
     }
 
     /// Consecutive groups of at most `perPage` people, as even as they can
@@ -59,7 +66,7 @@ extension SiteSheetBuilder {
     /// One part: the leading columns, `people`'s groups and the notes, every
     /// mark moved along with its person.
     private static func part(of table: ReportTable, people: Range<Int>, of total: Int, isLast: Bool) -> ReportTable {
-        let lead = leadingColumns
+        let lead = leadingColumns(of: table)
         let noteColumn = table.columns.count - 1
         let noteGroup = table.validGroups.count - 1
 

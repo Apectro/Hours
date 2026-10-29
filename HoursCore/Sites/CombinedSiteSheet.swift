@@ -135,12 +135,19 @@ extension SiteSheetBuilder {
         let tracksAllowance = settings.allowance.isEnabled
         let catalog = settings.dayTypeCatalog
 
+        // The date and the day, then the site: on a sheet for several sites
+        // every row says where.
+        let leadingKinds = Self.leadingColumnKinds + [ReportColumn.site]
+        let lead = leadingKinds.count
+        let siteName = Dictionary(sites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+
         for date in dates {
             let dayResults = byDate[date] ?? []
-            var values = [formatter.dateText(date), formatter.weekdayText(date)]
-            var minutes: [Int?] = [nil, nil]
-            var flagged: Set<Int> = []
-            var merged: Set<Int> = []
+            // The day's figures, counted once however many sites gave them.
+            var dayWorked = Array(repeating: 0, count: people.count)
+            var awayText: [String?] = Array(repeating: nil, count: people.count)
+            var isThere = Array(repeating: false, count: people.count)
+            var sitesToday = Array(repeating: 0, count: people.count)
             for (index, person) in people.enumerated() {
                 let entries = dayResults.flatMap { result in
                     result.people
@@ -150,60 +157,104 @@ extension SiteSheetBuilder {
                 guard !entries.isEmpty else {
                     // Not on any of these sites that day: why, when a site
                     // said. Being on another site of this sheet is not away.
-                    merged.insert(index + Self.leadingColumns)
-                    let text: String
                     switch awayReason(of: person, on: dayResults, chosen: chosenIDs) {
                     case let .dayType(id)?:
-                        text = catalog.definition(for: id).exportName(in: language)
+                        awayText[index] = catalog.definition(for: id).exportName(in: language)
                         switch Self.absenceKind(id) {
                         case .sick: sickDays[index] += 1
                         case .leave: leaveDays[index] += 1
                         case .other: break
                         }
                     case let .otherSite(siteID)?:
-                        text = siteID.flatMap { siteNames[$0] } ?? language(.otherSite)
+                        awayText[index] = siteID.flatMap { siteNames[$0] } ?? language(.otherSite)
                     case nil:
-                        text = emptyPlaceholder
+                        break
                     }
-                    values += [text, ""]
-                    minutes += [nil, nil]
                     continue
                 }
                 let worked = entries.reduce(0) { $0 + $1.entry.workedMinutes }
                 for (siteID, entry) in entries {
                     siteMinutes[siteIndex[siteID] ?? 0] += entry.workedMinutes
                 }
+                dayWorked[index] = worked
+                isThere[index] = true
+                sitesToday[index] = Set(entries.map(\.siteID)).count
                 totalMinutes[index] += worked
                 if worked > 0 { daysWorked[index] += 1 }
-                // A day, once, however many sites gave it.
                 if tracksAllowance && entries.contains(where: { $0.entry.hasAllowance }) { allowanceDays[index] += 1 }
-                // Late or early is a site's own word; a span across two sites
-                // has no site's hours to differ from.
-                if entries.count == 1 && entries[0].entry.isException {
-                    flagged.formUnion([values.count, values.count + 1])
-                }
-                values.append(timesText(entries.map(\.entry), formatter: formatter))
-                values.append(duration.string(worked))
-                minutes += [nil, worked]
             }
-            values.append(combinedNote(dayResults.map(\.day), sites: sites, language: language))
-            minutes.append(nil)
-            rows.append(ReportRow(
-                id: date.key,
+
+            // A row per site that day, as a timesheet splits a day: each
+            // person's times and hours where they were, a dash where they
+            // were not. The date and the day on the first.
+            let isSplit = dayResults.count > 1
+            for (position, result) in dayResults.enumerated() {
+                let isFirst = position == 0
+                var values = isFirst ? [formatter.dateText(date), formatter.weekdayText(date)] : ["", ""]
+                values.append(siteName[result.day.siteID] ?? "")
+                var minutes: [Int?] = [nil, nil, nil]
+                var flagged: Set<Int> = []
+                var merged: Set<Int> = []
+                for (index, person) in people.enumerated() {
+                    let here = result.people.filter { person.memberIDs.contains($0.memberID) }
+                    guard !here.isEmpty else {
+                        merged.insert(index + lead)
+                        // Why they were away all day, once, on the first row.
+                        let text = isFirst ? awayText[index] ?? emptyPlaceholder : emptyPlaceholder
+                        values += [text, ""]
+                        minutes += [nil, nil]
+                        continue
+                    }
+                    // Late or early is a site's own word; leaving one site
+                    // for another is neither.
+                    if sitesToday[index] == 1 && here.count == 1 && here[0].isException {
+                        flagged.formUnion([values.count, values.count + 1])
+                    }
+                    let worked = here.reduce(0) { $0 + $1.workedMinutes }
+                    values.append(timesText(here, formatter: formatter))
+                    values.append(duration.string(worked))
+                    minutes += [nil, worked]
+                }
+                values.append(note(of: result.day, language: language))
+                minutes.append(nil)
+                var row = ReportRow(
+                    id: isFirst ? date.key : -(date.key * 10 + position),
+                    values: values,
+                    minutes: minutes,
+                    isWorkingDay: true,
+                    balanceMinutes: 0,
+                    hasEntry: true,
+                    flagged: flagged,
+                    mergedGroups: merged
+                )
+                if isSplit { row.splitDay = .site }
+                rows.append(row)
+            }
+
+            // "Total": each person's day on all the sites together. Text in a
+            // workbook, not a figure, so the month's sum counts the sites'.
+            guard isSplit else { continue }
+            var values = ["", "", language(.total)]
+            for (index, worked) in dayWorked.enumerated() {
+                values += ["", isThere[index] ? duration.string(worked) : ""]
+            }
+            values.append("")
+            var subtotal = ReportRow(
+                id: -(date.key * 10 + 9),
                 values: values,
-                minutes: minutes,
+                minutes: Array(repeating: nil, count: values.count),
                 isWorkingDay: true,
                 balanceMinutes: 0,
-                hasEntry: true,
-                flagged: flagged,
-                mergedGroups: merged
-            ))
+                hasEntry: true
+            )
+            subtotal.splitDay = .subtotal
+            rows.append(subtotal)
         }
 
         // The closing rows, as on a site sheet.
-        var totalValues = [language(.monthTotal), ""]
-        var totalCells: [Int?] = [nil, nil]
-        var countValues = [language(.daysWorked), ""]
+        var totalValues = [language(.monthTotal), "", ""]
+        var totalCells: [Int?] = [nil, nil, nil]
+        var countValues = [language(.daysWorked), "", ""]
         for index in people.indices {
             totalValues += ["", duration.string(totalMinutes[index])]
             totalCells += [nil, totalMinutes[index]]
@@ -215,12 +266,12 @@ extension SiteSheetBuilder {
         var absenceRows: [[String]] = []
         for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.allowanceDays, allowanceDays)]
         where counts.contains(where: { $0 > 0 }) {
-            absenceRows.append([language(term), ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
+            absenceRows.append([language(term), "", ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
         }
         // Each site's vehicle, added up.
         let kilometres = tracksAllowance ? allResults.reduce(0) { $0 + $1.day.kilometres } : 0
         if kilometres > 0 {
-            absenceRows.append([language(.kilometres), ""] + people.flatMap { _ in ["", ""] }
+            absenceRows.append([language(.kilometres), "", ""] + people.flatMap { _ in ["", ""] }
                 + ["\(kilometres) \(language(.kilometresShort))"])
         }
         rows.append(ReportRow(
@@ -251,10 +302,10 @@ extension SiteSheetBuilder {
             subtitle: formatter.subtitle(for: range),
             ownerName: owner,
             language: language,
-            columns: Self.leadingColumnKinds + people.flatMap { _ in [ReportColumn.times, .worked] } + [.note],
+            columns: leadingKinds + people.flatMap { _ in [ReportColumn.times, .worked] } + [.note],
             rows: rows,
             totals: [],
-            headingOverrides: Self.leadingColumnKinds.map { $0.heading(in: language) }
+            headingOverrides: leadingKinds.map { $0.heading(in: language) }
                 + people.flatMap { _ in [language(.fromTo), language(.hours)] }
                 + [language(.notes)],
             trailingSummaryRows: 2 + absenceRows.count
@@ -263,7 +314,7 @@ extension SiteSheetBuilder {
         table.eyebrow = "\(language(.siteHours)) · \(month)"
         table.detail = (recorded + [language.people(people.count), language.daysOnSite(dates.count)])
             .joined(separator: " · ")
-        table.columnGroups = Self.leadingColumnKinds.map { ReportColumnGroup(title: $0.heading(in: language), span: 1) }
+        table.columnGroups = leadingKinds.map { ReportColumnGroup(title: $0.heading(in: language), span: 1) }
             + people.map { ReportColumnGroup(title: $0.heading, span: 2) }
             + [ReportColumnGroup(title: language(.notes), span: 1)]
         table.tiles = [
@@ -347,21 +398,13 @@ extension SiteSheetBuilder {
         !results.isEmpty && results.allSatisfy(\.day.isBadWeatherStop)
     }
 
-    /// The day's notes, each led by its site's name when the day was on more
-    /// than one; "Bad weather" first only when every site was rained off.
-    private func combinedNote(_ days: [SiteDay], sites: [Site], language: ExportLanguage) -> String {
-        let names = Dictionary(sites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+    /// One site's day as its row's note: "Bad weather" when it was rained
+    /// off, then what was written.
+    private func note(of day: SiteDay, language: ExportLanguage) -> String {
         var parts: [String] = []
-        if !days.isEmpty && days.allSatisfy(\.isBadWeatherStop) { parts.append(language(.badWeather)) }
-        for day in days {
-            let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !note.isEmpty else { continue }
-            if days.count > 1, let name = names[day.siteID] {
-                parts.append("\(name): \(note)")
-            } else {
-                parts.append(note)
-            }
-        }
+        if day.isBadWeatherStop { parts.append(language(.badWeather)) }
+        let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !note.isEmpty { parts.append(note) }
         return parts.joined(separator: " · ")
     }
 }

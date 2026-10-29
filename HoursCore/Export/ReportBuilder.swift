@@ -582,7 +582,7 @@ extension ReportBuilder {
 
     /// A day worked on several sites: a row per site under one date — the
     /// date, the day and what is written about the day on the first — then
-    /// "Day" with the day's own figures, its worked hours counted once.
+    /// "Total" with the day's own figures, its worked hours counted once.
     fileprivate func splitRows(day: DayComputation, full: ReportRow, columns: [ReportColumn]) -> [ReportRow] {
         let dayWide: Set<ReportColumn> = [.date, .weekday, .dayType, .holiday, .location, .tags, .note]
         let daysOwn: Set<ReportColumn> = [.credited, .expected, .overtime, .balance, .cumulativeBalance, .earnings, .allowance, .kilometres, .travel]
@@ -634,7 +634,7 @@ extension ReportBuilder {
         for (position, column) in columns.enumerated() {
             switch column {
             case .site:
-                values.append(language(.day)); minutes.append(nil)
+                values.append(language(.total)); minutes.append(nil)
             case .worked:
                 // Text in a workbook, not a figure: its sum is the sites'.
                 values.append(duration.string(day.workedMinutes)); minutes.append(nil)

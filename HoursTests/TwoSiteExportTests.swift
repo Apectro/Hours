@@ -2,7 +2,7 @@ import XCTest
 @testable import Hours
 
 /// The personal timesheet for a period worked on more than one site: a Site
-/// column, a split day as a row per site with a "Day" subtotal, a "By site"
+/// column, a split day as a row per site with a "Total" subtotal, a "By site"
 /// block, the sites in the eyebrow, and a filter to one site.
 final class TwoSiteExportTests: XCTestCase {
     private let calendar = Fixture.calendar()
@@ -97,7 +97,7 @@ final class TwoSiteExportTests: XCTestCase {
 
         XCTAssertEqual(tuesday.count, 3)
         XCTAssertEqual(tuesday.map(\.splitDay), [.site, .site, .subtotal])
-        XCTAssertEqual(tuesday.map { $0.values[site] }, ["Hauptstraße 12", "Trg Pravde", "Day"])
+        XCTAssertEqual(tuesday.map { $0.values[site] }, ["Hauptstraße 12", "Trg Pravde", "Total"])
         XCTAssertEqual(tuesday[0].values[weekday], "Tue", "the date and day on the first row only")
         XCTAssertEqual(tuesday[1].values[weekday], "")
         XCTAssertEqual(tuesday.map { $0.values[start] }, ["07:00", "12:00", ""])
@@ -117,13 +117,16 @@ final class TwoSiteExportTests: XCTestCase {
         XCTAssertEqual(table.totals.first { $0.label == "Days worked" }?.count, 3)
     }
 
-    func testTheSubtotalSaysDayInTheExportLanguage() throws {
+    func testTheSubtotalSaysTotalInTheExportLanguage() throws {
         var settings = Fixture.settings()
         settings.export.language = .german
-        let table = table(settings: settings)
-        let site = try XCTUnwrap(column(table, .site))
-        XCTAssertTrue(table.rows.contains { $0.splitDay == .subtotal && $0.values[site] == "Tag" })
-        XCTAssertEqual(table.columnHeadings()[site], "Baustelle")
+        let german = table(settings: settings)
+        let site = try XCTUnwrap(column(german, .site))
+        XCTAssertTrue(german.rows.contains { $0.splitDay == .subtotal && $0.values[site] == "Summe" })
+        XCTAssertEqual(german.columnHeadings()[site], "Baustelle")
+        settings.export.language = .croatian
+        let croatian = table(settings: settings)
+        XCTAssertTrue(croatian.rows.contains { $0.splitDay == .subtotal && $0.values[site] == "Ukupno" })
     }
 
     // MARK: - By site, the tile and the eyebrow

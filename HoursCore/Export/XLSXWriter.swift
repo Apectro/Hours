@@ -417,6 +417,7 @@ enum XLSXWriter {
                 if flagged { return .text(value, style: .flaggedText) }
                 if column == .times { return .text(value, style: .mutedText) }
                 if reportRow.splitDay == .subtotal, column == .worked { return .text(value, style: .textRight) }
+                if reportRow.splitDay == .subtotal, column == .site { return .text(value, style: .bold) }
                 if !rest, value.contains("\n") { return .text(value, style: .wrapped) }
                 return .text(value, style: .text(rest: rest))
             }
@@ -500,7 +501,7 @@ enum XLSXWriter {
         /// Text of more than one line — an extra-work job's items, one under
         /// another — wrapped at its line breaks and set at the top of the row.
         case wrapped = 25
-        /// A figure kept as text so the column's sum skips it — the "Day"
+        /// A figure kept as text so the column's sum skips it — the "Total"
         /// row under a day split between sites — set right like the figures.
         case textRight = 26
 
