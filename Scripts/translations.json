@@ -11848,6 +11848,39 @@
       "Localização só se ativares um lembrete de chegada para uma obra, e nunca sai do teu telefone. O Zeitkonto guarda apenas o local da obra; o pequeno mapa é desenhado pelos Mapas da Apple. O campo de local de um dia é uma nota que escreves.",
       "Locatie alleen als je voor een bouwplaats een aankomstherinnering aanzet, en hij verlaat nooit je telefoon. Zeitkonto bewaart alleen de opgeslagen plek van de bouwplaats; het kaartje tekent Apple Kaarten. Het locatieveld op een dag is een notitie die je typt.",
       "Lokalizacja tylko wtedy, gdy włączysz przypomnienie o przyjeździe dla budowy, i nigdy nie opuszcza twojego telefonu. Zeitkonto przechowuje tylko zapisane miejsce budowy; małą mapę rysują Mapy Apple. Pole miejsca w dniu to notatka, którą wpisujesz."
+    ],
+    "Left %@ — write today's hours?": [
+      "%@ verlassen – heutige Stunden eintragen?",
+      "Odlazak s %@ — upisati današnje sate?",
+      "Odhod z %@ — vpišem današnje ure?",
+      "Uscita da %@: scrivo le ore di oggi?",
+      "Départ de %@ — saisir les heures d’aujourd’hui ?",
+      "Salida de %@: ¿anotar las horas de hoy?",
+      "Saída de %@ — registar as horas de hoje?",
+      "%@ verlaten — uren van vandaag invullen?",
+      "Wyjazd z %@ — wpisać dzisiejsze godziny?"
+    ],
+    "%@ like last time": [
+      "%@ wie beim letzten Mal",
+      "%@ kao prošli put",
+      "%@ kot zadnjič",
+      "%@ come l’ultima volta",
+      "%@ comme la dernière fois",
+      "%@ como la última vez",
+      "%@ como da última vez",
+      "%@ zoals de vorige keer",
+      "%@ jak ostatnio"
+    ],
+    "%@ is closed, so today's hours were not written.": [
+      "%@ ist abgeschlossen, daher wurden die heutigen Stunden nicht eingetragen.",
+      "%@ je zatvoren, pa današnji sati nisu upisani.",
+      "%@ je zaprt, zato današnje ure niso bile vpisane.",
+      "%@ è chiuso, quindi le ore di oggi non sono state scritte.",
+      "%@ est clôturé, les heures d’aujourd’hui n’ont donc pas été enregistrées.",
+      "%@ está cerrado, así que las horas de hoy no se anotaron.",
+      "%@ está fechado, por isso as horas de hoje não foram registadas.",
+      "%@ is afgesloten, dus de uren van vandaag zijn niet ingevuld.",
+      "%@ jest zamknięty, więc dzisiejsze godziny nie zostały wpisane."
     ]
   },
   "sameAsEnglishOnPurpose": [

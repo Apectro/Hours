@@ -21,7 +21,9 @@ final class NotificationLinks {
 ///
 /// A tap follows the notification's link. The arrival and departure
 /// questions (1.2) carry Start clock / Stop clock and Not now instead
-/// (`ArrivalReminders`), answered here without opening the app.
+/// (`ArrivalReminders`), answered here without opening the app. The
+/// question on leaving with nothing written carries Same as last day and Not
+/// now, and a tap on it follows its link to the site's day.
 ///
 /// A notification arriving while the app is open is left to the system's
 /// default, which is not to show it — except the arrival questions, which
@@ -35,7 +37,7 @@ final class NotificationTapDelegate: NSObject, UNUserNotificationCenterDelegate 
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         let category = notification.request.content.categoryIdentifier
-        let isArrival = category == ArrivalReminders.arrivalCategory || category == ArrivalReminders.departureCategory
+        let isArrival = ArrivalReminders.allCategories.contains(category)
         completionHandler(isArrival ? [.banner, .list, .sound] : [])
     }
 
@@ -46,11 +48,15 @@ final class NotificationTapDelegate: NSObject, UNUserNotificationCenterDelegate 
     ) {
         let content = response.notification.request.content
         let category = content.categoryIdentifier
-        if category == ArrivalReminders.arrivalCategory || category == ArrivalReminders.departureCategory {
-            let action = response.actionIdentifier
+        let action = response.actionIdentifier
+        // A tap on the write question opens the site's day through its link,
+        // below; its buttons, and every arrival button, are answered here.
+        let followsLink = action == UNNotificationDefaultActionIdentifier
+            && (category == ArrivalReminders.writeCategory || category == ArrivalReminders.writeOpenCategory)
+        if ArrivalReminders.allCategories.contains(category) && !followsLink {
             let userInfo = content.userInfo
             Task { @MainActor in
-                ArrivalReminders.respond(to: action, userInfo: userInfo)
+                await ArrivalReminders.respond(to: action, userInfo: userInfo)
                 completionHandler()
             }
             return

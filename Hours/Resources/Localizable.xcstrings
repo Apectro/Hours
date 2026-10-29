@@ -827,6 +827,124 @@
         }
       }
     },
+    "%@ is closed, so today's hours were not written.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist abgeschlossen, daher wurden die heutigen Stunden nicht eingetragen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está cerrado, así que las horas de hoy no se anotaron."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est clôturé, les heures d’aujourd’hui n’ont donc pas été enregistrées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zatvoren, pa današnji sati nisu upisani."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ è chiuso, quindi le ore di oggi non sono state scritte."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is afgesloten, dus de uren van vandaag zijn niet ingevuld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ jest zamknięty, więc dzisiejsze godziny nie zostały wpisane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ está fechado, por isso as horas de hoje não foram registadas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ je zaprt, zato današnje ure niso bile vpisane."
+          }
+        }
+      }
+    },
+    "%@ like last time": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wie beim letzten Mal"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ como la última vez"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ comme la dernière fois"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kao prošli put"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ come l’ultima volta"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ zoals de vorige keer"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ jak ostatnio"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ como da última vez"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kot zadnjič"
+          }
+        }
+      }
+    },
     "%@ month": {
       "extractionState": "manual",
       "localizations": {
@@ -26530,6 +26648,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odhod z %@ — ustavim uro?"
+          }
+        }
+      }
+    },
+    "Left %@ — write today's hours?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verlassen – heutige Stunden eintragen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida de %@: ¿anotar las horas de hoy?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Départ de %@ — saisir les heures d’aujourd’hui ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odlazak s %@ — upisati današnje sate?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uscita da %@: scrivo le ore di oggi?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verlaten — uren van vandaag invullen?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyjazd z %@ — wpisać dzisiejsze godziny?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saída de %@ — registar as horas de hoje?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odhod z %@ — vpišem današnje ure?"
           }
         }
       }

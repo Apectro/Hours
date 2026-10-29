@@ -19,6 +19,10 @@ enum ArrivalEvent: String, Codable, Hashable, Sendable, CaseIterable {
 ///   the site on a Saturday is there to work.
 /// - **Leaving** asks to stop the clock only while one is running, whatever
 ///   the day: a clock running on a holiday is hours being worked.
+/// - **Leaving with no clock** asks to write today's hours when the site has
+///   no day for today yet (`SiteReminderPlan.isWritten`, the evening
+///   reminder's rule) and today is not a day off, offering "Same as last
+///   day" when there is a last day that copies to something.
 /// - The same question about the same site is not asked twice within two
 ///   hours (`cooldown`), so a phone hovering on the edge of the circle, or a
 ///   trip to the van, does not ask again. Each way is counted on its own, so
@@ -45,12 +49,36 @@ enum ArrivalReminderPolicy {
         case askedRecently
         case dayOff
         case clockAlreadyRunning
-        case noClockRunning
+        /// Leaving with no clock running, and the site's day for today is
+        /// already written: nothing to ask.
+        case alreadyWritten
     }
 
     enum Decision: Hashable, Sendable {
+        /// Ask about the clock: start it on arriving, stop it on leaving.
         case remind
+        /// Leaving with no clock and today not written: "write today's
+        /// hours?", with a "Same as last day" button when there is a last
+        /// day to copy, otherwise only the tap that opens the site's day.
+        case askToWrite(offersSameAsLastDay: Bool)
         case quiet(QuietReason)
+    }
+
+    /// What the site holds for today, for leaving with no clock running.
+    struct SiteToday: Hashable, Sendable {
+        /// Whether the site has a day for today (`SiteReminderPlan.isWritten`).
+        var isWritten: Bool
+        /// What "Same as last day" would write today
+        /// (`SiteRepository.sameAsLastDay`), nil when there is no last day.
+        var sameAsLastDay: SiteDay?
+
+        init(isWritten: Bool, sameAsLastDay: SiteDay? = nil) {
+            self.isWritten = isWritten
+            self.sameAsLastDay = sameAsLastDay
+        }
+
+        /// Written already: leaving with no clock asks nothing.
+        static let written = SiteToday(isWritten: true)
     }
 
     static func decide(
@@ -58,21 +86,39 @@ enum ArrivalReminderPolicy {
         site: Site,
         today: DayComputation,
         isClockRunning: Bool,
+        siteToday: SiteToday = .written,
         log: ArrivalReminderLog,
         now: Date
     ) -> Decision {
         guard site.monitorsArrival else { return .quiet(.notWatched) }
+        let ask: Decision
         switch event {
         case .arrived:
             if isClockRunning { return .quiet(.clockAlreadyRunning) }
             if isDayOff(today) { return .quiet(.dayOff) }
+            ask = .remind
         case .left:
-            if !isClockRunning { return .quiet(.noClockRunning) }
+            if isClockRunning {
+                ask = .remind
+            } else {
+                if siteToday.isWritten { return .quiet(.alreadyWritten) }
+                if isDayOff(today) { return .quiet(.dayOff) }
+                let copies = siteToday.sameAsLastDay.map { !$0.isBlank } ?? false
+                ask = .askToWrite(offersSameAsLastDay: copies)
+            }
         }
+        // One two hours for each way, whichever question leaving asks.
         if let last = log.lastReminder(event, siteID: site.id), abs(now.timeIntervalSince(last)) < cooldown {
             return .quiet(.askedRecently)
         }
-        return .remind
+        return ask
+    }
+
+    /// The last day's start and end, for "07:00–15:30 like last time"; nil
+    /// when it has no day or not both times.
+    static func lastTimes(_ day: SiteDay?) -> (start: TimeOfDay, end: TimeOfDay)? {
+        guard let start = day?.start, let end = day?.end else { return nil }
+        return (start, end)
     }
 
     /// A day nobody is due at work by what is marked on it: a public
@@ -138,12 +184,26 @@ enum ArrivalReminderPolicy {
 /// When each site last asked, each way, so the same question is not asked
 /// twice within two hours. Kept on this phone only (region events are this
 /// phone's), never in settings or a backup.
+///
+/// It also remembers which sites were asked "write today's hours?" today, so
+/// the evening site reminder leaves them out (`SiteReminderPlan.dates`).
 struct ArrivalReminderLog: Hashable, Sendable, Codable {
     /// `"<site id>|arrived"` → when that reminder was shown.
     private var entries: [String: Date]
+    /// Site id → the date key of the day it was asked to write.
+    private var askedToWrite: [String: Int]
 
     init() {
         entries = [:]
+        askedToWrite = [:]
+    }
+
+    mutating func recordAskedToWrite(siteID: UUID, on date: CalendarDate) {
+        askedToWrite[siteID.uuidString] = date.key
+    }
+
+    func sitesAskedToWrite(on date: CalendarDate) -> Set<UUID> {
+        Set(askedToWrite.compactMap { $0.value == date.key ? UUID(uuidString: $0.key) : nil })
     }
 
     private static func key(_ event: ArrivalEvent, _ siteID: UUID) -> String {
@@ -160,21 +220,27 @@ struct ArrivalReminderLog: Hashable, Sendable, Codable {
 
     /// Without what can no longer silence anything, so the log stays a
     /// handful of entries however many sites come and go.
-    func pruned(now: Date) -> ArrivalReminderLog {
+    /// With `today`, also without the write questions of other days.
+    func pruned(now: Date, today: CalendarDate? = nil) -> ArrivalReminderLog {
         var copy = self
         copy.entries = entries.filter { abs(now.timeIntervalSince($0.value)) < ArrivalReminderPolicy.cooldown }
+        if let today {
+            copy.askedToWrite = askedToWrite.filter { $0.value == today.key }
+        }
         return copy
     }
 
-    private enum CodingKeys: String, CodingKey { case entries }
+    private enum CodingKeys: String, CodingKey { case entries, askedToWrite }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         entries = container.lenient(.entries, [:])
+        askedToWrite = container.lenient(.askedToWrite, [:])
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(entries, forKey: .entries)
+        if !askedToWrite.isEmpty { try container.encode(askedToWrite, forKey: .askedToWrite) }
     }
 }
