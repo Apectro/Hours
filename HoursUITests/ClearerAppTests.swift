@@ -121,7 +121,7 @@ final class ClearerAppTests: XCTestCase {
         app.buttons["extra-work-report-done"].firstMatch.tap()
 
         // And the gear, the site's settings, with its usual day.
-        app.buttons["site-edit"].firstMatch.tap()
+        app.openSiteSettings()
         XCTAssertTrue(app.switches["site-editor-usual-times"].firstMatch.waitForExistence(timeout: 5), "the site's settings have no usual day")
     }
 

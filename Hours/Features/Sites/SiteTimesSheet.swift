@@ -117,8 +117,6 @@ struct SiteTimesSheet: View {
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-                    .tracking(0.4)
                     .lineLimit(2)
                 Text(value.map { formatting.time($0, on: day.date) } ?? "—")
                     .font(.hoursFigure(.largeTitle))
@@ -173,8 +171,6 @@ struct SiteTimesSheet: View {
             Text("Break")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .textCase(.uppercase)
-                .tracking(0.4)
 
             // Wraps onto a second line at large text sizes rather than
             // squeezing the chips below a usable size.

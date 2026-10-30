@@ -63,6 +63,19 @@ final class CrewMemberMonthTests: XCTestCase {
         XCTAssertEqual(result.totalMinutes, 8 * 60)
     }
 
+    func testASplitDayKnowsWhenEachSiteStarted() {
+        let morning = day(trg, 29, present: [Attendance(memberID: ivan)], start: Fixture.time(7), end: Fixture.time(12, 40))
+        let afternoon = day(jarun, 29, present: [Attendance(memberID: ivanOnJarun)], start: Fixture.time(12, 40), end: Fixture.time(16))
+        let result = month([afternoon, morning])
+
+        XCTAssertEqual(result.days[0].starts, [Fixture.time(7), Fixture.time(12, 40)], "\"then Jarunski from 12:40\"")
+    }
+
+    func testADayAwayHasNoStarts() {
+        let away = day(trg, 26).settingAbsence(.sick, for: ivan)
+        XCTAssertEqual(month([away]).days[0].starts, [])
+    }
+
     func testSickDaysAreCountedAndHaveNoHours() {
         let sick = day(trg, 15).settingAbsence(.sick, for: ivan)
         let vacation = day(trg, 16).settingAbsence(.vacation, for: ivan)

@@ -1,184 +1,141 @@
 import SwiftUI
 import SwiftData
 
-/// The selected day's extra work on a site (Extra work board, phone 1): a
-/// card per job with its Finished or In progress tag and its material, time
-/// and photos, "Add extra work", and what happens to finished jobs.
+/// The selected day's extra work on a site, as a section of the day's list
+/// (design v2): a row per job with its checkmark, what was done and its
+/// material, time and photos, then "Add extra work". The header has "Send to
+/// boss" when finished jobs wait for the report; the footer says what is in
+/// progress, or what happens to finished jobs.
 ///
 /// Not under the month lock — extra work is not anyone's hours (see
 /// `ExtraWorkRepository`) — so only a read-only site stops it from being
-/// added to or ticked done. A job opens in the editor as a sheet; the one
-/// write here is the checkmark beside each job, which ticks it done or back
-/// in progress at once.
+/// added to or ticked done. Draws and reports only: the site day reads the
+/// jobs (`ExtraWorkDayModel.load`), presents the editor and writes the
+/// checkmark, so the editor's sheet hangs off the day screen and not off a
+/// row a List may not have drawn.
 struct ExtraWorkDaySection: View {
-    let site: Site
-    let date: CalendarDate
+    let model: ExtraWorkDayModel
     let canEdit: Bool
-    /// Called after a job is written or removed, so the month grid can mark
-    /// the day.
-    let onChange: () -> Void
-    /// Opens the Extra-work report, which the site screen presents (the
-    /// same sheet as its toolbar button). With it, finished jobs the boss
-    /// has not had become a "Send to boss (3)" button in the header rather
-    /// than a count chip.
+    /// Opens the editor on a job, or on a new one for nil.
+    let onEdit: (ExtraWorkJob?) -> Void
+    /// The checkmark: finished, or back in progress.
+    let onToggleDone: (ExtraWorkJob) -> Void
+    /// Opens the Extra-work report, which the site screen presents. With it,
+    /// finished jobs the boss has not had become "Send to boss (3)" in the
+    /// header rather than a count in the footer.
     var onOpenReport: (() -> Void)? = nil
 
-    @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
 
-    @State private var jobs: [ExtraWorkJob] = []
-    @State private var notSent = 0
-    @State private var inProgress = 0
-    @State private var photoCounts: [UUID: Int] = [:]
-    @State private var editing: ExtraWorkEditorRequest?
-
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            // The title, with "Send to boss" beside it when there is
-            // something to send.
+        Section {
+            ForEach(Array(model.jobs.enumerated()), id: \.element.id) { index, job in
+                HStack(alignment: .top, spacing: 0) {
+                    ExtraWorkDoneButton(job: job, canEdit: canEdit) { onToggleDone(job) }
+                        .accessibilityIdentifier("extra-work-tick-\(index)")
+                        .padding(.leading, -Metrics.small)
+                    Button {
+                        onEdit(job)
+                    } label: {
+                        ExtraWorkJobCard(
+                            job: job,
+                            photoCount: model.photoCounts[job.id] ?? 0,
+                            durations: settingsStore.settings.displayFormatting
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("extra-work-job-\(index)")
+                }
+                .contextMenu {
+                    if canEdit { ExtraWorkDoneMenuItem(job: job) { onToggleDone(job) } }
+                }
+            }
+
+            if canEdit {
+                Button {
+                    onEdit(nil)
+                } label: {
+                    Label("Add extra work", systemImage: "plus")
+                }
+                .accessibilityIdentifier("extra-work-add")
+            } else if model.jobs.isEmpty {
+                Text("No extra work on this day.")
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+        } header: {
             HStack(alignment: .center, spacing: Metrics.small) {
-                SectionHeading("Extra work")
+                Text("Extra work")
                     // The listing's screenshot scrolls this to the top.
                     .accessibilityIdentifier("extra-work-heading")
                 Spacer(minLength: Metrics.small)
-                if notSent > 0, let onOpenReport {
+                if model.notSent > 0, let onOpenReport {
                     Button(action: onOpenReport) {
                         Text(String(
-                            localized: "Send to boss (\(notSent))",
+                            localized: "Send to boss (\(model.notSent))",
                             comment: "Extra work on a site day: opens the Extra-work report; the value is how many finished jobs the boss has not had yet"
                         ))
                         .font(.subheadline.weight(.semibold))
                         .frame(minHeight: 44)
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .buttonStyle(.borderless)
                     .accessibilityIdentifier("extra-work-send-report")
                 }
             }
-
-            countChips
-
-            // A card per job (Extra work board, phone 1): what was done and
-            // whether it is finished, the material, time and photos under it.
-            ForEach(Array(jobs.enumerated()), id: \.element.id) { index, job in
-                HStack(alignment: .top, spacing: 0) {
-                    ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
-                        .accessibilityIdentifier("extra-work-tick-\(index)")
-                        .padding(.leading, Metrics.tiny)
-                        .padding(.top, Metrics.tiny)
-                    Button {
-                        editing = ExtraWorkEditorRequest(job: job)
-                    } label: {
-                        ExtraWorkJobCard(
-                            job: job,
-                            photoCount: photoCounts[job.id] ?? 0,
-                            durations: settingsStore.settings.displayFormatting
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    // Rows here are not a List, so there is no swipe:
-                    // a long press offers the same as the checkmark.
-                    .contextMenu {
-                        if canEdit { ExtraWorkDoneMenuItem(job: job) { toggleDone(job) } }
-                    }
-                    .accessibilityIdentifier("extra-work-job-\(index)")
-                }
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .textCase(nil)
+        } footer: {
+            if let counts = countsLine {
+                Text(verbatim: counts)
+                    .accessibilityIdentifier("extra-work-counts")
+            } else {
+                Text("Finished jobs go in the extra-work report for your boss.")
             }
-
-            if canEdit {
-                Button {
-                    editing = ExtraWorkEditorRequest(job: nil)
-                } label: {
-                    Label("Add extra work", systemImage: "plus")
-                }
-                .buttonStyle(.bigAction(.secondary))
-                .accessibilityIdentifier("extra-work-add")
-            } else if jobs.isEmpty {
-                Text("No extra work on this day.")
-                    .font(.footnote)
-                    .foregroundStyle(.hoursSecondaryText)
-            }
-
-            Text("Finished jobs go in the extra-work report for your boss.")
-                .font(.footnote)
-                .foregroundStyle(.hoursSecondaryText)
-                .padding(.horizontal, Metrics.tiny)
-        }
-        .onAppear(perform: load)
-        .sheet(item: $editing) { request in
-            ExtraWorkEditorSheet(
-                site: site,
-                date: date,
-                job: request.job,
-                canEdit: canEdit,
-                onDone: {
-                    load()
-                    onChange()
-                }
-            )
         }
     }
 
-    /// The site's jobs in progress, whatever their day, and where the
-    /// header has no button for it, "Not sent: 5" — labels rather than
-    /// sentences, so no plural to agree. Nothing when there is neither.
-    @ViewBuilder
-    private var countChips: some View {
-        let showsNotSent = notSent > 0 && onOpenReport == nil
-        if inProgress > 0 || showsNotSent {
-            HStack(spacing: Metrics.tiny) {
-                if inProgress > 0 {
-                    countChip(
-                        String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"),
-                        color: .hoursAttention
-                    )
-                }
-                if showsNotSent {
-                    countChip(
-                        String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"),
-                        color: .accentColor
-                    )
-                }
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("extra-work-counts")
+    /// The site's jobs in progress, whatever their day, and where the header
+    /// has no button for it, "Not sent: 5" — labels rather than sentences,
+    /// so no plural to agree. Nil when there is neither.
+    private var countsLine: String? {
+        var parts: [String] = []
+        if model.inProgress > 0 {
+            parts.append(String(localized: "In progress: \(model.inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"))
         }
+        if model.notSent > 0, onOpenReport == nil {
+            parts.append(String(localized: "Not sent: \(model.notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"))
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
+}
 
-    /// The jobs' own chip style (see `ExtraWorkChipView`).
-    private func countChip(_ title: String, color: Color) -> some View {
-        Text(verbatim: title)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(color)
-            .padding(.horizontal, Metrics.small)
-            .padding(.vertical, Metrics.tiny)
-            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
-            .fixedSize()
-    }
-
-    /// The checkmark: written at once, not under the month lock.
-    private func toggleDone(_ job: ExtraWorkJob) {
-        guard canEdit else { return }
-        ExtraWorkRepository(context: modelContext).storeProgress(of: job.togglingDone(at: Date()))
-        load()
-        onChange()
-        // Finished, or back in progress: the weekly note's count changes.
-        let context = modelContext
-        let settings = settingsStore
-        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
-    }
+/// What a site day's extra-work section shows: the day's jobs, and the
+/// site's counts of jobs in progress and not sent.
+struct ExtraWorkDayModel {
+    var jobs: [ExtraWorkJob] = []
+    var notSent = 0
+    var inProgress = 0
+    var photoCounts: [UUID: Int] = [:]
 
     /// Read outside `body`: the repository's reads collapse duplicates,
     /// which writes.
-    private func load() {
-        let repository = ExtraWorkRepository(context: modelContext)
-        let all = repository.jobs(siteID: site.id)
-        jobs = all.filter { $0.date == date }
+    @MainActor
+    static func load(siteID: UUID, date: CalendarDate, context: ModelContext) -> ExtraWorkDayModel {
+        let repository = ExtraWorkRepository(context: context)
+        let all = repository.jobs(siteID: siteID)
         let counts = ExtraWorkReport.counts(all, on: date)
-        notSent = counts.notSent
-        inProgress = counts.inProgress
-        photoCounts = repository.photoCounts(siteID: site.id)
+        return ExtraWorkDayModel(
+            jobs: all.filter { $0.date == date },
+            notSent: counts.notSent,
+            inProgress: counts.inProgress,
+            photoCounts: repository.photoCounts(siteID: siteID)
+        )
+    }
+
+    /// The checkmark: written at once, not under the month lock.
+    @MainActor
+    static func toggleDone(_ job: ExtraWorkJob, context: ModelContext, settingsStore: SettingsStore) {
+        ExtraWorkRepository(context: context).storeProgress(of: job.togglingDone(at: Date()))
+        // Finished, or back in progress: the weekly note's count changes.
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settingsStore) }
     }
 }
 
@@ -215,8 +172,7 @@ struct ExtraWorkJobCard: View {
             }
         }
         .padding(.leading, Metrics.tiny)
-        .padding(.trailing, Metrics.large)
-        .padding(.vertical, Metrics.medium)
+        .padding(.vertical, Metrics.small)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
@@ -240,8 +196,9 @@ struct ExtraWorkJobCard: View {
     }
 }
 
-/// A job's chips, at most two: In progress (amber) or Finished (green, with
-/// a checkmark), and Sent or Signed when there is one to show.
+/// A job's state in a word or two, coloured, with no box (design v2): In
+/// progress (orange) or Finished (green, with a checkmark), and Sent or
+/// Signed when there is one to show.
 struct ExtraWorkChips: View {
     let job: ExtraWorkJob
 
@@ -269,11 +226,8 @@ struct ExtraWorkProgressChip: View {
                     .labelStyle(ExtraWorkChipLabelStyle())
             }
         }
-        .font(.caption.weight(.semibold))
+        .font(.footnote.weight(.semibold))
         .foregroundStyle(color)
-        .padding(.horizontal, Metrics.small)
-        .padding(.vertical, Metrics.tiny)
-        .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
         .fixedSize()
     }
 
@@ -298,11 +252,8 @@ struct ExtraWorkChipView: View {
 
     var body: some View {
         Text(title)
-            .font(.caption.weight(.semibold))
+            .font(.footnote.weight(.semibold))
             .foregroundStyle(color)
-            .padding(.horizontal, Metrics.small)
-            .padding(.vertical, Metrics.tiny)
-            .background(color.opacity(0.16), in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
             .fixedSize()
     }
 

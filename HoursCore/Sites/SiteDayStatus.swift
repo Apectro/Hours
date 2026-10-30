@@ -25,9 +25,9 @@ enum SiteDayStatus: Hashable, Sendable {
 
     /// One day's status.
     ///
-    /// `crew` is the people the day screen lists for the site (its visible
-    /// crew members, and `CrewMember.youID` when you are on it): anyone
-    /// in it with no entry and no reason makes a written day `.partly`.
+    /// `crew` is the people expected on that day
+    /// (`SiteCrewCheck.expected(on:)`): anyone in it with no entry and no
+    /// reason makes a written day `.partly`.
     /// `holidays` are date keys of public holidays.
     static func of(
         siteID: UUID,
@@ -50,7 +50,8 @@ enum SiteDayStatus: Hashable, Sendable {
         return date < today ? .missing : .future
     }
 
-    /// Every day of `month`, with its status.
+    /// Every day of `month`, with its status, each written day checked
+    /// against the same `crew` whatever its date.
     static func month(
         _ month: YearMonth,
         siteID: UUID,
@@ -61,11 +62,31 @@ enum SiteDayStatus: Hashable, Sendable {
         calendar: Calendar,
         holidays: Set<Int> = []
     ) -> [CalendarDate: SiteDayStatus] {
+        self.month(
+            month, siteID: siteID, siteDays: siteDays, setup: setup, check: SiteCrewCheck(always: crew),
+            today: today, calendar: calendar, holidays: holidays
+        )
+    }
+
+    /// Every day of `month`, with its status, each written day checked
+    /// against who was expected on it (`SiteMonthOverview.crew`): people
+    /// count from the day they joined, and not on a day another site has
+    /// them.
+    static func month(
+        _ month: YearMonth,
+        siteID: UUID,
+        siteDays: [SiteDay],
+        setup: SiteSetup,
+        check: SiteCrewCheck,
+        today: CalendarDate,
+        calendar: Calendar,
+        holidays: Set<Int> = []
+    ) -> [CalendarDate: SiteDayStatus] {
         let ours = siteDays.filter { $0.siteID == siteID }
         var result: [CalendarDate: SiteDayStatus] = [:]
         for date in month.range(in: calendar).days(in: calendar) {
             result[date] = of(
-                siteID: siteID, on: date, siteDays: ours, setup: setup, crew: crew,
+                siteID: siteID, on: date, siteDays: ours, setup: setup, crew: check.expected(on: date),
                 today: today, calendar: calendar, holidays: holidays
             )
         }

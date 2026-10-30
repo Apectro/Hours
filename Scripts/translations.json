@@ -17281,6 +17281,149 @@
       "Dias de folga e feriados",
       "Vrije dagen en feestdagen",
       "Dni wolne i święta"
+    ],
+    "Today open": [
+      "Heute offen",
+      "Danas otvoreno",
+      "Danes odprto",
+      "Oggi aperto",
+      "Aujourd’hui ouvert",
+      "Hoy abierto",
+      "Hoje em aberto",
+      "Vandaag open",
+      "Dziś otwarte"
+    ],
+    "Last day %@": [
+      "Letzter Tag %@",
+      "Zadnji dan %@",
+      "Zadnji dan %@",
+      "Ultimo giorno %@",
+      "Dernier jour %@",
+      "Último día %@",
+      "Último dia %@",
+      "Laatste dag %@",
+      "Ostatni dzień %@"
+    ],
+    "Read-only": [
+      "Nur lesen",
+      "Samo za čitanje",
+      "Samo za branje",
+      "Sola lettura",
+      "Lecture seule",
+      "Solo lectura",
+      "Só de leitura",
+      "Alleen-lezen",
+      "Tylko do odczytu"
+    ],
+    "Choose a day": [
+      "Tag wählen",
+      "Odaberi dan",
+      "Izberi dan",
+      "Scegli un giorno",
+      "Choisir un jour",
+      "Elige un día",
+      "Escolhe um dia",
+      "Kies een dag",
+      "Wybierz dzień"
+    ],
+    "Someone was different": [
+      "Jemand war anders",
+      "Netko je bio drukčije",
+      "Nekdo je bil drugače",
+      "Qualcuno era diverso",
+      "Quelqu’un était différent",
+      "Alguien fue distinto",
+      "Alguém foi diferente",
+      "Iemand was anders",
+      "Ktoś był inaczej"
+    ],
+    "Tap a name to change their times or say why they weren't here.": [
+      "Tippe auf einen Namen, um die Zeiten zu ändern oder zu sagen, warum die Person nicht da war.",
+      "Dodirni ime da promijeniš vrijeme ili kažeš zašto osoba nije bila tu.",
+      "Tapni ime, da spremeniš čas ali poveš, zakaj osebe ni bilo.",
+      "Tocca un nome per cambiare gli orari o dire perché non c’era.",
+      "Touchez un nom pour changer ses horaires ou dire pourquoi la personne n’était pas là.",
+      "Toca un nombre para cambiar sus horas o decir por qué no estuvo.",
+      "Toca num nome para mudar as horas ou dizer porque não esteve.",
+      "Tik op een naam om de tijden te wijzigen of te zeggen waarom iemand er niet was.",
+      "Dotknij imienia, aby zmienić godziny lub podać, dlaczego tej osoby nie było."
+    ],
+    "The usual day is %@, %@.": [
+      "Der übliche Tag ist %@, %@.",
+      "Uobičajeni dan je %@, %@.",
+      "Običajni dan je %@, %@.",
+      "La giornata solita è %@, %@.",
+      "La journée habituelle est %@, %@.",
+      "El día habitual es %@, %@.",
+      "O dia habitual é %@, %@.",
+      "De gewone dag is %@, %@.",
+      "Zwykły dzień to %@, %@."
+    ],
+    "Not here · no reason given": [
+      "Nicht da · kein Grund angegeben",
+      "Nije bio tu · bez razloga",
+      "Ni bil tu · brez razloga",
+      "Assente · nessun motivo",
+      "Absent · aucun motif",
+      "No estuvo · sin motivo",
+      "Ausente · sem motivo",
+      "Niet hier · geen reden",
+      "Nieobecny · bez powodu"
+    ],
+    "Add reason": [
+      "Grund angeben",
+      "Dodaj razlog",
+      "Dodaj razlog",
+      "Aggiungi motivo",
+      "Ajouter un motif",
+      "Añadir motivo",
+      "Adicionar motivo",
+      "Reden toevoegen",
+      "Dodaj powód"
+    ],
+    "Moved to %@ at %@": [
+      "Nach %@ gewechselt um %@",
+      "Prešao na %@ u %@",
+      "Odšel na %@ ob %@",
+      "Spostato a %@ alle %@",
+      "Parti à %@ à %@",
+      "Pasó a %@ a las %@",
+      "Mudou para %@ às %@",
+      "Naar %@ om %@",
+      "Przeszedł na %@ o %@"
+    ],
+    "Who was different?": [
+      "Wer war anders?",
+      "Tko je bio drukčije?",
+      "Kdo je bil drugače?",
+      "Chi era diverso?",
+      "Qui était différent ?",
+      "¿Quién fue distinto?",
+      "Quem foi diferente?",
+      "Wie was anders?",
+      "Kto był inaczej?"
+    ],
+    "then %@": [
+      "dann %@",
+      "zatim %@",
+      "nato %@",
+      "poi %@",
+      "puis %@",
+      "luego %@",
+      "depois %@",
+      "daarna %@",
+      "potem %@"
+    ],
+    "then %@ from %@": [
+      "dann %@ ab %@",
+      "zatim %@ od %@",
+      "nato %@ od %@",
+      "poi %@ dalle %@",
+      "puis %@ dès %@",
+      "luego %@ desde las %@",
+      "depois %@ a partir das %@",
+      "daarna %@ vanaf %@",
+      "potem %@ od %@"
     ]
   },
   "sameAsEnglishOnPurpose": [

@@ -1,15 +1,12 @@
 import SwiftUI
 import SwiftData
 
-/// The Sites tab: one card per active site, with this month's figures.
-///
-/// A card answers what a supervisor wants at a glance before opening the
-/// site (1.2, mockup Sites): how many of this month's days are not written,
-/// who is on it, whether today is written and what the crew has worked, and
-/// a strip of the month's work days in the colour rule. Archived sites sit
-/// behind one row underneath, because they are history rather than
-/// somewhere work is happening, and a list that keeps growing with finished
-/// jobs buries the one that is not.
+/// The Sites tab (design v2, mockup Sites phone 1): a plain grouped list, a
+/// row per active site with its name, "5 people · 462h this month" and how
+/// it stands on the right — red "2 not written", orange "Today open", a
+/// green tick when the month is all written — then the month's sheets, then
+/// one row to the archived sites, which are history rather than somewhere
+/// work is happening.
 struct SitesScreen: View {
     /// A link from a widget or a notification, handed down by the root and
     /// cleared once followed, so the same link arriving again is followed
@@ -162,7 +159,7 @@ private struct SitesContent: View {
 
     // Watched rather than read. The figures come from `SiteRepository`, which
     // owns the duplicate rules; these exist so SwiftData says when anything
-    // under the cards changed — here, on another screen, or by sync.
+    // under the rows changed — here, on another screen, or by sync.
     @Query private var siteEntries: [SiteEntry]
     @Query private var crewEntries: [CrewMemberEntry]
     @Query private var dayEntries: [SiteDayEntry]
@@ -194,49 +191,58 @@ private struct SitesContent: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: Metrics.medium) {
-                if activeSites.isEmpty {
+        List {
+            if activeSites.isEmpty {
+                Section {
                     emptyState
                 }
-
-                ForEach(activeSites) { site in
-                    let isReadOnly = subscriptions.isReadOnly(site, among: loaded.sites)
-                    SiteCard(
-                        site: site,
-                        summary: loaded.summaries[site.id] ?? SiteCardSummary(),
-                        isReadOnly: isReadOnly,
-                        offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
-                    )
-                    .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
+            } else {
+                Section {
+                    ForEach(activeSites) { site in
+                        let isReadOnly = subscriptions.isReadOnly(site, among: loaded.sites)
+                        SiteRow(
+                            site: site,
+                            summary: loaded.summaries[site.id] ?? SiteCardSummary(),
+                            isReadOnly: isReadOnly,
+                            offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
+                        )
+                        .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
+                    }
+                } footer: {
+                    if activeSites.contains(where: { subscriptions.isReadOnly($0, among: loaded.sites) }) {
+                        Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                    }
                 }
+            }
 
-                if !loaded.monthSheets.isEmpty {
-                    MonthSheetsGroup(sheets: loaded.monthSheets)
+            if !loaded.monthSheets.isEmpty {
+                Section {
+                    ForEach(loaded.monthSheets) { sheet in
+                        MonthSheetRow(sheet: sheet)
+                    }
+                } header: {
+                    Text("Sheets")
                 }
+            }
 
-                if !archivedSites.isEmpty {
+            if !archivedSites.isEmpty {
+                Section {
                     archivedRow
                 }
             }
-            .padding(.horizontal, Metrics.large)
-            .padding(.bottom, Metrics.extraLarge)
         }
-        .background(Color.hoursCanvas)
+        .listStyle(.insetGrouped)
         .navigationTitle("Sites")
         // A screen the UI tests wait for. The title beside it is translated.
         .accessibilityIdentifier("screen-sites")
         .toolbar {
-            // The way to a new site, said in words (1.2): the wizard.
+            // The new-site wizard, under the same Pro rule as before.
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: addSite) {
-                    Label("New site", systemImage: "plus")
-                        .labelStyle(.titleAndIcon)
-                        .font(.subheadline.weight(.bold))
+                    Image(systemName: "plus")
                         .proLock(needsProForAnotherSite)
                 }
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.capsule)
+                .accessibilityLabel(String(localized: "New site"))
                 .accessibilityIdentifier("sites-add")
             }
         }
@@ -275,36 +281,24 @@ private struct SitesContent: View {
         } actions: {
             Button("New site", action: addSite)
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
                 .accessibilityIdentifier("sites-empty-add")
         }
         .tourTarget(.sites)
-        .padding(.top, Metrics.extraLarge)
     }
 
-    /// "Archived sites 4 ›": one row, to a list of their own.
+    /// "Archived  4 ›": one row, to a list of their own.
     private var archivedRow: some View {
         NavigationLink(value: ArchivedSitesRoute()) {
-            HStack(spacing: Metrics.medium) {
-                Text("Archived sites")
-                    .foregroundStyle(.primary)
+            HStack(spacing: Metrics.small) {
+                Text("Archived")
                 Spacer(minLength: Metrics.small)
                 Text(verbatim: "\(archivedSites.count)")
                     .monospacedDigit()
                     .foregroundStyle(.hoursSecondaryText)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
             }
-            .padding(.horizontal, Metrics.large)
-            .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("sites-archived")
-        .padding(.top, Metrics.small)
     }
 
     // MARK: - Data
@@ -325,7 +319,7 @@ private struct SitesContent: View {
         }
     }
 
-    /// Changes whenever a row under the cards does, or the month turns.
+    /// Changes whenever a row under the list does, or the month turns.
     private var changeToken: ChangeToken {
         ChangeToken(
             month: month,
@@ -346,7 +340,11 @@ private struct SitesContent: View {
             start: range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar),
             end: range.end
         )
-        let days = Dictionary(grouping: repository.siteDays(siteID: nil, in: lookBack), by: \.siteID)
+        let allDays = repository.siteDays(siteID: nil, in: lookBack)
+        let days = Dictionary(grouping: allDays, by: \.siteID)
+        // Every crew, hidden people too: the same person on two sites is
+        // matched by name when a day is checked for who was missing.
+        let members = sites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
         let holidays = SiteMonthStatuses.holidays(
             context: modelContext,
             settings: settings,
@@ -354,7 +352,7 @@ private struct SitesContent: View {
             range: lookBack
         )
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
-        // Where the card's "Same as last day" would do what the site's own
+        // Where the row's "Same as last day" would do what the site's own
         // button does: today open to changes, nothing written for it yet,
         // and an earlier day to copy.
         let todayIsOpen = !settings.monthLock.isLocked(today)
@@ -363,12 +361,12 @@ private struct SitesContent: View {
         var canCopy = Set<UUID>()
         for site in sites where !site.isArchived {
             let siteDays = days[site.id] ?? []
-            let visible = repository.crew(for: site.id, includeHidden: false).map(\.id)
+            let visible = members.filter { $0.siteID == site.id && !$0.isHidden }
             let statuses = SiteMonthStatuses.statuses(
                 siteID: site.id,
                 month: month,
-                siteDays: siteDays,
-                visibleCrew: visible,
+                siteDays: allDays,
+                members: members,
                 settings: settings,
                 calendar: calendar,
                 today: today,
@@ -384,7 +382,6 @@ private struct SitesContent: View {
             summaries[site.id] = SiteCardSummary(
                 people: visible.count + 1,
                 headline: SiteMonthOverview.headline(statuses),
-                strip: SiteMonthOverview.strip(statuses),
                 today: writtenToday ? .written : (expectedToday ? .notWritten : .noWork),
                 monthMinutes: inMonth.reduce(0) { $0 + calculator.compute($1).crewTotalMinutes },
                 lastDay: lastDay
@@ -436,7 +433,7 @@ private struct ChangeToken: Equatable {
     var stamps: [Date]
 }
 
-/// What the cards are drawn from: every site, archived ones too, and each
+/// What the list is drawn from: every site, archived ones too, and each
 /// active site's month in brief.
 private struct LoadedSites {
     var sites: [Site] = []
@@ -447,42 +444,43 @@ private struct LoadedSites {
     var monthSheets: [MonthSheet] = []
 }
 
-/// SHEETS under the site cards: one row a month with every site worked on
-/// it, so the month's sheet goes out from here rather than from each site
-/// in turn. The export is presented from here, not from the list's root.
-private struct MonthSheetsGroup: View {
-    let sheets: [MonthSheet]
+/// One month's sheet of every site worked on it: "October" over "Trg Pravde
+/// + Jarunski · 782h". The export is presented from the row itself, not from
+/// the list's root, so it never competes with a sheet a pushed site day
+/// presents.
+private struct MonthSheetRow: View {
+    let sheet: MonthSheet
 
     @Environment(SettingsStore.self) private var settingsStore
-    @State private var exporting: MonthSheet?
+    @State private var isExporting = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text("Sheets")
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-                .foregroundStyle(.hoursSecondaryText)
-                .padding(.horizontal, Metrics.large)
-                .accessibilityAddTraits(.isHeader)
-
-            VStack(spacing: 0) {
-                ForEach(sheets) { sheet in
-                    if sheet.id != sheets.first?.id {
-                        Divider()
-                            .padding(.leading, Metrics.large)
-                    }
-                    monthSheetRow(sheet)
+        Button {
+            isExporting = true
+        } label: {
+            HStack(spacing: Metrics.small) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: settingsStore.dateFormatting.monthTitle(sheet.month))
+                        .foregroundStyle(.primary)
+                    Text(verbatim: detail)
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-
-            Text("One sheet for the month with every site worked on it.")
-                .font(.footnote)
-                .foregroundStyle(.hoursSecondaryText)
-                .padding(.horizontal, Metrics.large)
+            .contentShape(Rectangle())
         }
-        .padding(.top, Metrics.small)
-        .sheet(item: $exporting) { sheet in
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("sites-month-sheet")
+        .sheet(isPresented: $isExporting) {
             ExportScreen(
                 initialRange: sheet.month.range(in: settingsStore.workCalendar),
                 month: sheet.month,
@@ -491,43 +489,7 @@ private struct MonthSheetsGroup: View {
         }
     }
 
-    /// "October 2026" over "Trg Pravde + Jarunski · 382h".
-    private func monthSheetRow(_ sheet: MonthSheet) -> some View {
-        Button {
-            exporting = sheet
-        } label: {
-            HStack(spacing: Metrics.medium) {
-                Image(systemName: "doc.text")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 28)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(settingsStore.dateFormatting.monthTitle(sheet.month))
-                        .foregroundStyle(.primary)
-                    Text(verbatim: monthSheetDetail(sheet))
-                        .font(.subheadline)
-                        .monospacedDigit()
-                        .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: Metrics.small)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, Metrics.large)
-            .padding(.vertical, Metrics.small + 2)
-            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("sites-month-sheet")
-    }
-
-    private func monthSheetDetail(_ sheet: MonthSheet) -> String {
+    private var detail: String {
         let hours = settingsStore.settings.displayFormatting.string(sheet.minutes)
         return sheet.siteNames.joined(separator: " + ") + " · " + hours
     }
@@ -542,7 +504,7 @@ private struct MonthSheet: Identifiable {
     var id: YearMonth { month }
 }
 
-/// One active site's month, as its card says it.
+/// One active site's month, as its row says it.
 private struct SiteCardSummary {
     enum Today { case written, notWritten, noWork }
 
@@ -550,7 +512,6 @@ private struct SiteCardSummary {
     /// crew are left out: they are no longer on it.
     var people = 1
     var headline = SiteMonthOverview.Headline.nothingThisMonth
-    var strip: [SiteMonthOverview.StripDay] = []
     var today = Today.noWork
     /// The crew's hours this month, everyone together.
     var monthMinutes = 0
@@ -558,7 +519,7 @@ private struct SiteCardSummary {
     var lastDay: CalendarDate?
 }
 
-/// A site's month by status, for its card and its page: the one place that
+/// A site's month by status, for its row and its page: the one place that
 /// gathers what `SiteDayStatus` needs from the store and the settings.
 @MainActor
 enum SiteMonthStatuses {
@@ -575,21 +536,26 @@ enum SiteMonthStatuses {
         return HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOffKeys(in: range, calendar: calendar)
     }
 
-    /// Every day of `month` with its status. `siteDays` are the site's days
-    /// of the month and the look-back before it (`SiteWorkDays.lookBackDays`).
+    /// Every day of `month` with its status.
+    ///
+    /// - `siteDays`: every site's days of the month and the look-back before
+    ///   it (`SiteWorkDays.lookBackDays`): a day here is not partly for
+    ///   someone another site had that day.
+    /// - `members`: every site's crew, hidden people too, to match the same
+    ///   person across sites by name (`SiteMonthOverview.crew`).
     static func statuses(
         siteID: UUID,
         month: YearMonth,
         siteDays: [SiteDay],
-        visibleCrew: [UUID],
+        members: [CrewMember],
         settings: AppSettings,
         calendar: Calendar,
         today: CalendarDate,
         holidays: Set<Int>
     ) -> [CalendarDate: SiteDayStatus] {
-        let crew = SiteMonthOverview.crew(
+        let check = SiteMonthOverview.crew(
             siteID: siteID,
-            visible: visibleCrew,
+            members: members,
             siteDays: siteDays,
             month: month,
             calendar: calendar
@@ -599,7 +565,7 @@ enum SiteMonthStatuses {
             siteID: siteID,
             siteDays: siteDays,
             setup: settings.siteSetup(for: siteID),
-            crew: crew,
+            check: check,
             today: today,
             calendar: calendar,
             holidays: holidays
@@ -607,156 +573,106 @@ enum SiteMonthStatuses {
     }
 }
 
-/// One active site (1.2, mockup Sites): its name and how the month stands on
-/// the right — "2 not written" in red, "All written" in green, "Nothing this
-/// month" in grey — then "5 people · today written · 303h this month", and a
-/// strip of the month's work days in the colour rule.
+/// One active site (design v2, mockup Sites phone 1): its name, under it
+/// "5 people · 462h this month" (or "Last day 14 Sep"), and on the right how
+/// it stands, the most important first — red "2 not written", orange "Today
+/// open", a green tick when the month is all written — then the chevron.
 ///
-/// The card opens the site. While today is still to be written and there is
-/// a day to copy, it also offers "Same as last day" — the site's own button,
-/// by the same route the site widget uses — so the commonest day on a site
-/// is one tap from the list.
-private struct SiteCard: View {
+/// The row opens the site. While today is still to be written and there is
+/// a day to copy, a swipe and a long press also offer "Same as last day", by
+/// the same route the site widget uses.
+private struct SiteRow: View {
     let site: Site
     let summary: SiteCardSummary
     let isReadOnly: Bool
     let offersSameAsLastDay: Bool
 
     @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.openSiteDay) private var openSiteDay
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            NavigationLink(value: SiteRoute(siteID: site.id)) {
-                content
-                    .contentShape(Rectangle())
+        NavigationLink(value: SiteRoute(siteID: site.id)) {
+            HStack(spacing: Metrics.small) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: site.name)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(verbatim: detailLine)
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("site-card-today")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                status
             }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("site-card")
-
+            .padding(.vertical, 2)
+        }
+        .accessibilityIdentifier("site-card")
+        .swipeActions(edge: .leading) {
             if offersSameAsLastDay {
-                sameAsLastDayLink
+                Button(action: sameAsLastDay) {
+                    Label("Same as last day", systemImage: "arrow.uturn.backward")
+                }
+                .tint(.accentColor)
+                .accessibilityIdentifier("site-card-same-as-last")
             }
         }
-        .padding(.horizontal, Metrics.large)
-        .padding(.vertical, Metrics.medium + 2)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-    }
-
-    private var content: some View {
-        VStack(alignment: .leading, spacing: Metrics.small + 2) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                    name
-                    Spacer(minLength: Metrics.small)
-                    headline
+        .contextMenu {
+            if offersSameAsLastDay {
+                Button(action: sameAsLastDay) {
+                    Label("Same as last day", systemImage: "arrow.uturn.backward")
                 }
-                VStack(alignment: .leading, spacing: Metrics.tiny) {
-                    name
-                    headline
-                }
-            }
-
-            Text(verbatim: detailLine)
-                .font(.subheadline)
-                .monospacedDigit()
-                .foregroundStyle(.hoursSecondaryText)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier("site-card-today")
-
-            if !summary.strip.isEmpty, summary.headline != .nothingThisMonth {
-                strip
-            }
-
-            if isReadOnly {
-                Label {
-                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
-                } icon: {
-                    Image(systemName: "lock.fill")
-                }
-                .font(.footnote)
-                .foregroundStyle(.hoursSecondaryText)
-                .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
     }
 
-    private var name: some View {
-        Text(site.name)
-            .font(.title3.weight(.bold))
-            .foregroundStyle(.primary)
-    }
-
-    private var headline: some View {
+    /// The most important thing about the site right now, or nothing.
+    @ViewBuilder
+    private var status: some View {
         Group {
-            switch summary.headline {
-            case let .notWritten(count):
-                Text(String(localized: "\(count) not written", comment: "Site card: how many of this month's work days are not written"))
-                    .foregroundStyle(Color.hoursMissing)
-            case .allWritten:
-                Text("All written")
-                    .foregroundStyle(Color.hoursDone)
-            case .nothingThisMonth:
-                Text("Nothing this month")
+            if isReadOnly {
+                Image(systemName: "lock.fill")
                     .foregroundStyle(.hoursSecondaryText)
+                    .accessibilityLabel(String(localized: "Read-only"))
+            } else if case let .notWritten(count) = summary.headline {
+                Text(String(localized: "\(count) not written", comment: "Site card: how many of this month's work days are not written"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hoursMissing)
+            } else if summary.today == .notWritten {
+                Text("Today open")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hoursAttention)
+            } else if summary.headline == .allWritten {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(Color.hoursDone)
+                    .accessibilityLabel(String(localized: "All written"))
             }
         }
-        .font(.footnote.weight(.bold))
+        .multilineTextAlignment(.trailing)
         .accessibilityIdentifier("site-card-status")
     }
 
-    /// "5 people · today written · 303h this month", or "3 people · last day
-    /// 14 Sep" for a site with nothing this month.
+    /// "5 people · 462h this month", or "Last day 14 Sep" for a site with
+    /// nothing this month.
     private var detailLine: String {
-        var parts = [String(inflected: "^[\(summary.people) person](inflect: true)")]
-        if summary.headline == .nothingThisMonth {
-            if let lastDay = summary.lastDay {
-                let date = settingsStore.dateFormatting.shortDate(lastDay)
-                parts.append(String(localized: "last day \(date)", comment: "Site card: the last day written, for a site with nothing this month"))
-            }
-            return parts.joined(separator: " · ")
+        if summary.headline == .nothingThisMonth, summary.monthMinutes == 0, let lastDay = summary.lastDay {
+            let date = settingsStore.dateFormatting.shortDate(lastDay)
+            return String(localized: "Last day \(date)", comment: "Sites list: the last day written, for a site with nothing this month")
         }
-        switch summary.today {
-        case .written: parts.append(String(localized: "today written"))
-        case .notWritten: parts.append(String(localized: "today not written"))
-        case .noWork: break
-        }
+        let people = String(inflected: "^[\(summary.people) person](inflect: true)")
+        guard summary.monthMinutes > 0 else { return people }
         let hours = settingsStore.settings.displayFormatting.string(summary.monthMinutes)
-        parts.append(String(localized: "\(hours) this month", comment: "Site card: the crew's hours this month"))
-        return parts.joined(separator: " · ")
+        return people + " · " + String(localized: "\(hours) this month", comment: "Site card: the crew's hours this month")
     }
 
-    /// The month's work days, one thin bar each. The status on the right
-    /// says it in words, so VoiceOver skips the bars.
-    private var strip: some View {
-        HStack(spacing: 2) {
-            ForEach(summary.strip, id: \.date.key) { day in
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(day.status.fill)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 8)
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    private var sameAsLastDayLink: some View {
-        NavigationLink(
-            value: SiteRoute(
-                siteID: site.id,
-                date: CalendarDate.today(in: settingsStore.workCalendar),
-                appliesSameAsLastDay: true
-            )
-        ) {
-            Label("Same as last day", systemImage: "arrow.uturn.backward.circle")
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("site-card-same-as-last")
+    /// Today's day over the site's page, so Back leads to the site.
+    private func sameAsLastDay() {
+        let today = CalendarDate.today(in: settingsStore.workCalendar)
+        openSiteDay(SiteRoute(siteID: site.id))
+        openSiteDay(SiteRoute(siteID: site.id, date: today, appliesSameAsLastDay: true))
     }
 }
 
@@ -770,7 +686,7 @@ private struct ArchivedSitesScreen: View {
             Section {
                 ForEach(sites) { site in
                     NavigationLink(value: SiteRoute(siteID: site.id)) {
-                        Text(site.name)
+                        Text(verbatim: site.name)
                     }
                     .accessibilityIdentifier("sites-archived-site")
                 }
@@ -778,6 +694,7 @@ private struct ArchivedSitesScreen: View {
                 Text("An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.")
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Archived sites")
         .navigationBarTitleDisplayMode(.inline)
     }
