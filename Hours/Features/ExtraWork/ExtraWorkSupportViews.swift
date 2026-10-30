@@ -110,8 +110,7 @@ struct ExtraWorkSignSheet: View {
                 VStack(alignment: .leading, spacing: Metrics.medium) {
                     VStack(alignment: .leading, spacing: Metrics.tiny) {
                         Text("Who signs")
-                            .textCase(.uppercase)
-                            .font(.caption.weight(.bold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.hoursSecondaryText)
                             .accessibilityHidden(true)
                         TextField(String(localized: "Name and role, e.g. Ing. Horvat, site manager"), text: $signer)

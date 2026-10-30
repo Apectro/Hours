@@ -188,8 +188,7 @@ struct ExtraWorkEditorSheet: View {
         VStack(alignment: .leading, spacing: Metrics.small) {
             VStack(alignment: .leading, spacing: Metrics.tiny) {
                 Text("What was done")
-                    .textCase(.uppercase)
-                    .font(.caption.weight(.bold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.hoursSecondaryText)
                     .accessibilityHidden(true)
                 TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
@@ -250,8 +249,7 @@ struct ExtraWorkEditorSheet: View {
     private var materialSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
             Text(suggestions.isEmpty ? "Material" : "Material · used before, tap to add")
-                .textCase(.uppercase)
-                .font(.caption.weight(.bold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.hoursSecondaryText)
                 .padding(.horizontal, Metrics.tiny)
                 .accessibilityAddTraits(.isHeader)
