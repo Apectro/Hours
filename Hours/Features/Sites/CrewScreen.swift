@@ -118,11 +118,6 @@ struct CrewScreen: View {
         }
         .navigationTitle("Crew")
         .navigationBarTitleDisplayMode(.inline)
-        // A person's month, pushed by value onto whichever stack shows the
-        // crew; declared here, so every such stack has it.
-        .navigationDestination(for: CrewMemberRoute.self) { route in
-            CrewMemberSheetScreen(member: route.member)
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -196,7 +191,11 @@ struct CrewScreen: View {
     /// a long press. A hidden person has a Show button instead.
     private func memberRow(_ member: CrewMember, hiding: Bool) -> some View {
         HStack(spacing: Metrics.small) {
-            NavigationLink(value: CrewMemberRoute(member: member)) {
+            // A destination link rather than a value: a destination declared
+            // on a screen that was itself pushed by value is not found.
+            NavigationLink {
+                CrewMemberSheetScreen(member: member)
+            } label: {
                 HStack(spacing: Metrics.medium) {
                     CrewInitial(name: member.name, isHidden: !hiding)
                     Text(member.name)
@@ -377,11 +376,6 @@ struct CrewScreen: View {
             store.upsert(member)
         }
     }
-}
-
-/// One person's month, pushed from the crew list.
-struct CrewMemberRoute: Hashable {
-    let member: CrewMember
 }
 
 /// A person's initial in a circle, as the mockup's crew list has them.

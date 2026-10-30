@@ -50,7 +50,7 @@ final class ClearerAppTests: XCTestCase {
         let cards = app.buttons.matching(identifier: "site-card")
         XCTAssertTrue(cards.element(boundBy: 1).waitForExistence(timeout: 5), "the new site has no card")
         let labels = cards.allElementsBoundByIndex.map(\.label)
-        XCTAssertTrue(labels.contains { $0.contains("Trg Pravde") && $0.contains("Crew 3") }, "the new site should carry its name and crew: \(labels)")
+        XCTAssertTrue(labels.contains { $0.contains("Trg Pravde") && $0.contains("3 people") }, "the new site should carry its name and crew: \(labels)")
     }
 
     /// Several sites at once: names one per line, one setup, all created.
