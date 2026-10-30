@@ -2,17 +2,11 @@ import SwiftUI
 import SwiftData
 import PhotosUI
 
-/// Writing down one job of extra work (mockup 14): what was done, the
-/// material with big −/+ steppers and a number to tap for 12.5 m, the items
-/// used before as chips, optionally how long the job took and who was on it,
-/// photos, and the client's optional signature — and "Work finished", since
-/// a job can run over several days and is in progress until it is ticked.
-///
-/// "What was done" and "Work finished" are always open; Material, Time on
-/// this job, Photos and Client's signature are sections that open in place,
-/// each saying what is inside while closed ("Items: 3", "1h · 2 people").
-/// Material starts open, the rest closed, for a new job and an existing one
-/// alike: the summaries tell what an existing job holds.
+/// Writing down one job of extra work (Extra work board, phone 2): WHAT WAS
+/// DONE; the material, with the items used before as chips to tap and each
+/// line's quantity (−/+, or tap the number for 12.5 m); How long it took and
+/// who was on it; Finished, since a job can run over several days and is in
+/// progress until it is ticked; Photos; and the client's optional signature.
 ///
 /// A sheet with Cancel and Save, unlike the day screen's diary: a job is a
 /// thing written in one go and handed on, and a half-counted job saved on
@@ -47,7 +41,6 @@ struct ExtraWorkEditorSheet: View {
     @State private var minutes: Int
     @State private var showsTimeAlert = false
     @State private var typedTime = ""
-    @State private var expanded: Set<EditorSection> = [.material]
     @State private var loaded = false
     @State private var catalog: [ExtraWorkCatalogItem] = []
     @State private var stored: [DiaryThumbnail] = []
@@ -66,11 +59,6 @@ struct ExtraWorkEditorSheet: View {
     @State private var sheet: EditorSheet?
     @State private var confirmsDelete = false
     @State private var path: [ExtraWorkCatalogRoute] = []
-
-    /// The sections that open in place.
-    private enum EditorSection: String, Hashable {
-        case material, time, photos, signature
-    }
 
     private enum EditorSheet: String, Identifiable {
         case newItem, signature
@@ -112,26 +100,16 @@ struct ExtraWorkEditorSheet: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.extraLarge) {
-                    // A read-only site's job can still be looked through:
-                    // the section headers open, what is in them does not
-                    // change.
+                VStack(alignment: .leading, spacing: Metrics.medium) {
+                    // A read-only site's job can still be looked through;
+                    // nothing in it changes.
                     descriptionSection
                         .disabled(!canEdit)
-                    finishedSection
+                    materialSection
                         .disabled(!canEdit)
-                    collapsible(.material, title: String(localized: "Material"), summary: materialSummary) {
-                        materialSection
-                    }
-                    collapsible(.time, title: String(localized: "Time on this job"), summary: timeSummary) {
-                        timeSection
-                    }
-                    collapsible(.photos, title: String(localized: "Photos"), summary: photoSummary) {
-                        photoSection
-                    }
-                    collapsible(.signature, title: String(localized: "Client's signature"), summary: signatureSummary) {
-                        signatureSection
-                    }
+                    detailsCard
+                    signatureSection
+                        .disabled(!canEdit)
                     if job != nil {
                         statusSection
                             .disabled(!canEdit)
@@ -177,7 +155,10 @@ struct ExtraWorkEditorSheet: View {
                     addItem(name: name, unit: unit)
                 }
             case .signature:
-                ExtraWorkSignSheet(prompt: String(localized: "Sign to confirm this extra work")) { signature in
+                ExtraWorkSignSheet(
+                    prompt: String(localized: "Sign to confirm this extra work"),
+                    summary: signSummary
+                ) { signature in
                     draft.clientSignature = signature
                 }
             }
@@ -202,62 +183,110 @@ struct ExtraWorkEditorSheet: View {
 
     // MARK: - What was done
 
+    /// WHAT WAS DONE, the caption inside its field's card.
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            SectionHeading("What was done")
-            TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
-                .lineLimit(1...4)
-                .font(.body)
-                .padding(.horizontal, Metrics.large)
-                .padding(.vertical, Metrics.medium)
-                .frame(minHeight: 48)
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                .accessibilityLabel(String(localized: "What was done"))
-                .accessibilityIdentifier("extra-work-description")
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                Text("What was done")
+                    .textCase(.uppercase)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.hoursSecondaryText)
+                    .accessibilityHidden(true)
+                TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
+                    .lineLimit(1...4)
+                    .font(.body)
+                    .frame(minHeight: 32)
+                    .accessibilityLabel(String(localized: "What was done"))
+                    .accessibilityIdentifier("extra-work-description")
+            }
+            .padding(.horizontal, Metrics.large)
+            .padding(.vertical, Metrics.medium)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
             Text(verbatim: "\(settingsStore.dateFormatting.dayTitle(draft.date)) · \(site.name)")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
                 .padding(.leading, Metrics.tiny)
         }
     }
 
     // MARK: - Finished
 
+    /// How long it took, Finished and Photos, in one card as on the board.
+    private var detailsCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            timeSection
+                .disabled(!canEdit)
+            Divider().padding(.leading, Metrics.large)
+            finishedRow
+                .disabled(!canEdit)
+            Divider().padding(.leading, Metrics.large)
+            photoSection
+        }
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
     /// Saved with the job, like everything else in the sheet; the day's
     /// checkmark is the quick way that writes at once.
-    private var finishedSection: some View {
+    private var finishedRow: some View {
         Toggle(isOn: Binding(
             get: { draft.isDone },
             set: { isOn in
                 draft = isOn ? draft.markingDone(at: Date()) : draft.markingInProgress()
             }
         )) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Work finished")
-                    .font(.body)
-                Group {
-                    if draft.isDone {
-                        Text("Finished jobs go in the extra-work report.")
-                    } else {
-                        Text("In progress until you tick it.")
-                    }
-                }
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            }
+            Text("Finished")
+                .font(.body)
         }
         .tint(Color.hoursPositive)
-        .frame(minHeight: 44)
+        .frame(minHeight: 50)
         .padding(.horizontal, Metrics.large)
-        .padding(.vertical, Metrics.small)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .accessibilityIdentifier("extra-work-finished")
     }
 
     // MARK: - Material
 
+    /// MATERIAL · USED BEFORE, TAP TO ADD: the remembered items as chips,
+    /// "+ New" and "Edit list", then the job's lines with their quantities.
     private var materialSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
+            Text(suggestions.isEmpty ? "Material" : "Material · used before, tap to add")
+                .textCase(.uppercase)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.tiny)
+                .accessibilityAddTraits(.isHeader)
+            ExtraWorkFlow(spacing: Metrics.small) {
+                ForEach(suggestions) { item in
+                    Button {
+                        addItem(name: item.name, unit: item.unit)
+                    } label: {
+                        Text(verbatim: item.name)
+                            .font(.subheadline)
+                            .chipStyle(tint: .primary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String(localized: "Add \(item.name)", comment: "Extra work: adds a remembered item to the job; the value is its name"))
+                }
+                Button {
+                    sheet = .newItem
+                } label: {
+                    Label("New", systemImage: "plus")
+                        .font(.subheadline.weight(.semibold))
+                        .chipStyle(tint: .accentColor)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "New item…"))
+                .accessibilityIdentifier("extra-work-new-item")
+                if !catalog.isEmpty {
+                    NavigationLink(value: ExtraWorkCatalogRoute()) {
+                        Text("Edit list")
+                            .font(.subheadline)
+                            .chipStyle(tint: .accentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("extra-work-edit-items")
+                }
+            }
             if !draft.items.isEmpty {
                 VStack(spacing: 0) {
                     ForEach(Array(draft.items.enumerated()), id: \.offset) { index, item in
@@ -269,60 +298,14 @@ struct ExtraWorkEditorSheet: View {
                 }
                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
             }
-
-            VStack(alignment: .leading, spacing: Metrics.small) {
-                if !suggestions.isEmpty {
-                    Text("Used before — tap to add")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, Metrics.tiny)
-                }
-                ExtraWorkFlow(spacing: Metrics.small) {
-                    ForEach(suggestions) { item in
-                        Button {
-                            addItem(name: item.name, unit: item.unit)
-                        } label: {
-                            Text(verbatim: "+ \(item.name)")
-                                .font(.subheadline)
-                                .chipStyle(tint: .primary)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "Add \(item.name)", comment: "Extra work: adds a remembered item to the job; the value is its name"))
-                    }
-                    Button {
-                        sheet = .newItem
-                    } label: {
-                        Text("New item…")
-                            .font(.subheadline)
-                            .chipStyle(tint: .accentColor)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("extra-work-new-item")
-                    if !catalog.isEmpty {
-                        NavigationLink(value: ExtraWorkCatalogRoute()) {
-                            Text("Edit list")
-                                .font(.subheadline)
-                                .chipStyle(tint: .accentColor)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("extra-work-edit-items")
-                    }
-                }
-            }
         }
     }
 
     private func materialRow(_ item: ExtraWorkItem, index: Int) -> some View {
         HStack(spacing: Metrics.medium) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: item.name)
-                    .font(.body)
-                Text(verbatim: item.unit.name(in: .device))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
+            Text(verbatim: item.name)
+                .font(.body)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             RoundStepButton(
                 systemImage: item.quantity > 0 ? "minus" : "trash",
@@ -344,11 +327,14 @@ struct ExtraWorkEditorSheet: View {
                 typedIndex = index
                 showsQuantityAlert = true
             } label: {
-                Text(verbatim: ExtraWorkFormatting.quantity(item.quantity))
-                    .font(.title3.weight(.bold))
+                Text(verbatim: "\(ExtraWorkFormatting.quantity(item.quantity)) \(item.unit.name(in: .device))")
+                    .font(.body.weight(.semibold))
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
+                    .padding(.horizontal, Metrics.medium)
+                    .padding(.vertical, Metrics.tiny + 2)
+                    .background(Color.hoursCanvas, in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
                     .frame(minWidth: 44, minHeight: 44)
             }
             .buttonStyle(.plain)
@@ -391,13 +377,18 @@ struct ExtraWorkEditorSheet: View {
                 whoSection
                     .padding(.horizontal, Metrics.large)
                     .padding(.vertical, Metrics.medium)
-                Divider().padding(.leading, Metrics.large)
             }
             HStack(spacing: Metrics.medium) {
-                Text("Optional — leave it out when the material says it all")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if showsHours {
+                    Text("Optional — leave it out when the material says it all")
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Text("How long it took")
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
                 Button {
                     withAnimation(.snappy(duration: 0.2)) {
                         if showsHours {
@@ -425,9 +416,9 @@ struct ExtraWorkEditorSheet: View {
                 .accessibilityIdentifier("extra-work-hours-toggle")
             }
             .padding(.horizontal, Metrics.large)
-            .padding(.vertical, Metrics.medium)
+            .padding(.vertical, Metrics.tiny)
+            .frame(minHeight: 50)
         }
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .alert("Time on this job", isPresented: $showsTimeAlert) {
             TextField(String(localized: "e.g. 1:30"), text: $typedTime)
                 .keyboardType(.numbersAndPunctuation)
@@ -464,10 +455,13 @@ struct ExtraWorkEditorSheet: View {
                 showsTimeAlert = true
             } label: {
                 Text(verbatim: minutes > 0 ? settingsStore.settings.displayFormatting.string(minutes) : "–")
-                    .font(.title3.weight(.bold))
+                    .font(.body.weight(.semibold))
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
+                    .padding(.horizontal, Metrics.medium)
+                    .padding(.vertical, Metrics.tiny + 2)
+                    .background(Color.hoursCanvas, in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
                     .frame(minWidth: 64, minHeight: 44)
             }
             .buttonStyle(.plain)
@@ -493,12 +487,12 @@ struct ExtraWorkEditorSheet: View {
         VStack(alignment: .leading, spacing: Metrics.small) {
             Text("Who was on it")
                 .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
                 .accessibilityAddTraits(.isHeader)
             if people.isEmpty {
                 Text("Nobody is ticked present on this day.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
             } else {
                 ExtraWorkFlow(spacing: Metrics.small) {
                     ForEach(Array(people.enumerated()), id: \.element.id) { index, person in
@@ -556,38 +550,67 @@ struct ExtraWorkEditorSheet: View {
         stored.filter { !removedPhotoIDs.contains($0.id) }.count + pending.count
     }
 
+    /// Photos, with "2 · Add" on the right, and the photos under it.
     private var photoSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            ExtraWorkFlow(spacing: Metrics.small) {
-                ForEach(stored.filter { !removedPhotoIDs.contains($0.id) }) { photo in
-                    thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: false), data: photo.data))
-                }
-                ForEach(pending) { photo in
-                    thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: true), data: photo.data))
-                }
+            HStack(spacing: Metrics.medium) {
+                Text("Photos")
+                    .font(.body)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 if canEdit && ExtraWorkJob.photoSlotsLeft(existing: photoCount) > 0 {
+                    if CameraPicker.isAvailable {
+                        Button {
+                            showsCamera = true
+                        } label: {
+                            Image(systemName: "camera")
+                                .font(.body.weight(.semibold))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityLabel(String(localized: "Take photo"))
+                        .accessibilityIdentifier("extra-work-camera")
+                    }
                     PhotosPicker(
                         selection: $pickedItems,
                         maxSelectionCount: ExtraWorkJob.photoSlotsLeft(existing: photoCount),
                         matching: .images
                     ) {
-                        addTile(systemImage: isAddingPhotos ? "hourglass" : "plus")
+                        Group {
+                            if isAddingPhotos {
+                                ProgressView()
+                            } else if photoCount > 0 {
+                                Text(String(localized: "\(photoCount) · Add", comment: "Extra work editor: how many photos the job has, then the button to add more"))
+                            } else {
+                                Text("Add")
+                            }
+                        }
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(minHeight: 44)
                     }
                     .accessibilityLabel(String(localized: "Add photos"))
                     .accessibilityIdentifier("extra-work-add-photos")
-                    if CameraPicker.isAvailable {
-                        Button {
-                            showsCamera = true
-                        } label: {
-                            addTile(systemImage: "camera")
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "Take photo"))
-                        .accessibilityIdentifier("extra-work-camera")
-                    }
+                } else if photoCount > 0 {
+                    Text(verbatim: "\(photoCount)")
+                        .foregroundStyle(.hoursSecondaryText)
                 }
             }
+            .frame(minHeight: 50)
+            if photoCount > 0 {
+                ExtraWorkFlow(spacing: Metrics.small) {
+                    ForEach(stored.filter { !removedPhotoIDs.contains($0.id) }) { photo in
+                        thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: false), data: photo.data))
+                    }
+                    ForEach(pending) { photo in
+                        thumbnail(photo.image, photo: ViewedPhoto(reference: PhotoReference(id: photo.id, isPending: true), data: photo.data))
+                    }
+                }
+                .padding(.bottom, Metrics.medium)
+            }
         }
+        .padding(.horizontal, Metrics.large)
         // A tap on a photo shows it; removing it is a button in there, with
         // a confirmation. Removing waits for Save, like everything here.
         .sheet(item: $viewing) { photo in
@@ -615,31 +638,23 @@ struct ExtraWorkEditorSheet: View {
         .accessibilityIdentifier("extra-work-photo")
     }
 
-    private func addTile(systemImage: String) -> some View {
-        Image(systemName: systemImage)
-            .font(.title2)
-            .foregroundStyle(Color.accentColor)
-            .frame(width: 84, height: 84)
-            .overlay {
-                RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
-                    .strokeBorder(Color.hoursHairline, style: StrokeStyle(lineWidth: 1, dash: [4]))
-            }
-            .contentShape(Rectangle())
-    }
-
     // MARK: - Client's signature
 
     private var signatureSection: some View {
         HStack(spacing: Metrics.medium) {
             VStack(alignment: .leading, spacing: 2) {
                 if let signature = draft.clientSignature {
+                    Text("Client's signature")
+                        .font(.body)
                     Text(verbatim: signedLine(signature))
                         .font(.footnote)
-                        .foregroundStyle(Color.hoursPositive)
+                        .foregroundStyle(Color.hoursDone)
                 } else {
+                    Text("Client's signature")
+                        .font(.body)
                     Text("Optional — the site manager confirms it on your phone")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -688,7 +703,7 @@ struct ExtraWorkEditorSheet: View {
                     comment: "Extra work: when the job was last reported to the boss; the value is a date"
                 ))
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
             }
             Button("Delete this extra work", role: .destructive) { confirmsDelete = true }
                 .frame(minHeight: 44)
@@ -701,58 +716,15 @@ struct ExtraWorkEditorSheet: View {
 
     // MARK: - Parts
 
-    /// A section that opens in place under its header. The identifier is on
-    /// the header's button, never on this container, which holds buttons.
-    private func collapsible<Content: View>(
-        _ section: EditorSection,
-        title: String,
-        summary: String,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            DisclosureHeader(title: title, summary: summary, isExpanded: expanded.contains(section)) {
-                withAnimation(.snappy(duration: 0.25)) {
-                    if expanded.contains(section) {
-                        expanded.remove(section)
-                    } else {
-                        expanded.insert(section)
-                    }
-                }
-            }
-            .accessibilityIdentifier("extra-work-section-\(section.rawValue)")
-            .padding(.horizontal, Metrics.tiny)
-            if expanded.contains(section) {
-                content()
-                    .disabled(!canEdit)
-                    .transition(.opacity)
-            }
-        }
-    }
-
-    /// "Items: 3"; nothing when there are none.
-    private var materialSummary: String {
-        guard !draft.items.isEmpty else { return "" }
-        return String(localized: "Items: \(draft.items.count)", comment: "Extra work editor: how many lines of material a job has, on its closed Material section")
-    }
-
-    /// "1h · 2 people"; nothing when no time is noted.
-    private var timeSummary: String {
-        guard showsHours, draft.hasHours else { return "" }
-        let count = draft.people.count
-        let who = String(inflected: "^[\(count) person](inflect: true)")
-        let time = settingsStore.settings.displayFormatting.string(draft.duration)
-        return "\(time) · \(who)"
-    }
-
-    /// "Photos: 2"; nothing without any.
-    private var photoSummary: String {
-        photoCount > 0 ? String(localized: "Photos: \(photoCount)", comment: "Extra work job: how many photos it has") : ""
-    }
-
-    /// "Signed by Ing. Horvat · 22 Oct", or "Not signed".
-    private var signatureSummary: String {
-        guard let signature = draft.clientSignature else { return String(localized: "Not signed") }
-        return signedLine(signature)
+    /// Under WHO SIGNS: what is being signed for, "Emergency lighting ·
+    /// Thu 29 Oct · 2h 30m".
+    private var signSummary: String {
+        var parts: [String] = []
+        let title = draft.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !title.isEmpty { parts.append(title) }
+        parts.append(settingsStore.dateFormatting.dayTitle(draft.date))
+        if draft.duration > 0 { parts.append(settingsStore.settings.displayFormatting.string(draft.duration)) }
+        return parts.joined(separator: " · ")
     }
 
     private var hasChanges: Bool {

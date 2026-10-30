@@ -2,12 +2,12 @@ import StoreKit
 import SwiftUI
 import SwiftData
 
-/// The Extra-work report for the boss (mockup 15): the site and what the
-/// report carries first, then which jobs — not sent yet, this week, or
-/// picked dates — what is done, if asked for what is still in progress, the
-/// material used and the client's optional signature under the lot. One
-/// button sends it ("Send to boss · PDF"); the picture for a chat, Excel and
-/// CSV are under "More formats" beside it.
+/// The Extra-work report for the boss (Extra work board, phone 3): This
+/// week · Last week · Pick dates, the orange "3 extra jobs not sent to your
+/// boss yet" that lists exactly those, the jobs, Include jobs in progress
+/// and Client confirms, the material used, and two big buttons: "Send to
+/// boss · PDF" and "Send as picture" for a chat. Excel and CSV are under
+/// "More formats" beside the picture.
 ///
 /// Jobs in progress on the site, whatever their date, are one line under the
 /// title ("2 extra jobs in progress · Mark finished"), opening in place to a list with
@@ -61,7 +61,7 @@ struct ExtraWorkReportScreen: View {
     }
 
     private enum Choice: String, CaseIterable, Identifiable {
-        case notSent, thisWeek, dates
+        case notSent, thisWeek, lastWeek, dates
         var id: String { rawValue }
     }
 
@@ -80,16 +80,10 @@ struct ExtraWorkReportScreen: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.large) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: site.name)
-                            .font(.title2.weight(.bold))
-                        Text(verbatim: summaryLine)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .accessibilityIdentifier("extra-work-report-summary")
-                    }
-                    .padding(.leading, Metrics.tiny)
+                VStack(alignment: .leading, spacing: Metrics.medium) {
+                    rangeSection
+
+                    notSentLine
 
                     // An empty report held back by jobs in progress lists
                     // them itself, below; the line would say it twice.
@@ -97,15 +91,13 @@ struct ExtraWorkReportScreen: View {
                         inProgressOnSiteSection
                     }
 
-                    rangeSection
-
                     if report.isEmpty {
                         if isHeldBackByJobsInProgress {
                             heldBackSection
                         } else {
                             Text("Nothing to report for these dates.")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.hoursSecondaryText)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(Metrics.large)
                                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
@@ -113,12 +105,20 @@ struct ExtraWorkReportScreen: View {
                     } else {
                         if !report.done.isEmpty { doneSection }
                         if !report.inProgress.isEmpty { reportedInProgressSection }
+                    }
+
+                    optionsSection
+
+                    if !report.isEmpty {
                         materialSection
-                        signatureSection
-                        Text("Marked as sent after you share the PDF, the picture or the Excel file.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, Metrics.tiny)
+                        VStack(alignment: .leading, spacing: Metrics.tiny) {
+                            Text(verbatim: "\(site.name) · \(summaryLine)")
+                                .accessibilityIdentifier("extra-work-report-summary")
+                            Text("Marked as sent after you share the PDF, the picture or the Excel file.")
+                        }
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .padding(.horizontal, Metrics.tiny)
                     }
                 }
                 .padding(.horizontal, Metrics.large)
@@ -158,7 +158,7 @@ struct ExtraWorkReportScreen: View {
             .sheet(item: $sheet) { sheet in
                 switch sheet {
                 case .signature:
-                    ExtraWorkSignSheet(prompt: String(localized: "Sign to confirm these jobs")) { signed in
+                    ExtraWorkSignSheet(prompt: String(localized: "Sign to confirm these jobs"), summary: signSummary) { signed in
                         signature = signed
                     }
                 case let .job(job):
@@ -175,12 +175,14 @@ struct ExtraWorkReportScreen: View {
 
     // MARK: - Which jobs
 
+    /// This week · Last week · Pick dates. "Not sent yet" is the orange
+    /// line under it, and with it chosen no segment is.
     private var rangeSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            Picker(selection: $choice) {
-                Text("Not sent yet").tag(Choice.notSent)
-                Text("This week").tag(Choice.thisWeek)
-                Text("Pick dates").tag(Choice.dates)
+            Picker(selection: segmentBinding) {
+                Text("This week").tag(Choice?.some(.thisWeek))
+                Text("Last week").tag(Choice?.some(.lastWeek))
+                Text("Pick dates").tag(Choice?.some(.dates))
             } label: {
                 Text("Jobs")
             }
@@ -197,14 +199,103 @@ struct ExtraWorkReportScreen: View {
                 }
                 .padding(.horizontal, Metrics.large)
                 .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                .accessibilityIdentifier("extra-work-report-dates")
             }
-
-            Toggle("Include jobs still in progress", isOn: $includeInProgress)
-                .frame(minHeight: 44)
-                .padding(.horizontal, Metrics.large)
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                .accessibilityIdentifier("extra-work-report-include-in-progress")
         }
+    }
+
+    private var segmentBinding: Binding<Choice?> {
+        Binding(get: { choice == .notSent ? nil : choice }, set: { choice = $0 ?? .notSent })
+    }
+
+    /// "3 extra jobs not sent to your boss yet": orange, the colour of
+    /// "look at this". Tapping it lists exactly those.
+    @ViewBuilder
+    private var notSentLine: some View {
+        if notSentCount > 0 || choice == .notSent {
+            Button {
+                withAnimation(.snappy(duration: 0.2)) { choice = .notSent }
+            } label: {
+                HStack(spacing: Metrics.small) {
+                    Text(String(inflected: "^[\(notSentCount) extra job](inflect: true) not sent to your boss yet"))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if choice == .notSent {
+                        Image(systemName: "checkmark")
+                            .accessibilityHidden(true)
+                    }
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(notSentCount > 0 ? Color.hoursAttention : Color.secondary)
+                .padding(.horizontal, Metrics.medium)
+                .frame(minHeight: 44)
+                .background(
+                    (notSentCount > 0 ? Color.hoursAttentionFill : Color.gray).opacity(0.12),
+                    in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius + 2, style: .continuous)
+                )
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(choice == .notSent ? .isSelected : [])
+            .accessibilityIdentifier("extra-work-report-not-sent")
+        }
+    }
+
+    /// Include jobs in progress, and Client confirms ›.
+    private var optionsSection: some View {
+        VStack(spacing: 0) {
+            Toggle("Include jobs in progress", isOn: $includeInProgress)
+                .frame(minHeight: 50)
+                .padding(.horizontal, Metrics.large)
+                .accessibilityIdentifier("extra-work-report-include-in-progress")
+            Divider().padding(.leading, Metrics.large)
+            Button {
+                sheet = .signature
+            } label: {
+                HStack(spacing: Metrics.small) {
+                    Text("Client confirms")
+                        .foregroundStyle(.primary)
+                    Spacer(minLength: Metrics.small)
+                    Text(verbatim: signerValue)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .lineLimit(1)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
+                }
+                .frame(minHeight: 50)
+                .padding(.horizontal, Metrics.large)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(report.isEmpty)
+            .accessibilityIdentifier("extra-work-report-sign")
+            if let signature {
+                Divider().padding(.leading, Metrics.large)
+                VStack(alignment: .leading, spacing: Metrics.small) {
+                    SignaturePreview(strokes: signature.strokes, aspectRatio: signature.aspectRatio)
+                        .frame(height: 84)
+                        .accessibilityLabel(String(localized: "Client's signature"))
+                    Text(verbatim: signedLine(signature))
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
+                    Button("Remove signature", role: .destructive) { self.signature = nil }
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier("extra-work-report-remove-signature")
+                }
+                .padding(.horizontal, Metrics.large)
+                .padding(.vertical, Metrics.medium)
+            }
+        }
+        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+    }
+
+    /// Who signed, or "optional" while nobody has.
+    private var signerValue: String {
+        guard let signature else { return String(localized: "optional") }
+        let name = signature.signerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? String(localized: "Signed") : name
     }
 
     // MARK: - In progress
@@ -219,7 +310,7 @@ struct ExtraWorkReportScreen: View {
                 HStack(spacing: Metrics.small) {
                     Image(systemName: "hourglass")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.hoursNegative)
+                        .foregroundStyle(Color.hoursAttention)
                         .accessibilityHidden(true)
                     Text(String(
                         inflected: "^[\(jobsInProgress.count) extra job](inflect: true) in progress · Mark finished"
@@ -263,7 +354,7 @@ struct ExtraWorkReportScreen: View {
                 .accessibilityIdentifier("extra-work-report-held-back")
                 Text("Finished jobs go in the extra-work report.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
                 Button {
                     withAnimation(.snappy(duration: 0.2)) { includeInProgress = true }
                 } label: {
@@ -314,7 +405,7 @@ struct ExtraWorkReportScreen: View {
                                 .multilineTextAlignment(.leading)
                             Text(verbatim: jobDetail(job))
                                 .font(.footnote)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.hoursSecondaryText)
                         }
                         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                         .padding(.leading, Metrics.small)
@@ -346,7 +437,6 @@ struct ExtraWorkReportScreen: View {
 
     private var doneSection: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            SectionHeading("Work done")
             VStack(spacing: 0) {
                 ForEach(Array(shownJobs.enumerated()), id: \.element.id) { index, job in
                     Button {
@@ -409,7 +499,7 @@ struct ExtraWorkReportScreen: View {
                     .multilineTextAlignment(.leading)
                 Text(verbatim: jobDetail(job))
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             // A signature is shown when there is one, and nothing is said
@@ -472,43 +562,6 @@ struct ExtraWorkReportScreen: View {
 
     // MARK: - Client's signature
 
-    private var signatureSection: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            HStack {
-                Text("Client confirms")
-                    .font(.body.weight(.semibold))
-                Spacer()
-                Text("optional")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-            if let signature {
-                SignaturePreview(strokes: signature.strokes, aspectRatio: signature.aspectRatio)
-                    .frame(height: 84)
-                    .accessibilityLabel(String(localized: "Client's signature"))
-                Text(verbatim: signedLine(signature))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Button("Remove signature", role: .destructive) { self.signature = nil }
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("extra-work-report-remove-signature")
-            } else {
-                Text("The client's site manager can sign for all of these jobs at once. It is printed under the report.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Button("Sign") { sheet = .signature }
-                    .font(.subheadline.weight(.semibold))
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.capsule)
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("extra-work-report-sign")
-            }
-        }
-        .padding(.horizontal, Metrics.large)
-        .padding(.vertical, Metrics.medium)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-    }
-
     /// "Ing. M. Horvat · 22 Oct, 15:40".
     private func signedLine(_ signature: ExtraWorkSignature) -> String {
         let calendar = settingsStore.workCalendar
@@ -525,69 +578,78 @@ struct ExtraWorkReportScreen: View {
     /// One button sends the report; the other formats are in a menu beside
     /// it, so the bar stays one row high over the jobs.
     private var shareBar: some View {
-        HStack(spacing: Metrics.small) {
+        VStack(spacing: Metrics.small) {
             Button {
                 share(.pdf)
             } label: {
                 Group {
                     if preparing == .pdf {
-                        ProgressView()
+                        ProgressView().tint(.white)
                     } else {
                         Label("Send to boss · PDF", systemImage: "square.and.arrow.up")
                     }
                 }
-                .font(.headline)
-                .frame(maxWidth: .infinity, minHeight: 28)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(.bigAction(.primary))
             .disabled(report.isEmpty || preparing != nil)
             .accessibilityIdentifier("extra-work-report-share-pdf")
 
-            Menu {
+            HStack(spacing: Metrics.small) {
                 // For a chat: an A4 PDF opens zoomed in and cut off there, a
                 // picture opens full width.
                 Button {
                     share(.picture)
                 } label: {
-                    Label("Send as picture", systemImage: "photo")
+                    Group {
+                        if preparing == .picture {
+                            ProgressView()
+                        } else {
+                            Label("Send as picture", systemImage: "photo")
+                        }
+                    }
                 }
+                .buttonStyle(.bigAction(.secondary))
+                .disabled(report.isEmpty || preparing != nil)
                 .accessibilityIdentifier("extra-work-send-picture")
-                Button {
-                    share(.xlsx)
+
+                Menu {
+                    Button {
+                        share(.xlsx)
+                    } label: {
+                        Label {
+                            Text(verbatim: ExportFormat.xlsx.title)
+                        } icon: {
+                            Image(systemName: "tablecells")
+                        }
+                    }
+                    .accessibilityIdentifier("extra-work-report-share-xlsx")
+                    Button {
+                        share(.csv)
+                    } label: {
+                        Label {
+                            Text(verbatim: ExportFormat.csv.title)
+                        } icon: {
+                            Image(systemName: "doc.plaintext")
+                        }
+                    }
+                    .accessibilityIdentifier("extra-work-report-share-csv")
                 } label: {
-                    Label {
-                        Text(verbatim: ExportFormat.xlsx.title)
-                    } icon: {
-                        Image(systemName: "tablecells")
+                    Group {
+                        if preparing == .xlsx || preparing == .csv {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "ellipsis")
+                                .font(.title3.weight(.bold))
+                        }
                     }
+                    .frame(width: 56, height: 56)
+                    .background(Color.accentColor.opacity(0.13), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .contentShape(Rectangle())
                 }
-                .accessibilityIdentifier("extra-work-report-share-xlsx")
-                Button {
-                    share(.csv)
-                } label: {
-                    Label {
-                        Text(verbatim: ExportFormat.csv.title)
-                    } icon: {
-                        Image(systemName: "doc.plaintext")
-                    }
-                }
-                .accessibilityIdentifier("extra-work-report-share-csv")
-            } label: {
-                Group {
-                    if preparing != nil && preparing != .pdf {
-                        ProgressView()
-                    } else {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.title2)
-                    }
-                }
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
+                .disabled(report.isEmpty || preparing != nil)
+                .accessibilityLabel(String(localized: "More formats"))
+                .accessibilityIdentifier("extra-work-report-more-formats")
             }
-            .disabled(report.isEmpty || preparing != nil)
-            .accessibilityLabel(String(localized: "More formats"))
-            .accessibilityIdentifier("extra-work-report-more-formats")
         }
         .padding(.horizontal, Metrics.large)
         .padding(.vertical, Metrics.small)
@@ -715,6 +777,9 @@ struct ExtraWorkReportScreen: View {
         switch choice {
         case .notSent: return .notSentYet
         case .thisWeek: return .thisWeek
+        case .lastWeek:
+            let calendar = settingsStore.workCalendar
+            return .lastWeek(today: CalendarDate.today(in: calendar), calendar: calendar)
         case .dates:
             let calendar = settingsStore.workCalendar
             let start = CalendarDate(from, calendar: calendar)
@@ -762,6 +827,18 @@ struct ExtraWorkReportScreen: View {
             ? formatting.shortDate(period.start)
             : "\(formatting.shortDate(period.start)) – \(formatting.shortDate(period.end))"
         return "\(count) · \(dates)"
+    }
+
+    /// Finished jobs the boss does not have yet, whatever their date.
+    private var notSentCount: Int {
+        allJobs.filter { $0.isDone && $0.awaitsReport }.count
+    }
+
+    /// Under WHO SIGNS: "Jobs: 3 · 26 Oct – 29 Oct · 4h 30m".
+    private var signSummary: String {
+        let minutes = ExtraWorkReport.totalMinutes(of: report.jobs)
+        guard minutes > 0 else { return summaryLine }
+        return "\(summaryLine) · \(settingsStore.settings.displayFormatting.string(minutes))"
     }
 
     private func load() {
