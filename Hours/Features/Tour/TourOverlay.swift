@@ -195,7 +195,8 @@ struct TourOverlay: View {
     }
 }
 
-/// The card: where you are, what this is, and the way on.
+/// The card: what this is, where you are, and the way on. A plain
+/// rounded rectangle of the system's material (design v2), no shadow.
 private struct TourCard: View {
     let tour: GuidedTour
     let title: String
@@ -206,20 +207,11 @@ private struct TourCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            Text(String(
-                localized: "\(tour.number) of \(tour.count)",
-                comment: "Guided tour progress, such as 2 of 6"
-            ))
-            .font(.caption.weight(.bold))
-            .textCase(.uppercase)
-            .tracking(0.6)
-            .foregroundStyle(.hoursSecondaryText)
-
             // The identifier is on the title, not on the card: the card
             // holds the buttons, and an identifier on a container that wraps
             // buttons takes theirs away.
             Text(title)
-                .font(.title3.bold())
+                .font(.headline)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused(focus)
@@ -230,6 +222,14 @@ private struct TourCard: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: Metrics.medium) {
+                Text(String(
+                    localized: "\(tour.number) of \(tour.count)",
+                    comment: "Guided tour progress, such as 2 of 6"
+                ))
+                .font(.footnote)
+                .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
+                Spacer(minLength: 0)
                 if !tour.isLast {
                     Button(action: onEnd) {
                         Text("Skip")
@@ -238,34 +238,30 @@ private struct TourCard: View {
                     .accessibilityHint(Text("Ends the tour"))
                     .accessibilityIdentifier("tour-skip")
                 }
-                Spacer(minLength: 0)
                 if tour.isLast {
                     Button(action: onEnd) {
                         Text("Done")
                             .font(.headline)
-                            .frame(minWidth: 88, minHeight: 44)
+                            .frame(minWidth: 64, minHeight: 32)
                     }
                     .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.capsule)
                     .accessibilityIdentifier("tour-done")
                 } else {
                     Button(action: onNext) {
-                        HStack(spacing: Metrics.tiny) {
-                            Text("Next")
-                            Image(systemName: "chevron.forward")
-                                .accessibilityHidden(true)
-                        }
-                        .font(.headline)
-                        .frame(minWidth: 88, minHeight: 44)
+                        Text("Next")
+                            .font(.headline)
+                            .frame(minWidth: 64, minHeight: 32)
                     }
                     .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.capsule)
                     .accessibilityIdentifier("tour-next")
                 }
             }
             .padding(.top, Metrics.tiny)
         }
         .padding(Metrics.large)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-        .shadow(color: .black.opacity(0.25), radius: 16, y: 6)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isModal)
     }

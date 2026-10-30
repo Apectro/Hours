@@ -109,13 +109,14 @@ struct CrewScreen: View {
                         memberRow(member, hiding: false)
                     }
                 } header: {
-                    Text("Hidden · keep their hours")
+                    Text("Hidden")
                         .accessibilityIdentifier("crew-hidden-header")
                 } footer: {
                     Text("Not offered for new days. Every day already recorded for them stays, on screen and on exports.")
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Crew")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -160,7 +161,6 @@ struct CrewScreen: View {
 
     private var youRow: some View {
         HStack(spacing: Metrics.medium) {
-            CrewInitial(name: yourName, isHidden: false)
             HStack(spacing: 0) {
                 Text(verbatim: yourName)
                 Text(verbatim: " · ")
@@ -197,7 +197,6 @@ struct CrewScreen: View {
                 CrewMemberSheetScreen(member: member)
             } label: {
                 HStack(spacing: Metrics.medium) {
-                    CrewInitial(name: member.name, isHidden: !hiding)
                     Text(member.name)
                         .foregroundStyle(hiding ? AnyShapeStyle(.primary) : AnyShapeStyle(.hoursSecondaryText))
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -375,24 +374,5 @@ struct CrewScreen: View {
         for member in renumbered where previous[member.id] != member.sortOrder {
             store.upsert(member)
         }
-    }
-}
-
-/// A person's initial in a circle, as the mockup's crew list has them.
-private struct CrewInitial: View {
-    let name: String
-    let isHidden: Bool
-
-    @ScaledMetric(relativeTo: .body) private var diameter: CGFloat = 32
-
-    var body: some View {
-        Text(verbatim: String(name.trimmingCharacters(in: .whitespaces).prefix(1)).uppercased())
-            .font(.subheadline.weight(.bold))
-            .foregroundStyle(isHidden ? Color.secondary : Color.accentColor)
-            .frame(width: diameter, height: diameter)
-            .background(
-                Circle().fill(isHidden ? Color(uiColor: .systemGray5) : Color.accentColor.opacity(0.13))
-            )
-            .accessibilityHidden(true)
     }
 }

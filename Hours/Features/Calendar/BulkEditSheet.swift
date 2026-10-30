@@ -130,6 +130,7 @@ struct BulkEditSheet: View {
                 .listRowBackground(Color.clear)
             } header: {
                 Text("Make them")
+                    .textCase(nil)
             } footer: {
                 Text(verbatim: actionDescription)
             }
@@ -176,7 +177,7 @@ struct BulkEditSheet: View {
                     Text(applyTitle)
                         .proLock(!subscriptions.allows(.rangeEditing))
                 }
-                .buttonStyle(.bigAction(choice == .clear ? BigActionKind.destructive : BigActionKind.primary, isMain: true))
+                .buttonStyle(.bigAction(choice == .clear ? BigActionKind.destructive : BigActionKind.primary))
                 .disabled(plan.isEmpty)
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -195,8 +196,7 @@ struct BulkEditSheet: View {
                 .padding(.horizontal, Metrics.medium + 2)
                 .frame(minHeight: 44)
                 .foregroundStyle(isOn ? Color.white : Color.primary)
-                .background(isOn ? Color.accentColor : Color.hoursSurface, in: Capsule())
-                .overlay { Capsule().strokeBorder(isOn ? Color.clear : Color(uiColor: .separator), lineWidth: 1) }
+                .background(isOn ? Color.accentColor : Color(uiColor: .tertiarySystemFill), in: Capsule())
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -226,8 +226,7 @@ struct BulkEditSheet: View {
                 .padding(.horizontal, Metrics.medium + 2)
                 .frame(minHeight: 44)
                 .foregroundStyle(current != nil ? Color.white : Color.accentColor)
-                .background(current != nil ? Color.accentColor : Color.hoursSurface, in: Capsule())
-                .overlay { Capsule().strokeBorder(current != nil ? Color.clear : Color(uiColor: .separator), lineWidth: 1) }
+                .background(current != nil ? Color.accentColor : Color(uiColor: .tertiarySystemFill), in: Capsule())
                 .contentShape(Capsule())
         }
         .accessibilityIdentifier("bulk-edit-choice-other")
@@ -244,49 +243,42 @@ struct BulkEditSheet: View {
     // MARK: - The result
 
     private func resultView(_ plan: BulkEditPlan) -> some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            VStack(alignment: .leading, spacing: Metrics.small) {
+        List {
+            Section {
                 HStack(alignment: .firstTextBaseline) {
                     Text("Days changed")
                     Spacer(minLength: Metrics.small)
                     Text(verbatim: "\(plan.affectedDayCount)")
-                        .font(.hoursFigure(.largeTitle, weight: .heavy))
-                        .foregroundStyle(Color.hoursPositive)
+                        .font(.title2.weight(.semibold))
+                        .monospacedDigit()
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("bulk-edit-changed")
-                Divider()
                 resultRow(String(localized: "Already had hours, left alone"), plan.skippedExisting)
-                Divider()
                 resultRow(String(localized: "Days you don't work"), plan.skippedNonWorking)
             }
-            .padding(Metrics.large)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-            Spacer(minLength: Metrics.large)
-
+        }
+        .listStyle(.insetGrouped)
+        .safeAreaInset(edge: .bottom) {
             Button {
                 dismiss()
             } label: {
                 Text("OK")
             }
-            .buttonStyle(.bigAction(.primary, isMain: true))
+            .buttonStyle(.bigAction(.primary))
             .accessibilityIdentifier("bulk-edit-done")
+            .padding(.horizontal, Metrics.large)
+            .padding(.vertical, Metrics.small)
         }
-        .padding(Metrics.large)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.hoursCanvas)
     }
 
     private func resultRow(_ label: String, _ count: Int) -> some View {
-        HStack {
-            Text(verbatim: label)
-            Spacer(minLength: Metrics.small)
+        LabeledContent {
             Text(verbatim: "\(count)")
-                .fontWeight(.bold)
                 .monospacedDigit()
+        } label: {
+            Text(verbatim: label)
         }
-        .accessibilityElement(children: .combine)
     }
 
     /// The closed months, named. Nothing is changed when any of them is in

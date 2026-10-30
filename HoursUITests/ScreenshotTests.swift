@@ -116,6 +116,8 @@ final class ScreenshotTests: XCTestCase {
         // just under the navigation bar, so it is not cut off and the jobs
         // fit below it.
         let heading = app.descendants(matching: .any)["extra-work-heading"].firstMatch
+        // The day is a list, which only makes the rows on screen: scroll down to it.
+        for _ in 0..<8 where !heading.exists { app.swipeUp() }
         XCTAssertTrue(heading.waitForExistence(timeout: 10), "the site day has no extra work")
         for _ in 0..<6 where !heading.isHittable { app.swipeUp() }
         XCTAssertTrue(heading.isHittable, "could not scroll to the extra work")
@@ -134,7 +136,10 @@ final class ScreenshotTests: XCTestCase {
         // material added up, in the export language. From the site's page.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10), "could not get back to the site's page")
-        app.buttons["site-extra-work-report"].tap()
+        // Scrolled to the end, the row sits above Write today / Sheet, which
+        // otherwise float over it and take the tap.
+        for _ in 0..<3 { app.swipeUp() }
+        app.buttons["site-extra-work-report"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "the report did not open")
         XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 10), "the report has no finished jobs")
         capture("04-extra-work-report", app)
@@ -161,11 +166,16 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
         capture("06-day-editor", app)
         app.buttons["day-editor-cancel"].tap()
+        // Back on today's sheet, which covers the tabs: closed first.
+        app.closeDaySheet()
 
         // 7 — the month's figures, earnings first.
         app.tab(.insights).tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
-        XCTAssertTrue(app.descendants(matching: .any)["insights-earned"].waitForExistence(timeout: 10), "Insights shows no earnings")
+        // Insights is a list: Pay sits under the figures, so scroll to it.
+        let earned = app.descendants(matching: .any)["insights-earned"].firstMatch
+        for _ in 0..<6 where !earned.exists { app.swipeUp() }
+        XCTAssertTrue(earned.waitForExistence(timeout: 10), "Insights shows no earnings")
         capture("07-insights", app)
 
         // 8 — the privacy screen, which is the reason to choose this one.

@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// The month grid (1.2, mockup Today, "The month").
+/// The month grid (design v2, mockup Main, "the month first").
 ///
-/// Reads at a glance and nothing more, by the colour rule: a written day is
-/// white with its figure; a day not written has a dashed red outline and a
-/// "?"; away (sick, leave) is an orange wash with the type's name; a public
-/// holiday is green; a day off is grey; today is filled with the accent. A
-/// tap opens the day.
+/// In the look of Apple's Calendar: no boxes and no tiles, a hairline
+/// between weeks, each date in a 32pt circle that is filled with the accent
+/// for today. Under the date, the hours worked ("8h", "8.5h"), or a 6pt dot
+/// where the day wants a look: red for a working day nobody wrote, the
+/// type's own colour for sick, vacation and the other day types. Days off
+/// and weekends are in the tertiary label colour. A tap opens the day.
 struct CalendarMonthGrid: View {
     let layout: MonthLayout
     let computations: [Int: DayComputation]
@@ -17,20 +18,21 @@ struct CalendarMonthGrid: View {
     let onSelect: (CalendarDate) -> Void
 
     var body: some View {
-        VStack(spacing: Metrics.small) {
+        VStack(spacing: 0) {
             WeekdayHeader(weekdays: layout.weekdays, formatting: formatting)
+                .padding(.bottom, Metrics.small)
 
-            // Rows of plain stacks, not a lazy grid: the month sits under
-            // Today, below the fold, and a lazy grid would not build cells
-            // that are off screen — VoiceOver and the UI tests could not
-            // reach today's day until it was scrolled to.
-            VStack(spacing: Metrics.tiny) {
-                ForEach(rows, id: \.first?.key) { week in
-                    HStack(spacing: Metrics.tiny) {
-                        ForEach(week, id: \.key) { date in
-                            cell(date)
-                                .frame(maxWidth: .infinity)
-                        }
+            // Rows of plain stacks, not a lazy grid: VoiceOver and the UI
+            // tests reach every day of the month without scrolling to it.
+            ForEach(rows, id: \.first?.key) { week in
+                Rectangle()
+                    .fill(.hoursHairlineStyle)
+                    .frame(height: 0.5)
+                    .accessibilityHidden(true)
+                HStack(spacing: Metrics.tiny) {
+                    ForEach(week, id: \.key) { date in
+                        cell(date)
+                            .frame(maxWidth: .infinity)
                     }
                 }
             }
@@ -67,8 +69,7 @@ struct CalendarMonthGrid: View {
             .accessibilityIdentifier("day-\(date.key)")
             .tourTarget(date == today ? .calendarToday : nil)
         } else {
-            // A neighbouring month's day: an empty place, as on a paper
-            // calendar.
+            // A neighbouring month's day is not shown, as in Calendar.
             Color.clear
                 .frame(height: 1)
                 .accessibilityHidden(true)
@@ -76,12 +77,15 @@ struct CalendarMonthGrid: View {
     }
 }
 
-/// One day of the month, drawn by the colour rule.
+/// One day of the month: the date in its circle and, under it, the hours or
+/// a dot (see `CalendarMonthGrid`).
 struct DayCell: View {
     // The cell grows with the user's text size rather than clipping it.
     // Not `private`: a private stored property makes the memberwise
     // initializer private too.
-    @ScaledMetric(relativeTo: .subheadline) var cellHeight: CGFloat = Metrics.dayCellHeight
+    @ScaledMetric(relativeTo: .body) var cellHeight: CGFloat = Metrics.dayCellHeight
+    @ScaledMetric(relativeTo: .body) var diameter: CGFloat = 32
+    @ScaledMetric(relativeTo: .caption2) var underHeight: CGFloat = 13
 
     let date: CalendarDate
     let computation: DayComputation?
@@ -90,26 +94,29 @@ struct DayCell: View {
     let detail: DayCellDetail
     let durationFormatting: DurationFormatting
 
-    @Environment(\.highContrast) private var highContrast
-
-    /// What the day is, which decides its colours.
+    /// What the day is, which decides what is under the date.
     enum Look: Equatable {
-        case written, missing, away, holiday, dayOff, plain, today
+        case written, missing, away, holiday, dayOff, plain
     }
 
     var body: some View {
         let look = self.look
-        VStack(spacing: 1) {
+        VStack(spacing: 2) {
             Text("\(date.day)")
-                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                .font(isToday ? Font.body.weight(.semibold) : Font.body)
                 .monospacedDigit()
                 .foregroundStyle(numberColor(look))
-            detailLabel(look)
+                .frame(width: diameter, height: diameter)
+                .background {
+                    if isToday {
+                        Circle().fill(Color.accentColor)
+                    }
+                }
+            under(look)
+                .frame(height: underHeight)
         }
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: cellHeight)
-        .background { background(look) }
-        .overlay(alignment: .topTrailing) { workedHolidayMark(look) }
+        .padding(.top, Metrics.tiny)
+        .frame(maxWidth: .infinity, minHeight: cellHeight, alignment: .top)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel(look))
@@ -119,13 +126,14 @@ struct DayCell: View {
     // MARK: - The look
 
     var look: Look {
-        if isToday { return .today }
         guard let computation else { return .plain }
         if computation.isUnrecordedWorkingDay(asOf: today) { return .missing }
-        if computation.dayType.id == .holiday { return .holiday }
+        if computation.dayType.id == .holiday {
+            return computation.workedMinutes > 0 ? .written : .holiday
+        }
         switch DayKind.of(computation.dayType) {
         case .away:
-            return .away
+            return computation.workedMinutes > 0 ? .written : .away
         case .dayOff:
             return computation.workedMinutes > 0 ? .written : .dayOff
         case .worked:
@@ -135,109 +143,63 @@ struct DayCell: View {
     }
 
     private func numberColor(_ look: Look) -> Color {
-        switch look {
-        case .today: return .white
-        case .missing: return .hoursMissing
-        case .away: return .hoursAttention
-        case .holiday: return .hoursPositive
-        case .dayOff: return .secondary
-        case .written, .plain: return .primary
-        }
+        if isToday { return .white }
+        if look == .dayOff { return Color(uiColor: .tertiaryLabel) }
+        return .primary
     }
 
     @ViewBuilder
-    private func detailLabel(_ look: Look) -> some View {
-        if let text = detailText(look) {
+    private func under(_ look: Look) -> some View {
+        if let dot = dotColor(look) {
+            Circle()
+                .fill(dot)
+                .frame(width: 6, height: 6)
+                .accessibilityHidden(true)
+        } else if let text = figure {
             Text(verbatim: text)
-                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                .font(.caption2.weight(.semibold))
                 .monospacedDigit()
-                .foregroundStyle(detailColor(look))
+                .foregroundStyle(figureColor)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .padding(.horizontal, 2)
         } else {
-            Text(verbatim: " ")
-                .font(.caption2)
-                .accessibilityHidden(true)
+            Color.clear
         }
     }
 
-    private func detailText(_ look: Look) -> String? {
+    /// Red for a day nobody wrote; the type's own colour for a day away or
+    /// a public holiday; nothing for the rest.
+    private func dotColor(_ look: Look) -> Color? {
         guard let computation else { return nil }
         switch look {
-        case .missing:
-            return "?"
-        case .away:
-            return computation.workedMinutes > 0 ? figure(computation) : computation.dayType.displayName()
-        case .dayOff, .plain:
-            return nil
-        case .holiday, .written, .today:
-            return figure(computation)
+        case .missing: return .hoursMissingFill
+        case .away, .holiday: return computation.dayType.tint.color
+        case .written, .dayOff, .plain: return nil
         }
     }
 
-    /// The figure the calendar settings choose: hours worked, the day's
-    /// balance, or nothing.
-    private func figure(_ computation: DayComputation) -> String? {
-        guard computation.isIncluded else { return nil }
+    /// The figure the calendar settings choose: hours worked ("8.5h"), the
+    /// day's balance, or nothing.
+    private var figure: String? {
+        guard let computation, computation.isIncluded else { return nil }
         switch detail {
         case .hidden:
             return nil
         case .workedHours:
             guard computation.workedMinutes > 0 else { return nil }
-            return DurationFormatting(style: .clock).string(computation.workedMinutes)
+            return DurationFormatting.compactHours(
+                computation.workedMinutes,
+                decimalSeparator: Locale.current.decimalSeparator ?? "."
+            )
         case .balance:
             guard computation.hasEntry, computation.balanceMinutes != 0 else { return nil }
             return durationFormatting.signedString(computation.balanceMinutes)
         }
     }
 
-    private func detailColor(_ look: Look) -> Color {
-        switch look {
-        case .today: return .white
-        case .missing: return .hoursMissing
-        case .away: return .hoursAttention
-        case .holiday: return .hoursPositive
-        default:
-            guard detail == .balance, let computation else { return .secondary }
-            return Color.hoursBalance(computation.balanceMinutes)
-        }
-    }
-
-    @ViewBuilder
-    private func background(_ look: Look) -> some View {
-        let shape = RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
-        switch look {
-        case .today:
-            shape.fill(Color.accentColor)
-        case .missing:
-            shape.fill(Color.hoursSurface)
-                .overlay {
-                    shape.strokeBorder(Color.hoursMissing, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
-                }
-        case .away:
-            shape.fill(Color.hoursAttentionFill.opacity(highContrast ? 0.22 : 0.14))
-        case .holiday:
-            shape.fill(Color.hoursPositive.opacity(highContrast ? 0.22 : 0.14))
-        case .dayOff:
-            shape.fill(Color.hoursSubdued.opacity(highContrast ? 0.30 : 0.18))
-        case .written, .plain:
-            shape.fill(Color.hoursSurface)
-        }
-    }
-
-    /// A public holiday that was worked as well as paid: the holiday's wash
-    /// stays, and a small hammer in the corner says the hours are on top.
-    @ViewBuilder
-    private func workedHolidayMark(_ look: Look) -> some View {
-        if let computation, computation.isWorkedPublicHoliday {
-            Image(systemName: "hammer.fill")
-                .font(.system(.caption2, design: .rounded))
-                .imageScale(.small)
-                .foregroundStyle(look == .today ? Color.white : Color.hoursPositive)
-                .padding(3)
-                .accessibilityHidden(true)
-        }
+    private var figureColor: Color {
+        guard detail == .balance, let computation else { return .secondary }
+        return Color.hoursBalance(computation.balanceMinutes)
     }
 
     private func accessibilityLabel(_ look: Look) -> String {
@@ -287,7 +249,7 @@ struct WeekdayHeader: View {
         HStack(spacing: Metrics.tiny) {
             ForEach(weekdays, id: \.self) { weekday in
                 Text(formatting.veryShortWeekdaySymbol(for: weekday))
-                    .font(.caption2.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(formatting.weekdayName(for: weekday))

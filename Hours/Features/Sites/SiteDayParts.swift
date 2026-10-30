@@ -29,15 +29,13 @@ struct SiteDivider: View {
     }
 }
 
-/// A caption over a group: "BREAK", "WHO WENT", "WEATHER".
+/// A caption over a group, in sentence case: "Break", "Who went".
 struct SiteCaption: View {
     let text: String
 
     var body: some View {
         Text(verbatim: text)
-            .font(.caption.weight(.bold))
-            .textCase(.uppercase)
-            .tracking(0.5)
+            .font(.subheadline.weight(.semibold))
             .foregroundStyle(.hoursSecondaryText)
             .padding(.horizontal, Metrics.small)
             .padding(.top, Metrics.tiny)
@@ -45,8 +43,8 @@ struct SiteCaption: View {
     }
 }
 
-/// A row in a group that is a link: the accent's words, a whole-width
-/// target of at least 52 points.
+/// A row that opens something: the title, a value in grey, a chevron
+/// (design v2: a plain list row; `systemImage` is no longer drawn).
 struct SiteLinkRow: View {
     let title: String
     var detail: String? = nil
@@ -56,20 +54,12 @@ struct SiteLinkRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Metrics.small) {
-                if let systemImage {
-                    Image(systemName: systemImage)
-                        .foregroundStyle(Color.accentColor)
-                        .frame(minWidth: 24)
-                        .accessibilityHidden(true)
-                }
                 Text(verbatim: title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: Metrics.small)
                 if let detail, !detail.isEmpty {
                     Text(verbatim: detail)
-                        .font(.subheadline)
                         .foregroundStyle(.hoursSecondaryText)
                         .lineLimit(1)
                 }
@@ -78,7 +68,7 @@ struct SiteLinkRow: View {
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
-            .frame(maxWidth: .infinity, minHeight: SiteDayStyle.rowHeight, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -93,7 +83,7 @@ struct SiteStatusDot: View {
     var body: some View {
         Circle()
             .fill(color)
-            .frame(width: 10, height: 10)
+            .frame(width: 8, height: 8)
             .accessibilityHidden(true)
     }
 }
@@ -121,46 +111,33 @@ private struct SiteChoiceBody: View {
     let isCapsule: Bool
 
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.highContrast) private var highContrast
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: isCapsule ? 22 : 12, style: .continuous)
         configuration.label
-            .font(.footnote.weight(tint == .plain ? .regular : .bold))
+            .font(.subheadline.weight(tint == .plain ? .regular : .semibold))
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .minimumScaleFactor(0.8)
             .foregroundStyle(foreground)
             .padding(.horizontal, isCapsule ? Metrics.medium : 2)
             .frame(maxWidth: isCapsule ? nil : .infinity, minHeight: 44)
-            .background(fill, in: shape)
-            .overlay { shape.strokeBorder(border, lineWidth: 1.5) }
-            .contentShape(shape)
+            .background(fill, in: Capsule())
+            .contentShape(Capsule())
             .opacity(isEnabled ? (configuration.isPressed ? 0.7 : 1) : 0.4)
     }
 
+    /// The chosen one in the accent, white on blue; a choice that needs a
+    /// look says so in an orange word, never an orange box.
     private var foreground: Color {
         switch tint {
         case .plain: return .primary
-        case .accent: return .accentColor
+        case .accent: return .white
         case .attention: return .hoursAttention
         }
     }
 
     private var fill: Color {
-        switch tint {
-        case .plain: return Color.hoursSurface
-        case .accent: return Color.accentColor.opacity(0.12)
-        case .attention: return Color.hoursAttentionFill.opacity(0.12)
-        }
-    }
-
-    private var border: Color {
-        switch tint {
-        case .plain: return highContrast ? Color.primary.opacity(0.45) : Color(uiColor: .separator)
-        case .accent: return .accentColor
-        case .attention: return Color.hoursAttentionFill
-        }
+        tint == .accent ? .accentColor : Color(uiColor: .tertiarySystemFill)
     }
 }
 
@@ -169,11 +146,11 @@ enum SiteDayStyle {
     static let cardRadius: CGFloat = 20
     static let rowHeight: CGFloat = 52
 
-    /// "07:00–16:00", or a dash for a missing end.
+    /// "7:00 – 15:00", or a dash for a missing end.
     static func range(_ start: TimeOfDay?, _ end: TimeOfDay?, on date: CalendarDate, formatting: CalendarFormatting) -> String {
         let from = start.map { formatting.time($0, on: date) } ?? "—"
         let to = end.map { formatting.time($0, on: date) } ?? "—"
-        return "\(from)–\(to)"
+        return "\(from) – \(to)"
     }
 
     /// "30 min break" in hours and minutes whatever the display setting, as

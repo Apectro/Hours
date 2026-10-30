@@ -1,13 +1,14 @@
 import SwiftUI
 
-/// ‹ October 2026 › with what the period holds underneath (the Export
-/// board's month stepper: blue arrows, the period in bold between them).
+/// ‹ October 2026 › with what the period holds underneath: the period
+/// centred between two chevrons in small grey circles, as the system's own
+/// pagers draw them (design v2, More board phone 1).
 ///
 /// One stepper for every period the app pages through, so they all look and
-/// behave the same: 44-point arrows either side, the title and a caption in
+/// behave the same: 44-point targets either side, the title and a caption in
 /// the middle, and the forward arrow off once the next period has not begun.
-/// Export uses it for a site's month and for your own range; the other
-/// steppers (Insights, the site grid) can adopt it as they are touched.
+/// Export uses it for a site's month and for your own range; the sign-off
+/// and a crew member's month use it too.
 struct PeriodStepper: View {
     let title: String
     /// "21 days · 5 people", or nothing while the period is being read.
@@ -19,23 +20,25 @@ struct PeriodStepper: View {
     let onNext: () -> Void
 
     var body: some View {
-        HStack {
-            stepButton(systemImage: "chevron.left", label: previousLabel, action: onPrevious)
+        HStack(spacing: Metrics.large) {
+            stepButton(systemImage: "chevron.left", label: previousLabel, isEnabled: true, action: onPrevious)
                 .accessibilityIdentifier("period-previous")
-            Spacer(minLength: Metrics.small)
             VStack(spacing: 2) {
                 Text(verbatim: title)
-                    .font(.headline.weight(.bold))
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
                 if !caption.isEmpty {
                     Text(verbatim: caption)
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.hoursSecondaryText)
                 }
             }
             .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
-            Spacer(minLength: Metrics.small)
-            stepButton(systemImage: "chevron.right", label: nextLabel, action: onNext)
+            stepButton(systemImage: "chevron.right", label: nextLabel, isEnabled: canGoForward, action: onNext)
                 .disabled(!canGoForward)
                 .accessibilityIdentifier("period-next")
         }
@@ -44,10 +47,19 @@ struct PeriodStepper: View {
         .buttonStyle(.borderless)
     }
 
-    private func stepButton(systemImage: String, label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+    /// A chevron in a 36-point grey circle, inside a 44-point target.
+    private func stepButton(
+        systemImage: String,
+        label: LocalizedStringKey,
+        isEnabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.title3.weight(.semibold))
+                .font(.body.weight(.semibold))
+                .foregroundStyle(isEnabled ? Color.primary : Color(uiColor: .tertiaryLabel))
+                .frame(width: 36, height: 36)
+                .background(Color(uiColor: .tertiarySystemFill), in: Circle())
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }

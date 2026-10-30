@@ -1,9 +1,11 @@
 import SwiftUI
 
-/// The editor's fields (1.2, mockup DayEditor): Worked · Away · Day off on
-/// top, then the times or the kind of absence, a big Worked total with the
-/// day's overtime, "+ Another block of work", and "Allowance, km, note…",
-/// which opens everything else on a page of its own (`DayExtrasScreen`).
+/// The editor's fields (design v2, mockup Main, "writing a day"): Work ·
+/// Vacation · Sick · Day off on top, then Start, End and Break with one
+/// sentence under them ("8h 30m worked. That is 30m more than a normal
+/// day."), the site, the note, "+ Another block of work", the day's type
+/// and "Allowance, km…", which opens everything else on a page of its own
+/// (`DayExtrasScreen`); Clear this day at the bottom.
 ///
 /// Every section is conditional on a feature toggle: a switched-off feature
 /// leaves no trace here, rather than sitting greyed out taking up space.
@@ -27,6 +29,11 @@ struct DayEditorForm: View {
     var vacationLeft: HalfDays? = nil
     /// "Allowance, km, note…": the extras and corrections, pushed.
     var onOpenExtras: (() -> Void)? = nil
+    /// Clear this day: everything typed in here deleted, a site's hours
+    /// kept. Nil for a day with nothing stored.
+    var onClear: (() -> Void)? = nil
+
+    @State private var isConfirmingClear = false
 
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
@@ -37,31 +44,63 @@ struct DayEditorForm: View {
     var body: some View {
         Form {
             kindSection
-            ForEach(draft.shifts.filter { $0.siteID != nil }) { shift in
-                siteShiftSection(shift)
-            }
             switch kind {
             case .worked:
                 workSections
             case .away, .dayOff:
                 absenceSections
             }
+            if !siteShifts.isEmpty {
+                siteSection
+            }
+            if settings.features.trackNotes {
+                Section {
+                    TextField("Add a note for the sheet", text: $draft.note, axis: .vertical)
+                        .lineLimit(1...5)
+                        .accessibilityIdentifier("day-editor-note")
+                } header: {
+                    Text("Note")
+                        .textCase(nil)
+                }
+            }
             totalsSection
             linksSection
+            if onClear != nil {
+                Section {
+                    Button(role: .destructive) {
+                        isConfirmingClear = true
+                    } label: {
+                        Text("Clear this day")
+                    }
+                    .buttonStyle(.bigAction(.destructive))
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .accessibilityIdentifier("day-editor-clear")
+                }
+            }
         }
         .scrollDismissesKeyboard(.interactively)
+        .confirmationDialog(
+            "Delete this day? Hours written on a site stay.",
+            isPresented: $isConfirmingClear,
+            titleVisibility: .visible
+        ) {
+            Button("Delete day", role: .destructive) { onClear?() }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
-    // MARK: - Worked · Away · Day off
+    // MARK: - Work · Vacation · Sick · Day off
 
+    /// Worked, away or a day off: which sections the editor shows.
     private var kind: DayKind { DayKind.of(computation.dayType) }
 
-    private var kindBinding: Binding<DayKind> {
+    private var choiceBinding: Binding<DayEditorChoice> {
         Binding(
-            get: { kind },
-            set: { newKind in
-                guard newKind != kind else { return }
-                var applied = newKind.apply(
+            get: { DayEditorChoice.of(computation.dayType) },
+            set: { choice in
+                guard choice != DayEditorChoice.of(computation.dayType) else { return }
+                var applied = choice.apply(
                     to: draft,
                     automatic: automaticType ?? settings.dayTypeCatalog.definition(for: .work),
                     catalog: settings.dayTypeCatalog,
@@ -69,7 +108,7 @@ struct DayEditorForm: View {
                     contractedMinutes: contracted
                 )
                 // Hours typed as a figure: no times to give the day.
-                if !settings.features.autoCalculateWorkedHours && newKind == .worked {
+                if !settings.features.autoCalculateWorkedHours && choice == .work {
                     applied.shifts = draft.shifts
                 }
                 withAnimation(.snappy(duration: 0.2)) { draft = applied }
@@ -77,12 +116,25 @@ struct DayEditorForm: View {
         )
     }
 
+    private func segmentTitle(_ choice: DayEditorChoice) -> String {
+        switch choice {
+        case .work: return String(localized: "Work")
+        case .vacation: return settings.dayTypeCatalog.definition(for: .vacation).displayName()
+        case .sick: return settings.dayTypeCatalog.definition(for: .sick).displayName()
+        case .dayOff: return settings.dayTypeCatalog.definition(for: .dayOff).displayName()
+        case .other: return computation.dayType.displayName()
+        }
+    }
+
+    /// The four main types; any other type (a public holiday, a personal
+    /// day, your own) leaves none selected, and is picked in the list below
+    /// or the Type row.
     private var kindSection: some View {
         Section {
-            Picker("Kind of day", selection: kindBinding) {
-                Text("Worked").tag(DayKind.worked)
-                Text("Away").tag(DayKind.away)
-                Text("Day off").tag(DayKind.dayOff)
+            Picker("Kind of day", selection: choiceBinding) {
+                ForEach(DayEditorChoice.segments, id: \.self) { choice in
+                    Text(verbatim: segmentTitle(choice)).tag(choice)
+                }
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -102,7 +154,7 @@ struct DayEditorForm: View {
     // MARK: - Worked
 
     /// The shifts typed in here. Site shifts are written by their site day
-    /// and only shown (see `siteShiftSection`).
+    /// and only shown (see `siteSection`).
     private var manualShifts: [Shift] {
         draft.shifts.filter { $0.siteID == nil }
     }
@@ -189,17 +241,44 @@ struct DayEditorForm: View {
             } header: {
                 if let title = sectionTitle(at: index) {
                     Text(verbatim: title)
+                        .textCase(nil)
                 }
             } footer: {
-                if index == firstManualIndex {
-                    Text("An end before the start counts as a night shift.")
+                // One sentence, under the last block: the day's hours
+                // against a normal day.
+                if index == lastManualIndex {
+                    VStack(alignment: .leading, spacing: Metrics.tiny) {
+                        if let resultSentence {
+                            Text(verbatim: resultSentence)
+                                .monospacedDigit()
+                                .accessibilityIdentifier("day-editor-worked")
+                        }
+                        if computation.crossesMidnight {
+                            Text("An end before the start counts as a night shift.")
+                        }
+                    }
                 }
             }
         }
     }
 
-    private var firstManualIndex: Int? {
-        draft.shifts.firstIndex { $0.siteID == nil }
+    private var lastManualIndex: Int? {
+        draft.shifts.lastIndex { $0.siteID == nil }
+    }
+
+    /// "8h 30m worked. That is 30m more than a normal day."
+    private var resultSentence: String? {
+        guard computation.workedMinutes > 0 || computation.hasEntry else { return nil }
+        let worked = formatter.string(computation.workedMinutes)
+        if settings.features.trackExpectedHours, let difference = computation.differenceFromNormalDay, difference != 0 {
+            let amount = formatter.string(abs(difference))
+            return difference > 0
+                ? String(localized: "\(worked) worked. That is \(amount) more than a normal day.",
+                         comment: "Day editor, under the times; the values are lengths of time")
+                : String(localized: "\(worked) worked. That is \(amount) less than a normal day.",
+                         comment: "Day editor, under the times; the values are lengths of time")
+        }
+        return String(localized: "\(worked) worked.", comment: "Day editor, under the times; the value is a length of time")
     }
 
     /// Only ever shown when there is more than one job to choose between.
@@ -272,13 +351,11 @@ struct DayEditorForm: View {
         let types = settings.dayTypeCatalog.types(of: kind)
         if types.count > 1 || kind == .away {
             Section {
-                DayTypeGrid(
+                DayTypeRows(
                     types: types,
                     selected: computation.dayType.id,
                     onSelect: choose
                 )
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
             } footer: {
                 if let vacationLeft {
                     Text(String(
@@ -314,7 +391,6 @@ struct DayEditorForm: View {
                         draft.shifts.append(settings.prefilledShift(on: draft.date))
                     } label: {
                         Text("+ I still worked some hours")
-                            .fontWeight(.semibold)
                     }
                     .accessibilityIdentifier("day-editor-holiday-worked")
                 }
@@ -400,10 +476,22 @@ struct DayEditorForm: View {
 
     // MARK: - Totals and the rest
 
+    /// What the day credits and earns, and its warnings, each a row; and
+    /// the day's sentence when there are no times of your own to put it
+    /// under.
+    @ViewBuilder
     private var totalsSection: some View {
-        Section {
-            DayResultHeader(computation: computation, settings: settings, earnings: earnings)
-                .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large, bottom: Metrics.medium, trailing: Metrics.large))
+        let result = DayResultRows(computation: computation, settings: settings, earnings: earnings)
+        let needsSentence = lastManualIndex == nil || !settings.features.autoCalculateWorkedHours
+        if !result.isEmpty || (needsSentence && resultSentence != nil && computation.workedMinutes > 0) {
+            Section {
+                result
+            } footer: {
+                if needsSentence, computation.workedMinutes > 0, let resultSentence {
+                    Text(verbatim: resultSentence)
+                        .monospacedDigit()
+                }
+            }
         }
     }
 
@@ -414,7 +502,6 @@ struct DayEditorForm: View {
                     draft.shifts.append(defaultShift())
                 } label: {
                     Text("+ Another block of work")
-                        .fontWeight(.semibold)
                 }
                 .accessibilityIdentifier("day-editor-add-block")
             }
@@ -431,8 +518,8 @@ struct DayEditorForm: View {
                 Button(action: onOpenExtras) {
                     HStack(spacing: Metrics.small) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Allowance, km, note…")
-                                .fontWeight(.semibold)
+                            Text("Allowance, km, travel…")
+                                .foregroundStyle(.primary)
                             if !extrasSummary.isEmpty {
                                 Text(verbatim: extrasSummary)
                                     .font(.footnote)
@@ -466,7 +553,6 @@ struct DayEditorForm: View {
             ))
         }
         if draft.travelMinutes > 0 { parts.append(String(localized: "Travel time")) }
-        if !draft.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { parts.append(String(localized: "Note")) }
         if !draft.tags.isEmpty { parts.append(String(localized: "Tags")) }
         if draft.expectedOverrideMinutes != nil && !HalfDay.isHalf(expectedOverride: draft.expectedOverrideMinutes, contracted: contracted) {
             parts.append(String(localized: "Expected hours"))
@@ -476,45 +562,86 @@ struct DayEditorForm: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: - Site shifts
+    // MARK: - Site
 
-    /// Your hours from a site day, read-only. The site day is the one place
-    /// they are written, so the two can never disagree; changing them here
-    /// would only be overwritten the next time the site day is saved.
-    private func siteShiftSection(_ shift: Shift) -> some View {
+    private var siteShifts: [Shift] { draft.shifts.filter { $0.siteID != nil } }
+
+    /// Your hours from site days, read-only, one row each: the site and its
+    /// times. The site day is the one place they are written, so the two can
+    /// never disagree; a tap opens it there.
+    private var siteSection: some View {
         Section {
-            LabeledContent("Start", value: shift.start.map { formatting.time($0, on: draft.date) } ?? "—")
-            LabeledContent("End", value: shift.end.map { formatting.time($0, on: draft.date) } ?? "—")
-            if shift.totalBreakMinutes > 0 {
-                LabeledContent("Break", value: formatter.string(shift.totalBreakMinutes))
-            }
-            if settings.tracksMultipleJobs {
-                LabeledContent("Job", value: settings.job(shift.jobID).displayName())
-            }
-            if let onOpenSite, let siteID = shift.siteID {
-                Button {
-                    onOpenSite(siteID)
-                } label: {
-                    Label("Open on site", systemImage: "building.2")
-                }
-                .accessibilityIdentifier("day-editor-open-site")
+            ForEach(siteShifts) { shift in
+                siteRow(shift)
             }
         } header: {
-            Text(shift.siteID.flatMap { siteNames[$0] } ?? String(localized: "Site"))
+            Text("Site")
+                .textCase(nil)
         } footer: {
             VStack(alignment: .leading, spacing: Metrics.tiny) {
                 Text("Written on the site's day, so it is changed there.")
-                // Once, under the first site shift: it is about the day.
-                if shift.id == draft.shifts.first(where: { $0.siteID != nil })?.id,
-                   computation.warnings.contains(.siteHoursNotCounted) {
+                if computation.warnings.contains(.siteHoursNotCounted) {
                     Label(DayWarning.siteHoursNotCounted.message, systemImage: "exclamationmark.triangle")
                 }
-                if shift.id == draft.shifts.first(where: { $0.siteID != nil })?.id,
-                   computation.warnings.contains(.ownHoursOverlapSite) {
+                if computation.warnings.contains(.ownHoursOverlapSite) {
                     Label(DayWarning.ownHoursOverlapSite.message, systemImage: "info.circle")
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func siteRow(_ shift: Shift) -> some View {
+        let label = HStack(spacing: Metrics.small) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: shift.siteID.flatMap { siteNames[$0] } ?? String(localized: "Site"))
+                    .foregroundStyle(.primary)
+                if let detail = siteDetail(shift) {
+                    Text(verbatim: detail)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+            Spacer(minLength: Metrics.small)
+            Text(verbatim: siteTimes(shift))
+                .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
+        }
+        .contentShape(Rectangle())
+        if let onOpenSite, let siteID = shift.siteID {
+            Button {
+                onOpenSite(siteID)
+            } label: {
+                label
+            }
+            .accessibilityHint(Text("Open on site"))
+            .accessibilityIdentifier("day-editor-open-site")
+        } else {
+            label
+                .accessibilityElement(children: .combine)
+        }
+    }
+
+    /// "7:00 – 12:40".
+    private func siteTimes(_ shift: Shift) -> String {
+        let start = shift.start.map { formatting.time($0, on: draft.date) } ?? "—"
+        let end = shift.end.map { formatting.time($0, on: draft.date) } ?? "—"
+        return "\(start) – \(end)"
+    }
+
+    /// The break and the job, when there are any.
+    private func siteDetail(_ shift: Shift) -> String? {
+        var parts: [String] = []
+        if shift.totalBreakMinutes > 0 {
+            parts.append(String(
+                localized: "\(formatter.string(shift.totalBreakMinutes)) break",
+                comment: "The running clock: the breaks already taken, e.g. 30m break"
+            ))
+        }
+        if settings.tracksMultipleJobs {
+            parts.append(settings.job(shift.jobID).displayName())
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     // MARK: - Breaks
@@ -588,60 +715,38 @@ struct DayEditorForm: View {
     }
 }
 
-/// The day types of one kind as a two-column grid of buttons, each with its
-/// colour (mockup DayEditor, Away). The chosen one is outlined in orange,
-/// the colour rule's "away".
-struct DayTypeGrid: View {
+/// The day types of one kind as rows (design v2): the type's colour as a
+/// small dot, its name, and a checkmark on the chosen one.
+struct DayTypeRows: View {
     let types: [DayTypeDefinition]
     let selected: DayTypeID
     let onSelect: (DayTypeDefinition) -> Void
 
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.highContrast) private var highContrast
-
-    private var columns: [GridItem] {
-        let count = dynamicTypeSize.isAccessibilitySize ? 1 : 2
-        return Array(repeating: GridItem(.flexible(), spacing: Metrics.small), count: count)
-    }
-
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Metrics.small) {
-            ForEach(types) { definition in
-                let isOn = definition.id == selected
-                Button {
-                    onSelect(definition)
-                } label: {
-                    HStack(spacing: Metrics.small) {
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(definition.tint.color)
-                            .frame(width: 14, height: 14)
+        ForEach(types) { definition in
+            let isOn = definition.id == selected
+            Button {
+                onSelect(definition)
+            } label: {
+                HStack(spacing: Metrics.medium) {
+                    Circle()
+                        .fill(definition.tint.color)
+                        .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
+                    Text(definition.displayName())
+                        .foregroundStyle(.primary)
+                    Spacer(minLength: Metrics.small)
+                    if isOn {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.accentColor)
                             .accessibilityHidden(true)
-                        Text(definition.displayName())
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(isOn ? Color.hoursAttention : Color.primary)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 0)
                     }
-                    .padding(.horizontal, Metrics.medium)
-                    .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-                    .background(
-                        isOn ? Color.hoursAttentionFill.opacity(0.12) : Color.hoursSurface,
-                        in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                    )
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                            .strokeBorder(
-                                isOn ? Color.hoursAttention : Color(uiColor: .separator),
-                                lineWidth: isOn || highContrast ? 1.5 : 1
-                            )
-                    }
-                    .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                 }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(isOn ? [.isSelected] : [])
-                .accessibilityIdentifier("day-editor-type-\(definition.id.rawValue)")
+                .contentShape(Rectangle())
             }
+            .accessibilityAddTraits(isOn ? [.isSelected] : [])
+            .accessibilityIdentifier("day-editor-type-\(definition.id.rawValue)")
         }
     }
 }

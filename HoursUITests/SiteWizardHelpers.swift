@@ -43,4 +43,23 @@ extension XCUIApplication {
         XCTAssertTrue(today.waitForExistence(timeout: 5), "the site's page has no Write today", file: file, line: line)
         today.tap()
     }
+
+    /// The site's settings (design v2): Site settings in the site's
+    /// `ellipsis` menu, on its page or on a day reached from elsewhere.
+    @discardableResult
+    func openSiteSettings(file: StaticString = #filePath, line: UInt = #line) -> Bool {
+        let menu = buttons.matching(identifier: "site-menu").firstMatch
+        guard menu.waitForExistence(timeout: 5) else {
+            XCTFail("the site has no menu", file: file, line: line)
+            return false
+        }
+        menu.tap()
+        let edit = buttons.matching(identifier: "site-edit").firstMatch
+        guard edit.waitForExistence(timeout: 5) else {
+            XCTFail("the site's menu has no Site settings", file: file, line: line)
+            return false
+        }
+        edit.tap()
+        return true
+    }
 }

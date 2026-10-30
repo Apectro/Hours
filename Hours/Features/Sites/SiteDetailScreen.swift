@@ -1,17 +1,17 @@
 import SwiftUI
 import SwiftData
 
-/// One site, everything on one page (1.2, mockup Sites): its name as the
-/// title, "address · 5 people · usually 07:00–16:00" under it, the month
-/// coloured by `SiteDayStatus` with how many days are not written, then a
-/// group with the Crew, A usual day, Diary, Sign-off and Extra work, and the
-/// two big buttons at the bottom: Write today and the Sheet. The site's
-/// settings are the Settings button top right. A day in the month opens that
-/// day on the site; nothing about a site hides in a menu.
+/// One site (design v2, mockup Sites phone 2): its name as the large title,
+/// "address · 5 people · 7:00 – 15:00" under it, the month with how many
+/// days are not written and a dot under each day, then the rows Crew, A
+/// usual day, Diary, Sign-off and Extra work, the month's figures, and the
+/// two buttons at the bottom: Write today and the Sheet. The `ellipsis`
+/// menu holds the site's settings and every other site action. A day in the
+/// month opens that day on the site.
 ///
 /// Given a date — the calendar's and the day editor's "Open on site", or a
-/// day this page pushed — it shows that day instead (`SiteDayScreen`), with
-/// the site's buttons above it when it was not reached from this page.
+/// day this page pushed — it shows that day instead (`SiteDayScreen`); a day
+/// not reached from this page keeps the site's actions in its own menu.
 struct SiteDetailScreen: View {
     let siteID: UUID
     var initialDate: CalendarDate? = nil
@@ -21,8 +21,9 @@ struct SiteDetailScreen: View {
     var exportMonth: YearMonth? = nil
     /// See `SiteRoute.opensExtraWorkReport`.
     var opensExtraWorkReport = false
-    /// On a day: the site's Crew, Diary, Sheet and Extra work buttons above
-    /// it (`SiteActionsRow`). Off for a day this page pushed, which has them.
+    /// On a day: the site's actions (crew, diary, sheet, extra work,
+    /// settings) in the day's menu. Off for a day this page pushed: Back is
+    /// the way to them.
     var showsSiteActions = true
 
     @Environment(SettingsStore.self) private var settingsStore
@@ -71,34 +72,20 @@ struct SiteDetailScreen: View {
                         date: initialDate ?? today,
                         appliesSameAsLastDay: appliesSameAsLastDay,
                         requestedDate: $requestedDate,
-                        onOpenReport: { reporting = site },
-                        header: showsSiteActions ? AnyView(actions(for: site)) : nil
+                        onOpenReport: { reporting = site }
                     )
+                    .toolbar {
+                        if showsSiteActions {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                siteMenu(site)
+                            }
+                        }
+                    }
                 } else {
                     overview(site)
                 }
             } else {
                 Color.hoursCanvas
-            }
-        }
-        .navigationTitle(site?.name ?? "")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            // The site's settings (the editor: name, address, job, usual
-            // day, extras, arrival reminder, archiving).
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    editing = site
-                } label: {
-                    if showsDay {
-                        Image(systemName: "gearshape")
-                    } else {
-                        Text("Settings")
-                    }
-                }
-                .disabled(site == nil)
-                .accessibilityLabel(String(localized: "Site settings"))
-                .accessibilityIdentifier("site-edit")
             }
         }
         .onAppear(perform: load)
@@ -180,33 +167,123 @@ struct SiteDetailScreen: View {
         SignOff.defaultMonth(today: today)
     }
 
+    // MARK: - The menu
+
+    /// The site's settings and every other site action, in one `ellipsis`
+    /// menu. Each is also a row or a button on the page; on a day reached
+    /// from the calendar this menu is the way to them.
+    private func siteMenu(_ site: Site) -> some View {
+        Menu {
+            Button {
+                editing = site
+            } label: {
+                Label("Site settings", systemImage: "gearshape")
+            }
+            .accessibilityIdentifier("site-edit")
+
+            Button {
+                openSiteCrew(SiteCrewRoute(siteID: site.id))
+            } label: {
+                Label("Crew", systemImage: "person.2")
+            }
+            .accessibilityIdentifier("site-menu-crew")
+
+            if showsDiary(for: site) {
+                Button {
+                    readingDiary = site
+                } label: {
+                    Label("Diary", systemImage: "text.book.closed")
+                }
+                .accessibilityIdentifier("site-menu-diary")
+            }
+
+            Button {
+                signingOff = site
+            } label: {
+                Label("Crew sign-off", systemImage: "signature")
+            }
+            .accessibilityIdentifier("site-menu-sign-off")
+
+            Button {
+                exportingMonth = nil
+                exporting = site
+            } label: {
+                Label("Sheet", systemImage: "doc.richtext")
+            }
+            .accessibilityIdentifier("site-menu-sheet")
+
+            Button {
+                reporting = site
+            } label: {
+                Label("Extra work", systemImage: "hammer")
+            }
+            .accessibilityIdentifier("site-menu-extra-work")
+        } label: {
+            Image(systemName: "ellipsis")
+        }
+        .accessibilityLabel(String(localized: "More"))
+        .accessibilityIdentifier("site-menu")
+    }
+
     // MARK: - The site's page
 
     private func overview(_ site: Site) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Metrics.large) {
+        List {
+            Section {
                 Text(verbatim: subtitle(for: site))
                     .font(.subheadline)
                     .foregroundStyle(.hoursSecondaryText)
                     .fixedSize(horizontal: false, vertical: true)
-                    // What the UI tests wait for: on screen whenever the
-                    // page is, and never a container of buttons.
-                    .accessibilityIdentifier("screen-site")
+                    .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
+                    .listRowBackground(Color.clear)
 
-                monthSection(site)
+                monthHeader
+                    .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.small))
+                    .listRowBackground(Color.clear)
 
-                links(for: site)
+                // The month sits on the background, not in a card.
+                SiteMonthCalendar(
+                    month: month,
+                    statuses: counts.statuses,
+                    today: today,
+                    calendar: settingsStore.workCalendar,
+                    formatting: settingsStore.dateFormatting,
+                    onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
+                )
+                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.small, bottom: 0, trailing: Metrics.small))
+                .listRowBackground(Color.clear)
             }
-            .padding(.horizontal, Metrics.large)
-            .padding(.bottom, Metrics.large)
+            .listRowSeparator(.hidden)
+
+            Section {
+                rows(for: site)
+            }
+
+            if counts.figures != nil {
+                Section {
+                    figures
+                }
+            }
         }
-        .background(Color.hoursCanvas)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
+        // What the UI tests wait for, on the list rather than its first row,
+        // which the list drops once scrolled away. Before the inset, so the
+        // buttons there keep their own identifiers.
+        .accessibilityIdentifier("screen-site")
+        .navigationTitle(Text(verbatim: site.name))
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                siteMenu(site)
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             bottomButtons(for: site)
         }
     }
 
-    /// "Ilica 207C · 5 people · usually 07:00–16:00".
+    /// "Ilica 207C · 5 people · 7:00 – 15:00".
     private func subtitle(for site: Site) -> String {
         var parts: [String] = []
         if !site.address.isEmpty {
@@ -214,106 +291,86 @@ struct SiteDetailScreen: View {
         }
         parts.append(String(inflected: "^[\(counts.crew + 1) person](inflect: true)"))
         if let times = usualTimes(for: site) {
-            parts.append(String(localized: "usually \(times)", comment: "A site's page: its usual times, e.g. 07:00–16:00"))
+            parts.append(times)
         }
         return parts.joined(separator: " · ")
     }
 
-    /// "07:00–16:00", or nil without usual times.
+    /// "7:00 – 15:00", or nil without usual times.
     private func usualTimes(for site: Site) -> String? {
         let setup = settingsStore.settings.siteSetup(for: site.id)
         guard let start = setup.start, let end = setup.end else { return nil }
-        let formatting = settingsStore.dateFormatting
-        return "\(formatting.time(start, on: today))–\(formatting.time(end, on: today))"
+        return SiteDayStyle.range(start, end, on: today, formatting: settingsStore.dateFormatting)
     }
 
-    private func monthSection(_ site: Site) -> some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            HStack(spacing: Metrics.tiny) {
-                Button {
-                    shownMonth = month.adding(months: -1)
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.footnote.weight(.semibold))
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .accessibilityLabel(String(localized: "Previous month"))
-                .accessibilityIdentifier("site-overview-month-previous")
+    /// "October ‹ ›" on the left, "2 days not written" in red on the right.
+    private var monthHeader: some View {
+        HStack(spacing: Metrics.tiny) {
+            Text(verbatim: settingsStore.dateFormatting.monthName(month))
+                .font(.title3.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityLabel(settingsStore.dateFormatting.monthTitle(month))
 
-                Text(verbatim: settingsStore.dateFormatting.monthTitle(month))
-                    .font(.footnote.weight(.bold))
-                    .textCase(.uppercase)
-                    .foregroundStyle(.hoursSecondaryText)
-                    .accessibilityAddTraits(.isHeader)
-
-                Button {
-                    shownMonth = month.adding(months: 1)
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .disabled(month >= today.yearMonth)
-                .accessibilityLabel(String(localized: "Next month"))
-                .accessibilityIdentifier("site-overview-month-next")
-
-                Spacer(minLength: Metrics.small)
-
-                if counts.missing > 0 {
-                    Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
-                        .font(.footnote.weight(.bold))
-                        .foregroundStyle(Color.hoursMissing)
-                        .multilineTextAlignment(.trailing)
-                        .accessibilityIdentifier("site-overview-missing")
-                }
+            Button {
+                shownMonth = month.adding(months: -1)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 44, minHeight: 44)
             }
-            .buttonStyle(.borderless)
+            .accessibilityLabel(String(localized: "Previous month"))
+            .accessibilityIdentifier("site-overview-month-previous")
 
-            VStack(alignment: .leading, spacing: Metrics.medium) {
-                SiteStatusMonthGrid(
-                    month: month,
-                    statuses: counts.statuses,
-                    today: today,
-                    calendar: settingsStore.workCalendar,
-                    formatting: settingsStore.dateFormatting,
-                    route: { SiteRoute(siteID: site.id, date: $0) }
-                )
-                SiteStatusLegend()
+            Button {
+                shownMonth = month.adding(months: 1)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 44, minHeight: 44)
             }
-            .padding(Metrics.medium)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .disabled(month >= today.yearMonth)
+            .accessibilityLabel(String(localized: "Next month"))
+            .accessibilityIdentifier("site-overview-month-next")
+
+            Spacer(minLength: Metrics.small)
+
+            if counts.missing > 0 {
+                Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hoursMissing)
+                    .multilineTextAlignment(.trailing)
+                    .accessibilityIdentifier("site-overview-missing")
+            }
         }
+        .buttonStyle(.borderless)
     }
 
     /// Crew ›, A usual day ›, Diary ›, Sign-off ›, Extra work ›, each with
-    /// its value on the right.
-    private func links(for site: Site) -> some View {
+    /// its value in grey on the right.
+    @ViewBuilder
+    private func rows(for site: Site) -> some View {
         let setup = settingsStore.settings.siteSetup(for: site.id)
-        let showsDiary = setup.keepsDiary || counts.diary > 0
-        return VStack(spacing: 0) {
-            linkRow("Crew", value: counts.crewNames, identifier: "site-crew") {
-                openSiteCrew(SiteCrewRoute(siteID: site.id))
-            }
-            Divider().padding(.leading, Metrics.large)
-            linkRow("A usual day", value: usualDayText(setup), identifier: "site-usual-day") {
-                editing = site
-            }
-            if showsDiary {
-                Divider().padding(.leading, Metrics.large)
-                linkRow("Diary", value: diaryText, identifier: "site-diary-list") {
-                    readingDiary = site
-                }
-            }
-            Divider().padding(.leading, Metrics.large)
-            linkRow("Sign-off", value: signOffText, identifier: "site-overview-sign-off") {
-                signingOff = site
-            }
-            Divider().padding(.leading, Metrics.large)
-            linkRow("Extra work", value: extraWorkText, identifier: "site-extra-work-report") {
-                reporting = site
+        linkRow("Crew", value: "\(counts.crew + 1)", identifier: "site-crew") {
+            openSiteCrew(SiteCrewRoute(siteID: site.id))
+        }
+        linkRow("A usual day", value: usualDayText(setup), identifier: "site-usual-day") {
+            editing = site
+        }
+        if showsDiary(for: site) {
+            linkRow("Diary", value: diaryText, identifier: "site-diary-list") {
+                readingDiary = site
             }
         }
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        linkRow("Sign-off", value: signOffText, identifier: "site-overview-sign-off") {
+            signingOff = site
+        }
+        linkRow("Extra work", value: extraWorkText, identifier: "site-extra-work-report") {
+            reporting = site
+        }
+    }
+
+    private func showsDiary(for site: Site) -> Bool {
+        settingsStore.settings.siteSetup(for: site.id).keepsDiary || counts.diary > 0
     }
 
     private func linkRow(
@@ -328,33 +385,59 @@ struct SiteDetailScreen: View {
                     .foregroundStyle(.primary)
                 Spacer(minLength: Metrics.small)
                 Text(verbatim: value)
-                    .font(.subheadline)
+                    .monospacedDigit()
                     .foregroundStyle(.hoursSecondaryText)
                     .multilineTextAlignment(.trailing)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
                 Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
-            .padding(.horizontal, Metrics.large)
-            .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
             .contentShape(Rectangle())
         }
-        // A Button reads its texts as one label: "Crew, Marijo, Ivan +2".
+        // A Button reads its texts as one label: "Crew, 5".
         .buttonStyle(.plain)
+        .frame(minHeight: 44)
         .accessibilityIdentifier(identifier)
     }
 
-    /// "07:00–16:00 · Mon–Fri".
+    /// The shown month's figures: days written, the crew's hours, yours,
+    /// and the days the weather stopped work when there were any.
+    @ViewBuilder
+    private var figures: some View {
+        if let figures = counts.figures {
+            let durations = settingsStore.settings.displayFormatting
+            valueRow("Days written", value: "\(figures.daysWritten)")
+            valueRow("Crew hours", value: durations.string(figures.crewMinutes))
+            valueRow("You", value: durations.string(figures.yourMinutes))
+            if figures.badWeatherDays > 0 {
+                valueRow("Bad weather", value: "\(figures.badWeatherDays)")
+                    .accessibilityIdentifier("site-month-bad-weather")
+            }
+        }
+    }
+
+    private func valueRow(_ title: LocalizedStringKey, value: String) -> some View {
+        HStack(spacing: Metrics.small) {
+            Text(title)
+            Spacer(minLength: Metrics.small)
+            Text(verbatim: value)
+                .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "7:00 – 15:00 · Mon–Fri".
     private func usualDayText(_ setup: SiteSetup) -> String {
         let text = SiteSetupText(
             formatting: settingsStore.dateFormatting,
             durations: settingsStore.settings.displayFormatting,
             calendar: settingsStore.workCalendar
         )
-        let times = site.flatMap(usualTimes(for:)) ?? String(localized: "Not set")
-        return "\(times) · \(text.workDays(setup.workDays))"
+        guard let times = site.flatMap(usualTimes(for:)) else { return String(localized: "Not set") }
+        return dynamicTypeSize.isAccessibilitySize ? times : "\(times) · \(text.workDays(setup.workDays))"
     }
 
     private var diaryText: String {
@@ -366,7 +449,7 @@ struct SiteDetailScreen: View {
     private var signOffText: String {
         switch counts.signOff {
         case .notYet:
-            return String(localized: "Not yet")
+            return String(localized: "Not signed")
         case let .partial(signed, total):
             return String(localized: "\(signed) of \(total) signed", comment: "A site's Sign-off row: how many of the crew signed the month")
         case .all:
@@ -380,7 +463,7 @@ struct SiteDetailScreen: View {
             : String(localized: "\(counts.openExtraWork) open", comment: "Site button: how many extra-work jobs are not finished or not sent yet")
     }
 
-    /// Write today, and the Sheet: side by side, one above the other at the
+    /// Write today and the Sheet, side by side; one above the other at the
     /// largest text sizes.
     private func bottomButtons(for site: Site) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize
@@ -394,7 +477,8 @@ struct SiteDetailScreen: View {
                     Text("Write today")
                 }
             }
-            .buttonStyle(.bigAction(.primary, isMain: true))
+            .buttonStyle(.bigAction(.primary))
+            .layoutPriority(1)
             .accessibilityIdentifier("site-write-today")
 
             Button {
@@ -403,33 +487,13 @@ struct SiteDetailScreen: View {
             } label: {
                 Text("Sheet")
             }
-            .buttonStyle(.bigAction(.secondary, isMain: true))
+            .buttonStyle(.bigAction(.secondary))
             .accessibilityIdentifier("site-export")
         }
         .padding(.horizontal, Metrics.large)
         .padding(.top, Metrics.small)
         .padding(.bottom, Metrics.small)
         .background(Color.hoursCanvas)
-    }
-
-    // MARK: - On a day
-
-    private func actions(for site: Site) -> some View {
-        let setup = settingsStore.settings.siteSetup(for: site.id)
-        return SiteActionsRow(
-            address: site.address,
-            crewCount: counts.crew + 1,
-            diaryCount: setup.keepsDiary || counts.diary > 0 ? counts.diary : nil,
-            sheetMonth: settingsStore.dateFormatting.monthName(sheetMonth),
-            openExtraWork: counts.openExtraWork,
-            onCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) },
-            onDiary: { readingDiary = site },
-            onSheet: {
-                exportingMonth = nil
-                exporting = site
-            },
-            onExtraWork: { reporting = site }
-        )
     }
 
     // MARK: - Loading
@@ -455,25 +519,20 @@ struct SiteDetailScreen: View {
             return
         }
 
-        // You first, then the crew in their order: "Marijo, Ivan, Marko +2".
-        let owner = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let names = [owner.isEmpty ? String(localized: "You") : owner] + crew.map(\.name)
-        loaded.crewNames = names.count > 3
-            ? names.prefix(3).joined(separator: ", ") + " +\(names.count - 3)"
-            : names.joined(separator: ", ")
-
-        // The shown month with the look-back its first days are judged by.
+        // The shown month with the look-back its first days are judged by,
+        // on every site: someone another site had that day is not missing.
         let range = month.range(in: calendar)
         let lookBack = CalendarDateRange(
             start: range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar),
             end: range.end
         )
-        let days = repository.siteDays(siteID: siteID, in: lookBack)
+        let allDays = repository.siteDays(siteID: nil, in: lookBack)
+        let members = repository.sites(includeArchived: true).flatMap { repository.crew(for: $0.id, includeHidden: true) }
         loaded.statuses = SiteMonthStatuses.statuses(
             siteID: siteID,
             month: month,
-            siteDays: days,
-            visibleCrew: crew.map(\.id),
+            siteDays: allDays,
+            members: members,
             settings: settings,
             calendar: calendar,
             today: today,
@@ -482,8 +541,14 @@ struct SiteDetailScreen: View {
         loaded.missing = SiteDayStatus.missingCount(in: loaded.statuses)
         loaded.writtenToday = repository.siteDay(siteID: siteID, on: today) != nil
 
-        // The sign-off of the month the Sheet opens on.
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        loaded.figures = SiteMonthFigures(
+            days: allDays.filter { $0.siteID == siteID },
+            month: month,
+            calculator: calculator
+        )
+
+        // The sign-off of the month the Sheet opens on.
         let signOffResults = repository.siteDays(siteID: siteID, in: sheetMonth.range(in: calendar)).map { calculator.compute($0) }
         loaded.signOff = SiteMonthOverview.signOff(
             siteID: siteID,
@@ -496,18 +561,18 @@ struct SiteDetailScreen: View {
 }
 
 /// What the site's page shows beyond the site itself.
-private struct SiteCounts: Equatable {
+private struct SiteCounts {
     /// The crew offered for a new day, not counting you.
     var crew = 0
     /// Days this month with a diary.
     var diary = 0
     /// Extra-work jobs still in progress or not sent to the boss yet.
     var openExtraWork = 0
-    /// "Marijo, Ivan, Marko +2".
-    var crewNames = ""
     /// The shown month, day by day.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
     var missing = 0
     var writtenToday = false
     var signOff = SiteMonthOverview.SignOffProgress.notYet
+    /// The shown month's days written, hours and bad-weather days.
+    var figures: SiteMonthFigures?
 }

@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// The running clock (1.2, mockup Today, "clocked in"): a dark card with
-/// the status — clocked in, or on a break — and the site when there is no
-/// doubt which, the worked time large, and when it started. Break and Clock
-/// out are the Today screen's big buttons under it; Discard is in the
-/// card's More menu, well away from them, and asks first.
+/// The running clock, as Today's first row (design v2): a small green dot
+/// (orange on a break) and "Clocked in · Trg Pravde" in grey over the worked
+/// time, large; when it started on the right; Discard in the ⋯ menu, well
+/// away from the big buttons, and asking first. Break and Clock out are
+/// the Today tab's big buttons under the list.
 ///
 /// Only on screen while a shift is actually running — a clock you have
 /// forgotten about is the one way this app can quietly record something
@@ -21,18 +21,48 @@ struct ClockCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            header
-
-            // Ticks without a timer of its own, and stops being updated as
-            // soon as the view is off screen.
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                elapsed(at: context.date)
+            HStack(alignment: .center, spacing: Metrics.medium) {
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(running.isOnBreak ? Color.hoursAttentionFill : Color.green)
+                            .frame(width: 8, height: 8)
+                            .accessibilityHidden(true)
+                        Text(verbatim: statusLine)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                            .lineLimit(2)
+                    }
+                    // Ticks without a timer of its own, and stops being
+                    // updated as soon as the view is off screen.
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        elapsed(at: context.date)
+                    }
+                }
+                Spacer(minLength: Metrics.small)
+                Text(verbatim: sinceLine)
+                    .font(.subheadline)
+                    .monospacedDigit()
+                    .foregroundStyle(.hoursSecondaryText)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal: false, vertical: true)
+                Menu {
+                    Button(role: .destructive) {
+                        isConfirmingDiscard = true
+                    } label: {
+                        Label("Discard this shift", systemImage: "trash")
+                    }
+                    .accessibilityIdentifier("clock-discard")
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.body.weight(.semibold))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("More")
+                .accessibilityIdentifier("clock-more")
             }
-
-            Text(verbatim: sinceLine)
-                .font(.subheadline)
-                .foregroundStyle(Color.white.opacity(0.8))
-                .fixedSize(horizontal: false, vertical: true)
 
             if running.hasRunTooLong(at: Date()) {
                 Label(
@@ -40,21 +70,11 @@ struct ClockCard: View {
                     systemImage: "exclamationmark.triangle"
                 )
                 .font(.footnote)
-                .foregroundStyle(Color.orange)
+                .foregroundStyle(Color.hoursAttention)
                 .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, Metrics.large + Metrics.tiny)
-        .padding(.vertical, Metrics.large)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        // Dark in Light and Dark mode alike: the one card that says
-        // something is running.
-        .background(Color(white: 0.07), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
-        }
-        .environment(\.colorScheme, .dark)
+        .padding(.vertical, Metrics.tiny)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("clock-card")
         .confirmationDialog(
@@ -67,38 +87,6 @@ struct ClockCard: View {
             Button("Keep running", role: .cancel) {}
         } message: {
             Text("Nothing is recorded and the clock stops.")
-        }
-    }
-
-    private var header: some View {
-        HStack(spacing: Metrics.small) {
-            Circle()
-                .fill(running.isOnBreak ? Color.orange : Color.green)
-                .frame(width: 10, height: 10)
-                .accessibilityHidden(true)
-            Text(verbatim: statusLine)
-                .font(.subheadline.weight(.semibold))
-                // The asset green and orange are the bright system ones in
-                // Dark, which this card always is.
-                .foregroundStyle(running.isOnBreak ? Color.hoursAttention : Color.hoursPositive)
-                .lineLimit(2)
-            Spacer(minLength: 0)
-            Menu {
-                Button(role: .destructive) {
-                    isConfirmingDiscard = true
-                } label: {
-                    Label("Discard this shift", systemImage: "trash")
-                }
-                .accessibilityIdentifier("clock-discard")
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.title3)
-                    .foregroundStyle(Color.white.opacity(0.85))
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .accessibilityLabel("More")
-            .accessibilityIdentifier("clock-more")
         }
     }
 
@@ -143,11 +131,10 @@ struct ClockCard: View {
     private func elapsed(at instant: Date) -> some View {
         let seconds = running.workedSeconds(at: instant)
         return Text(verbatim: ClockCard.shortClockString(seconds))
-            .font(.system(size: 58, weight: .heavy, design: .rounded))
+            .font(.title2.weight(.semibold))
             .monospacedDigit()
-            .minimumScaleFactor(0.5)
             .lineLimit(1)
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
             .contentTransition(.numericText())
             .accessibilityLabel(String(
                 localized: "Clocked in for \(ClockCard.spokenDuration(seconds))",

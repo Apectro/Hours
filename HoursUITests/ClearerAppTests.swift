@@ -114,14 +114,21 @@ final class ClearerAppTests: XCTestCase {
         app.buttons["site-export"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "Sheet did not open the export")
         app.buttons["export-done"].firstMatch.tap()
+        // The export's sheet has to be gone, or the next tap lands on it as it slides away.
+        let exportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-site-export"))
+        wait(for: [exportGone], timeout: 10)
 
-        // Extra work, the report.
-        app.buttons["site-extra-work-report"].firstMatch.tap()
+        // Extra work, the report: a row further down the site's page.
+        let extraWork = app.buttons["site-extra-work-report"].firstMatch
+        // The last row: scrolled to the end it sits above Write today / Sheet,
+        // which otherwise float over it and take the tap.
+        for _ in 0..<3 { app.swipeUp() }
+        extraWork.tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
 
         // And the gear, the site's settings, with its usual day.
-        app.buttons["site-edit"].firstMatch.tap()
+        app.openSiteSettings()
         XCTAssertTrue(app.switches["site-editor-usual-times"].firstMatch.waitForExistence(timeout: 5), "the site's settings have no usual day")
     }
 

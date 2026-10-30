@@ -21,8 +21,11 @@ final class CalendarPolishTests: XCTestCase {
         app.launch()
 
         let export = app.buttons["calendar-export"]
-        XCTAssertTrue(export.waitForExistence(timeout: 10), "Export is not under the month")
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+        // Under the month, in a list that creates its rows as they come on
+        // screen: scrolled to first.
         app.bringToScreen(export)
+        XCTAssertTrue(export.waitForExistence(timeout: 5), "Export is not under the month")
         export.tap()
         XCTAssertTrue(app.screen("screen-export").waitForExistence(timeout: 10))
 
@@ -44,8 +47,9 @@ final class CalendarPolishTests: XCTestCase {
         app.launch()
 
         let reopen = app.buttons["calendar-closed-reopen"]
-        XCTAssertTrue(reopen.waitForExistence(timeout: 10), "a closed month must say so above the grid")
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
         app.bringToScreen(reopen)
+        XCTAssertTrue(reopen.waitForExistence(timeout: 5), "a closed month must say so under Today")
         reopen.tap()
 
         // A confirmation dialog can show its buttons twice in the tree (the

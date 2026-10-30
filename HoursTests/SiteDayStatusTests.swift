@@ -126,4 +126,36 @@ final class SiteDayStatusTests: XCTestCase {
         // October 1–19 has 13 weekdays; two are written, one a holiday.
         XCTAssertEqual(SiteDayStatus.missingCount(in: month), 10)
     }
+
+    func testTheMonthChecksEachDayAgainstWhoWasExpectedThatDay() {
+        let days = [
+            SiteDay(siteID: site, date: Fixture.date(2026, 10, 12), present: [Attendance(memberID: ana)]),
+            SiteDay(siteID: site, date: Fixture.date(2026, 10, 13), present: [Attendance(memberID: ana)]),
+            SiteDay(siteID: site, date: Fixture.date(2026, 10, 14), present: [Attendance(memberID: ana)]),
+        ]
+        // Ivo joined on the 13th and was at another site on the 14th.
+        let check = SiteCrewCheck(
+            joined: [ana: Fixture.date(2026, 10, 1), ivo: Fixture.date(2026, 10, 13)],
+            elsewhere: [Fixture.date(2026, 10, 14): [ivo]]
+        )
+        let month = SiteDayStatus.month(
+            YearMonth(year: 2026, month: 10),
+            siteID: site,
+            siteDays: days,
+            setup: setup,
+            check: check,
+            today: today,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(month[Fixture.date(2026, 10, 12)], .written, "before Ivo joined")
+        XCTAssertEqual(month[Fixture.date(2026, 10, 13)], .partly)
+        XCTAssertEqual(month[Fixture.date(2026, 10, 14)], .written, "Ivo was elsewhere")
+    }
+
+    func testAnEveryoneAlwaysCheckExpectsTheWholeSetEveryDay() {
+        let check = SiteCrewCheck(always: [ana, ivo])
+        XCTAssertEqual(check.expected(on: Fixture.date(2000, 1, 1)), [ana, ivo])
+        XCTAssertEqual(check.expected(on: today), [ana, ivo])
+    }
 }

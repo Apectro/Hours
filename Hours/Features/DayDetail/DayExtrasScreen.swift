@@ -69,7 +69,8 @@ struct DayExtrasScreen: View {
 
     @ViewBuilder
     private var onTheDaySection: some View {
-        let tracksDetails = settings.features.trackNotes || settings.features.trackLocation || settings.features.trackTags
+        // The note is on the editor itself (design v2).
+        let tracksDetails = settings.features.trackLocation || settings.features.trackTags
         if settings.allowance.isEnabled || tracksDetails {
             Section {
                 if settings.allowance.isEnabled {
@@ -91,10 +92,6 @@ struct DayExtrasScreen: View {
                     )
                     .accessibilityIdentifier("day-editor-travel")
                 }
-                if settings.features.trackNotes {
-                    TextField("Notes", text: $draft.note, axis: .vertical)
-                        .lineLimit(1...5)
-                }
                 if settings.features.trackLocation {
                     TextField("Location", text: $draft.location)
                         .textInputAutocapitalization(.words)
@@ -106,6 +103,7 @@ struct DayExtrasScreen: View {
                 }
             } header: {
                 Text("On the day")
+                    .textCase(nil)
             } footer: {
                 if settings.allowance.isEnabled {
                     VStack(alignment: .leading, spacing: Metrics.tiny) {
@@ -214,6 +212,7 @@ struct DayExtrasScreen: View {
                 }
             } header: {
                 Text("Corrections")
+                    .textCase(nil)
             } footer: {
                 VStack(alignment: .leading, spacing: Metrics.tiny) {
                     if settings.features.trackExpectedHours && draft.expectedOverrideMinutes == nil {

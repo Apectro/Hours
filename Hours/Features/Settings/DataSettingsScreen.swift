@@ -32,41 +32,37 @@ struct DataSettingsScreen: View {
             }
 
             Section {
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: Metrics.medium) { backupButtons }
-                    VStack(spacing: Metrics.medium) { backupButtons }
+                Button {
+                    shareBackup()
+                } label: {
+                    Label("Share a backup file", systemImage: "square.and.arrow.up")
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
+                .accessibilityIdentifier("data-share-backup")
+                Button {
+                    isImporting = true
+                } label: {
+                    Label("Restore from a backup", systemImage: "arrow.down.doc")
+                }
+                .accessibilityIdentifier("data-restore")
             } header: {
                 Text("Backup")
             } footer: {
                 Text("A backup is a JSON file containing every day, every holiday, every site and all your settings. Nothing is uploaded — you choose where the file goes.")
             }
 
+            // A plain red row, as the phone's own Settings has it; the
+            // dialog after it says it cannot be undone.
             Section {
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    Text("Delete everything")
-                        .font(.headline)
-                        .foregroundStyle(Color.hoursMissing)
-                    Text("This cannot be undone. Make a backup first if you are not sure.")
-                        .font(.subheadline)
-                        .foregroundStyle(.hoursSecondaryText)
-                    Text(
-                        HoursStack.isSyncing
-                            ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
-                            : "Removes every recorded day, holiday and site from this device. Settings are kept."
-                    )
-                    .font(.footnote)
-                    .foregroundStyle(.hoursSecondaryText)
-                    Button("Delete all data", role: .destructive) {
-                        isConfirmingDelete = true
-                    }
-                    .buttonStyle(.bigAction(.destructive))
-                    .padding(.top, Metrics.small)
-                    .accessibilityIdentifier("data-delete-all")
+                Button("Delete all data", role: .destructive) {
+                    isConfirmingDelete = true
                 }
-                .padding(.vertical, Metrics.small)
+                .accessibilityIdentifier("data-delete-all")
+            } footer: {
+                Text(
+                    HoursStack.isSyncing
+                        ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
+                        : "Removes every recorded day, holiday and site from this device. Settings are kept."
+                )
             }
 
             if let message {
@@ -123,24 +119,6 @@ struct DataSettingsScreen: View {
     private var dayCount: Int { repository.allEntries().count }
     private var siteCount: Int { SiteRepository(context: modelContext).sites(includeArchived: true).count }
 
-    /// Share a backup file, and Restore from one.
-    @ViewBuilder
-    private var backupButtons: some View {
-        Button {
-            shareBackup()
-        } label: {
-            Label("Share a backup file", systemImage: "square.and.arrow.up")
-        }
-        .buttonStyle(.bigAction(.secondary))
-        .accessibilityIdentifier("data-share-backup")
-        Button {
-            isImporting = true
-        } label: {
-            Label("Restore from a backup", systemImage: "arrow.down.doc")
-        }
-        .buttonStyle(.bigAction(.secondary))
-        .accessibilityIdentifier("data-restore")
-    }
     private var holidayCount: Int { repository.holidayRecords().count }
 
     private var restoreConfirmationBinding: Binding<Bool> {

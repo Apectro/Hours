@@ -1,9 +1,8 @@
 import SwiftUI
 
-/// "Something's different" (1.2 redesign, mockup 06 phone 2): "Who's
-/// different today?", one row per person with what they have now and four
-/// buttons — Usual · Late/early · Away · Moved — and the day's people and
-/// hours on the Save button at the bottom.
+/// "Someone was different" (design v2): a plain list, one row per person
+/// with what they have now and four choices — Usual · Late/early · Away ·
+/// Moved — and the day's people and hours on the Save button at the bottom.
 ///
 /// Works on a draft of the day: nothing is written until Save, which hands
 /// the whole day back to the site screen, where the month lock and your
@@ -77,42 +76,33 @@ struct SiteCrewDaySheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.small + 1) {
-                    Text("Who's different today?")
-                        .font(.title2.weight(.heavy))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityAddTraits(.isHeader)
-                        .padding(.bottom, Metrics.tiny)
-
+            List {
+                Section {
                     ForEach(rows) { person in
                         row(person)
                     }
-
+                } header: {
+                    Text("Who was different?")
+                        .textCase(nil)
+                } footer: {
                     if rows.contains(where: { state(of: $0).isMoved }) {
                         Text("Someone who moved is changed with Undo on the day, then here.")
-                            .font(.footnote)
-                            .foregroundStyle(.hoursSecondaryText)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal, Metrics.small)
                     }
                 }
-                .padding(.horizontal, Metrics.large)
-                .padding(.bottom, Metrics.large)
             }
-            .background(Color.hoursCanvas)
-            // The screen's identifier on the scroll view, not around the Save
-            // bar: a container's identifier replaces the ones inside it.
+            .listStyle(.insetGrouped)
+            // The screen's identifier on the list, not around the Save bar:
+            // a container's identifier replaces the ones inside it.
             .accessibilityIdentifier("site-different")
             .safeAreaInset(edge: .bottom) {
                 Button(action: save) {
                     Text("Save") + Text(verbatim: " · \(SiteDayStyle.figures(figures, durations: durations))")
                 }
-                .buttonStyle(.bigAction(.primary, isMain: true))
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("site-different-save")
                 .padding(.horizontal, Metrics.large)
                 .padding(.vertical, Metrics.small)
-                .background(.bar)
+                .background(Color.hoursCanvas)
             }
             .navigationTitle(Text(verbatim: title))
             .navigationBarTitleDisplayMode(.inline)
@@ -161,12 +151,10 @@ struct SiteCrewDaySheet: View {
         let key = SiteDayStyle.key(person)
         return VStack(alignment: .leading, spacing: Metrics.small) {
             HStack(spacing: Metrics.small) {
-                SiteInitials(person: person, isHere: state.isHere)
                 Text(verbatim: person.name)
-                    .font(.body)
                 Spacer(minLength: Metrics.small)
                 Text(verbatim: stateText(person, state))
-                    .font(.subheadline.weight(state == .usual || state == .notHere ? .regular : .bold).monospacedDigit())
+                    .font(.subheadline.monospacedDigit())
                     .foregroundStyle(stateColor(state))
                     .multilineTextAlignment(.trailing)
                     .accessibilityIdentifier("site-state-\(key)")
@@ -175,18 +163,18 @@ struct SiteCrewDaySheet: View {
             // Two by two at the largest text sizes, rather than four
             // squeezed words.
             if dynamicTypeSize.isAccessibilitySize {
-                VStack(spacing: 5) {
-                    HStack(spacing: 5) {
+                VStack(spacing: Metrics.small) {
+                    HStack(spacing: Metrics.small) {
                         usualButton(person, state, key)
                         lateButton(person, state, key)
                     }
-                    HStack(spacing: 5) {
+                    HStack(spacing: Metrics.small) {
                         awayButton(person, state, key)
                         movedButton(person, state, key)
                     }
                 }
             } else {
-                HStack(spacing: 5) {
+                HStack(spacing: Metrics.small) {
                     usualButton(person, state, key)
                     lateButton(person, state, key)
                     awayButton(person, state, key)
@@ -194,9 +182,7 @@ struct SiteCrewDaySheet: View {
                 }
             }
         }
-        .padding(.horizontal, Metrics.medium)
-        .padding(.vertical, Metrics.small + 2)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
+        .padding(.vertical, Metrics.tiny)
     }
 
     private func usualButton(_ person: PersonReference, _ state: SiteCrewState, _ key: String) -> some View {
@@ -331,17 +317,8 @@ struct SiteAwaySheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    Text(String(
-                        localized: "Why wasn't \(person.name) here?",
-                        comment: "Title of the reasons someone was away from the site; the value is their name"
-                    ))
-                    .font(.title2.weight(.heavy))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityAddTraits(.isHeader)
-                    .padding(.bottom, Metrics.tiny)
-
+            List {
+                Section {
                     if let hint, let site = otherSites.first(where: { $0.id == hint }) {
                         reasonButton(
                             title: String(localized: "At \(site.name)", comment: "A crew row: working on another site that day; the value is its name"),
@@ -368,18 +345,17 @@ struct SiteAwaySheet: View {
                         isChosen: current == nil,
                         identifier: "site-absence-reason-none"
                     ) { pick(nil) }
-
+                } header: {
+                    Text(String(
+                        localized: "Why wasn't \(person.name) here?",
+                        comment: "Title of the reasons someone was away from the site; the value is their name"
+                    ))
+                    .textCase(nil)
+                } footer: {
                     Text("Shown on the sheet instead of their hours.")
-                        .font(.footnote)
-                        .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, Metrics.small)
-                        .padding(.top, Metrics.tiny)
                 }
-                .padding(.horizontal, Metrics.large)
-                .padding(.bottom, Metrics.large)
             }
-            .background(Color.hoursCanvas)
+            .listStyle(.insetGrouped)
             .navigationTitle(Text(verbatim: "\(person.name) · \(settingsStore.dateFormatting.dayTitle(date))"))
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("site-away")
@@ -440,24 +416,27 @@ struct SiteAwaySheet: View {
         .accessibilityIdentifier(identifier)
     }
 
+    /// A small dot in the reason's colour, its name, and a checkmark on the
+    /// one chosen.
     private func reasonLabel(title: String, color: Color, isChosen: Bool) -> some View {
-        let shape = RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous)
-        return HStack(spacing: Metrics.medium) {
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
+        HStack(spacing: Metrics.medium) {
+            Circle()
                 .fill(color)
-                .frame(width: 14, height: 14)
+                .frame(width: 8, height: 8)
                 .accessibilityHidden(true)
             Text(verbatim: title)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(isChosen ? Color.hoursAttention : Color.primary)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
+            if isChosen {
+                Image(systemName: "checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .accessibilityHidden(true)
+            }
         }
-        .padding(.horizontal, Metrics.large)
-        .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-        .background(isChosen ? Color.hoursAttentionFill.opacity(0.12) : Color.hoursSurface, in: shape)
-        .overlay { shape.strokeBorder(isChosen ? Color.hoursAttentionFill : Color(uiColor: .separator), lineWidth: 1.5) }
-        .contentShape(shape)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private func pick(_ reason: AbsenceReason?) {

@@ -649,9 +649,11 @@ and, where a value is legitimate but suspicious, is surfaced as a non-blocking
 ## Navigation
 
 Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is the
-primary surface and opens on the current month; tapping a day reveals an inline
-summary beneath the grid, and opening it presents the editor as a sheet so the
-month never leaves the screen. Sites lists each active job site with its crew
+primary surface and opens on the current month (design v2: one inset-grouped
+list, the month grid first, then Today, the month's totals, Edit a range and
+Export); tapping a day presents it as a sheet at half height
+(`CalendarDaySheet`), and its Edit presents the editor as a sheet over it, so
+the month never leaves the screen. Sites lists each active job site with its crew
 and this month's figures, and leads to the site and its crew list; while
 today is unwritten a card also offers "Same as last day", which pushes the
 same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen
@@ -1591,8 +1593,11 @@ assets (`HoursPositiveText`, `HoursWarningText`, `HoursMissingText`) that pass
 contrast as text in Light mode — system orange, green and red on white do not,
 which matters in sunlight — and are the system colours in Dark; the `…Fill`
 colours are the bright ones, for fills and washes only. `hoursNegative` is the
-old name for the orange. The daily actions use `BigActionButtonStyle`
-(`.bigAction(.primary)`), and Appearance › On site sets two environment
+old name for the orange. The accent is system blue (design v2: light #007AFF,
+dark #0A84FF). The daily actions use `BigActionButtonStyle`
+(`.bigAction(.primary)`): a 52pt capsule (60pt with Bigger buttons), the
+accent for the one primary action, the tertiary system fill for secondary and
+destructive (red text), green for Clock in only. And Appearance › On site sets two environment
 values at the root, `biggerButtons` (taller big buttons) and `highContrast`
 (read through `.hoursSecondaryText` and `.hoursHairlineStyle`). A scrolling screen that is not a `Form` is `SectionHeading`
 over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for

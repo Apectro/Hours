@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// What a period earned, and where it came from.
+/// What a period earned, and where it came from: a list section headed
+/// by the total (design v2: rows, no card).
 ///
-/// Beside the hours cards rather than instead of them: the hours are what
-/// the money is made of, and what a timesheet is checked against.
+/// Beside the hours rather than instead of them: the hours are what the
+/// money is made of, and what a timesheet is checked against.
 struct EarningsCard: View {
     let earnings: EarningsSummary
     let money: MoneyFormatting
@@ -15,53 +16,44 @@ struct EarningsCard: View {
     var allowance: AllowanceSummary? = nil
 
     var body: some View {
-        SurfaceCard {
-            VStack(alignment: .leading, spacing: Metrics.medium) {
-                StatTile(label: String(localized: "Earned"), value: money.string(earnings.totalCents))
-                    .accessibilityIdentifier("insights-earned")
+        Section {
+            InsightsRow(title: String(localized: "Earned")) {
+                Text(money.string(earnings.totalCents))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+            }
+            .accessibilityIdentifier("insights-earned")
 
-                let parts = earnings.breakdown
-                MetricRow(label: String(localized: "Hours worked"), value: money.string(parts.baseCents), systemImage: "clock")
-                if parts.overtimeCents > 0 {
-                    MetricRow(label: String(localized: "Overtime surcharge"), value: money.string(parts.overtimeCents), systemImage: "arrow.up.right")
+            let parts = earnings.breakdown
+            InsightsRow(title: String(localized: "Hours worked"), value: money.string(parts.baseCents))
+            if parts.overtimeCents > 0 {
+                InsightsRow(title: String(localized: "Overtime surcharge"), value: money.string(parts.overtimeCents))
+            }
+            if parts.saturdayCents > 0 {
+                InsightsRow(title: String(localized: "Saturday"), value: money.string(parts.saturdayCents))
+            }
+            if parts.sundayAndHolidayCents > 0 {
+                InsightsRow(title: String(localized: "Sunday and public holidays"), value: money.string(parts.sundayAndHolidayCents))
+            }
+            if parts.nightCents > 0 {
+                InsightsRow(title: String(localized: "Night"), value: money.string(parts.nightCents))
+            }
+            if parts.paidAbsenceCents > 0 {
+                InsightsRow(title: String(localized: "Paid days off"), value: money.string(parts.paidAbsenceCents))
+            }
+            if let allowance, !allowance.isEmpty {
+                AllowanceLines(allowance: allowance, money: money)
+            }
+            if showsMonths && earnings.months.count > 1 {
+                ForEach(earnings.months) { month in
+                    InsightsRow(title: formatting.monthTitle(month.month), value: money.string(month.totalCents))
                 }
-                if parts.saturdayCents > 0 {
-                    MetricRow(label: String(localized: "Saturday"), value: money.string(parts.saturdayCents), systemImage: "calendar")
-                }
-                if parts.sundayAndHolidayCents > 0 {
-                    MetricRow(label: String(localized: "Sunday and public holidays"), value: money.string(parts.sundayAndHolidayCents), systemImage: "sun.max")
-                }
-                if parts.nightCents > 0 {
-                    MetricRow(label: String(localized: "Night"), value: money.string(parts.nightCents), systemImage: "moon")
-                }
-                if parts.paidAbsenceCents > 0 {
-                    MetricRow(label: String(localized: "Paid days off"), value: money.string(parts.paidAbsenceCents), systemImage: "checkmark.seal")
-                }
-                if let allowance, !allowance.isEmpty {
-                    AllowanceLines(allowance: allowance, money: money)
-                }
-                if let reducedNote {
-                    Text(verbatim: reducedNote)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                if showsMonths && earnings.months.count > 1 {
-                    Divider()
-                    Text("Month by month")
-                        .font(.subheadline.weight(.semibold))
-                    ForEach(earnings.months) { month in
-                        HStack {
-                            Text(formatting.monthTitle(month.month))
-                                .font(.subheadline)
-                            Spacer(minLength: Metrics.small)
-                            Text(money.string(month.totalCents))
-                                .font(.hoursFigure(.subheadline, weight: .medium))
-                        }
-                        .accessibilityElement(children: .combine)
-                    }
-                }
+            }
+        } header: {
+            Text("Pay")
+        } footer: {
+            if let reducedNote {
+                Text(verbatim: reducedNote)
             }
         }
     }
@@ -89,41 +81,37 @@ extension EarningsCard {
     }
 }
 
-/// The field allowance, the kilometres and travel time as Insights lines:
+/// The field allowance, the kilometres and travel time as Insights rows:
 /// days or kilometres with what they come to at the rates in settings, and
-/// travel as a time. Each only when there is some.
+/// travel as a time. Each only when there is some. Rows of the section it
+/// is put in.
 struct AllowanceLines: View {
     let allowance: AllowanceSummary
     let money: MoneyFormatting
 
     var body: some View {
-        VStack(spacing: Metrics.medium) {
-            if allowance.allowanceDays > 0 {
-                MetricRow(
-                    label: String(inflected: "Field allowance · ^[\(allowance.allowanceDays) day](inflect: true)"),
-                    value: amount(allowance.allowanceCents),
-                    systemImage: "suitcase"
-                )
-                .accessibilityIdentifier("insights-allowance")
-            }
-            if allowance.kilometres > 0 {
-                MetricRow(
-                    label: String(
-                        localized: "Kilometres · \(allowance.kilometres) km",
-                        comment: "Insights, the month's kilometres; the value is a number"
-                    ),
-                    value: amount(allowance.mileageCents),
-                    systemImage: "car"
-                )
-                .accessibilityIdentifier("insights-kilometres")
-            }
-            if allowance.travelMinutes > 0 {
-                MetricRow(
-                    label: String(localized: "Travel time"),
-                    value: DurationFormatting(style: .clock).string(allowance.travelMinutes),
-                    systemImage: "road.lanes"
-                )
-            }
+        if allowance.allowanceDays > 0 {
+            InsightsRow(
+                title: String(inflected: "Field allowance · ^[\(allowance.allowanceDays) day](inflect: true)"),
+                value: amount(allowance.allowanceCents)
+            )
+            .accessibilityIdentifier("insights-allowance")
+        }
+        if allowance.kilometres > 0 {
+            InsightsRow(
+                title: String(
+                    localized: "Kilometres · \(allowance.kilometres) km",
+                    comment: "Insights, the month's kilometres; the value is a number"
+                ),
+                value: amount(allowance.mileageCents)
+            )
+            .accessibilityIdentifier("insights-kilometres")
+        }
+        if allowance.travelMinutes > 0 {
+            InsightsRow(
+                title: String(localized: "Travel time"),
+                value: DurationFormatting(style: .clock).string(allowance.travelMinutes)
+            )
         }
     }
 
@@ -133,35 +121,21 @@ struct AllowanceLines: View {
     }
 }
 
-/// Where Insights would show earnings, while no rate is set: one line that
-/// leads to where it is.
+/// Where Insights would show earnings, while no rate is set: one row that
+/// leads to where it is, and one sentence under it.
 struct EarningsHint: View {
     let jobID: UUID
 
     var body: some View {
-        NavigationLink {
-            PaySettingsScreen(jobID: jobID)
-        } label: {
-            SurfaceCard {
-                HStack(spacing: Metrics.medium) {
-                    Image(systemName: "banknote")
-                        .foregroundStyle(Color.accentColor)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Set your hourly rate")
-                            .font(.subheadline.weight(.semibold))
-                        Text("See what your hours earn, overtime and surcharges included.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
-                }
+        Section {
+            NavigationLink {
+                PaySettingsScreen(jobID: jobID)
+            } label: {
+                Text("Set your hourly rate")
             }
+            .accessibilityIdentifier("insights-set-rate")
+        } footer: {
+            Text("See what your hours earn, overtime and surcharges included.")
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("insights-set-rate")
     }
 }
