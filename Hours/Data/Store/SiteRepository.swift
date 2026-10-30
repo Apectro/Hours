@@ -163,20 +163,8 @@ struct SiteRepository {
     func sameAsLastDay(siteID: UUID, on date: CalendarDate) -> SiteDay? {
         guard let last = lastSiteDay(siteID: siteID, before: date) else { return nil }
         let hidden = Set(crew(for: siteID, includeHidden: true).filter(\.isHidden).map(\.id))
-        let present = last.present
-            .filter { !hidden.contains($0.memberID) }
-            .map { Attendance(memberID: $0.memberID) }
-        return SiteDay(
-            siteID: siteID,
-            date: date,
-            start: last.start,
-            end: last.end,
-            breakMinutes: last.breakMinutes,
-            present: present,
-            jobID: site(id: siteID)?.jobID,
-            allowanceMemberIDs: present.map(\.memberID).filter(last.hasAllowance(for:)),
-            kilometres: last.kilometres
-        )
+        // The copy itself is the engine's (`SiteDay.copied`), with its tests.
+        return last.copied(to: date, leavingOut: hidden, jobID: site(id: siteID)?.jobID)
     }
 
     // MARK: - Writing site days

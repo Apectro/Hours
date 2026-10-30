@@ -31,6 +31,9 @@ struct SiteMoveSheet: View {
     /// Your running clock, if any (1.2): when you go, it goes with you, and
     /// the summary says so (`ClockFollowsMove`).
     var runningClock: RunningShift? = nil
+    /// The movers' hours on each side, for the line under who went
+    /// ("Here: 5h 40m each. There: 3h 20m each."); nil when it cannot be made.
+    var preview: (SiteMoveChoice) -> (here: SiteCrewFigures, there: SiteCrewFigures)? = { _ in nil }
 
     @Environment(\.dismiss) private var dismiss
     @Environment(SettingsStore.self) private var settingsStore
@@ -51,7 +54,8 @@ struct SiteMoveSheet: View {
         suggestedLeft: TimeOfDay,
         check: @escaping (SiteMoveChoice) -> SiteMoveError?,
         onMove: @escaping (SiteMoveChoice) -> Void,
-        runningClock: RunningShift? = nil
+        runningClock: RunningShift? = nil,
+        preview: @escaping (SiteMoveChoice) -> (here: SiteCrewFigures, there: SiteCrewFigures)? = { _ in nil }
     ) {
         self.site = site
         self.day = day
@@ -61,6 +65,7 @@ struct SiteMoveSheet: View {
         self.check = check
         self.onMove = onMove
         self.runningClock = runningClock
+        self.preview = preview
         _siteID = State(initialValue: otherSites.count == 1 ? otherSites.first?.id : nil)
         _left = State(initialValue: suggestedLeft)
         _started = State(initialValue: suggestedLeft)
@@ -99,27 +104,32 @@ struct SiteMoveSheet: View {
 
                 Section {
                     DatePicker(
-                        String(localized: "Left \(site.name)", comment: "Move sheet: the time people left this site; the value is its name"),
+                        String(localized: "Left here at"),
                         selection: timeBinding($left, keepsStartedAfter: true),
                         displayedComponents: .hourAndMinute
                     )
                     .accessibilityIdentifier("site-move-left")
                     DatePicker(
-                        startedTitle,
+                        String(localized: "Started there at"),
                         selection: timeBinding($started, keepsStartedAfter: false),
                         displayedComponents: .hourAndMinute
                     )
                     .accessibilityIdentifier("site-move-started")
-                    if day.breakMinutes > 0 || people.contains(where: { (day.resolved(for: $0.id)?.breakMinutes ?? 0) > 0 }) {
+                }
+
+                if hasBreak {
+                    Section {
                         Picker("Break", selection: placementBinding) {
-                            Text(placementTitle(.here)).tag(BreakPlacement.here)
-                            Text(placementTitle(.there)).tag(BreakPlacement.there)
+                            Text("Here").tag(BreakPlacement.here)
+                            Text("There").tag(BreakPlacement.there)
                             Text("Half on each").tag(BreakPlacement.split)
                         }
+                        .pickerStyle(.segmented)
+                        .frame(minHeight: 44)
                         .accessibilityIdentifier("site-move-break")
+                    } header: {
+                        Text("Break")
                     }
-                } header: {
-                    Text("When")
                 }
 
                 Section {
@@ -155,7 +165,7 @@ struct SiteMoveSheet: View {
                 }
             }
             .navigationTitle("Moved to another site")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .accessibilityIdentifier("site-move-sheet")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -184,9 +194,9 @@ struct SiteMoveSheet: View {
     private var calendar: Calendar { settingsStore.workCalendar }
     private var target: Site? { otherSites.first { $0.id == siteID } }
 
-    private var startedTitle: String {
-        guard let target else { return String(localized: "Started at the other site") }
-        return String(localized: "Started at \(target.name)", comment: "Move sheet: the time people started on the other site; the value is its name")
+    /// Whether anyone going has a break to place.
+    private var hasBreak: Bool {
+        day.breakMinutes > 0 || people.contains(where: { (day.resolved(for: $0.id)?.breakMinutes ?? 0) > 0 })
     }
 
     /// Where the break falls in time, until one is chosen.
@@ -198,18 +208,6 @@ struct SiteMoveSheet: View {
 
     private var placementBinding: Binding<BreakPlacement> {
         Binding(get: { placement }, set: { chosenPlacement = $0 })
-    }
-
-    private func placementTitle(_ placement: BreakPlacement) -> String {
-        switch placement {
-        case .here:
-            return String(localized: "At \(site.name)", comment: "A crew row: working on another site that day; the value is its name")
-        case .there:
-            guard let target else { return String(localized: "At the other site") }
-            return String(localized: "At \(target.name)", comment: "A crew row: working on another site that day; the value is its name")
-        case .split:
-            return String(localized: "Half on each")
-        }
     }
 
     /// Who went, in the card's order.
@@ -227,19 +225,18 @@ struct SiteMoveSheet: View {
         guard let target else { return String(localized: "Choose the site they went to.") }
         guard !memberIDs.isEmpty else { return String(localized: "Tick who went.") }
         if let problem { return message(for: problem) }
-        let leftText = formatting.time(left, on: day.date)
-        let startedText = formatting.time(started, on: day.date)
-        let goingCount = memberIDs.count
-        let staying = people.filter { !going.contains($0.id) }
-        var sentences = [String(
-            localized: "\(site.name) gets their hours until \(leftText) for the \(goingCount) who went. \(target.name) gets them from \(startedText).",
-            comment: "Move sheet summary; the values are this site, a time, how many went, the other site and a time"
-        )]
-        if let end = day.end, !staying.isEmpty {
-            let names = staying.map(\.name).joined(separator: ", ")
+        var sentences: [String] = []
+        if let choice, let figures = preview(choice) {
             sentences.append(String(
-                localized: "Staying here until \(formatting.time(end, on: day.date)): \(names).",
-                comment: "Move sheet summary; the values are the day's end and the names of who stays"
+                localized: "Here: \(hours(figures.here)). There: \(hours(figures.there)).",
+                comment: "Move sheet summary; the values are the movers' hours on this site and on the other"
+            ))
+        } else {
+            let leftText = formatting.time(left, on: day.date)
+            let startedText = formatting.time(started, on: day.date)
+            sentences.append(String(
+                localized: "\(site.name) gets their hours until \(leftText) for the \(memberIDs.count) who went. \(target.name) gets them from \(startedText).",
+                comment: "Move sheet summary; the values are this site, a time, how many went, the other site and a time"
             ))
         }
         let clockMoves = ClockFollowsMove.handover(
@@ -254,6 +251,13 @@ struct SiteMoveSheet: View {
             sentences.append(String(localized: "Your clock moves too."))
         }
         return sentences.joined(separator: " ")
+    }
+
+    /// "5h 40m each", or the total when the movers' hours differ.
+    private func hours(_ figures: SiteCrewFigures) -> String {
+        let durations = settingsStore.settings.displayFormatting
+        if let each = figures.eachMinutes { return SiteDayStyle.eachText(each, durations: durations) }
+        return durations.string(figures.totalMinutes)
     }
 
     private func message(for problem: SiteMoveError) -> String {
