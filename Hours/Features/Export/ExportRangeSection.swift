@@ -1,7 +1,9 @@
 import SwiftUI
 
-/// WHICH PERIOD (Export board, phone 2): Week · Month · Year · Dates, and
-/// under it ‹ October 2026 › for the first three, or the two dates.
+/// The period of your own hours: Week · Month · Year · Dates, segmented,
+/// and under it ‹ October 2026 › for the first three, or the two dates.
+/// The segments and the stepper stand on the background, as the crew
+/// sheet's month does (design v2, More board phone 1).
 ///
 /// Every kind but Dates steps a whole period at a time, so last month is one
 /// tap away without going back to the calendar. A single day is Dates with
@@ -28,9 +30,11 @@ struct ExportRangeSection: View {
                 }
             }
             .pickerStyle(.segmented)
+            .labelsHidden()
             .accessibilityIdentifier("export-range-kind")
-            .listRowInsets(EdgeInsets())
+            .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
             .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
 
             if rangeKind == .custom {
                 DatePicker("From", selection: $customStart, displayedComponents: .date)
@@ -47,9 +51,10 @@ struct ExportRangeSection: View {
                     onPrevious: { onStep(-1) },
                     onNext: { onStep(1) }
                 )
+                .listRowInsets(EdgeInsets(top: Metrics.tiny, leading: 0, bottom: Metrics.tiny, trailing: 0))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
-        } header: {
-            Text("Which period")
         }
     }
 

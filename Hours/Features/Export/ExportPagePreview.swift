@@ -18,16 +18,7 @@ struct ExportPagePreview: View {
 
     var body: some View {
         Button(action: onOpen) {
-            ZStack(alignment: .bottomTrailing) {
-                well
-                Text("Tap to open full size")
-                    .font(.caption)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, Metrics.small)
-                    .padding(.vertical, Metrics.tiny)
-                    .background(Color.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 8))
-                    .padding(Metrics.small)
-            }
+            page
         }
         .buttonStyle(.plain)
         .disabled(image == nil)
@@ -37,12 +28,11 @@ struct ExportPagePreview: View {
         .accessibilityIdentifier("export-preview-page")
     }
 
-    private var well: some View {
+    /// The page itself on the screen's background, no card behind it: paper,
+    /// white in both appearances, with a hairline so its edge shows on a
+    /// light background too (design v2, More board phone 1).
+    private var page: some View {
         ZStack {
-            // The page is paper, white in both appearances, on a grey just
-            // dark enough for its edge to show.
-            RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
-                .fill(Color(uiColor: .tertiarySystemFill))
             if let image {
                 Image(uiImage: image)
                     .resizable()
@@ -51,16 +41,15 @@ struct ExportPagePreview: View {
                     .clipShape(RoundedRectangle(cornerRadius: 3))
                     .overlay {
                         RoundedRectangle(cornerRadius: 3)
-                            .strokeBorder(Color.black.opacity(0.12), lineWidth: 0.5)
+                            .strokeBorder(Color(uiColor: .separator), lineWidth: 0.5)
                     }
-                    .shadow(color: .black.opacity(0.18), radius: 6, y: 3)
-                    .padding(Metrics.medium)
             } else {
                 ProgressView()
             }
         }
         .frame(maxWidth: .infinity)
         .aspectRatio(1.3, contentMode: .fit)
+        .contentShape(Rectangle())
     }
 
     /// The first page drawn into an image `width` points wide.
@@ -89,8 +78,11 @@ struct ExportFullPageSheet: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                            .accessibilityIdentifier("export-full-page-done")
+                        Button { dismiss() } label: {
+                            Label("Done", systemImage: "xmark")
+                        }
+                        .labelStyle(.iconOnly)
+                        .accessibilityIdentifier("export-full-page-done")
                     }
                 }
         }
@@ -145,8 +137,11 @@ struct ExportReadySheet: View {
                 .accessibilityIdentifier("screen-export-ready")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") { dismiss() }
-                            .accessibilityIdentifier("export-full-page-done")
+                        Button { dismiss() } label: {
+                            Label("Done", systemImage: "xmark")
+                        }
+                        .labelStyle(.iconOnly)
+                        .accessibilityIdentifier("export-full-page-done")
                     }
                 }
                 .safeAreaInset(edge: .bottom) { bar }

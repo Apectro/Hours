@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// PDF and Excel, the two big buttons side by side at the bottom of the
-/// export screen (Export board, phones 1 and 2). PDF is the primary action;
-/// Excel is green, as on the board.
+/// export screen (design v2, More board phone 1). PDF is the primary action;
+/// Excel the secondary one beside it.
 ///
 /// Each one writes the file in its format and opens it, ready to send. A CSV
 /// is reached from This sheet › CSV file, which calls the same `onChoose`.
@@ -17,7 +17,7 @@ struct ExportFormatCards: View {
     var body: some View {
         HStack(spacing: Metrics.medium) {
             button(.pdf, kind: .primary)
-            button(.xlsx, kind: .positive)
+            button(.xlsx, kind: .secondary)
         }
         .disabled(!isEnabled)
     }

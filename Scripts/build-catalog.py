@@ -165,6 +165,8 @@ APP_STRINGS = {
     ),
     # Export (1.2): the working days of the period with nothing written.
     "Nothing written on ^[%lld day](inflect: true)": entry("Nothing written on %#@days@", DAYS()),
+    # Export (design v2): the same days as one orange row that opens them.
+    "^[%lld day](inflect: true) not written": entry("%#@days@ not written", DAYS()),
 }
 
 WIDGET_STRINGS = {

@@ -1,63 +1,82 @@
 import SwiftUI
 
-/// WHICH SITES · TAP MORE THAN ONE TO MERGE (Export board, phone 1): the
-/// active sites as chips, ticked ones with a checkmark, and archived sites
-/// behind an "Other sites" chip.
+/// Sites (design v2, More board phone 1): a row per active site with the
+/// month's crew hours and a blue checkmark when it is on the sheet, and the
+/// archived sites behind an "Other sites" row.
 ///
 /// Several ticked make one crew sheet with each person's hours a day added
 /// up across them (1.2). The sheet names them in the order they were
 /// ticked; the first is the one the sheet is filed under. At least one site
 /// stays ticked.
-struct ExportSiteChips: View {
-    /// The chips, in the sites' own order: the active sites, and any
+struct ExportSitesSection: View {
+    /// The rows, in the sites' own order: the active sites, and any
     /// archived one already on the sheet.
     let sites: [Site]
     /// The sites on the sheet, in the order ticked; the first is the sheet's
     /// own.
     let chosen: [UUID]
-    /// Whether there are archived sites to offer behind "Other sites".
-    let hasOtherSites: Bool
+    /// The month's crew hours by site; a site without days has none.
+    let hours: [UUID: Int]
+    /// How many archived sites there are to offer behind "Other sites".
+    let otherSitesCount: Int
     let onToggle: (UUID) -> Void
     let onOtherSites: () -> Void
 
+    @Environment(SettingsStore.self) private var settingsStore
+
     var body: some View {
-        ExtraWorkFlow(spacing: Metrics.small) {
+        Section {
             ForEach(sites) { site in
-                chip(site)
+                row(site)
             }
-            if hasOtherSites {
+            if otherSitesCount > 0 {
                 Button(action: onOtherSites) {
-                    HStack(spacing: Metrics.tiny) {
+                    HStack(spacing: Metrics.small) {
                         Text("Other sites")
+                            .foregroundStyle(.primary)
+                        Spacer(minLength: Metrics.small)
+                        Text(verbatim: "\(otherSitesCount)")
+                            .monospacedDigit()
+                            .foregroundStyle(.hoursSecondaryText)
                         Image(systemName: "chevron.right")
-                            .font(.caption.weight(.semibold))
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
                             .accessibilityHidden(true)
                     }
-                    .chipLabel(isOn: false)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("export-sheet-sites")
             }
+        } header: {
+            Text("Sites")
         }
     }
 
-    private func chip(_ site: Site) -> some View {
+    private func row(_ site: Site) -> some View {
         let isOn = chosen.contains(site.id)
         return Button {
             onToggle(site.id)
         } label: {
-            HStack(spacing: Metrics.tiny) {
-                if isOn {
-                    Image(systemName: "checkmark")
-                        .font(.caption.weight(.bold))
-                        .accessibilityHidden(true)
-                }
+            HStack(spacing: Metrics.small) {
                 Text(verbatim: site.name)
-                    .lineLimit(1)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                Spacer(minLength: Metrics.small)
+                if let minutes = hours[site.id], minutes > 0 {
+                    Text(verbatim: settingsStore.settings.displayFormatting.string(minutes))
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+                Image(systemName: "checkmark")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.accentColor)
+                    .opacity(isOn ? 1 : 0)
+                    .accessibilityHidden(true)
             }
-            .chipLabel(isOn: isOn)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
         .accessibilityAddTraits(isOn ? .isSelected : [])
         .accessibilityIdentifier(identifier(for: site))
     }
@@ -69,22 +88,6 @@ struct ExportSiteChips: View {
         let others = sites.filter { $0.id != chosen.first }
         let offset = others.firstIndex { $0.id == site.id } ?? 0
         return "export-sheet-site-\(offset)"
-    }
-}
-
-private extension View {
-    /// The Export board's chip: 44 points tall, outlined; ticked, blue.
-    func chipLabel(isOn: Bool) -> some View {
-        self
-            .font(.subheadline.weight(isOn ? .bold : .regular))
-            .foregroundStyle(isOn ? Color.accentColor : Color.primary)
-            .padding(.horizontal, Metrics.medium + 2)
-            .frame(minHeight: 44)
-            .background(isOn ? Color.accentColor.opacity(0.12) : Color.hoursSurface, in: Capsule())
-            .overlay {
-                Capsule().strokeBorder(isOn ? Color.accentColor : Color(uiColor: .systemGray3), lineWidth: 1.5)
-            }
-            .contentShape(Capsule())
     }
 }
 
@@ -137,7 +140,7 @@ struct ExportSheetSitesPicker: View {
                 Text(verbatim: site.name)
                     .foregroundStyle(.primary)
                 Text("Archived")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.hoursSecondaryText)
             }
             Spacer(minLength: Metrics.small)
