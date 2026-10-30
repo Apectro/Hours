@@ -93,6 +93,29 @@ final class SiteExportTests: XCTestCase {
         XCTAssertEqual(page.value as? String, "Kaiserstrasse 12 · Trg Pravde")
     }
 
+    /// The Sites list offers each month's sheet: it opens on a crew sheet
+    /// with the sites worked that month already ticked.
+    func testTheSitesListOpensAMonthsSheet() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site", "-hours-second-site"]
+        app.launch()
+
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        let month = app.buttons.matching(identifier: "sites-month-sheet").firstMatch
+        for _ in 0..<4 where !(month.exists && month.isHittable) { app.swipeUp() }
+        XCTAssertTrue(month.isHittable, "the Sites list offers no month's sheet")
+        month.tap()
+        XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the month's sheet did not open")
+
+        // Only the site with days that month: Trg Pravde has none.
+        let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
+        XCTAssertTrue(page.waitForExistence(timeout: 10), "the PDF has no page preview")
+        let title = page.value as? String ?? ""
+        XCTAssertTrue(title.contains("Kaiserstrasse 12"), "the sheet should be the seeded site's")
+        XCTAssertFalse(title.contains("Trg Pravde"), "a site with nothing that month is not ticked")
+    }
+
     /// A crew member's own sheet, from the crew list: their month as the
     /// page they are handed, before it is shared.
     func testACrewMembersSheetOpensOnItsPage() {

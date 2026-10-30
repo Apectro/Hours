@@ -48483,6 +48483,65 @@
         }
       }
     },
+    "One sheet for the month with every site worked on it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Liste für den Monat mit jeder Baustelle, auf der gearbeitet wurde."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una hoja para el mes con cada obra en la que se trabajó."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une feuille pour le mois avec chaque chantier où l'on a travaillé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jedna lista za mjesec sa svim gradilištima na kojima se radilo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un foglio per il mese con ogni cantiere in cui si è lavorato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eén blad voor de maand met elke bouwplaats waar gewerkt is."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeden arkusz na miesiąc ze wszystkimi budowami, na których pracowano."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma folha para o mês com cada obra em que se trabalhou."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En list za mesec z vsemi gradbišči, na katerih se je delalo."
+          }
+        }
+      }
+    },
     "One sheet per person": {
       "extractionState": "manual",
       "localizations": {

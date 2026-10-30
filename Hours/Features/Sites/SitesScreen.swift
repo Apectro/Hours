@@ -171,13 +171,19 @@ private struct SitesContent: View {
     @State private var isCreating = false
     @State private var paywallReason: ProFeature?
 
+    /// How many months back the list offers a sheet for, this one included.
+    private static let sheetMonths = 3
+
     init(month: YearMonth, calendar: Calendar) {
         self.month = month
         let range = month.range(in: calendar)
         self.range = range
-        // From the look-back before the 1st: whether a day is expected
-        // reads the weekdays worked lately (`SiteWorkDays`).
-        let lower = range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar).key
+        // From the look-back before the 1st, as whether a day is expected
+        // reads the weekdays worked lately (`SiteWorkDays`), or from the
+        // oldest month offered a sheet if that is earlier.
+        let lookBack = range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar)
+        let oldestSheet = month.adding(months: -(Self.sheetMonths - 1)).firstDay
+        let lower = min(lookBack, oldestSheet).key
         let upper = range.end.key
         _siteEntries = Query(sort: \SiteEntry.sortOrder)
         _crewEntries = Query(sort: \CrewMemberEntry.sortOrder)
@@ -203,6 +209,10 @@ private struct SitesContent: View {
                         offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
                     )
                     .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
+                }
+
+                if !loaded.monthSheets.isEmpty {
+                    MonthSheetsGroup(sheets: loaded.monthSheets)
                 }
 
                 if !archivedSites.isEmpty {
@@ -383,7 +393,41 @@ private struct SitesContent: View {
                 canCopy.insert(site.id)
             }
         }
-        loaded = LoadedSites(sites: sites, summaries: summaries, canCopyLastDay: canCopy)
+        loaded = LoadedSites(
+            sites: sites,
+            summaries: summaries,
+            canCopyLastDay: canCopy,
+            monthSheets: monthSheets(sites: sites, repository: repository, calculator: calculator, today: today)
+        )
+    }
+
+    /// The months offered a sheet, each with the sites worked on it in the
+    /// list's order and the crew's hours on all of them.
+    private func monthSheets(
+        sites: [Site],
+        repository: SiteRepository,
+        calculator: SiteDayCalculator,
+        today: CalendarDate
+    ) -> [MonthSheet] {
+        let oldest = month.adding(months: -(Self.sheetMonths - 1))
+        let span = CalendarDateRange(start: oldest.firstDay, end: range.end)
+        var worked: [YearMonth: [UUID: Int]] = [:]
+        var seen = Set<String>()
+        for day in repository.siteDays(siteID: nil, in: span) {
+            // Sync can deliver a site day twice; the first one counts.
+            guard seen.insert("\(day.siteID.uuidString)-\(day.date.key)").inserted else { continue }
+            worked[YearMonth(day.date), default: [:]][day.siteID, default: 0] += calculator.compute(day).crewTotalMinutes
+        }
+        let names = Dictionary(sites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+        return CrewSheetSites.months(worked: Set(worked.keys), today: today, limit: Self.sheetMonths).map { month in
+            let hours = worked[month] ?? [:]
+            let ids = CrewSheetSites.ticked(worked: hours, order: sites.map(\.id), opened: nil)
+            return MonthSheet(
+                month: month,
+                siteNames: ids.compactMap { names[$0] },
+                minutes: hours.values.reduce(0, +)
+            )
+        }
     }
 }
 
@@ -399,6 +443,103 @@ private struct LoadedSites {
     var summaries: [UUID: SiteCardSummary] = [:]
     /// Active sites whose today can be filled from their last day.
     var canCopyLastDay: Set<UUID> = []
+    /// The months offered a sheet, newest first.
+    var monthSheets: [MonthSheet] = []
+}
+
+/// SHEETS under the site cards: one row a month with every site worked on
+/// it, so the month's sheet goes out from here rather than from each site
+/// in turn. The export is presented from here, not from the list's root.
+private struct MonthSheetsGroup: View {
+    let sheets: [MonthSheet]
+
+    @Environment(SettingsStore.self) private var settingsStore
+    @State private var exporting: MonthSheet?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Text("Sheets")
+                .font(.footnote.weight(.semibold))
+                .textCase(.uppercase)
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.large)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                ForEach(sheets) { sheet in
+                    if sheet.id != sheets.first?.id {
+                        Divider()
+                            .padding(.leading, Metrics.large)
+                    }
+                    monthSheetRow(sheet)
+                }
+            }
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+
+            Text("One sheet for the month with every site worked on it.")
+                .font(.footnote)
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.large)
+        }
+        .padding(.top, Metrics.small)
+        .sheet(item: $exporting) { sheet in
+            ExportScreen(
+                initialRange: sheet.month.range(in: settingsStore.workCalendar),
+                month: sheet.month,
+                crewSheet: true
+            )
+        }
+    }
+
+    /// "October 2026" over "Trg Pravde + Jarunski · 382h".
+    private func monthSheetRow(_ sheet: MonthSheet) -> some View {
+        Button {
+            exporting = sheet
+        } label: {
+            HStack(spacing: Metrics.medium) {
+                Image(systemName: "doc.text")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 28)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(settingsStore.dateFormatting.monthTitle(sheet.month))
+                        .foregroundStyle(.primary)
+                    Text(verbatim: monthSheetDetail(sheet))
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, Metrics.large)
+            .padding(.vertical, Metrics.small + 2)
+            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("sites-month-sheet")
+    }
+
+    private func monthSheetDetail(_ sheet: MonthSheet) -> String {
+        let hours = settingsStore.settings.displayFormatting.string(sheet.minutes)
+        return sheet.siteNames.joined(separator: " + ") + " · " + hours
+    }
+}
+
+/// A month's sheet of every site worked on it, as the Sites list offers it.
+private struct MonthSheet: Identifiable {
+    var month: YearMonth
+    var siteNames: [String]
+    var minutes: Int
+
+    var id: YearMonth { month }
 }
 
 /// One active site's month, as its card says it.

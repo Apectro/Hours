@@ -36,6 +36,10 @@ struct ExportScreen: View {
     /// director's sheet with each person's hours a day added up across
     /// them. For this export only.
     @State private var sheetSiteIDs: [UUID] = []
+    /// The month whose sites were last ticked by themselves: every site
+    /// worked on that month (`CrewSheetSites`). Ticks changed by hand stay
+    /// until the month is stepped.
+    @State private var sitesTickedFor: YearMonth?
     @State private var choosesOtherSites = false
     /// The person of One person, by `CrewCandidates.key`.
     @State private var personKey: String?
@@ -107,10 +111,12 @@ struct ExportScreen: View {
     ///   - initialRange: the days your own timesheet starts on.
     ///   - site: the site to open a crew sheet on, when opened from one.
     ///   - month: the crew sheet's month; last month when `nil`.
-    init(initialRange: CalendarDateRange, site: Site? = nil, month: YearMonth? = nil) {
+    ///   - crewSheet: open on a crew sheet of the month's sites without a
+    ///     site of its own, as from the Sites list.
+    init(initialRange: CalendarDateRange, site: Site? = nil, month: YearMonth? = nil, crewSheet: Bool = false) {
         self.initialRange = initialRange
         self.initialSiteID = site?.id
-        _mode = State(initialValue: site == nil ? .myHours : .crewSheet)
+        _mode = State(initialValue: site == nil && !crewSheet ? .myHours : .crewSheet)
         _primarySiteID = State(initialValue: site?.id)
         _siteMonth = State(initialValue: month)
         _anchor = State(initialValue: initialRange.start)
@@ -658,6 +664,11 @@ struct ExportScreen: View {
             readPersonal()
         case .crewSheet:
             monthSiteHours = maker.siteMonthHours(month: month)
+            if tickWorkedSites() {
+                // The sites changed what the sheet holds, so it is built again
+                // through `regenerationKey`.
+                return
+            }
             let built = maker.sites(sheetSites, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
             tables = built
             first = built
@@ -881,6 +892,18 @@ struct ExportScreen: View {
         } else {
             sheetSiteIDs.append(id)
         }
+    }
+
+    /// Ticks every site worked on in a month the first time it is shown;
+    /// true when that changed the ticks.
+    private func tickWorkedSites() -> Bool {
+        guard sitesTickedFor != month else { return false }
+        sitesTickedFor = month
+        let ids = CrewSheetSites.ticked(worked: monthSiteHours, order: allSites.map(\.id), opened: initialSiteID)
+        guard let first = ids.first, ids != sheetSites.map(\.id) else { return false }
+        primarySiteID = first
+        sheetSiteIDs = Array(ids.dropFirst())
+        return true
     }
 
     /// One period of the chosen kind back or forward.
