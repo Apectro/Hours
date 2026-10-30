@@ -77,7 +77,7 @@ struct MonthlyBalanceChart: View {
                     x: .value("Month", formatting.monthAbbreviation(point.month)),
                     y: .value("Balance", Double(point.balanceMinutes) / 60.0)
                 )
-                .foregroundStyle(point.balanceMinutes >= 0 ? Color.hoursPositive : Color.hoursNegative)
+                .foregroundStyle(point.balanceMinutes >= 0 ? Color.hoursPositive : Color.hoursMissingFill)
                 .cornerRadius(2)
             }
 
