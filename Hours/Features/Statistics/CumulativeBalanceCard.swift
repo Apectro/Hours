@@ -2,7 +2,9 @@ import SwiftUI
 import SwiftData
 import Charts
 
-/// The running balance, from the opening figure to a given day.
+/// The running balance, from the opening figure to a given day: a list
+/// section with the figure, its line through the period, and what it
+/// covers in the footer (design v2: no card).
 ///
 /// Always recomputed from the days themselves, never stored, so correcting a
 /// day recorded months ago fixes this number too.
@@ -31,34 +33,32 @@ struct CumulativeBalanceCard: View {
     }
 
     var body: some View {
-        SurfaceCard {
-            VStack(alignment: .leading, spacing: Metrics.small) {
-                Text("Running balance")
-                    .font(.headline)
-
-                let balance = self.balance
+        Section {
+            let balance = self.balance
+            InsightsRow(title: String(localized: "Balance")) {
                 BalanceText(
                     minutes: balance,
                     formatting: settings.displayFormatting,
-                    font: .hoursFigure(.largeTitle)
+                    font: .title3.weight(.semibold).monospacedDigit()
                 )
-
-                let points = trendPoints(endingAt: balance)
-                if points.count > 1 {
-                    BalanceTrendChart(points: points, calendar: calendar)
-                }
-
-                if let available = overtimeAvailable(balance) {
-                    Text(available)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.hoursPositive)
-                        .accessibilityIdentifier("insights-overtime-available")
-                }
-
-                Text(caption)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
+
+            let points = trendPoints(endingAt: balance)
+            if points.count > 1 {
+                BalanceTrendChart(points: points, calendar: calendar)
+                    .padding(.vertical, Metrics.small)
+            }
+
+            if let available = overtimeAvailable(balance) {
+                Text(available)
+                    .monospacedDigit()
+                    .foregroundStyle(Color.hoursPositive)
+                    .accessibilityIdentifier("insights-overtime-available")
+            }
+        } header: {
+            Text("Running balance")
+        } footer: {
+            Text(caption)
         }
     }
 

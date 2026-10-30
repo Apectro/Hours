@@ -1,7 +1,8 @@
 import SwiftUI
 import Charts
 
-/// Hours worked per day, with the contracted day as a reference line.
+/// Hours worked per day in the accent colour, with the normal day as a
+/// dashed rule and few labels (design v2, More board phone 2).
 ///
 /// A chart is here because the shape of a month — which days ran long, which
 /// were empty — is genuinely easier to see than to read.
@@ -18,7 +19,7 @@ struct DailyHoursChart: View {
                     y: .value("Hours", hours(for: day))
                 )
                 .foregroundStyle(color(for: day))
-                .cornerRadius(2)
+                .cornerRadius(3)
             }
 
             if let referenceHours, referenceHours > 0 {
@@ -28,7 +29,7 @@ struct DailyHoursChart: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading) { value in
+            AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let hours = value.as(Double.self) {
@@ -38,12 +39,11 @@ struct DailyHoursChart: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                AxisGridLine()
+            AxisMarks(values: .automatic(desiredCount: 3)) { _ in
                 AxisValueLabel(format: .dateTime.day())
             }
         }
-        .frame(height: 180)
+        .frame(height: 140)
         .accessibilityLabel("Hours worked per day")
     }
 
@@ -57,7 +57,7 @@ struct DailyHoursChart: View {
 
     private func color(for day: DayComputation) -> Color {
         if day.creditedMinutes > 0 && day.workedMinutes == 0 { return day.dayType.tint.color }
-        return day.balanceMinutes > 0 ? Color.hoursPositive : Color.accentColor
+        return Color.accentColor
     }
 }
 

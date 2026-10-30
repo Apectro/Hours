@@ -1,41 +1,32 @@
 import SwiftUI
 import UIKit
 
-/// Insights › Month: "Check your payslip", and how the month's check went —
-/// "Checked ✓" or "2 differences" — against the hours as they are now.
+/// Insights › Month: "Check your payslip" as a list row, with how the
+/// month's check went on the right — "Checked" or "2 differences" —
+/// against the hours as they are now.
 struct PayslipCheckRow: View {
     /// Nil until the month's payslip has been typed in.
     let comparison: PayslipComparison?
-    /// "October", for "Compare October's pay with your hours".
+    /// "October", for VoiceOver's "Compare October's pay with your hours".
     var monthName: String = ""
     let open: () -> Void
 
     var body: some View {
         Button(action: open) {
-            SurfaceCard {
-                HStack(spacing: Metrics.medium) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.title3)
-                        .foregroundStyle(Color.accentColor)
-                        .frame(width: 28)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Check your payslip")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                        status
-                            .font(.subheadline)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer(minLength: Metrics.small)
-                    Text("Open")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
-                }
-                .frame(minHeight: 44)
+            HStack(spacing: Metrics.small) {
+                Text("Check your payslip")
+                    .foregroundStyle(.primary)
+                Spacer(minLength: Metrics.small)
+                status
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .accessibilityHint(Text(verbatim: hint))
         .accessibilityIdentifier("insights-payslip-check")
     }
 
@@ -43,22 +34,22 @@ struct PayslipCheckRow: View {
     private var status: some View {
         if let comparison, !comparison.lines.isEmpty {
             if comparison.allMatch {
-                Label("Checked", systemImage: "checkmark")
+                Label("Checked", systemImage: "checkmark.circle.fill")
+                    .labelStyle(.titleAndIcon)
                     .foregroundStyle(Color.hoursPositive)
             } else {
                 Text(verbatim: String(inflected: "^[\(comparison.differenceCount) difference](inflect: true)"))
                     .foregroundStyle(Color.hoursAttention)
             }
-        } else if monthName.isEmpty {
-            Text("Compare it with your hours")
-                .foregroundStyle(.hoursSecondaryText)
-        } else {
-            Text(verbatim: String(
-                localized: "Compare \(monthName)'s pay with your hours",
-                comment: "Insights, the payslip card; the value is a month's name, such as October"
-            ))
-            .foregroundStyle(.hoursSecondaryText)
         }
+    }
+
+    private var hint: String {
+        if monthName.isEmpty { return String(localized: "Compare it with your hours") }
+        return String(
+            localized: "Compare \(monthName)'s pay with your hours",
+            comment: "Insights, the payslip card; the value is a month's name, such as October"
+        )
     }
 }
 
