@@ -119,15 +119,14 @@ final class SiteDayTests: XCTestCase {
         }
     }
 
-    /// Tapping a day in the site's month shows that day on the card, and
-    /// tapping back shows today again — with nobody ticked when it is
-    /// started from empty.
+    /// The day's ‹ › go to the day before and back (design v2: the day
+    /// screen shows one day; the month is on the site's page), with nobody
+    /// ticked when today is started from empty.
     func testTappingADayInTheMonthShowsIt() {
         let app = launch()
         openSite(app)
 
-        let yesterday = select(app, daysFromToday: -1)
-        wait(for: yesterday, selected: true)
+        select(app, daysFromToday: -1)
         XCTAssertTrue(
             app.descendants(matching: .any)["site-crew-total"].waitForExistence(timeout: 5),
             "yesterday is written, so its card should show the crew's total"
@@ -135,9 +134,7 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["site-line-Ivan"].exists)
         XCTAssertFalse(app.screen("site-day-not-written").exists, "a written day must not say it is not written")
 
-        let today = select(app, daysFromToday: 0)
-        wait(for: today, selected: true)
-        wait(for: yesterday, selected: false)
+        select(app, daysFromToday: 0)
         XCTAssertTrue(app.screen("site-day-not-written").waitForExistence(timeout: 5), "today is not written")
 
         let empty = app.buttons["site-day-start-empty"]
@@ -281,27 +278,26 @@ final class SiteDayTests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Taps a day's cell in the site's grid and returns it. The grid opens on
-    /// the selected day's week, so a day outside it — yesterday on the first
-    /// day of a week, say — is not there at all, and the arrows move to it
-    /// first: a week at a time while folded, a month while open.
-    @discardableResult
-    private func select(_ app: XCUIApplication, daysFromToday offset: Int) -> XCUIElement {
+    /// Goes to a day with the day screen's ‹ ›, from the day shown, and
+    /// waits until the title says it is that day (its value is the date
+    /// key, which is not translated). The tests only step back from today
+    /// and return to it.
+    private func select(_ app: XCUIApplication, daysFromToday offset: Int) {
         let calendar = Calendar.current
         let date = calendar.date(byAdding: .day, value: offset, to: Date()) ?? Date()
         let parts = calendar.dateComponents([.year, .month, .day], from: date)
         let key = (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
-        let cell = app.buttons["site-day-\(key)"]
-        if !cell.waitForExistence(timeout: 3) {
-            // The tests only ever step back from today and return to it, so
-            // the direction follows from the offset.
-            let week = app.buttons[offset < 0 ? "site-week-previous" : "site-week-next"]
-            let month = app.buttons[offset < 0 ? "site-month-previous" : "site-month-next"]
-            (week.exists ? week : month).tap()
+        let title = app.descendants(matching: .any)["site-day-title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 5), "the site day has no title")
+        let button = app.buttons[offset < 0 ? "site-day-previous" : "site-day-next"].firstMatch
+        for _ in 0..<7 where (title.value as? String) != "\(key)" {
+            button.tap()
+            _ = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "\(key)"), object: title)],
+                timeout: 2
+            )
         }
-        XCTAssertTrue(cell.waitForExistence(timeout: 5), "the site's month has no cell for \(key)")
-        cell.tap()
-        return cell
+        XCTAssertEqual(title.value as? String, "\(key)", "the site day did not move to \(key)")
     }
 
     /// Part of the crew moves to the second site in the middle of the day

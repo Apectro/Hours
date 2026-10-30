@@ -310,6 +310,7 @@ final class ScreenAtlasTests: XCTestCase {
         back(app)
         let second = app.buttons.matching(identifier: "site-card").element(boundBy: 1)
         if tap(second, "the second site", app),
+           tap(app.buttons.matching(identifier: "site-menu").firstMatch, "the site's menu", app),
            tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
             let archived = app.switches["site-editor-archived"]
             if archived.waitForExistence(timeout: 5) {
@@ -335,11 +336,11 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// Today on the showcase site, from the top to the diary.
     private func siteDayScreens(_ app: XCUIApplication) {
-        // The week strip opens out into the whole month, and back.
-        if tap(app.buttons.matching(identifier: "site-month-toggle").firstMatch, "Show whole month", app) {
+        // The calendar button: a month to go to another day, closed again.
+        if tap(app.buttons.matching(identifier: "site-day-pick-date").firstMatch, "Choose a day", app) {
             pause(0.5)
-            capture("site-day-month-grid", app)
-            tap(app.buttons.matching(identifier: "site-month-toggle").firstMatch, "Show one week", app)
+            capture("site-day-pick-date", app)
+            close(app, "site-day-date-done")
         }
 
         swipeUp(app)
@@ -623,7 +624,8 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "export-done")
         }
 
-        if tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
+        if tap(app.buttons.matching(identifier: "site-menu").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
             capture("site-edit", app)
             swipeUp(app)
             capture("site-edit-usual-day", app)
