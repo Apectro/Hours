@@ -1,21 +1,24 @@
 import SwiftUI
 import SwiftData
 
-/// What the Today tab opens on (1.2, mockup Today, first two phones): the
-/// date and a big "Today", then either today's usual day or the running
-/// clock, two tiles (this week, the balance), a row for each site whose
-/// crew day is due today, and the day's big buttons at the bottom — Clock in
-/// and "I worked the usual day", or Break and Clock out.
+/// Today, under the month (design v2, mockup Main, "the month first"), as
+/// inset-grouped sections of the Today tab's list:
 ///
-/// The month follows under it, on the same scroll (`CalendarScreen`).
+/// 1. Today: "Today" in grey and the times large ("7:00 – 15:00"), the
+///    hours and the site on the right; "Not written" when nothing is. Or
+///    the running clock (`ClockCard`). Then This week and the balance.
+/// 2. A row for each site whose crew day is due today and not written yet.
+/// 3. The day's big buttons: Clock in, or Break and Clock out; "I worked the
+///    usual day" while today is not written.
+///
+/// The month grid is above it and the month's totals under it
+/// (`CalendarScreen`). Its body is sections, for the list it sits in.
 struct TodaySection: View {
     let today: CalendarDate
     let settings: AppSettings
     let calendar: Calendar
     let formatting: CalendarFormatting
     let running: RunningShift?
-    /// The ⋯ menu, drawn beside the title.
-    let menu: AnyView
     var onClockIn: () -> Void
     var onClockOut: () -> Void
     var onToggleBreak: () -> Void
@@ -24,6 +27,8 @@ struct TodaySection: View {
     var onUsualDay: () -> Void
     /// Opens today in the editor.
     var onEdit: () -> Void
+    /// Opens today's sheet, once something is written.
+    var onOpenDay: () -> Void
     /// Opens today in the editor with your usual times in (a holiday or a
     /// day off you worked anyway).
     var onWorked: () -> Void
@@ -50,13 +55,13 @@ struct TodaySection: View {
         calendar: Calendar,
         formatting: CalendarFormatting,
         running: RunningShift?,
-        menu: AnyView,
         onClockIn: @escaping () -> Void,
         onClockOut: @escaping () -> Void,
         onToggleBreak: @escaping () -> Void,
         onDiscard: @escaping () -> Void,
         onUsualDay: @escaping () -> Void,
         onEdit: @escaping () -> Void,
+        onOpenDay: @escaping () -> Void,
         onWorked: @escaping () -> Void,
         onOpenSite: @escaping (UUID) -> Void
     ) {
@@ -65,13 +70,13 @@ struct TodaySection: View {
         self.calendar = calendar
         self.formatting = formatting
         self.running = running
-        self.menu = menu
         self.onClockIn = onClockIn
         self.onClockOut = onClockOut
         self.onToggleBreak = onToggleBreak
         self.onDiscard = onDiscard
         self.onUsualDay = onUsualDay
         self.onEdit = onEdit
+        self.onOpenDay = onOpenDay
         self.onWorked = onWorked
         self.onOpenSite = onOpenSite
         let upper = today.key
@@ -88,96 +93,90 @@ struct TodaySection: View {
 
     var body: some View {
         let figures = self.figures
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            header
 
-            if let running, settings.features.useTimeClock {
-                ClockCard(
-                    running: running,
-                    settings: settings,
-                    formatting: formatting,
-                    siteName: clockSiteName(running),
-                    onDiscard: onDiscard
-                )
-                .transition(.opacity)
-            } else {
-                TodayDayCard(
-                    computation: figures.today,
-                    settings: settings,
-                    formatting: formatting,
-                    onEdit: onEdit
-                )
+        Section {
+            Group {
+                if let running, settings.features.useTimeClock {
+                    ClockCard(
+                        running: running,
+                        settings: settings,
+                        formatting: formatting,
+                        siteName: clockSiteName(running),
+                        onDiscard: onDiscard
+                    )
+                } else {
+                    TodayDayCard(
+                        computation: figures.today,
+                        settings: settings,
+                        formatting: formatting,
+                        siteNames: siteNames,
+                        onEdit: onEdit,
+                        onOpenDay: onOpenDay
+                    )
+                }
             }
+            // On the first row, which is always there: the crew rows are
+            // read outside of `body` (see `reloadCrewRows`).
+            .onChange(of: changeToken, initial: true) { _, _ in reloadCrewRows() }
 
-            tiles(figures)
-
-            ForEach(Array(crewRows.enumerated()), id: \.element.id) { index, row in
-                CrewDayRow(row: row, duration: settings.displayFormatting) { onOpenSite(row.siteID) }
-                    .accessibilityIdentifier("today-crew-day-\(index)")
+            // Ticks once a minute while a clock runs, so the week moves with it.
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                LabeledContent("This week") {
+                    Text(verbatim: settings.displayFormatting.string(figures.weekWorked + runningMinutes(at: context.date)))
+                        .monospacedDigit()
+                }
             }
-
-            Spacer(minLength: Metrics.medium)
-
-            actions(figures.today)
-        }
-        .onChange(of: changeToken, initial: true) { _, _ in reloadCrewRows() }
-    }
-
-    // MARK: - Pieces
-
-    private var header: some View {
-        HStack(alignment: .top, spacing: Metrics.small) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: formatting.dayTitle(today))
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.hoursSecondaryText)
-                Text("Today")
-                    .font(.largeTitle.weight(.heavy))
-                    .accessibilityAddTraits(.isHeader)
-            }
-            Spacer(minLength: 0)
-            menu
-        }
-    }
-
-    @ViewBuilder
-    private func tiles(_ figures: Figures) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: Metrics.small) { tileList(figures) }
-            VStack(spacing: Metrics.small) { tileList(figures) }
-        }
-    }
-
-    @ViewBuilder
-    private func tileList(_ figures: Figures) -> some View {
-        // Ticks once a minute while a clock runs, so the week moves with it.
-        TimelineView(.periodic(from: .now, by: 60)) { context in
-            let running = runningMinutes(at: context.date)
-            TodayTile(
-                label: String(localized: "This week"),
-                value: settings.displayFormatting.string(figures.weekWorked + running),
-                tint: .primary
-            )
             .accessibilityIdentifier("today-week")
+
+            if settings.features.showsBalance {
+                LabeledContent("Balance") {
+                    Text(verbatim: settings.displayFormatting.signedString(figures.balance))
+                        .monospacedDigit()
+                        // Coloured only when it is not nothing.
+                        .foregroundStyle(Color.hoursBalance(figures.balance))
+                }
+                .accessibilityIdentifier("today-balance")
+            } else {
+                LabeledContent("This month") {
+                    Text(verbatim: settings.displayFormatting.string(figures.monthWorked))
+                        .monospacedDigit()
+                }
+                .accessibilityIdentifier("today-month")
+            }
         }
-        if settings.features.showsBalance {
-            TodayTile(
-                label: String(localized: "Balance"),
-                value: settings.displayFormatting.signedString(figures.balance),
-                tint: Color.hoursBalance(figures.balance)
-            )
-            .accessibilityIdentifier("today-balance")
-        } else {
-            TodayTile(
-                label: String(localized: "This month"),
-                value: settings.displayFormatting.string(figures.monthWorked),
-                tint: .primary
-            )
-            .accessibilityIdentifier("today-month")
+
+        let prompts = crewRows.filter { !$0.isWritten }
+        if !prompts.isEmpty {
+            Section {
+                ForEach(Array(prompts.enumerated()), id: \.element.id) { index, row in
+                    CrewDayRow(row: row) { onOpenSite(row.siteID) }
+                        .accessibilityIdentifier("today-crew-day-\(index)")
+                }
+            }
+        }
+
+        if hasActions(figures.today) {
+            Section {
+                actions(figures.today)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
         }
     }
 
-    /// The big buttons, at the bottom where the thumb is.
+    // MARK: - The big buttons
+
+    private func hasActions(_ day: DayComputation) -> Bool {
+        settings.features.useTimeClock || !isWritten(day)
+    }
+
+    private func isWritten(_ day: DayComputation) -> Bool {
+        day.hasEntry || day.workedMinutes > 0
+    }
+
+    /// The big buttons, one primary: Clock in, or Break and Clock out; and
+    /// while today is not written, "I worked the usual day" (or "I worked"
+    /// on a holiday or a day off).
     @ViewBuilder
     private func actions(_ day: DayComputation) -> some View {
         if let running, settings.features.useTimeClock {
@@ -186,17 +185,13 @@ struct TodaySection: View {
                     Button(action: onToggleBreak) {
                         Text(running.isOnBreak ? "Back to work" : "Break")
                     }
-                    .buttonStyle(.bigAction(.secondary, isMain: true))
-                    .frame(maxWidth: .infinity)
-                    .layoutPriority(1)
+                    .buttonStyle(.bigAction(.secondary))
                     .accessibilityIdentifier("today-break")
                 }
                 Button(action: onClockOut) {
                     Text("Clock out")
                 }
-                .buttonStyle(.bigAction(.warning, isMain: true))
-                .frame(maxWidth: .infinity)
-                .layoutPriority(2)
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("today-clock-out")
             }
         } else {
@@ -205,41 +200,36 @@ struct TodaySection: View {
                     Button(action: onClockIn) {
                         Text("Clock in")
                     }
-                    .buttonStyle(.bigAction(.positive, isMain: true))
+                    .buttonStyle(.bigAction(.positive))
                     .accessibilityIdentifier("today-clock-in")
                 }
-                secondaryAction(day)
+                if !isWritten(day) {
+                    writeAction(day, kind: settings.features.useTimeClock ? .secondary : .primary)
+                }
             }
         }
     }
 
     @ViewBuilder
-    private func secondaryAction(_ day: DayComputation) -> some View {
-        let isMain = !settings.features.useTimeClock
+    private func writeAction(_ day: DayComputation, kind: BigActionKind) -> some View {
         if TodayDayCard.isPublicHolidayOff(day) {
             Button(action: onWorked) {
                 Text("I worked")
             }
-            .buttonStyle(.bigAction(isMain ? BigActionKind.primary : BigActionKind.secondary, isMain: isMain))
+            .buttonStyle(.bigAction(kind))
             .accessibilityHint(Text("Opens the day with your usual times filled in. The holiday stays paid."))
             .accessibilityIdentifier("day-card-holiday-worked")
-        } else if day.hasEntry || day.workedMinutes > 0 {
-            Button(action: onEdit) {
-                Text("Edit today")
-            }
-            .buttonStyle(.bigAction(.secondary, isMain: isMain))
-            .accessibilityIdentifier("today-edit")
         } else if DayKind.of(day.dayType) == .worked && day.dayType.expectation == .scheduled {
             Button(action: onUsualDay) {
                 Text("I worked the usual day")
             }
-            .buttonStyle(.bigAction(isMain ? BigActionKind.primary : BigActionKind.secondary, isMain: isMain))
+            .buttonStyle(.bigAction(kind))
             .accessibilityIdentifier("today-usual-day")
         } else {
             Button(action: onWorked) {
                 Text("I worked")
             }
-            .buttonStyle(.bigAction(isMain ? BigActionKind.primary : BigActionKind.secondary, isMain: isMain))
+            .buttonStyle(.bigAction(kind))
             .accessibilityIdentifier("today-worked")
         }
     }
@@ -291,6 +281,10 @@ struct TodaySection: View {
         WidgetSnapshotBuilder.clockSiteName(for: running, among: siteEntries.map(\.site))
     }
 
+    private var siteNames: [UUID: String] {
+        Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
+    }
+
     // MARK: - Crew days
 
     private var changeToken: [Date] {
@@ -340,14 +334,17 @@ struct TodaySection: View {
     }
 }
 
-/// Today's day before any clock runs: the usual day (times, break,
-/// expected), what is already written, or a holiday, a day off or leave in
-/// the same card. Tapping it opens the day in the editor.
+/// Today's row: "Today" in grey over the times, large, and the hours and
+/// the site on the right; "Not written" while nothing is, a holiday or a
+/// day off by its name. A written day opens its sheet; one not written
+/// opens the editor.
 struct TodayDayCard: View {
     let computation: DayComputation
     let settings: AppSettings
     let formatting: CalendarFormatting
+    var siteNames: [UUID: String] = [:]
     let onEdit: () -> Void
+    let onOpenDay: () -> Void
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
@@ -357,56 +354,62 @@ struct TodayDayCard: View {
         day.holidayName != nil && day.dayType.id == .holiday && day.workedMinutes == 0 && !day.hasEntry
     }
 
+    private var isWritten: Bool { computation.hasEntry || computation.workedMinutes > 0 }
+
     var body: some View {
-        Button(action: onEdit) {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
-                HStack(alignment: .firstTextBaseline) {
+        Button(action: isWritten ? onOpenDay : onEdit) {
+            HStack(alignment: .center, spacing: Metrics.medium) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(verbatim: title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.hoursSecondaryText)
-                    Spacer(minLength: Metrics.small)
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
-                }
-                if Self.isPublicHolidayOff(computation) {
-                    Label {
-                        Text("Day off (paid)")
-                    } icon: {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color.hoursPositive)
-                    }
-                    .font(.title2.weight(.bold))
-                    .accessibilityIdentifier("day-card-holiday-off")
-                } else if let figure {
-                    Text(verbatim: figure)
-                        .font(.hoursFigure(.title, weight: .heavy))
-                        .foregroundStyle(.primary)
-                        .minimumScaleFactor(0.6)
-                        .lineLimit(1)
-                }
-                if !detail.isEmpty {
-                    Text(verbatim: detail)
                         .font(.subheadline)
                         .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
+                    figure
+                }
+                Spacer(minLength: Metrics.small)
+                VStack(alignment: .trailing, spacing: 1) {
+                    if let trailing {
+                        Text(verbatim: trailing)
+                            .font(.body.weight(.semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(.primary)
+                    }
+                    if let detail {
+                        Text(verbatim: detail)
+                            .font(.subheadline)
+                            .monospacedDigit()
+                            .foregroundStyle(.hoursSecondaryText)
+                            .lineLimit(1)
+                    }
                 }
             }
-            .padding(.horizontal, Metrics.large)
-            .padding(.vertical, Metrics.medium + 2)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.vertical, Metrics.tiny)
+            .contentShape(Rectangle())
         }
-        // A button combines its label for VoiceOver by itself, and stays a
-        // button the UI tests can find by its identifier.
-        .buttonStyle(.plain)
         .accessibilityHint(Text("Opens today"))
         .accessibilityIdentifier("today-card")
     }
 
-    private var isWritten: Bool { computation.hasEntry || computation.workedMinutes > 0 }
+    @ViewBuilder
+    private var figure: some View {
+        if Self.isPublicHolidayOff(computation) {
+            Label {
+                Text("Day off (paid)")
+            } icon: {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.hoursDone)
+            }
+            .font(.title2.weight(.semibold))
+            .foregroundStyle(.primary)
+            .accessibilityIdentifier("day-card-holiday-off")
+        } else {
+            Text(verbatim: figureText)
+                .font(.title2.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+    }
 
     private var title: String {
         if Self.isPublicHolidayOff(computation), let name = computation.holidayName {
@@ -415,139 +418,85 @@ struct TodayDayCard: View {
                 comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
             )
         }
-        if isWritten { return String(localized: "Written today") }
-        switch DayKind.of(computation.dayType) {
-        case .worked where computation.dayType.expectation == .scheduled:
-            return String(localized: "Your usual day")
-        default:
-            return computation.dayType.displayName()
-        }
+        return String(localized: "Today")
     }
 
-    /// The big line: the times worked or expected, else the day's type.
-    private var figure: String? {
+    private var expectsWork: Bool {
+        DayKind.of(computation.dayType) == .worked && computation.dayType.expectation == .scheduled
+    }
+
+    /// The big line: the times worked, else "Not written" or the day's type.
+    private var figureText: String {
         if isWritten {
             if let start = computation.start, let end = computation.end {
-                return "\(formatting.time(start, on: computation.date))–\(formatting.time(end, on: computation.date))"
+                return "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
             }
             return duration.string(computation.workedMinutes)
         }
-        if DayKind.of(computation.dayType) == .worked && computation.dayType.expectation == .scheduled {
-            let schedule = settings.primarySchedule(on: computation.date)
-            return "\(formatting.time(schedule.defaultStart, on: computation.date))–\(formatting.time(schedule.defaultEnd, on: computation.date))"
-        }
-        if computation.creditedMinutes > 0 { return computation.dayType.displayName() }
-        return String(localized: "Nothing expected")
+        if expectsWork { return String(localized: "Not written") }
+        return computation.dayType.displayName()
     }
 
-    /// "30 min break · 8h 30m expected", or what was written.
-    private var detail: String {
-        var parts: [String] = []
+    /// On the right, large: the hours worked, or credited for a paid day off.
+    private var trailing: String? {
+        if isWritten, computation.start != nil, computation.workedMinutes > 0 {
+            return duration.string(computation.workedMinutes)
+        }
+        if !isWritten, computation.creditedMinutes > 0 {
+            return duration.string(computation.creditedMinutes)
+        }
+        return nil
+    }
+
+    /// On the right, in grey: the site, or the usual times not written yet.
+    private var detail: String? {
         if isWritten {
-            parts.append(String(
-                localized: "\(duration.string(computation.workedMinutes)) worked",
-                comment: "VoiceOver, the hours worked on a calendar day"
-            ))
-            if settings.features.trackExpectedHours && computation.expectedMinutes > 0 {
-                parts.append(String(
-                    localized: "\(duration.string(computation.expectedMinutes)) expected",
-                    comment: "Today: the hours expected of the day, e.g. 8h 30m expected"
-                ))
-            }
-            return parts.joined(separator: " · ")
+            let sites = Set(computation.shifts.compactMap(\.siteID))
+            guard sites.count == 1, let site = sites.first else { return nil }
+            return siteNames[site]
         }
-        if computation.creditedMinutes > 0 {
-            return String(
-                localized: "\(duration.string(computation.creditedMinutes)) credited.",
-                comment: "A paid day off: the hours credited for it, e.g. 8 h credited."
-            )
-        }
-        guard DayKind.of(computation.dayType) == .worked && computation.dayType.expectation == .scheduled else { return "" }
+        guard expectsWork else { return nil }
         let schedule = settings.primarySchedule(on: computation.date)
-        if settings.features.trackBreaks && schedule.defaultBreakMinutes > 0 {
-            parts.append(String(
-                localized: "\(duration.string(schedule.defaultBreakMinutes)) break",
-                comment: "The running clock: the breaks already taken, e.g. 30m break"
-            ))
-        }
-        if settings.features.trackExpectedHours {
-            parts.append(String(
-                localized: "\(duration.string(computation.expectedMinutes)) expected",
-                comment: "Today: the hours expected of the day, e.g. 8h 30m expected"
-            ))
-        }
-        return parts.joined(separator: " · ")
+        return "\(formatting.time(schedule.defaultStart, on: computation.date)) – \(formatting.time(schedule.defaultEnd, on: computation.date))"
     }
 }
 
-/// One of Today's two figures.
-struct TodayTile: View {
-    let label: String
-    let value: String
-    let tint: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(verbatim: label)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.hoursSecondaryText)
-            Text(verbatim: value)
-                .font(.hoursFigure(.title2, weight: .heavy))
-                .foregroundStyle(tint)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-        }
-        .padding(.horizontal, Metrics.medium + 2)
-        .padding(.vertical, Metrics.medium)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .accessibilityElement(children: .combine)
-    }
-}
-
-/// "Crew day not written · Trg Pravde · 5 people · Write", or written with
-/// a green dot, who was there and the crew's hours, and Open.
+/// A site whose crew day is due today and not written: an orange dot, the
+/// site, "Crew not written today" and Write. The whole row opens the site's
+/// day.
 struct CrewDayRow: View {
     let row: CrewDayToday.Row
-    let duration: DurationFormatting
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: Metrics.medium) {
                 Circle()
-                    // Green: done. Orange: look at this (today is not over,
-                    // so it is not missing yet).
-                    .fill(row.isWritten ? Color.hoursPositive : Color.hoursAttentionFill)
-                    .frame(width: 10, height: 10)
+                    // Orange: look at this. Today is not over, so it is not
+                    // missing yet.
+                    .fill(Color.hoursAttentionFill)
+                    .frame(width: 8, height: 8)
                     .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(row.isWritten ? "Crew day written" : "Crew day not written")
-                        .font(.body.weight(.bold))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: row.siteName)
+                        .font(.body)
                         .foregroundStyle(.primary)
-                    Text(verbatim: subtitle)
+                        .lineLimit(2)
+                    Text("Crew not written today")
                         .font(.subheadline)
                         .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: Metrics.small)
-                Text(row.isWritten ? "Open" : "Write")
-                    .font(.body.weight(.semibold))
+                // Drawn as a small bordered capsule; the row is the button.
+                Text("Write")
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 14)
+                    .frame(minHeight: 32)
+                    .background(Color(uiColor: .tertiarySystemFill), in: Capsule())
             }
-            .padding(.horizontal, Metrics.large)
-            .padding(.vertical, Metrics.medium)
-            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.vertical, Metrics.tiny)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-    }
-
-    private var subtitle: String {
-        let people = String(inflected: "^[\(row.people) person](inflect: true)")
-        var parts = [row.siteName, people]
-        if let minutes = row.crewMinutes { parts.append(duration.string(minutes)) }
-        return parts.joined(separator: " · ")
     }
 }

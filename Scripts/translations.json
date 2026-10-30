@@ -17149,6 +17149,116 @@
       "Uma folha para o mês com cada obra em que se trabalhou.",
       "Eén blad voor de maand met elke bouwplaats waar gewerkt is.",
       "Jeden arkusz na miesiąc ze wszystkimi budowami, na których pracowano."
+    ],
+    "Crew not written today": [
+      "Crew heute nicht eingetragen",
+      "Ekipa danas nije upisana",
+      "Ekipa danes ni vpisana",
+      "Squadra non scritta oggi",
+      "Équipe pas saisie aujourd'hui",
+      "Cuadrilla sin anotar hoy",
+      "Equipa não registada hoje",
+      "Ploeg vandaag niet ingevuld",
+      "Ekipa dziś niewpisana"
+    ],
+    "Write this day": [
+      "Diesen Tag eintragen",
+      "Upiši ovaj dan",
+      "Vpiši ta dan",
+      "Scrivi questo giorno",
+      "Saisir cette journée",
+      "Anotar este día",
+      "Registar este dia",
+      "Deze dag invullen",
+      "Wpisz ten dzień"
+    ],
+    "%@ more than a normal day.": [
+      "%@ mehr als ein normaler Tag.",
+      "%@ više od uobičajenog dana.",
+      "%@ več kot običajen dan.",
+      "%@ in più di un giorno normale.",
+      "%@ de plus qu'une journée normale.",
+      "%@ más que un día normal.",
+      "%@ a mais do que um dia normal.",
+      "%@ meer dan een normale dag.",
+      "%@ więcej niż zwykły dzień."
+    ],
+    "%@ less than a normal day.": [
+      "%@ weniger als ein normaler Tag.",
+      "%@ manje od uobičajenog dana.",
+      "%@ manj kot običajen dan.",
+      "%@ in meno di un giorno normale.",
+      "%@ de moins qu'une journée normale.",
+      "%@ menos que un día normal.",
+      "%@ a menos do que um dia normal.",
+      "%@ minder dan een normale dag.",
+      "%@ mniej niż zwykły dzień."
+    ],
+    "%@ worked. That is %@ more than a normal day.": [
+      "%@ gearbeitet. Das sind %@ mehr als ein normaler Tag.",
+      "%@ rada. To je %@ više od uobičajenog dana.",
+      "%@ dela. To je %@ več kot običajen dan.",
+      "%@ lavorate. Sono %@ in più di un giorno normale.",
+      "%@ travaillées. C'est %@ de plus qu'une journée normale.",
+      "%@ trabajadas. Son %@ más que un día normal.",
+      "%@ trabalhadas. São %@ a mais do que um dia normal.",
+      "%@ gewerkt. Dat is %@ meer dan een normale dag.",
+      "%@ pracy. To %@ więcej niż zwykły dzień."
+    ],
+    "%@ worked. That is %@ less than a normal day.": [
+      "%@ gearbeitet. Das sind %@ weniger als ein normaler Tag.",
+      "%@ rada. To je %@ manje od uobičajenog dana.",
+      "%@ dela. To je %@ manj kot običajen dan.",
+      "%@ lavorate. Sono %@ in meno di un giorno normale.",
+      "%@ travaillées. C'est %@ de moins qu'une journée normale.",
+      "%@ trabajadas. Son %@ menos que un día normal.",
+      "%@ trabalhadas. São %@ a menos do que um dia normal.",
+      "%@ gewerkt. Dat is %@ minder dan een normale dag.",
+      "%@ pracy. To %@ mniej niż zwykły dzień."
+    ],
+    "%@ worked.": [
+      "%@ gearbeitet.",
+      "%@ rada.",
+      "%@ dela.",
+      "%@ lavorate.",
+      "%@ travaillées.",
+      "%@ trabajadas.",
+      "%@ trabalhadas.",
+      "%@ gewerkt.",
+      "%@ pracy."
+    ],
+    "Clear this day": [
+      "Diesen Tag leeren",
+      "Očisti ovaj dan",
+      "Počisti ta dan",
+      "Svuota questo giorno",
+      "Effacer cette journée",
+      "Vaciar este día",
+      "Limpar este dia",
+      "Deze dag wissen",
+      "Wyczyść ten dzień"
+    ],
+    "Add a note for the sheet": [
+      "Notiz für den Stundenzettel",
+      "Dodaj bilješku za list",
+      "Dodaj opombo za list",
+      "Aggiungi una nota per il foglio",
+      "Ajoutez une note pour la feuille",
+      "Añade una nota para la hoja",
+      "Adiciona uma nota para a folha",
+      "Notitie voor het urenbriefje",
+      "Dodaj notatkę do arkusza"
+    ],
+    "Allowance, km, travel…": [
+      "Auslöse, km, Fahrt…",
+      "Terenski dodatak, km, putovanje…",
+      "Terenski dodatek, km, pot…",
+      "Trasferta, km, viaggio…",
+      "Indemnité, km, trajet…",
+      "Dieta, km, desplazamiento…",
+      "Ajudas, km, deslocação…",
+      "Toelage, km, reistijd…",
+      "Dieta, km, dojazd…"
     ]
   },
   "sameAsEnglishOnPurpose": [

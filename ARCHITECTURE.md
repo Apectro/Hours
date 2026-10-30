@@ -649,9 +649,11 @@ and, where a value is legitimate but suspicious, is surfaced as a non-blocking
 ## Navigation
 
 Four tabs: **Calendar**, **Sites**, **Insights**, **Settings**. The calendar is the
-primary surface and opens on the current month; tapping a day reveals an inline
-summary beneath the grid, and opening it presents the editor as a sheet so the
-month never leaves the screen. Sites lists each active job site with its crew
+primary surface and opens on the current month (design v2: one inset-grouped
+list, the month grid first, then Today, the month's totals, Edit a range and
+Export); tapping a day presents it as a sheet at half height
+(`CalendarDaySheet`), and its Edit presents the editor as a sheet over it, so
+the month never leaves the screen. Sites lists each active job site with its crew
 and this month's figures, and leads to the site and its crew list; while
 today is unwritten a card also offers "Same as last day", which pushes the
 same `SiteRoute(appliesSameAsLastDay:)` the site widget does. The site screen

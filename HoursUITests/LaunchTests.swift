@@ -197,21 +197,26 @@ extension XCUIApplication {
 
     /// Opens the editor for today and returns its Save button.
     ///
-    /// The direct route first: the Today card at the top of the tab opens
-    /// today in the editor (1.2). Failing that — a clock running, where the
-    /// card is the clock — today's cell in the month under it, scrolled to,
-    /// opens the day, and the day's Edit opens the editor.
+    /// The direct route first: Today's row under the month (design v2)
+    /// opens the editor while today is not written, and today's sheet once
+    /// it is, whose Edit opens the editor. Failing that — a clock running,
+    /// where the row is the clock — today's date in the month opens the
+    /// day's sheet, and its Edit the editor.
     func openTodaysEditor(timeout: TimeInterval = 10) -> XCUIElement {
         let save = buttons["day-editor-save"].firstMatch
-        // Still on a day opened before: back to Today first.
-        if screen("screen-calendar-day").firstMatch.exists {
-            navigationBars.buttons.element(boundBy: 0).tap()
-        }
+        // Still on a day's sheet opened before: closed first.
+        closeDaySheet()
+        _ = tab(.calendar).waitForExistence(timeout: timeout)
         let card = buttons["today-card"].firstMatch
+        bringToScreen(card)
         if card.waitForExistence(timeout: timeout) {
-            bringToScreen(card)
             card.tap()
             if save.waitForExistence(timeout: 5) { return save }
+            let edit = buttons["day-card-edit"].firstMatch
+            if edit.waitForExistence(timeout: 3) {
+                edit.tap()
+                if save.waitForExistence(timeout: 5) { return save }
+            }
         }
         let today = buttons["day-\(Self.todayKey)"].firstMatch
         if today.waitForExistence(timeout: 3) {
@@ -226,10 +231,19 @@ extension XCUIApplication {
     }
 
     /// Swipes the screen until `element` can be tapped, up first and then
-    /// back down: the Today tab is one long scroll.
+    /// back down: the Today tab is one long list, and a list only creates
+    /// the rows on screen, so an element further down may not exist yet.
     func bringToScreen(_ element: XCUIElement) {
-        guard element.exists else { return }
-        for _ in 0..<8 where !element.isHittable { swipeUp() }
-        for _ in 0..<10 where !element.isHittable { swipeDown() }
+        for _ in 0..<8 where !(element.exists && element.isHittable) { swipeUp() }
+        for _ in 0..<10 where !(element.exists && element.isHittable) { swipeDown() }
+    }
+
+    /// Closes a day's sheet (design v2) if one is open, by its ✕.
+    func closeDaySheet() {
+        guard screen("screen-calendar-day").firstMatch.exists else { return }
+        let close = buttons["day-sheet-close"].firstMatch
+        if close.exists { close.tap() }
+        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: close)
+        _ = XCTWaiter().wait(for: [gone], timeout: 3)
     }
 }

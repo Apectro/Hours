@@ -88,7 +88,7 @@ final class ScreenAtlasTests: XCTestCase {
         pause(1)
         capture("calendar-today", app)
 
-        // The month, under Today.
+        // The month first (design v2): Today and the month's totals under it.
         swipeUp(app)
         capture("calendar-month", app)
         swipeUp(app)
@@ -100,9 +100,10 @@ final class ScreenAtlasTests: XCTestCase {
             dismissMenu(app)
         }
 
-        // A day other than today, opened from the month.
+        // A day other than today, opened from the month as a sheet; its ✕
+        // is the sheet's first navigation bar button, which back() taps.
         if let key = dayKey(monthsFromNow: 0, day: 3), key != Self.todayKey,
-           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "the 3rd of this month", app) {
+           tap(calendarButton("day-\(key)", app), "the 3rd of this month", app) {
             capture("calendar-selected-day", app)
             back(app)
         }
@@ -132,7 +133,7 @@ final class ScreenAtlasTests: XCTestCase {
         bringIntoView(app.buttons.matching(identifier: "calendar-next").firstMatch, app)
         if tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "next month", app),
            let key = dayKey(monthsFromNow: 1, day: 10) {
-            let day = app.buttons.matching(identifier: "day-\(key)").firstMatch
+            let day = calendarButton("day-\(key)", app)
             if tap(day, "the 10th of next month", app) {
                 capture("calendar-empty-day", app)
                 if tap(app.buttons.matching(identifier: "day-card-edit").firstMatch, "Add hours on an empty day", app) {
@@ -155,7 +156,7 @@ final class ScreenAtlasTests: XCTestCase {
                         pause(0.6)
                         capture("day-editor-away", app)
                     } else {
-                        miss("day-editor-away (no Worked · Away · Day off)")
+                        miss("day-editor-away (no Work · Vacation · Sick · Day off)")
                     }
                     close(app, "day-editor-cancel")
                     if app.buttons.matching(identifier: "day-editor-discard").firstMatch.waitForExistence(timeout: 2) {
@@ -171,7 +172,7 @@ final class ScreenAtlasTests: XCTestCase {
         // The public holiday the sample month has, and "I worked".
         let holidayDay = Self.today.day == 15 ? 16 : 15
         if let key = dayKey(monthsFromNow: 0, day: holidayDay),
-           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "the public holiday", app) {
+           tap(calendarButton("day-\(key)", app), "the public holiday", app) {
             bringIntoView(app.buttons.matching(identifier: "day-card-holiday-worked").firstMatch, app)
             capture("calendar-holiday", app)
             if tap(app.buttons.matching(identifier: "day-card-holiday-worked").firstMatch, "I worked this day", app) {
@@ -183,7 +184,7 @@ final class ScreenAtlasTests: XCTestCase {
 
         // The week of leave: the 8th to the 12th, once they have passed.
         if let key = dayKey(monthsFromNow: 0, day: 10),
-           tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "a day of leave", app) {
+           tap(calendarButton("day-\(key)", app), "a day of leave", app) {
             capture("calendar-leave-day", app)
             if tap(app.buttons.matching(identifier: "day-card-edit").firstMatch, "the leave day's editor", app) {
                 capture("day-editor-leave", app)
@@ -193,7 +194,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         // Range editing, from its button under the month.
-        if tap(app.buttons.matching(identifier: "calendar-edit-range").firstMatch, "Edit a range", app) {
+        if tap(calendarButton("calendar-edit-range", app), "Edit a range", app) {
             capture("bulk-edit", app)
             close(app, "bulk-edit-cancel")
         }
@@ -207,7 +208,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         // Your own timesheet, in each format: Export under the month.
-        if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
+        if tap(calendarButton("calendar-export", app), "Export", app) {
             exportScreens(app, prefix: "export")
             close(app, "export-done")
         }
@@ -1098,12 +1099,12 @@ final class ScreenAtlasTests: XCTestCase {
         // Your own day, now on two sites.
         app.tab(.calendar).tap()
         pause(1)
-        if tap(app.buttons.matching(identifier: "day-\(Self.todayKey)").firstMatch, "today in the calendar", app) {
+        if tap(calendarButton("day-\(Self.todayKey)", app), "today in the calendar", app) {
             bringIntoView(app.descendants(matching: .any)["day-card-site-0"].firstMatch, app)
             capture("calendar-day-two-sites", app)
             back(app)
         }
-        if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
+        if tap(calendarButton("calendar-export", app), "Export", app) {
             if bringIntoView(app.descendants(matching: .any)["export-sites"].firstMatch, app) {
                 capture("export-sites-option", app)
             } else {
@@ -1133,7 +1134,7 @@ final class ScreenAtlasTests: XCTestCase {
             capture("calendar-menu-closed-month", app)
             dismissMenu(app)
         }
-        if tap(app.buttons.matching(identifier: "calendar-closed-reopen").firstMatch, "Reopen on the notice", app) {
+        if tap(calendarButton("calendar-closed-reopen", app), "Reopen on the notice", app) {
             capture("calendar-reopen-confirm", app)
             tap(app.buttons.matching(identifier: "calendar-reopen-confirm").firstMatch, "Reopen", app)
         }
@@ -1516,6 +1517,15 @@ final class ScreenAtlasTests: XCTestCase {
             if element.exists, element.isHittable { return true }
         }
         return element.exists && element.isHittable
+    }
+
+    /// A button on the Today tab, scrolled to first: the tab is one list,
+    /// and a list only creates the rows on screen (design v2). Only for the
+    /// tab itself, with no sheet up, where swiping is safe.
+    private func calendarButton(_ identifier: String, _ app: XCUIApplication) -> XCUIElement {
+        let element = app.buttons.matching(identifier: identifier).firstMatch
+        if !(element.exists && element.isHittable) { bringIntoView(element, app) }
+        return element
     }
 
     private func swipeUp(_ app: XCUIApplication) {

@@ -134,14 +134,12 @@ final class WalkthroughTests: XCTestCase {
         app.tab(.calendar).tap()
         _ = app.tab(.calendar).waitForExistence(timeout: 10)
         pause(0.5)
-        // The day opened at step 2 is still pushed: back to Today first.
-        if app.screen("screen-calendar-day").exists {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
-            pause(0.5)
-        }
+        // A day's sheet opened at step 2 may still be up: closed first.
+        app.closeDaySheet()
+        pause(0.5)
         let exportButton = app.buttons["calendar-export"]
+        app.bringToScreen(exportButton)
         if exportButton.waitForExistence(timeout: 5) {
-            app.bringToScreen(exportButton)
             pause()
             exportButton.tap()
             if reached("export", app.screen("screen-export")) { pause(2.5) }

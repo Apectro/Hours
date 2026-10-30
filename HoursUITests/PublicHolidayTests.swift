@@ -12,8 +12,12 @@ final class PublicHolidayTests: XCTestCase {
         app.launch()
 
         let offer = app.descendants(matching: .any)["public-holiday-offer"]
-        XCTAssertTrue(offer.waitForExistence(timeout: 10), "someone with no holidays was not offered them")
-        app.buttons["public-holiday-offer-dismiss"].tap()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+        // Under Today, in a list that creates its rows as they come on screen.
+        let dismiss = app.buttons["public-holiday-offer-dismiss"]
+        app.bringToScreen(dismiss)
+        XCTAssertTrue(offer.waitForExistence(timeout: 5), "someone with no holidays was not offered them")
+        dismiss.tap()
         XCTAssertFalse(offer.waitForExistence(timeout: 2), "the offer stayed after Not now")
     }
 
@@ -21,7 +25,9 @@ final class PublicHolidayTests: XCTestCase {
         let app = XCUIApplication.hours()
         app.launch()
 
-        XCTAssertTrue(app.buttons["public-holiday-offer-choose"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+        app.bringToScreen(app.buttons["public-holiday-offer-choose"])
+        XCTAssertTrue(app.buttons["public-holiday-offer-choose"].waitForExistence(timeout: 5))
         app.buttons["public-holiday-offer-choose"].tap()
 
         let austria = app.buttons["public-holidays-country-at"]

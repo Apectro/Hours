@@ -34,10 +34,9 @@ final class AllowanceUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 5), "Done did not return to the editor")
         save.tap()
         XCTAssertFalse(save.waitForExistence(timeout: 2), "the editor stayed open after saving")
-        // Back from the day to Today, where the month and its totals are.
-        if app.screen("screen-calendar-day").exists {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
-        }
+        // The day's sheet closed, back to Today, where the month and its
+        // totals are.
+        app.closeDaySheet()
 
         // The month's summary under the calendar has its line.
         let line = app.descendants(matching: .any)["calendar-summary-allowance"].firstMatch

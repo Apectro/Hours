@@ -1,108 +1,81 @@
 import SwiftUI
 
-/// The totals strip under the calendar.
-///
-/// Three figures at full size and a quiet counts line beneath. Anything more
-/// competes with the grid for attention and the grid should win.
+/// The period's totals under the calendar (design v2): a section of plain
+/// rows, a noun on the left and the figure in grey on the right — Worked,
+/// Expected, the balance or what was earned, the average day — and the
+/// day counts and the allowance as its footer.
 struct PeriodSummaryBar: View {
     let summary: PeriodSummary
     let settings: AppSettings
     let catalog: DayTypeCatalog
-    /// When set, what was earned takes the balance's place.
+    /// "October", or the week: the section's header.
+    var title: String = ""
+    /// When set, what was earned is shown beside the balance.
     var earnings: EarningsSummary? = nil
     /// Field allowance, kilometres and travel: a quiet line of their own,
     /// only when there is any.
     var allowance: AllowanceSummary? = nil
-    /// Sends these figures: Export, opened on this period.
-    var onExport: (() -> Void)? = nil
 
     private var formatting: DurationFormatting { settings.displayFormatting }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(
-                    label: String(localized: "Worked"),
-                    value: formatting.string(summary.workedMinutes),
-                    caption: settings.features.trackExpectedHours
-                        ? String(
-                            localized: "of \(formatting.string(summary.expectedMinutes))",
-                            comment: "Under the hours worked: the hours planned for the period"
-                        )
-                        : nil
-                )
-
-                if let earnings {
-                    Divider()
-                    StatTile(
-                        label: String(localized: "Earned"),
-                        value: settings.money.string(earnings.totalCents, showsCents: false),
-                        caption: earnedCaption
-                    )
-                } else if settings.features.showsBalance {
-                    Divider()
-                    StatTile(
-                        label: String(localized: "Balance"),
-                        value: formatting.signedString(summary.balanceMinutes),
-                        caption: balanceCaption,
-                        tint: Color.hoursBalance(summary.balanceMinutes)
-                    )
-                }
-
-                Divider()
-                StatTile(
-                    label: String(localized: "Average"),
-                    value: formatting.string(summary.averageWorkedMinutesPerWorkedDay),
-                    caption: String(localized: "per day worked")
-                )
+        Section {
+            row("Worked", formatting.string(summary.workedMinutes))
+                .tourTarget(.calendarSummary)
+                .id(CalendarScreen.summaryAnchor)
+            if settings.features.trackExpectedHours {
+                row("Expected", formatting.string(summary.expectedMinutes))
             }
-            // The dividers run the height of the tallest tile, at any text
-            // size, instead of a fixed 34 points that looked broken at the
-            // accessibility sizes.
-            .fixedSize(horizontal: false, vertical: true)
-
-            // The counts get the whole width: beside the button they wrapped
-            // a lone "· 6 off" onto a line of its own. Export sits under
-            // them, at the trailing edge.
-            if !countsLine.isEmpty {
-                Text(countsLine)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
+            if let earnings {
+                row("Earned", settings.money.string(earnings.totalCents, showsCents: false))
             }
-            if !allowanceLine.isEmpty {
-                Text(allowanceLine)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("calendar-summary-allowance")
-            }
-            if let onExport {
-                HStack(spacing: Metrics.small) {
-                    Spacer(minLength: 0)
-                    Button(action: onExport) {
-                        Label("Export", systemImage: "square.and.arrow.up")
-                            .font(.subheadline.weight(.semibold))
-                            .frame(minHeight: 44)
-                            .contentShape(Rectangle())
+            if settings.features.showsBalance {
+                LabeledContent {
+                    Text(verbatim: formatting.signedString(summary.balanceMinutes))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.hoursBalance(summary.balanceMinutes))
+                } label: {
+                    Text("Balance")
+                    if let balanceCaption {
+                        Text(verbatim: balanceCaption)
+                            .monospacedDigit()
                     }
-                    .buttonStyle(.borderless)
-                    .accessibilityIdentifier("calendar-summary-export")
+                }
+            }
+            if summary.daysWorked > 0 {
+                LabeledContent {
+                    Text(verbatim: formatting.string(summary.averageWorkedMinutesPerWorkedDay))
+                        .monospacedDigit()
+                } label: {
+                    Text("Average")
+                    Text("per day worked")
+                }
+            }
+        } header: {
+            if !title.isEmpty {
+                Text(verbatim: title)
+                    .textCase(nil)
+            }
+        } footer: {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                if !countsLine.isEmpty {
+                    Text(countsLine)
+                }
+                if !allowanceLine.isEmpty {
+                    Text(allowanceLine)
+                        .accessibilityIdentifier("calendar-summary-allowance")
                 }
             }
         }
     }
 
-    /// The balance, small, under the money, for someone who still wants it
-    /// at a glance.
-    private var earnedCaption: String? {
-        guard settings.features.showsBalance else { return nil }
-        return String(
-            localized: "balance \(formatting.signedString(summary.balanceMinutes))",
-            comment: "Under the month's earnings; the value is the hours balance"
-        )
+    private func row(_ label: LocalizedStringKey, _ value: String) -> some View {
+        LabeledContent {
+            Text(verbatim: value)
+                .monospacedDigit()
+        } label: {
+            Text(label)
+        }
     }
 
     private var balanceCaption: String? {
@@ -131,7 +104,7 @@ struct PeriodSummaryBar: View {
                 comment: "Travel time in the month's totals; the value is like 6:30"
             ))
         }
-        return parts.joined(separator: "  ·  ")
+        return parts.joined(separator: " · ")
     }
 
     private var countsLine: String {
@@ -148,6 +121,6 @@ struct PeriodSummaryBar: View {
             if count > 0 { parts.append("\(count) \(definition.nameInRunningText())") }
         }
         if summary.daysOff > 0 { parts.append(String(localized: "\(summary.daysOff) off")) }
-        return parts.joined(separator: "  ·  ")
+        return parts.joined(separator: " · ")
     }
 }

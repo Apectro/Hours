@@ -1,14 +1,15 @@
 import SwiftUI
 import SwiftData
 
-/// The Today tab (1.2, mockup Today).
+/// The Today tab (design v2, mockup Main, "the month first").
 ///
-/// Opens on today — the usual day or the running clock, the week and the
-/// balance, today's crew days and the day's big buttons (`TodaySection`) —
-/// and under it, on the same scroll, the month: ‹ › and worked / expected,
-/// "N days not written · Fix", the grid by the colour rule, Edit a range and
-/// Export, then the month's totals. A tap on a day pushes the day
-/// (`CalendarDayScreen`); Edit there opens the editor as a sheet.
+/// One inset-grouped list under a large title, the month and year: the
+/// month grid on the background (‹ › in the toolbar, or a sideways swipe,
+/// change the month; Today goes back), then Today (`TodaySection`): today's
+/// row, the week and the balance, the site days to write and the day's big
+/// buttons; then the notices, the month's totals, Edit a range and Export.
+/// A tap on a date opens that day as a sheet (`CalendarDaySheet`); Edit
+/// there opens the editor.
 struct CalendarScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(ActiveShiftStore.self) private var clockStore
@@ -21,16 +22,18 @@ struct CalendarScreen: View {
     @State private var monthToReopen: YearMonth?
     /// Only whether there are any, for the one-time public holidays card.
     @Query private var holidayRecords: [HolidayRecord]
-    /// The day, a site's day and the site's crew, pushed by value.
+    /// A site's day and the site's crew, pushed by value.
     @State private var path = NavigationPath()
-    /// The scroll view's visible height: Today fills the first screen, with
-    /// its buttons at the bottom, and the month starts under it.
-    @State private var viewportHeight: CGFloat = 0
 
     /// One sheet at a time, chosen by value. Stacking several `.sheet`
     /// modifiers on a single view has undefined behaviour.
     private enum ActiveSheet: Identifiable {
+        /// A day tapped in the month, or today's written row: the day's
+        /// sheet.
         case day(CalendarDate)
+        /// The editor, straight away: today not written yet, or a missing
+        /// day's Fix.
+        case editor(CalendarDate)
         case export(CalendarDateRange)
         case bulkEdit(CalendarDateRange)
         case publicHolidays
@@ -41,6 +44,7 @@ struct CalendarScreen: View {
         var id: String {
             switch self {
             case let .day(date): return "day-\(date.key)"
+            case let .editor(date): return "editor-\(date.key)"
             case let .export(range): return "export-\(range.start.key)-\(range.end.key)"
             case let .bulkEdit(range): return "bulk-\(range.start.key)-\(range.end.key)"
             case .publicHolidays: return "public-holidays"
@@ -52,80 +56,67 @@ struct CalendarScreen: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollViewReader { scroller in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Metrics.large) {
-                        if showsPublicHolidayOffer {
-                            PublicHolidayOfferCard(
-                                onChoose: { activeSheet = .publicHolidays },
-                                onDismiss: dismissPublicHolidayOffer
-                            )
-                            .transition(.opacity)
-                        }
-
-                        TodaySection(
-                            today: today,
+                List {
+                    PeriodDataProvider(range: fetchedRange) { data in
+                        CalendarPeriodView(
+                            layout: layout,
+                            summaryRange: summaryRange,
+                            data: data,
                             settings: settings,
                             calendar: calendar,
                             formatting: settingsStore.dateFormatting,
-                            running: clockStore.running,
-                            menu: AnyView(moreMenu),
-                            onClockIn: clockIn,
-                            onClockOut: clockOut,
-                            onToggleBreak: toggleBreak,
-                            onDiscard: discard,
-                            onUsualDay: writeUsualDay,
-                            onEdit: { activeSheet = .day(today) },
-                            onWorked: { activeSheet = .workedHoliday(today) },
-                            onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: today)) }
-                        )
-                        .frame(minHeight: max(0, viewportHeight - Metrics.large * 2), alignment: .top)
-
-                        PeriodDataProvider(range: fetchedRange) { data in
-                            CalendarPeriodView(
-                                layout: layout,
-                                summaryRange: summaryRange,
-                                data: data,
+                            today: today,
+                            scope: scope,
+                            summaryTitle: summaryTitle,
+                            closedMonth: closedMonthOnScreen,
+                            exportTitle: exportTitle,
+                            onSelect: { activeSheet = .day($0) },
+                            onStep: step,
+                            onFix: { activeSheet = .editor($0) },
+                            onEditRange: {
+                                // Seeded with today when it is on screen,
+                                // else the period's first day: widening is
+                                // easier than narrowing.
+                                let start = summaryRange.contains(today) ? today : summaryRange.start
+                                activeSheet = .bulkEdit(CalendarDateRange(single: start))
+                            },
+                            onExport: { activeSheet = .export(summaryRange) },
+                            onReopen: { monthToReopen = $0 }
+                        ) {
+                            TodaySection(
+                                today: today,
                                 settings: settings,
                                 calendar: calendar,
                                 formatting: settingsStore.dateFormatting,
-                                today: today,
-                                scope: scope,
-                                title: periodTitle,
-                                closedMonth: closedMonthOnScreen,
-                                exportTitle: exportTitle,
-                                onSelect: { path.append(CalendarDayRoute(date: $0)) },
-                                onStep: step,
-                                onGoToToday: summaryRange.contains(today) ? nil : goToToday,
-                                onFix: { activeSheet = .day($0) },
-                                onEditRange: {
-                                    // Seeded with today when it is on screen,
-                                    // else the period's first day: widening is
-                                    // easier than narrowing.
-                                    let start = summaryRange.contains(today) ? today : summaryRange.start
-                                    activeSheet = .bulkEdit(CalendarDateRange(single: start))
-                                },
-                                onExport: { activeSheet = .export(summaryRange) },
-                                onReopen: { monthToReopen = $0 }
+                                running: clockStore.running,
+                                onClockIn: clockIn,
+                                onClockOut: clockOut,
+                                onToggleBreak: toggleBreak,
+                                onDiscard: discard,
+                                onUsualDay: writeUsualDay,
+                                onEdit: { activeSheet = .editor(today) },
+                                onOpenDay: { activeSheet = .day(today) },
+                                onWorked: { activeSheet = .workedHoliday(today) },
+                                onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: today)) }
                             )
+
+                            if showsPublicHolidayOffer {
+                                PublicHolidayOfferCard(
+                                    onChoose: { activeSheet = .publicHolidays },
+                                    onDismiss: dismissPublicHolidayOffer
+                                )
+                            }
                         }
-                        .id(Self.monthAnchor)
                     }
-                    .padding(.horizontal, Metrics.large)
-                    .padding(.vertical, Metrics.large)
-                    .animation(.snappy(duration: 0.25), value: clockStore.running)
                 }
-                .background(Color.hoursCanvas)
-                .scrollDismissesKeyboard(.interactively)
-                .onGeometryChange(for: CGFloat.self) { proxy in
-                    proxy.size.height
-                } action: { height in
-                    viewportHeight = height
-                }
-                // The title is drawn in the content, with the date above it.
-                .toolbar(.hidden, for: .navigationBar)
-                .navigationTitle("Today")
+                .listStyle(.insetGrouped)
+                .listSectionSpacing(.compact)
+                .animation(.snappy(duration: 0.25), value: clockStore.running)
+                .navigationTitle(periodTitle)
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar { toolbar }
                 // The tour's stops on the calendar: what they point at has to be
-                // on screen. Today's cell and the totals are under Today.
+                // on screen.
                 .onChange(of: tour?.tour?.stop) { _, stop in
                     if stop == .today {
                         goToToday()
@@ -147,9 +138,6 @@ struct CalendarScreen: View {
                 } message: {
                     Text("Its days can be changed again. Close it again from the calendar's ⋯ menu when you are done.")
                 }
-                .navigationDestination(for: CalendarDayRoute.self) { route in
-                    CalendarDayScreen(date: route.date)
-                }
                 .navigationDestination(for: CalendarSiteRoute.self) { route in
                     SiteDetailScreen(siteID: route.siteID, initialDate: route.date)
                 }
@@ -162,6 +150,13 @@ struct CalendarScreen: View {
                 .sheet(item: $activeSheet) { sheet in
                     switch sheet {
                     case let .day(date):
+                        CalendarDaySheet(date: date) { route in
+                            // The site's day is pushed onto this tab's
+                            // stack, under the sheet as it goes.
+                            activeSheet = nil
+                            path.append(route)
+                        }
+                    case let .editor(date):
                         DayEditorSheet(date: date)
                     case let .export(range):
                         ExportScreen(initialRange: range)
@@ -177,6 +172,36 @@ struct CalendarScreen: View {
         }
         // The site screen's crew, pushed onto this stack by value.
         .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
+    }
+
+    /// ‹ › on the left; Today and the ⋯ menu on the right.
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarLeading) {
+            stepButton(-1)
+            stepButton(1)
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            // Back to this month and today; nothing to do when already there.
+            Button("Today", action: goToToday)
+                .disabled(summaryRange.contains(today))
+                .accessibilityIdentifier("calendar-today")
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            moreMenu
+        }
+    }
+
+    private func stepButton(_ direction: Int) -> some View {
+        Button {
+            step(direction)
+        } label: {
+            Image(systemName: direction < 0 ? "chevron.left" : "chevron.right")
+        }
+        .accessibilityLabel(direction < 0
+            ? (scope == .month ? String(localized: "Previous month") : String(localized: "Previous week"))
+            : (scope == .month ? String(localized: "Next month") : String(localized: "Next week")))
+        .accessibilityIdentifier(direction < 0 ? "calendar-previous" : "calendar-next")
     }
 
     /// Where the tour's totals stop scrolls to.
@@ -227,17 +252,23 @@ struct CalendarScreen: View {
         return CalendarDateRange(start: min(covered.start, weeks.start), end: max(covered.end, weeks.end))
     }
 
-    /// "October", or "3 Nov – 9 Nov" in week view.
+    /// The large title: "October 2026", or "3 Nov – 9 Nov" in week view.
     private var periodTitle: String {
         let formatting = settingsStore.dateFormatting
         switch scope {
         case .month:
-            return anchorDate.yearMonth.year == today.year
-                ? formatting.monthName(anchorDate.yearMonth)
-                : formatting.monthTitle(anchorDate.yearMonth)
+            return formatting.monthTitle(anchorDate.yearMonth)
         case .week:
             let range = summaryRange
             return "\(formatting.shortDate(range.start)) – \(formatting.shortDate(range.end))"
+        }
+    }
+
+    /// The totals' header: "October", or "This week".
+    private var summaryTitle: String {
+        switch scope {
+        case .month: return settingsStore.dateFormatting.monthName(anchorDate.yearMonth)
+        case .week: return String(localized: "This week")
         }
     }
 
@@ -324,13 +355,13 @@ struct CalendarScreen: View {
             engine: settingsStore.engine,
             holidays: holidayRecords.map(\.rule)
         ) else {
-            activeSheet = .day(today)
+            activeSheet = .editor(today)
             return
         }
         do {
             try repository.save(record)
         } catch {
-            activeSheet = .day(today)
+            activeSheet = .editor(today)
             return
         }
         HoursStack.refreshWidget()
@@ -399,8 +430,8 @@ struct CalendarScreen: View {
 
     // MARK: - The ⋯ menu
 
-    /// Beside the title: the view, closing or reopening the month on
-    /// screen, and the list of closed months.
+    /// In the toolbar: the view, closing or reopening the month on screen,
+    /// and the list of closed months.
     private var moreMenu: some View {
         Menu {
             Picker("View", selection: Binding(get: { scope }, set: setScope)) {
@@ -451,10 +482,6 @@ struct CalendarScreen: View {
             .accessibilityIdentifier("calendar-closed-months")
         } label: {
             Image(systemName: "ellipsis")
-                .font(.body.weight(.semibold))
-                .frame(width: 44, height: 44)
-                .background(Color.hoursSurface, in: Circle())
-                .contentShape(Circle())
         }
         .accessibilityLabel("More")
         .accessibilityIdentifier("calendar-more")
@@ -464,27 +491,29 @@ struct CalendarScreen: View {
 /// The closed months, pushed from the ⋯ menu.
 struct CalendarClosedMonthsRoute: Hashable {}
 
-/// The month under Today, for one visible period.
+/// The Today tab's list for one visible period: the grid, then `middle`
+/// (Today), then the notices, the totals, and Edit a range and Export.
 ///
 /// The engine runs once, in `init`, and the result is handed to the grid,
-/// the banner and the totals — so they can never disagree, and nothing is
-/// recomputed while SwiftUI diffs the body.
-private struct CalendarPeriodView: View {
+/// the notices and the totals — so they can never disagree, and nothing is
+/// recomputed while SwiftUI diffs the body. Its body is sections, for the
+/// list it sits in.
+private struct CalendarPeriodView<Middle: View>: View {
     let layout: MonthLayout
     let settings: AppSettings
     let formatting: CalendarFormatting
     let today: CalendarDate
     let scope: CalendarScope
-    let title: String
+    let summaryTitle: String
     let closedMonth: YearMonth?
     let exportTitle: String
     let onSelect: (CalendarDate) -> Void
     let onStep: (Int) -> Void
-    let onGoToToday: (() -> Void)?
     let onFix: (CalendarDate) -> Void
     let onEditRange: () -> Void
     let onExport: () -> Void
     let onReopen: (YearMonth) -> Void
+    let middle: Middle
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
@@ -507,32 +536,32 @@ private struct CalendarPeriodView: View {
         formatting: CalendarFormatting,
         today: CalendarDate,
         scope: CalendarScope,
-        title: String,
+        summaryTitle: String,
         closedMonth: YearMonth?,
         exportTitle: String,
         onSelect: @escaping (CalendarDate) -> Void,
         onStep: @escaping (Int) -> Void,
-        onGoToToday: (() -> Void)?,
         onFix: @escaping (CalendarDate) -> Void,
         onEditRange: @escaping () -> Void,
         onExport: @escaping () -> Void,
-        onReopen: @escaping (YearMonth) -> Void
+        onReopen: @escaping (YearMonth) -> Void,
+        @ViewBuilder middle: () -> Middle
     ) {
         self.layout = layout
         self.settings = settings
         self.formatting = formatting
         self.today = today
         self.scope = scope
-        self.title = title
+        self.summaryTitle = summaryTitle
         self.closedMonth = closedMonth
         self.exportTitle = exportTitle
         self.onSelect = onSelect
         self.onStep = onStep
-        self.onGoToToday = onGoToToday
         self.onFix = onFix
         self.onEditRange = onEditRange
         self.onExport = onExport
         self.onReopen = onReopen
+        self.middle = middle()
 
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
         let span = CalendarDateRange(
@@ -559,17 +588,8 @@ private struct CalendarPeriodView: View {
     private var duration: DurationFormatting { settings.displayFormatting }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            header
-
-            if let closedMonth {
-                ClosedMonthNotice(month: closedMonth, formatting: formatting) { onReopen(closedMonth) }
-            }
-
-            if let first = missing.first {
-                MissingDaysBanner(count: missing.count) { onFix(first) }
-            }
-
+        // The grid sits on the background, not in a card.
+        Section {
             CalendarMonthGrid(
                 layout: layout,
                 computations: computationsByKey,
@@ -580,8 +600,8 @@ private struct CalendarPeriodView: View {
                 onSelect: onSelect
             )
             // A sideways swipe pages the period, as the arrows do.
-            // Simultaneous, so the scroll view still scrolls and a cell
-            // still takes its tap; only a clearly horizontal drag counts.
+            // Simultaneous, so the list still scrolls and a date still
+            // takes its tap; only a clearly horizontal drag counts.
             .simultaneousGesture(
                 DragGesture(minimumDistance: 30)
                     .onEnded { value in
@@ -590,123 +610,63 @@ private struct CalendarPeriodView: View {
                         onStep(width < 0 ? 1 : -1)
                     }
             )
+            .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: 0, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .id(CalendarScreen.monthAnchor)
+        }
 
-            Text("Dashed red: not written · orange: away · green: holiday · grey: day off")
-                .font(.caption2)
-                .foregroundStyle(.hoursSecondaryText)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, Metrics.tiny)
+        middle
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: Metrics.small) { periodButtons }
-                VStack(spacing: Metrics.small) { periodButtons }
-            }
-
-            if settings.calendar.showMonthSummary {
-                PeriodSummaryBar(
-                    summary: summary,
-                    settings: settings,
-                    catalog: settings.dayTypeCatalog,
-                    earnings: earnings,
-                    allowance: allowance
-                )
-                .padding(Metrics.large)
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .tourTarget(.calendarSummary)
-                .id(CalendarScreen.summaryAnchor)
-            }
-
-            if scope == .week && !weekDays.isEmpty {
-                WeekDayList(
-                    days: weekDays,
-                    settings: settings,
-                    formatting: formatting,
-                    onSelect: onSelect
-                )
+        if closedMonth != nil || !missing.isEmpty {
+            Section {
+                if let closedMonth {
+                    ClosedMonthNotice(month: closedMonth, formatting: formatting) { onReopen(closedMonth) }
+                }
+                if let first = missing.first {
+                    MissingDaysBanner(count: missing.count) { onFix(first) }
+                }
             }
         }
-    }
 
-    /// ‹ October › on the left; worked / expected on the right.
-    private var header: some View {
-        HStack(spacing: Metrics.small) {
-            stepButton(-1)
-            Text(verbatim: title)
-                .font(.title2.weight(.heavy))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .accessibilityAddTraits(.isHeader)
-            stepButton(1)
-            Spacer(minLength: Metrics.small)
-            if let onGoToToday {
-                Button("Today", action: onGoToToday)
-                    .font(.subheadline.weight(.semibold))
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("calendar-today")
-            } else {
-                Text(verbatim: workedLine)
-                    .font(.subheadline.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(.hoursSecondaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .accessibilityIdentifier("calendar-worked-expected")
+        if scope == .week && !weekDays.isEmpty {
+            WeekDayList(
+                days: weekDays,
+                settings: settings,
+                formatting: formatting,
+                onSelect: onSelect
+            )
+        }
+
+        if settings.calendar.showMonthSummary {
+            PeriodSummaryBar(
+                summary: summary,
+                settings: settings,
+                catalog: settings.dayTypeCatalog,
+                title: summaryTitle,
+                earnings: earnings,
+                allowance: allowance
+            )
+        }
+
+        Section {
+            Button(action: onEditRange) {
+                Text("Edit a range")
             }
-        }
-    }
+            .accessibilityIdentifier("calendar-edit-range")
 
-    /// "168h / 184h", or the hours alone where nothing is expected.
-    private var workedLine: String {
-        let worked = duration.string(summary.workedMinutes)
-        guard settings.features.trackExpectedHours else { return worked }
-        return "\(worked) / \(duration.string(summary.expectedMinutes))"
-    }
-
-    private func stepButton(_ direction: Int) -> some View {
-        Button {
-            onStep(direction)
-        } label: {
-            Image(systemName: direction < 0 ? "chevron.left" : "chevron.right")
-                .font(.body.weight(.semibold))
-                .frame(width: 44, height: 44)
-                .background(Color.hoursSurface, in: Circle())
-                .contentShape(Circle())
+            Button(action: onExport) {
+                Text(verbatim: exportTitle)
+            }
+            // Sending a month's hours is a monthly job: on its own row,
+            // found by this identifier.
+            .accessibilityIdentifier("calendar-export")
         }
-        .buttonStyle(.plain)
-        .foregroundStyle(Color.accentColor)
-        .accessibilityLabel(direction < 0
-            ? (scope == .month ? String(localized: "Previous month") : String(localized: "Previous week"))
-            : (scope == .month ? String(localized: "Next month") : String(localized: "Next week")))
-        .accessibilityIdentifier(direction < 0 ? "calendar-previous" : "calendar-next")
-    }
-
-    @ViewBuilder
-    private var periodButtons: some View {
-        Button(action: onEditRange) {
-            Text("Edit a range")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 48)
-        }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.capsule)
-        .accessibilityIdentifier("calendar-edit-range")
-
-        Button(action: onExport) {
-            Text(verbatim: exportTitle)
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity, minHeight: 48)
-        }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.capsule)
-        // Sending a month's hours is a monthly job: on its own button,
-        // found by this identifier.
-        .accessibilityIdentifier("calendar-export")
     }
 }
 
-/// "2 days not written · Fix" (red: missing): Fix opens the first of them.
+/// "2 days not written" with a red dot, and Fix, which opens the first of
+/// them in the editor.
 private struct MissingDaysBanner: View {
     let count: Int
     let onFix: () -> Void
@@ -715,38 +675,28 @@ private struct MissingDaysBanner: View {
 
     var body: some View {
         Button(action: onFix) {
-            HStack(spacing: Metrics.small) {
+            HStack(spacing: Metrics.medium) {
                 Circle()
                     .fill(Color.hoursMissingFill)
-                    .frame(width: 10, height: 10)
+                    .frame(width: 8, height: 8)
                     .accessibilityHidden(true)
                 Text(String(
                     localized: "\(days) not written",
                     comment: "Calendar banner; the value is a number of days, e.g. 2 days"
                 ))
-                .font(.body.weight(.bold))
                 .foregroundStyle(.primary)
                 Spacer(minLength: Metrics.small)
                 Text("Fix")
-                    .font(.body.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
             }
-            .padding(.horizontal, Metrics.medium)
-            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                    .strokeBorder(Color.hoursMissing, lineWidth: 1.5)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
         .accessibilityIdentifier("calendar-missing-fix")
     }
 }
 
-/// A compact list of the week's days, shown only in week scope where there is
-/// room to say more than a grid cell can.
+/// The week's days as rows, shown only in week scope where there is room
+/// to say more than a date in the grid can.
 private struct WeekDayList: View {
     let days: [DayComputation]
     let settings: AppSettings
@@ -756,48 +706,37 @@ private struct WeekDayList: View {
     private var duration: DurationFormatting { settings.displayFormatting }
 
     var body: some View {
-        VStack(spacing: 0) {
+        Section {
             ForEach(days) { day in
                 Button {
                     onSelect(day.date)
                 } label: {
                     HStack(spacing: Metrics.medium) {
-                        DayTypeBadge(definition: day.dayType, size: 26)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(formatting.mediumDate(day.date))
-                                .font(.subheadline.weight(.medium))
                                 .foregroundStyle(.primary)
                             Text(subtitle(for: day))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(.subheadline)
+                                .monospacedDigit()
+                                .foregroundStyle(.hoursSecondaryText)
                         }
                         Spacer(minLength: Metrics.small)
                         if settings.features.showsBalance && day.hasEntry {
-                            BalanceText(
-                                minutes: day.balanceMinutes,
-                                formatting: duration,
-                                font: .hoursFigure(.subheadline)
-                            )
+                            Text(verbatim: duration.signedString(day.balanceMinutes))
+                                .monospacedDigit()
+                                .foregroundStyle(Color.hoursBalance(day.balanceMinutes))
                         }
                     }
-                    .padding(.vertical, Metrics.small)
                     .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-
-                if day.date != days.last?.date {
-                    Divider().padding(.leading, 38)
                 }
             }
         }
-        .padding(.horizontal, Metrics.large)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
     }
 
     private func subtitle(for day: DayComputation) -> String {
         if let start = day.start, let end = day.end {
             let times = "\(formatting.time(start, on: day.date)) – \(formatting.time(end, on: day.date))"
-            return "\(times)  ·  \(duration.string(day.workedMinutes))"
+            return "\(times) · \(duration.string(day.workedMinutes))"
         }
         if day.creditedMinutes > 0 {
             return String(
@@ -809,9 +748,9 @@ private struct WeekDayList: View {
     }
 }
 
-/// Above the grid while the period on screen is in a closed month: the
-/// grid looks the same either way, and an editor refusing to save is a poor
-/// way to find out.
+/// While the period on screen is in a closed month: the grid looks the
+/// same either way, and an editor refusing to save is a poor way to find
+/// out. One row, with Reopen.
 private struct ClosedMonthNotice: View {
     let month: YearMonth
     let formatting: CalendarFormatting
@@ -827,17 +766,13 @@ private struct ClosedMonthNotice: View {
             } icon: {
                 Image(systemName: "lock.fill")
             }
-            .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.hoursSecondaryText)
             Spacer(minLength: Metrics.small)
             Button("Reopen", action: onReopen)
-                .font(.footnote.weight(.semibold))
                 .buttonStyle(.borderless)
                 .frame(minHeight: 44)
                 .accessibilityIdentifier("calendar-closed-reopen")
         }
-        .padding(.horizontal, Metrics.medium)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
     }
 }
 
