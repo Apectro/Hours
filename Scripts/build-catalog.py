@@ -169,6 +169,10 @@ WIDGET_STRINGS = {
     # Days in the reminder's fortnight with nothing recorded, on the month
     # widget and the Lock Screen.
     "^[%lld day](inflect: true) to write": entry("%#@days@ to write", DAYS()),
+    # A site's page, beside its month (1.2).
+    "^[%lld day](inflect: true) not written": entry("%#@days@ not written", DAYS()),
+    # The notification on leaving a site with today not written (1.2).
+    "The usual day is ^[%lld person](inflect: true), %@.": entry("The usual day is %#@people@, %@.", PEOPLE()),
     # The site widget: how many were on the site its last written day.
     "^[%lld person](inflect: true)": entry("%#@people@", PEOPLE()),
     # The Earned widget's allowance line (1.2), in the app's own words.
