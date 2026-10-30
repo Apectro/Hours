@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The live result at the top of the editor. Updates as you type, so the
-/// consequence of a change is visible without leaving the screen.
+/// The live result under the times (1.2, mockup DayEditor): a big Worked
+/// figure and the day's overtime in the colour rule. Updates as you type,
+/// so the consequence of a change is visible without leaving the screen.
 struct DayResultHeader: View {
     let computation: DayComputation
     let settings: AppSettings
@@ -12,26 +13,34 @@ struct DayResultHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.medium) {
-            HStack(alignment: .top, spacing: Metrics.small) {
-                StatTile(label: String(localized: "Worked"), value: duration.string(computation.workedMinutes))
-
-                if settings.features.trackExpectedHours {
-                    Divider()
-                    StatTile(label: String(localized: "Expected"), value: duration.string(computation.expectedMinutes))
-                }
-
-                if settings.features.showsBalance {
-                    Divider()
-                    // "Balance", as on the calendar and in the month's totals:
-                    // the sign and the colour say which way it went.
-                    StatTile(
-                        label: String(localized: "Balance"),
-                        value: duration.signedString(computation.balanceMinutes),
-                        tint: Color.hoursBalance(computation.balanceMinutes)
-                    )
-                }
+            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                Text("Worked")
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+                Spacer(minLength: Metrics.small)
+                Text(duration.string(computation.workedMinutes))
+                    .font(.hoursFigure(.title, weight: .heavy))
+                    .contentTransition(.numericText())
             }
-            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("day-editor-worked")
+
+            if settings.features.showsBalance {
+                Divider()
+                // The day's own balance, by the colour rule: green over,
+                // red short, grey at nothing.
+                HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                    Text("Overtime today")
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                    Spacer(minLength: Metrics.small)
+                    Text(verbatim: computation.balanceMinutes == 0 ? "0" : duration.signedString(computation.balanceMinutes))
+                        .font(.hoursFigure(.headline, weight: .bold))
+                        .foregroundStyle(Color.hoursBalance(computation.balanceMinutes))
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("day-editor-overtime")
+            }
 
             if computation.creditedMinutes > 0 {
                 Label(
