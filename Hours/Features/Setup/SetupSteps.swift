@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 1 · "What's your name?" — for the sheets you hand in.
+/// 1 · "Your hours, counted right." — and your name, for the sheets.
 struct SetupNameStep: View {
     @Binding var name: String
     /// Return on the keyboard continues, as the button does.
@@ -10,26 +10,50 @@ struct SetupNameStep: View {
 
     var body: some View {
         SetupPage(
-            heading: "What's your name?",
-            message: "It goes on the sheets you hand in. Nothing else uses it.",
+            heading: "Your hours, counted right.",
+            message: "Write a day in seconds. The app works out overtime, balance and the monthly sheet.",
             identifier: "screen-setup-name"
         ) {
-            TextField("Your name", text: $name)
-                .textContentType(.name)
-                .textInputAutocapitalization(.words)
-                .submitLabel(.continue)
-                .focused($isFocused)
-                .onSubmit(onReturn)
-                .font(.title3)
-                .padding(Metrics.large)
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                .accessibilityIdentifier("setup-name")
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                SetupCaption("Your name")
+                TextField("Your name", text: $name)
+                    .textContentType(.name)
+                    .textInputAutocapitalization(.words)
+                    .submitLabel(.continue)
+                    .focused($isFocused)
+                    .onSubmit(onReturn)
+                    .font(.title3)
+                    .padding(Metrics.large)
+                    .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                    .accessibilityIdentifier("setup-name")
+                Text("Printed on your sheets. You can change it later in Settings › Sheets.")
+                    .font(.footnote)
+                    .foregroundStyle(.hoursSecondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .onAppear { isFocused = true }
     }
 }
 
-/// 2 · "Your working week" — which days, and what a day looks like.
+/// A small capital heading over a group, as the mockups draw it.
+struct SetupCaption: View {
+    let text: LocalizedStringKey
+
+    init(_ text: LocalizedStringKey) { self.text = text }
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.hoursSecondaryText)
+            .textCase(.uppercase)
+            .tracking(0.5)
+            .accessibilityAddTraits(.isHeader)
+    }
+}
+
+/// 2 · "A normal day for you" — start, end, break, whether breaks are
+/// paid, and the work days.
 struct SetupWeekStep: View {
     @Binding var answers: FirstRunAnswers
 
@@ -37,17 +61,11 @@ struct SetupWeekStep: View {
 
     var body: some View {
         SetupPage(
-            heading: "Your working week",
-            message: "The days you normally work and your usual hours. A day you leave empty is then a day short.",
+            heading: "A normal day for you",
+            message: "Every new day starts with these. Change any day as you go.",
             identifier: "screen-setup-week"
         ) {
             VStack(alignment: .leading, spacing: Metrics.large) {
-                SetupWeekdayToggles(
-                    selection: $answers.workingWeekdays,
-                    formatting: settingsStore.dateFormatting,
-                    firstWeekday: settingsStore.workCalendar.firstWeekday
-                )
-
                 SurfaceCard {
                     VStack(spacing: Metrics.medium) {
                         DatePicker("Start", selection: timeBinding(\.start), displayedComponents: .hourAndMinute)
@@ -61,15 +79,28 @@ struct SetupWeekStep: View {
                             step: 5,
                             formatting: settingsStore.durationFormatting
                         )
+                        Divider()
+                        Toggle("Breaks are paid", isOn: $answers.breaksArePaid)
+                            .accessibilityIdentifier("setup-breaks-paid")
                     }
                 }
 
+                VStack(alignment: .leading, spacing: Metrics.small) {
+                    SetupCaption("Work days")
+                    SetupWeekdayToggles(
+                        selection: $answers.workingWeekdays,
+                        formatting: settingsStore.dateFormatting,
+                        firstWeekday: settingsStore.workCalendar.firstWeekday
+                    )
+                }
+
                 Text(String(
-                    localized: "That comes to \(settingsStore.durationFormatting.string(answers.dailyMinutes)) a day.",
-                    comment: "First-run setup, under the usual start, end and break"
+                    localized: "That's \(settingsStore.durationFormatting.string(answers.dailyMinutes * answers.workingWeekdays.count)) a week. Overtime counts from here.",
+                    comment: "First-run setup, under the usual day and work days; the value is the hours of a week"
                 ))
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -127,41 +158,21 @@ struct SetupWeekdayToggles: View {
     }
 }
 
-/// 3 · "Are your breaks paid?"
-struct SetupBreaksStep: View {
-    @Binding var breaksArePaid: Bool
-
-    var body: some View {
-        SetupPage(
-            heading: "Are your breaks paid?",
-            message: "A paid break is still written down, but it counts as worked time instead of being taken off the day.",
-            identifier: "screen-setup-breaks"
-        ) {
-            VStack(spacing: Metrics.small) {
-                SetupChoice(title: "Yes, they're paid", isSelected: breaksArePaid) {
-                    breaksArePaid = true
-                }
-                .accessibilityIdentifier("setup-breaks-paid")
-                SetupChoice(title: "No, they're taken off", isSelected: !breaksArePaid) {
-                    breaksArePaid = false
-                }
-                .accessibilityIdentifier("setup-breaks-unpaid")
-            }
-        }
-    }
-}
-
 /// "Where do you work?": a country, and a state or canton where the
 /// holidays depend on it. Nothing is preselected — the app never guesses a
 /// country — and continuing with none adds nothing.
 struct SetupHolidaysStep: View {
     @Binding var country: HolidayCountry?
     @Binding var region: String?
+    /// "No public holidays": none, and on to the next step.
+    var onNone: () -> Void = {}
+
+    @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
         SetupPage(
             heading: "Where do you work?",
-            message: "For your country's public holidays, so they show in the calendar as paid days off. Skip it to add holidays yourself later.",
+            message: "Public holidays go in the calendar, paid, so your balance stays right.",
             identifier: "screen-setup-holidays"
         ) {
             VStack(alignment: .leading, spacing: Metrics.small) {
@@ -176,7 +187,7 @@ struct SetupHolidaysStep: View {
                 }
                 if let country, !country.regions.isEmpty {
                     pickerRow {
-                        Picker("State or canton", selection: $region) {
+                        Picker("Region", selection: $region) {
                             Text("Choose").tag(String?.none)
                             ForEach(country.regions) { region in
                                 Text(PublicHolidayActions.regionName(region)).tag(Optional(region.code))
@@ -185,14 +196,57 @@ struct SetupHolidaysStep: View {
                         .accessibilityIdentifier("setup-holidays-region")
                     }
                 }
+
+                if !upcoming.isEmpty {
+                    SetupCaption("Next holidays")
+                        .padding(.top, Metrics.medium)
+                    SurfaceCard {
+                        VStack(spacing: Metrics.medium) {
+                            ForEach(upcoming, id: \.name) { holiday in
+                                HStack(alignment: .firstTextBaseline) {
+                                    Text(verbatim: holiday.name)
+                                    Spacer(minLength: Metrics.small)
+                                    Text(settingsStore.dateFormatting.mediumDate(holiday.date))
+                                        .foregroundStyle(.hoursSecondaryText)
+                                        .monospacedDigit()
+                                }
+                                .accessibilityElement(children: .combine)
+                            }
+                        }
+                    }
+                }
+
                 if country != nil {
                     Text("You can see, change or remove them later in Settings › Day types & holidays.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
+                } else {
+                    Button(action: onNone) {
+                        Text("No public holidays")
+                    }
+                    .buttonStyle(.bigAction(.secondary))
+                    .padding(.top, Metrics.medium)
+                    .accessibilityIdentifier("setup-holidays-none")
                 }
             }
             .onChange(of: country) { _, _ in region = nil }
         }
+    }
+
+    /// The next three of the chosen set, as the calendar will show them.
+    private var upcoming: [(name: String, date: CalendarDate)] {
+        guard let country, let set = PublicHolidayCatalog.set(country: country, region: region) else { return [] }
+        let calendar = settingsStore.workCalendar
+        let today = CalendarDate.today(in: calendar)
+        let dated = set.holidays.compactMap { holiday -> (name: String, date: CalendarDate)? in
+            for year in today.year...(today.year + 1) {
+                if let date = holiday.recurrence.occurrence(inYear: year, calendar: calendar), date >= today {
+                    return (holiday.name(in: .device, setLanguage: set.language), date)
+                }
+            }
+            return nil
+        }
+        return Array(dated.sorted { $0.date < $1.date }.prefix(3))
     }
 
     private func pickerRow<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
@@ -289,8 +343,8 @@ struct SetupPayStep: View {
 
     var body: some View {
         SetupPage(
-            heading: "What do you earn an hour?",
-            message: "Optional, to see what a month earned. Your timesheet shows it only if you add it in Settings › Sheets; a site sheet never does.",
+            heading: "See what your hours earn",
+            message: "Optional. Only you see it, and it never goes on a sheet unless you ask.",
             identifier: "screen-setup-pay"
         ) {
             VStack(alignment: .leading, spacing: Metrics.small) {
@@ -413,57 +467,76 @@ struct SetupChoice: View {
     }
 }
 
-/// "You're set", the tour, and the things most people do next. Create a
-/// site is offered to someone who leads a crew.
+/// "All set, Marijo." — and three big rows to pick where to start: write
+/// today, set up a site, or the tour.
 struct SetupFinishStep: View {
-    let leadsCrew: Bool
+    let name: String
     let onFinish: (FirstRunFinish?) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            SetupPage(
-                heading: "You're set",
-                message: "All of this can be changed in Settings whenever you like. A short tour shows where everything is.",
-                identifier: "screen-setup-finish"
-            ) {
-                EmptyView()
+        SetupPage(
+            heading: heading,
+            message: "Pick where to start. Everything else is one tap away.",
+            identifier: "screen-setup-finish"
+        ) {
+            VStack(spacing: Metrics.medium) {
+                row(
+                    title: "Write today", detail: "Your own hours",
+                    systemImage: "sun.max.fill", identifier: "setup-write-today"
+                ) { onFinish(.writeToday) }
+                row(
+                    title: "Set up a site", detail: "Your crew's hours and the monthly sheet",
+                    systemImage: "building.2.fill", identifier: "setup-create-site"
+                ) { onFinish(.createSite) }
+                row(
+                    title: "Show me around", detail: "Six stops, about a minute",
+                    systemImage: "questionmark.circle.fill", identifier: "setup-show-tour"
+                ) { onFinish(.tour) }
             }
-
-            VStack(spacing: Metrics.small) {
-                Button {
-                    onFinish(.tour)
-                } label: {
-                    Text("Show me around")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .buttonStyle(.borderedProminent)
-                .accessibilityIdentifier("setup-show-tour")
-
-                Button {
-                    onFinish(.writeToday)
-                } label: {
-                    Text("Write today")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .buttonStyle(.bordered)
-                .accessibilityIdentifier("setup-write-today")
-
-                if leadsCrew {
-                    Button {
-                        onFinish(.createSite)
-                    } label: {
-                        Text("Create a site")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityIdentifier("setup-create-site")
-                }
-            }
-            .controlSize(.large)
-            .padding(.vertical, Metrics.large)
         }
+    }
+
+    private var heading: LocalizedStringKey {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let first = trimmed.split(separator: " ").first else { return "All set." }
+        return "All set, \(String(first))."
+    }
+
+    private func row(
+        title: LocalizedStringKey,
+        detail: LocalizedStringKey,
+        systemImage: String,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: Metrics.medium) {
+                Image(systemName: systemImage)
+                    .font(.title2)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 36)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(detail)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .padding(Metrics.large)
+            .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 }
