@@ -24,8 +24,8 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(same.waitForExistence(timeout: 5), "an empty day should offer Same as last day")
         // It names the day it copies from, which is yesterday, not today.
         XCTAssertTrue(
-            same.label.contains(Self.mediumDate(daysFromToday: -1)),
-            "Same as last day should name yesterday, \(Self.mediumDate(daysFromToday: -1)): \(same.label)"
+            same.label.contains(Self.monthDay(daysFromToday: -1)),
+            "Same as last day should name yesterday, \(Self.monthDay(daysFromToday: -1)): \(same.label)"
         )
         same.tap()
 
@@ -355,6 +355,18 @@ final class SiteDayTests: XCTestCase {
 
     /// A date as the app's day headings write it ("Tue 19 Oct" in English),
     /// in the simulator's own locale, which is the one the app runs in.
+    /// "Oct 29": the date without the weekday, which the button may spell
+    /// out in full.
+    private static func monthDay(daysFromToday offset: Int) -> String {
+        let calendar = Calendar.current
+        let date = calendar.date(byAdding: .day, value: offset, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("MMMd")
+        return formatter.string(from: date)
+    }
+
     private static func mediumDate(daysFromToday offset: Int) -> String {
         let calendar = Calendar.current
         let date = calendar.date(byAdding: .day, value: offset, to: Date()) ?? Date()
