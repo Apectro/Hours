@@ -562,10 +562,7 @@ struct SettingsIndex {
         guard let rules = settings.primaryJob.pay?.value(on: today) else {
             return String(localized: "Not set")
         }
-        return String(
-            localized: "\(settings.money.string(rules.hourlyRateCents))/h",
-            comment: "Settings, the hourly rate; the value is an amount of money, such as 9,50 €"
-        )
+        return settings.money.string(rules.hourlyRateCents) + "/h"
     }
 
     /// "8 days left", or the year's allowance before it is worked out.

@@ -161,6 +161,12 @@ struct SetupWeekdayToggles: View {
 /// "Where do you work?": a country, and a state or canton where the
 /// holidays depend on it. Nothing is preselected — the app never guesses a
 /// country — and continuing with none adds nothing.
+/// One of the next holidays the step lists.
+struct UpcomingHoliday: Hashable {
+    let name: String
+    let date: CalendarDate
+}
+
 struct SetupHolidaysStep: View {
     @Binding var country: HolidayCountry?
     @Binding var region: String?
@@ -202,7 +208,7 @@ struct SetupHolidaysStep: View {
                         .padding(.top, Metrics.medium)
                     SurfaceCard {
                         VStack(spacing: Metrics.medium) {
-                            ForEach(upcoming, id: \.name) { holiday in
+                            ForEach(upcoming, id: \.self) { holiday in
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(verbatim: holiday.name)
                                     Spacer(minLength: Metrics.small)
@@ -234,14 +240,14 @@ struct SetupHolidaysStep: View {
     }
 
     /// The next three of the chosen set, as the calendar will show them.
-    private var upcoming: [(name: String, date: CalendarDate)] {
+    private var upcoming: [UpcomingHoliday] {
         guard let country, let set = PublicHolidayCatalog.set(country: country, region: region) else { return [] }
         let calendar = settingsStore.workCalendar
         let today = CalendarDate.today(in: calendar)
-        let dated = set.holidays.compactMap { holiday -> (name: String, date: CalendarDate)? in
+        let dated = set.holidays.compactMap { holiday -> UpcomingHoliday? in
             for year in today.year...(today.year + 1) {
                 if let date = holiday.recurrence.occurrence(inYear: year, calendar: calendar), date >= today {
-                    return (holiday.name(in: .device, setLanguage: set.language), date)
+                    return UpcomingHoliday(name: holiday.name(in: .device, setLanguage: set.language), date: date)
                 }
             }
             return nil
@@ -499,7 +505,11 @@ struct SetupFinishStep: View {
     private var heading: LocalizedStringKey {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let first = trimmed.split(separator: " ").first else { return "All set." }
-        return "All set, \(String(first))."
+        // Looked up here, then shown as it is.
+        return LocalizedStringKey(String(
+            localized: "All set, \(String(first)).",
+            comment: "First-run setup, the last screen; the value is the first name"
+        ))
     }
 
     private func row(

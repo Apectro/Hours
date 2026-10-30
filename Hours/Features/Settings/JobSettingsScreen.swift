@@ -113,10 +113,7 @@ struct JobSettingsScreen: View {
         let settings = settingsStore.settings
         var parts: [String] = []
         if let rules = job.pay?.value(on: CalendarDate.today(in: settingsStore.workCalendar)) {
-            parts.append(String(
-                localized: "\(settings.money.string(rules.hourlyRateCents))/h",
-                comment: "Settings, the hourly rate; the value is an amount of money, such as 9,50 €"
-            ))
+            parts.append(settings.money.string(rules.hourlyRateCents) + "/h")
         }
         if job.isPrimary { parts.append(String(localized: "main", comment: "Settings › Jobs: the main job")) }
         return parts.joined(separator: " · ")
