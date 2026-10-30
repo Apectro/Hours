@@ -119,6 +119,9 @@ struct DayTypeSettingsScreen: View {
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
+        // The whole row, the gap in the middle included: a plain button
+        // only answers where something is drawn.
+        .contentShape(Rectangle())
     }
 
     private func isOverridden(_ definition: DayTypeDefinition) -> Bool {
