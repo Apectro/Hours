@@ -166,6 +166,8 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
         capture("06-day-editor", app)
         app.buttons["day-editor-cancel"].tap()
+        // Back on today's sheet, which covers the tabs: closed first.
+        app.closeDaySheet()
 
         // 7 — the month's figures, earnings first.
         app.tab(.insights).tap()
