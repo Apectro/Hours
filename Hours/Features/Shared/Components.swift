@@ -11,11 +11,10 @@ struct StatTile: View {
 
     var body: some View {
         VStack(alignment: alignment, spacing: Metrics.tiny) {
+            // Sentence case, not shouting caps (design v2).
             Text(label)
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .textCase(.uppercase)
-                .tracking(0.4)
             Text(value)
                 .font(.hoursFigure(.title3))
                 .foregroundStyle(tint)
