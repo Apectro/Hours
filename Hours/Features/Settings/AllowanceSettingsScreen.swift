@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Field allowance, kilometres and travel time (1.2): one switch, off by
+/// Pay › Allowance & travel (1.2 redesign, board 16): field allowance, kilometres and travel time: one switch, off by
 /// default, and while it is on the rates and whether travel counts as work.
 ///
 /// Switched off, the day editor, the sites and the exports show none of it,
@@ -21,13 +21,13 @@ struct AllowanceSettingsScreen: View {
             if settings.allowance.isEnabled {
                 Section {
                     AmountRow(
-                        title: String(localized: "Allowance per day"),
+                        title: String(localized: "Field allowance a day"),
                         cents: changing(\.allowance.dailyAllowanceCents),
                         currencyCode: settings.money.currencyCode,
                         identifier: "allowance-per-day"
                     )
                     AmountRow(
-                        title: String(localized: "Rate per km"),
+                        title: String(localized: "Per kilometre"),
                         cents: changing(\.allowance.centsPerKilometre),
                         currencyCode: settings.money.currencyCode,
                         identifier: "allowance-per-km"
@@ -35,12 +35,14 @@ struct AllowanceSettingsScreen: View {
                 } header: {
                     Text("Rates")
                 } footer: {
-                    Text("Amounts and tax-free limits depend on your contract and your country. Check them.")
+                    Text("Ticked people on a site day get the allowance. The van's kilometres are written once per site day. Amounts and tax-free limits depend on your contract and your country.")
                 }
 
                 Section {
                     Toggle("Travel time counts as work", isOn: changing(\.allowance.travelCountsAsWork))
                         .accessibilityIdentifier("allowance-travel-counts")
+                } header: {
+                    Text("Travel time")
                 } footer: {
                     Text(settings.allowance.travelCountsAsWork
                          ? "Travel time is added to the day's hours and balance."

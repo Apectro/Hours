@@ -1,8 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// A site's settings (the gear on its screen): its name, address, job,
-/// usual day and work days, extras, arrival reminder and archiving. New
+/// A site's settings (the Settings button on its page; 1.2, mockup Sites):
+/// its name, address and job; the usual day (times, break, work days ›);
+/// the extras, the arrival reminder › and archiving. New
 /// sites are made with the wizard (`NewSiteWizard`); this still creates one
 /// when asked, starting from Settings › New sites start with.
 ///
@@ -54,17 +55,23 @@ struct SiteEditorSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Name", text: $draft.name)
-                        .textInputAutocapitalization(.words)
-                        .accessibilityIdentifier("site-name")
-                        .disabled(isReadOnly)
+                    LabeledContent("Name") {
+                        TextField("Name", text: $draft.name)
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.words)
+                            .accessibilityIdentifier("site-name")
+                            .disabled(isReadOnly)
+                    }
                     // 1.2: printed under the name on the site's sheets.
-                    TextField("Address", text: $draft.address, axis: .vertical)
-                        .lineLimit(1...3)
-                        .textInputAutocapitalization(.words)
-                        .textContentType(.fullStreetAddress)
-                        .accessibilityIdentifier("site-address")
-                        .disabled(isReadOnly)
+                    LabeledContent("Address") {
+                        TextField("Address", text: $draft.address, axis: .vertical)
+                            .multilineTextAlignment(.trailing)
+                            .lineLimit(1...3)
+                            .textInputAutocapitalization(.words)
+                            .textContentType(.fullStreetAddress)
+                            .accessibilityIdentifier("site-address")
+                            .disabled(isReadOnly)
+                    }
                     if let place = draft.place, !isReadOnly {
                         Button {
                             Task { await fillAddress(from: place) }
@@ -80,6 +87,16 @@ struct SiteEditorSheet: View {
                         .disabled(isFindingAddress)
                         .accessibilityIdentifier("site-address-fill")
                     }
+                    // Only for someone who tracks more than one job: with one
+                    // there is nothing to choose.
+                    if settingsStore.settings.tracksMultipleJobs {
+                        Picker("Job", selection: jobBinding) {
+                            ForEach(jobChoices) { job in
+                                Text(job.displayName()).tag(job.id)
+                            }
+                        }
+                        .disabled(isReadOnly)
+                    }
                 } footer: {
                     if isReadOnly {
                         Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
@@ -87,51 +104,47 @@ struct SiteEditorSheet: View {
                         Text("Apple Maps has no address for the saved place. Type it instead.")
                     } else if draft.place != nil {
                         Text("Printed under the site's name on its sheets. “Fill in from the saved place” asks Apple Maps for the address of that one place, only when you tap it.")
+                    } else if settingsStore.settings.tracksMultipleJobs {
+                        Text("The address is printed under the name on every sheet. The job is the one this site's hours count towards; days already recorded keep theirs.")
                     } else {
                         Text("Printed under the site's name on its sheets.")
-                    }
-                }
-
-                if settingsStore.settings.tracksMultipleJobs {
-                    Section {
-                        Picker("Job", selection: jobBinding) {
-                            ForEach(jobChoices) { job in
-                                Text(job.displayName()).tag(job.id)
-                            }
-                        }
-                        .disabled(isReadOnly)
-                    } footer: {
-                        Text("The job this site's hours count towards. Days already recorded keep the job they were recorded with.")
-                    }
-                }
-
-                // Only while the allowance is tracked (Settings › Allowance &
-                // travel); the site's own say, frozen on each day as written.
-                if settingsStore.settings.allowance.isEnabled {
-                    Section {
-                        Toggle("Field allowance by default", isOn: $draft.allowanceByDefault)
-                            .accessibilityIdentifier("site-editor-allowance")
-                            .disabled(isReadOnly)
-                    } footer: {
-                        Text("Everyone ticked in on a new day gets the field allowance. It can be taken off one person on the day. Days already written stay as they are.")
                     }
                 }
 
                 usualDaySection
 
                 Section {
+                    // Only while the allowance is tracked (Settings › Allowance
+                    // & travel); the site's own say, frozen on each day as
+                    // written.
+                    if settingsStore.settings.allowance.isEnabled {
+                        Toggle("Field allowance by default", isOn: $draft.allowanceByDefault)
+                            .accessibilityIdentifier("site-editor-allowance")
+                            .disabled(isReadOnly)
+                    }
                     SiteExtrasRows(
                         setup: $setup,
                         allowanceByDefault: $draft.allowanceByDefault,
                         showsAllowance: false,
                         isDisabled: isReadOnly
                     )
+                    // The opt-in arrival reminder (1.2), on a page of its own:
+                    // off unless turned on there.
+                    NavigationLink(value: SiteEditorRoute.arrival) {
+                        LabeledContent("Arrival reminder", value: arrivalSummary)
+                    }
+                    .accessibilityIdentifier("site-editor-arrival-row")
+                    if !isNew {
+                        Toggle("Archived", isOn: $draft.isArchived)
+                            .accessibilityIdentifier("site-editor-archived")
+                    }
                 } header: {
                     Text("Extras")
+                } footer: {
+                    if !isNew {
+                        Text("An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.")
+                    }
                 }
-
-                // The opt-in arrival reminder (1.2): off unless turned on here.
-                SiteArrivalSection(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
 
                 if isNew && !candidates.isEmpty {
                     Section {
@@ -146,18 +159,17 @@ struct SiteEditorSheet: View {
                         Text("Tick the people who come along. Anyone else can be added from the site's crew later.")
                     }
                 }
-
-                if !isNew {
-                    Section {
-                        Toggle("Archived", isOn: $draft.isArchived)
-                            .accessibilityIdentifier("site-editor-archived")
-                    } footer: {
-                        Text("An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.")
-                    }
+            }
+            .navigationTitle(isNew ? String(localized: "New site") : String(localized: "Site settings"))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: SiteEditorRoute.self) { route in
+                switch route {
+                case .arrival:
+                    SiteArrivalScreen(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
+                case .workDays:
+                    SiteWorkDaysScreen(days: $setup.workDays, isReadOnly: isReadOnly)
                 }
             }
-            .navigationTitle(isNew ? String(localized: "New site") : draft.name)
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -178,6 +190,11 @@ struct SiteEditorSheet: View {
         }
     }
 
+    /// "150 m" while it is on, "Off" otherwise.
+    private var arrivalSummary: String {
+        draft.monitorsArrival ? SiteArrivalSection.metres(draft.monitoredRadius) : String(localized: "Off")
+    }
+
     // MARK: - Usual day (1.2)
 
     @ViewBuilder
@@ -192,21 +209,28 @@ struct SiteEditorSheet: View {
                     end: timeBinding(\.end),
                     breakMinutes: $setup.breakMinutes,
                     calendar: settingsStore.workCalendar,
-                    isDisabled: isReadOnly
+                    isDisabled: isReadOnly,
+                    combinesTimes: true
                 )
             }
+            NavigationLink(value: SiteEditorRoute.workDays) {
+                LabeledContent("Work days", value: workDaysSummary)
+            }
+            .accessibilityIdentifier("site-editor-work-days")
         } header: {
             Text("Usual day")
         } footer: {
             Text("A new day on this site starts with these times for everyone ticked. Change any day or person as usual.")
         }
-        Section {
-            WorkDaysPicker(days: $setup.workDays, formatting: settingsStore.dateFormatting, isDisabled: isReadOnly)
-        } header: {
-            Text("Work days here")
-        } footer: {
-            Text("Reminders only nag on these days. With none ticked, they go by the days the site was worked lately.")
-        }
+    }
+
+    /// "Mon–Fri", or "As worked lately" with none ticked.
+    private var workDaysSummary: String {
+        SiteSetupText(
+            formatting: settingsStore.dateFormatting,
+            durations: settingsStore.settings.displayFormatting,
+            calendar: settingsStore.workCalendar
+        ).workDays(setup.workDays)
     }
 
     private var hasUsualTimes: Binding<Bool> {
@@ -356,5 +380,31 @@ struct SiteEditorSheet: View {
         // An archived site's extra work is no longer counted as waiting.
         Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settings) }
         dismiss()
+    }
+}
+
+/// The pages the site's settings push: by value, inside the sheet's stack.
+enum SiteEditorRoute: Hashable {
+    case arrival
+    case workDays
+}
+
+/// The days the site is worked, on a page of their own.
+private struct SiteWorkDaysScreen: View {
+    @Binding var days: Set<Int>
+    let isReadOnly: Bool
+
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        Form {
+            Section {
+                WorkDaysPicker(days: $days, formatting: settingsStore.dateFormatting, isDisabled: isReadOnly)
+            } footer: {
+                Text("Reminders only nag on these days. With none ticked, they go by the days the site was worked lately.")
+            }
+        }
+        .navigationTitle("Work days here")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

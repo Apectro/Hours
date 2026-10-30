@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Settings › Leave: the vacation allowance and the leave year it belongs to.
+/// Settings › Leave (1.2 redesign, board 16): the year as it stands, then
+/// the vacation allowance and the leave year it belongs to.
 ///
 /// For the primary job only. The figures it feeds — the Insights card and the
 /// line in the day editor — come from `LeaveCalculator`.
@@ -9,9 +10,22 @@ struct LeaveSettingsScreen: View {
 
     var body: some View {
         Form {
+            // The year as it stands: what is left, taken and booked.
+            Section {
+                LeaveBalanceCard(
+                    date: CalendarDate.today(in: calendar),
+                    settings: settingsStore.settings,
+                    calendar: calendar,
+                    alwaysShows: true,
+                    identifier: nil
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            }
+
             Section {
                 DaysStepperRow(
-                    title: String(localized: "Vacation days a year"),
+                    title: String(localized: "Days a year"),
                     days: settingsStore.binding(\.leave.allowanceDays),
                     range: 0...60
                 )
@@ -21,15 +35,11 @@ struct LeaveSettingsScreen: View {
                     value: settingsStore.binding(\.leave.yearStart),
                     formatting: settingsStore.dateFormatting
                 )
-            } header: {
-                Text("Allowance")
-            } footer: {
-                Text("What your contract gives each leave year. Half days are fine.")
-            }
-
-            Section {
                 DaysStepperRow(
-                    title: String(localized: "Carried over from last year"),
+                    title: String(
+                        localized: "Carried over from \(String(currentLeaveYear - 1))",
+                        comment: "Settings › Leave; the value is last leave year, such as 2025"
+                    ),
                     days: carriedOverBinding,
                     range: 0...60
                 )
@@ -47,9 +57,9 @@ struct LeaveSettingsScreen: View {
                     )
                 }
             } header: {
-                Text("Carry-over")
+                Text("Your contract")
             } footer: {
-                Text("Days carried over are used first. Any not taken by the expiry date are lost. The figure belongs to this leave year, so it does not carry into the next one by itself.")
+                Text("Half days are fine. Leave days come from the calendar. Days carried over are used first, and any not taken by the expiry date are lost.")
             }
         }
         .navigationTitle("Leave")

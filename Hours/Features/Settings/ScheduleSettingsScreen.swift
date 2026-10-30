@@ -23,30 +23,31 @@ struct ScheduleSettingsScreen: View {
                 durationFormatting: settings.displayFormatting
             )
 
+            Section {
+                // Also on the job's own editor. Here too because this is
+                // where someone with one job looks after their hours.
+                if settings.features.trackBreaks {
+                    Toggle("Breaks are paid", isOn: primaryBreaksArePaid)
+                        .accessibilityIdentifier("breaks-are-paid")
+                }
+                NavigationLink {
+                    ScheduleChangesScreen()
+                } label: {
+                    LabeledContent("Changes over time") {
+                        Text(verbatim: "\(changeCount)")
+                    }
+                }
+                .accessibilityIdentifier("schedule-changes")
+            } footer: {
+                Text("Changed jobs or hours? Save the change “from a date” so older months keep their old hours.")
+            }
+
             ShiftDefaultsSection(
                 schedule: editedSchedule,
                 calendar: settingsStore.workCalendar,
                 tracksBreaks: settings.features.trackBreaks,
                 breaksArePaid: settings.primaryJob.breaksArePaid,
                 durationFormatting: settings.displayFormatting
-            )
-
-            // Also on the job's own editor. Here too because this is where
-            // someone with one job looks after their hours, and the footer
-            // above, which the switch changes, is on this screen.
-            if settings.features.trackBreaks {
-                PaidBreaksSection(breaksArePaid: primaryBreaksArePaid)
-            }
-
-            ScheduleHistorySection(
-                history: settings.primarySchedules,
-                today: today,
-                formatting: settingsStore.dateFormatting,
-                durationFormatting: settings.displayFormatting,
-                onRemove: { date in
-                    settingsStore.update { $0.primarySchedules.removeChange(from: date) }
-                    draft = nil
-                }
             )
 
             if settings.tracksMultipleJobs {
@@ -99,6 +100,8 @@ struct ScheduleSettingsScreen: View {
 
     private var hasChanges: Bool { draft.map { $0 != current } ?? false }
 
+    private var changeCount: Int { max(0, settings.primarySchedules.versions.count - 1) }
+
     private var editedSchedule: Binding<WorkSchedule> {
         Binding(
             get: { draft ?? current },
@@ -114,5 +117,35 @@ struct ScheduleSettingsScreen: View {
             get: { settingsStore.settings.primaryJob.breaksArePaid },
             set: { newValue in settingsStore.update { $0.setPrimaryBreaksArePaid(newValue) } }
         )
+    }
+}
+
+/// Working hours › Changes over time: each change of the week, newest
+/// first, each of which can be taken back.
+private struct ScheduleChangesScreen: View {
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        let settings = settingsStore.settings
+        List {
+            if settings.primarySchedules.hasChanges {
+                ScheduleHistorySection(
+                    history: settings.primarySchedules,
+                    today: CalendarDate.today(in: settingsStore.workCalendar),
+                    formatting: settingsStore.dateFormatting,
+                    durationFormatting: settings.displayFormatting,
+                    onRemove: { date in
+                        settingsStore.update { $0.primarySchedules.removeChange(from: date) }
+                    }
+                )
+            } else {
+                Section {
+                    Text("No changes yet. When you save a new week, you choose the day it starts, and it shows here.")
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+        }
+        .navigationTitle("Changes over time")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

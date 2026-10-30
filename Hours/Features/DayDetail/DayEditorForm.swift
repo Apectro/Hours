@@ -1,6 +1,9 @@
 import SwiftUI
 
-/// The editor's fields.
+/// The editor's fields (1.2, mockup DayEditor): Worked · Away · Day off on
+/// top, then the times or the kind of absence, a big Worked total with the
+/// day's overtime, "+ Another block of work", and "Allowance, km, note…",
+/// which opens everything else on a page of its own (`DayExtrasScreen`).
 ///
 /// Every section is conditional on a feature toggle: a switched-off feature
 /// leaves no trace here, rather than sitting greyed out taking up space.
@@ -10,6 +13,9 @@ struct DayEditorForm: View {
     let settings: AppSettings
     let calendar: Calendar
     let formatting: CalendarFormatting
+    /// The type the day resolves to with nothing chosen: the schedule, or a
+    /// public holiday. Choosing a kind it already is leaves the day automatic.
+    var automaticType: DayTypeDefinition? = nil
     /// Names for the shifts that come from a site day, by site.
     var siteNames: [UUID: String] = [:]
     /// Opens a site shift's day on its site, where it is changed.
@@ -19,90 +25,81 @@ struct DayEditorForm: View {
     /// Vacation left in the leave year with this day as drafted; nil unless
     /// the day is a vacation day.
     var vacationLeft: HalfDays? = nil
-
-    /// "More" opened by hand. It is also open whenever something in it is
-    /// in use, so nothing hidden is ever quietly changing the day.
-    @State private var showsMore = false
+    /// "Allowance, km, note…": the extras and corrections, pushed.
+    var onOpenExtras: (() -> Void)? = nil
 
     private var formatter: DurationFormatting { settings.displayFormatting }
     /// The week in force on the day being edited: a day before a change of
     /// contract is offered the old contract's times.
     private var schedule: WorkSchedule { settings.primarySchedule(on: draft.date) }
+    private var contracted: Int { settings.contractedMinutes(on: draft.date, calendar: calendar) }
 
     var body: some View {
         Form {
-            summarySection
-            dayTypeSection
-            workSections
-            allowanceSection
-            detailsSection
-            moreSections
+            kindSection
+            ForEach(draft.shifts.filter { $0.siteID != nil }) { shift in
+                siteShiftSection(shift)
+            }
+            switch kind {
+            case .worked:
+                workSections
+            case .away, .dayOff:
+                absenceSections
+            }
+            totalsSection
+            linksSection
         }
         .scrollDismissesKeyboard(.interactively)
-        // A day loaded with something under "More" in use opens it, and it
-        // stays open after that thing is put back, rather than folding away
-        // under the finger that just changed it.
-        .onChange(of: moreIsInUse, initial: true) { _, inUse in
-            if inUse { showsMore = true }
-        }
     }
 
-    // MARK: - Summary
+    // MARK: - Worked · Away · Day off
 
-    private var summarySection: some View {
-        Section {
-            DayResultHeader(computation: computation, settings: settings, earnings: earnings)
-                .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large, bottom: Metrics.medium, trailing: Metrics.large))
-        }
-    }
+    private var kind: DayKind { DayKind.of(computation.dayType) }
 
-    // MARK: - Day type
-
-    private var dayTypeSection: some View {
-        Section {
-            DayTypeMenu(
-                selection: $draft.dayTypeID,
-                catalog: settings.dayTypeCatalog,
-                resolved: computation.dayType
-            )
-            if let holidayName = computation.holidayName {
-                if isPublicHolidayOff {
-                    // "Christmas Day · public holiday", and whether it was
-                    // worked. Worked hours come on top of the paid holiday.
-                    LabeledContent("Holiday", value: String(
-                        localized: "\(holidayName) · public holiday",
-                        comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
-                    ))
-                    Picker("Public holiday", selection: workedHolidayBinding) {
-                        Text("Day off (paid)").tag(false)
-                        Text("I worked").tag(true)
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityIdentifier("day-editor-holiday-worked")
-                } else {
-                    LabeledContent("Holiday", value: holidayName)
+    private var kindBinding: Binding<DayKind> {
+        Binding(
+            get: { kind },
+            set: { newKind in
+                guard newKind != kind else { return }
+                var applied = newKind.apply(
+                    to: draft,
+                    automatic: automaticType ?? settings.dayTypeCatalog.definition(for: .work),
+                    catalog: settings.dayTypeCatalog,
+                    prefilled: settings.prefilledShift(on: draft.date),
+                    contractedMinutes: contracted
+                )
+                // Hours typed as a figure: no times to give the day.
+                if !settings.features.autoCalculateWorkedHours && newKind == .worked {
+                    applied.shifts = draft.shifts
                 }
+                withAnimation(.snappy(duration: 0.2)) { draft = applied }
             }
-        } header: {
-            Text("Day type")
+        )
+    }
+
+    private var kindSection: some View {
+        Section {
+            Picker("Kind of day", selection: kindBinding) {
+                Text("Worked").tag(DayKind.worked)
+                Text("Away").tag(DayKind.away)
+                Text("Day off").tag(DayKind.dayOff)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .accessibilityIdentifier("day-editor-kind")
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         } footer: {
-            if let vacationLeft {
+            if let holidayName = computation.holidayName {
                 Text(String(
-                    localized: "Vacation left after this: \(vacationLeft.localized)",
-                    comment: "Day editor, under the day type when it is Vacation; a number of days such as 17 or 17.5"
+                    localized: "\(holidayName) · public holiday",
+                    comment: "Day editor: the holiday's name, e.g. Christmas Day · public holiday"
                 ))
-                .accessibilityIdentifier("day-editor-vacation-left")
             }
         }
     }
 
-    // MARK: - Work
-
-    /// True once the day is one where times make sense, or the user has already
-    /// entered some.
-    private var showsTimes: Bool {
-        computation.dayType.showsTimesByDefault || !manualShifts.isEmpty
-    }
+    // MARK: - Worked
 
     /// The shifts typed in here. Site shifts are written by their site day
     /// and only shown (see `siteShiftSection`).
@@ -112,14 +109,6 @@ struct DayEditorForm: View {
 
     @ViewBuilder
     private var workSections: some View {
-        // Shown in every mode, the hand-typed one included: that is exactly
-        // when the calendar is not counting them, and saying so needs them on
-        // screen. Keyed by the shift's id, which is its site's id and so
-        // unique within a day; manual shifts are in their own ForEach below.
-        ForEach(draft.shifts.filter { $0.siteID != nil }) { shift in
-            siteShiftSection(shift)
-        }
-
         if !settings.features.autoCalculateWorkedHours {
             Section {
                 DurationStepperRow(
@@ -129,8 +118,6 @@ struct DayEditorForm: View {
                     step: 5,
                     formatting: formatter
                 )
-            } header: {
-                Text("Work")
             }
         } else if manualShifts.isEmpty {
             Section {
@@ -140,46 +127,32 @@ struct DayEditorForm: View {
                     Label("Add times", systemImage: "clock")
                 }
                 .accessibilityIdentifier("day-editor-add-hours")
-            } footer: {
-                if !showsTimes {
-                    Text("You can add times to any day, holidays too.")
-                }
             }
         } else {
-            // Keyed by the shift's own id rather than by its position.
-            //
-            // Every row here binds straight into draft.shifts[index], and
-            // "Remove this block" deletes from that same array. Keyed by
-            // position, deleting the middle of three shifts renumbers the one
-            // after it, so SwiftUI keeps the view it already had and evaluates
-            // it against an index that is now past the end. Shift has carried a
-            // stable id since it was written; this uses it.
-            //
-            // Site shifts are left out here but keep their place in the array,
-            // so every index below still points into draft.shifts itself.
-            ForEach(Array(draft.shifts.enumerated()).filter { $0.element.siteID == nil }, id: \.element.id) { index, _ in
-                shiftSection(at: index)
-            }
-            Section {
-                Button {
-                    draft.shifts.append(defaultShift())
-                } label: {
-                    Label("Add another block", systemImage: "plus.circle")
-                }
-                .accessibilityIdentifier("day-editor-add-block")
-            } footer: {
-                Text("A second block records a split shift — the time between blocks is neither worked nor a break.")
-            }
+            shiftSections
+        }
+    }
+
+    /// One section per block of your own.
+    ///
+    /// Keyed by the shift's own id rather than by its position. Every row
+    /// here binds straight into draft.shifts[index], and "Remove this block"
+    /// deletes from that same array. Keyed by position, deleting the middle
+    /// of three shifts renumbers the one after it, so SwiftUI keeps the view
+    /// it already had and evaluates it against an index that is now past the
+    /// end. Site shifts are left out here but keep their place in the array,
+    /// so every index below still points into draft.shifts itself.
+    private var shiftSections: some View {
+        ForEach(Array(draft.shifts.enumerated()).filter { $0.element.siteID == nil }, id: \.element.id) { index, _ in
+            shiftSection(at: index)
         }
     }
 
     @ViewBuilder
     private func shiftSection(at index: Int) -> some View {
-        // Belt as well as braces. Stable ids stop the renumbering that caused
-        // the problem, but every row below binds into draft.shifts[index] and
-        // a binding read one frame after a removal would still be out of
-        // range. A section that briefly does not draw is a far better outcome
-        // than a crash in the middle of someone's timesheet.
+        // Belt as well as braces: a binding read one frame after a removal
+        // would still be out of range. A section that briefly does not draw
+        // is a far better outcome than a crash in someone's timesheet.
         if index < draft.shifts.count, draft.shifts[index].siteID == nil {
             Section {
                 OptionalTimeRow(
@@ -195,35 +168,41 @@ struct DayEditorForm: View {
                     fallback: schedule.defaultEnd
                 )
 
-                if settings.tracksMultipleJobs {
-                    jobPicker(at: index)
-                }
-
                 if settings.features.trackBreaks {
                     breakRows(at: index)
                 }
 
+                if settings.tracksMultipleJobs {
+                    jobPicker(at: index)
+                }
+
                 if manualShifts.count > 1 {
                     Button("Remove this block", role: .destructive) {
-                        // Guarded because the button's closure captures the index
-                        // it was built with, and two quick taps on two different
-                        // blocks both fire against the longer array.
+                        // Guarded because the closure captures the index it
+                        // was built with, and two quick taps on two blocks
+                        // both fire against the longer array.
                         guard index < draft.shifts.count else { return }
                         draft.shifts.remove(at: index)
                     }
+                    .accessibilityIdentifier("day-editor-remove-block")
                 }
             } header: {
-                Text(sectionTitle(at: index))
+                if let title = sectionTitle(at: index) {
+                    Text(verbatim: title)
+                }
             } footer: {
-                if index == 0 {
-                    Text("An end time earlier than the start is treated as an overnight shift.")
+                if index == firstManualIndex {
+                    Text("An end before the start counts as a night shift.")
                 }
             }
         }
     }
 
+    private var firstManualIndex: Int? {
+        draft.shifts.firstIndex { $0.siteID == nil }
+    }
+
     /// Only ever shown when there is more than one job to choose between.
-    @ViewBuilder
     private func jobPicker(at index: Int) -> some View {
         Picker("Job", selection: jobBinding(at: index)) {
             ForEach(settings.activeJobs) { job in
@@ -236,9 +215,8 @@ struct DayEditorForm: View {
         Binding(
             get: {
                 guard index < draft.shifts.count else { return settings.primaryJob.id }
-                // A shift recorded before jobs existed carries no id; it belongs
-                // to the primary job, and saying so explicitly is what makes the
-                // picker show the right thing.
+                // A shift recorded before jobs existed carries no id; it
+                // belongs to the primary job.
                 return draft.shifts[index].jobID ?? settings.primaryJob.id
             },
             set: { newValue in
@@ -248,18 +226,20 @@ struct DayEditorForm: View {
         )
     }
 
-    private func sectionTitle(at index: Int) -> String {
-        guard manualShifts.count > 1 else { return "Work" }
-        guard settings.tracksMultipleJobs, index < draft.shifts.count else {
-            // Counted among the typed-in blocks only, so a site shift ahead
-            // of them does not make the first one "Block 2".
-            let number = draft.shifts.prefix(index).filter { $0.siteID == nil }.count + 1
-            return String(
-                localized: "Block \(number)",
-                comment: "Heading for the second and later blocks of a split shift"
-            )
-        }
-        return settings.job(draft.shifts[index].jobID).displayName()
+    /// "Block 2 · Overtime job" once there is more than one block; nothing
+    /// over a single block, as the mockup's working day.
+    private func sectionTitle(at index: Int) -> String? {
+        guard manualShifts.count > 1, index < draft.shifts.count else { return nil }
+        // Counted among the typed-in blocks only, so a site shift ahead of
+        // them does not make the first one "Block 2".
+        let number = draft.shifts.prefix(index).filter { $0.siteID == nil }.count + 1
+        let block = String(
+            localized: "Block \(number)",
+            comment: "Heading for the second and later blocks of a split shift"
+        )
+        guard settings.tracksMultipleJobs else { return block }
+        let job = settings.job(draft.shifts[index].jobID).displayName()
+        return [block, job].joined(separator: " · ")
     }
 
     private func defaultShift() -> Shift {
@@ -269,35 +249,12 @@ struct DayEditorForm: View {
         return Shift(
             start: isFirst ? schedule.defaultStart : schedule.defaultEnd,
             end: nil,
-            breaks: isFirst && schedule.defaultBreakMinutes > 0
+            breaks: isFirst && schedule.defaultBreakMinutes > 0 && settings.features.trackBreaks
                 ? [BreakSpan.duration(schedule.defaultBreakMinutes)]
                 : [],
-            // Carry the previous block's job forward: a split shift is usually
-            // two halves of the same day at the same place.
+            // A split shift is usually two halves of the same day at the
+            // same place.
             jobID: manualShifts.last?.jobID ?? (settings.tracksMultipleJobs ? settings.primaryJob.id : nil)
-        )
-    }
-
-    /// A public holiday off, as a holiday rule resolves it: the place for
-    /// "Day off (paid)" or "I worked".
-    private var isPublicHolidayOff: Bool {
-        computation.holidayName != nil
-            && computation.dayType.id == .holiday
-            && settings.features.autoCalculateWorkedHours
-    }
-
-    /// Worked means times on the day; the type stays a holiday either way,
-    /// so the holiday's credit is kept and the hours come on top.
-    private var workedHolidayBinding: Binding<Bool> {
-        Binding(
-            get: { !manualShifts.isEmpty },
-            set: { worked in
-                if worked {
-                    if manualShifts.isEmpty { draft.shifts.append(settings.prefilledShift(on: draft.date)) }
-                } else {
-                    draft.shifts = draft.shifts.filter { $0.siteID != nil }
-                }
-            }
         )
     }
 
@@ -306,6 +263,217 @@ struct DayEditorForm: View {
             get: { draft.manualWorkedMinutes ?? 0 },
             set: { draft.manualWorkedMinutes = $0 }
         )
+    }
+
+    // MARK: - Away and day off
+
+    @ViewBuilder
+    private var absenceSections: some View {
+        let types = settings.dayTypeCatalog.types(of: kind)
+        if types.count > 1 || kind == .away {
+            Section {
+                DayTypeGrid(
+                    types: types,
+                    selected: computation.dayType.id,
+                    onSelect: choose
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            } footer: {
+                if let vacationLeft {
+                    Text(String(
+                        localized: "Vacation left after this: \(vacationLeft.localized)",
+                        comment: "Day editor, under the day type when it is Vacation; a number of days such as 17 or 17.5"
+                    ))
+                    .accessibilityIdentifier("day-editor-vacation-left")
+                }
+            }
+        }
+
+        Section {
+            if showsHalfDay {
+                Toggle("Half day", isOn: halfDayBinding)
+                    .accessibilityIdentifier("day-editor-half-day")
+            }
+            LabeledContent("Counts as") {
+                Text(verbatim: countsAs)
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+            .accessibilityIdentifier("day-editor-counts-as")
+        } footer: {
+            Text(verbatim: explanation)
+        }
+
+        if manualShifts.isEmpty || !settings.features.autoCalculateWorkedHours {
+            if settings.features.autoCalculateWorkedHours {
+                Section {
+                    // Hours on top of the absence: a public holiday worked,
+                    // a half day of leave with the morning on site. The type
+                    // stays, so the absence is still paid.
+                    Button {
+                        draft.shifts.append(settings.prefilledShift(on: draft.date))
+                    } label: {
+                        Text("+ I still worked some hours")
+                            .fontWeight(.semibold)
+                    }
+                    .accessibilityIdentifier("day-editor-holiday-worked")
+                }
+            }
+        } else {
+            shiftSections
+            Section {
+                Button("Remove these hours", role: .destructive) {
+                    draft.shifts = draft.shifts.filter { $0.siteID != nil }
+                }
+                .accessibilityIdentifier("day-editor-remove-hours")
+            }
+        }
+    }
+
+    private func choose(_ definition: DayTypeDefinition) {
+        withAnimation(.snappy(duration: 0.15)) {
+            draft.dayTypeID = definition.id == automaticType?.id ? nil : definition.id
+            // A day of leave has no hours in it unless you add them:
+            // switching type inside Away keeps whatever is already there.
+            if !definition.showsTimesByDefault, draft.manualWorkedMinutes != nil {
+                draft.manualWorkedMinutes = nil
+            }
+        }
+    }
+
+    /// Half a day of paid absence: expected hours at half of the week's.
+    private var showsHalfDay: Bool {
+        settings.features.trackExpectedHours
+            && settings.features.allowPerDayExpectedOverride
+            && computation.dayType.expectation == .creditedAbsence
+            && contracted > 0
+    }
+
+    private var halfDayBinding: Binding<Bool> {
+        Binding(
+            get: { HalfDay.isHalf(expectedOverride: draft.expectedOverrideMinutes, contracted: contracted) },
+            set: { isOn in
+                draft.expectedOverrideMinutes = isOn ? HalfDay.minutes(contracted: contracted) : nil
+            }
+        )
+    }
+
+    /// "8h 30m paid", "−8h from your balance" or "Nothing paid".
+    private var countsAs: String {
+        if computation.creditedMinutes > 0 {
+            return String(
+                localized: "\(formatter.string(computation.creditedMinutes)) paid",
+                comment: "Day editor, Counts as: the hours an absence is paid at, e.g. 8h 30m paid"
+            )
+        }
+        if computation.dayType.expectation == .scheduled, computation.expectedMinutes > 0 {
+            return String(
+                localized: "\(formatter.signedString(-computation.expectedMinutes)) from your balance",
+                comment: "Day editor, Counts as: time off taken from overtime, e.g. −8h from your balance"
+            )
+        }
+        return String(localized: "Nothing paid")
+    }
+
+    /// What the chosen type means, in a sentence.
+    private var explanation: String {
+        let type = computation.dayType
+        switch type.expectation {
+        case .creditedAbsence:
+            let share = "\(type.paidPercent)%"
+            var text = type.paidPercent >= 100
+                ? String(localized: "Paid as a normal day.")
+                : String(
+                    localized: "Paid at \(share).",
+                    comment: "Day editor, under an absence paid at a percentage; the value is like 70%"
+                )
+            if type.employerPaysFirst42Days {
+                text += " " + String(localized: "The employer pays the first 42 days.")
+            }
+            return text
+        case .scheduled:
+            return String(localized: "The day's hours are expected and come off your overtime.")
+        case .zero:
+            return String(localized: "Nothing is expected, so your balance doesn't change.")
+        }
+    }
+
+    // MARK: - Totals and the rest
+
+    private var totalsSection: some View {
+        Section {
+            DayResultHeader(computation: computation, settings: settings, earnings: earnings)
+                .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large, bottom: Metrics.medium, trailing: Metrics.large))
+        }
+    }
+
+    private var linksSection: some View {
+        Section {
+            if kind == .worked && settings.features.autoCalculateWorkedHours && !manualShifts.isEmpty {
+                Button {
+                    draft.shifts.append(defaultShift())
+                } label: {
+                    Text("+ Another block of work")
+                        .fontWeight(.semibold)
+                }
+                .accessibilityIdentifier("day-editor-add-block")
+            }
+            if kind == .worked {
+                // Every type, Automatic included: the grid above only
+                // shows a kind's own types, and a day can still be any.
+                DayTypeMenu(
+                    selection: $draft.dayTypeID,
+                    catalog: settings.dayTypeCatalog,
+                    resolved: computation.dayType
+                )
+            }
+            if let onOpenExtras {
+                Button(action: onOpenExtras) {
+                    HStack(spacing: Metrics.small) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Allowance, km, note…")
+                                .fontWeight(.semibold)
+                            if !extrasSummary.isEmpty {
+                                Text(verbatim: extrasSummary)
+                                    .font(.footnote)
+                                    .foregroundStyle(.hoursSecondaryText)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                            .accessibilityHidden(true)
+                    }
+                    .contentShape(Rectangle())
+                }
+                // The identifier the old "More" row had: the tests that
+                // open the day's rarer fields still find them by it.
+                .accessibilityIdentifier("day-editor-more")
+            }
+        }
+    }
+
+    /// What is set on the extras page, named, so nothing hidden there is
+    /// quietly changing the day.
+    private var extrasSummary: String {
+        var parts: [String] = []
+        if draft.hasFieldAllowance { parts.append(String(localized: "Field allowance")) }
+        if draft.kilometres > 0 {
+            parts.append(String(
+                localized: "\(draft.kilometres) km",
+                comment: "A distance driven; the value is a number of kilometres"
+            ))
+        }
+        if draft.travelMinutes > 0 { parts.append(String(localized: "Travel time")) }
+        if !draft.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { parts.append(String(localized: "Note")) }
+        if !draft.tags.isEmpty { parts.append(String(localized: "Tags")) }
+        if draft.expectedOverrideMinutes != nil && !HalfDay.isHalf(expectedOverride: draft.expectedOverrideMinutes, contracted: contracted) {
+            parts.append(String(localized: "Expected hours"))
+        }
+        if draft.adjustmentMinutes != 0 || draft.manualBalanceMinutes != nil { parts.append(String(localized: "Corrections")) }
+        if !draft.isIncluded { parts.append(String(localized: "Not counted")) }
+        return parts.joined(separator: " · ")
     }
 
     // MARK: - Site shifts
@@ -353,13 +521,8 @@ struct DayEditorForm: View {
 
     /// A single stepper cannot express "12:00–12:30", so a shift holding a
     /// timed break gets the full list whether or not multiple breaks are on.
-    ///
-    /// Without this the stepper read such a break as 0h — the sample month
-    /// records lunch as 12:00–12:30 and the editor showed no break at all —
-    /// and, worse, its setter replaced every break with one plain duration, so
-    /// a single tap on "+" destroyed the times. The flag decides whether
-    /// someone may *add* further breaks. It was never meant to decide whether
-    /// what they already recorded stays editable.
+    /// The flag decides whether someone may *add* further breaks; it never
+    /// decides whether what they already recorded stays editable.
     private func needsBreakList(at index: Int) -> Bool {
         guard index < draft.shifts.count else { return false }
         return settings.features.multipleBreaksPerDay
@@ -410,8 +573,7 @@ struct DayEditorForm: View {
             set: { minutes in
                 guard index < draft.shifts.count else { return }
                 // Safe to replace wholesale only because needsBreakList(at:)
-                // sends any shift with a timed break to the list instead, so
-                // nothing here can be holding times to lose.
+                // sends any shift with a timed break to the list instead.
                 draft.shifts[index].breaks = minutes > 0 ? [BreakSpan.duration(minutes)] : []
             }
         )
@@ -424,266 +586,62 @@ struct DayEditorForm: View {
         }
         return TimeOfDay(minutes: (start.minutes + 240) % TimeOfDay.minutesPerDay)
     }
+}
 
-    // MARK: - More
+/// The day types of one kind as a two-column grid of buttons, each with its
+/// colour (mockup DayEditor, Away). The chosen one is outlined in orange,
+/// the colour rule's "away".
+struct DayTypeGrid: View {
+    let types: [DayTypeDefinition]
+    let selected: DayTypeID
+    let onSelect: (DayTypeDefinition) -> Void
 
-    /// Expected hours, corrections and whether the day counts: the rare
-    /// cases, folded under one row at the bottom so the common day is times
-    /// and Save.
-    @ViewBuilder
-    private var moreSections: some View {
-        if !moreIsInUse {
-            Section {
-                DisclosureHeader(
-                    title: String(localized: "More"),
-                    summary: moreSummary,
-                    isExpanded: showsMore
-                ) {
-                    withAnimation(.snappy(duration: 0.2)) { showsMore.toggle() }
-                }
-                .accessibilityIdentifier("day-editor-more")
-            }
-        }
-        if showsMore || moreIsInUse {
-            if settings.features.trackExpectedHours { expectedSection }
-            if settings.features.allowManualAdjustments { adjustmentSection }
-            inclusionSection
-        }
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.highContrast) private var highContrast
+
+    private var columns: [GridItem] {
+        let count = dynamicTypeSize.isAccessibilitySize ? 1 : 2
+        return Array(repeating: GridItem(.flexible(), spacing: Metrics.small), count: count)
     }
 
-    /// Anything under "More" that changes the day as drafted.
-    private var moreIsInUse: Bool {
-        draft.expectedOverrideMinutes != nil
-            || draft.adjustmentMinutes != 0
-            || draft.manualBalanceMinutes != nil
-            || !draft.isIncluded
-    }
-
-    /// What is inside, named, while it is closed.
-    private var moreSummary: String {
-        var parts: [String] = []
-        if settings.features.trackExpectedHours { parts.append(String(localized: "Expected hours")) }
-        if settings.features.allowManualAdjustments { parts.append(String(localized: "Corrections")) }
-        parts.append(String(localized: "Count this day"))
-        return parts.joined(separator: " · ")
-    }
-
-    // MARK: - Expected
-
-    private var expectedSection: some View {
-        Section {
-            if settings.features.allowPerDayExpectedOverride {
-                Toggle("Custom expected hours", isOn: expectedOverrideToggle)
-                if draft.expectedOverrideMinutes != nil {
-                    DurationStepperRow(
-                        title: String(localized: "Expected"),
-                        minutes: expectedOverrideBinding,
-                        range: 0...(24 * 60),
-                        step: 15,
-                        formatting: formatter
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: Metrics.small) {
+            ForEach(types) { definition in
+                let isOn = definition.id == selected
+                Button {
+                    onSelect(definition)
+                } label: {
+                    HStack(spacing: Metrics.small) {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(definition.tint.color)
+                            .frame(width: 14, height: 14)
+                            .accessibilityHidden(true)
+                        Text(definition.displayName())
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(isOn ? Color.hoursAttention : Color.primary)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, Metrics.medium)
+                    .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+                    .background(
+                        isOn ? Color.hoursAttentionFill.opacity(0.12) : Color.hoursSurface,
+                        in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
                     )
-                }
-            }
-            if draft.expectedOverrideMinutes == nil {
-                LabeledContent("Expected") {
-                    Text(formatter.string(computation.expectedMinutes))
-                        .font(.hoursFigure(.body, weight: .medium))
-                }
-            }
-        } header: {
-            Text("Expected hours")
-        } footer: {
-            if draft.expectedOverrideMinutes == nil {
-                Text(String(
-                    localized: "From your weekly schedule for \(formatting.weekdayName(for: draft.date.weekday(in: calendar))).",
-                    comment: "Where the expected hours came from; the value is a weekday name"
-                ))
-            }
-        }
-    }
-
-    private var expectedOverrideToggle: Binding<Bool> {
-        Binding(
-            get: { draft.expectedOverrideMinutes != nil },
-            set: { isOn in
-                draft.expectedOverrideMinutes = isOn ? computation.expectedMinutes : nil
-            }
-        )
-    }
-
-    private var expectedOverrideBinding: Binding<Int> {
-        Binding(
-            get: { draft.expectedOverrideMinutes ?? 0 },
-            set: { draft.expectedOverrideMinutes = $0 }
-        )
-    }
-
-    // MARK: - Adjustment
-
-    private var adjustmentSection: some View {
-        Section {
-            DurationStepperRow(
-                title: String(localized: "Adjustment"),
-                minutes: $draft.adjustmentMinutes,
-                range: (-12 * 60)...(12 * 60),
-                step: 15,
-                signed: true,
-                formatting: formatter
-            )
-            if draft.adjustmentMinutes != 0 {
-                Picker("Reason", selection: $draft.adjustmentReason) {
-                    ForEach(AdjustmentReason.allCases) { reason in
-                        Label(reason.title, systemImage: reason.symbolName).tag(reason)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
+                            .strokeBorder(
+                                isOn ? Color.hoursAttention : Color(uiColor: .separator),
+                                lineWidth: isOn || highContrast ? 1.5 : 1
+                            )
                     }
+                    .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                 }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isOn ? [.isSelected] : [])
+                .accessibilityIdentifier("day-editor-type-\(definition.id.rawValue)")
             }
-
-            if !settings.features.autoCalculateOvertime {
-                Toggle("Set balance manually", isOn: manualBalanceToggle)
-                if draft.manualBalanceMinutes != nil {
-                    DurationStepperRow(
-                        title: String(localized: "Balance"),
-                        minutes: manualBalanceBinding,
-                        range: (-24 * 60)...(24 * 60),
-                        step: 15,
-                        signed: true,
-                        formatting: formatter
-                    )
-                }
-            }
-        } header: {
-            Text("Corrections")
-        } footer: {
-            Text(draft.adjustmentMinutes == 0
-                 ? "An adjustment changes the balance without changing the hours you worked."
-                 : draft.adjustmentReason.explanation)
-        }
-    }
-
-    private var manualBalanceToggle: Binding<Bool> {
-        Binding(
-            get: { draft.manualBalanceMinutes != nil },
-            set: { isOn in draft.manualBalanceMinutes = isOn ? computation.balanceMinutes : nil }
-        )
-    }
-
-    private var manualBalanceBinding: Binding<Int> {
-        Binding(
-            get: { draft.manualBalanceMinutes ?? 0 },
-            set: { draft.manualBalanceMinutes = $0 }
-        )
-    }
-
-    // MARK: - Allowance and travel
-
-    /// The field allowance, kilometres in your own car and travel time, only
-    /// while they are tracked (Settings › Allowance & travel). What a site
-    /// day gives you is not typed here: it rides on its site shift and is
-    /// named in the footer, so it is never written over what you put in.
-    @ViewBuilder
-    private var allowanceSection: some View {
-        if settings.allowance.isEnabled {
-            Section {
-                Toggle("Field allowance", isOn: $draft.hasFieldAllowance)
-                    .accessibilityIdentifier("day-editor-allowance")
-                LabeledContent("Kilometres") {
-                    TextField("Kilometres", text: kilometresBinding)
-                        .keyboardType(.numberPad)
-                        .multilineTextAlignment(.trailing)
-                        .font(.hoursFigure(.body, weight: .medium))
-                        .accessibilityIdentifier("day-editor-kilometres")
-                }
-                DurationStepperRow(
-                    title: String(localized: "Travel time"),
-                    minutes: $draft.travelMinutes,
-                    range: 0...(12 * 60),
-                    step: 5,
-                    formatting: DurationFormatting(style: .clock)
-                )
-                .accessibilityIdentifier("day-editor-travel")
-            } header: {
-                Text("Allowance & travel")
-            } footer: {
-                VStack(alignment: .leading, spacing: Metrics.tiny) {
-                    if siteGivesAllowance {
-                        Text("Your site day gives the field allowance.")
-                    }
-                    if siteKilometres > 0 {
-                        Text(String(
-                            localized: "Plus \(siteKilometres) km from your site day.",
-                            comment: "Day editor, under Kilometres; the value is a number of kilometres"
-                        ))
-                    }
-                    Text(settings.allowance.travelCountsAsWork
-                         ? "Travel time counts as work."
-                         : "Travel time is recorded, not counted as work.")
-                }
-            }
-        }
-    }
-
-    /// Plain text read on every keystroke, digits only, so Save never
-    /// misses what was just typed (a formatted number field hands its value
-    /// over only when it loses focus, and a number pad has no Return). An
-    /// empty field is none.
-    private var kilometresBinding: Binding<String> {
-        Binding(
-            get: { draft.kilometres > 0 ? "\(draft.kilometres)" : "" },
-            set: { draft.kilometres = Kilometres.parse($0) }
-        )
-    }
-
-    private var siteGivesAllowance: Bool {
-        draft.shifts.contains { $0.siteID != nil && $0.fieldAllowance }
-    }
-
-    private var siteKilometres: Int {
-        draft.shifts.filter { $0.siteID != nil }.reduce(0) { $0 + $1.kilometres }
-    }
-
-    // MARK: - Details
-
-    @ViewBuilder
-    private var detailsSection: some View {
-        if settings.features.trackNotes || settings.features.trackLocation || settings.features.trackTags {
-            Section("Details") {
-                if settings.features.trackNotes {
-                    TextField("Notes", text: $draft.note, axis: .vertical)
-                        .lineLimit(1...5)
-                }
-                if settings.features.trackLocation {
-                    TextField("Location", text: $draft.location)
-                        .textInputAutocapitalization(.words)
-                }
-                if settings.features.trackTags {
-                    TextField("Tags, separated by commas", text: tagsBinding)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
-            }
-        }
-    }
-
-    private var tagsBinding: Binding<String> {
-        Binding(
-            get: { draft.tags.joined(separator: ", ") },
-            set: { text in
-                draft.tags = text
-                    .components(separatedBy: ",")
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty }
-            }
-        )
-    }
-
-    // MARK: - Inclusion
-
-    private var inclusionSection: some View {
-        Section {
-            Toggle("Count this day", isOn: $draft.isIncluded)
-                .accessibilityIdentifier("day-editor-count-day")
-        } footer: {
-            Text("Off: kept for reference, not counted in any total.")
         }
     }
 }

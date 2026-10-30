@@ -20,9 +20,13 @@ import SwiftData
 /// the calendar's own message and the screen goes back to what is stored, so
 /// it never shows hours that are not recorded.
 ///
-/// A date with nothing recorded offers "Same as last day" and "Start from
-/// empty" first. Neither writes anything on its own beyond what it says: the
-/// day is stored on the first tick or time, and deleted again when emptied.
+/// The 1.2 redesign (mockups 06–08): a day not written yet offers **Same as
+/// usual** in one tap and **Something's different…** (a missed day offers
+/// **Same as the day before** first); a written day is a green card with one
+/// line per person and **Change**, which opens the crew's day
+/// (`SiteCrewDaySheet`). Under it the day's field allowance, kilometres and
+/// note, then its links: Moved to another site…, Bad weather…, Diary for
+/// this day, Extra work.
 struct SiteDayScreen: View {
     let site: Site
     /// One of the extra sites after Pro lapsed: shown, not changed.
@@ -63,9 +67,6 @@ struct SiteDayScreen: View {
     /// The date "Same as last day" copies from. Kept apart from `lastDay`,
     /// which is already re-dated to the day being written.
     @State private var lastDayDate: CalendarDate?
-    /// "Start from empty" was chosen for the selected day, so the ordinary
-    /// card shows although nothing is stored yet.
-    @State private var startsEmpty = false
     /// Hidden members included, because a past day may name one.
     @State private var crew: [CrewMember] = []
     /// Your other active sites, for "On another site".
@@ -105,18 +106,25 @@ struct SiteDayScreen: View {
     /// One sheet at a time, chosen by value: stacking several `.sheet`
     /// modifiers on one view has undefined behaviour.
     private enum ActiveSheet: Identifiable {
-        case person(PersonReference)
+        /// "Something's different…", "Change" and "Start from empty": the
+        /// crew's day, on a draft that starts as given.
+        case crewDay(SiteDay)
         case siteTimes
-        case weatherStop
+        /// "Bad weather…", on the day it would stop.
+        case weatherStop(SiteDay)
         /// "Moved to another site…": everyone ticked (nil) or one person.
         case move(UUID?)
+        case allowance
+        case diary
 
         var id: String {
             switch self {
+            case .crewDay: return "crew-day"
             case let .move(memberID): return "move-\(memberID?.uuidString ?? "all")"
-            case let .person(person): return "person-\(person.id.uuidString)"
             case .siteTimes: return "site-times"
             case .weatherStop: return "weather-stop"
+            case .allowance: return "allowance"
+            case .diary: return "diary"
             }
         }
     }
@@ -142,6 +150,7 @@ struct SiteDayScreen: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: Metrics.large) {
                 if let header {
@@ -197,38 +206,34 @@ struct SiteDayScreen: View {
 
                 dayCard
 
-                if !showsUnwrittenChoice {
+                if stored != nil {
                     SiteWeatherStopRow(
                         day: day,
                         canEdit: canEdit,
                         formatting: formatting,
-                        onStopAll: { commit(day.stoppedForBadWeather(at: nil)) },
-                        onStopAt: { activeSheet = .weatherStop },
                         onLift: { commit(day.liftingBadWeatherStop()) }
                     )
+                    detailsGroup
                 }
+
+                linksGroup(scrollTo: { anchor in
+                    withAnimation(.snappy(duration: 0.3)) { proxy.scrollTo(anchor, anchor: .top) }
+                })
 
                 // Extra work is not hours either (see `ExtraWorkRepository`):
                 // only a read-only site stops it. Rebuilt per date, as the
                 // diary is.
-                ExtraWorkDaySection(
-                    site: site,
-                    date: date,
-                    canEdit: !isReadOnly,
-                    onChange: reloadExtraWorkMarks,
-                    onOpenReport: onOpenReport
-                )
-                .id(date.key)
-
-                // Not under the month lock (see `SiteDiaryRepository`): only a
-                // read-only site stops the diary. Rebuilt per date, so a draft
-                // never lands on another day.
-                // Unless the site's settings leave the diary out (1.2). A day
-                // that already has one still shows it.
-                if setup.keepsDiary || diaryDateKeys.contains(date.key) {
-                    SiteDiaryCard(siteID: site.id, date: date, canEdit: !isReadOnly, onChange: reloadDiaryMarks)
-                        .id(date.key)
+                VStack(alignment: .leading, spacing: 0) {
+                    ExtraWorkDaySection(
+                        site: site,
+                        date: date,
+                        canEdit: !isReadOnly,
+                        onChange: reloadExtraWorkMarks,
+                        onOpenReport: onOpenReport
+                    )
+                    .id(date.key)
                 }
+                .id(Self.extraWorkAnchor)
 
                 // Last: the month's figures are read now and then, the day
                 // above is written every day.
@@ -236,6 +241,7 @@ struct SiteDayScreen: View {
             }
             .padding(.horizontal, Metrics.large)
             .padding(.bottom, Metrics.extraLarge)
+        }
         }
         .background(Color.hoursCanvas)
         .scrollDismissesKeyboard(.interactively)
@@ -264,21 +270,26 @@ struct SiteDayScreen: View {
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
-            case let .person(person):
-                if let attendance = day.attendance(for: person.id) {
-                    PersonTimesSheet(
-                        name: person.name,
-                        attendance: attendance,
-                        day: day,
-                        onSave: replace
-                    )
-                }
+            case let .crewDay(initial):
+                SiteCrewDaySheet(
+                    title: dayTitle,
+                    initial: initial,
+                    rows: rows(for: initial),
+                    dayTypes: settings.dayTypeCatalog,
+                    otherSites: otherSites,
+                    siteNames: siteNames,
+                    elsewhere: elsewhere,
+                    usualTimes: usualTimes,
+                    allowanceByDefault: allowanceByDefault,
+                    onSave: saveCrewDay,
+                    onMove: moveFromCrewDay
+                )
             case .siteTimes:
                 // The site's usual day first (1.2), then the working week's.
                 SiteTimesSheet(
                     day: day,
-                    defaultStart: setup.start ?? settings.primarySchedule(on: day.date).defaultStart,
-                    defaultEnd: setup.end ?? settings.primarySchedule(on: day.date).defaultEnd,
+                    defaultStart: usualTimes.start,
+                    defaultEnd: usualTimes.end,
                     onSave: commit
                 )
             case let .move(memberID):
@@ -307,13 +318,39 @@ struct SiteDayScreen: View {
                         }
                     },
                     onMove: applyMove,
-                    runningClock: HoursStack.clock.running
+                    runningClock: HoursStack.clock.running,
+                    preview: { choice in
+                        guard let outcome = try? moveOutcome(choice) else { return nil }
+                        return SiteCrewFigures.ofMove(outcome, calculator: SiteDayCalculator(settings: settings, calendar: calendar))
+                    }
                 )
-            case .weatherStop:
+            case let .weatherStop(base):
                 WeatherStopSheet(
-                    day: day,
-                    suggested: day.end ?? setup.end ?? settings.primarySchedule(on: day.date).defaultEnd,
-                    onSave: { stop in commit(stoppedAt(stop)) }
+                    day: base.start == nil ? startingAtUsual(base) : base,
+                    suggested: base.end ?? usualTimes.end,
+                    figures: { stop in
+                        SiteCrewFigures.ifStopped(
+                            base, at: stop, startingAt: usualTimes.start,
+                            calculator: SiteDayCalculator(settings: settings, calendar: calendar)
+                        )
+                    },
+                    onSave: { stop in
+                        commit(stop.map { stoppedAt($0, base: base) } ?? base.stoppedForBadWeather(at: nil))
+                    }
+                )
+            case .allowance:
+                SiteAllowanceSheet(
+                    people: rows.filter { day.attendance(for: $0.id) != nil },
+                    given: Set(rows.map(\.id).filter(day.hasAllowance(for:))),
+                    onToggle: toggleAllowance
+                )
+            case .diary:
+                SiteDiarySheet(
+                    siteID: site.id,
+                    date: date,
+                    siteName: site.name,
+                    canEdit: !isReadOnly,
+                    onChange: reloadDiaryMarks
                 )
             }
         }
@@ -403,60 +440,293 @@ struct SiteDayScreen: View {
 
     @ViewBuilder
     private var dayCard: some View {
-        if showsUnwrittenChoice, let lastDay, let lastDayDate {
+        if stored == nil {
             SiteUnwrittenDayCard(
-                title: dayTitle,
-                lastDayDate: lastDayDate,
-                lastDay: lastDay,
-                formatting: formatting,
+                kind: unwrittenKind,
+                usualPeople: defaultCrew.map { person in
+                    SiteUnwrittenDayCard.Line(
+                        person: person,
+                        times: SiteDayStyle.range(usualTimes.start, usualTimes.end, on: date, formatting: formatting)
+                    )
+                },
+                usualTimes: SiteDayStyle.range(usualTimes.start, usualTimes.end, on: date, formatting: formatting),
+                usualBreak: SiteDayStyle.breakText(usualTimes.breakMinutes),
+                lastDaySummary: lastDaySummary,
                 copiesYesterday: date == today && lastDayDate == today.adding(days: -1, in: calendar),
+                canEdit: canEdit,
+                onSameAsUsual: { commit(usualDay) },
+                onSomethingDifferent: { activeSheet = .crewDay(usualDay) },
                 onSameAsLastDay: fillFromLastDay,
-                onStartEmpty: { startsEmpty = true }
+                onStartEmpty: { activeSheet = .crewDay(SiteDay(siteID: site.id, date: date, jobID: site.jobID)) }
             )
         } else {
             SiteDayCard(
-                title: dayTitle,
                 day: day,
-                result: result,
-                rows: rows,
-                isWritten: stored != nil,
+                figures: SiteCrewFigures(result.people),
+                lines: lines,
+                isPartly: isPartly,
                 canEdit: canEdit,
                 warnings: warnings,
                 formatting: formatting,
                 durations: formatter,
-                noteText: $noteText,
-                isNoteFocused: $isNoteFocused,
-                showsSaved: showsSaved,
-                dayTypes: settings.dayTypeCatalog,
-                otherSites: otherSites,
                 siteNames: siteNames,
-                elsewhere: elsewhere,
-                onToggle: toggle,
-                onSetReason: setReason,
-                onEditPerson: { activeSheet = .person($0) },
-                onEditTimes: { activeSheet = .siteTimes },
-                onEditCrew: { openSiteCrew(SiteCrewRoute(siteID: site.id)) },
-                tracksAllowance: settings.allowance.isEnabled,
-                onToggleAllowance: toggleAllowance,
-                kilometres: $kilometresText,
-                isKilometresFocused: $isKilometresFocused,
-                asksKilometres: setup.asksKilometres,
-                canMove: canMove,
-                onMove: { activeSheet = .move($0) },
+                showsSaved: showsSaved,
+                onChange: { activeSheet = .crewDay(day) },
                 onUndoMove: undoMove
             )
         }
     }
 
-    /// Only on a day with nothing in it, so it can never stand in front of
-    /// one, and only where it could be used: a closed month or a read-only
-    /// site shows the ordinary card, greyed, which also says who is not there.
-    private var showsUnwrittenChoice: Bool {
-        canEdit
-            && !startsEmpty
-            && stored == nil
-            && lastDay != nil
-            && day.present.isEmpty && day.start == nil && day.end == nil
+    /// Where the grid scrolls for "Extra work".
+    private static let extraWorkAnchor = "site-day-extra-work-anchor"
+
+    /// The day's allowance, kilometres and note, and the site's times for
+    /// everyone (mockup 07 "A written day").
+    private var detailsGroup: some View {
+        SiteGroup {
+            Button { activeSheet = .siteTimes } label: {
+                HStack(spacing: Metrics.small) {
+                    Text("Times for everyone")
+                        .foregroundStyle(.primary)
+                    Spacer(minLength: Metrics.small)
+                    Text(verbatim: [
+                        SiteDayStyle.range(day.start, day.end, on: date, formatting: formatting),
+                        SiteDayStyle.breakText(day.breakMinutes),
+                    ].joined(separator: " · "))
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.hoursSecondaryText)
+                    .multilineTextAlignment(.trailing)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
+                }
+                .frame(maxWidth: .infinity, minHeight: SiteDayStyle.rowHeight, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(!canEdit)
+            .accessibilityIdentifier("site-day-times")
+
+            if settings.allowance.isEnabled {
+                SiteDivider()
+                Button { activeSheet = .allowance } label: {
+                    HStack(spacing: Metrics.small) {
+                        Text("Field allowance")
+                            .foregroundStyle(.primary)
+                        Spacer(minLength: Metrics.small)
+                        Text(verbatim: String(inflected: "^[\(day.allowanceCount) person](inflect: true)"))
+                            .foregroundStyle(.hoursSecondaryText)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                            .accessibilityHidden(true)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: SiteDayStyle.rowHeight, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(!canEdit)
+                .accessibilityIdentifier("site-day-allowance")
+
+                // A day that already has kilometres shows them, asked or not.
+                if setup.asksKilometres || day.kilometres > 0 {
+                    SiteDivider()
+                    HStack(spacing: Metrics.small) {
+                        Text("Van kilometres")
+                        Spacer(minLength: Metrics.small)
+                        TextField("Kilometres", text: $kilometresText)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .font(.hoursFigure(.body, weight: .medium))
+                            .frame(minWidth: 64, maxWidth: 120, minHeight: 44)
+                            .focused($isKilometresFocused)
+                            .disabled(!canEdit)
+                            .accessibilityIdentifier("site-day-kilometres")
+                        Text(verbatim: "km")
+                            .foregroundStyle(.hoursSecondaryText)
+                            .accessibilityHidden(true)
+                    }
+                    .frame(minHeight: SiteDayStyle.rowHeight)
+                }
+            }
+
+            SiteDivider()
+            // The one line for this day that goes on the Site sheet. The
+            // diary is the longer record, printed on pages of its own.
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Note on the sheet")
+                    .font(.footnote)
+                    .foregroundStyle(.hoursSecondaryText)
+                TextField(
+                    text: $noteText,
+                    prompt: Text("Short note printed in this day's row"),
+                    axis: .vertical
+                ) {
+                    Text("Note on the sheet")
+                }
+                .lineLimit(1...5)
+                .focused($isNoteFocused)
+                .disabled(!canEdit)
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("site-day-note")
+            }
+            .padding(.vertical, Metrics.small)
+        }
+    }
+
+    /// What else the day has: moving, bad weather, the diary and extra work
+    /// (mockup 07), and the crew list.
+    private func linksGroup(scrollTo: @escaping (String) -> Void) -> some View {
+        SiteGroup {
+            if canMove {
+                SiteLinkRow(title: String(localized: "Moved to another site…"), systemImage: "arrow.left.arrow.right") {
+                    activeSheet = .move(nil)
+                }
+                .accessibilityIdentifier("site-day-move")
+                SiteDivider()
+            }
+            if canEdit && !day.isBadWeatherStop {
+                SiteLinkRow(title: String(localized: "Bad weather…"), systemImage: "cloud.rain") {
+                    activeSheet = .weatherStop(stored == nil ? usualDay : day)
+                }
+                .accessibilityIdentifier("site-weather-menu")
+                SiteDivider()
+            }
+            // Unless the site's settings leave the diary out (1.2). A day
+            // that already has one still shows it.
+            if setup.keepsDiary || diaryDateKeys.contains(date.key) {
+                SiteLinkRow(
+                    title: String(localized: "Diary for this day"),
+                    detail: diaryDateKeys.contains(date.key) ? String(localized: "Written") : nil,
+                    systemImage: "text.book.closed"
+                ) {
+                    commitNote()
+                    commitKilometres()
+                    activeSheet = .diary
+                }
+                .accessibilityIdentifier("site-day-diary")
+                SiteDivider()
+            }
+            SiteLinkRow(title: String(localized: "Extra work"), systemImage: "hammer") {
+                scrollTo(Self.extraWorkAnchor)
+            }
+            .accessibilityIdentifier("site-day-extra-work-link")
+            SiteDivider()
+            // Open even when the day cannot be changed: the crew list says
+            // for itself what can be done there.
+            SiteLinkRow(title: String(localized: "Add or edit crew"), systemImage: "person.badge.plus") {
+                openSiteCrew(SiteCrewRoute(siteID: site.id))
+            }
+            .accessibilityIdentifier("site-day-edit-crew")
+        }
+    }
+
+    // MARK: - The day's people
+
+    /// You and the visible crew: who the usual day ticks.
+    private var defaultCrew: [PersonReference] {
+        [PersonReference(id: CrewMember.youID, name: String(localized: "You"))]
+            + crew.filter { !$0.isHidden }.map { PersonReference(id: $0.id, name: $0.name) }
+    }
+
+    /// The site's usual times, or the working week's (`SiteUsualTimes`).
+    private var usualTimes: SiteUsualTimes {
+        SiteUsualTimes(setup: setup, schedule: settings.primarySchedule(on: date))
+    }
+
+    private var allowanceByDefault: Bool {
+        settings.allowance.isEnabled && site.allowanceByDefault
+    }
+
+    /// "Same as usual": the site's usual day for the default crew.
+    private var usualDay: SiteDay {
+        SiteDay.usual(
+            siteID: site.id,
+            date: date,
+            jobID: site.jobID,
+            times: usualTimes,
+            crew: defaultCrew.map(\.id),
+            allowanceByDefault: allowanceByDefault
+        )
+    }
+
+    /// Today or later, a work day missed, or a day off gone by.
+    private var unwrittenKind: SiteUnwrittenDayCard.Kind {
+        guard date < today else { return .upcoming }
+        let status = SiteDayStatus.of(
+            siteID: site.id, on: date, siteDays: monthDays, setup: setup, crew: [],
+            today: today, calendar: calendar, holidays: holidayDateKeys
+        )
+        return status == .missing ? .missed : .pastDayOff
+    }
+
+    /// "Thu 22 Oct · 07:00–16:00 · 5 people": what "Same as the day before"
+    /// copies. Nil when there is no earlier day.
+    private var lastDaySummary: String? {
+        guard let lastDay, let lastDayDate else { return nil }
+        var parts = [formatting.dayTitle(lastDayDate)]
+        if lastDay.start != nil || lastDay.end != nil {
+            parts.append(SiteDayStyle.range(lastDay.start, lastDay.end, on: lastDayDate, formatting: formatting))
+        }
+        parts.append(String(inflected: "^[\(lastDay.present.count) person](inflect: true)"))
+        return parts.joined(separator: " · ")
+    }
+
+    /// One line per person on the written card: times for whoever was here
+    /// (orange when their own, the accent and the site when they moved),
+    /// the reason for whoever was away.
+    private var lines: [SiteDayCard.Line] {
+        rows.map { person -> SiteDayCard.Line in
+            let state = SiteCrewState.of(person.id, in: day)
+            let mine = result.people.first { $0.memberID == person.id }
+            let times = SiteDayStyle.range(mine?.start, mine?.end, on: date, formatting: formatting)
+            switch state {
+            case .usual:
+                return SiteDayCard.Line(person: person, detail: times, style: .plain)
+            case .ownTimes:
+                return SiteDayCard.Line(person: person, detail: times, style: .attention, spoken: exceptionTitle(person.id))
+            case let .moved(siteID):
+                let site = siteNames[siteID] ?? String(localized: "Another site")
+                return SiteDayCard.Line(person: person, detail: "\(times) → \(site)", style: .moved)
+            case let .away(reason):
+                return SiteDayCard.Line(
+                    person: person,
+                    detail: SiteAwaySheet.title(of: reason, dayTypes: settings.dayTypeCatalog, siteNames: siteNames),
+                    style: .attention
+                )
+            case .notHere:
+                // Only a hint, until it is confirmed on the crew's day.
+                if let hint = elsewhere[person.id] {
+                    return SiteDayCard.Line(
+                        person: person,
+                        detail: SiteAwaySheet.title(of: .otherSite(hint), dayTypes: settings.dayTypeCatalog, siteNames: siteNames),
+                        style: .quiet
+                    )
+                }
+                return SiteDayCard.Line(person: person, detail: String(localized: "Not here"), style: .quiet)
+            }
+        }
+    }
+
+    private func exceptionTitle(_ memberID: UUID) -> String? {
+        switch SiteException.of(memberID, in: day) {
+        case .cameLate?: return String(localized: "Came late")
+        case .leftEarly?: return String(localized: "Left early")
+        case .changedTimes?: return String(localized: "Own times")
+        case nil: return nil
+        }
+    }
+
+    /// Someone on the crew neither ticked nor given a reason: partly
+    /// written, an orange dot. Only people who appear on a site day of the
+    /// month count, so someone added to the crew later does not make every
+    /// older day read as partly (crew members have no join date).
+    private var isPartly: Bool {
+        let seen = Set(monthDays.flatMap { $0.present.map(\.memberID) + $0.absences.map(\.memberID) })
+        return rows.contains { person in
+            seen.contains(person.id) && SiteCrewState.of(person.id, in: day) == .notHere
+        }
     }
 
     private var dayTitle: String { formatting.dayTitle(date) }
@@ -477,7 +747,9 @@ struct SiteDayScreen: View {
     /// You first, then the crew in their order. Someone hidden from the crew
     /// appears only on a day that already has them, so the record stays
     /// honest without offering them for new days.
-    private var rows: [PersonReference] {
+    private var rows: [PersonReference] { rows(for: day) }
+
+    private func rows(for day: SiteDay) -> [PersonReference] {
         // Someone hidden since, but recorded as away that day, stays too.
         let present = Set(day.present.map(\.memberID) + day.absences.map(\.memberID))
         var rows = [PersonReference(id: CrewMember.youID, name: String(localized: "You"))]
@@ -618,10 +890,15 @@ struct SiteDayScreen: View {
 
     /// "Stopped at" on the selected day, with the site's start kept, or the
     /// schedule's when the day had none yet.
-    private func stoppedAt(_ stop: TimeOfDay) -> SiteDay {
-        var next = day
-        if next.start == nil { next.start = setup.start ?? settings.primarySchedule(on: day.date).defaultStart }
-        return next.stoppedForBadWeather(at: stop)
+    private func stoppedAt(_ stop: TimeOfDay, base: SiteDay) -> SiteDay {
+        startingAtUsual(base).stoppedForBadWeather(at: stop)
+    }
+
+    /// The day with the usual start, when it has none yet.
+    private func startingAtUsual(_ base: SiteDay) -> SiteDay {
+        var next = base
+        if next.start == nil { next.start = usualTimes.start }
+        return next
     }
 
     private var presentCounts: [Int: Int] {
@@ -669,7 +946,6 @@ struct SiteDayScreen: View {
         lastDayDate = lastDay == nil ? nil : store.lastSiteDay(siteID: site.id, before: date)?.date
         noteText = day.note
         kilometresText = Self.text(kilometres: day.kilometres)
-        startsEmpty = false
         loadOtherSites()
         reloadMonth()
         refreshYourWarning()
@@ -780,19 +1056,31 @@ struct SiteDayScreen: View {
 
     // MARK: - Editing
 
-    /// Ticking someone in clears any reason they were away, and gives them
-    /// the field allowance when the site does by default — read from the
-    /// store, in case the site was changed while this screen was open.
-    private func toggle(_ memberID: UUID) {
+    /// The crew's day saved: the draft goes through the one place a change
+    /// is written. A day still unwritten that comes back with nobody on it
+    /// and no reason given drops the times it started with, so it is not
+    /// kept.
+    private func saveCrewDay(_ draft: SiteDay) {
+        var next = draft
+        if stored == nil, next.present.isEmpty, next.absences.isEmpty, !next.isBadWeatherStop {
+            next.start = nil
+            next.end = nil
+            next.breakMinutes = 0
+        }
         ticks += 1
-        let byDefault = settings.allowance.isEnabled
-            && (repository.site(id: site.id) ?? site).allowanceByDefault
-        // A day not written yet starts with the site's usual times (1.2).
-        let base = stored == nil && day.present.isEmpty ? day.startingWithUsualTimes(of: setup) : day
-        commit(
-            base.togglingPresence(of: memberID, allowanceByDefault: byDefault)
-                .droppingUnusedUsualTimes(of: setup)
-        )
+        commit(next)
+    }
+
+    /// "Moved" on the crew's day: what is there is saved first, then the
+    /// move opens for that person, once the crew's sheet has gone.
+    private func moveFromCrewDay(_ draft: SiteDay, _ memberID: UUID) {
+        commit(draft)
+        activeSheet = nil
+        guard stored != nil, day.attendance(for: memberID) != nil else { return }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(450))
+            activeSheet = .move(memberID)
+        }
     }
 
     /// The row menu's switch: the allowance for one person, today.
@@ -812,18 +1100,6 @@ struct SiteDayScreen: View {
         kilometres > 0 ? "\(kilometres)" : ""
     }
 
-    /// Why someone not ticked was away; nil takes the reason back.
-    private func setReason(_ memberID: UUID, _ reason: AbsenceReason?) {
-        commit(day.settingReason(reason, for: memberID))
-    }
-
-    private func replace(_ attendance: Attendance) {
-        var next = day
-        guard let index = next.present.firstIndex(where: { $0.memberID == attendance.memberID }) else { return }
-        next.present[index] = attendance
-        commit(next)
-    }
-
     private func fillFromLastDay() {
         guard let lastDay else { return }
         commit(lastDay)
@@ -837,7 +1113,7 @@ struct SiteDayScreen: View {
     private func applyRequestedSameAsLastDay() {
         guard requestsSameAsLastDay else { return }
         requestsSameAsLastDay = false
-        guard date == today, showsUnwrittenChoice else { return }
+        guard date == today, canEdit, stored == nil, lastDay != nil else { return }
         fillFromLastDay()
     }
 
@@ -886,9 +1162,6 @@ struct SiteDayScreen: View {
             } else if stored != nil {
                 try repository.delete(siteID: site.id, on: next.date)
                 stored = nil
-                // Emptied by hand on this screen: stay on the crew rather
-                // than swapping them for "Same as last day" under the finger.
-                startsEmpty = true
             }
             day = next
             flashSaved()

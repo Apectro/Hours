@@ -44,8 +44,8 @@ final class LeaveAndReviewTests: XCTestCase {
         app.tab(.insights).tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
 
-        // Today, Week, Month, Year: the fourth segment.
-        let year = app.segmentedControls.firstMatch.buttons.element(boundBy: 3)
+        // Week, Month, Year: the third segment.
+        let year = app.segmentedControls.firstMatch.buttons.element(boundBy: 2)
         XCTAssertTrue(year.waitForExistence(timeout: 5))
         year.tap()
 
@@ -67,6 +67,8 @@ final class LeaveAndReviewTests: XCTestCase {
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 5))
 
+        // Under More (1.2).
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
         XCTAssertTrue(reveal(app.buttons["settings-rate"], in: app, swipes: 8), "Settings has no Rate row")
         XCTAssertTrue(reveal(app.buttons["settings-feedback"], in: app, swipes: 3), "Settings has no Send feedback row")
     }

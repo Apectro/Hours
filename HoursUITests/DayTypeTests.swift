@@ -74,9 +74,7 @@ final class DayTypeTests: XCTestCase {
         for _ in 0..<6 where !(hub.exists && hub.isHittable) { app.swipeUp() }
         XCTAssertTrue(hub.isHittable, "Settings has no Day types & holidays row")
         hub.tap()
-        let row = app.buttons.matching(identifier: "settings-day-types").firstMatch
-        XCTAssertTrue(row.waitForExistence(timeout: 5), "Day types & holidays has no Day types row")
-        row.tap()
+        // The day types are listed on Day types & holidays itself (1.2).
         XCTAssertTrue(
             app.buttons.matching(identifier: "day-types-row").firstMatch.waitForExistence(timeout: 5),
             "Day types did not open"

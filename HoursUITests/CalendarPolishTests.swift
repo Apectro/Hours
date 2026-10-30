@@ -21,7 +21,8 @@ final class CalendarPolishTests: XCTestCase {
         app.launch()
 
         let export = app.buttons["calendar-export"]
-        XCTAssertTrue(export.waitForExistence(timeout: 10), "Export is not in the calendar's toolbar")
+        XCTAssertTrue(export.waitForExistence(timeout: 10), "Export is not under the month")
+        app.bringToScreen(export)
         export.tap()
         XCTAssertTrue(app.screen("screen-export").waitForExistence(timeout: 10))
 
@@ -44,6 +45,7 @@ final class CalendarPolishTests: XCTestCase {
 
         let reopen = app.buttons["calendar-closed-reopen"]
         XCTAssertTrue(reopen.waitForExistence(timeout: 10), "a closed month must say so above the grid")
+        app.bringToScreen(reopen)
         reopen.tap()
 
         // A confirmation dialog can show its buttons twice in the tree (the
@@ -67,15 +69,16 @@ final class CalendarPolishTests: XCTestCase {
         XCTAssertFalse(app.buttons["day-editor-discard"].waitForExistence(timeout: 2), "an untouched day asked to discard")
         XCTAssertTrue(disappears(save), "Cancel on an untouched day did not close it")
 
-        // Now with an edit: "More", then the day stops counting.
+        // Now with an edit: "Allowance, km, note…", then the day stops
+        // counting.
         XCTAssertTrue(app.openTodaysEditor().waitForExistence(timeout: 10))
         let more = app.buttons["day-editor-more"]
         for _ in 0..<6 where !(more.exists && more.isHittable) { app.swipeUp() }
-        XCTAssertTrue(more.isHittable, "the editor has no More row")
+        XCTAssertTrue(more.isHittable, "the editor has no row for the extras")
         more.tap()
         let count = app.switches["day-editor-count-day"]
         for _ in 0..<4 where !(count.exists && count.isHittable) { app.swipeUp() }
-        XCTAssertTrue(count.isHittable, "More did not open")
+        XCTAssertTrue(count.isHittable, "the extras did not open")
         // A tap on the middle of a Form toggle lands on its label, which
         // does not flip it; the switch itself sits at the trailing edge.
         let knob = count.switches.firstMatch
@@ -84,8 +87,12 @@ final class CalendarPolishTests: XCTestCase {
         } else {
             count.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
+        // Back to the editor, where Cancel is.
+        app.buttons["day-extras-done"].firstMatch.tap()
 
-        app.buttons["day-editor-cancel"].tap()
+        let cancel = app.buttons["day-editor-cancel"].firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 5), "Done did not return to the editor")
+        cancel.tap()
         let discard = app.buttons.matching(identifier: "day-editor-discard").firstMatch
         XCTAssertTrue(discard.waitForExistence(timeout: 5), "Cancel after an edit must ask first")
         discard.tap()

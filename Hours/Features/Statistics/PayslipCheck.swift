@@ -6,6 +6,8 @@ import UIKit
 struct PayslipCheckRow: View {
     /// Nil until the month's payslip has been typed in.
     let comparison: PayslipComparison?
+    /// "October", for "Compare October's pay with your hours".
+    var monthName: String = ""
     let open: () -> Void
 
     var body: some View {
@@ -13,20 +15,24 @@ struct PayslipCheckRow: View {
             SurfaceCard {
                 HStack(spacing: Metrics.medium) {
                     Image(systemName: "doc.text.magnifyingglass")
+                        .font(.title3)
                         .foregroundStyle(Color.accentColor)
+                        .frame(width: 28)
                         .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 1) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Check your payslip")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
                         status
-                            .font(.caption)
+                            .font(.subheadline)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
+                    Spacer(minLength: Metrics.small)
+                    Text("Open")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
                 }
+                .frame(minHeight: 44)
             }
         }
         .buttonStyle(.plain)
@@ -41,11 +47,17 @@ struct PayslipCheckRow: View {
                     .foregroundStyle(Color.hoursPositive)
             } else {
                 Text(verbatim: String(inflected: "^[\(comparison.differenceCount) difference](inflect: true)"))
-                    .foregroundStyle(Color.hoursNegative)
+                    .foregroundStyle(Color.hoursAttention)
             }
-        } else {
+        } else if monthName.isEmpty {
             Text("Compare it with your hours")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
+        } else {
+            Text(verbatim: String(
+                localized: "Compare \(monthName)'s pay with your hours",
+                comment: "Insights, the payslip card; the value is a month's name, such as October"
+            ))
+            .foregroundStyle(.hoursSecondaryText)
         }
     }
 }
@@ -317,22 +329,27 @@ struct PayslipCheckSheet: View {
             if !stacks { Spacer(minLength: Metrics.small) }
             switch line.status {
             case .match:
-                Label("Matches", systemImage: "checkmark")
-                    .foregroundStyle(Color.hoursPositive)
+                PayslipTag(text: String(localized: "Matches"), systemImage: "checkmark", tint: .hoursPositive)
             case .moreOnPayslip:
-                Text(verbatim: String(
-                    localized: "Payslip shows \(value(line.difference, line.kind)) more",
-                    comment: "Payslip check; the value is an amount such as 4h or €45.00"
-                ))
-                .foregroundStyle(Color.hoursNegative)
-                .multilineTextAlignment(stacks ? .leading : .trailing)
+                // More paid than recorded: worth a look, not money missing.
+                PayslipTag(
+                    text: String(
+                        localized: "Payslip shows \(value(line.difference, line.kind)) more",
+                        comment: "Payslip check; the value is an amount such as 4h or €45.00"
+                    ),
+                    systemImage: "exclamationmark",
+                    tint: .hoursAttention
+                )
             case .lessOnPayslip:
-                Text(verbatim: String(
-                    localized: "Payslip shows \(value(-line.difference, line.kind)) less",
-                    comment: "Payslip check; the value is an amount such as 4h or €45.00"
-                ))
-                .foregroundStyle(Color.hoursNegative)
-                .multilineTextAlignment(stacks ? .leading : .trailing)
+                // Less paid than recorded: missing, the colour rule's red.
+                PayslipTag(
+                    text: String(
+                        localized: "Payslip shows \(value(-line.difference, line.kind)) less",
+                        comment: "Payslip check; the value is an amount such as 4h or €45.00"
+                    ),
+                    systemImage: "minus",
+                    tint: .hoursMissing
+                )
             }
         }
         .font(.subheadline)
@@ -385,4 +402,26 @@ struct PayslipCheckSheet: View {
     }
 
     private static var decimalSeparator: String { Locale.current.decimalSeparator ?? "." }
+}
+
+/// A result as a tag: "Matches" in green, "more" in orange, "less" in red.
+private struct PayslipTag: View {
+    let text: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        Label {
+            Text(verbatim: text)
+        } icon: {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.bold))
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(tint)
+        .padding(.horizontal, Metrics.small)
+        .padding(.vertical, Metrics.tiny)
+        .background(tint.opacity(0.12), in: Capsule())
+        .multilineTextAlignment(.leading)
+    }
 }

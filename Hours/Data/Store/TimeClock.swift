@@ -39,6 +39,21 @@ struct TimeClock {
         return shift
     }
 
+    // MARK: - Break (1.2)
+
+    /// Begins a break on the running clock; the worked time stands still
+    /// until it ends. Nothing happens with no clock, or a break already on.
+    func startBreak(at instant: Date = Date()) {
+        guard let running = clock.running else { return }
+        clock.update(running.startingBreak(at: instant, calendar: calendar))
+    }
+
+    /// Ends the running break; it goes onto the shift when the clock stops.
+    func endBreak(at instant: Date = Date()) {
+        guard let running = clock.running else { return }
+        clock.update(running.endingBreak(at: instant, calendar: calendar))
+    }
+
     // MARK: - Out
 
     enum ClockOutResult: Hashable, Sendable {

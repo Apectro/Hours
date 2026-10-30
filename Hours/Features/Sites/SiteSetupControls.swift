@@ -11,6 +11,9 @@ struct UsualDayRows: View {
     @Binding var breakMinutes: Int
     let calendar: Calendar
     var isDisabled = false
+    /// The site's settings (1.2, mockup Sites): start and end side by side
+    /// in one "Times" row. Off, a row each, as the wizard has them.
+    var combinesTimes = false
 
     /// The site times sheet's choices, and whatever is set already.
     private static let breakChoices = [0, 15, 20, 30, 45, 60, 90]
@@ -19,12 +22,24 @@ struct UsualDayRows: View {
     @Environment(SettingsStore.self) var settingsStore
 
     var body: some View {
-        DatePicker("Start", selection: binding($start), displayedComponents: .hourAndMinute)
-            .accessibilityIdentifier("usual-day-start")
-            .disabled(isDisabled)
-        DatePicker("End", selection: binding($end), displayedComponents: .hourAndMinute)
-            .accessibilityIdentifier("usual-day-end")
-            .disabled(isDisabled)
+        if combinesTimes {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Metrics.small) {
+                    Text("Times")
+                    Spacer(minLength: Metrics.small)
+                    startPicker.labelsHidden()
+                    Text(verbatim: "–").accessibilityHidden(true)
+                    endPicker.labelsHidden()
+                }
+                VStack(alignment: .leading, spacing: Metrics.small) {
+                    startPicker
+                    endPicker
+                }
+            }
+        } else {
+            startPicker
+            endPicker
+        }
         Picker("Break", selection: $breakMinutes) {
             ForEach(choices, id: \.self) { minutes in
                 Text(minutes == 0 ? String(localized: "None") : settingsStore.settings.displayFormatting.string(minutes))
@@ -33,6 +48,18 @@ struct UsualDayRows: View {
         }
         .accessibilityIdentifier("usual-day-break")
         .disabled(isDisabled)
+    }
+
+    private var startPicker: some View {
+        DatePicker("Start", selection: binding($start), displayedComponents: .hourAndMinute)
+            .accessibilityIdentifier("usual-day-start")
+            .disabled(isDisabled)
+    }
+
+    private var endPicker: some View {
+        DatePicker("End", selection: binding($end), displayedComponents: .hourAndMinute)
+            .accessibilityIdentifier("usual-day-end")
+            .disabled(isDisabled)
     }
 
     private var choices: [Int] {

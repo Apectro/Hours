@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Charts
 
 /// The running balance, from the opening figure to a given day.
 ///
@@ -7,6 +8,8 @@ import SwiftData
 /// day recorded months ago fixes this number too.
 struct CumulativeBalanceCard: View {
     let through: CalendarDate
+    /// The period the line runs through (1.2); nil for the figure alone.
+    var trend: CalendarDateRange?
     let settings: AppSettings
     let calendar: Calendar
 
@@ -14,8 +17,9 @@ struct CumulativeBalanceCard: View {
     @Query private var holidayRecords: [HolidayRecord]
     @Environment(\.modelContext) private var modelContext
 
-    init(through: CalendarDate, settings: AppSettings, calendar: Calendar) {
+    init(through: CalendarDate, trend: CalendarDateRange? = nil, settings: AppSettings, calendar: Calendar) {
         self.through = through
+        self.trend = trend
         self.settings = settings
         self.calendar = calendar
         let upper = through.key
@@ -30,10 +34,7 @@ struct CumulativeBalanceCard: View {
         SurfaceCard {
             VStack(alignment: .leading, spacing: Metrics.small) {
                 Text("Running balance")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-                    .tracking(0.4)
+                    .font(.headline)
 
                 let balance = self.balance
                 BalanceText(
@@ -41,6 +42,11 @@ struct CumulativeBalanceCard: View {
                     formatting: settings.displayFormatting,
                     font: .hoursFigure(.largeTitle)
                 )
+
+                let points = trendPoints(endingAt: balance)
+                if points.count > 1 {
+                    BalanceTrendChart(points: points, calendar: calendar)
+                }
 
                 if let available = overtimeAvailable(balance) {
                     Text(available)
@@ -54,6 +60,26 @@ struct CumulativeBalanceCard: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    /// The line: the balance at the end of each day of the period, through
+    /// today, ending at the figure above (`BalanceTrend`).
+    private func trendPoints(endingAt balance: Int) -> [BalanceTrend.Point] {
+        guard let trend else { return [] }
+        var records: [Int: DayRecord] = [:]
+        for entry in entries where entry.dateKey >= trend.start.key && entry.dateKey <= trend.end.key {
+            records[entry.dateKey] = entry.record
+        }
+        let days = PeriodEngine(
+            settings: settings,
+            calendar: calendar,
+            firstRecorded: WorkdayRepository(context: modelContext).firstRecordedDate()
+        ).days(in: trend, records: records, holidays: holidayRecords.map(\.rule))
+        return BalanceTrend.points(
+            days: days,
+            endingMinutes: balance,
+            through: min(trend.end, CalendarDate.today(in: calendar))
+        )
     }
 
     private var balance: Int {
@@ -118,5 +144,45 @@ struct CumulativeBalanceCard: View {
                 localized: "Everything recorded through \(formatting.mediumDate(through)).",
                 comment: "The running balance covers everything up to this date"
             )
+    }
+}
+
+/// The running balance as a line, with zero marked.
+private struct BalanceTrendChart: View {
+    let points: [BalanceTrend.Point]
+    let calendar: Calendar
+
+    var body: some View {
+        Chart {
+            RuleMark(y: .value("Zero", 0))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .foregroundStyle(Color.hoursSubdued)
+            ForEach(points, id: \.date) { point in
+                LineMark(
+                    x: .value("Date", point.date.date(in: calendar), unit: .day),
+                    y: .value("Balance", Double(point.minutes) / 60.0)
+                )
+                .interpolationMethod(.monotone)
+                .foregroundStyle(Color.hoursBalance(points.last?.minutes ?? 0))
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let hours = value.as(Double.self) {
+                        Text(verbatim: "\(Int(hours))h")
+                    }
+                }
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                AxisGridLine()
+                AxisValueLabel(format: .dateTime.day().month(.abbreviated))
+            }
+        }
+        .frame(height: 140)
+        .accessibilityLabel(Text("Running balance"))
     }
 }

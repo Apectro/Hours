@@ -31,78 +31,138 @@ struct SiteArrivalSection: View {
         case noFix
     }
 
+    /// On the arrival reminder's own page (1.2, mockup Arrival): the switch
+    /// is "On" in a group of its own, the map stands alone, and the place
+    /// reads as the site's address. Off, one section, as the wizard has it.
+    var isOwnScreen = false
+
     var body: some View {
-        Section {
-            Toggle("Remind me when I arrive", isOn: toggleBinding)
-                .accessibilityIdentifier("site-editor-arrival")
-                .disabled(isReadOnly || isLocating)
-                // On the row, not on the Section: a Form hands a Section's
-                // modifiers to its rows, and a sheet there never showed.
-                .sheet(isPresented: $showsExplanation) {
-                    ArrivalExplanationSheet(
-                        needsPlace: site.place == nil,
-                        onContinue: {
-                            showsExplanation = false
-                            Task { await turnOn() }
-                        },
-                        onCancel: { showsExplanation = false }
-                    )
-                }
-
-            if isLocating {
-                HStack(spacing: Metrics.small) {
-                    ProgressView()
-                    Text("Finding your location…")
-                        .foregroundStyle(.secondary)
-                }
+        if isOwnScreen {
+            Section {
+                toggle(String(localized: "On"))
+                locatingRow
             }
-
             if let place = site.place {
-                SitePlaceMap(place: place, radius: site.monitoredRadius, name: site.name)
-                // One element for VoiceOver and the UI tests: "Place, 45.81302, 15.97722".
-                HStack {
-                    Text("Place")
-                    Spacer(minLength: Metrics.medium)
-                    Text(Self.coordinates(place))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.trailing)
+                Section {
+                    SitePlaceMap(place: place, radius: site.monitoredRadius, name: site.name, height: 220)
                 }
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("site-arrival-coordinates")
-                Picker("Counts as arrived within", selection: $site.arrivalRadius) {
-                    ForEach(Site.arrivalRadii, id: \.self) { radius in
-                        Text(Self.metres(radius)).tag(radius)
-                    }
-                }
-                .accessibilityIdentifier("site-arrival-radius")
-                .disabled(isReadOnly)
-                Button("Use my current location") {
-                    Task { _ = await locate() }
-                }
-                .accessibilityIdentifier("site-arrival-use-location")
-                .disabled(isReadOnly || isLocating)
-                Button("Clear location", role: .destructive) {
-                    site.place = nil
-                    site.remindsOnArrival = false
-                    problem = nil
-                }
-                .accessibilityIdentifier("site-arrival-clear")
-                .disabled(isReadOnly)
             }
+            Section {
+                placeRows
+                settingsRow
+            } footer: {
+                footer
+            }
+        } else {
+            Section {
+                toggle(String(localized: "Remind me when I arrive"))
+                locatingRow
+                if let place = site.place {
+                    SitePlaceMap(place: place, radius: site.monitoredRadius, name: site.name)
+                }
+                placeRows
+                settingsRow
+            } header: {
+                Text("Arrival reminder")
+            } footer: {
+                footer
+            }
+        }
+    }
 
-            if needsSettings {
-                Button("Open Settings") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+    private func toggle(_ title: String) -> some View {
+        Toggle(isOn: toggleBinding) {
+            Text(verbatim: title)
+        }
+        .accessibilityIdentifier("site-editor-arrival")
+        .disabled(isReadOnly || isLocating)
+        // On the row, not on the Section: a Form hands a Section's
+        // modifiers to its rows, and a sheet there never showed.
+        .sheet(isPresented: $showsExplanation) {
+            ArrivalExplanationSheet(
+                needsPlace: site.place == nil,
+                onContinue: {
+                    showsExplanation = false
+                    Task { await turnOn() }
+                },
+                onCancel: { showsExplanation = false }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var locatingRow: some View {
+        if isLocating {
+            HStack(spacing: Metrics.small) {
+                ProgressView()
+                Text("Finding your location…")
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+        }
+    }
+
+    /// Place, "Counts as arrived within", "Use where I am now", "Clear
+    /// location": only once a place is saved.
+    @ViewBuilder
+    private var placeRows: some View {
+        if let place = site.place {
+            // One element for VoiceOver and the UI tests: "Place, Ilica 207C,
+            // 45.81302, 15.97722".
+            HStack(alignment: .firstTextBaseline) {
+                Text("Place")
+                Spacer(minLength: Metrics.medium)
+                VStack(alignment: .trailing, spacing: 2) {
+                    if isOwnScreen && !site.address.isEmpty {
+                        Text(verbatim: SiteAddress.singleLine(site.address))
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
+                    Text(Self.coordinates(place))
+                        .font(isOwnScreen && !site.address.isEmpty ? .caption : .body)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
                 }
-                .accessibilityIdentifier("site-arrival-settings")
+                .multilineTextAlignment(.trailing)
             }
-        } header: {
-            Text("Arrival reminder")
-        } footer: {
-            VStack(alignment: .leading, spacing: Metrics.small) {
-                ForEach(notices, id: \.self) { Text($0) }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("site-arrival-coordinates")
+            Picker("Counts as arrived within", selection: $site.arrivalRadius) {
+                ForEach(Site.arrivalRadii, id: \.self) { radius in
+                    Text(Self.metres(radius)).tag(radius)
+                }
             }
+            .accessibilityIdentifier("site-arrival-radius")
+            .disabled(isReadOnly)
+            Button {
+                Task { _ = await locate() }
+            } label: {
+                Text(isOwnScreen ? String(localized: "Use where I am now") : String(localized: "Use my current location"))
+                    .fontWeight(isOwnScreen ? .semibold : .regular)
+            }
+            .accessibilityIdentifier("site-arrival-use-location")
+            .disabled(isReadOnly || isLocating)
+            Button("Clear location", role: .destructive) {
+                site.place = nil
+                site.remindsOnArrival = false
+                problem = nil
+            }
+            .accessibilityIdentifier("site-arrival-clear")
+            .disabled(isReadOnly)
+        }
+    }
+
+    @ViewBuilder
+    private var settingsRow: some View {
+        if needsSettings {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+            }
+            .accessibilityIdentifier("site-arrival-settings")
+        }
+    }
+
+    private var footer: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            ForEach(notices, id: \.self) { Text($0) }
         }
     }
 
@@ -174,7 +234,9 @@ struct SiteArrivalSection: View {
     }
 
     private var notices: [String] {
-        var lines = [String(localized: "When you reach this site, Zeitkonto asks whether to start the clock, and when you leave with the clock running, whether to stop it. Your location never leaves your phone.")]
+        var lines = [isOwnScreen
+            ? String(localized: "Your location stays on your phone. Arriving asks you to clock in; leaving asks you to write the day.")
+            : String(localized: "When you reach this site, Zeitkonto asks whether to start the clock, and when you leave with the clock running, whether to stop it. Your location never leaves your phone.")]
         switch problem {
         case .denied:
             lines.append(String(localized: "Location is off for Zeitkonto, so the site's place can't be saved. Turn it on in Settings."))
@@ -211,6 +273,23 @@ struct SiteArrivalSection: View {
     }
 }
 
+/// The arrival reminder on a page of its own, from the site's settings
+/// (1.2, mockup Arrival): "Remind me when I arrive", On, the map with the
+/// circle, the place, the distance and "Use where I am now".
+struct SiteArrivalScreen: View {
+    @Binding var site: Site
+    let isReadOnly: Bool
+    let otherSites: [Site]
+
+    var body: some View {
+        Form {
+            SiteArrivalSection(site: $site, isReadOnly: isReadOnly, otherSites: otherSites, isOwnScreen: true)
+        }
+        .navigationTitle("Remind me when I arrive")
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
+
 /// The site's place on a small map with the reminder's circle. It cannot be
 /// moved or zoomed: it shows what was saved, nothing more. The map is drawn
 /// by MapKit, which loads Apple's map tiles for that area; the app itself
@@ -219,6 +298,7 @@ struct SitePlaceMap: View {
     let place: SitePlace
     let radius: Double
     let name: String
+    var height: CGFloat = 160
 
     var body: some View {
         let center = CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude)
@@ -234,7 +314,7 @@ struct SitePlaceMap: View {
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
         // A new place or radius is a new picture rather than a camera move.
         .id(SiteArrivalSection.coordinates(place) + "/\(Int(radius))")
-        .frame(height: 160)
+        .frame(height: height)
         .clipShape(RoundedRectangle(cornerRadius: Metrics.smallCornerRadius))
         .allowsHitTesting(false)
         .listRowInsets(EdgeInsets(top: Metrics.small, leading: Metrics.small, bottom: Metrics.small, trailing: Metrics.small))

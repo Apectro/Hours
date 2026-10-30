@@ -10,8 +10,8 @@ enum FirstRunFinish: String, Identifiable {
     var id: String { rawValue }
 }
 
-/// The questions a fresh install asks once: your name, your week, whether
-/// your breaks are paid, where you work, the language of the sheets for your
+/// The questions a fresh install asks once (1.2 redesign, board 01): your
+/// name, your usual day and whether your breaks are paid, where you work, the language of the sheets for your
 /// boss, whether you lead a crew, and your pay. One question per screen,
 /// every one of them skippable, and each answer saved as you continue past
 /// it, so skipping later keeps what was already answered.
@@ -34,8 +34,12 @@ struct FirstRunSetupView: View {
     @State private var languageWasChosen = false
     @State private var currencyWasChosen = false
 
+    /// Whether breaks are paid is asked on the week's screen (1.2).
     enum Step: Int {
-        case name, week, breaks, holidays, language, crew, pay, finish
+        case name, week, holidays, language, crew, pay, finish
+
+        /// The steps with a question, counted in "2 of 6".
+        static let questionCount = 6
     }
 
     var body: some View {
@@ -47,10 +51,12 @@ struct FirstRunSetupView: View {
                     SetupNameStep(name: $answers.name, onReturn: advance)
                 case .week:
                     SetupWeekStep(answers: $answers)
-                case .breaks:
-                    SetupBreaksStep(breaksArePaid: $answers.breaksArePaid)
                 case .holidays:
-                    SetupHolidaysStep(country: $holidayCountry, region: $holidayRegion)
+                    SetupHolidaysStep(country: $holidayCountry, region: $holidayRegion) {
+                        holidayCountry = nil
+                        holidayRegion = nil
+                        advance()
+                    }
                 case .language:
                     SetupLanguageStep(language: $answers.reportLanguage) { languageWasChosen = true }
                 case .crew:
@@ -60,22 +66,32 @@ struct FirstRunSetupView: View {
                         currencyWasChosen = true
                     }
                 case .finish:
-                    SetupFinishStep(leadsCrew: answers.leadsCrew, onFinish: onFinish)
+                    SetupFinishStep(name: answers.name, onFinish: onFinish)
                 }
             }
             .id(step)
             .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
 
             if step != .finish {
-                Button(action: advance) {
-                    continueLabel
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                VStack(spacing: Metrics.small) {
+                    Button(action: advance) {
+                        Text("Continue")
+                    }
+                    .buttonStyle(.bigAction(.primary, isMain: true))
+                    .accessibilityIdentifier("setup-continue")
+
+                    if step == .pay {
+                        Button {
+                            answers.hourlyRateCents = 0
+                            advance()
+                        } label: {
+                            Text("Skip pay")
+                        }
+                        .buttonStyle(.bigAction(.secondary))
+                        .accessibilityIdentifier("setup-skip-pay")
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
                 .padding(.vertical, Metrics.large)
-                .accessibilityIdentifier("setup-continue")
             }
         }
         .padding(.horizontal, Metrics.extraLarge)
@@ -90,28 +106,37 @@ struct FirstRunSetupView: View {
         }
     }
 
-    /// Pay is optional, and the button says so while no rate is typed.
-    @ViewBuilder
-    private var continueLabel: some View {
-        if step == .pay && answers.hourlyRateCents == 0 {
-            Text("Continue without pay")
-        } else {
-            Text("Continue")
-        }
-    }
-
+    /// Back, "2 of 6" and Skip, and the progress bar under them.
     private var topBar: some View {
-        HStack {
-            if step != .name && step != .finish {
-                Button("Back", action: goBack)
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("setup-back")
+        VStack(spacing: Metrics.small) {
+            HStack {
+                if step != .name && step != .finish {
+                    Button("Back", action: goBack)
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier("setup-back")
+                }
+                Spacer(minLength: 0)
+                if step != .finish {
+                    Button("Skip") { onFinish(nil) }
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier("setup-skip")
+                }
             }
-            Spacer(minLength: 0)
+            .overlay {
+                if step != .finish {
+                    Text(String(
+                        localized: "\(step.rawValue + 1) of \(Step.questionCount)",
+                        comment: "First-run setup progress, such as 2 of 6"
+                    ))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.hoursSecondaryText)
+                    .monospacedDigit()
+                }
+            }
             if step != .finish {
-                Button("Skip") { onFinish(nil) }
-                    .frame(minHeight: 44)
-                    .accessibilityIdentifier("setup-skip")
+                ProgressView(value: Double(step.rawValue + 1), total: Double(Step.questionCount))
+                    .tint(Color.accentColor)
+                    .accessibilityHidden(true)
             }
         }
         .padding(.top, Metrics.small)

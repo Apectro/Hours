@@ -105,11 +105,12 @@ reminders nag only on its work days.
 After an explanation, it saves where the site is from your current location
 (shown as coordinates and a small map, with a radius of 100, 150, 300 or
 500 m) and asks for location "Always". Reaching the site with no clock running
-then asks "Arrived at Trg Pravde — start the clock?", and leaving it with the
-clock running "Left Trg Pravde — stop the clock?"; Start clock and Stop clock
-work from the notification, at the time you arrived or left. Leaving with no
-clock running while the site's day is not written yet asks "Left Trg Pravde —
-write today's hours?" ("07:00–15:30 like last time"): Same as last day writes it
+then asks "At Trg Pravde · Clock in now?", and leaving it with the clock
+running "Leaving Trg Pravde · Clock out now?"; Clock in and Clock out work from
+the notification, at the time you arrived or left. Leaving with no clock
+running while the site's day is not written yet asks "Leaving Trg Pravde ·
+Write today's hours? The usual day is 5 people, 07:00–16:00." (or "07:00–15:30
+like last time" for a site without a usual day): Same as last day writes it
 from the notification, a tap opens the site's day, and that site gets no
 evening reminder that day. Never on a day off or a public holiday, never twice
 within two hours each way, at most 20 sites. The location never leaves the

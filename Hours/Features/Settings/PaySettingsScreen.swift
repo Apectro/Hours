@@ -27,9 +27,7 @@ struct PaySettingsScreen: View {
     var body: some View {
         Form {
             rateSection
-            overtimeSection
             surchargeSection
-            nightSection
             absenceSection
 
             if let history = job.pay, history.hasChanges {
@@ -46,22 +44,6 @@ struct PaySettingsScreen: View {
             }
 
             if showsGeneralSettings {
-                // Pay includes the field allowance and travel (1.2): what a
-                // day pays on top of its hours.
-                Section {
-                    NavigationLink {
-                        AllowanceSettingsScreen()
-                    } label: {
-                        SettingsRow(
-                            title: String(localized: "Allowance & travel"),
-                            value: settings.allowance.isEnabled ? String(localized: "On") : String(localized: "Off"),
-                            systemImage: "car"
-                        )
-                    }
-                    .accessibilityIdentifier("settings-allowance")
-                } footer: {
-                    Text("A daily field allowance, kilometres and travel time, for every job.")
-                }
                 generalSection
             }
 
@@ -114,6 +96,7 @@ struct PaySettingsScreen: View {
 
     // MARK: - Sections
 
+    /// The rate, overtime and the currency: what an hour is worth.
     private var rateSection: some View {
         Section {
             HStack {
@@ -125,11 +108,41 @@ struct PaySettingsScreen: View {
                     .font(.hoursFigure(.body, weight: .medium))
                     .accessibilityIdentifier("pay-hourly-rate")
                 Text(verbatim: settings.money.currencyCode)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
             }
-        } footer: {
-            Text(rateFooter)
+            NavigationLink {
+                overtimeScreen
+            } label: {
+                LabeledContent("Overtime") {
+                    Text(overtimeValue)
+                }
+            }
+            .accessibilityIdentifier("pay-overtime")
+            if showsGeneralSettings {
+                Picker("Currency", selection: currencyBinding) {
+                    ForEach(currencyCodes, id: \.self) { code in
+                        Text(currencyName(code)).tag(code)
+                    }
+                }
+                .pickerStyle(.navigationLink)
+            }
         }
+    }
+
+    /// "+50 %", or "Same rate".
+    private var overtimeValue: String {
+        guard edited.overtimeMode != .sameRate else { return String(localized: "Same rate") }
+        return "+" + (Double(edited.overtimePercent) / 100).formatted(.percent)
+    }
+
+    /// Pay › Overtime: when it starts and what it adds. Edits the same
+    /// draft, saved with Save on Pay.
+    private var overtimeScreen: some View {
+        Form {
+            overtimeSection
+        }
+        .navigationTitle("Overtime")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var overtimeSection: some View {
@@ -147,7 +160,7 @@ struct PaySettingsScreen: View {
                 thresholdRows
             }
         } header: {
-            Text("Overtime")
+            Text("Overtime counts")
         } footer: {
             Text(overtimeFooter)
         }
@@ -189,7 +202,7 @@ struct PaySettingsScreen: View {
     /// Where the figures go, said where the rate is typed in, and with
     /// several jobs whose rate this is.
     private var rateFooter: String {
-        let privacy = String(localized: "Only on this phone and in your backups. Never on site sheets.")
+        let privacy = String(localized: "Only you see earnings. They go on a sheet only if you add the column. Paid days off earn the hours credited for them, at the rate, with no surcharges.")
         guard settings.tracksMultipleJobs else { return privacy }
         let whose = String(
             localized: "This is what \(job.displayName()) pays. Every job keeps its own rate.",
@@ -209,20 +222,10 @@ struct PaySettingsScreen: View {
         }
     }
 
+    /// Night, Saturday and Sunday: each added on top of the rate.
     private var surchargeSection: some View {
         Section {
-            PercentStepperRow(title: String(localized: "Saturday"), percent: field(\.saturdayPercent))
-            PercentStepperRow(title: String(localized: "Sunday and public holidays"), percent: field(\.sundayAndHolidayPercent))
-        } header: {
-            Text("Surcharges")
-        } footer: {
-            Text("Added on top of the rate, and to each other: an hour on a Sunday night pays the Sunday and the night surcharge. Public holidays come from your holidays in Settings.")
-        }
-    }
-
-    private var nightSection: some View {
-        Section {
-            PercentStepperRow(title: String(localized: "Night"), percent: field(\.nightPercent))
+            PercentStepperRow(title: nightTitle, percent: field(\.nightPercent))
             if edited.nightPercent > 0 {
                 OptionalTimeRow(
                     title: String(localized: "From"),
@@ -243,16 +246,40 @@ struct PaySettingsScreen: View {
                     fallback: TimeOfDay(hour: 6, minute: 0)
                 )
             }
+            PercentStepperRow(title: String(localized: "Saturday"), percent: field(\.saturdayPercent))
+            PercentStepperRow(title: String(localized: "Sunday and public holidays"), percent: field(\.sundayAndHolidayPercent))
+        } header: {
+            Text("Surcharges")
         } footer: {
-            Text("The minutes of a shift that fall in the night window, across midnight too.")
+            Text("Added on top of the rate, and to each other: an hour on a Sunday night pays the Sunday and the night surcharge. Public holidays come from your holidays in Settings.")
         }
     }
 
+    /// "Night 22:00–06:00".
+    private var nightTitle: String {
+        let day = today
+        let window = "\(settingsStore.dateFormatting.time(edited.nightStart, on: day))–\(settingsStore.dateFormatting.time(edited.nightEnd, on: day))"
+        return String(localized: "Night \(window)", comment: "Pay, the night surcharge; the value is its hours, such as 22:00–06:00")
+    }
+
+    /// Paid days off, the allowance, and where earnings go.
     private var absenceSection: some View {
         Section {
             Toggle("Paid days off earn money", isOn: field(\.paidAbsenceEarns))
+            if showsGeneralSettings {
+                // Pay includes the field allowance and travel (1.2): what a
+                // day pays on top of its hours.
+                NavigationLink {
+                    AllowanceSettingsScreen()
+                } label: {
+                    LabeledContent("Allowance & travel") {
+                        Text(settings.allowance.isEnabled ? "On" : "Off")
+                    }
+                }
+                .accessibilityIdentifier("settings-allowance")
+            }
         } footer: {
-            Text("Vacation, sick days and public holidays earn the hours credited for them, at the rate, with no surcharges.")
+            Text(rateFooter)
         }
     }
 
@@ -262,12 +289,6 @@ struct PaySettingsScreen: View {
                 Text("Earnings").tag(MainFigure.earnings)
                 Text("Hours balance").tag(MainFigure.hoursBalance)
             }
-            Picker("Currency", selection: currencyBinding) {
-                ForEach(currencyCodes, id: \.self) { code in
-                    Text(currencyName(code)).tag(code)
-                }
-            }
-            .pickerStyle(.navigationLink)
         } header: {
             Text("Showing earnings")
         } footer: {

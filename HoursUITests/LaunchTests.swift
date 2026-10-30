@@ -65,11 +65,13 @@ final class LaunchTests: XCTestCase {
         // would go nowhere. Rows behind a switched-off feature are skipped
         // below rather than listed here, since which ones exist depends on the
         // settings the app starts with.
+        // The first screen's rows; Jobs, Fields, Calendar, Appearance,
+        // iCloud & backup, Privacy and Help & tour are under More (1.2) and
+        // opened from there below.
         let rows = [
-            "Working hours", "Overtime & balance", "Pay", "Leave", "Jobs",
+            "Working hours", "Overtime & balance", "Pay", "Leave",
             "New sites start with", "Reminders",
-            "Day types & holidays", "Sheets", "Fields", "Calendar",
-            "Appearance", "iCloud & backup", "Privacy", "Help & tour",
+            "Day types & holidays", "Sheets",
         ]
         var opened = 0
 
@@ -94,6 +96,22 @@ final class LaunchTests: XCTestCase {
         // stopped being exposed the way this test looks for them, which would
         // otherwise turn the whole test into a no-op that always passes.
         XCTAssertGreaterThanOrEqual(opened, 3, "no settings rows were reachable")
+
+        // Under More: each opens and comes back to More.
+        for _ in 0..<6 { app.swipeDown() }
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
+        var openedUnderMore = 0
+        for row in ["Jobs", "Fields", "Calendar", "Appearance", "iCloud & backup", "Privacy", "Help & tour"] {
+            let label = app.staticTexts[row].firstMatch
+            guard label.exists, label.isHittable else { continue }
+            label.tap()
+            let back = app.navigationBars.buttons["More"]
+            XCTAssertTrue(back.waitForExistence(timeout: 5), "\(row) did not open")
+            back.tap()
+            XCTAssertTrue(app.screen("screen-settings-more").waitForExistence(timeout: 5), "could not get back from \(row)")
+            openedUnderMore += 1
+        }
+        XCTAssertGreaterThanOrEqual(openedUnderMore, 3, "no rows under More were reachable")
     }
 
     /// The one flow the app exists for: open a day, save it, come back. Run
@@ -134,16 +152,18 @@ final class LaunchTests: XCTestCase {
         let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
 
-        let add = app.buttons["Add another block"]
-        guard add.exists || app.scrollViews.otherElements.buttons["Add another block"].exists else {
+        let add = app.buttons["day-editor-add-block"].firstMatch
+        guard add.exists else {
             // The button only appears once the day has times on it, which
             // depends on the schedule for the weekday the test runs on.
             return
         }
+        app.bringToScreen(add)
         add.tap()
 
-        let remove = app.buttons["Remove this block"].firstMatch
+        let remove = app.buttons["day-editor-remove-block"].firstMatch
         XCTAssertTrue(remove.waitForExistence(timeout: 5), "a second block did not appear")
+        app.bringToScreen(remove)
         remove.tap()
 
         // Surviving is the assertion. The editor still being there proves the
@@ -177,18 +197,39 @@ extension XCUIApplication {
 
     /// Opens the editor for today and returns its Save button.
     ///
-    /// A tap selects a day; a tap on the day already selected opens the
-    /// editor. Today starts selected, so one tap is normally enough — but
-    /// which day starts selected is a product decision, so the second tap is
-    /// here rather than assumed away. Both callers got this wrong once by
-    /// asserting on the first tap alone.
+    /// The direct route first: the Today card at the top of the tab opens
+    /// today in the editor (1.2). Failing that — a clock running, where the
+    /// card is the clock — today's cell in the month under it, scrolled to,
+    /// opens the day, and the day's Edit opens the editor.
     func openTodaysEditor(timeout: TimeInterval = 10) -> XCUIElement {
-        let today = buttons["day-\(Self.todayKey)"]
-        if today.waitForExistence(timeout: timeout) {
-            today.tap()
-            let save = buttons["day-editor-save"]
-            if !save.waitForExistence(timeout: 3) { today.tap() }
+        let save = buttons["day-editor-save"].firstMatch
+        // Still on a day opened before: back to Today first.
+        if screen("screen-calendar-day").firstMatch.exists {
+            navigationBars.buttons.element(boundBy: 0).tap()
         }
-        return buttons["day-editor-save"]
+        let card = buttons["today-card"].firstMatch
+        if card.waitForExistence(timeout: timeout) {
+            bringToScreen(card)
+            card.tap()
+            if save.waitForExistence(timeout: 5) { return save }
+        }
+        let today = buttons["day-\(Self.todayKey)"].firstMatch
+        if today.waitForExistence(timeout: 3) {
+            bringToScreen(today)
+            today.tap()
+            if !save.waitForExistence(timeout: 3) {
+                let edit = buttons["day-card-edit"].firstMatch
+                if edit.waitForExistence(timeout: 3) { edit.tap() }
+            }
+        }
+        return save
+    }
+
+    /// Swipes the screen until `element` can be tapped, up first and then
+    /// back down: the Today tab is one long scroll.
+    func bringToScreen(_ element: XCUIElement) {
+        guard element.exists else { return }
+        for _ in 0..<8 where !element.isHittable { swipeUp() }
+        for _ in 0..<10 where !element.isHittable { swipeDown() }
     }
 }

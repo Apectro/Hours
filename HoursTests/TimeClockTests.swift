@@ -47,6 +47,26 @@ final class TimeClockTests: XCTestCase {
         XCTAssertEqual(stored?.shifts.first?.end, Fixture.time(16, 30))
     }
 
+    /// Today's Break button (1.2): the break taken on the clock is on the
+    /// shift it records, and the hours leave it out.
+    func testABreakTakenOnTheClockIsRecordedWithTheShift() {
+        let (clock, store, repository) = makeClock()
+
+        clock.clockIn(at: instant(hour: 8))
+        clock.startBreak(at: instant(hour: 12))
+        XCTAssertEqual(store.running?.isOnBreak, true)
+        clock.endBreak(at: instant(hour: 12, minute: 30))
+        let result = clock.clockOut(at: instant(hour: 16, minute: 30))
+
+        guard case let .recorded(_, worked, _) = result else {
+            return XCTFail("expected the shift to be recorded")
+        }
+        XCTAssertEqual(worked, 480)
+        let breaks = repository.record(on: Fixture.workingTuesday)?.shifts.first?.breaks ?? []
+        XCTAssertEqual(breaks.map(\.start), [Fixture.time(12)])
+        XCTAssertEqual(breaks.map(\.end), [Fixture.time(12, 30)])
+    }
+
     func testClockingInAndOutTwiceInADayMakesASplitShiftRatherThanLosingTheMorning() {
         let (clock, _, repository) = makeClock()
 

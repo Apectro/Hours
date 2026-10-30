@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// The contracted hours of a week, as seven steppers.
+/// The contracted hours of a week (1.2 redesign, board 15): one row a
+/// day, "Mon  07:00–16:00 · 30m  8h 30m", a day off in grey, and the
+/// week's total under them.
 ///
 /// Extracted so the app's own schedule and each job's schedule are edited by
 /// the same control rather than by two that drift apart.
@@ -13,27 +15,33 @@ struct WeekdayHoursSection: View {
     var body: some View {
         Section {
             ForEach(formatting.orderedWeekdayNumbers, id: \.self) { weekday in
-                DurationStepperRow(
-                    title: formatting.weekdayName(for: weekday),
+                WeekdayHoursRow(
+                    weekday: weekday,
                     minutes: binding(for: weekday),
-                    range: 0...(24 * 60),
-                    step: 15,
-                    formatting: durationFormatting
+                    shift: shiftText,
+                    formatting: formatting,
+                    durationFormatting: durationFormatting
                 )
             }
+            LabeledContent("A week") {
+                Text(durationFormatting.string(schedule.weeklyTargetMinutes))
+                    .font(.hoursFigure(.body, weight: .semibold))
+                    .foregroundStyle(.primary)
+            }
+            .frame(minHeight: 44)
         } header: {
-            Text("Contracted hours")
+            Text("Your week")
         } footer: {
-            Text(footer)
+            Text(LocalizedStringKey(footer))
         }
 
         Section {
-            LabeledContent("Sum of the week") {
-                Text(durationFormatting.string(schedule.summedWeeklyMinutes))
-                    .font(.hoursFigure(.body, weight: .medium))
-            }
             Toggle("Different weekly target", isOn: overrideToggle)
             if schedule.weeklyTargetOverrideMinutes != nil {
+                LabeledContent("Sum of the week") {
+                    Text(durationFormatting.string(schedule.summedWeeklyMinutes))
+                        .font(.hoursFigure(.body, weight: .medium))
+                }
                 DurationStepperRow(
                     title: String(localized: "Weekly target"),
                     minutes: overrideBinding,
@@ -42,11 +50,17 @@ struct WeekdayHoursSection: View {
                     formatting: durationFormatting
                 )
             }
-        } header: {
-            Text("Weekly target")
         } footer: {
             Text("Use this when a contract states a weekly figure that does not divide evenly across the days.")
         }
+    }
+
+    /// "07:00–16:00 · 30m": the usual day a new day starts with.
+    private var shiftText: String {
+        let day = CalendarDate.today(in: formatting.calendar)
+        let times = "\(formatting.time(schedule.defaultStart, on: day))–\(formatting.time(schedule.defaultEnd, on: day))"
+        guard schedule.defaultBreakMinutes > 0 else { return times }
+        return "\(times) · \(durationFormatting.string(schedule.defaultBreakMinutes))"
     }
 
     private func binding(for weekday: Int) -> Binding<Int> {
@@ -71,6 +85,46 @@ struct WeekdayHoursSection: View {
             set: { schedule.weeklyTargetOverrideMinutes = $0 }
         )
     }
+}
+
+/// One day of the week: its short name, the usual times or "Day off" in
+/// grey, the hours, and a stepper in quarter hours.
+private struct WeekdayHoursRow: View {
+    let weekday: Int
+    @Binding var minutes: Int
+    let shift: String
+    let formatting: CalendarFormatting
+    let durationFormatting: DurationFormatting
+
+    var body: some View {
+        Stepper(value: $minutes, in: 0...(24 * 60), step: 15) {
+            HStack(spacing: Metrics.medium) {
+                Text(verbatim: formatting.shortWeekdaySymbol(for: weekday))
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 36, alignment: .leading)
+                    .foregroundStyle(isWorking ? Color.primary : Color.secondary)
+                if isWorking {
+                    Text(verbatim: shift)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: Metrics.small)
+                    Text(durationFormatting.string(minutes))
+                        .font(.hoursFigure(.body, weight: .medium))
+                } else {
+                    Text("Day off")
+                        .foregroundStyle(.hoursSecondaryText)
+                    Spacer(minLength: Metrics.small)
+                }
+            }
+        }
+        .frame(minHeight: 44)
+        .accessibilityLabel(Text(verbatim: formatting.weekdayName(for: weekday)))
+        .accessibilityValue(isWorking ? Text(durationFormatting.string(minutes)) : Text("Day off"))
+    }
+
+    private var isWorking: Bool { minutes > 0 }
 }
 
 /// Start, end and break used to pre-fill a new day.
@@ -115,7 +169,7 @@ struct ShiftDefaultsSection: View {
                 )
             }
         } header: {
-            Text("Defaults for a new day")
+            Text("Usual day")
         } footer: {
             Text(String(
                 localized: "These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(defaultWorkedMinutes)) worked.",

@@ -34,7 +34,6 @@ struct DayEditorSheet: View {
     /// The stored days of this day's leave year, read once on opening, for
     /// the "vacation left" line under the day type.
     @State private var leaveYearRecords: [Int: DayRecord] = [:]
-    @State private var isConfirmingDelete = false
     /// Set when a write is refused. Non-nil is the alert's own trigger, so a
     /// refusal cannot be recorded without being shown.
     @State private var refusal: Error?
@@ -58,13 +57,28 @@ struct DayEditorSheet: View {
                 settings: settingsStore.settings,
                 calendar: settingsStore.workCalendar,
                 formatting: settingsStore.dateFormatting,
+                automaticType: automaticType,
                 siteNames: siteNames,
                 onOpenSite: { path.append(SiteRoute(siteID: $0)) },
                 earnings: earnings,
-                vacationLeft: vacationLeft
+                vacationLeft: vacationLeft,
+                onOpenExtras: { path.append(DayExtrasRoute()) }
             )
             .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
+            }
+            // "Allowance, km, note…": the extras and corrections, on the
+            // same draft, pushed by value like the site.
+            .navigationDestination(for: DayExtrasRoute.self) { _ in
+                DayExtrasScreen(
+                    draft: $draft,
+                    computation: computation,
+                    settings: settingsStore.settings,
+                    calendar: settingsStore.workCalendar,
+                    formatting: settingsStore.dateFormatting,
+                    onDelete: storedRecord == nil ? nil : { delete() },
+                    onDone: { if !path.isEmpty { path.removeLast() } }
+                )
             }
             .navigationDestination(for: SiteCrewRoute.self) { route in
                 CrewScreen(siteID: route.siteID)
@@ -88,20 +102,6 @@ struct DayEditorSheet: View {
                         .fontWeight(.semibold)
                         .accessibilityIdentifier("day-editor-save")
                 }
-                if storedRecord != nil {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button("Delete day", role: .destructive) { isConfirmingDelete = true }
-                            .accessibilityIdentifier("day-editor-delete")
-                    }
-                }
-            }
-            .confirmationDialog(
-                "Delete this day? Hours written on a site stay.",
-                isPresented: $isConfirmingDelete,
-                titleVisibility: .visible
-            ) {
-                Button("Delete day", role: .destructive) { delete() }
-                Button("Cancel", role: .cancel) {}
             }
             .alert(
                 "This month is closed",
@@ -165,6 +165,15 @@ struct DayEditorSheet: View {
     }
 
     private var holidays: [HolidayRule] { holidayRecords.map(\.rule) }
+
+    /// What the day resolves to with no type chosen: the schedule's day, or
+    /// a public holiday. The editor's Worked · Away · Day off leave a day
+    /// automatic when it already is the kind chosen.
+    private var automaticType: DayTypeDefinition {
+        var record = draft
+        record.dayTypeID = nil
+        return settingsStore.engine.day(date, record: record, holidays: holidays).dayType
+    }
 
     private var computation: DayComputation {
         settingsStore.engine.day(date, record: draft, holidays: holidays)
