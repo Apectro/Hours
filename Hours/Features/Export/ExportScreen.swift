@@ -3,20 +3,24 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// Choose whose hours and which days, see exactly what will be produced, then
-/// share it.
+/// Choose what to export and which days, see what will be produced, then
+/// make the PDF or the Excel file (Export board, phones 1 and 2).
 ///
-/// One screen for your own timesheet and for a site's month: opened from the
-/// calendar it starts on your hours, opened from a site on that site, and
-/// when there are sites a switch at the top moves between them. The preview
-/// is the same `ReportTable` the file is built from — for a PDF, the real
-/// first page — so what is on screen is what lands in the file.
+/// WHAT is My hours, a Crew sheet for one or more sites merged, or One
+/// person's own sheet. Opened from the calendar it starts on your hours;
+/// opened from a site's Sheet button (`SiteExportScreen`) on a crew sheet of
+/// that site. The preview is the real first page of the PDF built from the
+/// same `ReportTable` as the file, so what is on screen is what is sent.
+///
+/// PDF and Excel each write the file and open it ready to send
+/// (`ExportReadySheet`), where Send… and Save to Files are, and after that
+/// the offer to close the month. A CSV is under This sheet › CSV file, with
+/// the columns, the language and the switches for this export.
 struct ExportScreen: View {
     let initialRange: CalendarDateRange
-    private let initialTarget: ExportTarget
+    private let initialSiteID: UUID?
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.requestReview) private var requestReview
     @Environment(\.modelContext) private var modelContext
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -25,78 +29,89 @@ struct ExportScreen: View {
     // screen may be archived, and its months are still the director's.
     @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
 
-    @State private var target: ExportTarget
+    @State private var mode: ExportMode
+    /// The crew sheet's own site: the first one ticked.
+    @State private var primarySiteID: UUID?
+    /// Other sites on the crew sheet (1.2), in the order ticked: one
+    /// director's sheet with each person's hours a day added up across
+    /// them. For this export only.
+    @State private var sheetSiteIDs: [UUID] = []
+    @State private var choosesOtherSites = false
+    /// The person of One person, by `CrewCandidates.key`.
+    @State private var personKey: String?
+
     @State private var rangeKind: ExportRangeKind = .month
     @State private var anchor: CalendarDate
     @State private var customStart: CalendarDate
     @State private var customEnd: CalendarDate
-    /// `nil` until stepped: a site's sheet opens on last month, because that
-    /// is the month the director asks for at the start of this one.
+    /// `nil` until stepped: a crew sheet opens on last month, because that
+    /// is the month the director asks for at the start of this one, and one
+    /// person's sheet on this month, as from the crew list.
     @State private var siteMonth: YearMonth?
-    @State private var format: ExportFormat = .pdf
+    @State private var personMonth: YearMonth?
     /// Your hours on one site only, for a range worked on more than one
     /// (1.2); nil is all sites.
     @State private var siteFilter: UUID?
 
-    /// What the timesheet file will be called, without its extension.
-    ///
-    /// Follows the range until somebody types over it, and stops following
-    /// the moment they do — changing the month after naming a file should not
-    /// silently rename it back.
+    /// What the file will be called, without its extension. Follows the
+    /// period until somebody types over it.
     @State private var fileName: String = ""
     @State private var fileNameEdited = false
+    /// This export's columns, language and switches (This sheet); nil is
+    /// the defaults in Settings › Sheets.
+    @State private var sheetPreferences: ExportPreferences?
 
     @State private var tables: ExportTables?
+    @State private var personSheets: [CrewSheetTables] = []
+    @State private var personSheet: CrewSheetTables?
     @State private var pdfData: Data?
     @State private var pageImage: UIImage?
-    @State private var fileURL: URL?
+    @State private var summary = ""
+    /// Working days in the period with nothing written: your own
+    /// (`MissingDays`) or the sites' (`SiteDayStatus`).
+    @State private var missingDates: [CalendarDate] = []
+    @State private var showsMissing = false
     @State private var failureMessage: String?
     @State private var paywallReason: ProFeature?
     @State private var showsFullPage = false
+    @State private var ready: ExportReadyItem?
+    /// The format chosen before the name was asked for, opened once it is.
+    @State private var pendingFormat: ExportFormat?
 
     /// The sheet carries your name, so it is asked for once when it is
-    /// missing — at the share button, never in front of the preview. "Not
-    /// now" is an answer too: the sheet then goes without.
+    /// missing — at PDF or Excel, never in front of the preview. "Not now"
+    /// is an answer too: the sheet then goes without.
     @State private var asksForName = false
     @State private var typedName = ""
     @State private var nameAnswered = false
 
-    /// A site's diary follows its hours unless switched off here. The switch
-    /// is only offered for a month that has a diary, so "on" is the default
-    /// exactly when there is something to include.
+    /// A site's diary follows its hours unless switched off.
     @State private var includesDiary = true
-    /// Diary photos already made small for the PDF, kept between previews so
-    /// stepping months or formats does not re-encode them every time.
+    /// Diary photos already made small for the PDF, kept between previews.
     @State private var printPhotos: [UUID: Data] = [:]
-    /// Signing a site's sheet is optional. Off, the sheet has no line to sign
-    /// on and no sign-off page, and the sign-off screen is not offered.
-    /// Remembered, because a crew that does not sign never does.
+    /// Signing a sheet is optional. Remembered, because a crew that does
+    /// not sign never does.
     @AppStorage("export.siteSignatures") private var includesSignatures = true
     /// Moved on by the sign-off screen, so a new signature redraws the preview.
     @State private var signOffRevision = 0
-    /// A site's month as a sheet for each person instead of one for the
-    /// director: their days on every site, one file each, all in one share.
+    /// A crew sheet as a sheet for each person instead of one for the
+    /// director: their days on the sheet's sites, one file each.
     @State private var perPerson = false
-    @State private var personSheets: [CrewSheetTables] = []
-    @State private var fileURLs: [URL] = []
-    /// Other sites on the site's sheet (1.2), in the order chosen: one
-    /// director's sheet with each person's hours a day added up across them.
-    /// For this export only; a new export starts on the one site.
-    @State private var sheetSiteIDs: [UUID] = []
-    @State private var choosesSheetSites = false
-    /// The month's crew hours by site, for the list of sites to take in;
-    /// also which archived sites have days in the month.
+    /// The month's crew hours by site: the summary's hours, the "Other
+    /// sites" list, and which archived sites have days in the month.
     @State private var monthSiteHours: [UUID: Int] = [:]
+    /// Everyone on a crew, once per name, for One person.
+    @State private var people: [CrewMember] = []
 
     /// - Parameters:
     ///   - initialRange: the days your own timesheet starts on.
-    ///   - site: the site to open on, when opened from one.
-    ///   - month: the site month to open on; last month when `nil`.
+    ///   - site: the site to open a crew sheet on, when opened from one.
+    ///   - month: the crew sheet's month; last month when `nil`.
     init(initialRange: CalendarDateRange, site: Site? = nil, month: YearMonth? = nil) {
         self.initialRange = initialRange
-        let target: ExportTarget = site.map { .site($0.id) } ?? .personal
-        self.initialTarget = target
-        _target = State(initialValue: target)
+        self.initialSiteID = site?.id
+        _mode = State(initialValue: site == nil ? .myHours : .crewSheet)
+        _primarySiteID = State(initialValue: site?.id)
         _siteMonth = State(initialValue: month)
         _anchor = State(initialValue: initialRange.start)
         _customStart = State(initialValue: initialRange.start)
@@ -108,47 +123,34 @@ struct ExportScreen: View {
             form
                 .navigationTitle("Export")
                 // A screen the UI tests wait for. The title beside it is translated.
-                .accessibilityIdentifier(selectedSite == nil ? "screen-export" : "screen-site-export")
-                .navigationBarTitleDisplayMode(.inline)
+                .accessibilityIdentifier(mode == .crewSheet ? "screen-site-export" : "screen-export")
+                .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") { dismiss() }
                             .accessibilityIdentifier("export-done")
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    ExportShareBar(
-                        format: format,
-                        state: shareState,
-                        onLocked: { paywallReason = .fileExport },
-                        onNeedsName: askForName,
-                        onShare: { url in
-                            ShareSheetPresenter.present(url) { outcome in
-                                if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
-                            }
-                        },
-                        onShareFiles: { urls in
-                            ShareSheetPresenter.present(urls) { outcome in
-                                if outcome == .completed { ReviewPromptStore.askIfDue(requestReview) }
-                            }
-                        }
-                    )
-                }
+                .safeAreaInset(edge: .bottom) { bottomBar }
                 .task {
                     // Clear anything a previous export left in the temporary
                     // directory before writing a new file into it.
                     ExportFileFactory.clearPreviousExports()
-                    rangeKind = settings.export.defaultRange
+                    let preferred = settings.export.defaultRange
+                    if preferred == .day {
+                        // A single day is Dates with the day at both ends.
+                        rangeKind = .custom
+                        customStart = initialRange.start
+                        customEnd = initialRange.start
+                    } else {
+                        rangeKind = preferred
+                    }
+                    if primarySiteID == nil { primarySiteID = pickableSites.first?.id }
+                    loadPeople()
                     regenerate()
                 }
                 .onChange(of: regenerationKey) { _, _ in regenerate() }
-                // A new name is a rename, not a re-export: the file already on
-                // disk is the right one, and rebuilding it per keystroke is work
-                // that arrives back where it started.
-                .onChange(of: fileBaseName) { _, newName in
-                    guard let url = fileURL else { return }
-                    fileURL = (try? ExportFileFactory.rename(url, to: newName)) ?? url
-                }
+                .onChange(of: mode) { _, _ in showsMissing = false }
                 .alert("Your name on the sheet", isPresented: $asksForName) {
                     TextField("Name and surname", text: $typedName)
                         .textInputAutocapitalization(.words)
@@ -160,18 +162,16 @@ struct ExportScreen: View {
                 .sheet(isPresented: $showsFullPage) {
                     ExportFullPageSheet(data: pdfData ?? Data())
                 }
-                .sheet(isPresented: $choosesSheetSites) {
-                    if let site = selectedSite {
-                        ExportSheetSitesPicker(
-                            site: site,
-                            candidates: sheetSiteCandidates,
-                            hours: monthSiteHours,
-                            chosen: $sheetSiteIDs
-                        )
-                    }
+                .sheet(item: $ready) { item in
+                    ExportReadySheet(item: item)
                 }
-                // Another site's export starts on that site alone.
-                .onChange(of: target) { _, _ in sheetSiteIDs = [] }
+                .sheet(isPresented: $choosesOtherSites) {
+                    ExportSheetSitesPicker(
+                        candidates: otherSiteCandidates,
+                        hours: monthSiteHours,
+                        chosen: $sheetSiteIDs
+                    )
+                }
                 .paywall(for: $paywallReason)
         }
     }
@@ -181,19 +181,21 @@ struct ExportScreen: View {
     private var form: some View {
         Form {
             if !pickableSites.isEmpty {
-                ExportTargetPicker(target: $target, sites: pickableSites)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                Section {
+                    ExportTargetPicker(mode: $mode)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                } header: {
+                    Text("What")
+                }
             }
-            if let site = selectedSite {
-                siteMonthSection(site)
-            } else {
+            switch mode {
+            case .myHours:
                 ExportRangeSection(
                     rangeKind: $rangeKind,
                     customStart: dateBinding($customStart),
                     customEnd: dateBinding($customEnd),
-                    description: rangeDescription,
-                    footer: "\(dayCountText) · \(entryCountText)",
+                    title: periodTitle,
                     canStepForward: rangeKind.canStepForward(
                         from: anchor,
                         today: CalendarDate.today(in: calendar),
@@ -201,116 +203,83 @@ struct ExportScreen: View {
                     ),
                     onStep: step
                 )
+                sitesFilterSection
+            case .crewSheet:
                 sitesSection
+                monthSection(monthBinding)
+            case .onePerson:
+                personSection
+                monthSection(personMonthBinding)
             }
+            missingSection
             previewSection
             Section {
-                ExportFormatCards(selection: $format)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
-            // A section of its own: a grouped row under the cards in the same
-            // section was drawn over the selected card's outline.
-            if selectedSite != nil {
-                Section {
-                    Toggle("One sheet per person", isOn: $perPerson)
-                        .accessibilityIdentifier("export-per-person")
-                } footer: {
-                    if perPerson {
-                        if sheetSites.count > 1 {
-                            Text("A file for each person, with their days on the sites on this sheet. They all go in one share.")
-                        } else {
-                            Text("A file for each person, with their days on every site. They all go in one share.")
-                        }
-                    }
+                NavigationLink {
+                    thisSheetScreen
+                } label: {
+                    Label("Columns, language and more", systemImage: "slider.horizontal.3")
                 }
-            }
-            nameSection
-            if selectedSite == nil {
-                fileSection
+                .accessibilityIdentifier("export-this-sheet")
+            } footer: {
+                proFooter
             }
         }
     }
 
-    private func siteMonthSection(_ site: Site) -> some View {
+    /// WHICH SITES · TAP MORE THAN ONE TO MERGE.
+    private var sitesSection: some View {
+        Section {
+            ExportSiteChips(
+                sites: chipSites,
+                chosen: sheetSites.map(\.id),
+                hasOtherSites: !otherSiteCandidates.isEmpty,
+                onToggle: toggleSite,
+                onOtherSites: { choosesOtherSites = true }
+            )
+            .listRowInsets(EdgeInsets(top: Metrics.tiny, leading: 0, bottom: Metrics.tiny, trailing: 0))
+            .listRowBackground(Color.clear)
+        } header: {
+            Text("Which sites · tap more than one to merge")
+        }
+    }
+
+    private func monthSection(_ month: Binding<YearMonth>) -> some View {
         Section {
             PeriodStepper(
-                month: monthBinding,
+                month: month,
                 latest: currentMonth,
-                title: formatting.monthTitle(month),
-                caption: siteCaption
+                title: formatting.monthTitle(month.wrappedValue),
+                caption: ""
             )
-            // Which sites the sheet takes in: this one, and any others
-            // picked in a sheet of their own. Only once there is another
-            // site to take in.
-            if !sheetSiteCandidates.isEmpty {
-                sheetSitesRow
-            }
-            if tables?.hasDiary == true && !perPerson {
-                Toggle("Include site diary", isOn: $includesDiary)
-                    .accessibilityIdentifier("export-include-diary")
-            }
-            Toggle("Signatures", isOn: $includesSignatures)
-                .accessibilityIdentifier("export-include-signatures")
-            // A link with its destination inline, as Export options below:
-            // a value pushed onto this sheet's own stack. Always shown, so it
-            // can be found; with Signatures off it stays, greyed, saying why.
-            NavigationLink {
-                SiteSignOffScreen(site: site, month: month) { signOffRevision += 1 }
-            } label: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Label("Crew sign-off", systemImage: "signature")
-                    if !includesSignatures {
-                        Text("Turned off for this sheet")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .disabled(!includesSignatures)
-            .accessibilityIdentifier("export-sign-off")
-        } footer: {
-            VStack(alignment: .leading, spacing: Metrics.small) {
-                if tables?.hasDiary == true && includesDiary && !perPerson {
-                    Text("The diary follows the hours: on pages of its own in the PDF, on a second sheet in Excel. A CSV holds the hours only.")
-                }
-                if !includesSignatures {
-                    Text("No line to sign on and no sign-off page. Signatures already given are kept.")
-                }
-            }
+        } header: {
+            Text("Which month")
         }
     }
 
-    /// "Sites on this sheet" and the sites it takes in, under it.
-    private var sheetSitesRow: some View {
-        Button {
-            choosesSheetSites = true
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Sites on this sheet")
-                        .foregroundStyle(.primary)
-                    Text(verbatim: sheetSites.map(\.name).joined(separator: " · "))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+    /// One person: everyone on a crew, once per name.
+    @ViewBuilder
+    private var personSection: some View {
+        Section {
+            if people.isEmpty {
+                Text("Nobody is on a crew yet.")
+                    .foregroundStyle(.hoursSecondaryText)
+            } else {
+                Picker("Person", selection: personBinding) {
+                    ForEach(people) { member in
+                        Text(verbatim: member.name).tag(Optional(CrewCandidates.key(for: member.name)))
+                    }
                 }
-                Spacer(minLength: Metrics.small)
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
+                .accessibilityIdentifier("export-person")
             }
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
+        } header: {
+            Text("Who")
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("export-sheet-sites")
     }
 
     /// "All sites" or one of them, only when the range has hours on more
     /// than one site.
     @ViewBuilder
-    private var sitesSection: some View {
+    private var sitesFilterSection: some View {
         if let sites = tables?.sites, sites.count > 1 {
             Section {
                 Picker("Sites", selection: $siteFilter) {
@@ -328,127 +297,134 @@ struct ExportScreen: View {
         }
     }
 
-    /// The site the timesheet is filtered to, while the range still has it.
-    private var filteredSite: Site? {
-        guard let siteFilter, let sites = tables?.sites, sites.count > 1 else { return nil }
-        return sites.first { $0.id == siteFilter }
+    /// "Nothing written on 2 days · Show": orange, the colour of "look at
+    /// this", and the days themselves under it once asked for.
+    @ViewBuilder
+    private var missingSection: some View {
+        if mode != .onePerson, !missingDates.isEmpty {
+            Section {
+                Button {
+                    withAnimation(.snappy(duration: 0.2)) { showsMissing.toggle() }
+                } label: {
+                    HStack(spacing: Metrics.small) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .accessibilityHidden(true)
+                        Text(String(inflected: "Nothing written on ^[\(missingDates.count) day](inflect: true)"))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(showsMissing ? "Hide" : "Show")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hoursAttention)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("export-missing-days")
+                if showsMissing {
+                    Text(verbatim: missingDates.map { formatting.mediumDate($0) }.joined(separator: " · "))
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+            .listRowBackground(Color.hoursAttentionFill.opacity(0.12))
+        }
     }
 
     @ViewBuilder
     private var previewSection: some View {
         Section {
-            if let tables, tables.hasContent {
-                if showsPersonSheets, let first = personSheets.first {
-                    personPreview(first)
-                } else if format == .pdf {
-                    ExportPagePreview(image: pageImage, title: tables.file.title) { showsFullPage = pdfData != nil }
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                } else {
-                    tablePreview(tables.preview)
+            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                Text("Preview")
+                    .font(.subheadline.weight(.bold))
+                Spacer(minLength: Metrics.small)
+                Text(verbatim: summary)
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+                    .multilineTextAlignment(.trailing)
+                    .accessibilityIdentifier("export-summary")
+            }
+            .accessibilityElement(children: .combine)
+            if hasContent {
+                ExportPagePreview(image: pageImage, title: previewTitle) { showsFullPage = pdfData != nil }
+                    .listRowInsets(EdgeInsets(top: 0, leading: Metrics.small, bottom: Metrics.small, trailing: Metrics.small))
+                if let note = personNote {
+                    Text(verbatim: note)
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
-            } else if selectedSite != nil {
+            } else if tables == nil && personSheet == nil && mode != .onePerson {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 120)
+            } else if mode == .myHours {
+                ContentUnavailableView(
+                    "Nothing in this range",
+                    systemImage: "tray",
+                    description: Text("Pick a different range, or switch on “Include days with no entry” under Columns, language and more.")
+                )
+            } else {
                 ContentUnavailableView(
                     "Nothing recorded this month",
                     systemImage: "tray",
                     description: Text("Choose another month to see its days.")
                 )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var proFooter: some View {
+        if !subscriptions.allows(.fileExport) {
+            if mode == .myHours {
+                Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
             } else {
-                ContentUnavailableView(
-                    "Nothing in this range",
-                    systemImage: "tray",
-                    description: Text("Pick a different range, or switch on “Include days with no entry” in export options.")
-                )
-            }
-        } header: {
-            Text("Preview")
-        } footer: {
-            // Under the section, not a row of it: a grouped row under the
-            // clear page preview left a seam.
-            if tables?.hasContent == true, showsPersonSheets, let first = personSheets.first {
-                Text(String(
-                        localized: "Preview: \(first.tables.preview.ownerName). Everyone on the sheet gets a file of their own.",
-                        comment: "Under the export preview with one sheet per person; the value is the first person's name"
-                    ))
+                Text("The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.")
             }
         }
     }
 
-    /// The table the workbook or the CSV will hold. A site's month is shown
-    /// whole — never more than 31 days, and a director's sheet missing its
-    /// last week is not a preview of it — and a timesheet's first dozen days.
-    @ViewBuilder
-    private func tablePreview(_ table: ReportTable) -> some View {
-        let limit = table.kind == .siteSheet ? 31 : 12
-        ExportPreviewTable(table: table, rowLimit: limit)
-            .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
-        if table.kind == .timesheet && table.rows.count > limit {
-            Text(String(
-                    localized: "Showing the first 12 of \(table.rows.count) rows.",
-                    comment: "Under the export preview when the range is longer than the preview"
-                ))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+    /// PDF and Excel, and what went wrong writing one, if anything did.
+    private var bottomBar: some View {
+        VStack(spacing: Metrics.small) {
+            if let failureMessage {
+                Label(failureMessage, systemImage: "exclamationmark.triangle")
+                    .font(.footnote)
+                    .foregroundStyle(Color.hoursMissing)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            ExportFormatCards(
+                isEnabled: hasContent,
+                isLocked: !subscriptions.allows(.fileExport),
+                onChoose: makeFile
+            )
         }
+        .padding(.horizontal, Metrics.large)
+        .padding(.vertical, Metrics.small)
+        .background(.bar)
     }
 
-    /// The first person's sheet, as the director's sheet is previewed: the
-    /// page for a PDF, the table for a workbook or a CSV.
-    @ViewBuilder
-    private func personPreview(_ sheet: CrewSheetTables) -> some View {
-        if format == .pdf {
-            ExportPagePreview(image: pageImage, title: sheet.tables.file.title) { showsFullPage = pdfData != nil }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-        } else {
-            tablePreview(sheet.tables.preview)
-        }
-    }
-
-    private var nameSection: some View {
-        Section {
-            ExportNameRow(name: ownerName) {
-                typedName = ownerName
-                asksForName = true
-            }
-        } footer: {
-            if !subscriptions.allows(.fileExport) {
-                if selectedSite == nil {
-                    Text("Timesheets are part of Zeitkonto Pro. Settings › Backup and data writes a file with every day you have ever recorded in it, and always will, free.")
-                } else {
-                    Text("The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.")
-                }
-            }
-        }
-    }
-
-    private var fileSection: some View {
-        Section {
-            HStack {
-                TextField(suggestedFileName, text: fileNameBinding)
-                    .autocorrectionDisabled()
-                    .submitLabel(.done)
-                Text(verbatim: ".\(format.fileExtension)")
-                    .foregroundStyle(.secondary)
-                    .monospaced()
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("File name")
-
-            NavigationLink {
-                ExportSettingsScreen()
-            } label: {
-                Label("Export options", systemImage: "slider.horizontal.3")
-            }
-        }
+    private var thisSheetScreen: some View {
+        ExportThisSheetScreen(
+            mode: mode,
+            preferences: preferencesBinding,
+            fileName: showsFileName ? fileNameBinding : nil,
+            suggestedFileName: suggestedFileName,
+            perPerson: $perPerson,
+            offersDiary: tables?.hasDiary == true,
+            includesDiary: $includesDiary,
+            includesSignatures: $includesSignatures,
+            signOffSite: mode == .crewSheet ? selectedSite : nil,
+            month: month,
+            onSigned: { signOffRevision += 1 },
+            onCSV: { makeFile(.csv) }
+        )
     }
 
     @ViewBuilder
     private var nameMessage: some View {
-        if selectedSite == nil {
-            Text("Printed on every sheet you export, and kept in Settings › Export options.")
+        if mode == .myHours {
+            Text("Printed on every sheet you export, and kept in Settings › Sheets.")
         } else {
-            Text("Printed above your column instead of “You”, and kept in Settings › Export options.")
+            Text("Printed above your column instead of “You”, and kept in Settings › Sheets.")
         }
     }
 
@@ -460,6 +436,26 @@ struct ExportScreen: View {
     private var currentMonth: YearMonth { CalendarDate.today(in: calendar).yearMonth }
     private var ownerName: String { settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines) }
 
+    /// This export's preferences: This sheet's copy, or the defaults, with
+    /// the name always yours as kept.
+    private var exportPreferences: ExportPreferences {
+        var preferences = sheetPreferences ?? settings.export
+        preferences.ownerName = settings.export.ownerName
+        return preferences
+    }
+
+    /// The settings the sheets are built with: everything as set, the
+    /// export as This sheet has it.
+    private var exportSettings: AppSettings {
+        var copy = settings
+        copy.export = exportPreferences
+        return copy
+    }
+
+    private var preferencesBinding: Binding<ExportPreferences> {
+        Binding(get: { exportPreferences }, set: { sheetPreferences = $0 })
+    }
+
     /// For display only, so a duplicate row left by sync just means the first
     /// of the two is shown; `SiteRepository` collapses it on the next read.
     private var allSites: [Site] {
@@ -470,66 +466,92 @@ struct ExportScreen: View {
     /// The active sites, and the one the screen was opened from even if it
     /// has been archived since.
     private var pickableSites: [Site] {
-        allSites.filter { !$0.isArchived || $0.id == initialTarget.siteID }
+        allSites.filter { !$0.isArchived || $0.id == initialSiteID }
     }
 
     private var selectedSite: Site? {
-        guard let id = target.siteID else { return nil }
+        guard mode == .crewSheet, let id = primarySiteID else { return nil }
         return allSites.first { $0.id == id }
     }
 
-    private var month: YearMonth { siteMonth ?? currentMonth.adding(months: -1) }
-
-    /// The sites a site's sheet takes in: the export's own, then the others
-    /// chosen, while they are still offered.
+    /// The sites the crew sheet takes in: its own, then the others ticked.
     private var sheetSites: [Site] {
         guard let site = selectedSite else { return [] }
-        let offered = sheetSiteCandidates
-        return [site] + sheetSiteIDs.compactMap { id in offered.first { $0.id == id } }
+        return [site] + sheetSiteIDs.compactMap { id in
+            id == site.id ? nil : allSites.first { $0.id == id }
+        }
     }
 
-    /// The other active sites, and archived ones with days in the month.
-    private var sheetSiteCandidates: [Site] {
-        guard let site = selectedSite else { return [] }
-        return allSites.filter { $0.id != site.id && (!$0.isArchived || monthSiteHours[$0.id] != nil) }
+    /// The chips: the active sites, and any archived site on the sheet.
+    private var chipSites: [Site] {
+        let onSheet = Set(sheetSites.map(\.id))
+        return allSites.filter { !$0.isArchived || $0.id == initialSiteID || onSheet.contains($0.id) }
+    }
+
+    /// Behind "Other sites": archived sites with days in the month, or
+    /// already on the sheet.
+    private var otherSiteCandidates: [Site] {
+        let shown = Set(pickableSites.map(\.id))
+        return allSites.filter { site in
+            site.isArchived && !shown.contains(site.id) && site.id != primarySiteID
+                && (monthSiteHours[site.id] != nil || sheetSiteIDs.contains(site.id))
+        }
+    }
+
+    /// A crew sheet's month, or one person's.
+    private var month: YearMonth {
+        switch mode {
+        case .onePerson: return personMonth ?? currentMonth
+        default: return siteMonth ?? currentMonth.adding(months: -1)
+        }
     }
 
     private var monthBinding: Binding<YearMonth> {
-        Binding(get: { month }, set: { siteMonth = $0 })
+        Binding(get: { siteMonth ?? currentMonth.adding(months: -1) }, set: { siteMonth = $0 })
     }
 
-    /// "21 days · 5 people", read off the sheet itself.
-    private var siteCaption: String {
-        guard let table = tables?.preview, table.kind == .siteSheet, tables?.hasContent == true else { return "" }
-        let days = table.rows.count - table.trailingSummaryRows
-        // A person is the one group of two columns; the date, the day and
-        // the notes are a column each.
-        let people = table.validGroups.filter { $0.span > 1 }.count
-        // Two counts joined rather than one sentence: each agrees with its
-        // own number, and the dot between them needs no translating.
-        return [
-            String(inflected: "^[\(days) day](inflect: true)"),
-            String(inflected: "^[\(people) person](inflect: true)")
-        ].joined(separator: " · ")
+    private var personMonthBinding: Binding<YearMonth> {
+        Binding(get: { personMonth ?? currentMonth }, set: { personMonth = $0 })
     }
 
-    private var needsName: Bool { !nameAnswered && ownerName.isEmpty }
+    private var personBinding: Binding<String?> {
+        Binding(get: { personKey ?? people.first.map { CrewCandidates.key(for: $0.name) } }, set: { personKey = $0 })
+    }
 
-    /// One sheet per person is a site's option; your own hours are one sheet.
-    private var showsPersonSheets: Bool { selectedSite != nil && perPerson }
+    private var selectedPerson: CrewMember? {
+        guard let key = personBinding.wrappedValue else { return nil }
+        return people.first { CrewCandidates.key(for: $0.name) == key }
+    }
 
-    private var shareState: ExportShareState {
-        guard let tables, tables.hasContent else { return tables == nil ? .preparing : .empty }
-        if !subscriptions.allows(.fileExport) { return .locked }
-        if needsName { return .needsName }
-        if showsPersonSheets {
-            if !fileURLs.isEmpty { return .readyFiles(fileURLs) }
-        } else if let fileURL {
-            return .ready(fileURL)
+    private var needsName: Bool { mode != .onePerson && !nameAnswered && ownerName.isEmpty }
+
+    /// One sheet per person is a crew sheet's option.
+    private var showsPersonSheets: Bool { mode == .crewSheet && perPerson }
+
+    private var hasContent: Bool {
+        switch mode {
+        case .onePerson: return personSheet?.tables.hasContent == true
+        default: return tables?.hasContent == true
         }
-        if let failureMessage { return .failed(failureMessage) }
-        return .preparing
     }
+
+    /// The previewed sheet's title, which the UI tests read.
+    private var previewTitle: String {
+        if mode == .onePerson { return personSheet?.tables.file.title ?? "" }
+        if showsPersonSheets, let first = personSheets.first { return first.tables.file.title }
+        return tables?.file.title ?? ""
+    }
+
+    private var personNote: String? {
+        guard showsPersonSheets, let first = personSheets.first else { return nil }
+        return String(
+            localized: "Preview: \(first.tables.preview.ownerName). Everyone on the sheet gets a file of their own.",
+            comment: "Under the export preview with one sheet per person; the value is the first person's name"
+        )
+    }
+
+    /// A file name to type over: not for a file per person.
+    private var showsFileName: Bool { mode != .onePerson && !showsPersonSheets }
 
     private var resolvedRange: CalendarDateRange {
         switch rangeKind {
@@ -537,72 +559,72 @@ struct ExportScreen: View {
         case .week: return CalendarDateRange.week(containing: anchor, in: calendar)
         case .month: return anchor.yearMonth.range(in: calendar)
         case .year: return CalendarDateRange.year(anchor.year, in: calendar)
-        case .custom: return CalendarDateRange(start: customStart, end: customEnd)
+        case .custom: return CalendarDateRange(start: customStart, end: max(customStart, customEnd))
         }
     }
 
-    private var rangeDescription: String {
-        let range = resolvedRange
-        return range.start == range.end
-            ? formatting.mediumDate(range.start)
-            : "\(formatting.mediumDate(range.start)) – \(formatting.mediumDate(range.end))"
-    }
-
-    private var dayCountText: String {
-        let count = resolvedRange.days(in: calendar).count
-        return String(inflected: "^[\(count) day](inflect: true)")
-    }
-
-    private var entryCountText: String {
-        let count = tables?.preview.rows.filter(\.hasEntry).count ?? 0
-        return String(
-            localized: "\(count) with hours recorded",
-            comment: "How many days in the range actually have hours on them"
-        )
+    /// "October 2026", "2026" or the week's two dates.
+    private var periodTitle: String {
+        switch rangeKind {
+        case .month: return formatting.monthTitle(anchor.yearMonth)
+        case .year: return String(anchor.year)
+        default:
+            let range = resolvedRange
+            return range.start == range.end
+                ? formatting.mediumDate(range.start)
+                : "\(formatting.mediumDate(range.start)) – \(formatting.mediumDate(range.end))"
+        }
     }
 
     private var exportNaming: ExportNaming {
-        ExportNaming(settings: settings, calendar: calendar)
+        ExportNaming(settings: exportSettings, calendar: calendar)
     }
 
-    /// The file's name when nobody has typed one: a timesheet's follows its
-    /// range, a site's is the site and the month.
+    /// The file's name when nobody has typed one.
     private var suggestedFileName: String {
-        if selectedSite != nil { return exportNaming.siteSheetFileName(sheetSites, month: month) }
+        if mode == .crewSheet { return exportNaming.siteSheetFileName(sheetSites, month: month) }
         let name = exportNaming.timesheetFileName(rangeKind: rangeKind, range: resolvedRange)
-        return filteredSite.map { "\(name) - \($0.name)" } ?? name
+        if let siteFilter, let site = tables?.sites.first(where: { $0.id == siteFilter }), (tables?.sites.count ?? 0) > 1 {
+            return "\(name) - \(site.name)"
+        }
+        return name
     }
 
     /// Typing marks the name as the person's own; clearing the field hands it
-    /// back to the range, so there is always a way to undo an edit.
+    /// back to the period.
     private var fileNameBinding: Binding<String> {
         Binding(
             get: { fileName },
             set: { typed in
                 fileName = typed
-                // Emptying the field hands the name back to the range rather
-                // than snapping the suggestion in under the cursor — which
-                // would make deleting the last character impossible.
                 fileNameEdited = !typed.trimmingCharacters(in: .whitespaces).isEmpty
             }
         )
     }
 
     private var fileBaseName: String {
-        guard selectedSite == nil else { return suggestedFileName }
         let typed = fileName.trimmingCharacters(in: .whitespaces)
-        return typed.isEmpty ? suggestedFileName : typed
+        return typed.isEmpty || !fileNameEdited ? suggestedFileName : typed
     }
 
-    /// Everything that changes what the file contains, or whether one is
-    /// written yet.
+    /// The month the file covers, for the offer to close it after sending.
+    private var closeMonth: YearMonth? {
+        let today = CalendarDate.today(in: calendar)
+        let sent = mode == .myHours ? ExportCloseOffer.wholeMonth(resolvedRange, calendar: calendar) : month
+        return ExportCloseOffer.month(sent: sent, today: today, lock: settings.monthLock)
+    }
+
+    /// Everything that changes what the sheet contains.
     private var regenerationKey: String {
         let range = resolvedRange
-        let who = target.siteID.map { "\($0.uuidString)-\(month.year)-\(month.month)" } ?? "\(range.start.key)-\(range.end.key)"
-        return "\(who)-\(format.rawValue)-\(settings.export.hashValue)-\(needsName)-\(subscriptions.allows(.fileExport))"
+        let what: String
+        switch mode {
+        case .myHours: what = "me-\(range.start.key)-\(range.end.key)-\(siteFilter?.uuidString ?? "all")"
+        case .crewSheet: what = "crew-\(month.year)-\(month.month)-\(sheetSites.map(\.id.uuidString).joined(separator: ","))"
+        case .onePerson: what = "person-\(month.year)-\(month.month)-\(personBinding.wrappedValue ?? "")"
+        }
+        return "\(what)-\(exportPreferences.hashValue)-\(needsName)"
             + "-\(includesDiary)-\(includesSignatures)-\(signOffRevision)-\(perPerson)"
-            + "-\(siteFilter?.uuidString ?? "all")"
-            + "-\(sheetSiteIDs.map(\.uuidString).joined(separator: ","))"
     }
 
     private func dateBinding(_ binding: Binding<CalendarDate>) -> Binding<Date> {
@@ -616,40 +638,59 @@ struct ExportScreen: View {
 
     private func regenerate() {
         if !fileNameEdited { fileName = suggestedFileName }
+        failureMessage = nil
+        let maker = ExportTableMaker(context: modelContext, settings: exportSettings, calendar: calendar)
+        personSheets = []
+        personSheet = nil
+        tables = nil
+        var first: ExportTables?
 
-        let maker = ExportTableMaker(context: modelContext, settings: settings, calendar: calendar)
-        let built: ExportTables
-        if selectedSite != nil {
-            monthSiteHours = maker.siteMonthHours(month: month)
-            built = maker.sites(sheetSites, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
-        } else {
-            built = maker.personal(
+        switch mode {
+        case .myHours:
+            let built = maker.personal(
                 range: resolvedRange,
                 title: exportNaming.reportTitle(rangeKind: rangeKind, anchor: anchor, range: resolvedRange),
                 period: exportNaming.period(rangeKind: rangeKind, anchor: anchor, range: resolvedRange),
                 siteFilter: siteFilter
             )
+            tables = built
+            first = built
+            readPersonal()
+        case .crewSheet:
+            monthSiteHours = maker.siteMonthHours(month: month)
+            let built = maker.sites(sheetSites, month: month, includeDiary: includesDiary, includeSignatures: includesSignatures)
+            tables = built
+            first = built
+            if perPerson, let site = selectedSite {
+                personSheets = maker.crewSheets(site: site, month: month, includeSignatures: includesSignatures, sites: sheetSites)
+                first = personSheets.first?.tables
+            }
+            readSites(sheet: built)
+        case .onePerson:
+            missingDates = []
+            if let member = selectedPerson {
+                let sheet = maker.crewSheet(for: member, month: month, includeSignatures: includesSignatures)
+                personSheet = sheet
+                first = sheet.tables
+                let days = sheet.tables.file.rows.filter { $0.role == .day }.count
+                summary = sheet.tables.hasContent ? String(inflected: "^[\(days) day](inflect: true)") : ""
+            } else {
+                summary = ""
+            }
         }
-        tables = built
         // Again, now the range's sites are known: a filtered sheet's name
         // carries its site.
         if !fileNameEdited { fileName = suggestedFileName }
-        personSheets = []
-        fileURLs = []
-        if let site = selectedSite, perPerson {
-            regeneratePersonSheets(site: site, maker: maker, siteSheet: built)
-            return
-        }
 
         // The PDF is drawn for the preview whether or not it can be shared:
-        // seeing the page is free. The same bytes become the file.
-        if format == .pdf && built.hasContent {
+        // seeing the page is free. The same bytes become a PDF file.
+        if let first, first.hasContent {
             var photos: [UUID: Data] = [:]
-            if selectedSite != nil, !built.photoIDs.isEmpty {
-                photos = maker.printPhotos(ids: built.photoIDs, sites: sheetSites, month: month, cache: printPhotos)
+            if mode == .crewSheet, !showsPersonSheets, !first.photoIDs.isEmpty {
+                photos = maker.printPhotos(ids: first.photoIDs, sites: sheetSites, month: month, cache: printPhotos)
                 printPhotos.merge(photos) { _, new in new }
             }
-            let data = PDFReportRenderer.data(for: built.file, photos: photos)
+            let data = PDFReportRenderer.data(for: first.file, photos: photos)
             pdfData = data
             pageImage = ExportPagePreview.thumbnail(of: data)
         } else {
@@ -657,29 +698,145 @@ struct ExportScreen: View {
             pageImage = nil
         }
 
-        // No file for the paywall to stand in front of, none for an empty
-        // range, and none before the name is settled — it would only be
-        // written again with the name in it.
-        guard subscriptions.allows(.fileExport), built.hasContent, !needsName else {
-            fileURL = nil
-            failureMessage = nil
-            return
+        if let pending = pendingFormat, !needsName, !asksForName {
+            pendingFormat = nil
+            // After the name alert has gone, so the two do not collide.
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(450))
+                makeFile(pending)
+            }
+        }
+    }
+
+    /// Your hours in the range, with the balance, and the working days
+    /// left unwritten (the gap reminder's rule).
+    private func readPersonal() {
+        let repository = WorkdayRepository(context: modelContext)
+        let range = resolvedRange
+        let today = CalendarDate.today(in: calendar)
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
+        let days = engine.days(in: range, records: repository.records(in: range), holidays: repository.holidayRules())
+        missingDates = MissingDays.personal(days: days, today: today)
+        let totals = PeriodAggregator.summarize(days, range: range, countingThrough: today)
+        let durations = settings.displayFormatting
+        let balance = String(
+            localized: "balance \(durations.signedString(totals.balanceMinutes))",
+            comment: "Export preview summary, after the hours; the value is a signed duration"
+        )
+        summary = "\(durations.string(totals.workedMinutes)) · \(balance)"
+    }
+
+    /// "5 people · 21 days · 382h", read off the sheet, and the days none of
+    /// its sites has anything written for.
+    private func readSites(sheet: ExportTables) {
+        let table = sheet.preview
+        if table.kind == .siteSheet, sheet.hasContent {
+            let days = table.rows.count - table.trailingSummaryRows
+            // A person is the one group of two columns; the date, the day
+            // and the notes are a column each.
+            let peopleCount = table.validGroups.filter { $0.span > 1 }.count
+            let minutes = sheetSites.reduce(0) { $0 + (monthSiteHours[$1.id] ?? 0) }
+            summary = [
+                String(inflected: "^[\(peopleCount) person](inflect: true)"),
+                String(inflected: "^[\(days) day](inflect: true)"),
+                settings.displayFormatting.string(minutes)
+            ].joined(separator: " · ")
+        } else {
+            summary = ""
         }
 
+        let repository = SiteRepository(context: modelContext)
+        let range = month.range(in: calendar)
+        let lookBack = CalendarDateRange(
+            start: range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar),
+            end: range.end
+        )
+        let siteDays = repository.siteDays(siteID: nil, in: lookBack)
+        var holidays = Set<Int>()
+        if settings.features.trackHolidays {
+            let rules = WorkdayRepository(context: modelContext).holidayRules()
+            holidays = HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOffKeys(in: range, calendar: calendar)
+        }
+        let today = CalendarDate.today(in: calendar)
+        let statuses = sheetSites.map { site in
+            SiteDayStatus.month(
+                month, siteID: site.id, siteDays: siteDays, setup: settings.siteSetup(for: site.id),
+                crew: [], today: today, calendar: calendar, holidays: holidays
+            )
+        }
+        missingDates = SiteDayStatus.missingDays(merging: statuses)
+    }
+
+    /// Everyone on any crew, hidden people left out, once per name.
+    private func loadPeople() {
+        let repository = SiteRepository(context: modelContext)
+        var seen = Set<String>()
+        var list: [CrewMember] = []
+        for site in repository.sites(includeArchived: false) {
+            for member in repository.crew(for: site.id, includeHidden: false) {
+                let key = CrewCandidates.key(for: member.name)
+                if !key.isEmpty, seen.insert(key).inserted { list.append(member) }
+            }
+        }
+        people = list.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    // MARK: - Making the file
+
+    /// PDF, Excel or CSV: the file written now, in this export's
+    /// preferences, and opened ready to send.
+    private func makeFile(_ format: ExportFormat) {
+        guard hasContent else { return }
+        guard subscriptions.allows(.fileExport) else {
+            paywallReason = .fileExport
+            return
+        }
+        if needsName {
+            pendingFormat = format
+            typedName = ""
+            asksForName = true
+            return
+        }
+        let preferences = exportPreferences
         do {
-            if let pdfData, format == .pdf {
-                fileURL = try ExportFileFactory.write(data: pdfData, format: .pdf, baseName: fileBaseName)
-            } else {
-                fileURL = try ExportFileFactory.write(
-                    table: built.file,
-                    format: format,
-                    preferences: settings.export,
-                    baseName: fileBaseName
+            let item: ExportReadyItem
+            switch mode {
+            case .onePerson:
+                guard let sheet = personSheet else { return }
+                let urls = try CrewSheetFiles.write([sheet], format: format, preferences: preferences, firstPDF: format == .pdf ? pdfData : nil)
+                item = ExportReadyItem(
+                    format: format, files: urls,
+                    pdfData: format == .pdf ? pdfData : nil,
+                    table: sheet.tables.preview,
+                    closeMonth: closeMonth
+                )
+            case .crewSheet where perPerson:
+                let urls = try CrewSheetFiles.write(personSheets, format: format, preferences: preferences, firstPDF: format == .pdf ? pdfData : nil)
+                item = ExportReadyItem(
+                    format: format, files: urls,
+                    pdfData: format == .pdf ? pdfData : nil,
+                    table: personSheets.first?.tables.preview,
+                    note: personNote,
+                    closeMonth: closeMonth
+                )
+            default:
+                guard let tables else { return }
+                let url: URL
+                if format == .pdf, let pdfData {
+                    url = try ExportFileFactory.write(data: pdfData, format: .pdf, baseName: fileBaseName)
+                } else {
+                    url = try ExportFileFactory.write(table: tables.file, format: format, preferences: preferences, baseName: fileBaseName)
+                }
+                item = ExportReadyItem(
+                    format: format, files: [url],
+                    pdfData: format == .pdf ? pdfData : nil,
+                    table: tables.preview,
+                    closeMonth: closeMonth
                 )
             }
             failureMessage = nil
+            ready = item
         } catch {
-            fileURL = nil
             failureMessage = String(
                 localized: "The file could not be prepared. \(error.localizedDescription)",
                 comment: "Export failed; the value is the system's own description"
@@ -687,45 +844,23 @@ struct ExportScreen: View {
         }
     }
 
-    /// A sheet for each person on the site's sheet, the first one previewed,
-    /// and a file each once they can be shared.
-    private func regeneratePersonSheets(site: Site, maker: ExportTableMaker, siteSheet: ExportTables) {
-        let sheets = maker.crewSheets(site: site, month: month, includeSignatures: includesSignatures, sites: sheetSites)
-        personSheets = sheets
-        fileURL = nil
-        if format == .pdf, let first = sheets.first, first.tables.hasContent {
-            let data = PDFReportRenderer.data(for: first.tables.file)
-            pdfData = data
-            pageImage = ExportPagePreview.thumbnail(of: data)
+    /// Ticking a chip puts its site on the sheet; unticking takes it off,
+    /// and the next one ticked becomes the sheet's own. One stays.
+    private func toggleSite(_ id: UUID) {
+        if id == primarySiteID {
+            guard let next = sheetSiteIDs.first else { return }
+            primarySiteID = next
+            sheetSiteIDs.removeFirst()
+        } else if let index = sheetSiteIDs.firstIndex(of: id) {
+            sheetSiteIDs.remove(at: index)
         } else {
-            pdfData = nil
-            pageImage = nil
-        }
-        guard subscriptions.allows(.fileExport), siteSheet.hasContent, !sheets.isEmpty, !needsName else {
-            failureMessage = nil
-            return
-        }
-        do {
-            fileURLs = try CrewSheetFiles.write(sheets, format: format, preferences: settings.export, firstPDF: pdfData)
-            failureMessage = nil
-        } catch {
-            fileURLs = []
-            failureMessage = String(
-                localized: "The file could not be prepared. \(error.localizedDescription)",
-                comment: "Export failed; the value is the system's own description"
-            )
+            sheetSiteIDs.append(id)
         }
     }
 
-    /// One period of the chosen kind back or forward. The anchor is what
-    /// every kind but custom is built around, so moving it moves the range.
+    /// One period of the chosen kind back or forward.
     private func step(_ direction: Int) {
         anchor = rangeKind.step(anchor, by: direction, calendar: calendar)
-    }
-
-    private func askForName() {
-        typedName = ""
-        asksForName = true
     }
 
     private func saveName() {

@@ -15,7 +15,9 @@ enum ExportShareState: Equatable {
     case empty
 }
 
-/// The big "Share PDF" button, pinned under the form.
+/// The big "Share PDF" button, pinned under the form: the crew member's own
+/// sheet uses it. The export screen itself has PDF and Excel
+/// (`ExportFormatCards`) and Send… on the page (`ExportReadySheet`).
 struct ExportShareBar: View {
     let format: ExportFormat
     let state: ExportShareState
@@ -31,12 +33,11 @@ struct ExportShareBar: View {
             if case let .failed(message) = state {
                 Label(message, systemImage: "exclamationmark.triangle")
                     .font(.footnote)
-                    .foregroundStyle(Color.hoursNegative)
+                    .foregroundStyle(Color.hoursMissing)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             button
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("export-share")
         }
         .padding(.horizontal, Metrics.large)
@@ -72,6 +73,7 @@ struct ExportShareBar: View {
         case .preparing:
             Button {} label: {
                 ProgressView()
+                    .tint(.white)
                     .frame(maxWidth: .infinity, minHeight: 24)
             }
             .disabled(true)
@@ -88,7 +90,6 @@ struct ExportShareBar: View {
             String(localized: "Share \(format.title)", comment: "The share button; the value is PDF, Excel or CSV"),
             systemImage: systemImage
         )
-        .font(.headline)
         .frame(maxWidth: .infinity, minHeight: 24)
     }
 }
