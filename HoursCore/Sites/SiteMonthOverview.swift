@@ -59,4 +59,35 @@ enum SiteMonthOverview {
         let candidates = Set(visible).union([CrewMember.youID])
         return candidates.intersection(appearing)
     }
+
+    /// Where a site's month stands on signatures, for its Sign-off row.
+    enum SignOffProgress: Equatable, Sendable {
+        /// Nobody with hours has signed, or nobody has hours.
+        case notYet
+        case partial(signed: Int, of: Int)
+        case all
+    }
+
+    /// Everyone with hours on `siteID` in `month`, and how many of them
+    /// signed for the hours they have now. A signature for hours that
+    /// changed since does not count.
+    static func signOff(
+        siteID: UUID,
+        month: YearMonth,
+        results: [SiteDayResult],
+        signatures: [CrewSignature]
+    ) -> SignOffProgress {
+        var people = Set<UUID>()
+        for result in results where result.day.siteID == siteID && result.day.date.yearMonth == month {
+            people.formUnion(result.people.map(\.memberID))
+        }
+        let signed = people.filter { id in
+            if case .signed = SignOff.state(for: id, signatures: signatures, results: results, month: month, siteID: siteID) {
+                return true
+            }
+            return false
+        }.count
+        if people.isEmpty || signed == 0 { return .notYet }
+        return signed == people.count ? .all : .partial(signed: signed, of: people.count)
+    }
 }

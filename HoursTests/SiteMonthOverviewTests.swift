@@ -74,4 +74,54 @@ final class SiteMonthOverviewTests: XCTestCase {
         )
         XCTAssertEqual(crew, [])
     }
+
+    // MARK: - Sign-off
+
+    private func results(_ days: [SiteDay]) -> [SiteDayResult] {
+        let calculator = SiteDayCalculator(settings: Fixture.settings(), calendar: Fixture.calendar())
+        return days.map(calculator.compute)
+    }
+
+    private func written(_ day: Int, _ people: [UUID], end: Int = 16) -> SiteDay {
+        SiteDay(
+            siteID: site, date: d(day), start: Fixture.time(7), end: Fixture.time(end), breakMinutes: 0,
+            present: people.map { Attendance(memberID: $0) }
+        )
+    }
+
+    private func signature(_ member: UUID, for days: [SiteDay]) -> CrewSignature {
+        CrewSignature(
+            siteID: site, memberID: member, month: october, signedOn: d(31),
+            fingerprint: SignatureFingerprint.make(memberID: member, results: results(days), month: october),
+            strokes: [[SignaturePoint(x: 0, y: 0), SignaturePoint(x: 1, y: 1)]]
+        )
+    }
+
+    func testNobodySignedIsNotYet() {
+        let days = [written(5, [ana, ivo])]
+        XCTAssertEqual(SiteMonthOverview.signOff(siteID: site, month: october, results: results(days), signatures: []), .notYet)
+        XCTAssertEqual(SiteMonthOverview.signOff(siteID: site, month: october, results: [], signatures: []), .notYet)
+    }
+
+    func testSomeAndAllSigned() {
+        let days = [written(5, [ana, ivo])]
+        let some = SiteMonthOverview.signOff(
+            siteID: site, month: october, results: results(days), signatures: [signature(ana, for: days)]
+        )
+        XCTAssertEqual(some, .partial(signed: 1, of: 2))
+        let all = SiteMonthOverview.signOff(
+            siteID: site, month: october, results: results(days),
+            signatures: [signature(ana, for: days), signature(ivo, for: days)]
+        )
+        XCTAssertEqual(all, .all)
+    }
+
+    func testASignatureForHoursChangedSinceDoesNotCount() {
+        let before = [written(5, [ana])]
+        let after = [written(5, [ana], end: 15)]
+        let progress = SiteMonthOverview.signOff(
+            siteID: site, month: october, results: results(after), signatures: [signature(ana, for: before)]
+        )
+        XCTAssertEqual(progress, .notYet)
+    }
 }
