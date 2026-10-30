@@ -10,12 +10,18 @@ struct LeaveBalanceCard: View {
     let date: CalendarDate
     let settings: AppSettings
     let calendar: Calendar
+    /// Settings › Leave shows the year even before anything is taken.
+    var alwaysShows = false
+    /// Insights' identifier; nil where the card is not that one.
+    var identifier: String? = "insights-leave"
 
     var body: some View {
         PeriodDataProvider(range: range) { data in
             LeaveBalanceCardContent(
                 balance: balance(data),
                 settings: settings,
+                alwaysShows: alwaysShows,
+                identifier: identifier,
                 formatting: CalendarFormatting(locale: .current, calendar: calendar)
             )
         }
@@ -39,42 +45,62 @@ struct LeaveBalanceCard: View {
 private struct LeaveBalanceCardContent: View {
     let balance: LeaveBalance
     let settings: AppSettings
+    let alwaysShows: Bool
+    let identifier: String?
     let formatting: CalendarFormatting
 
     var body: some View {
         // Nothing to say to someone who has never mentioned leave: no policy
         // changed, nothing taken, nothing booked, nothing carried.
-        if settings.leave.isCustomized || balance.used > .zero || balance.planned > .zero || balance.carried > .zero {
+        if alwaysShows || settings.leave.isCustomized || balance.used > .zero || balance.planned > .zero || balance.carried > .zero {
             SurfaceCard {
                 VStack(alignment: .leading, spacing: Metrics.small) {
                     HStack(spacing: Metrics.small) {
                         DayTypeBadge(definition: vacationType, size: 22)
-                        Text(vacationType.displayName())
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        Text(yearTitle)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.hoursSecondaryText)
                             .textCase(.uppercase)
                             .tracking(0.4)
                         Spacer(minLength: Metrics.small)
                         Text(yearSpan)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.hoursSecondaryText)
                     }
 
                     Text(String(
-                        localized: "\(balance.remaining.localized) of \(available.localized) left",
-                        comment: "Vacation days still to book, of those the year gives; e.g. 18 of 25 left"
+                        localized: "\(balance.remaining.localized) days left of \(available.localized)",
+                        comment: "Vacation days still to book, of those the year gives; e.g. 8 days left of 24"
                     ))
                     .font(.hoursFigure(.title2))
-                    .foregroundStyle(balance.remaining < .zero ? Color.hoursNegative : .primary)
+                    .foregroundStyle(balance.remaining < .zero ? Color.hoursMissing : .primary)
+
+                    LeaveBar(
+                        used: fraction(balance.used),
+                        planned: fraction(balance.planned),
+                        tint: vacationType.tint.color
+                    )
 
                     Text(details)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
                 .accessibilityElement(children: .combine)
             }
-            .accessibilityIdentifier("insights-leave")
+            .accessibilityIdentifier(identifier ?? "leave-year")
         }
+    }
+
+    /// "2026", or "2026/27" for a leave year that does not start in January.
+    private var yearTitle: String {
+        let start = balance.range.start.year
+        let end = balance.range.end.year
+        return start == end ? String(start) : "\(start)/\(String(end).suffix(2))"
+    }
+
+    private func fraction(_ days: HalfDays) -> Double {
+        guard available.halves > 0 else { return 0 }
+        return min(max(Double(days.halves) / Double(available.halves), 0), 1)
     }
 
     private var vacationType: DayTypeDefinition { settings.dayTypeCatalog.definition(for: .vacation) }
@@ -104,5 +130,30 @@ private struct LeaveBalanceCardContent: View {
             parts.append(String(localized: "Expired: \(balance.expired.localized)", comment: "Carried-over vacation days lost"))
         }
         return parts.joined(separator: "  ·  ")
+    }
+}
+
+/// The leave year as a bar: taken, then booked, then what is left.
+private struct LeaveBar: View {
+    let used: Double
+    let planned: Double
+    let tint: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(spacing: 0) {
+                Rectangle()
+                    .fill(tint)
+                    .frame(width: proxy.size.width * used)
+                Rectangle()
+                    .fill(tint.opacity(0.4))
+                    .frame(width: proxy.size.width * min(planned, 1 - used))
+                Spacer(minLength: 0)
+            }
+            .background(Color.hoursSubdued.opacity(0.25))
+            .clipShape(Capsule())
+        }
+        .frame(height: 8)
+        .accessibilityHidden(true)
     }
 }
