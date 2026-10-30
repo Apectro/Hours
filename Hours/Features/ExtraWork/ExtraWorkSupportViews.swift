@@ -90,10 +90,13 @@ struct ExtraWorkItemSheet: View {
     }
 }
 
-/// The client signing on the supervisor's phone: who they are, and their
-/// signature with a finger — the crew sign-off's canvas.
+/// The client signing on the supervisor's phone (Extra work board, phone
+/// 4): WHO SIGNS, what they sign for, the signature with a finger in the
+/// crew sign-off's canvas, and Clear / Sign under it.
 struct ExtraWorkSignSheet: View {
     let prompt: String
+    /// "3 jobs · 26–29 Oct · 4h 30m": what is being signed for.
+    var summary: String = ""
     let onSign: (ExtraWorkSignature) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -102,30 +105,69 @@ struct ExtraWorkSignSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: Metrics.medium) {
-                TextField(String(localized: "Name and role, e.g. Ing. Horvat, site manager"), text: $signer)
-                    .textContentType(.name)
+            // Not a scroll view: a downward stroke would scroll it.
+            VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: Metrics.medium) {
+                    VStack(alignment: .leading, spacing: Metrics.tiny) {
+                        Text("Who signs")
+                            .textCase(.uppercase)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.hoursSecondaryText)
+                            .accessibilityHidden(true)
+                        TextField(String(localized: "Name and role, e.g. Ing. Horvat, site manager"), text: $signer)
+                            .textContentType(.name)
+                            .frame(minHeight: 32)
+                            .accessibilityLabel(String(localized: "Who signs"))
+                            .accessibilityIdentifier("extra-work-signer")
+                    }
                     .padding(.horizontal, Metrics.large)
-                    .frame(minHeight: 48)
+                    .padding(.vertical, Metrics.medium)
                     .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-                    .accessibilityLabel(String(localized: "Who signs"))
-                    .accessibilityIdentifier("extra-work-signer")
 
-                HStack {
-                    Text(verbatim: prompt)
-                        .font(.subheadline.weight(.semibold))
-                    Spacer(minLength: Metrics.small)
-                    Button("Clear") { strokes = [] }
-                        .disabled(strokes.isEmpty)
-                        .frame(minWidth: 44, minHeight: 44)
-                        .accessibilityIdentifier("extra-work-signature-clear")
+                    if !summary.isEmpty {
+                        Text(verbatim: summary)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                            .padding(.horizontal, Metrics.tiny)
+                    }
+
+                    VStack(alignment: .leading, spacing: Metrics.small) {
+                        Text(verbatim: prompt)
+                            .font(.subheadline.weight(.semibold))
+                        SignatureCanvas(strokes: $strokes)
+                            .accessibilityIdentifier("extra-work-signature-canvas")
+                        Text("Sign here")
+                            .font(.caption)
+                            .foregroundStyle(.hoursSecondaryText)
+                            .accessibilityHidden(true)
+                    }
+                    .padding(Metrics.medium)
+                    .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(Color(uiColor: .systemGray2), style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
+                    }
                 }
-                SignatureCanvas(strokes: $strokes)
-                    .accessibilityIdentifier("extra-work-signature-canvas")
+                .padding(Metrics.large)
                 Spacer(minLength: 0)
             }
-            .padding(Metrics.large)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Color.hoursCanvas)
+            .safeAreaInset(edge: .bottom) {
+                HStack(spacing: Metrics.medium) {
+                    Button("Clear") { strokes = [] }
+                        .buttonStyle(.bigAction(.secondary))
+                        .disabled(strokes.isEmpty)
+                        .accessibilityIdentifier("extra-work-signature-clear")
+                    Button("Sign", action: sign)
+                        .buttonStyle(.bigAction(.primary))
+                        .disabled(!canSign)
+                        .accessibilityIdentifier("extra-work-signature-sign")
+                }
+                .padding(.horizontal, Metrics.large)
+                .padding(.vertical, Metrics.small)
+                .background(.bar)
+            }
             .navigationTitle("Client's signature")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -133,26 +175,30 @@ struct ExtraWorkSignSheet: View {
                     Button("Cancel") { dismiss() }
                         .accessibilityIdentifier("extra-work-signature-cancel")
                 }
-                // It commits, so it is the confirmation on the right; "Sign"
-                // rather than "Save", because the client is the one tapping it.
+                // The same as Sign, where a sheet keeps its confirmation.
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Sign") {
-                        onSign(ExtraWorkSignature(
-                            signerName: signer.trimmingCharacters(in: .whitespacesAndNewlines),
-                            signedAt: Date(),
-                            strokes: strokes,
-                            aspectRatio: SignatureCanvas.aspectRatio
-                        ))
-                        dismiss()
-                    }
-                    .fontWeight(.semibold)
-                    .disabled(!CrewSignature.isSignature(strokes))
-                    .accessibilityIdentifier("extra-work-signature-sign")
+                    Button("Done", action: sign)
+                        .fontWeight(.semibold)
+                        .disabled(!canSign)
+                        .accessibilityIdentifier("extra-work-signature-done")
                 }
             }
         }
         // A downward stroke must not close the sheet halfway through a name.
         .interactiveDismissDisabled()
+    }
+
+    private var canSign: Bool { CrewSignature.isSignature(strokes) }
+
+    private func sign() {
+        guard canSign else { return }
+        onSign(ExtraWorkSignature(
+            signerName: signer.trimmingCharacters(in: .whitespacesAndNewlines),
+            signedAt: Date(),
+            strokes: strokes,
+            aspectRatio: SignatureCanvas.aspectRatio
+        ))
+        dismiss()
     }
 }
 
@@ -176,7 +222,7 @@ struct ExtraWorkCatalogScreen: View {
                                 .foregroundStyle(.primary)
                             Spacer(minLength: Metrics.small)
                             Text(verbatim: item.unit.name(in: .device))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.hoursSecondaryText)
                         }
                         .frame(minHeight: 44)
                         .contentShape(Rectangle())

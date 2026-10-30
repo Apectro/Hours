@@ -1,56 +1,42 @@
 import SwiftUI
 
-/// The three formats as cards, three to a row, each saying what it is for.
+/// PDF and Excel, the two big buttons side by side at the bottom of the
+/// export screen (Export board, phones 1 and 2). PDF is the primary action;
+/// Excel is green, as on the board.
+///
+/// Each one writes the file in its format and opens it, ready to send. A CSV
+/// is reached from This sheet › CSV file, which calls the same `onChoose`.
 struct ExportFormatCards: View {
-    @Binding var selection: ExportFormat
-
-    /// Paper first: the PDF is what most people are sending.
-    private static let order: [ExportFormat] = [.pdf, .xlsx, .csv]
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: Metrics.small), count: 3)
+    /// Nothing to send (an empty month), or still reading.
+    let isEnabled: Bool
+    /// Pro is needed for the file: a lock on each button. The sheet still
+    /// opens to be looked at; its Send… opens the paywall.
+    var isLocked = false
+    let onChoose: (ExportFormat) -> Void
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Metrics.small) {
-            ForEach(ExportFormatCards.order) { format in
-                ExportFormatCard(format: format, isSelected: format == selection) {
-                    selection = format
-                }
-            }
+        HStack(spacing: Metrics.medium) {
+            button(.pdf, kind: .primary)
+            button(.xlsx, kind: .positive)
         }
+        .disabled(!isEnabled)
     }
-}
 
-private struct ExportFormatCard: View {
-    let format: ExportFormat
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 2) {
+    private func button(_ format: ExportFormat, kind: BigActionKind) -> some View {
+        Button {
+            onChoose(format)
+        } label: {
+            HStack(spacing: Metrics.small) {
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .accessibilityHidden(true)
+                }
                 // A product name, the same in every language.
                 Text(verbatim: format.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                Text(format.purpose)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
             }
-            .frame(maxWidth: .infinity, minHeight: 56)
-            .padding(.vertical, Metrics.small)
-            .padding(.horizontal, Metrics.tiny)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius))
-            .overlay {
-                RoundedRectangle(cornerRadius: Metrics.smallCornerRadius)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: Metrics.smallCornerRadius))
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .buttonStyle(.bigAction(kind))
+        .accessibilityHint(Text(format.purpose))
         .accessibilityIdentifier("export-format-\(format.rawValue)")
     }
 }

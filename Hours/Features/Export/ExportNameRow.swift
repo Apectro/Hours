@@ -2,7 +2,7 @@ import SwiftUI
 
 /// "Name on the sheet", with the name, as a row that opens the editor.
 ///
-/// The same `ExportPreferences.ownerName` the export options edit: one name,
+/// The same `ExportPreferences.ownerName` Settings › Sheets edits: one name,
 /// whichever screen it was typed on.
 struct ExportNameRow: View {
     let name: String
@@ -12,14 +12,14 @@ struct ExportNameRow: View {
         Button(action: action) {
             HStack(spacing: Metrics.small) {
                 Text("Name on the sheet")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                 Spacer(minLength: Metrics.small)
                 if name.isEmpty {
                     Text("Add your name")
                         .foregroundStyle(Color.accentColor)
                 } else {
                     Text(verbatim: name)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.hoursSecondaryText)
                         .lineLimit(1)
                 }
                 Image(systemName: "chevron.right")
