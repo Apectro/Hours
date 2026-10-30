@@ -213,16 +213,13 @@ struct PublicHolidayPreview: View {
                 onAdded()
             } label: {
                 Text("Add these holidays")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 44)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(.bigAction(.primary))
             .disabled(selection.isEmpty)
             .accessibilityIdentifier("public-holidays-add")
             .padding(.horizontal, Metrics.large)
             .padding(.vertical, Metrics.small)
-            .background(.bar)
+            .background(Color.hoursCanvas)
         }
         .navigationTitle(PublicHolidayActions.title(of: set))
         .navigationBarTitleDisplayMode(.inline)

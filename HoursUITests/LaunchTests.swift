@@ -68,15 +68,16 @@ final class LaunchTests: XCTestCase {
         // The first screen's rows; Jobs, Fields, Calendar, Appearance,
         // iCloud & backup, Privacy and Help & tour are under More (1.2) and
         // opened from there below.
+        // By identifier (design v2): "Sites" is a tab's name too.
         let rows = [
-            "Working hours", "Overtime & balance", "Pay", "Leave",
-            "New sites start with", "Reminders",
-            "Day types & holidays", "Sheets",
+            "settings-schedule", "settings-calculation", "settings-pay", "settings-leave",
+            "settings-new-sites", "settings-reminders",
+            "settings-day-types-holidays", "settings-export-options",
         ]
         var opened = 0
 
         for row in rows {
-            let label = app.staticTexts[row].firstMatch
+            let label = app.buttons[row].firstMatch
             guard label.exists, label.isHittable else { continue }
             label.tap()
 
