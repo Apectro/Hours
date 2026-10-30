@@ -35,4 +35,12 @@ extension XCUIApplication {
         XCTAssertTrue(next.isEnabled, "Next is not available", file: file, line: line)
         next.tap()
     }
+
+    /// From a site's page (1.2) to today on the site: its big Write today.
+    func openTodayOnSite(file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(screen("screen-site").waitForExistence(timeout: 10), "the site's page did not open", file: file, line: line)
+        let today = buttons.matching(identifier: "site-write-today").firstMatch
+        XCTAssertTrue(today.waitForExistence(timeout: 5), "the site's page has no Write today", file: file, line: line)
+        today.tap()
+    }
 }

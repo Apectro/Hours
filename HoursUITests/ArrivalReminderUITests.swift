@@ -16,6 +16,7 @@ final class ArrivalReminderUITests: XCTestCase {
         app.launchArguments += ["-hours-sample-site"]
         app.launch()
         openSiteSettings(app)
+        openArrivalReminder(app)
 
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
@@ -40,10 +41,13 @@ final class ArrivalReminderUITests: XCTestCase {
         XCTAssertEqual(app.switches["site-editor-arrival"].firstMatch.value as? String, "1", "the reminder should now be on")
         XCTAssertFalse(app.buttons["site-arrival-settings"].firstMatch.exists, "with Always given, nothing is missing")
 
+        // Back to the site's settings, which save it.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         app.buttons.matching(identifier: "site-editor-save").firstMatch.tap()
 
         // Saved with the site.
         openSiteSettings(app, fromSite: true)
+        openArrivalReminder(app)
         let saved = app.descendants(matching: .any)["site-arrival-coordinates"].firstMatch
         scroll(to: saved, in: app)
         XCTAssertTrue(saved.exists, "the place should be kept with the site")
@@ -61,6 +65,7 @@ final class ArrivalReminderUITests: XCTestCase {
         app.launchArguments += ["-hours-sample-site", "-hours-location-no-always"]
         app.launch()
         openSiteSettings(app)
+        openArrivalReminder(app)
 
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
@@ -79,6 +84,7 @@ final class ArrivalReminderUITests: XCTestCase {
         app.launchArguments += ["-hours-sample-site"]
         app.launch()
         openSiteSettings(app)
+        openArrivalReminder(app)
 
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
@@ -91,6 +97,15 @@ final class ArrivalReminderUITests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /// The arrival reminder's own page (1.2), from the site's settings.
+    private func openArrivalReminder(_ app: XCUIApplication) {
+        let row = app.buttons.matching(identifier: "site-editor-arrival-row").firstMatch
+        scroll(to: row, in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the site's settings have no Arrival reminder row")
+        row.tap()
+        XCTAssertTrue(app.switches["site-editor-arrival"].firstMatch.waitForExistence(timeout: 5), "the arrival reminder did not open")
+    }
 
     private func openSiteSettings(_ app: XCUIApplication, fromSite: Bool = false) {
         if !fromSite {

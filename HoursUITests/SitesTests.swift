@@ -70,7 +70,7 @@ final class SitesTests: XCTestCase {
         XCTAssertTrue(card.label.contains("Kaiserstrasse 12"), "the card does not carry the site's name: \(card.label)")
         XCTAssertFalse(app.staticTexts["Unlock Zeitkonto Pro"].exists, "the first site must be free")
 
-        // Into the site and on to its crew, a button under its name.
+        // Into the site and on to its crew, the first row on its page.
         card.tap()
         let crewItem = app.buttons["site-crew"]
         XCTAssertTrue(crewItem.waitForExistence(timeout: 5), "the site has no Crew button")
@@ -113,7 +113,7 @@ final class SitesTests: XCTestCase {
         let updated = app.buttons["site-card"].firstMatch
         XCTAssertTrue(updated.waitForExistence(timeout: 5))
         XCTAssertTrue(
-            updated.label.contains("Crew 2"),
+            updated.label.contains("2 people"),
             "the card should count Ivan and not the hidden Marko: \(updated.label)"
         )
     }

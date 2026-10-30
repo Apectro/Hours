@@ -50,7 +50,7 @@ final class ClearerAppTests: XCTestCase {
         let cards = app.buttons.matching(identifier: "site-card")
         XCTAssertTrue(cards.element(boundBy: 1).waitForExistence(timeout: 5), "the new site has no card")
         let labels = cards.allElementsBoundByIndex.map(\.label)
-        XCTAssertTrue(labels.contains { $0.contains("Trg Pravde") && $0.contains("Crew 3") }, "the new site should carry its name and crew: \(labels)")
+        XCTAssertTrue(labels.contains { $0.contains("Trg Pravde") && $0.contains("3 people") }, "the new site should carry its name and crew: \(labels)")
     }
 
     /// Several sites at once: names one per line, one setup, all created.
@@ -95,7 +95,7 @@ final class ClearerAppTests: XCTestCase {
         let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open")
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "the site did not open")
 
         // Crew, pushed.
         app.buttons["site-crew"].firstMatch.tap()

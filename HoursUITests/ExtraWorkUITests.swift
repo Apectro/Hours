@@ -19,6 +19,7 @@ final class ExtraWorkUITests: XCTestCase {
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
 
         let add = app.buttons["extra-work-add"]
@@ -71,6 +72,8 @@ final class ExtraWorkUITests: XCTestCase {
 
         // In progress, it is not in the report, and the empty report says
         // why: Include them, or Mark finished… to list it with its checkmark.
+        // The report is on the site's page (1.2), one back from the day.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         app.buttons["site-extra-work-report"].tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
         XCTAssertFalse(app.buttons["extra-work-report-job-0"].exists, "the report leaves out jobs in progress")
@@ -92,6 +95,7 @@ final class ExtraWorkUITests: XCTestCase {
                       "Include them puts the job in the report, as still in progress")
         XCTAssertTrue(share.isEnabled, "a report with a job in it can be sent")
         app.buttons["extra-work-report-done"].tap()
+        app.openTodayOnSite()
 
         // Ticked, it is finished.
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
@@ -102,6 +106,7 @@ final class ExtraWorkUITests: XCTestCase {
         waitForExpectations(timeout: 5)
 
         // And now it is in the report, its material summed.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         app.buttons["site-extra-work-report"].tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
         XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 5), "a finished job is reported")

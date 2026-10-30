@@ -1,7 +1,9 @@
 import SwiftUI
 
-/// Changes one person's hours on a site day: the late arrival, the early
-/// finish, the longer break. Everyone else keeps the site's times.
+/// "Late/early" on the crew's day (1.2 redesign, mockup 06 "Late or early:
+/// one person's times"): Start, End and Break, what that comes to, why it
+/// shows in orange on the sheet ("left 3 hours before the site's usual
+/// end"), and "Use the site's times again".
 ///
 /// The fields show what the person actually worked — their own time where
 /// they have one, the site's otherwise — and a value set back to the site's
@@ -9,8 +11,8 @@ import SwiftUI
 /// marked as different when it really is, and a later change to the site's
 /// times still reaches everyone who had no exception.
 ///
-/// One person's change is a single save on Save, rather than a save per turn
-/// of the time wheel; the day screen does the writing.
+/// One person's change is handed back on Save; the crew's day keeps it with
+/// the rest until its own Save, which writes.
 struct PersonTimesSheet: View {
     let name: String
     let day: SiteDay
@@ -54,22 +56,43 @@ struct PersonTimesSheet: View {
                         step: 5,
                         formatting: settings.displayFormatting
                     )
-                } footer: {
-                    Text(String(
-                        localized: "Everyone else keeps the site times: \(siteTimes).",
-                        comment: "Under one person's changed times; the value is a time range"
-                    ))
                 }
 
                 Section {
-                    Button("Use site times") {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Worked")
+                            .foregroundStyle(.hoursSecondaryText)
+                        Spacer(minLength: Metrics.small)
+                        Text(verbatim: settings.displayFormatting.string(workedMinutes))
+                            .font(.hoursFigure(.title, weight: .heavy))
+                            .contentTransition(.numericText())
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("person-times-worked")
+                } footer: {
+                    VStack(alignment: .leading, spacing: Metrics.tiny) {
+                        if let explanation {
+                            Text(verbatim: explanation)
+                                .foregroundStyle(Color.hoursAttention)
+                                .accessibilityIdentifier("person-times-explanation")
+                        }
+                        Text(String(
+                            localized: "Everyone else keeps the site times: \(siteTimes).",
+                            comment: "Under one person's changed times; the value is a time range"
+                        ))
+                    }
+                }
+
+                Section {
+                    Button("Use the site's times again") {
                         attendance = Attendance(memberID: attendance.memberID)
                     }
+                    .fontWeight(.semibold)
                     .disabled(!hasOwnTimes)
                     .accessibilityIdentifier("person-times-reset")
                 }
             }
-            .navigationTitle(name)
+            .navigationTitle(Text(verbatim: "\(name) · \(settingsStore.dateFormatting.dayTitle(day.date))"))
             .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("person-times")
             .toolbar {
@@ -87,7 +110,7 @@ struct PersonTimesSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         // A stray swipe must not throw away times that were changed.
         .interactiveDismissDisabled(attendance != original)
     }
@@ -99,6 +122,39 @@ struct PersonTimesSheet: View {
 
     private var hasOwnTimes: Bool {
         attendance.start != nil || attendance.end != nil || attendance.breakMinutes != nil
+    }
+
+    /// What these times come to, through the same calculator as the day.
+    private var workedMinutes: Int {
+        let withThese = day.settingAttendance(attendance, allowanceByDefault: false)
+        return SiteDayCalculator(settings: settings, calendar: calendar)
+            .compute(withThese)
+            .people
+            .first { $0.memberID == attendance.memberID }?
+            .workedMinutes ?? 0
+    }
+
+    /// "Shown in orange on the sheet: left 3h before the site's end."
+    private var explanation: String? {
+        let difference = SiteTimeDifference.of(attendance, in: day)
+        guard !difference.isNone else { return nil }
+        let length = { (minutes: Int) in DurationFormatting(style: .hoursAndMinutes).string(abs(minutes)) }
+        var parts: [String] = []
+        if difference.startMinutes > 0 {
+            parts.append(String(localized: "came \(length(difference.startMinutes)) after the site's start", comment: "Why a crew member's row is orange; the value is a duration"))
+        } else if difference.startMinutes < 0 {
+            parts.append(String(localized: "started \(length(difference.startMinutes)) before the site's start", comment: "Why a crew member's row is orange; the value is a duration"))
+        }
+        if difference.endMinutes < 0 {
+            parts.append(String(localized: "left \(length(difference.endMinutes)) before the site's end", comment: "Why a crew member's row is orange; the value is a duration"))
+        } else if difference.endMinutes > 0 {
+            parts.append(String(localized: "stayed \(length(difference.endMinutes)) after the site's end", comment: "Why a crew member's row is orange; the value is a duration"))
+        }
+        if difference.breakMinutes != 0 {
+            parts.append(String(localized: "a break of \(length(attendance.breakMinutes ?? day.breakMinutes))", comment: "Why a crew member's row is orange; the value is their own break"))
+        }
+        let reasons = parts.joined(separator: ", ")
+        return String(localized: "Shown in orange on the sheet: \(reasons).", comment: "Under one person's times; the value says how they differ from the site's")
     }
 
     private var siteTimes: String {

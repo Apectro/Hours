@@ -8,7 +8,7 @@ import UserNotifications
 /// only gathers its inputs — the site, today resolved by `PeriodEngine`, the
 /// running clock, the log — and posts what it decides, at once (no trigger).
 ///
-/// **Start clock** and **Stop clock** run without opening the app, on the same
+/// **Clock in** and **Clock out** run without opening the app, on the same
 /// `TimeClock` as the clock card, Siri, the controls and the watch, and then
 /// refresh the widget, which brings the Live Activity in line. As with a tap
 /// on the watch, iOS refuses to start a Live Activity from the background,
@@ -56,12 +56,12 @@ enum ArrivalReminders {
     static var categories: Set<UNNotificationCategory> {
         let start = UNNotificationAction(
             identifier: startAction,
-            title: String(localized: "Start clock", comment: "Arrival notification button: start the clock"),
+            title: String(localized: "Clock in", comment: "Arrival notification button: start the clock"),
             options: []
         )
         let stop = UNNotificationAction(
             identifier: stopAction,
-            title: String(localized: "Stop clock", comment: "Departure notification button: stop the clock"),
+            title: String(localized: "Clock out", comment: "Departure notification button: stop the clock"),
             options: []
         )
         let notNow = String(localized: "Not now", comment: "Arrival or departure notification button: leave the clock as it is")
@@ -149,28 +149,30 @@ enum ArrivalReminders {
             updated.record(event, siteID: site.id, at: instant)
             updated.recordAskedToWrite(siteID: site.id, on: date)
             saveLog(updated)
-            askToWrite(site: site, on: date, lastDay: offersSameAsLastDay ? siteToday.sameAsLastDay : nil, at: instant)
+            askToWrite(
+                site: site,
+                on: date,
+                lastDay: offersSameAsLastDay ? siteToday.sameAsLastDay : nil,
+                people: sites.crew(for: site.id, includeHidden: false).count + 1,
+                at: instant
+            )
             return
         case .remind:
             updated.record(event, siteID: site.id, at: instant)
             saveLog(updated)
         }
 
+        // As on the lock screen in the 1.2 mockup: the site in the title,
+        // the question under it.
         let content = UNMutableNotificationContent()
-        // The name, not a translated word: see AppIdentity.
-        content.title = AppIdentity.name
         switch event {
         case .arrived:
-            content.body = String(
-                localized: "Arrived at \(site.name) — start the clock?",
-                comment: "Arrival notification; the site's name"
-            )
+            content.title = String(localized: "At \(site.name)", comment: "Arrival notification title; the site's name")
+            content.body = String(localized: "Clock in now?", comment: "Arrival notification body")
             content.categoryIdentifier = arrivalCategory
         case .left:
-            content.body = String(
-                localized: "Left \(site.name) — stop the clock?",
-                comment: "Departure notification, while the clock runs; the site's name"
-            )
+            content.title = String(localized: "Leaving \(site.name)", comment: "Notification title on leaving a site; the site's name")
+            content.body = String(localized: "Clock out now?", comment: "Departure notification body, while the clock runs")
             content.categoryIdentifier = departureCategory
         }
         content.sound = .default
@@ -187,21 +189,32 @@ enum ArrivalReminders {
         }
     }
 
-    /// "Left <site> — write today's hours?", with the last day's times when
-    /// there is one to copy. A tap opens the site on that day.
-    private static func askToWrite(site: Site, on date: CalendarDate, lastDay: SiteDay?, at instant: Date) {
+    /// "Leaving <site>" / "Write today's hours? The usual day is 5 people,
+    /// 07:00–16:00." — or the last day's times when the site has no usual
+    /// day and there is one to copy. A tap opens the site on that day.
+    private static func askToWrite(site: Site, on date: CalendarDate, lastDay: SiteDay?, people: Int, at instant: Date) {
         let content = UNMutableNotificationContent()
-        content.title = String(
-            localized: "Left \(site.name) — write today's hours?",
-            comment: "Notification on leaving a site with no clock running and today not written; the site's name"
+        content.title = String(localized: "Leaving \(site.name)", comment: "Notification title on leaving a site; the site's name")
+        let formatting = HoursStack.settings.dateFormatting
+        let setup = HoursStack.settings.settings.siteSetup(for: site.id)
+        let question = String(
+            localized: "Write today's hours?",
+            comment: "Notification body on leaving a site with no clock running and today not written"
         )
-        if let times = ArrivalReminderPolicy.lastTimes(lastDay) {
-            let formatting = HoursStack.settings.dateFormatting
+        if let start = setup.start, let end = setup.end {
+            let range = formatting.time(start, on: date) + "–" + formatting.time(end, on: date)
+            let usual = String(
+                inflected: "The usual day is ^[\(people) person](inflect: true), \(range)."
+            )
+            content.body = question + " " + usual
+        } else if let times = ArrivalReminderPolicy.lastTimes(lastDay) {
             let range = formatting.time(times.start, on: date) + "–" + formatting.time(times.end, on: date)
-            content.body = String(
+            content.body = question + " " + String(
                 localized: "\(range) like last time",
                 comment: "Notification body on leaving a site: the last site day's times, e.g. 07:00–15:30"
             )
+        } else {
+            content.body = question
         }
         content.categoryIdentifier = lastDay == nil ? writeOpenCategory : writeCategory
         content.sound = .default
@@ -241,7 +254,7 @@ enum ArrivalReminders {
 
     // MARK: - Answering
 
-    /// Start clock, Stop clock or Same as last day from the notification.
+    /// Clock in, Clock out or Same as last day from the notification.
     /// Not now and a dismissal leave everything as it is; a tap on the write
     /// question follows its link instead (`NotificationTapDelegate`).
     static func respond(to actionIdentifier: String, userInfo: [AnyHashable: Any]) async {

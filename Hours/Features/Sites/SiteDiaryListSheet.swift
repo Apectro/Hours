@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
 
-/// Every diary written for a site, the most recent day first: the weather,
-/// what was written and how many photos, to read back through. Written on
-/// the site's own day screen; this only reads. A row goes to its day: the
-/// sheet closes and the site screen shows that date.
+/// Every diary written for a site, a month at a time, the most recent day
+/// first (1.2 redesign, mockup 08 "The month's diary"): one card per day
+/// with its weather and photos on the right — a day the weather stopped in
+/// orange — and the first line written under it. Written on the site's own
+/// day screen; this only reads. A card goes to its day: the sheet closes and
+/// the site screen shows that date.
 struct SiteDiaryListSheet: View {
     let site: Site
     /// Shows a date on the site screen underneath.
@@ -21,6 +23,8 @@ struct SiteDiaryListSheet: View {
         var date: CalendarDate
         var diary: SiteDiary?
         var photoCount: Int
+        /// The site day, when the weather stopped it.
+        var stop: SiteDay?
         var id: Int { date.key }
     }
 
@@ -34,24 +38,27 @@ struct SiteDiaryListSheet: View {
                         description: Text("Write one under a day's hours on the site screen.")
                     )
                 } else {
-                    List(entries) { entry in
-                        Button {
-                            onSelect(entry.date)
-                            dismiss()
-                        } label: {
-                            HStack(spacing: Metrics.small) {
-                                row(entry)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(.tertiary)
-                                    .accessibilityHidden(true)
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: Metrics.medium) {
+                            ForEach(months, id: \.month) { group in
+                                Text(verbatim: monthLine(group.month, count: group.entries.count))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.hoursSecondaryText)
+                                    .padding(.horizontal, Metrics.tiny)
+                                    .padding(.top, Metrics.small)
+                                    .accessibilityAddTraits(.isHeader)
+                                ForEach(group.entries) { entry in
+                                    card(entry)
+                                }
                             }
-                            .contentShape(Rectangle())
+                            Text("Write one under a day's hours on the site screen.")
+                                .font(.footnote)
+                                .foregroundStyle(.hoursSecondaryText)
+                                .padding(.horizontal, Metrics.small)
                         }
-                        .foregroundStyle(.primary)
-                        .accessibilityIdentifier("site-diary-entry-\(entry.date.key)")
+                        .padding(Metrics.large)
                     }
-                    .listStyle(.insetGrouped)
+                    .background(Color.hoursCanvas)
                 }
             }
             .navigationTitle("Site diary")
@@ -67,60 +74,119 @@ struct SiteDiaryListSheet: View {
         }
     }
 
-    private func row(_ entry: Entry) -> some View {
-        VStack(alignment: .leading, spacing: Metrics.tiny) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(verbatim: settingsStore.dateFormatting.fullDate(entry.date))
-                    .font(.headline)
-                Spacer(minLength: Metrics.small)
-                if entry.photoCount > 0 {
-                    Label {
-                        Text(verbatim: "\(entry.photoCount)")
-                    } icon: {
-                        Image(systemName: "photo")
+    // MARK: - A day
+
+    private func card(_ entry: Entry) -> some View {
+        Button {
+            onSelect(entry.date)
+            dismiss()
+        } label: {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                        dateText(entry)
+                        Spacer(minLength: Metrics.small)
+                        detailText(entry)
                     }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel(String(
-                        localized: "Photos: \(entry.photoCount)",
-                        comment: "VoiceOver, how many photos a diary day has"
-                    ))
+                    VStack(alignment: .leading, spacing: 2) {
+                        dateText(entry)
+                        detailText(entry)
+                    }
+                }
+                if let first = firstLine(entry.diary) {
+                    Text(verbatim: first)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
             }
-            if let weather = weatherLine(entry.diary) {
-                Text(verbatim: weather)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            ForEach(texts(entry.diary), id: \.self) { item in
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: item.label)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(verbatim: item.text)
-                        .font(.body)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
+            .padding(.horizontal, Metrics.medium + 2)
+            .padding(.vertical, Metrics.medium)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, Metrics.tiny)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("site-diary-entry-\(entry.date.key)")
     }
 
-    private func weatherLine(_ diary: SiteDiary?) -> String? {
-        guard let diary else { return nil }
+    private func dateText(_ entry: Entry) -> some View {
+        Text(verbatim: settingsStore.dateFormatting.dayTitle(entry.date))
+            .font(.body.weight(.bold))
+            .foregroundStyle(.primary)
+    }
+
+    @ViewBuilder
+    private func detailText(_ entry: Entry) -> some View {
+        if let stop = entry.stop {
+            Text(verbatim: stopLine(stop, diary: entry.diary))
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Color.hoursAttention)
+        } else if let line = detailLine(entry) {
+            Text(verbatim: line)
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
+        }
+    }
+
+    /// "Sunny · 14 °C · Photos: 2".
+    private func detailLine(_ entry: Entry) -> String? {
         var parts: [String] = []
-        if let weather = diary.weather { parts.append(weather.displayName()) }
-        if let degrees = diary.temperatureCelsius { parts.append("\(degrees) °C") }
+        if let weather = entry.diary?.weather { parts.append(weather.displayName()) }
+        if let degrees = entry.diary?.temperatureCelsius { parts.append("\(degrees) °C") }
+        if entry.photoCount > 0 {
+            parts.append(String(localized: "Photos: \(entry.photoCount)", comment: "VoiceOver, how many photos a diary day has"))
+        }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    private func texts(_ diary: SiteDiary?) -> [SiteDiaryBlock.Line] {
-        (diary?.texts ?? []).compactMap { entry in
-            let text = entry.text.trimmingCharacters(in: .whitespacesAndNewlines)
-            return text.isEmpty ? nil : SiteDiaryBlock.Line(label: SiteDiary.label(for: entry.term), text: text)
+    /// "Bad weather · stopped 11:00", with the weather picked before it.
+    private func stopLine(_ day: SiteDay, diary: SiteDiary?) -> String {
+        let stop: String
+        if day.start != nil, let end = day.end {
+            stop = String(
+                localized: "Bad weather · stopped \(settingsStore.dateFormatting.time(end, on: day.date))",
+                comment: "A site day stopped by the weather part-way; the value is the time it stopped"
+            )
+        } else {
+            stop = String(localized: "Bad weather · no work")
         }
+        guard let weather = diary?.weather else { return stop }
+        return "\(weather.displayName()) · \(stop)"
+    }
+
+    /// The first line written, from the first text with anything in it.
+    private func firstLine(_ diary: SiteDiary?) -> String? {
+        guard let diary else { return nil }
+        for entry in diary.texts {
+            let line = SiteDiary.preview(of: entry.text)
+            if !line.isEmpty { return line }
+        }
+        return nil
+    }
+
+    // MARK: - Months
+
+    private var months: [(month: YearMonth, entries: [Entry])] {
+        var order: [YearMonth] = []
+        var byMonth: [YearMonth: [Entry]] = [:]
+        for entry in entries {
+            let month = entry.date.yearMonth
+            if byMonth[month] == nil { order.append(month) }
+            byMonth[month, default: []].append(entry)
+        }
+        return order.map { ($0, byMonth[$0] ?? []) }
+    }
+
+    /// "12 days in October 2026 · printed with the site sheet".
+    private func monthLine(_ month: YearMonth, count: Int) -> String {
+        let days = String(inflected: "^[\(count) day](inflect: true)")
+        return String(
+            localized: "\(days) in \(settingsStore.dateFormatting.monthTitle(month)) · printed with the site sheet",
+            comment: "Above a month of site diary days; the values are how many days and the month"
+        )
     }
 
     /// Read outside `body`, as every repository read is.
@@ -135,8 +201,16 @@ struct SiteDiaryListSheet: View {
         let photoCounts = Dictionary(grouping: photos, by: \.date).mapValues(\.count)
         let byDate = Dictionary(diaries.map { ($0.date, $0) }, uniquingKeysWith: { first, _ in first })
         let dates = SiteDiary.datesWithEntries(diaries: diaries, photoDates: photos.map(\.date))
+        var stops: [CalendarDate: SiteDay] = [:]
+        if let first = dates.min(), let last = dates.max() {
+            let days = SiteRepository(context: modelContext)
+                .siteDays(siteID: site.id, in: CalendarDateRange(start: first, end: last))
+            for day in days where day.isBadWeatherStop && dates.contains(day.date) {
+                stops[day.date] = day
+            }
+        }
         entries = dates.sorted(by: >).map { date in
-            Entry(date: date, diary: byDate[date], photoCount: photoCounts[date] ?? 0)
+            Entry(date: date, diary: byDate[date], photoCount: photoCounts[date] ?? 0, stop: stops[date])
         }
         loaded = true
     }

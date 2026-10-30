@@ -105,6 +105,7 @@ final class ScreenshotTests: XCTestCase {
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 15), "the sample site has no card")
         card.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10), "the site did not open")
         XCTAssertTrue(app.descendants(matching: .any)["site-day-times"].waitForExistence(timeout: 5), "today's site card is not written")
         capture("02-site", app)
@@ -130,13 +131,15 @@ final class ScreenshotTests: XCTestCase {
         capture("03-extra-work", app)
 
         // 4 — the report to the boss: what is done and not sent yet, and the
-        // material added up, in the export language.
+        // material added up, in the export language. From the site's page.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10), "could not get back to the site's page")
         app.buttons["site-extra-work-report"].tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "the report did not open")
         XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 10), "the report has no finished jobs")
         capture("04-extra-work-report", app)
         app.buttons["extra-work-report-done"].tap()
-        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10))
 
         // 5 — the site sheet: last month, one column group per person,
         // previewed as the PDF's first page.
@@ -149,7 +152,7 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(waitUntilEnabled(page, timeout: 15), "the sheet's first page was never drawn")
         capture("05-site-sheet", app)
         app.buttons["export-done"].tap()
-        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 10))
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10))
 
         // 6 — a day open, showing what one holds. Today, because the sample
         // month always writes it, and it is the day already selected.

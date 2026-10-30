@@ -109,6 +109,8 @@ struct SiteSignOffScreen: View {
         .sheet(item: $signing) { person in
             SignatureSheet(
                 person: person,
+                siteName: site.name,
+                monthName: settingsStore.dateFormatting.monthName(month),
                 rows: dayRows(for: person),
                 total: settings.displayFormatting.string(person.minutes),
                 onSign: { strokes in sign(person, strokes: strokes) }
@@ -123,13 +125,13 @@ struct SiteSignOffScreen: View {
                     .font(.body.weight(.semibold))
                 Text(verbatim: statusText(for: person))
                     .font(.footnote)
-                    .foregroundStyle(isChanged(person) ? Color.hoursNegative : Color.secondary)
+                    .foregroundStyle(isChanged(person) ? Color.hoursAttention : Color.secondary)
             }
             Spacer(minLength: Metrics.small)
             Text(verbatim: settings.displayFormatting.string(person.minutes))
                 .font(.hoursFigure(.body))
             Image(systemName: icon(for: person))
-                .foregroundStyle(isChanged(person) ? Color.hoursNegative : Color.secondary)
+                .foregroundStyle(iconColour(for: person))
                 .accessibilityHidden(true)
         }
         .frame(minHeight: 44)
@@ -177,6 +179,15 @@ struct SiteSignOffScreen: View {
         }
     }
 
+    /// The colour rule: green signed, orange changed since, grey not yet.
+    private func iconColour(for person: SignOffPerson) -> Color {
+        switch state(for: person) {
+        case .unsigned: return .secondary
+        case .signed: return .hoursDone
+        case .changedAfterSigning: return .hoursAttention
+        }
+    }
+
     private func icon(for person: SignOffPerson) -> String {
         switch state(for: person) {
         case .unsigned: return "signature"
@@ -186,12 +197,79 @@ struct SiteSignOffScreen: View {
     }
 
     private func dayRows(for person: SignOffPerson) -> [SignatureSheet.DayRow] {
+        SignOffBook.dayRows(for: person.id, results: results, settingsStore: settingsStore)
+    }
+
+    // MARK: - Loading and signing
+
+    private func reload() {
+        let book = SignOffBook.load(site: site, month: month, context: modelContext, settingsStore: settingsStore)
+        results = book.results
+        signatures = book.signatures
+        people = book.people
+        loaded = true
+    }
+
+    private func removeSignature(of person: SignOffPerson) {
+        removing = nil
+        SiteDiaryRepository(context: modelContext)
+            .removeSignature(siteID: site.id, memberID: person.id, month: month)
+        reload()
+        onChange()
+    }
+
+    private func sign(_ person: SignOffPerson, strokes: [[SignaturePoint]]) {
+        SignOffBook.sign(person.id, site: site, month: month, results: results, strokes: strokes,
+                         context: modelContext, calendar: settingsStore.workCalendar)
+        reload()
+        onChange()
+    }
+}
+
+/// What a site's sign-off for a month reads and writes, shared by the
+/// sign-off list and one person's month ("Sign the month").
+@MainActor
+enum SignOffBook {
+    struct Loaded {
+        var results: [SiteDayResult]
+        var signatures: [CrewSignature]
+        /// Everyone with hours on the site that month: you first, then the
+        /// crew in their order, the sheet's order.
+        var people: [SignOffPerson]
+    }
+
+    static func load(site: Site, month: YearMonth, context: ModelContext, settingsStore: SettingsStore) -> Loaded {
+        let settings = settingsStore.settings
+        let calendar = settingsStore.workCalendar
+        let siteRepository = SiteRepository(context: context)
+        let crew = siteRepository.crew(for: site.id, includeHidden: true)
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        let results = siteRepository.siteDays(siteID: site.id, in: month.range(in: calendar)).map { calculator.compute($0) }
+        let signatures = SiteDiaryRepository(context: context).signatures(siteID: site.id, month: month)
+
+        var minutes: [UUID: Int] = [:]
+        for result in results {
+            for person in result.people { minutes[person.memberID, default: 0] += person.workedMinutes }
+        }
+        var list: [SignOffPerson] = []
+        if let mine = minutes[CrewMember.youID] {
+            let owner = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+            list.append(SignOffPerson(id: CrewMember.youID, name: owner.isEmpty ? String(localized: "You") : owner, minutes: mine))
+        }
+        for member in crew.sorted(by: { $0.sortOrder < $1.sortOrder }) {
+            guard let theirs = minutes[member.id] else { continue }
+            list.append(SignOffPerson(id: member.id, name: member.name, minutes: theirs))
+        }
+        return Loaded(results: results, signatures: signatures, people: list)
+    }
+
+    static func dayRows(for memberID: UUID, results: [SiteDayResult], settingsStore: SettingsStore) -> [SignatureSheet.DayRow] {
         let formatting = settingsStore.dateFormatting
-        let durations = settings.displayFormatting
+        let durations = settingsStore.settings.displayFormatting
         return results
             .sorted { $0.day.date < $1.day.date }
             .compactMap { result in
-                guard let entry = result.people.first(where: { $0.memberID == person.id }) else { return nil }
+                guard let entry = result.people.first(where: { $0.memberID == memberID }) else { return nil }
                 let times: String
                 if let start = entry.start, let end = entry.end {
                     times = "\(formatting.time(start, on: result.day.date))–\(formatting.time(end, on: result.day.date))"
@@ -209,55 +287,74 @@ struct SiteSignOffScreen: View {
             }
     }
 
-    // MARK: - Loading and signing
-
-    private func reload() {
-        let calendar = settingsStore.workCalendar
-        let siteRepository = SiteRepository(context: modelContext)
-        let crew = siteRepository.crew(for: site.id, includeHidden: true)
-        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
-        results = siteRepository.siteDays(siteID: site.id, in: month.range(in: calendar)).map { calculator.compute($0) }
-        signatures = SiteDiaryRepository(context: modelContext).signatures(siteID: site.id, month: month)
-
-        // You first, then the crew in their order: the sheet's order.
-        var minutes: [UUID: Int] = [:]
-        for result in results {
-            for person in result.people { minutes[person.memberID, default: 0] += person.workedMinutes }
-        }
-        var list: [SignOffPerson] = []
-        if let mine = minutes[CrewMember.youID] {
-            let owner = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
-            list.append(SignOffPerson(id: CrewMember.youID, name: owner.isEmpty ? String(localized: "You") : owner, minutes: mine))
-        }
-        for member in crew.sorted(by: { $0.sortOrder < $1.sortOrder }) {
-            guard let theirs = minutes[member.id] else { continue }
-            list.append(SignOffPerson(id: member.id, name: member.name, minutes: theirs))
-        }
-        people = list
-        loaded = true
-    }
-
-    private func removeSignature(of person: SignOffPerson) {
-        removing = nil
-        SiteDiaryRepository(context: modelContext)
-            .removeSignature(siteID: site.id, memberID: person.id, month: month)
-        reload()
-        onChange()
-    }
-
-    private func sign(_ person: SignOffPerson, strokes: [[SignaturePoint]]) {
-        let calendar = settingsStore.workCalendar
-        SiteDiaryRepository(context: modelContext).storeSignature(CrewSignature(
+    static func sign(
+        _ memberID: UUID,
+        site: Site,
+        month: YearMonth,
+        results: [SiteDayResult],
+        strokes: [[SignaturePoint]],
+        context: ModelContext,
+        calendar: Calendar
+    ) {
+        SiteDiaryRepository(context: context).storeSignature(CrewSignature(
             siteID: site.id,
-            memberID: person.id,
+            memberID: memberID,
             month: month,
             signedOn: CalendarDate.today(in: calendar),
-            fingerprint: SignatureFingerprint.make(memberID: person.id, results: results, month: month),
+            fingerprint: SignatureFingerprint.make(memberID: memberID, results: results, month: month),
             strokes: strokes,
             aspectRatio: SignatureCanvas.aspectRatio
         ))
-        reload()
-        onChange()
+    }
+}
+
+/// One person signs their month on one site, from their month on the crew
+/// screen ("Sign the month"). Nothing to sign without hours there.
+struct MemberSignOffSheet: View {
+    let site: Site
+    let memberID: UUID
+    let month: YearMonth
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var book: SignOffBook.Loaded?
+
+    var body: some View {
+        Group {
+            if let book, let person = book.people.first(where: { $0.id == memberID }) {
+                SignatureSheet(
+                    person: person,
+                    siteName: site.name,
+                    monthName: settingsStore.dateFormatting.monthName(month),
+                    rows: SignOffBook.dayRows(for: memberID, results: book.results, settingsStore: settingsStore),
+                    total: settingsStore.settings.displayFormatting.string(person.minutes),
+                    onSign: { strokes in
+                        SignOffBook.sign(memberID, site: site, month: month, results: book.results, strokes: strokes,
+                                         context: modelContext, calendar: settingsStore.workCalendar)
+                    }
+                )
+            } else if book != nil {
+                NavigationStack {
+                    ContentUnavailableView(
+                        "Nobody to sign",
+                        systemImage: "signature",
+                        description: Text("Nobody has hours on this site this month.")
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { dismiss() }
+                        }
+                    }
+                }
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            book = SignOffBook.load(site: site, month: month, context: modelContext, settingsStore: settingsStore)
+        }
     }
 }
 
@@ -296,7 +393,10 @@ struct SignOffPerson: Identifiable, Hashable {
     let minutes: Int
 }
 
-/// One person's month to read, and the line to sign on.
+/// One person's month on a site, to check and sign (1.2, mockup Crew):
+/// "Ivan · October" in the bar, the total on the site, "Hand the phone to
+/// Ivan…", their days folded under it, the area to sign in, and Clear and
+/// Sign at the bottom.
 struct SignatureSheet: View {
     struct DayRow: Identifiable, Hashable {
         let id: Int
@@ -306,76 +406,117 @@ struct SignatureSheet: View {
     }
 
     let person: SignOffPerson
+    var siteName: String = ""
+    var monthName: String = ""
     let rows: [DayRow]
     let total: String
     let onSign: ([[SignaturePoint]]) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var strokes: [[SignaturePoint]] = []
+    @State private var showsDays = false
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                List {
-                    Section {
-                        ForEach(rows) { row in
-                            HStack {
-                                Text(verbatim: row.date)
-                                Spacer(minLength: Metrics.small)
-                                Text(verbatim: row.times)
-                                    .foregroundStyle(.secondary)
-                                Text(verbatim: row.hours)
-                                    .font(.hoursFigure(.body))
-                                    .frame(minWidth: 64, alignment: .trailing)
-                            }
-                            .accessibilityElement(children: .combine)
-                        }
-                    } footer: {
-                        HStack {
-                            Text("Total")
-                            Spacer()
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Metrics.medium) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(siteName.isEmpty
+                                ? String(localized: "Total")
+                                : String(localized: "Total on \(siteName)", comment: "Sign-off: the person's hours on the site; the value is the site's name"))
+                            Spacer(minLength: Metrics.small)
                             Text(verbatim: total)
-                                .font(.hoursFigure(.body))
+                                .font(.hoursFigure(.title2, weight: .heavy))
                         }
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+                        .padding(Metrics.large)
+                        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                        .accessibilityElement(children: .combine)
+
+                        Text(String(
+                            localized: "Hand the phone to \(person.name). They sign that these hours are right.",
+                            comment: "Sign-off, above the signature area; the value is the person's name"
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                        DisclosureGroup(isExpanded: $showsDays) {
+                            VStack(spacing: Metrics.small) {
+                                ForEach(rows) { row in
+                                    HStack {
+                                        Text(verbatim: row.date)
+                                        Spacer(minLength: Metrics.small)
+                                        Text(verbatim: row.times)
+                                            .foregroundStyle(.hoursSecondaryText)
+                                        Text(verbatim: row.hours)
+                                            .font(.hoursFigure(.body))
+                                            .frame(minWidth: 64, alignment: .trailing)
+                                    }
+                                    .font(.subheadline)
+                                    .accessibilityElement(children: .combine)
+                                }
+                            }
+                            .padding(.top, Metrics.small)
+                        } label: {
+                            Text(String(inflected: "^[\(rows.count) day](inflect: true)"))
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .accessibilityIdentifier("signature-days")
                     }
+                    .padding(.horizontal, Metrics.large)
+                    .padding(.top, Metrics.small)
                 }
 
-                // Outside the list, so a stroke is never taken for a scroll.
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    HStack {
-                        Text(String(
-                            localized: "\(person.name), sign to confirm these hours",
-                            comment: "Above the signature area; the value is the person's name"
-                        ))
-                        .font(.subheadline.weight(.semibold))
-                        Spacer(minLength: Metrics.small)
-                        Button("Clear") { strokes = [] }
-                            .disabled(strokes.isEmpty)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .accessibilityIdentifier("signature-clear")
+                // Outside the scroll view, so a stroke is never taken for a
+                // scroll.
+                SignatureCanvas(strokes: $strokes)
+                    .overlay(alignment: .bottomLeading) {
+                        Text("Sign here")
+                            .font(.caption)
+                            .foregroundStyle(.hoursSecondaryText)
+                            .padding(.leading, Metrics.large)
+                            .padding(.bottom, Metrics.tiny)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
                     }
-                    SignatureCanvas(strokes: $strokes)
-                        .accessibilityIdentifier("signature-canvas")
+                    .accessibilityIdentifier("signature-canvas")
+                    .padding(.horizontal, Metrics.large)
+
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(spacing: Metrics.small))
+                    : AnyLayout(HStackLayout(spacing: Metrics.small))
+                layout {
+                    Button {
+                        strokes = []
+                    } label: {
+                        Text("Clear")
+                    }
+                    .buttonStyle(.bigAction(.secondary))
+                    .disabled(strokes.isEmpty)
+                    .accessibilityIdentifier("signature-clear")
+
+                    Button {
+                        onSign(strokes)
+                        dismiss()
+                    } label: {
+                        Text("Sign")
+                    }
+                    .buttonStyle(.bigAction(.primary))
+                    .disabled(!CrewSignature.isSignature(strokes))
+                    .accessibilityIdentifier("signature-sign")
                 }
-                .padding(Metrics.large)
-                .background(Color.hoursCanvas)
+                .padding(.horizontal, Metrics.large)
+                .padding(.bottom, Metrics.small)
             }
-            .navigationTitle(person.name)
+            .background(Color.hoursCanvas)
+            .navigationTitle(monthName.isEmpty ? person.name : "\(person.name) · \(monthName)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .accessibilityIdentifier("signature-cancel")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Sign") {
-                        onSign(strokes)
-                        dismiss()
-                    }
-                    .disabled(!CrewSignature.isSignature(strokes))
-                    .accessibilityIdentifier("signature-sign")
                 }
             }
         }

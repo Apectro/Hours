@@ -21,9 +21,9 @@ final class SiteExportTests: XCTestCase {
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "the site did not open")
 
-        // The site's Sheet button, beside Crew, Diary and Extra work.
+        // The site's Sheet button, at the bottom of its page.
         let export = app.buttons["site-export"]
         XCTAssertTrue(export.waitForExistence(timeout: 5), "the site has no Sheet button")
         export.tap()
@@ -114,25 +114,33 @@ final class SiteExportTests: XCTestCase {
         }
         XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "the crew list did not open")
 
-        // A name is the person's own, not a translated label.
-        let share = app.buttons.matching(identifier: "crew-share-Ivan").firstMatch
-        XCTAssertTrue(share.waitForExistence(timeout: 5), "Ivan has no Share sheet button")
-        share.tap()
+        // Ivan's row opens his month (1.2). A name is the person's own, not
+        // a translated label.
+        let ivan = app.buttons.matching(NSPredicate(format: "identifier == %@ AND label CONTAINS %@", "crew-member", "Ivan")).firstMatch
+        XCTAssertTrue(ivan.waitForExistence(timeout: 5), "Ivan has no row")
+        ivan.tap()
 
         // It opens on this month. The seed wrote yesterday, which on the
         // first of a month was last month, so step back once if need be.
-        let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
-        if !page.waitForExistence(timeout: 10) {
+        let share = app.buttons.matching(identifier: "crew-sheet-share").firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 10), "Ivan's month has no Share button")
+        let enabled = NSPredicate(format: "isEnabled == true")
+        let thisMonth = XCTNSPredicateExpectation(predicate: enabled, object: share)
+        if XCTWaiter().wait(for: [thisMonth], timeout: 5) != .completed {
             let previous = app.buttons.matching(identifier: "period-previous").firstMatch
-            XCTAssertTrue(previous.waitForExistence(timeout: 5), "the sheet has no month stepper")
+            XCTAssertTrue(previous.waitForExistence(timeout: 5), "Ivan's month has no month stepper")
             previous.tap()
         }
-        XCTAssertTrue(page.waitForExistence(timeout: 10), "Ivan's sheet has no page preview")
-        XCTAssertTrue(app.buttons.matching(identifier: "export-share").firstMatch.exists, "the sheet has no share button")
+        expectation(for: enabled, evaluatedWith: share)
+        waitForExpectations(timeout: 10)
+        XCTAssertTrue(app.buttons.matching(identifier: "crew-sheet-sign").firstMatch.exists, "Ivan's month has no Sign the month")
 
-        let done = app.buttons.matching(identifier: "crew-sheet-done").firstMatch
-        XCTAssertTrue(done.waitForExistence(timeout: 5))
-        done.tap()
-        XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "Done did not go back to the crew")
+        // The page itself, under the days.
+        let page = app.descendants(matching: .any).matching(identifier: "export-preview-page").firstMatch
+        for _ in 0..<4 where !page.exists { app.swipeUp() }
+        XCTAssertTrue(page.waitForExistence(timeout: 10), "Ivan's sheet has no page preview")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-crew").waitForExistence(timeout: 5), "Back did not go back to the crew")
     }
 }

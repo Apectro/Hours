@@ -314,3 +314,187 @@ struct SiteAwayMark: Equatable {
     let color: Color
     let title: String
 }
+
+// MARK: - A site's month by status (1.2, mockup Sites)
+
+extension SiteDayStatus {
+    /// The fill for this status in the card's strip and the site's month:
+    /// green written, orange partly, red missing, grey nothing expected.
+    var fill: Color {
+        switch self {
+        case .written: return .hoursDone
+        case .partly: return .hoursAttentionFill
+        case .missing: return .hoursMissingFill
+        case .dayOff: return Color(uiColor: .systemGray5)
+        case .future: return Color(uiColor: .systemGray5)
+        }
+    }
+
+    /// What VoiceOver says for the status.
+    var title: String {
+        switch self {
+        case .written: return String(localized: "Written")
+        case .partly: return String(localized: "Partly written")
+        case .missing: return String(localized: "Not written")
+        case .dayOff: return String(localized: "Day off")
+        case .future: return String(localized: "Still to come")
+        }
+    }
+}
+
+/// A site's month on its own page (1.2, mockup Sites): every day coloured by
+/// `SiteDayStatus` — green written, orange outlined partly, red dashed not
+/// written, grey a day off, outlined grey still to come — with today ringed
+/// in the accent. A day is a link to that day on the site.
+///
+/// Weekends are always shown, as in `SiteMonthGrid`.
+struct SiteStatusMonthGrid: View {
+    let month: YearMonth
+    let statuses: [CalendarDate: SiteDayStatus]
+    let today: CalendarDate
+    let calendar: Calendar
+    let formatting: CalendarFormatting
+    /// Where a day leads: the day on the site.
+    let route: (CalendarDate) -> SiteRoute
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: Metrics.tiny), count: 7)
+    }
+
+    /// The month's days, after blanks for the weekdays before the 1st.
+    private var cells: [CalendarDate?] {
+        let days = month.range(in: calendar).days(in: calendar)
+        guard let first = days.first else { return [] }
+        let order = formatting.orderedWeekdayNumbers
+        let lead = order.firstIndex(of: first.weekday(in: calendar)) ?? 0
+        return Array(repeating: nil, count: lead) + days.map { Optional($0) }
+    }
+
+    var body: some View {
+        VStack(spacing: Metrics.small) {
+            HStack(spacing: Metrics.tiny) {
+                ForEach(formatting.orderedWeekdayNumbers, id: \.self) { weekday in
+                    Text(verbatim: formatting.veryShortWeekdaySymbol(for: weekday))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.hoursSecondaryText)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
+                }
+            }
+            LazyVGrid(columns: columns, spacing: Metrics.tiny) {
+                ForEach(Array(cells.enumerated()), id: \.offset) { _, date in
+                    if let date {
+                        NavigationLink(value: route(date)) {
+                            SiteStatusDayCell(date: date, status: statuses[date] ?? .dayOff, isToday: date == today)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("site-overview-day-\(date.key)")
+                    } else {
+                        Color.clear.frame(height: 1).accessibilityHidden(true)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// One day of `SiteStatusMonthGrid`.
+private struct SiteStatusDayCell: View {
+    let date: CalendarDate
+    let status: SiteDayStatus
+    let isToday: Bool
+
+    @ScaledMetric(relativeTo: .caption) private var height: CGFloat = 36
+    @Environment(\.highContrast) private var highContrast
+
+    private let corner: CGFloat = 8
+
+    var body: some View {
+        Text(verbatim: "\(date.day)")
+            .font(.system(.caption, design: .rounded, weight: .bold))
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .foregroundStyle(foreground)
+            .frame(maxWidth: .infinity, minHeight: height)
+            .background(background)
+            .overlay(border)
+            .overlay {
+                if isToday {
+                    RoundedRectangle(cornerRadius: corner + 2, style: .continuous)
+                        .strokeBorder(Color.accentColor, lineWidth: 2)
+                        .padding(-2)
+                }
+            }
+            .contentShape(Rectangle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityAddTraits(.isButton)
+    }
+
+    private var foreground: Color {
+        switch status {
+        case .written: return .white
+        case .partly: return .hoursAttention
+        case .missing: return .hoursMissing
+        case .dayOff, .future: return highContrast ? Color.primary.opacity(0.85) : .secondary
+        }
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
+        switch status {
+        case .written: shape.fill(Color.hoursDone)
+        case .partly: shape.fill(Color.hoursAttentionFill.opacity(0.18))
+        case .missing: shape.fill(Color.hoursSurface)
+        case .dayOff: shape.fill(Color(uiColor: .systemGray5))
+        case .future: shape.fill(Color.hoursSurface)
+        }
+    }
+
+    @ViewBuilder
+    private var border: some View {
+        let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
+        switch status {
+        case .partly: shape.strokeBorder(Color.hoursAttentionFill, lineWidth: 1.5)
+        case .missing: shape.strokeBorder(Color.hoursMissing, style: StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
+        case .future: shape.strokeBorder(.hoursHairlineStyle, lineWidth: 1)
+        case .written, .dayOff: EmptyView()
+        }
+    }
+
+    private var accessibilityLabel: String {
+        var parts = ["\(date.day)", status.title]
+        if isToday { parts.append(String(localized: "Today")) }
+        return parts.joined(separator: ", ")
+    }
+}
+
+/// What the colours of a site's month mean.
+struct SiteStatusLegend: View {
+    private let items: [SiteDayStatus] = [.written, .partly, .missing, .dayOff]
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Metrics.medium) { entries }
+            VStack(alignment: .leading, spacing: Metrics.tiny) { entries }
+        }
+        .font(.caption)
+        .foregroundStyle(.hoursSecondaryText)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var entries: some View {
+        ForEach(items, id: \.self) { status in
+            HStack(spacing: Metrics.tiny) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(status.fill)
+                    .frame(width: 10, height: 10)
+                    .accessibilityHidden(true)
+                Text(verbatim: status.title)
+                    .lineLimit(1)
+            }
+        }
+    }
+}
