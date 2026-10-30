@@ -72,6 +72,8 @@ private struct YearReviewPages: View {
     let close: () -> Void
 
     @State private var sharedImage: Image?
+    /// The card on screen, for "3 of 7".
+    @State private var page = 0
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -80,10 +82,12 @@ private struct YearReviewPages: View {
             if review.isEmpty {
                 emptyState
             } else {
-                TabView {
-                    YearReviewCardView(title: titleText, figure: String(review.year), caption: introCaption, isIntro: true)
-                    ForEach(cards, id: \.self) { card in
+                TabView(selection: $page) {
+                    YearReviewCardView(title: introTitle, figure: duration.string(review.workedMinutes), caption: introCaption, isIntro: true)
+                        .tag(0)
+                    ForEach(Array(cards.enumerated()), id: \.element) { index, card in
                         YearReviewCardView(content: content(for: card))
+                            .tag(index + 1)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
@@ -106,9 +110,37 @@ private struct YearReviewPages: View {
         String(localized: "Your \(String(review.year))", comment: "Year in review title; the value is a year")
     }
 
-    private var introCaption: String {
-        String(localized: "Swipe for your year in numbers.", comment: "Year in review, first card")
+    private var introTitle: String {
+        String(localized: "In \(String(review.year)) you worked", comment: "Year in review, first card, over the year's hours; the value is a year")
     }
+
+    /// "on 4 sites, with 212 days on site and 41h of overtime." — the parts
+    /// there is something to say about.
+    private var introCaption: String {
+        guard review.sitesWorked > 0 else {
+            if settings.features.showsBalance && review.overtimeMinutes > 0 {
+                return String(
+                    localized: "with \(duration.string(review.overtimeMinutes)) of overtime.",
+                    comment: "Year in review, first card, under the hours; the value is a duration"
+                )
+            }
+            return String(localized: "Swipe for your year in numbers.", comment: "Year in review, first card")
+        }
+        let sites = String(inflected: "^[\(review.sitesWorked) site](inflect: true)")
+        let days = String(inflected: "^[\(review.daysOnSites) day](inflect: true)")
+        if settings.features.showsBalance && review.overtimeMinutes > 0 {
+            return String(
+                localized: "on \(sites), with \(days) on site and \(duration.string(review.overtimeMinutes)) of overtime.",
+                comment: "Year in review, first card; a number of sites, a number of days, and a duration"
+            )
+        }
+        return String(
+            localized: "on \(sites), with \(days) on site.",
+            comment: "Year in review, first card; a number of sites and a number of days"
+        )
+    }
+
+    private var pageCount: Int { cards.count + 1 }
 
     /// The engine's cards, less the ones a setting has switched off here.
     private var cards: [YearReview.Card] {
@@ -131,6 +163,18 @@ private struct YearReviewPages: View {
             }
             .accessibilityLabel(String(localized: "Close"))
             .accessibilityIdentifier("year-review-close")
+
+            Spacer()
+
+            if !review.isEmpty {
+                Text(String(
+                    localized: "\(page + 1) of \(pageCount)",
+                    comment: "Year in review, which card is showing, such as 3 of 7"
+                ))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(YearReviewPalette.mist)
+                .monospacedDigit()
+            }
 
             Spacer()
 
@@ -327,6 +371,14 @@ private struct YearReviewCardView: View {
         }
         .padding(.horizontal, Metrics.extraLarge)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        // The dark card look (1.2): each figure on its own card.
+        .background(
+            YearReviewPalette.navyLight.opacity(0.55),
+            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+        )
+        .padding(.horizontal, Metrics.large)
+        .padding(.top, 72)
+        .padding(.bottom, 56)
         .accessibilityElement(children: .combine)
     }
 }
