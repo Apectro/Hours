@@ -25,11 +25,12 @@ struct SettingsScreen: View {
     /// that show them. Worked out when the screen appears rather than on
     /// every redraw: each is a pass over the year's days.
     @State private var figures = SettingsFigures()
-    /// Only More is a value route; the rows push their screens on top.
-    @State private var path: [SettingsRoute] = []
 
     var body: some View {
-        NavigationStack(path: $path) {
+        // No path: every row pushes its screen with a destination link. A
+        // path-bound stack mixed with destination links kept a pushed
+        // screen's sheets (the day type editor) from presenting.
+        NavigationStack {
             ScrollViewReader { scroller in
                 List {
                     if isSearching {
@@ -46,7 +47,9 @@ struct SettingsScreen: View {
                             }
                         }
                         Section {
-                            NavigationLink(value: SettingsRoute.more) {
+                            NavigationLink {
+                                SettingsMoreScreen(figures: figures)
+                            } label: {
                                 Text("More: jobs, fields, calendar, look, iCloud, privacy, help")
                                     .foregroundStyle(.primary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -61,17 +64,11 @@ struct SettingsScreen: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Text("Search settings")
                 )
-                .navigationDestination(for: SettingsRoute.self) { route in
-                    switch route {
-                    case .more: SettingsMoreScreen(figures: figures)
-                    }
-                }
                 // The tour's last stop is Sheets, on this first screen and
                 // perhaps below the fold; Show the tour again is under More.
                 .onChange(of: tour?.tour?.stop) { _, stop in
                     guard stop == .export else { return }
                     query = ""
-                    path = []
                     withAnimation { scroller.scrollTo(SettingsIndex.exportRow, anchor: .center) }
                 }
                 .onAppear { figures = SettingsFigures(settingsStore: settingsStore, context: modelContext) }
@@ -166,11 +163,6 @@ struct SettingsScreen: View {
     }
 }
 
-/// Where the settings index goes by value.
-enum SettingsRoute: Hashable {
-    case more
-}
-
 /// Settings › More (1.2): the rows that are not looked at every week —
 /// jobs, fields, calendar, look, iCloud, privacy, help, rating and feedback.
 struct SettingsMoreScreen: View {
@@ -178,6 +170,8 @@ struct SettingsMoreScreen: View {
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
+    @Environment(TourCoordinator.self) private var tour: TourCoordinator?
     @State private var isShowingFeedbackAddress = false
 
     var body: some View {
@@ -193,6 +187,10 @@ struct SettingsMoreScreen: View {
         }
         .accessibilityIdentifier("screen-settings-more")
         .feedbackAddressAlert(isPresented: $isShowingFeedbackAddress)
+        // The tour's last stop is Sheets, on the first screen: go back there.
+        .onChange(of: tour?.tour?.stop) { _, stop in
+            if stop == .export { dismiss() }
+        }
         .navigationTitle("More")
         .navigationBarTitleDisplayMode(.inline)
     }
