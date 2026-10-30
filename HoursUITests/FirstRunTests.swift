@@ -81,10 +81,12 @@ final class FirstRunTests: XCTestCase {
         XCTAssertTrue(app.screen("screen-setup-week").waitForExistence(timeout: 10), "the week was not asked")
         // Saturday on, as someone who works six days would.
         app.buttons["setup-weekday-7"].tap()
-        app.buttons["setup-continue"].tap()
-
-        XCTAssertTrue(app.screen("screen-setup-breaks").waitForExistence(timeout: 5), "the breaks were not asked")
-        app.buttons["setup-breaks-paid"].tap()
+        // Breaks are paid: asked on the same screen since 1.2.
+        let paid = app.switches["setup-breaks-paid"].firstMatch
+        if paid.waitForExistence(timeout: 5) {
+            let inner = paid.switches.firstMatch
+            (inner.exists && inner.isHittable ? inner : paid).tap()
+        }
         app.buttons["setup-continue"].tap()
 
         // No country chosen: nothing is added, and nothing is guessed.
@@ -105,7 +107,8 @@ final class FirstRunTests: XCTestCase {
         continuePast("screen-setup-pay", in: app)
 
         XCTAssertTrue(app.screen("screen-setup-finish").waitForExistence(timeout: 5), "the last screen did not come")
-        XCTAssertFalse(app.buttons["setup-create-site"].exists, "Create a site is for someone who leads a crew")
+        // All set (1.2): Write today, Set up a site and Show me around, for everyone.
+        XCTAssertTrue(app.buttons["setup-create-site"].exists, "the last screen has no Set up a site")
         app.buttons["setup-write-today"].tap()
 
         XCTAssertTrue(app.buttons["day-editor-save"].waitForExistence(timeout: 5), "today's editor did not open")
@@ -118,7 +121,7 @@ final class FirstRunTests: XCTestCase {
 
         XCTAssertTrue(app.screen("screen-setup-name").waitForExistence(timeout: 10), "the setup was not shown")
         continuePastTheName(app)
-        for step in ["screen-setup-week", "screen-setup-breaks", "screen-setup-holidays", "screen-setup-language"] {
+        for step in ["screen-setup-week", "screen-setup-holidays", "screen-setup-language"] {
             continuePast(step, in: app, timeout: 10)
         }
         XCTAssertTrue(app.screen("screen-setup-crew").waitForExistence(timeout: 5), "the crew was not asked")
@@ -139,7 +142,7 @@ final class FirstRunTests: XCTestCase {
 
         XCTAssertTrue(app.screen("screen-setup-name").waitForExistence(timeout: 10), "the setup was not shown")
         continuePastTheName(app)
-        for step in ["screen-setup-week", "screen-setup-breaks", "screen-setup-holidays", "screen-setup-language",
+        for step in ["screen-setup-week", "screen-setup-holidays", "screen-setup-language",
                      "screen-setup-crew", "screen-setup-pay"] {
             continuePast(step, in: app, timeout: 10)
         }
@@ -155,7 +158,7 @@ final class FirstRunTests: XCTestCase {
 
         XCTAssertTrue(app.screen("screen-setup-name").waitForExistence(timeout: 10), "the setup was not shown")
         continuePastTheName(app)
-        for step in ["screen-setup-week", "screen-setup-breaks", "screen-setup-holidays"] {
+        for step in ["screen-setup-week", "screen-setup-holidays"] {
             continuePast(step, in: app, timeout: 10)
         }
         XCTAssertTrue(app.screen("screen-setup-language").waitForExistence(timeout: 5))

@@ -91,7 +91,8 @@ final class PaywallTests: XCTestCase {
         let app = XCUIApplication.hours()
         openSettings(app)
 
-        // Backup lives under "iCloud & backup" since Settings was regrouped.
+        // Backup lives under More › "iCloud & backup" since the redesign.
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
         let hub = app.staticTexts["iCloud & backup"]
         XCTAssertTrue(reveal(hub, in: app), "iCloud & backup should be reachable without paying")
         _ = XCTWaiter().wait(for: [XCTestExpectation(description: "the list settles")], timeout: 1)

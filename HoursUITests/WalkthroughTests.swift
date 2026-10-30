@@ -120,6 +120,7 @@ final class WalkthroughTests: XCTestCase {
 
             // 5 — the privacy screen, which is the reason to choose this one.
             let privacy = app.buttons["settings-privacy"]
+            app.openSettingsMore()
             if reveal(privacy, in: app) {
                 privacy.tap()
                 if reached("privacy", app.screen("screen-privacy")) { pause(2.5) }

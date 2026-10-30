@@ -32,3 +32,17 @@ extension XCUIApplication {
         descendants(matching: .any)[identifier]
     }
 }
+
+extension XCUIApplication {
+    /// Settings › More (1.2), where Jobs, Fields, Calendar, Appearance,
+    /// iCloud & backup, Privacy, Help & tour, Rate and Send feedback are.
+    /// Expects the Settings tab to be open on its first screen.
+    @discardableResult
+    func openSettingsMore() -> Bool {
+        let more = buttons.matching(identifier: "settings-more").firstMatch
+        for _ in 0..<6 where !(more.exists && more.isHittable) { swipeUp() }
+        guard more.exists, more.isHittable else { return false }
+        more.tap()
+        return descendants(matching: .any)["screen-settings-more"].waitForExistence(timeout: 5)
+    }
+}

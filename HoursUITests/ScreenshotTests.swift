@@ -169,6 +169,7 @@ final class ScreenshotTests: XCTestCase {
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
         let privacy = app.buttons["settings-privacy"]
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
         XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
         privacy.tap()
         XCTAssertTrue(app.screen("screen-privacy").waitForExistence(timeout: 10))

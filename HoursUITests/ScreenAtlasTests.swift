@@ -678,11 +678,12 @@ final class ScreenAtlasTests: XCTestCase {
         swipeDown(app, times: 4)
 
         let scope = scopeControl(app)
-        guard scope.waitForExistence(timeout: 5), scope.buttons.count >= 4 else {
+        guard scope.waitForExistence(timeout: 5), scope.buttons.count >= 3 else {
             miss("insights periods (no period control)")
             return
         }
-        for (index, name) in [(0, "insights-today"), (1, "insights-week"), (3, "insights-year")] {
+        // Week, Month, Year (1.2).
+        for (index, name) in [(0, "insights-week"), (2, "insights-year")] {
             scope.buttons.element(boundBy: index).tap()
             pause(1)
             capture(name, app)
@@ -714,7 +715,7 @@ final class ScreenAtlasTests: XCTestCase {
             miss("year-in-review (no button)")
         }
         swipeDown(app, times: 4)
-        if scope.exists { scope.buttons.element(boundBy: 2).tap() }
+        if scope.exists { scope.buttons.element(boundBy: 1).tap() }
     }
 
     private func scopeControl(_ app: XCUIApplication) -> XCUIElement {
@@ -734,7 +735,7 @@ final class ScreenAtlasTests: XCTestCase {
 
         // The root, a screen height at a time, until the last row is up.
         capture("settings-1", app)
-        let last = app.buttons.matching(identifier: "settings-feedback").firstMatch
+        let last = app.buttons.matching(identifier: "settings-more").firstMatch
         var page = 1
         while page < 5, !(last.exists && last.isHittable) {
             swipeUp(app)
@@ -766,6 +767,29 @@ final class ScreenAtlasTests: XCTestCase {
             self.swipeUp(app)
             self.capture("settings-new-sites-lower", app)
         }
+        settingsPage("settings-calculation", "settings-calculation", app) {
+            self.swipeUp(app)
+            self.capture("settings-calculation-lower", app)
+        }
+        settingsPage("settings-reminders", "settings-reminders", app) {
+            self.swipeUp(app)
+            self.capture("settings-reminders-lower", app)
+        }
+        settingsPage("settings-day-types-holidays", "settings-day-types-holidays", app) {
+            self.dayTypeAndHolidayScreens(app)
+        }
+        settingsPage("settings-export-options", "settings-export-options", app) {
+            self.swipeUp(app)
+            self.capture("settings-export-options-lower", app)
+        }
+
+        // Under More (1.2).
+        guard app.openSettingsMore() else {
+            miss("settings-more (did not open)")
+            return
+        }
+        pause(1)
+        capture("settings-more", app)
         settingsPage("settings-jobs", "settings-jobs", app) {
             if self.tap(app.buttons.matching(identifier: "jobs-row").firstMatch, "a job", app) {
                 self.capture("settings-job-editor", app)
@@ -776,13 +800,13 @@ final class ScreenAtlasTests: XCTestCase {
                 self.close(app, "job-editor-cancel")
             }
         }
-        settingsPage("settings-calculation", "settings-calculation", app) {
-            self.swipeUp(app)
-            self.capture("settings-calculation-lower", app)
-            // Closed months: their own screen now. Last month is closed
-            // here, for the calendar's notice afterwards (see
-            // `closedMonthScreens`), which reopens it.
-            if self.tap(app.buttons.matching(identifier: "settings-closed-months").firstMatch, "Closed months", app) {
+        settingsPage("settings-fields", "settings-fields", app)
+        settingsPage("settings-calendar", "settings-calendar", app) {
+            // Closed months: their own screen, under Calendar (1.2). Last
+            // month is closed here, for the calendar's notice afterwards
+            // (see `closedMonthScreens`), which reopens it.
+            if self.bringIntoView(app.buttons.matching(identifier: "settings-closed-months").firstMatch, app),
+               self.tap(app.buttons.matching(identifier: "settings-closed-months").firstMatch, "Closed months", app) {
                 self.capture("settings-closed-months", app)
                 if self.tap(app.buttons.matching(identifier: "closed-months-close").firstMatch, "Close last month", app) {
                     self.capture("settings-closed-months-one", app)
@@ -790,20 +814,7 @@ final class ScreenAtlasTests: XCTestCase {
                 self.back(app)
             }
         }
-        settingsPage("settings-reminders", "settings-reminders", app) {
-            self.swipeUp(app)
-            self.capture("settings-reminders-lower", app)
-        }
-        settingsPage("settings-fields", "settings-fields", app)
-        settingsPage("settings-day-types-holidays", "settings-day-types-holidays", app) {
-            self.dayTypeAndHolidayScreens(app)
-        }
-        settingsPage("settings-calendar", "settings-calendar", app)
         settingsPage("settings-theme", "settings-theme", app)
-        settingsPage("settings-export-options", "settings-export-options", app) {
-            self.swipeUp(app)
-            self.capture("settings-export-options-lower", app)
-        }
         settingsPage("settings-icloud-backup", "settings-icloud-backup", app) {
             self.settingsPage("settings-icloud", "settings-icloud", app)
             self.settingsPage("settings-data", "settings-backup-and-data", app)
@@ -813,6 +824,8 @@ final class ScreenAtlasTests: XCTestCase {
             self.capture("settings-privacy-lower", app)
         }
         settingsPage("settings-help", "settings-help", app)
+        back(app)
+        pause(0.5)
         settingsSearchScreens(app)
     }
 
@@ -835,24 +848,25 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// Settings › Day types & holidays: the two screens under it.
     private func dayTypeAndHolidayScreens(_ app: XCUIApplication) {
-        settingsPage("settings-day-types", "settings-day-types", app) {
-            if self.tap(app.buttons.matching(identifier: "day-types-row").firstMatch, "a day type", app) {
-                self.capture("settings-day-type-editor", app)
-                self.close(app, "day-type-editor-cancel")
-            }
-            // Sick, fifth in the list: Paid at, the 42 days and the note.
-            let sick = app.buttons.matching(identifier: "day-types-row").element(boundBy: 4)
-            if self.tap(sick, "the Sick day type", app) {
-                self.capture("settings-day-type-sick", app)
-                self.swipeUp(app)
-                self.capture("settings-day-type-sick-lower", app)
-                self.close(app, "day-type-editor-cancel")
-            }
-            if self.tap(app.buttons.matching(identifier: "day-types-add").firstMatch, "Add a day type", app) {
-                self.capture("settings-day-type-new", app)
-                self.close(app, "day-type-editor-cancel")
-            }
+        // The day types are on this screen itself (1.2).
+        if tap(app.buttons.matching(identifier: "day-types-row").firstMatch, "a day type", app) {
+            capture("settings-day-type-editor", app)
+            close(app, "day-type-editor-cancel")
         }
+        // Sick, fifth in the list: Paid at, the 42 days and the note.
+        let sick = app.buttons.matching(identifier: "day-types-row").element(boundBy: 4)
+        if tap(sick, "the Sick day type", app) {
+            capture("settings-day-type-sick", app)
+            swipeUp(app)
+            capture("settings-day-type-sick-lower", app)
+            close(app, "day-type-editor-cancel")
+        }
+        if bringIntoView(app.buttons.matching(identifier: "day-types-add").firstMatch, app),
+           tap(app.buttons.matching(identifier: "day-types-add").firstMatch, "Add a day type", app) {
+            capture("settings-day-type-new", app)
+            close(app, "day-type-editor-cancel")
+        }
+        capture("settings-day-types", app)
         settingsPage("settings-holidays", "settings-holidays", app) {
             if self.tap(app.buttons.matching(identifier: "holidays-row").firstMatch, "a holiday", app) {
                 self.capture("settings-holiday-editor", app)
@@ -1088,7 +1102,7 @@ final class ScreenAtlasTests: XCTestCase {
     /// The first-run questions, one picture per step.
     private func firstRun() {
         let app = launch(["-hours-first-run"])
-        let steps = ["name", "week", "breaks", "holidays", "language", "crew", "pay", "finish"]
+        let steps = ["name", "week", "holidays", "language", "crew", "pay", "finish"]
         for (index, step) in steps.enumerated() {
             let screen = app.screen("screen-setup-\(step)")
             guard screen.waitForExistence(timeout: 10) else {
@@ -1167,8 +1181,8 @@ final class ScreenAtlasTests: XCTestCase {
             pause(1)
             capture("empty-insights", app)
             let scope = scopeControl(app)
-            if scope.waitForExistence(timeout: 5), scope.buttons.count >= 4 {
-                scope.buttons.element(boundBy: 3).tap()
+            if scope.waitForExistence(timeout: 5), scope.buttons.count >= 3 {
+                scope.buttons.element(boundBy: 2).tap()
                 pause(0.5)
                 let review = app.buttons.matching(identifier: "insights-year-review").firstMatch
                 if bringIntoView(review, app) {

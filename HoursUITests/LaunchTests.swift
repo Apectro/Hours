@@ -65,11 +65,13 @@ final class LaunchTests: XCTestCase {
         // would go nowhere. Rows behind a switched-off feature are skipped
         // below rather than listed here, since which ones exist depends on the
         // settings the app starts with.
+        // The first screen's rows; Jobs, Fields, Calendar, Appearance,
+        // iCloud & backup, Privacy and Help & tour are under More (1.2) and
+        // opened from there below.
         let rows = [
-            "Working hours", "Overtime & balance", "Pay", "Leave", "Jobs",
+            "Working hours", "Overtime & balance", "Pay", "Leave",
             "New sites start with", "Reminders",
-            "Day types & holidays", "Sheets", "Fields", "Calendar",
-            "Appearance", "iCloud & backup", "Privacy", "Help & tour",
+            "Day types & holidays", "Sheets",
         ]
         var opened = 0
 
@@ -94,6 +96,22 @@ final class LaunchTests: XCTestCase {
         // stopped being exposed the way this test looks for them, which would
         // otherwise turn the whole test into a no-op that always passes.
         XCTAssertGreaterThanOrEqual(opened, 3, "no settings rows were reachable")
+
+        // Under More: each opens and comes back to More.
+        for _ in 0..<6 { app.swipeDown() }
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
+        var openedUnderMore = 0
+        for row in ["Jobs", "Fields", "Calendar", "Appearance", "iCloud & backup", "Privacy", "Help & tour"] {
+            let label = app.staticTexts[row].firstMatch
+            guard label.exists, label.isHittable else { continue }
+            label.tap()
+            let back = app.navigationBars.buttons["More"]
+            XCTAssertTrue(back.waitForExistence(timeout: 5), "\(row) did not open")
+            back.tap()
+            XCTAssertTrue(app.screen("screen-settings-more").waitForExistence(timeout: 5), "could not get back from \(row)")
+            openedUnderMore += 1
+        }
+        XCTAssertGreaterThanOrEqual(openedUnderMore, 3, "no rows under More were reachable")
     }
 
     /// The one flow the app exists for: open a day, save it, come back. Run
