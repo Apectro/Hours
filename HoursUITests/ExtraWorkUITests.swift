@@ -74,7 +74,7 @@ final class ExtraWorkUITests: XCTestCase {
         // why: Include them, or Mark finished… to list it with its checkmark.
         // The report is on the site's page (1.2), one back from the day.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons["site-extra-work-report"].tap()
+        app.openSiteExtraWorkReport()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
         XCTAssertFalse(app.buttons["extra-work-report-job-0"].exists, "the report leaves out jobs in progress")
         let share = app.buttons["extra-work-report-share-pdf"]
@@ -107,7 +107,7 @@ final class ExtraWorkUITests: XCTestCase {
 
         // And now it is in the report, its material summed.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons["site-extra-work-report"].tap()
+        app.openSiteExtraWorkReport()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 5), "the report did not open")
         XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 5), "a finished job is reported")
         XCTAssertFalse(app.buttons["extra-work-in-progress-0"].exists, "nothing is in progress any more")
@@ -122,5 +122,16 @@ final class ExtraWorkUITests: XCTestCase {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3)).tap()
         XCTAssertTrue(app.buttons["extra-work-report-done"].waitForExistence(timeout: 5))
         app.buttons["extra-work-report-done"].tap()
+    }
+}
+
+private extension XCUIApplication {
+    /// The site page's Extra work row, further down the list: a list only
+    /// makes the rows on screen, so scroll to it first.
+    func openSiteExtraWorkReport() {
+        XCTAssertTrue(screen("screen-site").waitForExistence(timeout: 5), "back should lead to the site's page")
+        let report = buttons["site-extra-work-report"].firstMatch
+        for _ in 0..<5 where !(report.exists && report.isHittable) { swipeUp() }
+        report.tap()
     }
 }

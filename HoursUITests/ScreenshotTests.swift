@@ -116,6 +116,8 @@ final class ScreenshotTests: XCTestCase {
         // just under the navigation bar, so it is not cut off and the jobs
         // fit below it.
         let heading = app.descendants(matching: .any)["extra-work-heading"].firstMatch
+        // The day is a list, which only makes the rows on screen: scroll down to it.
+        for _ in 0..<8 where !heading.exists { app.swipeUp() }
         XCTAssertTrue(heading.waitForExistence(timeout: 10), "the site day has no extra work")
         for _ in 0..<6 where !heading.isHittable { app.swipeUp() }
         XCTAssertTrue(heading.isHittable, "could not scroll to the extra work")
