@@ -114,6 +114,9 @@ struct ExportReadyItem: Identifiable {
     /// The month to offer closing once the file has gone out
     /// (`ExportCloseOffer`).
     var closeMonth: YearMonth?
+    /// Pro is needed for the file: nothing was written, the sheet is only
+    /// shown, and Send… and Save to Files open the paywall.
+    var isLocked = false
 }
 
 /// Ready to send (Export board, phone 4): the file as it will arrive, with
@@ -132,6 +135,7 @@ struct ExportReadySheet: View {
     @State private var pageCount = 1
     @State private var sent = false
     @State private var closed = false
+    @State private var paywallReason: ProFeature?
 
     var body: some View {
         NavigationStack {
@@ -146,6 +150,7 @@ struct ExportReadySheet: View {
                     }
                 }
                 .safeAreaInset(edge: .bottom) { bar }
+                .paywall(for: $paywallReason)
         }
     }
 
@@ -188,28 +193,36 @@ struct ExportReadySheet: View {
             }
             HStack(spacing: Metrics.medium) {
                 Button {
+                    guard !item.isLocked else {
+                        paywallReason = .fileExport
+                        return
+                    }
                     ShareSheetPresenter.present(item.files) { outcome in
                         guard outcome == .completed else { return }
                         didSend()
                         ReviewPromptStore.askIfDue(requestReview)
                     }
                 } label: {
-                    Label("Send…", systemImage: "square.and.arrow.up")
+                    Label("Send…", systemImage: item.isLocked ? "lock.fill" : "square.and.arrow.up")
                 }
                 .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("export-share")
 
                 Button {
+                    guard !item.isLocked else {
+                        paywallReason = .fileExport
+                        return
+                    }
                     FilesExportPresenter.present(item.files) { saved in
                         if saved { didSend() }
                     }
                 } label: {
-                    Label("Save to Files", systemImage: "folder")
+                    Label("Save to Files", systemImage: item.isLocked ? "lock.fill" : "folder")
                 }
                 .buttonStyle(.bigAction(.secondary))
                 .accessibilityIdentifier("export-save-files")
             }
-            .disabled(item.files.isEmpty)
+            .disabled(item.files.isEmpty && !item.isLocked)
             if let month = closeOffer {
                 closeLine(month)
             }

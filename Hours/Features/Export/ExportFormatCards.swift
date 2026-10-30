@@ -9,8 +9,8 @@ import SwiftUI
 struct ExportFormatCards: View {
     /// Nothing to send (an empty month), or still reading.
     let isEnabled: Bool
-    /// Pro is needed for the file: a lock on each button, which then opens
-    /// the paywall.
+    /// Pro is needed for the file: a lock on each button. The sheet still
+    /// opens to be looked at; its Send… opens the paywall.
     var isLocked = false
     let onChoose: (ExportFormat) -> Void
 

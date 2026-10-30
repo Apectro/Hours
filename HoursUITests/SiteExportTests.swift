@@ -29,9 +29,10 @@ final class SiteExportTests: XCTestCase {
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
-        // The screen previews the PDF's first page. Excel writes the
-        // workbook and opens it ready to send, previewed as its table. The
-        // name on the sheet is asked for first; any answer will do.
+        // The screen previews the PDF's first page. Excel opens the
+        // workbook ready to send, previewed as its table: unpaid, nothing is
+        // written and Send… is locked, but the sheet is shown. With Pro the
+        // name would be asked for first; any answer will do.
         XCTAssertTrue(app.descendants(matching: .any)["export-preview-page"].waitForExistence(timeout: 10), "the PDF has no page preview")
         let excel = app.buttons["export-format-xlsx"]
         XCTAssertTrue(excel.waitForExistence(timeout: 5), "there is no Excel button")

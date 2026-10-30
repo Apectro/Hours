@@ -791,8 +791,11 @@ struct ExportScreen: View {
     /// preferences, and opened ready to send.
     private func makeFile(_ format: ExportFormat) {
         guard hasContent else { return }
+        // Without Pro the file is not written, but the page or the table is
+        // still shown, as it will be sent: seeing it is free, and Send…
+        // there opens the paywall. No name is asked for a file not written.
         guard subscriptions.allows(.fileExport) else {
-            paywallReason = .fileExport
+            ready = previewOnly(format)
             return
         }
         if needsName {
@@ -846,6 +849,24 @@ struct ExportScreen: View {
                 comment: "Export failed; the value is the system's own description"
             )
         }
+    }
+
+    /// The ready-to-send page with nothing written, for someone without
+    /// Pro: the sheet as it would be sent, and locked buttons.
+    private func previewOnly(_ format: ExportFormat) -> ExportReadyItem {
+        let table: ReportTable?
+        switch mode {
+        case .onePerson: table = personSheet?.tables.preview
+        case .crewSheet where perPerson: table = personSheets.first?.tables.preview
+        default: table = tables?.preview
+        }
+        return ExportReadyItem(
+            format: format, files: [],
+            pdfData: format == .pdf ? pdfData : nil,
+            table: table,
+            note: personNote,
+            isLocked: true
+        )
     }
 
     /// Ticking a chip puts its site on the sheet; unticking takes it off,
