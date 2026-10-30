@@ -114,9 +114,14 @@ final class ClearerAppTests: XCTestCase {
         app.buttons["site-export"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "Sheet did not open the export")
         app.buttons["export-done"].firstMatch.tap()
+        // The export's sheet has to be gone, or the next tap lands on it as it slides away.
+        let exportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-site-export"))
+        wait(for: [exportGone], timeout: 10)
 
-        // Extra work, the report.
-        app.buttons["site-extra-work-report"].firstMatch.tap()
+        // Extra work, the report: a row further down the site's page.
+        let extraWork = app.buttons["site-extra-work-report"].firstMatch
+        for _ in 0..<4 where !(extraWork.exists && extraWork.isHittable) { app.swipeUp() }
+        extraWork.tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
 
