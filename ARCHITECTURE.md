@@ -1591,8 +1591,11 @@ assets (`HoursPositiveText`, `HoursWarningText`, `HoursMissingText`) that pass
 contrast as text in Light mode — system orange, green and red on white do not,
 which matters in sunlight — and are the system colours in Dark; the `…Fill`
 colours are the bright ones, for fills and washes only. `hoursNegative` is the
-old name for the orange. The daily actions use `BigActionButtonStyle`
-(`.bigAction(.primary)`), and Appearance › On site sets two environment
+old name for the orange. The accent is system blue (design v2: light #007AFF,
+dark #0A84FF). The daily actions use `BigActionButtonStyle`
+(`.bigAction(.primary)`): a 52pt capsule (60pt with Bigger buttons), the
+accent for the one primary action, the tertiary system fill for secondary and
+destructive (red text), green for Clock in only. And Appearance › On site sets two environment
 values at the root, `biggerButtons` (taller big buttons) and `highContrast`
 (read through `.hoursSecondaryText` and `.hoursHairlineStyle`). A scrolling screen that is not a `Form` is `SectionHeading`
 over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
