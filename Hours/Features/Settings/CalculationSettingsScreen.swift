@@ -13,13 +13,13 @@ struct CalculationSettingsScreen: View {
                     Toggle("Calculate overtime", isOn: settingsStore.binding(\.features.autoCalculateOvertime))
                 }
             } header: {
-                Text("Automatic")
+                Text("Overtime counts")
             } footer: {
-                Text("Switch these off to enter worked hours, or the balance, by hand on each day.")
+                Text("Overtime is what you work beyond your week in Working hours. Switch these off to enter worked hours, or the balance, by hand on each day.")
             }
 
             Section {
-                Picker("Rounding", selection: settingsStore.binding(\.rounding)) {
+                Picker("Round each day to", selection: settingsStore.binding(\.rounding)) {
                     ForEach(RoundingRule.allCases) { rule in
                         Text(rule.title).tag(rule)
                     }
@@ -27,8 +27,35 @@ struct CalculationSettingsScreen: View {
             } header: {
                 Text("Rounding")
             } footer: {
-                Text("Applied to the worked total of each day, not to the times you enter.")
+                Text("Applied to each day's total, not to the times you write.")
             }
+
+            Section {
+                if let start = settingsStore.settings.balanceStartDate {
+                    DatePicker(
+                        "Counts from",
+                        selection: balanceStartBinding(start),
+                        displayedComponents: .date
+                    )
+                } else {
+                    LabeledContent("Counts from", value: firstEntryDescription)
+                }
+                Toggle("Choose the start date", isOn: balanceStartToggle)
+                DurationStepperRow(
+                    title: String(localized: "Starting balance"),
+                    minutes: settingsStore.binding(\.openingBalanceMinutes),
+                    range: (-500 * 60)...(500 * 60),
+                    step: 30,
+                    signed: true,
+                    formatting: settingsStore.settings.displayFormatting
+                )
+            } header: {
+                Text("Balance")
+            } footer: {
+                Text("Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.")
+            }
+
+            carryOverSection
 
             Section {
                 Picker("Clock changes", selection: settingsStore.binding(\.durationPolicy)) {
@@ -41,34 +68,6 @@ struct CalculationSettingsScreen: View {
             } footer: {
                 Text(settingsStore.settings.durationPolicy.explanation)
             }
-
-            Section {
-                DurationStepperRow(
-                    title: String(localized: "Opening balance"),
-                    minutes: settingsStore.binding(\.openingBalanceMinutes),
-                    range: (-500 * 60)...(500 * 60),
-                    step: 30,
-                    signed: true,
-                    formatting: settingsStore.settings.displayFormatting
-                )
-                Toggle("Count from a start date", isOn: balanceStartToggle)
-                if let start = settingsStore.settings.balanceStartDate {
-                    DatePicker(
-                        "Start date",
-                        selection: balanceStartBinding(start),
-                        displayedComponents: .date
-                    )
-                } else {
-                    LabeledContent("Balance counts from", value: firstEntryDescription)
-                }
-            } header: {
-                Text("Balance")
-            } footer: {
-                Text("Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.")
-            }
-
-            carryOverSection
-            monthLockSection
         }
         .navigationTitle("Overtime & balance")
         .navigationBarTitleDisplayMode(.inline)
@@ -131,22 +130,6 @@ struct CalculationSettingsScreen: View {
             // hours nobody worked; later edits to a closed year no longer
             // move what it handed over.
             Text("Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.")
-        }
-    }
-
-    // MARK: - Closing a month
-
-    /// Closed months have their own screen (`ClosedMonthsScreen`), and the
-    /// month on screen closes and reopens from the calendar's ⋯ menu. This
-    /// row stays where people learned to look.
-    private var monthLockSection: some View {
-        Section {
-            ClosedMonthsRow()
-        } footer: {
-            // It refuses edits from the day editor, a bulk edit, the clock and
-            // Siri alike: once a timesheet has been handed over, the days
-            // behind it changing quietly is how a disagreement starts.
-            Text("Close a month once its hours are handed over, so it can't change by mistake.")
         }
     }
 

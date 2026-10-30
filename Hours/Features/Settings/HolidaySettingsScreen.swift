@@ -1,7 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// The holiday list.
+/// Settings › Day types & holidays › Public holidays (1.2 redesign, board
+/// 17): the country, its holidays this year with a tick for each one you
+/// get off, and your own days off.
 ///
 /// Empty to begin with, and deliberately so: public holidays differ by country,
 /// region, employer and year, and a wrong guess is worse than nothing. Since
@@ -33,46 +35,50 @@ struct HolidaySettingsScreen: View {
         List {
             publicHolidaysSection
 
-            if records.isEmpty {
+            if !publicRecords.isEmpty {
                 Section {
-                    ContentUnavailableView {
-                        Label("No holidays yet", systemImage: "flag")
-                    } description: {
-                        Text("Add the days that apply where you work. A recurring holiday only has to be entered once.")
-                    } actions: {
-                        Button("Add a holiday") { activeSheet = .edit(newRule()) }
-                            .buttonStyle(.bordered)
+                    ForEach(publicRecords) { record in
+                        tickRow(record)
                     }
-                }
-            } else {
-                Section {
-                    ForEach(records) { record in
-                        Button {
-                            activeSheet = .edit(record.rule)
-                        } label: {
-                            HolidayRow(
-                                rule: record.rule,
-                                calendar: calendar,
-                                formatting: settingsStore.dateFormatting
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("holidays-row")
-                    }
-                    .onDelete(perform: delete)
+                    .onDelete { delete(publicRecords, at: $0) }
+                } header: {
+                    Text(String(
+                        localized: "\(String(year)) · Tick the ones you get off",
+                        comment: "Settings › Public holidays, over the country's list; the value is a year"
+                    ))
                 }
             }
 
             Section {
+                ForEach(ownRecords) { record in
+                    Button {
+                        activeSheet = .edit(record.rule)
+                    } label: {
+                        HolidayRow(
+                            rule: record.rule,
+                            calendar: calendar,
+                            formatting: settingsStore.dateFormatting
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("holidays-row")
+                }
+                .onDelete { delete(ownRecords, at: $0) }
+
                 Button {
                     activeSheet = .edit(newRule())
                 } label: {
-                    Label("Add a holiday", systemImage: "plus.circle")
+                    Label("Add your own day off", systemImage: "plus")
+                        .frame(minHeight: 44)
                 }
                 .accessibilityIdentifier("holidays-add")
+            } header: {
+                Text("Your own days off")
+            } footer: {
+                Text("A public holiday is paid at your normal day. Work on one and it counts as overtime.")
             }
         }
-        .navigationTitle("Holidays")
+        .navigationTitle("Public holidays")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -94,20 +100,16 @@ struct HolidaySettingsScreen: View {
         }
     }
 
-    /// The country's set: one tap to add, and while one is added, which one
-    /// and the way back out.
+    /// The country: which one, and the way back out; or the way in.
     @ViewBuilder
     private var publicHolidaysSection: some View {
         Section {
             if let added = settingsStore.settings.publicHolidays.addedSet {
-                Label {
-                    Text(String(
-                        localized: "\(PublicHolidayActions.title(of: added)) · added",
-                        comment: "Settings › Holidays: which country's public holidays were added, e.g. Austria · added"
-                    ))
-                } icon: {
-                    Image(systemName: "checkmark.seal")
+                LabeledContent("Country") {
+                    Text(verbatim: PublicHolidayActions.title(of: added))
+                        .foregroundStyle(.hoursSecondaryText)
                 }
+                .frame(minHeight: 44)
                 .accessibilityIdentifier("public-holidays-added")
                 Button("Remove these holidays", role: .destructive) { isConfirmingRemoval = true }
                     .frame(minHeight: 44)
@@ -128,16 +130,81 @@ struct HolidaySettingsScreen: View {
         }
     }
 
+    /// One of the country's holidays: its name, this year's date, and a
+    /// tick for whether you get it off. The row opens the editor; the tick
+    /// switches it on and off.
+    private func tickRow(_ record: HolidayRecord) -> some View {
+        let rule = record.rule
+        return HStack(spacing: Metrics.medium) {
+            Button {
+                activeSheet = .edit(rule)
+            } label: {
+                HStack(spacing: Metrics.small) {
+                    Text(rule.name.isEmpty ? String(localized: "Untitled") : rule.name)
+                        .foregroundStyle(rule.isEnabled ? Color.primary : Color.secondary)
+                    Spacer(minLength: Metrics.small)
+                    if let date = rule.recurrence.occurrence(inYear: year, calendar: calendar) {
+                        Text(settingsStore.dateFormatting.shortDate(date))
+                            .foregroundStyle(.hoursSecondaryText)
+                            .monospacedDigit()
+                    }
+                }
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("holidays-row")
+
+            Button {
+                var changed = rule
+                changed.isEnabled.toggle()
+                WorkdayRepository(context: modelContext).upsert(changed)
+                HoursStack.refreshWidget()
+            } label: {
+                Image(systemName: rule.isEnabled ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(rule.isEnabled ? Color.accentColor : Color.secondary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(Text(verbatim: rule.name))
+            .accessibilityValue(rule.isEnabled ? Text("Day off") : Text("Worked as normal"))
+            .accessibilityAddTraits(rule.isEnabled ? .isSelected : [])
+            .accessibilityIdentifier("holidays-tick")
+        }
+    }
+
+    private var year: Int { CalendarDate.today(in: calendar).year }
+
+    /// The ones the country's set added, by this year's date.
+    private var publicRecords: [HolidayRecord] {
+        let ids = Set(settingsStore.settings.publicHolidays.rulesToRemove(from: records.map(\.rule)))
+        return records
+            .filter { ids.contains($0.identifier) }
+            .sorted { dateKey($0) < dateKey($1) }
+    }
+
+    /// Everything you added yourself.
+    private var ownRecords: [HolidayRecord] {
+        let ids = Set(settingsStore.settings.publicHolidays.rulesToRemove(from: records.map(\.rule)))
+        return records.filter { !ids.contains($0.identifier) }
+    }
+
+    private func dateKey(_ record: HolidayRecord) -> Int {
+        record.rule.recurrence.occurrence(inYear: year, calendar: calendar)?.key ?? Int.max
+    }
+
     private var calendar: Calendar { settingsStore.workCalendar }
 
     private func newRule() -> HolidayRule {
         HolidayEditor.blankRule(on: CalendarDate.today(in: calendar))
     }
 
-    private func delete(at offsets: IndexSet) {
+    private func delete(_ list: [HolidayRecord], at offsets: IndexSet) {
         let repository = WorkdayRepository(context: modelContext)
-        for index in offsets where index < records.count {
-            repository.deleteHoliday(id: records[index].identifier)
+        for index in offsets where index < list.count {
+            repository.deleteHoliday(id: list[index].identifier)
         }
     }
 }

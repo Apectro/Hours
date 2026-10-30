@@ -11,39 +11,34 @@ struct TrackingSettingsScreen: View {
     var body: some View {
         Form {
             Section {
+                Text("Switch off what you never use and the day screen gets shorter.")
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+
+            Section {
+                Toggle("Clock in and out", isOn: settingsStore.binding(\.features.useTimeClock))
                 Toggle("Breaks", isOn: settingsStore.binding(\.features.trackBreaks))
                 if settingsStore.settings.features.trackBreaks {
                     Toggle("Several breaks a day", isOn: settingsStore.binding(\.features.multipleBreaksPerDay))
                 }
+            } header: {
+                Text("Recording")
             } footer: {
-                Text("With several breaks switched on, each can be a length or a pair of times.")
+                Text("Clock in and out adds a button on today that starts and stops a clock. With several breaks switched on, each can be a length or a pair of times.")
             }
 
             Section {
                 Toggle("Expected hours", isOn: settingsStore.binding(\.features.trackExpectedHours))
                 if settingsStore.settings.features.trackExpectedHours {
                     Toggle("Overtime and balance", isOn: settingsStore.binding(\.features.trackOvertime))
-                    Toggle("Per-day expected hours", isOn: settingsStore.binding(\.features.allowPerDayExpectedOverride))
+                    Toggle("Expected hours per day", isOn: settingsStore.binding(\.features.allowPerDayExpectedOverride))
                     Toggle("Manual adjustments", isOn: settingsStore.binding(\.features.allowManualAdjustments))
                 }
+                Toggle("Public holidays and days off", isOn: settingsStore.binding(\.features.trackHolidays))
             } header: {
                 Text("Hours and balance")
             } footer: {
                 Text("Overtime needs expected hours to measure against, so it follows that setting.")
-            }
-
-            Section {
-                Toggle("Clock in and out", isOn: settingsStore.binding(\.features.useTimeClock))
-            } header: {
-                Text("Recording")
-            } footer: {
-                Text("Adds a button on today that starts and stops a clock. Switch it off if you would rather enter hours after the fact.")
-            }
-
-            // No "Holidays" header over a "Holidays" switch: the switch says
-            // what it is on its own.
-            Section {
-                Toggle("Public holidays and days off", isOn: settingsStore.binding(\.features.trackHolidays))
             }
 
             Section("Extra fields") {

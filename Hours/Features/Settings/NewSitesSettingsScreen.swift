@@ -12,6 +12,8 @@ struct NewSitesSettingsScreen: View {
     var body: some View {
         Form {
             Section {
+                Toggle("Follow my working hours", isOn: followsBinding)
+                    .accessibilityIdentifier("new-sites-follow-schedule")
                 UsualDayRows(
                     start: timeBinding(\.start, resolved: \.start),
                     end: timeBinding(\.end, resolved: \.end),
@@ -24,7 +26,7 @@ struct NewSitesSettingsScreen: View {
             } header: {
                 Text("Usual day")
             } footer: {
-                Text("A new day on a site starts with these times for everyone ticked.")
+                Text("A new day on a site starts with these times for everyone ticked. Following your working hours takes the start, end, break and work days from Settings › Working hours.")
             }
 
             Section {
@@ -56,21 +58,6 @@ struct NewSitesSettingsScreen: View {
                 Text("Each site can change these in its own settings.")
             }
 
-            if followsChanges {
-                Section {
-                    Button("Follow my working hours") {
-                        settingsStore.update {
-                            $0.newSites.start = nil
-                            $0.newSites.end = nil
-                            $0.newSites.breakMinutes = nil
-                            $0.newSites.workDays = nil
-                        }
-                    }
-                    .accessibilityIdentifier("new-sites-follow-schedule")
-                } footer: {
-                    Text("Takes the start, end, break and work days from Settings › Working hours again.")
-                }
-            }
         }
         .navigationTitle("New sites start with")
         .accessibilityIdentifier("screen-new-sites")
@@ -88,6 +75,23 @@ struct NewSitesSettingsScreen: View {
     private var followsChanges: Bool {
         let defaults = settingsStore.settings.newSites
         return defaults.start != nil || defaults.end != nil || defaults.breakMinutes != nil || defaults.workDays != nil
+    }
+
+    /// On: nothing of its own, everything from the working week. Off: the
+    /// week as it is now, written down here to be changed.
+    private var followsBinding: Binding<Bool> {
+        Binding(
+            get: { !followsChanges },
+            set: { follows in
+                let current = resolved
+                settingsStore.update {
+                    $0.newSites.start = follows ? nil : current.start
+                    $0.newSites.end = follows ? nil : current.end
+                    $0.newSites.breakMinutes = follows ? nil : current.breakMinutes
+                    $0.newSites.workDays = follows ? nil : current.workDays
+                }
+            }
+        )
     }
 
     private func timeBinding(

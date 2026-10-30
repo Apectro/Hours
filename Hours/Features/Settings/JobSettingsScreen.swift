@@ -15,20 +15,14 @@ struct JobSettingsScreen: View {
     var body: some View {
         List {
             Section {
-                ForEach(settingsStore.settings.resolvedJobs) { job in
-                    Button {
-                        editing = job
-                    } label: {
-                        row(for: job)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("jobs-row")
-                }
-            } footer: {
-                Text("Each job keeps its own contracted week, so two jobs with different hours each get their own balance rather than sharing one.")
+                Text("For when you work more than one job, each with its own week, rate and colour.")
+                    .foregroundStyle(.hoursSecondaryText)
             }
 
             Section {
+                ForEach(activeJobs) { job in
+                    jobButton(job)
+                }
                 Button {
                     // Only the *second* job is sold. One job is the app
                     // working as it always has, and every job already set up
@@ -40,13 +34,26 @@ struct JobSettingsScreen: View {
                         isCreating = true
                     }
                 } label: {
-                    Label("Add a job", systemImage: "plus.circle")
+                    Label("Add a job", systemImage: "plus")
                         .proLock(needsProForAnotherJob)
+                        .frame(minHeight: 44)
                 }
                 .accessibilityIdentifier("jobs-add")
             } footer: {
                 if needsProForAnotherJob {
                     Text("A second job is part of Zeitkonto Pro. The job you have keeps working either way.")
+                } else {
+                    Text("Each job keeps its own contracted week, so two jobs with different hours each get their own balance rather than sharing one.")
+                }
+            }
+
+            if !archivedJobs.isEmpty {
+                Section {
+                    ForEach(archivedJobs) { job in
+                        jobButton(job)
+                    }
+                } header: {
+                    Text("Archived")
                 }
             }
         }
@@ -61,24 +68,58 @@ struct JobSettingsScreen: View {
         }
     }
 
+    private var activeJobs: [Job] { settingsStore.settings.resolvedJobs.filter { !$0.isArchived } }
+    private var archivedJobs: [Job] { settingsStore.settings.resolvedJobs.filter(\.isArchived) }
+
+    private func jobButton(_ job: Job) -> some View {
+        Button {
+            editing = job
+        } label: {
+            row(for: job)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("jobs-row")
+    }
+
+    /// "Work · 40h over 5 days", and on the right "9,50 €/h · main".
     private func row(for job: Job) -> some View {
         HStack(spacing: Metrics.medium) {
             Circle()
                 .fill(job.tint.color)
                 .frame(width: 12, height: 12)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
                 Text(job.displayName())
-                    .foregroundStyle(job.isArchived ? .secondary : .primary)
+                    .foregroundStyle(job.isArchived ? Color.secondary : Color.primary)
                 Text(summary(for: job))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
             }
-            Spacer(minLength: 0)
+            Spacer(minLength: Metrics.small)
+            Text(value(for: job))
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
+                .multilineTextAlignment(.trailing)
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+    }
+
+    private func value(for job: Job) -> String {
+        let settings = settingsStore.settings
+        var parts: [String] = []
+        if let rules = job.pay?.value(on: CalendarDate.today(in: settingsStore.workCalendar)) {
+            parts.append(String(
+                localized: "\(settings.money.string(rules.hourlyRateCents))/h",
+                comment: "Settings, the hourly rate; the value is an amount of money, such as 9,50 €"
+            ))
+        }
+        if job.isPrimary { parts.append(String(localized: "main", comment: "Settings › Jobs: the main job")) }
+        return parts.joined(separator: " · ")
     }
 
     /// `resolvedJobs` always contains at least the primary job — settings with

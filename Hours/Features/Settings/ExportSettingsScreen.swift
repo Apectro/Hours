@@ -1,35 +1,30 @@
 import SwiftUI
 
-/// How exported files are shaped, including which columns appear and in what
-/// order.
+/// Settings › Sheets (1.2 redesign, board 18): how exported files are
+/// shaped, with the columns and the CSV details one level down.
 struct ExportSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
         List {
             Section {
-                Picker("Language", selection: settingsStore.binding(\.export.language)) {
+                LabeledContent("Name on the sheet") {
+                    TextField("Name and surname", text: settingsStore.binding(\.export.ownerName))
+                        .textContentType(.name)
+                        .autocorrectionDisabled()
+                        .multilineTextAlignment(.trailing)
+                }
+                Picker("Language of the file", selection: settingsStore.binding(\.export.language)) {
                     ForEach(ExportLanguage.allCases) { language in
                         Text(language.title).tag(language)
                     }
                 }
-            } header: {
-                Text("Language of the file")
+                .pickerStyle(.navigationLink)
             } footer: {
-                Text("The words the app writes — column titles, day types and the summary — plus the names of months and days. Anything you typed yourself is left exactly as you wrote it.")
+                Text("The name is printed under the title of every timesheet and names the file. The language covers the words the app writes; anything you typed yourself is left exactly as you wrote it.")
             }
 
-            Section {
-                TextField("Name and surname", text: settingsStore.binding(\.export.ownerName))
-                    .textContentType(.name)
-                    .autocorrectionDisabled()
-            } header: {
-                Text("Name on the timesheet")
-            } footer: {
-                Text("Printed under the title of every timesheet, and used to name the file. Leave it empty and nothing is printed. It stays on this device like everything else.")
-            }
-
-            Section("Formatting") {
+            Section("How things are written") {
                 Picker("Dates", selection: settingsStore.binding(\.export.dateStyle)) {
                     ForEach(ExportDateStyle.allCases) { style in
                         Text(style.title).tag(style)
@@ -48,6 +43,50 @@ struct ExportSettingsScreen: View {
             }
 
             Section {
+                NavigationLink {
+                    ExportColumnsScreen()
+                } label: {
+                    LabeledContent("Columns") {
+                        Text(verbatim: "\(settingsStore.settings.effectiveExportColumns.count)")
+                    }
+                }
+                .accessibilityIdentifier("export-columns")
+                Toggle("Days with nothing written", isOn: settingsStore.binding(\.export.includeEmptyDays))
+                Toggle("Summary at the bottom", isOn: settingsStore.binding(\.export.includeSummaryRows))
+                // Only once there is a rate: without one there is nothing to add.
+                if settingsStore.settings.earningsAreSetUp {
+                    Toggle("Earnings", isOn: settingsStore.binding(\.export.includeEarnings))
+                        .accessibilityIdentifier("export-include-earnings")
+                }
+                Picker("Default range", selection: settingsStore.binding(\.export.defaultRange)) {
+                    ForEach(ExportRangeKind.allCases) { kind in
+                        Text(kind.title).tag(kind)
+                    }
+                }
+                NavigationLink {
+                    ExportCSVScreen()
+                } label: {
+                    Text("CSV options")
+                }
+                .accessibilityIdentifier("export-csv-options")
+            } header: {
+                Text("What's on it")
+            } footer: {
+                Text("Including empty days keeps every date in the range on its own row, which is what most timesheets expect. Earnings are off by default: timesheets usually go to someone. A site sheet never shows money.")
+            }
+        }
+        .navigationTitle("Sheets")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Sheets › CSV options: separators and the byte-order mark.
+private struct ExportCSVScreen: View {
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        Form {
+            Section {
                 Picker("Field separator", selection: settingsStore.binding(\.export.fieldSeparator)) {
                     ForEach(CSVSeparator.allCases) { separator in
                         Text(separator.title).tag(separator)
@@ -59,39 +98,24 @@ struct ExportSettingsScreen: View {
                     }
                 }
                 Toggle("Byte-order mark", isOn: settingsStore.binding(\.export.includeByteOrderMark))
-            } header: {
-                Text("CSV")
             } footer: {
                 Text("Excel on Windows needs the byte-order mark to read accented characters correctly. Numbers, Google Sheets and LibreOffice are happy either way.")
             }
+        }
+        .navigationTitle("CSV options")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
 
-            Section {
-                Toggle("Include days with no entry", isOn: settingsStore.binding(\.export.includeEmptyDays))
-                Toggle("Include a summary", isOn: settingsStore.binding(\.export.includeSummaryRows))
-                Picker("Default range", selection: settingsStore.binding(\.export.defaultRange)) {
-                    ForEach(ExportRangeKind.allCases) { kind in
-                        Text(kind.title).tag(kind)
-                    }
-                }
-            } header: {
-                Text("Contents")
-            } footer: {
-                Text("Including empty days keeps every date in the range on its own row, which is what most timesheets expect.")
-            }
+/// Sheets › Columns: which columns, in which order.
+private struct ExportColumnsScreen: View {
+    @Environment(SettingsStore.self) private var settingsStore
 
-            // Only once there is a rate: without one there is nothing to add.
-            if settingsStore.settings.earningsAreSetUp {
-                Section {
-                    Toggle("Earnings", isOn: settingsStore.binding(\.export.includeEarnings))
-                        .accessibilityIdentifier("export-include-earnings")
-                } footer: {
-                    Text("Adds each day's earnings as a last column. Off by default: timesheets usually go to someone. A site sheet never shows money.")
-                }
-            }
-
+    var body: some View {
+        List {
             columnSections
         }
-        .navigationTitle("Sheets")
+        .navigationTitle("Columns")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

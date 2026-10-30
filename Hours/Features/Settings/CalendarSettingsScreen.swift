@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// How the calendar looks.
+/// How the calendar looks (1.2 redesign, board 18).
 struct CalendarSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
 
@@ -13,18 +13,13 @@ struct CalendarSettingsScreen: View {
                         Text(formatting.weekdayName(for: weekday)).tag(weekday)
                     }
                 }
-            } footer: {
-                Text("Automatic follows your region.")
-            }
-
-            Section {
                 Toggle("Show weekends", isOn: settingsStore.binding(\.calendar.showWeekends))
                 if settingsStore.settings.features.trackHolidays {
                     Toggle("Mark holidays", isOn: settingsStore.binding(\.calendar.showHolidayMarkers))
                 }
                 Toggle("Show totals", isOn: settingsStore.binding(\.calendar.showMonthSummary))
             } footer: {
-                Text("Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.")
+                Text("Automatic follows your region. Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.")
             }
 
             Section {
@@ -33,19 +28,32 @@ struct CalendarSettingsScreen: View {
                         Text(detail.title).tag(detail)
                     }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             } header: {
-                Text("Day cells")
+                Text("Inside each day")
             } footer: {
                 Text("One figure at most. A calendar that shows everything shows nothing.")
             }
 
-            Section("Default view") {
+            Section {
                 Picker("Open on", selection: settingsStore.binding(\.calendar.preferredScope)) {
                     ForEach(CalendarScope.allCases) { scope in
                         Text(scope.title).tag(scope)
                     }
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
+            } header: {
+                Text("Open on")
+            }
+
+            // Closed months have their own screen; the month on screen also
+            // closes and reopens from the calendar's ⋯ menu.
+            Section {
+                ClosedMonthsRow()
+            } footer: {
+                Text("Close a month once its hours are handed over, so it can't change by mistake.")
             }
         }
         .navigationTitle("Calendar")

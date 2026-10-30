@@ -1,41 +1,58 @@
 import SwiftUI
+import SwiftData
 import UIKit
 
-/// The settings index (1.2, mockup Settings).
+/// The settings index (1.2 redesign, board 15).
 ///
-/// Grouped by what it means to you — Your work, Sites & crews, Days &
-/// sheets, App — and each row says in grey what it is set to now, so
-/// checking a setting does not need a tap. A search field at the top finds
-/// any setting by its name, what it is set to, or a word it is known by
-/// ("overtime", "km", "iCloud"), screens one level down included.
+/// What you look after most is on the first screen — Your work, Sites &
+/// crews, Days & sheets — each row with what it is set to on the right, so
+/// checking a setting does not need a tap. Everything else (jobs, fields,
+/// calendar, look, iCloud, privacy, help) is one row further, under More.
+/// The search field at the top still finds any setting by its name, what it
+/// is set to, or a word it is known by ("overtime", "km", "iCloud"), the
+/// screens under More and one level down included.
 struct SettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(SubscriptionStore.self) private var subscriptions
     @Environment(TourCoordinator.self) private var tour: TourCoordinator?
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
 
     @State private var query = ""
     @State private var isShowingPaywall = false
     @State private var isShowingFeedbackAddress = false
-
-    private static let exportRow = "settings-export-options"
+    /// The running balance and the leave still to book, for the two rows
+    /// that show them. Worked out when the screen appears rather than on
+    /// every redraw: each is a pass over the year's days.
+    @State private var figures = SettingsFigures()
+    /// Only More is a value route; the rows push their screens on top.
+    @State private var path: [SettingsRoute] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollViewReader { scroller in
                 List {
                     if isSearching {
                         searchResults
                     } else {
                         proSection
-                        ForEach(groups) { group in
+                        ForEach(index.homeGroups) { group in
                             Section {
                                 ForEach(group.entries) { entry in
-                                    row(entry)
+                                    SettingsEntryLink(entry: entry)
                                 }
                             } header: {
                                 Text(verbatim: group.title)
                             }
+                        }
+                        Section {
+                            NavigationLink(value: SettingsRoute.more) {
+                                Text("More: jobs, fields, calendar, look, iCloud, privacy, help")
+                                    .foregroundStyle(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(minHeight: 44, alignment: .leading)
+                            }
+                            .accessibilityIdentifier("settings-more")
                         }
                     }
                 }
@@ -44,22 +61,22 @@ struct SettingsScreen: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Text("Search settings")
                 )
-                // The tour's last stop is Sheets, which may be below the fold.
+                .navigationDestination(for: SettingsRoute.self) { route in
+                    switch route {
+                    case .more: SettingsMoreScreen(figures: figures)
+                    }
+                }
+                // The tour's last stop is Sheets, on this first screen and
+                // perhaps below the fold; Show the tour again is under More.
                 .onChange(of: tour?.tour?.stop) { _, stop in
                     guard stop == .export else { return }
                     query = ""
-                    withAnimation { scroller.scrollTo(Self.exportRow, anchor: .center) }
+                    path = []
+                    withAnimation { scroller.scrollTo(SettingsIndex.exportRow, anchor: .center) }
                 }
+                .onAppear { figures = SettingsFigures(settingsStore: settingsStore, context: modelContext) }
                 .sheet(isPresented: $isShowingPaywall) { PaywallSheet() }
-                .alert("Send feedback", isPresented: $isShowingFeedbackAddress) {
-                    Button("Copy address") { UIPasteboard.general.string = ReviewPrompt.feedbackAddress }
-                    Button("OK", role: .cancel) {}
-                } message: {
-                    Text(String(
-                        localized: "No mail app is set up on this phone. Write to \(ReviewPrompt.feedbackAddress) from any mail app.",
-                        comment: "Feedback without a mail account; the value is an email address"
-                    ))
-                }
+                .feedbackAddressAlert(isPresented: $isShowingFeedbackAddress)
                 .navigationTitle("Settings")
                 // A screen the UI tests wait for. The title beside it is translated.
                 .accessibilityIdentifier("screen-settings")
@@ -67,39 +84,25 @@ struct SettingsScreen: View {
         }
     }
 
-    // MARK: - Rows
-
-    @ViewBuilder
-    private func row(_ entry: SettingsEntry) -> some View {
-        switch entry.kind {
-        case let .page(destination):
-            NavigationLink {
-                destination
-            } label: {
-                SettingsIndexRow(entry: entry)
-            }
-            .accessibilityIdentifier(entry.id)
-            .id(entry.id)
-            .tourTarget(entry.id == Self.exportRow ? .settingsExport : nil)
-        case let .action(perform):
-            Button(action: perform) {
-                SettingsIndexRow(entry: entry)
-            }
-            .tint(.primary)
-            .accessibilityIdentifier(entry.id)
-        }
+    private var index: SettingsIndex {
+        SettingsIndex(
+            settingsStore: settingsStore,
+            figures: figures,
+            rate: { openURL(ReviewPrompt.writeReviewURL) },
+            sendFeedback: sendFeedback
+        )
     }
 
     @ViewBuilder
     private var searchResults: some View {
-        let found = matches
+        let found = index.matches(query)
         if found.isEmpty {
             ContentUnavailableView.search(text: query)
                 .listRowBackground(Color.clear)
         } else {
             Section {
                 ForEach(found) { entry in
-                    row(entry)
+                    SettingsEntryLink(entry: entry)
                 }
             }
         }
@@ -154,23 +157,149 @@ struct SettingsScreen: View {
         }
     }
 
-    // MARK: - The index
-
     private var isSearching: Bool {
         !query.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    private func sendFeedback() {
+        SettingsIndex.sendFeedback(openURL: openURL) { isShowingFeedbackAddress = true }
+    }
+}
+
+/// Where the settings index goes by value.
+enum SettingsRoute: Hashable {
+    case more
+}
+
+/// Settings › More (1.2): the rows that are not looked at every week —
+/// jobs, fields, calendar, look, iCloud, privacy, help, rating and feedback.
+struct SettingsMoreScreen: View {
+    let figures: SettingsFigures
+
+    @Environment(SettingsStore.self) private var settingsStore
+    @Environment(\.openURL) private var openURL
+    @State private var isShowingFeedbackAddress = false
+
+    var body: some View {
+        let entries = index.moreEntries
+        List {
+            ForEach(SettingsIndex.moreSections, id: \.self) { ids in
+                Section {
+                    ForEach(entries.filter { ids.contains($0.id) }) { entry in
+                        SettingsEntryLink(entry: entry)
+                    }
+                }
+            }
+        }
+        .feedbackAddressAlert(isPresented: $isShowingFeedbackAddress)
+        .navigationTitle("More")
+        .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier("screen-settings-more")
+    }
+
+    private var index: SettingsIndex {
+        SettingsIndex(
+            settingsStore: settingsStore,
+            figures: figures,
+            rate: { openURL(ReviewPrompt.writeReviewURL) },
+            sendFeedback: { SettingsIndex.sendFeedback(openURL: openURL) { isShowingFeedbackAddress = true } }
+        )
+    }
+}
+
+private extension View {
+    /// What Send feedback shows when no mail account is set up.
+    func feedbackAddressAlert(isPresented: Binding<Bool>) -> some View {
+        alert("Send feedback", isPresented: isPresented) {
+            Button("Copy address") { UIPasteboard.general.string = ReviewPrompt.feedbackAddress }
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(String(
+                localized: "No mail app is set up on this phone. Write to \(ReviewPrompt.feedbackAddress) from any mail app.",
+                comment: "Feedback without a mail account; the value is an email address"
+            ))
+        }
+    }
+}
+
+/// The two figures on the index that need the recorded days: the running
+/// balance (Overtime & balance) and the leave still to book (Leave).
+struct SettingsFigures {
+    var balanceMinutes: Int?
+    var leaveLeft: HalfDays?
+
+    init() {}
+
+    @MainActor
+    init(settingsStore: SettingsStore, context: ModelContext) {
+        let settings = settingsStore.settings
+        let calendar = settingsStore.workCalendar
+        let today = CalendarDate.today(in: calendar)
+        let repository = WorkdayRepository(context: context)
+        let holidays = repository.holidayRules()
+        let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: repository.firstRecordedDate())
+        if settings.features.showsBalance {
+            // The same figure as the widget and Insights' running balance.
+            balanceMinutes = engine.runningBalance(
+                through: today,
+                holidays: holidays,
+                countingThrough: today,
+                records: { repository.records(in: $0) }
+            )
+        }
+        let leaveYear = settings.leave.leaveYear(containing: today, calendar: calendar)
+        let range = settings.leave.range(ofLeaveYear: leaveYear, calendar: calendar)
+        leaveLeft = LeaveCalculator.balance(
+            leaveYear: leaveYear,
+            days: engine.days(in: range, records: repository.records(in: range), holidays: holidays),
+            settings: settings,
+            calendar: calendar,
+            today: today
+        ).remaining
+    }
+}
+
+/// Every setting the index knows: the rows on the first screen, the ones
+/// under More, and the screens one level down that only the search finds.
+@MainActor
+struct SettingsIndex {
+    let settingsStore: SettingsStore
+    let figures: SettingsFigures
+    let rate: () -> Void
+    let sendFeedback: () -> Void
+
+    static let exportRow = "settings-export-options"
+
+    /// The rows under More, in their sections.
+    static let moreSections: [[String]] = [
+        ["settings-jobs", "settings-fields", "settings-calendar", "settings-theme"],
+        ["settings-icloud-backup", "settings-privacy"],
+        ["settings-help", "settings-rate", "settings-feedback"],
+    ]
+
     /// Every entry whose title, value or keywords hold what was typed,
-    /// case and accents aside; the screens one level down included.
-    private var matches: [SettingsEntry] {
+    /// case and accents aside; More and the screens one level down
+    /// included.
+    func matches(_ query: String) -> [SettingsEntry] {
         let needle = SettingsEntry.fold(query.trimmingCharacters(in: .whitespaces))
         var seen = Set<String>()
-        return (groups.flatMap(\.entries) + deeperEntries).filter { entry in
+        return (homeGroups.flatMap(\.entries) + moreEntries + deeperEntries).filter { entry in
             seen.insert(entry.id).inserted && entry.searchText.contains(needle)
         }
     }
 
-    private var groups: [SettingsGroup] {
+    /// Opens a mail to the developer; with no mail account set up nothing
+    /// opens, and `noMail` shows the address instead so it can be written to.
+    static func sendFeedback(openURL: OpenURLAction, noMail: @escaping () -> Void) {
+        guard let url = ReviewPromptStore.feedbackMailURL else { return }
+        openURL(url) { accepted in
+            if !accepted { noMail() }
+        }
+    }
+
+    // MARK: - The first screen
+
+    var homeGroups: [SettingsGroup] {
         [
             SettingsGroup(id: "work", title: String(localized: "Your work"), entries: [
                 SettingsEntry(
@@ -203,23 +332,11 @@ struct SettingsScreen: View {
                 SettingsEntry(
                     id: "settings-leave",
                     title: String(localized: "Leave"),
-                    detail: String(
-                        localized: "\(HalfDays(days: settings.leave.allowanceDays).localized) days a year",
-                        comment: "Settings, the leave row; the value is a number of days"
-                    ),
+                    detail: leaveSummary,
                     keywords: String(localized: "leave, vacation, holiday allowance, days off, carry over", comment: "Settings search words for Leave"),
                     systemImage: "beach.umbrella",
                     tint: .teal,
                     kind: .page(AnyView(LeaveSettingsScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-jobs",
-                    title: String(localized: "Jobs"),
-                    detail: jobsSummary,
-                    keywords: String(localized: "jobs, employer, second job", comment: "Settings search words for Jobs"),
-                    systemImage: "bag",
-                    tint: .indigo,
-                    kind: .page(AnyView(JobSettingsScreen()))
                 ),
             ]),
             SettingsGroup(id: "sites", title: String(localized: "Sites & crews"), entries: [
@@ -255,94 +372,108 @@ struct SettingsScreen: View {
                 SettingsEntry(
                     id: Self.exportRow,
                     title: String(localized: "Sheets"),
-                    detail: sheetsSummary,
+                    detail: settings.export.language.title,
                     keywords: String(localized: "export options, export, timesheet, PDF, Excel, CSV, columns, report language, name on sheet, date format", comment: "Settings search words for Sheets"),
                     systemImage: "tablecells",
                     tint: .blue,
                     kind: .page(AnyView(ExportSettingsScreen()))
                 ),
-                SettingsEntry(
-                    id: "settings-fields",
-                    title: String(localized: "Fields"),
-                    detail: fieldsSummary,
-                    keywords: String(localized: "fields, breaks, notes, location, tags", comment: "Settings search words for Fields"),
-                    systemImage: "slider.horizontal.3",
-                    tint: .gray,
-                    kind: .page(AnyView(TrackingSettingsScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-calendar",
-                    title: String(localized: "Calendar"),
-                    detail: settings.calendar.showWeekends ? String(localized: "All days") : String(localized: "Weekdays only"),
-                    keywords: String(localized: "calendar, weekends, first day of the week, week view", comment: "Settings search words for Calendar"),
-                    systemImage: "square.grid.3x3",
-                    tint: .cyan,
-                    kind: .page(AnyView(CalendarSettingsScreen()))
-                ),
-            ]),
-            SettingsGroup(id: "app", title: String(localized: "App"), entries: [
-                SettingsEntry(
-                    id: "settings-theme",
-                    title: String(localized: "Appearance"),
-                    detail: settings.appearance.title,
-                    keywords: String(localized: "appearance, theme, dark, light", comment: "Settings search words for Appearance"),
-                    systemImage: "circle.lefthalf.filled",
-                    tint: .gray,
-                    kind: .page(AnyView(AppearanceSettingsScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-icloud-backup",
-                    title: String(localized: "iCloud & backup"),
-                    detail: icloudSummary,
-                    keywords: String(localized: "iCloud, sync, backup, restore, delete everything, data, file", comment: "Settings search words for iCloud & backup"),
-                    systemImage: "icloud",
-                    tint: .blue,
-                    kind: .page(AnyView(ICloudAndBackupScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-privacy",
-                    title: String(localized: "Privacy"),
-                    detail: HoursStack.isSyncing
-                        ? String(localized: "Your own iCloud only")
-                        : String(localized: "Nothing leaves your phone"),
-                    keywords: String(localized: "privacy, location, data", comment: "Settings search words for Privacy"),
-                    systemImage: "hand.raised",
-                    tint: .blue,
-                    kind: .page(AnyView(AboutScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-help",
-                    title: String(localized: "Help & tour"),
-                    detail: String(localized: "What is where in Zeitkonto"),
-                    keywords: String(localized: "help, tour, guide, where", comment: "Settings search words for Help & tour"),
-                    systemImage: "questionmark.circle",
-                    tint: .green,
-                    kind: .page(AnyView(HelpScreen()))
-                ),
-                SettingsEntry(
-                    id: "settings-rate",
-                    title: String(localized: "Rate Zeitkonto"),
-                    detail: String(localized: "On the App Store"),
-                    keywords: String(localized: "rate, review, App Store", comment: "Settings search words for Rate Zeitkonto"),
-                    systemImage: "star",
-                    tint: .yellow,
-                    kind: .action({ openURL(ReviewPrompt.writeReviewURL) })
-                ),
-                SettingsEntry(
-                    id: "settings-feedback",
-                    title: String(localized: "Send feedback"),
-                    detail: String(localized: "A mail to the developer"),
-                    keywords: String(localized: "feedback, mail, contact, support", comment: "Settings search words for Send feedback"),
-                    systemImage: "envelope",
-                    tint: .blue,
-                    kind: .action(sendFeedback)
-                ),
             ]),
         ]
     }
 
+    // MARK: - Under More
+
+    var moreEntries: [SettingsEntry] {
+        [
+            SettingsEntry(
+                id: "settings-jobs",
+                title: String(localized: "Jobs"),
+                detail: jobsSummary,
+                keywords: String(localized: "jobs, employer, second job", comment: "Settings search words for Jobs"),
+                systemImage: "bag",
+                tint: .indigo,
+                kind: .page(AnyView(JobSettingsScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-fields",
+                title: String(localized: "Fields"),
+                detail: fieldsSummary,
+                keywords: String(localized: "fields, breaks, notes, location, tags", comment: "Settings search words for Fields"),
+                systemImage: "slider.horizontal.3",
+                tint: .gray,
+                kind: .page(AnyView(TrackingSettingsScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-calendar",
+                title: String(localized: "Calendar"),
+                detail: settings.calendar.showWeekends ? String(localized: "All days") : String(localized: "Weekdays only"),
+                keywords: String(localized: "calendar, weekends, first day of the week, week view", comment: "Settings search words for Calendar"),
+                systemImage: "square.grid.3x3",
+                tint: .cyan,
+                kind: .page(AnyView(CalendarSettingsScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-theme",
+                title: String(localized: "Appearance"),
+                detail: settings.appearance.title,
+                keywords: String(localized: "appearance, theme, dark, light, bigger buttons, high contrast, gloves", comment: "Settings search words for Appearance"),
+                systemImage: "circle.lefthalf.filled",
+                tint: .gray,
+                kind: .page(AnyView(AppearanceSettingsScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-icloud-backup",
+                title: String(localized: "iCloud & backup"),
+                detail: icloudSummary,
+                keywords: String(localized: "iCloud, sync, backup, restore, delete everything, data, file", comment: "Settings search words for iCloud & backup"),
+                systemImage: "icloud",
+                tint: .blue,
+                kind: .page(AnyView(ICloudAndBackupScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-privacy",
+                title: String(localized: "Privacy"),
+                detail: HoursStack.isSyncing
+                    ? String(localized: "Your own iCloud only")
+                    : String(localized: "Nothing leaves your phone"),
+                keywords: String(localized: "privacy, location, data", comment: "Settings search words for Privacy"),
+                systemImage: "hand.raised",
+                tint: .blue,
+                kind: .page(AnyView(AboutScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-help",
+                title: String(localized: "Help & tour"),
+                detail: String(localized: "What is where in Zeitkonto"),
+                keywords: String(localized: "help, tour, guide, where", comment: "Settings search words for Help & tour"),
+                systemImage: "questionmark.circle",
+                tint: .green,
+                kind: .page(AnyView(HelpScreen(sendFeedback: sendFeedback, rate: rate)))
+            ),
+            SettingsEntry(
+                id: "settings-rate",
+                title: String(localized: "Rate Zeitkonto"),
+                detail: String(localized: "On the App Store"),
+                keywords: String(localized: "rate, review, App Store", comment: "Settings search words for Rate Zeitkonto"),
+                systemImage: "star",
+                tint: .yellow,
+                kind: .action(rate)
+            ),
+            SettingsEntry(
+                id: "settings-feedback",
+                title: String(localized: "Send feedback"),
+                detail: String(localized: "A mail to the developer"),
+                keywords: String(localized: "feedback, mail, contact, support", comment: "Settings search words for Send feedback"),
+                systemImage: "envelope",
+                tint: .blue,
+                kind: .action(sendFeedback)
+            ),
+        ]
+    }
+
     /// Screens one level down, found by the search only.
-    private var deeperEntries: [SettingsEntry] {
+    var deeperEntries: [SettingsEntry] {
         var entries = [
             SettingsEntry(
                 id: "settings-allowance",
@@ -375,7 +506,7 @@ struct SettingsScreen: View {
         if settings.features.trackHolidays {
             entries.append(SettingsEntry(
                 id: "settings-holidays",
-                title: String(localized: "Holidays"),
+                title: String(localized: "Public holidays"),
                 detail: settings.publicHolidays.addedSet.map(PublicHolidayActions.title(of:)),
                 keywords: String(localized: "public holidays, holidays, country", comment: "Settings search words for Holidays"),
                 systemImage: "flag",
@@ -384,15 +515,6 @@ struct SettingsScreen: View {
             ))
         }
         return entries
-    }
-
-    private func sendFeedback() {
-        guard let url = ReviewPromptStore.feedbackMailURL else { return }
-        // No mail account set up means nothing opens; the address is shown
-        // instead so it can be written to.
-        openURL(url) { accepted in
-            if !accepted { isShowingFeedbackAddress = true }
-        }
     }
 
     // MARK: - What each row says it is set to
@@ -413,102 +535,74 @@ struct SettingsScreen: View {
         return jobs.count == 1 ? jobs[0].displayName() : "\(jobs.count)"
     }
 
-    /// "Mon–Fri 8h, start 07:00"; a week of uneven days gives its total.
+    /// "42h 30m a week", for the week in force today.
     private var scheduleSummary: String {
-        // Today's week: a change still to come is not what you work now.
         let schedule = settings.primarySchedule(on: today)
-        let days = Set((1...7).filter { schedule.isWorkingWeekday($0) })
-        guard !days.isEmpty else { return String(localized: "No working days") }
-        let lengths = Set(days.map { schedule.contractedMinutes(forWeekday: $0) })
-        let hours = lengths.count == 1
-            ? settings.displayFormatting.string(lengths.first ?? 0)
-            : settings.displayFormatting.string(schedule.weeklyTargetMinutes)
+        guard (1...7).contains(where: { schedule.isWorkingWeekday($0) }) else {
+            return String(localized: "No working days")
+        }
         return String(
-            localized: "\(setupText.workDays(days)) \(hours), start \(settingsStore.dateFormatting.time(schedule.defaultStart, on: today))",
-            comment: "Settings, Working hours; the values are the working days, the hours a day (or a week) and the usual start"
+            localized: "\(settings.displayFormatting.string(schedule.weeklyTargetMinutes)) a week",
+            comment: "Settings, Working hours; the value is the hours of a week, such as 42h 30m"
         )
     }
 
-    /// "Counting overtime · Exact".
+    /// The running balance, "+12h 40m"; while it is not counted, that it
+    /// is off.
     private var calculationSummary: String {
-        let overtime = settings.features.showsBalance && settings.features.autoCalculateOvertime
-            ? String(localized: "Counting overtime")
-            : String(localized: "Overtime off")
-        return "\(overtime) · \(settings.rounding.title)"
+        guard settings.features.showsBalance && settings.features.autoCalculateOvertime else {
+            return String(localized: "Overtime off")
+        }
+        guard let minutes = figures.balanceMinutes else { return settings.rounding.title }
+        return settings.displayFormatting.signedString(minutes)
     }
 
-    /// "€15.00 an hour · allowance €14.00 a day", or that none is set.
+    /// "9,50 €/h", or that none is set.
     private var paySummary: String {
-        var parts: [String] = []
-        if let rules = settings.primaryJob.pay?.value(on: today) {
-            parts.append(String(
-                localized: "\(settings.money.string(rules.hourlyRateCents)) an hour",
-                comment: "Settings, the hourly rate; the value is an amount of money"
-            ))
-        } else {
-            parts.append(String(localized: "Not set"))
+        guard let rules = settings.primaryJob.pay?.value(on: today) else {
+            return String(localized: "Not set")
         }
-        if settings.allowance.isEnabled {
-            if settings.allowance.dailyAllowanceCents > 0 {
-                parts.append(String(
-                    localized: "allowance \(settings.money.string(settings.allowance.dailyAllowanceCents)) a day",
-                    comment: "Settings, the Pay row; the value is the daily field allowance"
-                ))
-            } else {
-                parts.append(String(localized: "allowance on"))
-            }
-        }
-        return parts.joined(separator: " · ")
+        return String(
+            localized: "\(settings.money.string(rules.hourlyRateCents))/h",
+            comment: "Settings, the hourly rate; the value is an amount of money, such as 9,50 €"
+        )
     }
 
-    /// "07:00–15:30 · 30m break · allowance on".
+    /// "8 days left", or the year's allowance before it is worked out.
+    private var leaveSummary: String {
+        if let left = figures.leaveLeft {
+            return String(
+                localized: "\(left.localized) days left",
+                comment: "Settings, the Leave row; the value is a number of days, such as 8 or 2.5"
+            )
+        }
+        return String(
+            localized: "\(HalfDays(days: settings.leave.allowanceDays).localized) days a year",
+            comment: "Settings, the leave row; the value is a number of days"
+        )
+    }
+
+    /// "07:00–16:00 · 30m break".
     private var newSitesSummary: String {
-        let setup = settings.newSites.setup(schedule: settings.primarySchedule(on: today))
-        var parts = [setupText.usualDay(setup)]
-        if settings.allowance.isEnabled && settings.newSites.allowanceByDefault {
-            parts.append(String(localized: "allowance on"))
-        }
-        return parts.joined(separator: " · ")
+        setupText.usualDay(settings.newSites.setup(schedule: settings.primarySchedule(on: today)))
     }
 
-    /// "Evening 18:00 · 1st of the month".
     private var remindersSummary: String {
         let reminders = settings.reminders
-        var parts: [String] = []
-        if reminders.siteRemindersEnabled {
-            parts.append(String(
-                localized: "Evening \(settingsStore.dateFormatting.time(reminders.siteReminderTime, on: today))",
-                comment: "Settings, the Reminders row; the value is the evening site reminder's time"
-            ))
-        }
-        if reminders.monthlySheetEnabled { parts.append(String(localized: "1st of the month")) }
-        if reminders.isEnabled { parts.append(String(localized: "Weekly")) }
-        return parts.isEmpty ? String(localized: "Off") : parts.joined(separator: " · ")
+        let anyOn = reminders.isEnabled || reminders.siteRemindersEnabled
+            || reminders.monthlySheetEnabled || reminders.unsentWorkEnabled
+        return anyOn ? String(localized: "On") : String(localized: "Off")
     }
 
-    /// "Croatia · 9 types".
+    /// "Croatia", or how many day types there are.
     private var dayTypesSummary: String {
-        var parts: [String] = []
         if settings.features.trackHolidays, let set = settings.publicHolidays.addedSet {
-            parts.append(PublicHolidayActions.title(of: set))
+            return PublicHolidayActions.title(of: set)
         }
-        parts.append(String(
+        return String(
             localized: "\(settings.dayTypeCatalog.all.count) types",
             comment: "Settings, Day types & holidays; the value is how many day types there are"
-        ))
-        return parts.joined(separator: " · ")
-    }
-
-    /// "Croatian · Marko Horvat · 10 columns".
-    private var sheetsSummary: String {
-        var parts = [settings.export.language.title]
-        let name = settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
-        parts.append(name.isEmpty ? String(localized: "No name yet") : name)
-        parts.append(String(
-            localized: "\(settings.effectiveExportColumns.count) columns",
-            comment: "How many columns the export will contain"
-        ))
-        return parts.joined(separator: " · ")
+        )
     }
 
     private var icloudSummary: String {
@@ -530,7 +624,7 @@ struct SettingsScreen: View {
 }
 
 /// A group of the index.
-private struct SettingsGroup: Identifiable {
+struct SettingsGroup: Identifiable {
     let id: String
     let title: String
     let entries: [SettingsEntry]
@@ -541,7 +635,7 @@ struct SettingsEntry: Identifiable {
     /// The row's accessibility identifier, which the UI tests use.
     let id: String
     let title: String
-    /// What it is set to now, in one grey line.
+    /// What it is set to now, in grey on the right.
     let detail: String?
     /// Other words it is known by, comma separated, in the app's language.
     let keywords: String
@@ -565,10 +659,39 @@ struct SettingsEntry: Identifiable {
     }
 }
 
-/// A settings row as the mockup draws it: a tinted symbol, the title, and
-/// under it in grey what it is set to.
+/// An index row that opens its screen or does its action, with the
+/// identifier the UI tests use on the control itself.
+struct SettingsEntryLink: View {
+    let entry: SettingsEntry
+
+    var body: some View {
+        switch entry.kind {
+        case let .page(destination):
+            NavigationLink {
+                destination
+            } label: {
+                SettingsIndexRow(entry: entry)
+            }
+            .accessibilityIdentifier(entry.id)
+            .id(entry.id)
+            .tourTarget(entry.id == SettingsIndex.exportRow ? .settingsExport : nil)
+        case let .action(perform):
+            Button(action: perform) {
+                SettingsIndexRow(entry: entry)
+            }
+            .tint(.primary)
+            .accessibilityIdentifier(entry.id)
+        }
+    }
+}
+
+/// A settings row as the mockup draws it: a coloured square with a symbol,
+/// the title, and on the right in grey what it is set to. At the large
+/// accessibility sizes the value goes under the title instead.
 struct SettingsIndexRow: View {
     let entry: SettingsEntry
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         HStack(spacing: Metrics.medium) {
@@ -578,18 +701,34 @@ struct SettingsIndexRow: View {
                 .frame(width: 30, height: 30)
                 .background(entry.tint, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: entry.title)
-                    .foregroundStyle(.primary)
-                if let detail = entry.detail, !detail.isEmpty {
-                    Text(verbatim: detail)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 1) {
+                    title
+                    value
                 }
+            } else {
+                title
+                Spacer(minLength: Metrics.small)
+                value
             }
         }
         .frame(minHeight: 44)
+    }
+
+    private var title: some View {
+        Text(verbatim: entry.title)
+            .foregroundStyle(.primary)
+    }
+
+    @ViewBuilder
+    private var value: some View {
+        if let detail = entry.detail, !detail.isEmpty {
+            Text(verbatim: detail)
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
+                .monospacedDigit()
+                .lineLimit(1)
+        }
     }
 }
 
@@ -611,7 +750,7 @@ struct SettingsRow: View {
             Spacer(minLength: Metrics.small)
             if let value {
                 Text(value)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
                     .lineLimit(1)
             }
         }

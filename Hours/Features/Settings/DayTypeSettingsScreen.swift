@@ -1,12 +1,17 @@
 import SwiftUI
 import SwiftData
 
-/// Manages day types.
+/// Manages day types (1.2 redesign, board 17).
 ///
 /// Built-in types can be adjusted as well as added to: editing one stores an
 /// override rather than mutating a constant, so "reset" is always available and
 /// existing days keep working.
+///
+/// With `showsHolidays` it is Settings › Day types & holidays: the types,
+/// then the public holidays and your own days off under them.
 struct DayTypeSettingsScreen: View {
+    var showsHolidays = false
+
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
 
@@ -41,20 +46,25 @@ struct DayTypeSettingsScreen: View {
                     .accessibilityIdentifier("day-types-row")
                 }
                 .onDelete(perform: deleteCustom)
+
+                Button {
+                    draft = Draft(definition: DayTypeEditor.blankDefinition(), isNew: true)
+                } label: {
+                    Label("Add a day type", systemImage: "plus")
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("day-types-add")
+            } header: {
+                Text("Day types")
             } footer: {
                 Text("How a type counts is what makes the balance right: paid absence credits your contracted hours, so a day of leave leaves the balance unchanged.")
             }
 
-            Section {
-                Button {
-                    draft = Draft(definition: DayTypeEditor.blankDefinition(), isNew: true)
-                } label: {
-                    Label("Add a day type", systemImage: "plus.circle")
-                }
-                .accessibilityIdentifier("day-types-add")
+            if showsHolidays && settingsStore.settings.features.trackHolidays {
+                HolidayRowsSection()
             }
         }
-        .navigationTitle("Day types")
+        .navigationTitle(showsHolidays ? "Day types & holidays" : "Day types")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $draft) { draft in
             DayTypeEditor(definition: draft.definition, isNew: draft.isNew)
@@ -83,22 +93,25 @@ struct DayTypeSettingsScreen: View {
         )
     }
 
+    /// "Sick leave · paid", as the mockup lists them: the badge, the name,
+    /// and in grey how the day counts.
     private func row(for definition: DayTypeDefinition) -> some View {
         HStack(spacing: Metrics.medium) {
             DayTypeBadge(definition: definition, size: 30)
             VStack(alignment: .leading, spacing: 1) {
                 Text(definition.displayName())
                     .foregroundStyle(.primary)
-                Text(expectationDescription(definition.expectation))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if isOverridden(definition) {
+                    Text("Edited")
+                        .font(.caption)
+                        .foregroundStyle(.hoursSecondaryText)
+                }
             }
-            Spacer(minLength: 0)
-            if isOverridden(definition) {
-                Text("Edited")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+            Spacer(minLength: Metrics.small)
+            Text(expectationDescription(definition))
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
+                .multilineTextAlignment(.trailing)
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
@@ -144,11 +157,21 @@ struct DayTypeSettingsScreen: View {
         }
     }
 
-    private func expectationDescription(_ policy: ExpectationPolicy) -> String {
-        switch policy {
-        case .scheduled: return "Counts as a working day"
-        case .zero: return "Not a working day"
-        case .creditedAbsence: return "Paid absence — credits your contracted hours"
+    /// "working day", "paid", "paid at 70%", "not working".
+    private func expectationDescription(_ definition: DayTypeDefinition) -> String {
+        switch definition.expectation {
+        case .scheduled:
+            return String(localized: "working day", comment: "Settings › Day types: how a type counts")
+        case .zero:
+            return String(localized: "not working", comment: "Settings › Day types: how a type counts")
+        case .creditedAbsence:
+            guard definition.paidPercent < 100 else {
+                return String(localized: "paid", comment: "Settings › Day types: a paid absence")
+            }
+            // Formatted first: a bare % beside a placeholder makes the key
+            // ambiguous.
+            let share = definition.paidPercent.formatted(.percent.scale(1))
+            return String(localized: "paid at \(share)", comment: "Settings › Day types: a paid absence paid in part; the value is like 70%")
         }
     }
 }
@@ -185,14 +208,19 @@ struct DayTypeEditor: View {
                     TextField("Name", text: $draft.name)
                 }
 
-                Section("Counts as") {
+                Section {
                     Picker("Counts as", selection: $draft.expectation) {
-                        Text("A working day").tag(ExpectationPolicy.scheduled)
+                        Text("Working day").tag(ExpectationPolicy.scheduled)
                         Text("Paid absence").tag(ExpectationPolicy.creditedAbsence)
-                        Text("Not a working day").tag(ExpectationPolicy.zero)
+                        Text("Not working").tag(ExpectationPolicy.zero)
                     }
-                    .pickerStyle(.inline)
+                    .pickerStyle(.segmented)
                     .labelsHidden()
+                    .accessibilityIdentifier("day-type-counts-as")
+                } header: {
+                    Text("Counts as")
+                } footer: {
+                    Text(countsAsFooter)
                 }
 
                 if draft.expectation == .creditedAbsence {
@@ -243,7 +271,8 @@ struct DayTypeEditor: View {
     private var paySection: some View {
         Section {
             HStack(spacing: Metrics.small) {
-                Text("Paid at")
+                Text("Share of a normal day")
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: Metrics.small)
                 Button {
                     draft.paidPercent = max(0, draft.paidPercent - 5)
@@ -280,7 +309,7 @@ struct DayTypeEditor: View {
                     .accessibilityIdentifier("day-type-employer-42-days")
             }
         } header: {
-            Text("Pay")
+            Text("Paid at")
         } footer: {
             if draft.id == .sick {
                 // The percentage goes in as a value: a bare "%" in a key is
@@ -293,6 +322,15 @@ struct DayTypeEditor: View {
             } else {
                 Text("Only what the day earns changes: the hours it credits and your balance stay the same.")
             }
+        }
+    }
+
+    /// What the chosen way of counting does to the balance.
+    private var countsAsFooter: String {
+        switch draft.expectation {
+        case .scheduled: return String(localized: "A day of this type expects your normal hours.")
+        case .creditedAbsence: return String(localized: "Your normal hours are credited, so the balance stays the same.")
+        case .zero: return String(localized: "Nothing is expected and nothing is credited.")
         }
     }
 
