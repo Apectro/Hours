@@ -170,7 +170,10 @@ final class ScreenshotTests: XCTestCase {
         // 7 — the month's figures, earnings first.
         app.tab(.insights).tap()
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
-        XCTAssertTrue(app.descendants(matching: .any)["insights-earned"].waitForExistence(timeout: 10), "Insights shows no earnings")
+        // Insights is a list: Pay sits under the figures, so scroll to it.
+        let earned = app.descendants(matching: .any)["insights-earned"].firstMatch
+        for _ in 0..<6 where !earned.exists { app.swipeUp() }
+        XCTAssertTrue(earned.waitForExistence(timeout: 10), "Insights shows no earnings")
         capture("07-insights", app)
 
         // 8 — the privacy screen, which is the reason to choose this one.

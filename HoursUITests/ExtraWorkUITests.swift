@@ -97,7 +97,9 @@ final class ExtraWorkUITests: XCTestCase {
         app.buttons["extra-work-report-done"].tap()
         app.openTodayOnSite()
 
-        // Ticked, it is finished.
+        // Ticked, it is finished. The day is a list: scroll down to the job.
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+        for _ in 0..<8 where !tick.exists { app.swipeUp() }
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
         for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
         tick.tap()

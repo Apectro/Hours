@@ -68,7 +68,10 @@ final class PaywallTests: XCTestCase {
             "Reminders about days you have not filled in",
             "The backup file, which holds everything you ever recorded"
         ] {
-            XCTAssertTrue(app.staticTexts[line].exists, "the paywall no longer promises \"\(line)\" for free")
+            // The paywall is a list, which only makes the rows on screen.
+            let text = app.staticTexts[line]
+            for _ in 0..<4 where !text.exists { app.swipeUp() }
+            XCTAssertTrue(text.exists, "the paywall no longer promises \"\(line)\" for free")
         }
     }
 
