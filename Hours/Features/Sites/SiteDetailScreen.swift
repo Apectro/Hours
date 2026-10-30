@@ -234,9 +234,6 @@ struct SiteDetailScreen: View {
                     .font(.subheadline)
                     .foregroundStyle(.hoursSecondaryText)
                     .fixedSize(horizontal: false, vertical: true)
-                    // What the UI tests wait for: on screen whenever the
-                    // page is, and never a container of buttons.
-                    .accessibilityIdentifier("screen-site")
                     .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
                     .listRowBackground(Color.clear)
 
@@ -270,6 +267,10 @@ struct SiteDetailScreen: View {
         }
         .listStyle(.insetGrouped)
         .listSectionSpacing(.compact)
+        // What the UI tests wait for, on the list rather than its first row,
+        // which the list drops once scrolled away. Before the inset, so the
+        // buttons there keep their own identifiers.
+        .accessibilityIdentifier("screen-site")
         .navigationTitle(Text(verbatim: site.name))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
