@@ -101,6 +101,9 @@ struct SiteCrewDaySheet: View {
                 .padding(.bottom, Metrics.large)
             }
             .background(Color.hoursCanvas)
+            // The screen's identifier on the scroll view, not around the Save
+            // bar: a container's identifier replaces the ones inside it.
+            .accessibilityIdentifier("site-different")
             .safeAreaInset(edge: .bottom) {
                 Button(action: save) {
                     Text("Save") + Text(verbatim: " · \(SiteDayStyle.figures(figures, durations: durations))")
@@ -113,7 +116,6 @@ struct SiteCrewDaySheet: View {
             }
             .navigationTitle(Text(verbatim: title))
             .navigationBarTitleDisplayMode(.inline)
-            .accessibilityIdentifier("site-different")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
