@@ -131,10 +131,16 @@ final class AllowanceUITests: XCTestCase {
     /// edge of the row where the knob is drawn.
     private func flip(_ toggle: XCUIElement) {
         XCTAssertTrue(toggle.waitForExistence(timeout: 5), "\(toggle) is missing")
+        let before = toggle.value as? String
         let inner = toggle.switches.firstMatch
         if inner.exists, inner.isHittable {
             inner.tap()
         } else {
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        }
+        // A tap in the middle of a switch row sometimes doesn't take: try
+        // the knob's side once more if the value did not change.
+        if (toggle.value as? String) == before {
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
     }
