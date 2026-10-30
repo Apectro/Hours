@@ -18,6 +18,10 @@ final class AllowanceUITests: XCTestCase {
         app.tab(.calendar).tap()
         let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 5), "the day editor did not open")
+        // On the editor's extras page (1.2): "Allowance, km, note…".
+        let extras = app.buttons["day-editor-more"].firstMatch
+        scroll(to: extras, in: app)
+        extras.tap()
         let allowance = app.switches["day-editor-allowance"].firstMatch
         scroll(to: allowance, in: app)
         flip(allowance)
@@ -26,8 +30,14 @@ final class AllowanceUITests: XCTestCase {
         scroll(to: kilometres, in: app)
         kilometres.tap()
         kilometres.typeText("84")
+        app.buttons["day-extras-done"].firstMatch.tap()
+        XCTAssertTrue(save.waitForExistence(timeout: 5), "Done did not return to the editor")
         save.tap()
         XCTAssertFalse(save.waitForExistence(timeout: 2), "the editor stayed open after saving")
+        // Back from the day to Today, where the month and its totals are.
+        if app.screen("screen-calendar-day").exists {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
 
         // The month's summary under the calendar has its line.
         let line = app.descendants(matching: .any)["calendar-summary-allowance"].firstMatch

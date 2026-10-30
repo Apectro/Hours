@@ -86,22 +86,25 @@ final class ScreenAtlasTests: XCTestCase {
     private func calendarScreens(_ app: XCUIApplication) {
         app.tab(.calendar).tap()
         pause(1)
-        capture("calendar-month", app)
+        capture("calendar-today", app)
 
+        // The month, under Today.
+        swipeUp(app)
+        capture("calendar-month", app)
         swipeUp(app)
         capture("calendar-month-summary", app)
-        swipeDown(app, times: 3)
+        swipeDown(app, times: 4)
 
         if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app) {
             capture("calendar-menu", app)
             dismissMenu(app)
         }
 
-        // A day other than today, selected: the card under the grid.
+        // A day other than today, opened from the month.
         if let key = dayKey(monthsFromNow: 0, day: 3), key != Self.todayKey,
            tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "the 3rd of this month", app) {
-            bringIntoView(app.buttons.matching(identifier: "day-card-edit").firstMatch, app)
             capture("calendar-selected-day", app)
+            back(app)
         }
 
         // Today's day, written by the sample site.
@@ -110,6 +113,10 @@ final class ScreenAtlasTests: XCTestCase {
             capture("day-editor-existing", app)
             swipeUp(app)
             capture("day-editor-existing-lower", app)
+            if tap(app.buttons.matching(identifier: "day-editor-more").firstMatch, "Allowance, km, note…", app) {
+                capture("day-editor-extras", app)
+                close(app, "day-extras-done")
+            }
             swipeDown(app, times: 2)
             if tap(app.buttons.matching(identifier: "day-editor-day-type").firstMatch, "the day type picker", app) {
                 capture("day-editor-day-types", app)
@@ -119,8 +126,10 @@ final class ScreenAtlasTests: XCTestCase {
         } else {
             miss("day-editor-existing (today's editor did not open)")
         }
+        back(app)
 
         // A new day: next month has nothing in it.
+        bringIntoView(app.buttons.matching(identifier: "calendar-next").firstMatch, app)
         if tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "next month", app),
            let key = dayKey(monthsFromNow: 1, day: 10) {
             let day = app.buttons.matching(identifier: "day-\(key)").firstMatch
@@ -138,8 +147,23 @@ final class ScreenAtlasTests: XCTestCase {
                             capture("day-editor-two-blocks", app)
                         }
                     }
+                    // Away: the day types as a grid.
+                    swipeDown(app, times: 3)
+                    let kind = app.segmentedControls.matching(identifier: "day-editor-kind").firstMatch
+                    if kind.waitForExistence(timeout: 3), kind.buttons.count > 1 {
+                        tapAnyway(kind.buttons.element(boundBy: 1))
+                        pause(0.6)
+                        capture("day-editor-away", app)
+                    } else {
+                        miss("day-editor-away (no Worked · Away · Day off)")
+                    }
                     close(app, "day-editor-cancel")
+                    if app.buttons.matching(identifier: "day-editor-discard").firstMatch.waitForExistence(timeout: 2) {
+                        tapAnyway(app.buttons.matching(identifier: "day-editor-discard").firstMatch)
+                        pause(1)
+                    }
                 }
+                back(app)
             }
             tap(app.buttons.matching(identifier: "calendar-previous").firstMatch, "back to this month", app)
         }
@@ -154,32 +178,40 @@ final class ScreenAtlasTests: XCTestCase {
                 capture("day-editor-holiday-worked", app)
                 close(app, "day-editor-cancel")
             }
+            back(app)
         }
 
         // The week of leave: the 8th to the 12th, once they have passed.
         if let key = dayKey(monthsFromNow: 0, day: 10),
            tap(app.buttons.matching(identifier: "day-\(key)").firstMatch, "a day of leave", app) {
-            bringIntoView(app.buttons.matching(identifier: "day-card-edit").firstMatch, app)
             capture("calendar-leave-day", app)
             if tap(app.buttons.matching(identifier: "day-card-edit").firstMatch, "the leave day's editor", app) {
                 capture("day-editor-leave", app)
                 close(app, "day-editor-cancel")
             }
+            back(app)
         }
 
-        // Range editing, from the menu.
-        if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app),
-           tap(app.buttons.matching(identifier: "calendar-edit-range").firstMatch, "Edit a range", app) {
+        // Range editing, from its button under the month.
+        if tap(app.buttons.matching(identifier: "calendar-edit-range").firstMatch, "Edit a range", app) {
             capture("bulk-edit", app)
             close(app, "bulk-edit-cancel")
         }
 
-        // Your own timesheet, in each format: the toolbar's Export button,
-        // out of the menu since the polish.
+        // The closed months, from the menu.
+        swipeDown(app, times: 4)
+        if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app),
+           tap(app.buttons.matching(identifier: "calendar-closed-months").firstMatch, "Closed months", app) {
+            capture("calendar-closed-months", app)
+            back(app)
+        }
+
+        // Your own timesheet, in each format: Export under the month.
         if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
             exportScreens(app, prefix: "export")
             close(app, "export-done")
         }
+        swipeDown(app, times: 4)
     }
 
     /// The export screen in each format and the PDF at full size. Shared by
@@ -880,17 +912,22 @@ final class ScreenAtlasTests: XCTestCase {
             miss("day-editor-allowance (today's editor did not open)")
             return
         }
+        tap(app.buttons.matching(identifier: "day-editor-more").firstMatch, "Allowance, km, note…", app)
         let allowance = app.switches["day-editor-allowance"].firstMatch
         if bringIntoView(allowance, app) {
             capture("day-editor-allowance", app)
             flip(allowance)
+            close(app, "day-extras-done")
             tapAnyway(save)
             pause(1)
+            back(app)
+            swipeUp(app)
             swipeUp(app)
             capture("calendar-month-summary-allowance", app)
-            swipeDown(app, times: 3)
+            swipeDown(app, times: 4)
         } else {
             miss("day-editor-allowance (no allowance section)")
+            close(app, "day-extras-done")
             close(app, "day-editor-cancel")
         }
 
@@ -958,8 +995,8 @@ final class ScreenAtlasTests: XCTestCase {
         if tap(app.buttons.matching(identifier: "day-\(Self.todayKey)").firstMatch, "today in the calendar", app) {
             bringIntoView(app.descendants(matching: .any)["day-card-site-0"].firstMatch, app)
             capture("calendar-day-two-sites", app)
+            back(app)
         }
-        swipeDown(app, times: 3)
         if tap(app.buttons.matching(identifier: "calendar-export").firstMatch, "Export", app) {
             if bringIntoView(app.descendants(matching: .any)["export-sites"].firstMatch, app) {
                 capture("export-sites-option", app)

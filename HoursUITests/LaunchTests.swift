@@ -134,16 +134,18 @@ final class LaunchTests: XCTestCase {
         let save = app.openTodaysEditor()
         XCTAssertTrue(save.waitForExistence(timeout: 10), "the day editor did not open")
 
-        let add = app.buttons["Add another block"]
-        guard add.exists || app.scrollViews.otherElements.buttons["Add another block"].exists else {
+        let add = app.buttons["day-editor-add-block"].firstMatch
+        guard add.exists else {
             // The button only appears once the day has times on it, which
             // depends on the schedule for the weekday the test runs on.
             return
         }
+        app.bringToScreen(add)
         add.tap()
 
-        let remove = app.buttons["Remove this block"].firstMatch
+        let remove = app.buttons["day-editor-remove-block"].firstMatch
         XCTAssertTrue(remove.waitForExistence(timeout: 5), "a second block did not appear")
+        app.bringToScreen(remove)
         remove.tap()
 
         // Surviving is the assertion. The editor still being there proves the
@@ -177,18 +179,37 @@ extension XCUIApplication {
 
     /// Opens the editor for today and returns its Save button.
     ///
-    /// A tap selects a day; a tap on the day already selected opens the
-    /// editor. Today starts selected, so one tap is normally enough — but
-    /// which day starts selected is a product decision, so the second tap is
-    /// here rather than assumed away. Both callers got this wrong once by
-    /// asserting on the first tap alone.
+    /// Today's cell is in the month under the Today section (1.2), so it is
+    /// scrolled to first. A tap on a day opens the day; its Edit opens the
+    /// editor. Which of the two a tap does is a product decision, so both are
+    /// handled here rather than assumed away.
     func openTodaysEditor(timeout: TimeInterval = 10) -> XCUIElement {
-        let today = buttons["day-\(Self.todayKey)"]
-        if today.waitForExistence(timeout: timeout) {
-            today.tap()
-            let save = buttons["day-editor-save"]
-            if !save.waitForExistence(timeout: 3) { today.tap() }
+        let today = buttons["day-\(Self.todayKey)"].firstMatch
+        let save = buttons["day-editor-save"].firstMatch
+        // Still on a day opened before: back to Today first.
+        if screen("screen-calendar-day").firstMatch.exists {
+            navigationBars.buttons.element(boundBy: 0).tap()
         }
-        return buttons["day-editor-save"]
+        if today.waitForExistence(timeout: timeout) {
+            bringToScreen(today)
+            today.tap()
+            if !save.waitForExistence(timeout: 3) {
+                let edit = buttons["day-card-edit"].firstMatch
+                if edit.waitForExistence(timeout: 3) {
+                    edit.tap()
+                } else if today.exists, today.isHittable {
+                    today.tap()
+                }
+            }
+        }
+        return save
+    }
+
+    /// Swipes the screen until `element` can be tapped, up first and then
+    /// back down: the Today tab is one long scroll.
+    func bringToScreen(_ element: XCUIElement) {
+        guard element.exists else { return }
+        for _ in 0..<8 where !element.isHittable { swipeUp() }
+        for _ in 0..<10 where !element.isHittable { swipeDown() }
     }
 }

@@ -91,11 +91,11 @@ final class WalkthroughTests: XCTestCase {
             pause(2)
             // A second block, if the weekday this runs on opens with times on
             // it — the button is not there on a day the schedule leaves blank.
-            let add = app.buttons["Add another block"]
+            let add = app.buttons["day-editor-add-block"].firstMatch
             if add.exists, add.isHittable {
                 add.tap()
                 pause(1.5)
-                let remove = app.buttons["Remove this block"].firstMatch
+                let remove = app.buttons["day-editor-remove-block"].firstMatch
                 if remove.waitForExistence(timeout: 3) {
                     remove.tap()
                     pause()
@@ -128,18 +128,24 @@ final class WalkthroughTests: XCTestCase {
             }
         }
 
-        // 6 — export, from its own button in the calendar's toolbar. Last
+        // 6 — export, from its own button under the month. Last
         // because it is the thing the app charges for.
         app.tab(.calendar).tap()
         _ = app.tab(.calendar).waitForExistence(timeout: 10)
         pause(0.5)
+        // The day opened at step 2 is still pushed: back to Today first.
+        if app.screen("screen-calendar-day").exists {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            pause(0.5)
+        }
         let exportButton = app.buttons["calendar-export"]
         if exportButton.waitForExistence(timeout: 5) {
+            app.bringToScreen(exportButton)
             pause()
             exportButton.tap()
             if reached("export", app.screen("screen-export")) { pause(2.5) }
         } else {
-            XCTFail("the calendar's toolbar has no Export button")
+            XCTFail("the month has no Export button")
         }
 
         // A couple of seconds of the finished screen, so the video does not
