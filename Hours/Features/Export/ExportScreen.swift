@@ -154,8 +154,8 @@ struct ExportScreen: View {
                 .alert("Your name on the sheet", isPresented: $asksForName) {
                     TextField("Name and surname", text: $typedName)
                         .textInputAutocapitalization(.words)
-                    Button("Save") { saveName() }
-                    Button("Not now", role: .cancel) { nameAnswered = true }
+                    Button("Save") { saveName(); resumePendingFile() }
+                    Button("Not now", role: .cancel) { nameAnswered = true; resumePendingFile() }
                 } message: {
                     nameMessage
                 }
@@ -698,13 +698,17 @@ struct ExportScreen: View {
             pageImage = nil
         }
 
-        if let pending = pendingFormat, !needsName, !asksForName {
-            pendingFormat = nil
-            // After the name alert has gone, so the two do not collide.
-            Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(450))
-                makeFile(pending)
-            }
+    }
+
+    /// The file asked for before the name, made once the name is answered:
+    /// from the alert's buttons, after the alert has gone, so the two
+    /// sheets do not collide.
+    private func resumePendingFile() {
+        guard let pending = pendingFormat else { return }
+        pendingFormat = nil
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(600))
+            makeFile(pending)
         }
     }
 
