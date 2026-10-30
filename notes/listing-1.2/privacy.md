@@ -49,7 +49,7 @@ So the answer for **Location → Precise Location** and **Coarse Location** is
 |---|---|---|
 | `NSLocationWhenInUseUsageDescription` | Turning on a site's arrival reminder, after an explanation in the app | One fix, saved as the site's place |
 | `NSLocationAlwaysAndWhenInUseUsageDescription` | Straight after, the upgrade to Always | Region monitoring, so arriving is noticed while the app is closed |
-| Notifications | As before, plus when the arrival reminder is turned on | The "Arrived at … — start the clock?" question |
+| Notifications | As before, plus when the arrival reminder is turned on | The "At … · Clock in now?" question |
 
 No `location` background mode: region monitoring does not need it.
 
