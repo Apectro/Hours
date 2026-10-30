@@ -32,15 +32,14 @@ struct SiteWeatherStopRow: View {
                 Spacer(minLength: Metrics.small)
                 if canEdit {
                     Button("Undo", action: onLift)
+                        .buttonStyle(.borderless)
                         .font(.subheadline.weight(.semibold))
                         .frame(minWidth: 44, minHeight: 44)
                         .accessibilityLabel(String(localized: "Undo bad weather"))
                         .accessibilityIdentifier("site-weather-lift")
                 }
             }
-            .padding(Metrics.medium)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("site-weather-stopped")
         }
