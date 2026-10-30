@@ -19,6 +19,9 @@ struct CrewMemberMonth: Equatable, Sendable {
         var reason: AbsenceReason?
         /// Their hours that day, on every site together.
         var minutes: Int
+        /// When they started on each of `siteIDs`, where the day has a
+        /// time: "then Jarunski from 12:40". Empty on a day away.
+        var starts: [TimeOfDay?] = []
 
         var id: Int { date.key }
 
@@ -92,8 +95,14 @@ struct CrewMemberMonth: Equatable, Sendable {
                 $0.start != $1.start ? $0.start < $1.start : order($0.siteID) < order($1.siteID)
             }
             var siteIDs: [UUID] = []
-            for item in ordered where !siteIDs.contains(item.siteID) { siteIDs.append(item.siteID) }
-            days.append(Day(date: date, siteIDs: siteIDs, reason: nil, minutes: list.reduce(0) { $0 + $1.minutes }))
+            var starts: [TimeOfDay?] = []
+            for item in ordered where !siteIDs.contains(item.siteID) {
+                siteIDs.append(item.siteID)
+                starts.append(item.start == Int.max ? nil : TimeOfDay(minutes: item.start))
+            }
+            days.append(Day(
+                date: date, siteIDs: siteIDs, reason: nil, minutes: list.reduce(0) { $0 + $1.minutes }, starts: starts
+            ))
         }
         for (date, item) in away where worked[date] == nil {
             days.append(Day(date: date, siteIDs: [], reason: item.reason, minutes: 0))
