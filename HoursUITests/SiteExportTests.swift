@@ -29,12 +29,18 @@ final class SiteExportTests: XCTestCase {
         export.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "the site export did not open")
 
-        // The screen opens on the PDF, previewed as its first page. The
-        // workbook's preview is the table, so switch to it.
+        // The screen previews the PDF's first page. Excel writes the
+        // workbook and opens it ready to send, previewed as its table. The
+        // name on the sheet is asked for first; any answer will do.
         XCTAssertTrue(app.descendants(matching: .any)["export-preview-page"].waitForExistence(timeout: 10), "the PDF has no page preview")
         let excel = app.buttons["export-format-xlsx"]
-        XCTAssertTrue(excel.waitForExistence(timeout: 5), "there is no Excel format card")
+        XCTAssertTrue(excel.waitForExistence(timeout: 5), "there is no Excel button")
         excel.tap()
+        if app.alerts.firstMatch.waitForExistence(timeout: 3) {
+            app.alerts.firstMatch.buttons.firstMatch.tap()
+        }
+        XCTAssertTrue(app.buttons.matching(identifier: "export-share").firstMatch.waitForExistence(timeout: 10),
+                      "Excel should open the file ready to send")
 
         // One pair of columns per person, you first, under the person's name.
         // No name is set in a UI test run, so yours says "You".
@@ -52,8 +58,8 @@ final class SiteExportTests: XCTestCase {
         XCTAssertTrue(labels.contains("Month total"), "there is no Month total row: \(labels)")
     }
 
-    /// One sheet for two sites (1.2): Sites on this sheet, a second site
-    /// ticked, and the preview's page is the sheet for both.
+    /// One sheet for two sites (1.2): a second site's chip ticked, and the
+    /// preview's page is the sheet for both.
     func testASecondSiteJoinsTheSheet() {
         let app = XCUIApplication.hours()
         app.launchArguments += ["-hours-sample-site", "-hours-second-site"]
@@ -74,15 +80,10 @@ final class SiteExportTests: XCTestCase {
         XCTAssertTrue(page.waitForExistence(timeout: 10), "the PDF has no page preview")
         XCTAssertFalse((page.value as? String ?? "").contains("Trg Pravde"), "the sheet starts on one site")
 
-        let row = app.buttons.matching(identifier: "export-sheet-sites").firstMatch
-        XCTAssertTrue(row.waitForExistence(timeout: 5), "there is no Sites on this sheet row")
-        row.tap()
+        // WHICH SITES: the second site's chip, ticked.
         let other = app.buttons.matching(identifier: "export-sheet-site-0").firstMatch
-        XCTAssertTrue(other.waitForExistence(timeout: 5), "the second site is not offered")
+        XCTAssertTrue(other.waitForExistence(timeout: 5), "the second site has no chip")
         other.tap()
-        let done = app.buttons.matching(identifier: "export-sheet-sites-done").firstMatch
-        XCTAssertTrue(done.waitForExistence(timeout: 5))
-        done.tap()
 
         // The page is drawn again for both: its title names them in order.
         let both = NSPredicate(format: "value CONTAINS %@ AND value CONTAINS %@", "Kaiserstrasse 12", "Trg Pravde")
