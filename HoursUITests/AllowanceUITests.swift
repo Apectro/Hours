@@ -42,7 +42,7 @@ final class AllowanceUITests: XCTestCase {
         XCTAssertTrue(insights.exists, "Insights should show the allowance")
     }
 
-    func testASiteDayGivesOnePersonTheAllowanceFromTheirRow() {
+    func testASiteDayGivesOnePersonTheAllowance() {
         let app = XCUIApplication.hours()
         app.launchArguments += ["-hours-sample-site"]
         app.launch()
@@ -59,21 +59,21 @@ final class AllowanceUITests: XCTestCase {
         let same = app.buttons["site-day-same-as-last"]
         XCTAssertTrue(same.waitForExistence(timeout: 5), "an empty day should offer Same as last day")
         same.tap()
-        let ivan = app.buttons["site-person-Ivan"]
-        XCTAssertTrue(ivan.waitForExistence(timeout: 5))
-        XCTAssertFalse(hasAllowance(ivan), "nobody has the allowance until it is given")
 
-        // The row's menu gives it, and takes it back.
-        ivan.press(forDuration: 1.0)
-        let item = app.buttons["site-person-allowance"].firstMatch
-        XCTAssertTrue(item.waitForExistence(timeout: 5), "the row's menu should offer the allowance")
-        item.tap()
-        expect(ivan, hasAllowance: true)
-
-        ivan.press(forDuration: 1.0)
-        XCTAssertTrue(item.waitForExistence(timeout: 5))
-        item.tap()
-        expect(ivan, hasAllowance: false)
+        // The day's Field allowance row gives it to one person, and takes
+        // it back.
+        let row = app.buttons["site-day-allowance"].firstMatch
+        scroll(to: row, in: app)
+        XCTAssertTrue(row.exists, "a written day should offer the field allowance")
+        row.tap()
+        let ivan = app.switches["site-allowance-Ivan"].firstMatch
+        XCTAssertTrue(ivan.waitForExistence(timeout: 5), "the allowance sheet should list Ivan")
+        XCTAssertEqual(ivan.value as? String, "0", "nobody has the allowance until it is given")
+        flip(ivan)
+        expect(switch: ivan, on: true)
+        flip(ivan)
+        expect(switch: ivan, on: false)
+        app.buttons["site-allowance-done"].tap()
 
         // The vehicle's kilometres for the day.
         let kilometres = app.textFields["site-day-kilometres"].firstMatch
@@ -107,14 +107,10 @@ final class AllowanceUITests: XCTestCase {
     }
 
     /// The row's value names the allowance (VoiceOver's "field allowance").
-    private func hasAllowance(_ row: XCUIElement) -> Bool {
-        (row.value as? String)?.contains("field allowance") == true
-    }
-
-    private func expect(_ row: XCUIElement, hasAllowance expected: Bool) {
-        let predicate = NSPredicate { _, _ in self.hasAllowance(row) == expected }
-        let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: row)], timeout: 5)
-        XCTAssertEqual(result, .completed, "Ivan should \(expected ? "have" : "not have") the allowance: \(String(describing: row.value))")
+    private func expect(switch toggle: XCUIElement, on expected: Bool) {
+        let predicate = NSPredicate(format: "value == %@", expected ? "1" : "0")
+        let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: toggle)], timeout: 5)
+        XCTAssertEqual(result, .completed, "Ivan should \(expected ? "have" : "not have") the allowance: \(String(describing: toggle.value))")
     }
 
     /// A Form switch: its own knob when it can be hit, else the trailing

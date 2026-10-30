@@ -1,7 +1,7 @@
 import XCTest
 
-/// The site screen: its month, ticking the crew, a changed time standing
-/// out, and a closed month refusing edits.
+/// The site screen: its month, the usual day in one tap, the crew's day,
+/// a changed time standing out, and a closed month refusing edits.
 ///
 /// Every test starts from the seeded site (`SampleData.seedSite`):
 /// "Kaiserstrasse 12" with Ivan and Marko on the crew, and yesterday written
@@ -19,6 +19,7 @@ final class SiteDayTests: XCTestCase {
 
         // Today opens as not written, with yesterday on offer.
         XCTAssertTrue(app.screen("site-day-not-written").waitForExistence(timeout: 5), "today should say it is not written")
+        XCTAssertTrue(app.buttons["site-day-same-as-usual"].waitForExistence(timeout: 5), "an empty day should offer Same as usual")
         let same = app.buttons["site-day-same-as-last"]
         XCTAssertTrue(same.waitForExistence(timeout: 5), "an empty day should offer Same as last day")
         // It names the day it copies from, which is yesterday, not today.
@@ -30,35 +31,49 @@ final class SiteDayTests: XCTestCase {
 
         // Everyone who was there yesterday, at the site's times: Ivan's early
         // finish was a fact about yesterday and does not come with him.
-        let you = app.buttons["site-person-you"]
-        let ivan = app.buttons["site-person-Ivan"]
-        let marko = app.buttons["site-person-Marko"]
-        wait(for: you, selected: true)
-        wait(for: ivan, selected: true)
-        wait(for: marko, selected: true)
-        XCTAssertFalse(app.buttons["site-times-Ivan"].label.contains("Left early"), "exceptions must not be copied")
+        openCrewDay(app)
+        wait(for: app.buttons["site-usual-you"], selected: true)
+        wait(for: app.buttons["site-usual-Ivan"], selected: true)
+        wait(for: app.buttons["site-usual-Marko"], selected: true)
+        wait(for: app.buttons["site-late-Ivan"], selected: false)
 
-        // Marko was somewhere else today. Someone not there has no times to
-        // change, so their clock button goes.
-        marko.tap()
-        wait(for: marko, selected: false)
-        XCTAssertTrue((marko.value as? String)?.contains("Not here") == true, "Marko should read as not here: \(String(describing: marko.value))")
-        XCTAssertFalse(app.buttons["site-times-Marko"].exists, "someone not there has no times to change")
+        // Marko was somewhere else today, with no reason given.
+        app.buttons["site-away-Marko"].tap()
+        let none = app.buttons.matching(identifier: "site-absence-reason-none").firstMatch
+        XCTAssertTrue(none.waitForExistence(timeout: 5), "Away should ask why")
+        none.tap()
+        wait(for: app.buttons["site-usual-Marko"], selected: false)
+        wait(for: app.buttons["site-away-Marko"], selected: false)
+        app.buttons["site-different-save"].tap()
 
         // Two people, eight hours each.
         let total = app.descendants(matching: .any)["site-crew-total"]
-        if !total.exists { app.swipeUp() }
         XCTAssertTrue(total.waitForExistence(timeout: 5))
         XCTAssertTrue(total.label.contains("16"), "the crew total should be 16 hours: \(total.label)")
 
-        // Saved with no Save button: leave the site and come back.
+        // Saved: leave the site and come back.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
-        wait(for: app.buttons["site-person-you"], selected: true)
-        wait(for: app.buttons["site-person-Ivan"], selected: true)
-        wait(for: app.buttons["site-person-Marko"], selected: false)
+        openCrewDay(app)
+        wait(for: app.buttons["site-usual-you"], selected: true)
+        wait(for: app.buttons["site-usual-Ivan"], selected: true)
+        wait(for: app.buttons["site-usual-Marko"], selected: false)
+    }
+
+    /// Same as usual writes the day in one tap: the site's usual day for
+    /// the whole crew.
+    func testSameAsUsualWritesTheDay() {
+        let app = launch()
+        openSite(app)
+
+        let usual = app.buttons["site-day-same-as-usual"]
+        XCTAssertTrue(usual.waitForExistence(timeout: 5), "an empty day should offer Same as usual")
+        usual.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["site-crew-total"].waitForExistence(timeout: 5), "the day should be written")
+        XCTAssertFalse(app.screen("site-day-not-written").exists, "a written day must not say it is not written")
+        XCTAssertTrue(app.descendants(matching: .any)["site-line-Marko"].exists, "the written day lists the crew")
     }
 
     func testLeftEarlyIsHighlighted() {
@@ -67,16 +82,18 @@ final class SiteDayTests: XCTestCase {
 
         select(app, daysFromToday: -1)
 
-        let ivanTimes = app.buttons["site-times-Ivan"]
-        XCTAssertTrue(ivanTimes.waitForExistence(timeout: 5))
-        let leftEarly = NSPredicate(format: "label CONTAINS %@", "Left early")
-        expectation(for: leftEarly, evaluatedWith: ivanTimes)
+        let ivanLine = app.descendants(matching: .any)["site-line-Ivan"]
+        XCTAssertTrue(ivanLine.waitForExistence(timeout: 5))
+        let ownEnd = NSPredicate(format: "value CONTAINS %@", "12:00")
+        expectation(for: ownEnd, evaluatedWith: ivanLine)
         waitForExpectations(timeout: 5)
-        XCTAssertTrue(ivanTimes.label.contains("12:00"), "Ivan's own end time should show: \(ivanTimes.label)")
 
         // Only Ivan: Marko and you kept the site's times.
-        XCTAssertFalse(app.buttons["site-times-Marko"].label.contains("Left early"))
-        XCTAssertFalse(app.buttons["site-times-you"].label.contains("Left early"))
+        openCrewDay(app)
+        wait(for: app.buttons["site-late-Ivan"], selected: true)
+        wait(for: app.buttons["site-late-Marko"], selected: false)
+        wait(for: app.buttons["site-late-you"], selected: false)
+        app.buttons["site-different-cancel"].tap()
     }
 
     func testLockedMonthShowsRefusal() {
@@ -87,12 +104,11 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(app.screen("site-day-locked").waitForExistence(timeout: 5), "a closed month must say so")
         XCTAssertTrue(app.staticTexts["This month is closed"].exists || app.screen("site-day-locked").label.contains("This month is closed"))
 
-        // And nothing can be ticked or copied into it.
-        let ivan = app.buttons["site-person-Ivan"]
-        XCTAssertTrue(ivan.waitForExistence(timeout: 5))
-        XCTAssertFalse(ivan.isEnabled, "ticking must be off in a closed month")
-        ivan.tap()
-        XCTAssertFalse(ivan.isSelected, "a tick in a closed month must not take")
+        // And nothing can be written or copied into it.
+        let usual = app.buttons["site-day-same-as-usual"]
+        XCTAssertTrue(usual.waitForExistence(timeout: 5))
+        XCTAssertFalse(usual.isEnabled, "Same as usual must be off in a closed month")
+        XCTAssertFalse(app.buttons["site-day-something-different"].isEnabled, "the crew's day must be off in a closed month")
         let same = app.buttons["site-day-same-as-last"]
         if same.exists {
             XCTAssertFalse(same.isEnabled, "Same as last day must be off in a closed month")
@@ -100,7 +116,7 @@ final class SiteDayTests: XCTestCase {
     }
 
     /// Tapping a day in the site's month shows that day on the card, and
-    /// tapping back shows today again — with nobody ticked once it is
+    /// tapping back shows today again — with nobody ticked when it is
     /// started from empty.
     func testTappingADayInTheMonthShowsIt() {
         let app = launch()
@@ -112,7 +128,7 @@ final class SiteDayTests: XCTestCase {
             app.descendants(matching: .any)["site-crew-total"].waitForExistence(timeout: 5),
             "yesterday is written, so its card should show the crew's total"
         )
-        wait(for: app.buttons["site-person-Ivan"], selected: true)
+        XCTAssertTrue(app.descendants(matching: .any)["site-line-Ivan"].exists)
         XCTAssertFalse(app.screen("site-day-not-written").exists, "a written day must not say it is not written")
 
         let today = select(app, daysFromToday: 0)
@@ -123,16 +139,19 @@ final class SiteDayTests: XCTestCase {
         let empty = app.buttons["site-day-start-empty"]
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "an empty day should offer Start from empty")
         empty.tap()
-        wait(for: app.buttons["site-person-you"], selected: false)
-        wait(for: app.buttons["site-person-Ivan"], selected: false)
+        XCTAssertTrue(app.screen("site-different").waitForExistence(timeout: 5), "Start from empty opens the crew's day")
+        wait(for: app.buttons["site-usual-you"], selected: false)
+        wait(for: app.buttons["site-usual-Ivan"], selected: false)
+        app.buttons["site-different-cancel"].tap()
+        XCTAssertTrue(app.screen("site-day-not-written").waitForExistence(timeout: 5), "cancelling writes nothing")
     }
 
     // MARK: - Why someone was not here
 
-    /// Ivan off sick: the reason button on his unticked row gives him a
-    /// reason, his row says so, it is still there after leaving the site,
-    /// and ticking him clears it. Read by identifier and by the value
-    /// changing, never by the translated words.
+    /// Ivan off sick: Away on his row gives him a reason, his row says so,
+    /// it is still there after leaving the site, and Usual clears it. Read
+    /// by identifier and by the selected trait, never by the translated
+    /// words.
     func testMarkSomeoneSickAndTickingClearsIt() {
         let app = launch()
         openSite(app)
@@ -141,49 +160,33 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "an empty day should offer Start from empty")
         empty.tap()
 
-        // Rows: you, Ivan, Marko. Nobody is ticked, so each has a reason
-        // button where the clock would be.
-        let ivan = app.buttons["site-person-Ivan"]
-        wait(for: ivan, selected: false)
-        let notHere = ivan.value as? String
-        let reason = app.buttons.matching(identifier: "site-absence-1").firstMatch
-        XCTAssertTrue(reason.waitForExistence(timeout: 5), "an unticked row should have a reason button")
-        reason.tap()
+        let away = app.buttons["site-away-Ivan"]
+        wait(for: away, selected: false)
+        away.tap()
         let sick = app.buttons.matching(identifier: "site-absence-reason-sick").firstMatch
         XCTAssertTrue(sick.waitForExistence(timeout: 5), "the reasons should include Sick")
         sick.tap()
-
-        // His row now says why, and he is still not ticked.
-        let changed = NSPredicate(format: "value != %@", notHere ?? "")
-        expectation(for: changed, evaluatedWith: ivan)
-        waitForExpectations(timeout: 5)
-        wait(for: ivan, selected: false)
-        let sickValue = ivan.value as? String
+        wait(for: away, selected: true)
+        app.buttons["site-different-save"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["site-line-Ivan"].waitForExistence(timeout: 5), "a reason is kept on the day")
 
         // Kept: leave the site and come back.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
-        let again = app.buttons["site-person-Ivan"]
-        wait(for: again, selected: false)
-        XCTAssertEqual(again.value as? String, sickValue, "the reason should be kept")
+        openCrewDay(app)
+        wait(for: app.buttons["site-away-Ivan"], selected: true)
 
-        // Ticking him in clears it: he is here, and has a clock, not a reason.
-        again.tap()
-        wait(for: again, selected: true)
-        XCTAssertFalse(app.buttons["site-absence-1"].exists, "someone here has no reason button")
-        XCTAssertTrue(app.buttons["site-times-Ivan"].waitForExistence(timeout: 5))
-
-        // Unticked again, he is simply not here — no reason comes back.
-        again.tap()
-        wait(for: again, selected: false)
-        XCTAssertEqual(again.value as? String, notHere, "unticking gives no reason by itself")
+        // Usual clears it: he is here, and not away.
+        app.buttons["site-usual-Ivan"].tap()
+        wait(for: app.buttons["site-usual-Ivan"], selected: true)
+        wait(for: app.buttons["site-away-Ivan"], selected: false)
+        app.buttons["site-different-cancel"].tap()
     }
 
-    /// Marko worked on another site: "On another site" opens the sites and
-    /// "Another site" for one not in the app; his row changes, nothing is
-    /// ticked, and ticking him clears it.
+    /// Marko worked on another site: "On another site…" opens the sites and
+    /// "Another site" for one not in the app; Usual clears it.
     func testChoosingOnAnotherSite() {
         let app = launch()
         openSite(app)
@@ -192,69 +195,53 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(empty.waitForExistence(timeout: 5), "an empty day should offer Start from empty")
         empty.tap()
 
-        // Rows: you, Ivan, Marko.
-        let marko = app.buttons["site-person-Marko"]
-        wait(for: marko, selected: false)
-        let notHere = marko.value as? String
-        let reason = app.buttons.matching(identifier: "site-absence-2").firstMatch
-        XCTAssertTrue(reason.waitForExistence(timeout: 5), "an unticked row should have a reason button")
-        reason.tap()
+        let away = app.buttons["site-away-Marko"]
+        wait(for: away, selected: false)
+        away.tap()
         let otherSite = app.buttons.matching(identifier: "site-absence-reason-other-site").firstMatch
-        XCTAssertTrue(otherSite.waitForExistence(timeout: 5), "the reasons should start with On another site")
+        XCTAssertTrue(otherSite.waitForExistence(timeout: 5), "the reasons should include On another site")
         otherSite.tap()
         let any = app.buttons.matching(identifier: "site-absence-other-site-any").firstMatch
         XCTAssertTrue(any.waitForExistence(timeout: 5), "On another site should offer Another site")
         any.tap()
+        wait(for: away, selected: true)
+        wait(for: app.buttons["site-usual-Marko"], selected: false)
 
-        let changed = NSPredicate(format: "value != %@", notHere ?? "")
-        expectation(for: changed, evaluatedWith: marko)
-        waitForExpectations(timeout: 5)
-        wait(for: marko, selected: false)
-
-        marko.tap()
-        wait(for: marko, selected: true)
-        XCTAssertFalse(app.buttons["site-absence-2"].exists, "someone here has no reason button")
-        marko.tap()
-        wait(for: marko, selected: false)
-        XCTAssertEqual(marko.value as? String, notHere, "ticking cleared the reason")
+        app.buttons["site-usual-Marko"].tap()
+        wait(for: app.buttons["site-usual-Marko"], selected: true)
+        wait(for: away, selected: false)
+        app.buttons["site-different-cancel"].tap()
     }
 
     // MARK: - Diary and bad weather
 
-    /// The diary under a day keeps what was typed, with no Save button, and
-    /// the day is marked in the month.
+    /// The day's diary keeps what was saved, and the day is marked in the month.
     func testDiaryKeepsWhatWasWritten() {
         let app = launch()
         openSite(app)
 
-        // Each part of the diary is a row that opens in place.
-        let workRow = app.buttons["diary-section-work"]
-        for _ in 0..<4 where !workRow.isHittable { app.swipeUp() }
-        XCTAssertTrue(workRow.waitForExistence(timeout: 5), "the site diary should be under the day")
-        XCTAssertFalse(app.descendants(matching: .any)["site-diary-work"].exists, "a diary row starts closed")
-        workRow.tap()
+        let link = app.buttons["site-day-diary"]
+        for _ in 0..<4 where !link.isHittable { app.swipeUp() }
+        XCTAssertTrue(link.waitForExistence(timeout: 5), "the day should offer its diary")
+        link.tap()
         let work = app.descendants(matching: .any)["site-diary-work"]
-        XCTAssertTrue(work.waitForExistence(timeout: 5), "opening the row should show its field")
+        XCTAssertTrue(work.waitForExistence(timeout: 5), "the diary should open")
         work.tap()
         work.typeText("Formwork")
-        // Leaving the field writes it: opening the next row moves the cursor.
-        let visitorsRow = app.buttons["diary-section-visitors"]
-        for _ in 0..<3 where !visitorsRow.isHittable { app.swipeUp() }
-        visitorsRow.tap()
-        XCTAssertTrue(app.descendants(matching: .any)["site-diary-visitors"].waitForExistence(timeout: 5))
+        app.buttons["site-diary-save"].tap()
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
-        let againRow = app.buttons["diary-section-work"]
-        for _ in 0..<4 where !againRow.isHittable { app.swipeUp() }
-        XCTAssertTrue(againRow.waitForExistence(timeout: 5))
-        XCTAssertTrue(againRow.label.contains("Formwork"), "the closed row should preview what was typed: \(againRow.label)")
-        againRow.tap()
-        let again = app.descendants(matching: .any)["site-diary-work"]
+        let again = app.buttons["site-day-diary"]
+        for _ in 0..<4 where !again.isHittable { app.swipeUp() }
         XCTAssertTrue(again.waitForExistence(timeout: 5))
-        XCTAssertEqual(again.value as? String, "Formwork", "the diary should keep what was typed")
+        again.tap()
+        let field = app.descendants(matching: .any)["site-diary-work"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        XCTAssertEqual(field.value as? String, "Formwork", "the diary should keep what was saved")
+        app.buttons["site-diary-cancel"].tap()
     }
 
     /// Rained off on a written day: the stop shows, and can be taken back.
@@ -263,20 +250,21 @@ final class SiteDayTests: XCTestCase {
         openSite(app)
         select(app, daysFromToday: -1)
 
-        let menu = app.buttons["site-weather-menu"]
-        for _ in 0..<3 where !menu.isHittable { app.swipeUp() }
-        XCTAssertTrue(menu.waitForExistence(timeout: 5), "a written day should offer Rained off")
-        menu.tap()
+        let link = app.buttons["site-weather-menu"]
+        for _ in 0..<3 where !link.isHittable { app.swipeUp() }
+        XCTAssertTrue(link.waitForExistence(timeout: 5), "a written day should offer Bad weather")
+        link.tap()
         let all = app.buttons["site-weather-stop-all"]
         XCTAssertTrue(all.waitForExistence(timeout: 5))
         all.tap()
+        app.buttons["site-weather-stop-save"].tap()
 
         XCTAssertTrue(app.descendants(matching: .any)["site-weather-stopped"].waitForExistence(timeout: 5),
                       "the day should say it was rained off")
         let lift = app.buttons["site-weather-lift"]
         XCTAssertTrue(lift.waitForExistence(timeout: 5))
         lift.tap()
-        XCTAssertTrue(app.buttons["site-weather-menu"].waitForExistence(timeout: 5), "undo should bring the menu back")
+        XCTAssertTrue(app.buttons["site-weather-menu"].waitForExistence(timeout: 5), "undo should bring Bad weather back")
     }
 
     // MARK: - Helpers
@@ -314,10 +302,10 @@ final class SiteDayTests: XCTestCase {
         let same = app.buttons["site-day-same-as-last"]
         XCTAssertTrue(same.waitForExistence(timeout: 5))
         same.tap()
-        wait(for: app.buttons["site-person-Ivan"], selected: true)
+        XCTAssertTrue(app.descendants(matching: .any)["site-crew-total"].waitForExistence(timeout: 5))
 
         let move = app.buttons["site-day-move"].firstMatch
-        if !move.exists { app.swipeUp() }
+        for _ in 0..<3 where !move.isHittable { app.swipeUp() }
         XCTAssertTrue(move.waitForExistence(timeout: 5), "a written day with another site offers the move")
         move.tap()
 
@@ -336,11 +324,11 @@ final class SiteDayTests: XCTestCase {
         let banner = app.descendants(matching: .any)["site-move-banner"].firstMatch
         XCTAssertTrue(banner.waitForExistence(timeout: 5), "the day should say who went where")
         XCTAssertTrue(banner.label.contains("Trg Pravde"), "the banner should name the other site: \(banner.label)")
-        let ivan = app.buttons["site-person-Ivan"]
+        let ivan = app.descendants(matching: .any)["site-line-Ivan"]
         let movedValue = NSPredicate(format: "value CONTAINS %@", "Trg Pravde")
         expectation(for: movedValue, evaluatedWith: ivan)
         waitForExpectations(timeout: 5)
-        XCTAssertFalse((app.buttons["site-person-Marko"].value as? String ?? "").contains("Trg Pravde"), "Marko stayed")
+        XCTAssertFalse((app.descendants(matching: .any)["site-line-Marko"].value as? String ?? "").contains("Trg Pravde"), "Marko stayed")
 
         let undo = app.buttons["site-move-undo"].firstMatch
         XCTAssertTrue(undo.waitForExistence(timeout: 5))
@@ -363,6 +351,15 @@ final class SiteDayTests: XCTestCase {
         formatter.calendar = calendar
         formatter.setLocalizedDateFormatFromTemplate("EEEdMMM")
         return formatter.string(from: date)
+    }
+
+    /// "Change" on a written day: the crew's day.
+    private func openCrewDay(_ app: XCUIApplication) {
+        let change = app.buttons["site-day-change"]
+        XCTAssertTrue(change.waitForExistence(timeout: 5), "a written day should offer Change")
+        for _ in 0..<3 where !change.isHittable { app.swipeUp() }
+        change.tap()
+        XCTAssertTrue(app.screen("site-different").waitForExistence(timeout: 5), "the crew's day did not open")
     }
 
     private func launch(arguments: [String] = []) -> XCUIApplication {

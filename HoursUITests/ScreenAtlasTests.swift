@@ -276,30 +276,31 @@ final class ScreenAtlasTests: XCTestCase {
         swipeUp(app)
         capture("site-day-crew", app)
 
+        // A day not written yet: Same as usual writes it, so the rest of
+        // the pictures see a written day.
+        let usual = app.buttons.matching(identifier: "site-day-same-as-usual").firstMatch
+        if usual.exists, tap(usual, "Same as usual", app) {
+            pause(0.5)
+            capture("site-day-written", app)
+        }
+
+        crewDayScreens(app)
+
         let times = app.descendants(matching: .any)["site-day-times"].firstMatch
         if tap(times, "the site's times", app) {
             capture("site-times", app)
             close(app, "site-hours-cancel")
         }
 
-        let ivan = app.buttons.matching(identifier: "site-times-Ivan").firstMatch
-        if tap(ivan, "Ivan's times", app) {
-            capture("site-person-times", app)
-            close(app, "person-times-cancel")
-        }
-
-        absenceScreens(app)
         siteMoveScreens(app)
 
         let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
-        if tap(weather, "the rained-off menu", app) {
-            capture("site-rained-off-menu", app)
-            if tap(app.buttons.matching(identifier: "site-weather-stop-at").firstMatch, "Stopped at", app) {
-                capture("site-rained-off-sheet", app)
-                close(app, "site-weather-stop-cancel")
-            } else {
-                dismissMenu(app)
+        if bringIntoView(weather, app), tap(weather, "Bad weather", app) {
+            capture("site-rained-off-sheet", app)
+            if tap(app.buttons.matching(identifier: "site-weather-stop-all").firstMatch, "No work today", app) {
+                capture("site-rained-off-no-work", app)
             }
+            close(app, "site-weather-stop-cancel")
         }
 
         let addExtraWork = app.buttons.matching(identifier: "extra-work-add").firstMatch
@@ -316,17 +317,41 @@ final class ScreenAtlasTests: XCTestCase {
             miss("site-day-send-to-boss (no Send to boss button)")
         }
 
-        let diary = app.buttons.matching(identifier: "diary-section-weather").firstMatch
-        if bringIntoView(diary, app) {
-            capture("site-day-diary", app)
-            tapAnyway(diary)
+        let diary = app.buttons.matching(identifier: "site-day-diary").firstMatch
+        if bringIntoView(diary, app), tap(diary, "Diary for this day", app) {
             pause(0.5)
-            swipeUp(app)
-            capture("site-day-diary-open", app)
-            if bringIntoView(diary, app) { tapAnyway(diary) }
+            capture("site-day-diary", app)
+            close(app, "site-diary-cancel")
         } else {
             miss("site-day-diary (no diary on the site day)")
         }
+    }
+
+    /// The crew's day from Change: the rows with their four buttons, one
+    /// person's times, and why someone was away.
+    private func crewDayScreens(_ app: XCUIApplication) {
+        let change = app.buttons.matching(identifier: "site-day-change").firstMatch
+        guard bringIntoView(change, app), tap(change, "Change", app) else {
+            miss("site-crew-day (no Change on the day)")
+            return
+        }
+        pause(0.5)
+        capture("site-crew-day", app)
+        let late = app.buttons.matching(NSPredicate(
+            format: "identifier BEGINSWITH 'site-late-' AND identifier != 'site-late-you'"
+        )).firstMatch
+        if tap(late, "Late/early", app) {
+            capture("site-person-times", app)
+            close(app, "person-times-cancel")
+        }
+        let away = app.buttons.matching(NSPredicate(
+            format: "identifier BEGINSWITH 'site-away-' AND identifier != 'site-away-you' AND identifier != 'site-away-cancel'"
+        )).firstMatch
+        if tap(away, "Away", app) {
+            capture("site-absence-menu", app)
+            close(app, "site-away-cancel")
+        }
+        close(app, "site-different-cancel")
     }
 
     /// The extra-work editor, new and existing, and the report to the boss.
@@ -911,32 +936,26 @@ final class ScreenAtlasTests: XCTestCase {
             } else {
                 miss("site-day-kilometres (no kilometres row)")
             }
-            let crew = app.buttons.matching(NSPredicate(
-                format: "identifier BEGINSWITH 'site-person-' AND identifier != 'site-person-you'"
-            )).firstMatch
-            if bringIntoView(crew, app), crew.isSelected {
-                crew.press(forDuration: 1.0)
-                if app.buttons["site-person-allowance"].firstMatch.waitForExistence(timeout: 5) {
+            let allowance = app.buttons.matching(identifier: "site-day-allowance").firstMatch
+            if bringIntoView(allowance, app), tap(allowance, "Field allowance", app) {
+                if app.buttons["site-allowance-done"].firstMatch.waitForExistence(timeout: 5) {
                     capture("site-person-allowance-menu", app)
+                    close(app, "site-allowance-done")
                 } else {
-                    miss("site-person-allowance-menu (no allowance in the row's menu)")
+                    miss("site-person-allowance-menu (no allowance sheet)")
                 }
-                dismissMenu(app)
             }
             back(app)
         }
     }
 
-    /// Why someone was not here: the first of the crew unticked, the
-    /// reasons the button beside them offers, and their row once marked
-    /// sick. Ticked again at the end, which clears the reason, so the
-    /// pictures after this see the day as it was.
     /// "Moved to another site…" (1.2): the sheet, the day after the move with
     /// its banner and the movers' rows, your calendar day on two sites, and
     /// the export's Sites picker for the month. Undone at the end, so nothing
     /// after this sees the move.
     private func siteMoveScreens(_ app: XCUIApplication) {
-        guard tap(app.buttons.matching(identifier: "site-day-move").firstMatch, "Moved to another site", app) else { return }
+        let move = app.buttons.matching(identifier: "site-day-move").firstMatch
+        guard bringIntoView(move, app), tap(move, "Moved to another site", app) else { return }
         pause(0.8)
         capture("site-move-sheet", app)
         guard tap(app.buttons.matching(identifier: "site-move-to-0").firstMatch, "the other site", app) else {
@@ -975,26 +994,6 @@ final class ScreenAtlasTests: XCTestCase {
             pause(1)
         }
         swipeDown(app, times: 2)
-    }
-
-    private func absenceScreens(_ app: XCUIApplication) {
-        let crew = app.buttons.matching(NSPredicate(
-            format: "identifier BEGINSWITH 'site-person-' AND identifier != 'site-person-you'"
-        )).firstMatch
-        guard tap(crew, "the first of the crew", app) else { return }
-        pause(0.5)
-        // You are row 0, so the first of the crew is row 1.
-        if tap(app.buttons.matching(identifier: "site-absence-1").firstMatch, "the reason button", app) {
-            capture("site-absence-menu", app)
-            if tap(app.buttons.matching(identifier: "site-absence-reason-sick").firstMatch, "Sick", app) {
-                pause(0.5)
-                capture("site-absence-sick", app)
-            } else {
-                dismissMenu(app)
-            }
-        }
-        tapAnyway(crew)
-        pause(0.5)
     }
 
     /// Last month, closed in Settings a moment ago: the calendar's notice,
