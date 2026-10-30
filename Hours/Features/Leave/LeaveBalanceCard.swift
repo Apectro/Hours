@@ -1,10 +1,12 @@
 import SwiftUI
 
-/// "Vacation: 18 of 25 left · 2 planned", on Insights.
+/// The leave year as a list section: "18 days left of 24", a bar of what
+/// is taken, and what is booked and carried (design v2: no card, one
+/// section, the system's own progress bar). On Insights and Settings › Leave.
 ///
 /// The leave year is fetched on its own, since it rarely lines up with the
 /// period on screen: a leave year from April, looked at in a month view of
-/// February, is last April to this March.
+/// February, is last April to this March. Goes inside a `List` or `Form`.
 struct LeaveBalanceCard: View {
     /// A day in the leave year to show.
     let date: CalendarDate
@@ -12,8 +14,10 @@ struct LeaveBalanceCard: View {
     let calendar: Calendar
     /// Settings › Leave shows the year even before anything is taken.
     var alwaysShows = false
-    /// Insights' identifier; nil where the card is not that one.
+    /// Insights' identifier; nil where the section is not that one.
     var identifier: String? = "insights-leave"
+    /// "Leave" over the section, where the screen's title does not say it.
+    var showsHeader = true
 
     var body: some View {
         PeriodDataProvider(range: range) { data in
@@ -22,6 +26,7 @@ struct LeaveBalanceCard: View {
                 settings: settings,
                 alwaysShows: alwaysShows,
                 identifier: identifier,
+                showsHeader: showsHeader,
                 formatting: CalendarFormatting(locale: .current, calendar: calendar)
             )
         }
@@ -47,55 +52,45 @@ private struct LeaveBalanceCardContent: View {
     let settings: AppSettings
     let alwaysShows: Bool
     let identifier: String?
+    let showsHeader: Bool
     let formatting: CalendarFormatting
 
     var body: some View {
         // Nothing to say to someone who has never mentioned leave: no policy
         // changed, nothing taken, nothing booked, nothing carried.
         if alwaysShows || settings.leave.isCustomized || balance.used > .zero || balance.planned > .zero || balance.carried > .zero {
-            SurfaceCard {
+            Section {
                 VStack(alignment: .leading, spacing: Metrics.small) {
-                    HStack(spacing: Metrics.small) {
-                        DayTypeBadge(definition: vacationType, size: 22)
-                        Text(yearTitle)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.hoursSecondaryText)
-                            .textCase(.uppercase)
-                            .tracking(0.4)
-                        Spacer(minLength: Metrics.small)
-                        Text(yearSpan)
-                            .font(.caption)
-                            .foregroundStyle(.hoursSecondaryText)
-                    }
-
                     Text(String(
                         localized: "\(balance.remaining.localized) days left of \(available.localized)",
                         comment: "Vacation days still to book, of those the year gives; e.g. 8 days left of 24"
                     ))
-                    .font(.hoursFigure(.title2))
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
                     .foregroundStyle(balance.remaining < .zero ? Color.hoursMissing : .primary)
 
-                    LeaveBar(
-                        used: fraction(balance.used),
-                        planned: fraction(balance.planned),
-                        tint: vacationType.tint.color
-                    )
+                    ProgressView(value: fraction(balance.used + balance.planned))
+                        .tint(vacationType.tint.color)
+                        .accessibilityHidden(true)
 
-                    Text(details)
-                        .font(.footnote)
-                        .foregroundStyle(.hoursSecondaryText)
+                    ForEach(details, id: \.self) { line in
+                        Text(verbatim: line)
+                            .font(.subheadline)
+                            .monospacedDigit()
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
                 }
+                .padding(.vertical, Metrics.tiny)
                 .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(identifier ?? "leave-year")
+            } header: {
+                if showsHeader {
+                    Text("Leave")
+                }
+            } footer: {
+                Text(verbatim: yearSpan)
             }
-            .accessibilityIdentifier(identifier ?? "leave-year")
         }
-    }
-
-    /// "2026", or "2026/27" for a leave year that does not start in January.
-    private var yearTitle: String {
-        let start = balance.range.start.year
-        let end = balance.range.end.year
-        return start == end ? String(start) : "\(start)/\(String(end).suffix(2))"
     }
 
     private func fraction(_ days: HalfDays) -> Double {
@@ -112,48 +107,25 @@ private struct LeaveBalanceCardContent: View {
         "\(formatting.shortDate(balance.range.start)) – \(formatting.dateWithYear(balance.range.end))"
     }
 
-    private var details: String {
-        var parts = [
+    /// "4 taken · 2 planned", then a line each for what was carried, what
+    /// expires and what has.
+    private var details: [String] {
+        var lines = [[
             String(localized: "\(balance.used.localized) taken", comment: "Vacation days already taken this leave year"),
             String(localized: "\(balance.planned.localized) planned", comment: "Vacation days booked after today")
-        ]
+        ].joined(separator: " · ")]
         if balance.carried > .zero {
-            parts.append(String(localized: "Carried over: \(balance.carried.localized)", comment: "Vacation days from last leave year"))
+            lines.append(String(localized: "Carried over: \(balance.carried.localized)", comment: "Vacation days from last leave year"))
         }
         if balance.carryOverAtRisk > .zero, let expiry = balance.carryOverExpiry {
-            parts.append(String(
+            lines.append(String(
                 localized: "Expiring on \(formatting.shortDate(expiry)): \(balance.carryOverAtRisk.localized)",
                 comment: "Carried-over vacation days that are lost unless taken by this date"
             ))
         }
         if balance.expired > .zero {
-            parts.append(String(localized: "Expired: \(balance.expired.localized)", comment: "Carried-over vacation days lost"))
+            lines.append(String(localized: "Expired: \(balance.expired.localized)", comment: "Carried-over vacation days lost"))
         }
-        return parts.joined(separator: "  ·  ")
-    }
-}
-
-/// The leave year as a bar: taken, then booked, then what is left.
-private struct LeaveBar: View {
-    let used: Double
-    let planned: Double
-    let tint: Color
-
-    var body: some View {
-        GeometryReader { proxy in
-            HStack(spacing: 0) {
-                Rectangle()
-                    .fill(tint)
-                    .frame(width: proxy.size.width * used)
-                Rectangle()
-                    .fill(tint.opacity(0.4))
-                    .frame(width: proxy.size.width * min(planned, 1 - used))
-                Spacer(minLength: 0)
-            }
-            .background(Color.hoursSubdued.opacity(0.25))
-            .clipShape(Capsule())
-        }
-        .frame(height: 8)
-        .accessibilityHidden(true)
+        return lines
     }
 }

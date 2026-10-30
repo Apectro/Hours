@@ -7,23 +7,8 @@ struct ReviewedYear: Identifiable, Hashable {
     var id: Int { year }
 }
 
-/// The app icon's navy and amber, which the widgets are drawn in too. The
-/// review is always on navy, in light and dark alike, so it reads as the
-/// same object in both.
-enum YearReviewPalette {
-    static let navy = Color(red: 0x12 / 255, green: 0x1a / 255, blue: 0x45 / 255)
-    static let navyLight = Color(red: 0x1f / 255, green: 0x2d / 255, blue: 0x6b / 255)
-    static let amber = Color(red: 0xff / 255, green: 0xb0 / 255, blue: 0x2e / 255)
-    static let amberDeep = Color(red: 0xf0 / 255, green: 0x8a / 255, blue: 0x1e / 255)
-    /// Secondary text on navy.
-    static let mist = Color(red: 0x9f / 255, green: 0xb0 / 255, blue: 0xe8 / 255)
-
-    static var background: LinearGradient {
-        LinearGradient(colors: [navyLight, navy], startPoint: .top, endPoint: .bottom)
-    }
-}
-
-/// "Your 2026": a year's figures, a card at a time, full screen.
+/// "Your 2026": a year's figures as a plain list, full screen (design v2:
+/// the year's hours large on the background, then a row per figure).
 ///
 /// Every figure is `YearReview`'s; this only fetches and draws. Nothing about
 /// anybody else's hours is in it, and money only when you have a rate.
@@ -64,7 +49,7 @@ struct YearReviewScreen: View {
     }
 }
 
-/// The swipeable cards, with the close and share buttons over them.
+/// The year's figures, with Close and Share in the toolbar.
 private struct YearReviewPages: View {
     let review: YearReview
     let settings: AppSettings
@@ -72,36 +57,94 @@ private struct YearReviewPages: View {
     let close: () -> Void
 
     @State private var sharedImage: Image?
-    /// The card on screen, for "3 of 7".
-    @State private var page = 0
 
     var body: some View {
-        ZStack(alignment: .top) {
-            YearReviewPalette.background.ignoresSafeArea()
-
-            if review.isEmpty {
-                emptyState
-            } else {
-                TabView(selection: $page) {
-                    YearReviewCardView(title: introTitle, figure: duration.string(review.workedMinutes), caption: introCaption, isIntro: true)
-                        .tag(0)
-                    ForEach(Array(cards.enumerated()), id: \.element) { index, card in
-                        YearReviewCardView(content: content(for: card))
-                            .tag(index + 1)
+        NavigationStack {
+            Group {
+                if review.isEmpty {
+                    emptyState
+                } else {
+                    list
+                }
+            }
+            .navigationTitle(titleText)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: close) {
+                        Label("Close", systemImage: "xmark")
+                    }
+                    .labelStyle(.iconOnly)
+                    .accessibilityIdentifier("year-review-close")
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    if let sharedImage, !review.isEmpty {
+                        ShareLink(
+                            item: sharedImage,
+                            preview: SharePreview(titleText, image: sharedImage)
+                        ) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .labelStyle(.iconOnly)
+                        .accessibilityIdentifier("year-review-share")
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .indexViewStyle(.page(backgroundDisplayMode: .interactive))
             }
-
-            toolbar
         }
-        // Always on navy, so always dark — for this screen only. Not
-        // `preferredColorScheme`, which can reach past a presentation to the
-        // window behind it.
-        .environment(\.colorScheme, .dark)
         .onAppear { renderShareImage() }
         .onChange(of: review) { _, _ in renderShareImage() }
+    }
+
+    /// The year's hours first, on the background, then a row per figure.
+    private var list: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: Metrics.tiny) {
+                    Text(introTitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                    Text(duration.string(review.workedMinutes))
+                        .font(.largeTitle.bold())
+                        .monospacedDigit()
+                    Text(introCaption)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + Metrics.tiny, bottom: Metrics.small, trailing: Metrics.large))
+                .listRowBackground(Color.clear)
+            }
+            Section {
+                ForEach(cards, id: \.self) { card in
+                    row(content(for: card))
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
+    }
+
+    private func row(_ content: YearReviewCardContent) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                Text(content.title)
+                Spacer(minLength: Metrics.small)
+                Text(content.figure)
+                    .monospacedDigit()
+                    .foregroundStyle(.hoursSecondaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            if !content.detail.isEmpty {
+                Text(content.detail)
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(minHeight: 28)
+        .accessibilityElement(children: .combine)
     }
 
     private var duration: DurationFormatting { settings.displayFormatting }
@@ -140,8 +183,6 @@ private struct YearReviewPages: View {
         )
     }
 
-    private var pageCount: Int { cards.count + 1 }
-
     /// The engine's cards, less the ones a setting has switched off here.
     private var cards: [YearReview.Card] {
         review.cards.filter { card in
@@ -153,69 +194,15 @@ private struct YearReviewPages: View {
         }
     }
 
-    private var toolbar: some View {
-        HStack {
-            Button(action: close) {
-                Image(systemName: "xmark")
-                    .font(.headline)
-                    .frame(width: 44, height: 44)
-                    .background(.white.opacity(0.12), in: Circle())
-            }
-            .accessibilityLabel(String(localized: "Close"))
-            .accessibilityIdentifier("year-review-close")
-
-            Spacer()
-
-            if !review.isEmpty {
-                Text(String(
-                    localized: "\(page + 1) of \(pageCount)",
-                    comment: "Year in review, which card is showing, such as 3 of 7"
-                ))
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(YearReviewPalette.mist)
-                .monospacedDigit()
-            }
-
-            Spacer()
-
-            if let sharedImage, !review.isEmpty {
-                ShareLink(
-                    item: sharedImage,
-                    preview: SharePreview(titleText, image: sharedImage)
-                ) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.headline)
-                        .frame(width: 44, height: 44)
-                        .background(.white.opacity(0.12), in: Circle())
-                }
-                .accessibilityLabel(String(localized: "Share"))
-                .accessibilityIdentifier("year-review-share")
-            }
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, Metrics.large)
-        .padding(.top, Metrics.small)
-    }
-
     private var emptyState: some View {
-        VStack(spacing: Metrics.medium) {
-            Image(systemName: "calendar.badge.clock")
-                .font(.system(size: 48))
-                .foregroundStyle(YearReviewPalette.amber)
-                .accessibilityHidden(true)
-            Text(titleText)
-                .font(.largeTitle.bold())
+        ContentUnavailableView {
+            Label(titleText, systemImage: "calendar.badge.clock")
+        } description: {
             Text(String(
                 localized: "Nothing recorded in \(String(review.year)) yet. Your review fills in as the days do.",
                 comment: "Year in review with no data; the value is a year"
             ))
-            .font(.body)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(YearReviewPalette.mist)
         }
-        .foregroundStyle(.white)
-        .padding(Metrics.extraLarge)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("year-review-empty")
     }
@@ -317,169 +304,92 @@ struct YearReviewCardContent: Hashable {
     var systemImage: String
 }
 
-/// One full-screen card.
-private struct YearReviewCardView: View {
-    var title: String
-    var figure: String
-    var caption: String
-    var systemImage: String = "sparkles"
-    var isIntro = false
-
-    /// The figure is the card. It grows with the text size, and shrinks to
-    /// fit a long month name rather than wrapping it.
-    @ScaledMetric(relativeTo: .largeTitle) private var figureSize: CGFloat = 64
-
-    init(title: String, figure: String, caption: String, isIntro: Bool) {
-        self.title = title
-        self.figure = figure
-        self.caption = caption
-        self.isIntro = isIntro
-    }
-
-    init(content: YearReviewCardContent) {
-        self.title = content.title
-        self.figure = content.figure
-        self.caption = content.detail
-        self.systemImage = content.systemImage
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            Spacer()
-            if !isIntro {
-                Image(systemName: systemImage)
-                    .font(.title)
-                    .foregroundStyle(YearReviewPalette.amber)
-                    .accessibilityHidden(true)
-            }
-            Text(title)
-                .font(isIntro ? .title.bold() : .title3.weight(.semibold))
-                .foregroundStyle(isIntro ? YearReviewPalette.amber : YearReviewPalette.mist)
-            Text(figure)
-                .font(.system(size: isIntro ? figureSize * 1.35 : figureSize, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.4)
-                .lineLimit(2)
-                .foregroundStyle(.white)
-            if !caption.isEmpty {
-                Text(caption)
-                    .font(.title3)
-                    .foregroundStyle(YearReviewPalette.mist)
-            }
-            Spacer()
-            Spacer()
-        }
-        .padding(.horizontal, Metrics.extraLarge)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        // The dark card look (1.2): each figure on its own card.
-        .background(
-            YearReviewPalette.navyLight.opacity(0.55),
-            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
-        )
-        .padding(.horizontal, Metrics.large)
-        .padding(.top, 72)
-        .padding(.bottom, 56)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-/// The picture that is shared: the year's figures on one navy card. Fixed
-/// size and type, so it looks the same whatever text size the phone is set
-/// to.
+/// The picture that is shared: the year's figures as a plain list on
+/// white. Fixed size and type, so it looks the same whatever text size the
+/// phone is set to.
 private struct YearReviewShareImage: View {
     let title: String
     let rows: [YearReviewCardContent]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .foregroundStyle(YearReviewPalette.amber)
-                Spacer()
-                Image(systemName: "sparkles")
-                    .font(.system(size: 26))
-                    .foregroundStyle(YearReviewPalette.amber)
-            }
+        VStack(alignment: .leading, spacing: 14) {
+            Text(title)
+                .font(.system(size: 34, weight: .bold))
+                .foregroundStyle(.black)
+                .padding(.bottom, 4)
             ForEach(rows, id: \.self) { row in
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Image(systemName: row.systemImage)
-                        .font(.system(size: 17))
-                        .foregroundStyle(YearReviewPalette.amber)
-                        .frame(width: 24)
                     Text(row.title)
                         .font(.system(size: 17))
-                        .foregroundStyle(YearReviewPalette.mist)
+                        .foregroundStyle(.black)
                     Spacer(minLength: 12)
                     Text(row.figure)
-                        .font(.system(size: 22, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .monospacedDigit()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.black)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                 }
+                Divider()
             }
             Text(verbatim: AppIdentity.name)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(YearReviewPalette.mist)
+                .foregroundStyle(.gray)
                 .padding(.top, 6)
         }
         .padding(28)
         .frame(width: 390, alignment: .leading)
-        .background(YearReviewPalette.background)
-        .environment(\.colorScheme, .dark)
+        .background(Color.white)
+        .environment(\.colorScheme, .light)
     }
 }
 
-/// The late-December card on Insights: an offer, not a notification. Opening
-/// it or putting it away puts it away for the year. Without `dismiss` the
-/// same card heads Insights › Year, where the review always is.
+/// The late-December row on Insights: an offer, not a notification.
+/// Opening it or putting it away puts it away for the year. Without
+/// `dismiss` it is only the row that opens the review.
 struct YearReviewInvitation: View {
     let year: Int
     let open: () -> Void
-    /// Nil where the card is part of the screen (Insights › Year) rather
-    /// than a seasonal offer that can be put away.
+    /// Nil where the row is part of the screen rather than a seasonal offer
+    /// that can be put away.
     var dismiss: (() -> Void)?
     var identifier = "insights-year-review-invitation"
 
     var body: some View {
-        HStack(spacing: Metrics.medium) {
+        HStack(spacing: Metrics.small) {
             Button(action: open) {
                 HStack(spacing: Metrics.medium) {
                     Image(systemName: "sparkles")
-                        .font(.title2)
-                        .foregroundStyle(YearReviewPalette.amber)
+                        .foregroundStyle(Color.accentColor)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(localized: "Your \(String(year))", comment: "Opens the year in review; the value is a year"))
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        Text("Your year in numbers, a card at a time.")
+                            .foregroundStyle(.primary)
+                        Text("Your year in numbers")
                             .font(.subheadline)
-                            .foregroundStyle(YearReviewPalette.mist)
+                            .foregroundStyle(.hoursSecondaryText)
                     }
                     Spacer(minLength: 0)
                 }
                 .frame(minHeight: 44)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
             .accessibilityIdentifier(identifier)
 
             if let dismiss {
                 Button(action: dismiss) {
                     Image(systemName: "xmark")
                         .font(.footnote.weight(.semibold))
-                        .foregroundStyle(YearReviewPalette.mist)
+                        .foregroundStyle(.secondary)
                         .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel(String(localized: "Not now"))
                 .accessibilityIdentifier("insights-year-review-dismiss")
             }
         }
-        .padding(.leading, Metrics.large)
-        .padding(.trailing, dismiss == nil ? Metrics.large : 0)
-        .padding(.vertical, Metrics.small)
-        .background(YearReviewPalette.background, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        // Two buttons in one row: without this a tap anywhere in the row
+        // presses both.
+        .buttonStyle(.borderless)
     }
 }

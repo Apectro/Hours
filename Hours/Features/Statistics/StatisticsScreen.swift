@@ -50,9 +50,9 @@ struct StatisticsScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: Metrics.large) {
-                    if let year = offeredReviewYear, year != anchor.year {
+            List {
+                if let year = offeredReviewYear, year != anchor.year {
+                    Section {
                         YearReviewInvitation(
                             year: year,
                             open: {
@@ -62,50 +62,61 @@ struct StatisticsScreen: View {
                             dismiss: { dismissedReviewYear = year }
                         )
                     }
+                }
 
-                    // Week, Month, Year (1.2): today's figures are on the
-                    // Today tab.
+                // Week, Month, Year (1.2): today's figures are on the Today
+                // tab. Then the period, with the arrows that page it.
+                Section {
                     Picker("Period", selection: $scope) {
                         ForEach(StatisticsScope.shown) { option in
                             Text(option.title).tag(option)
                         }
                     }
                     .pickerStyle(.segmented)
+                    .labelsHidden()
                     .accessibilityIdentifier("insights-scope")
                     .tourTarget(.insights)
+                    .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
 
                     periodStepper
+                        .listRowInsets(EdgeInsets(top: Metrics.small, leading: Metrics.large + Metrics.tiny, bottom: 0, trailing: Metrics.small))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
 
-                    PeriodDataProvider(range: fetchedRange) { data in
-                        StatisticsContent(
-                            range: range,
-                            scope: scope,
-                            data: data,
-                            settings: settingsStore.settings,
-                            calendar: calendar,
-                            formatting: settingsStore.dateFormatting
-                        )
-                    }
+                PeriodDataProvider(range: fetchedRange) { data in
+                    StatisticsContent(
+                        range: range,
+                        scope: scope,
+                        data: data,
+                        settings: settingsStore.settings,
+                        calendar: calendar,
+                        formatting: settingsStore.dateFormatting
+                    )
+                }
 
-                    if settingsStore.settings.features.showsBalance {
-                        CumulativeBalanceCard(
-                            through: range.end,
-                            trend: range,
-                            settings: settingsStore.settings,
-                            calendar: calendar
-                        )
-                    }
-
-                    LeaveBalanceCard(
-                        date: min(range.end, CalendarDate.today(in: calendar)),
+                if settingsStore.settings.features.showsBalance {
+                    CumulativeBalanceCard(
+                        through: range.end,
+                        trend: range,
                         settings: settingsStore.settings,
                         calendar: calendar
                     )
+                }
 
-                    // "Your 2026": the year's review, a card at a time.
+                LeaveBalanceCard(
+                    date: min(range.end, CalendarDate.today(in: calendar)),
+                    settings: settingsStore.settings,
+                    calendar: calendar
+                )
+
+                // "Your 2026": the year's review, a card at a time.
+                Section {
                     InsightsOpenCard(
                         title: String(localized: "Your \(String(anchor.year))", comment: "Opens the year in review; the value is a year"),
-                        detail: String(localized: "Your year in numbers, a card at a time"),
+                        detail: String(localized: "Your year in numbers"),
                         systemImage: "sparkles",
                         identifier: "insights-year-review"
                     ) {
@@ -113,10 +124,9 @@ struct StatisticsScreen: View {
                         review = ReviewedYear(year: anchor.year)
                     }
                 }
-                .padding(.horizontal, Metrics.large)
-                .padding(.bottom, Metrics.extraLarge)
             }
-            .background(Color.hoursCanvas)
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(.compact)
             .fullScreenCover(item: $review) { reviewed in
                 YearReviewScreen(year: reviewed.year)
             }
@@ -146,32 +156,33 @@ struct StatisticsScreen: View {
         )
     }
 
+    /// "October" in grey, as the board has it over the figure, with the
+    /// two chevrons in small circles that page it.
     private var periodStepper: some View {
-        HStack {
+        HStack(spacing: Metrics.small) {
+            Text(periodTitle)
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
+                .contentTransition(.identity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             stepButton(
                 systemImage: "chevron.left",
                 label: String(
                     localized: "Previous \(scope.title.lowercased())",
                     comment: "VoiceOver; the value is a period name such as month or week"
-                )
+                ),
+                isEnabled: true
             ) { step(-1) }
             .accessibilityIdentifier("insights-previous")
-
-            Spacer(minLength: Metrics.small)
-
-            Text(periodTitle)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .contentTransition(.identity)
-
-            Spacer(minLength: Metrics.small)
 
             stepButton(
                 systemImage: "chevron.right",
                 label: String(
                     localized: "Next \(scope.title.lowercased())",
                     comment: "VoiceOver; the value is a period name such as month or week"
-                )
+                ),
+                isEnabled: !isAtPresent
             ) { step(1) }
             .disabled(isAtPresent)
             .accessibilityIdentifier("insights-next")
@@ -181,12 +192,20 @@ struct StatisticsScreen: View {
         .buttonStyle(.borderless)
     }
 
-    /// A full 44pt target, the same chevron the export month stepper uses:
-    /// the old bordered circles were about 34pt, small for a gloved thumb.
-    private func stepButton(systemImage: String, label: String, action: @escaping () -> Void) -> some View {
+    /// A chevron in a small grey circle, the export's stepper's, inside a
+    /// 44-point target.
+    private func stepButton(
+        systemImage: String,
+        label: String,
+        isEnabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.title3.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(isEnabled ? Color.primary : Color(uiColor: .tertiaryLabel))
+                .frame(width: 32, height: 32)
+                .background(Color(uiColor: .tertiarySystemFill), in: Circle())
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -228,8 +247,8 @@ struct StatisticsScreen: View {
     }
 }
 
-/// A card on Insights that opens something: "Check your payslip", "Your
-/// 2026". A title, a line under it, and Open.
+/// A row on Insights that opens something: "Your 2026". The title, a line
+/// under it in grey, and a chevron.
 struct InsightsOpenCard: View {
     let title: String
     let detail: String
@@ -239,31 +258,24 @@ struct InsightsOpenCard: View {
 
     var body: some View {
         Button(action: open) {
-            SurfaceCard {
-                HStack(spacing: Metrics.medium) {
-                    Image(systemName: systemImage)
-                        .font(.title3)
-                        .foregroundStyle(Color.accentColor)
-                        .frame(width: 28)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: title)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                        Text(verbatim: detail)
-                            .font(.subheadline)
-                            .foregroundStyle(.hoursSecondaryText)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer(minLength: Metrics.small)
-                    Text("Open")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.accentColor)
+            HStack(spacing: Metrics.medium) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: title)
+                        .foregroundStyle(.primary)
+                    Text(verbatim: detail)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(minHeight: 44)
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
         .accessibilityIdentifier(identifier)
     }
 }

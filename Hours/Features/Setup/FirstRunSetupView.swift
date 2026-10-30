@@ -43,8 +43,7 @@ struct FirstRunSetupView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            topBar
+        NavigationStack {
             Group {
                 switch step {
                 case .name:
@@ -71,31 +70,14 @@ struct FirstRunSetupView: View {
             }
             .id(step)
             .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
-
-            if step != .finish {
-                VStack(spacing: Metrics.small) {
-                    Button(action: advance) {
-                        Text("Continue")
-                    }
-                    .buttonStyle(.bigAction(.primary, isMain: true))
-                    .accessibilityIdentifier("setup-continue")
-
-                    if step == .pay {
-                        Button {
-                            answers.hourlyRateCents = 0
-                            advance()
-                        } label: {
-                            Text("Skip pay")
-                        }
-                        .buttonStyle(.bigAction(.secondary))
-                        .accessibilityIdentifier("setup-skip-pay")
-                    }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbar }
+            .safeAreaInset(edge: .bottom) {
+                if step != .finish {
+                    bottomActions
                 }
-                .padding(.vertical, Metrics.large)
             }
         }
-        .padding(.horizontal, Metrics.extraLarge)
-        .background(Color.hoursCanvas.ignoresSafeArea())
         .onAppear {
             // Once: the answers start from the settings, and coming back to
             // this view must not throw away what has been typed.
@@ -106,40 +88,61 @@ struct FirstRunSetupView: View {
         }
     }
 
-    /// Back, "2 of 6" and Skip, and the progress bar under them.
-    private var topBar: some View {
-        VStack(spacing: Metrics.small) {
-            HStack {
-                if step != .name && step != .finish {
-                    Button("Back", action: goBack)
-                        .frame(minHeight: 44)
-                        .accessibilityIdentifier("setup-back")
+    /// Back, "2 of 6" in the middle, and Skip: the system's toolbar, no
+    /// bar of our own (design v2).
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            if step != .name && step != .finish {
+                Button(action: goBack) {
+                    Label("Back", systemImage: "chevron.left")
                 }
-                Spacer(minLength: 0)
-                if step != .finish {
-                    Button("Skip") { onFinish(nil) }
-                        .frame(minHeight: 44)
-                        .accessibilityIdentifier("setup-skip")
-                }
-            }
-            .overlay {
-                if step != .finish {
-                    Text(String(
-                        localized: "\(step.rawValue + 1) of \(Step.questionCount)",
-                        comment: "First-run setup progress, such as 2 of 6"
-                    ))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.hoursSecondaryText)
-                    .monospacedDigit()
-                }
-            }
-            if step != .finish {
-                ProgressView(value: Double(step.rawValue + 1), total: Double(Step.questionCount))
-                    .tint(Color.accentColor)
-                    .accessibilityHidden(true)
+                .labelStyle(.iconOnly)
+                .accessibilityIdentifier("setup-back")
             }
         }
-        .padding(.top, Metrics.small)
+        ToolbarItem(placement: .principal) {
+            if step != .finish {
+                Text(String(
+                    localized: "\(step.rawValue + 1) of \(Step.questionCount)",
+                    comment: "First-run setup progress, such as 2 of 6"
+                ))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.hoursSecondaryText)
+                .monospacedDigit()
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            if step != .finish {
+                Button("Skip") { onFinish(nil) }
+                    .accessibilityIdentifier("setup-skip")
+            }
+        }
+    }
+
+    /// Continue, the one main action, at the bottom; on the pay step
+    /// "Skip pay" beside it.
+    private var bottomActions: some View {
+        HStack(spacing: Metrics.medium) {
+            if step == .pay {
+                Button {
+                    answers.hourlyRateCents = 0
+                    advance()
+                } label: {
+                    Text("Skip pay")
+                }
+                .buttonStyle(.bigAction(.secondary))
+                .accessibilityIdentifier("setup-skip-pay")
+            }
+            Button(action: advance) {
+                Text("Continue")
+            }
+            .buttonStyle(.bigAction(.primary))
+            .accessibilityIdentifier("setup-continue")
+        }
+        .padding(.horizontal, Metrics.large)
+        .padding(.vertical, Metrics.small)
+        .background(Color.hoursCanvas)
     }
 
     private func advance() {
@@ -193,7 +196,9 @@ struct FirstRunSetupView: View {
 }
 
 /// One screen of the setup: a large title, a line saying why it is asked,
-/// and the question.
+/// and the question as a native form (design v2). The title is the first
+/// row rather than the navigation bar's, so a long one wraps instead of
+/// being cut short.
 struct SetupPage<Content: View>: View {
     let heading: LocalizedStringKey
     let message: LocalizedStringKey
@@ -202,20 +207,21 @@ struct SetupPage<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Metrics.large) {
-                Text(heading)
-                    .font(.largeTitle.bold())
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityAddTraits(.isHeader)
-                Text(message)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                content
-                    .padding(.top, Metrics.small)
+        Form {
+            Section {
+                VStack(alignment: .leading, spacing: Metrics.small) {
+                    Text(heading)
+                        .font(.largeTitle.bold())
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityAddTraits(.isHeader)
+                    Text(message)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.tiny, bottom: Metrics.small, trailing: Metrics.tiny))
+                .listRowBackground(Color.clear)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, Metrics.extraLarge)
+            content
         }
         .scrollBounceBehavior(.basedOnSize)
         .accessibilityIdentifier(identifier)

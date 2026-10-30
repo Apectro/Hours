@@ -21,16 +21,24 @@ struct PaywallSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.extraLarge) {
-                    header
-                    features
-                    products
-                    freeForever
-                    smallprint
+            List {
+                if let reason {
+                    Section {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(reason.title)
+                                .font(.headline)
+                            Text(reason.explanation)
+                                .font(.subheadline)
+                                .foregroundStyle(.hoursSecondaryText)
+                        }
+                        .padding(.vertical, Metrics.tiny)
+                    }
                 }
-                .padding(Metrics.large)
+                features
+                products
+                freeForever
             }
+            .listStyle(.insetGrouped)
             // The one thing to do here, always in reach.
             .safeAreaInset(edge: .bottom) {
                 if let product = selectedProduct {
@@ -39,16 +47,16 @@ struct PaywallSheet: View {
                     } label: {
                         Text("Continue")
                     }
-                    .buttonStyle(.bigAction(.primary, isMain: true))
+                    .buttonStyle(.bigAction(.primary))
                     .disabled(isWorking)
                     .accessibilityIdentifier("paywall-continue")
                     .padding(.horizontal, Metrics.large)
                     .padding(.vertical, Metrics.small)
-                    .background(.bar)
+                    .background(Color.hoursCanvas)
                 }
             }
-            .background(Color.hoursCanvas)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(Text(verbatim: AppIdentity.proName))
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Not now") { dismiss() }
@@ -75,76 +83,49 @@ struct PaywallSheet: View {
 
     // MARK: - Pieces
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text(verbatim: AppIdentity.proName)
-                .font(.largeTitle.bold())
-                .accessibilityAddTraits(.isHeader)
-            if let reason {
-                Text(reason.title)
-                    .font(.headline)
-                Text(reason.explanation)
-                    .font(.subheadline)
-                    .foregroundStyle(.hoursSecondaryText)
-            }
-            Text("Your own hours stay free, whatever you decide.")
-                .font(.subheadline)
-                .foregroundStyle(.hoursSecondaryText)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
+    /// What Pro adds, a row each with its symbol.
     private var features: some View {
-        SurfaceCard {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
+        Section {
             // Sync is only sold in a build that can sync (`SyncPreference`);
             // offering a feature the build lacks is grounds for rejection.
             ForEach(ProFeature.allCases.filter { $0 != .iCloudSync || SyncPreference.isAvailable }) { feature in
-                HStack(alignment: .top, spacing: Metrics.medium) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(feature.title)
+                        Text(feature.explanation)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
+                } icon: {
                     Image(systemName: feature.symbolName)
                         .foregroundStyle(Color.accentColor)
-                        .frame(width: 26)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(feature.title).font(.subheadline.weight(.semibold))
-                        Text(feature.explanation)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 0)
                 }
-                // The line that brought them here is worth pointing at.
-                .padding(feature == reason ? Metrics.small : 0)
-                .background {
-                    if feature == reason {
-                        RoundedRectangle(cornerRadius: Metrics.smallCornerRadius)
-                            .fill(Color.accentColor.opacity(0.10))
-                    }
-                }
+                .padding(.vertical, 2)
+                .accessibilityElement(children: .combine)
             }
-        }
+        } footer: {
+            Text("Your own hours stay free, whatever you decide.")
         }
     }
 
+    /// The plans as rows; the chosen one has a checkmark.
     @ViewBuilder
     private var products: some View {
-        if subscriptions.isLoadingProducts {
-            HStack { Spacer(); ProgressView(); Spacer() }
-                .padding(.vertical, Metrics.large)
-        } else if let failure = subscriptions.loadFailure {
-            Text(failure)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            VStack(spacing: Metrics.medium) {
+        Section {
+            if subscriptions.isLoadingProducts {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+            } else if let failure = subscriptions.loadFailure {
+                Text(failure)
+                    .font(.footnote)
+                    .foregroundStyle(.hoursSecondaryText)
+            } else {
                 ForEach(orderedProducts, id: \.id) { product in
                     Button {
                         selectedID = product.id
                     } label: {
                         ProductRow(product: product, isSelected: product.id == selectedProduct?.id)
                     }
-                    .buttonStyle(.plain)
                     .disabled(isWorking)
                     .accessibilityAddTraits(product.id == selectedProduct?.id ? .isSelected : [])
                     .accessibilityIdentifier("paywall-plan-\(product.id)")
@@ -154,36 +135,18 @@ struct PaywallSheet: View {
     }
 
     private var freeForever: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text("Free, whatever you decide")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
+        Section {
             ForEach(ProFeature.alwaysFree, id: \.self) { line in
-                HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                    Image(systemName: "checkmark")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(Color.hoursPositive)
-                        .accessibilityHidden(true)
-                    Text(line).font(.footnote).foregroundStyle(.secondary)
-                }
+                Text(line)
+            }
+        } header: {
+            Text("Free, whatever you decide")
+        } footer: {
+            VStack(alignment: .leading, spacing: Metrics.small) {
+                Text("There is no account to make. A purchase belongs to your Apple ID, so it is already on your other devices — you should not need Restore, and it is there in case you do.")
+                Text("A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Zeitkonto outright is a single payment and never renews.")
             }
         }
-        .padding(Metrics.large)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: Metrics.cornerRadius)
-                .fill(Color.hoursSurface)
-        }
-    }
-
-    private var smallprint: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text("There is no account to make. A purchase belongs to your Apple ID, so it is already on your other devices — you should not need Restore, and it is there in case you do.")
-            Text("A subscription renews until you cancel it, in Settings › your name › Subscriptions. Buying Zeitkonto outright is a single payment and never renews.")
-        }
-        .font(.caption)
-        .foregroundStyle(.tertiary)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Yearly, monthly, then buying it outright.
@@ -229,8 +192,8 @@ struct PaywallSheet: View {
     }
 }
 
-/// One plan, as a card: its name, the real price, and "Best value" on
-/// the yearly one. Tapping picks it; Continue buys it.
+/// One plan, as a row: its name, the real price in grey, "Best value" on
+/// the yearly one, and a checkmark when it is the one Continue buys.
 private struct ProductRow: View {
     let product: Product
     let isSelected: Bool
@@ -246,25 +209,19 @@ private struct ProductRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: Metrics.medium) {
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .font(.title3)
-                .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
+                Text(product.displayName)
+                    .foregroundStyle(.primary)
                 HStack(spacing: Metrics.small) {
-                    Text(product.displayName).font(.headline)
+                    Text(priceLine)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
                     if isYearly {
                         Text("Best value")
-                            .font(.caption.weight(.bold))
                             .foregroundStyle(Color.hoursPositive)
-                            .padding(.horizontal, Metrics.small)
-                            .padding(.vertical, 2)
-                            .background(Color.hoursPositive.opacity(0.12), in: Capsule())
                     }
                 }
-                Text(priceLine)
-                    .font(.hoursFigure(.subheadline))
-                    .foregroundStyle(.hoursSecondaryText)
+                .font(.subheadline)
                 if !product.description.isEmpty {
                     Text(product.description)
                         .font(.footnote)
@@ -272,17 +229,13 @@ private struct ProductRow: View {
                 }
             }
             Spacer(minLength: 0)
+            Image(systemName: "checkmark")
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.accentColor)
+                .opacity(isSelected ? 1 : 0)
+                .accessibilityHidden(true)
         }
-        .padding(Metrics.large)
-        .frame(maxWidth: .infinity, minHeight: 56)
-        .background {
-            RoundedRectangle(cornerRadius: Metrics.cornerRadius)
-                .fill(Color.hoursSurface)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: Metrics.cornerRadius)
-                .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-        }
+        .frame(minHeight: 44)
         .contentShape(Rectangle())
     }
 }

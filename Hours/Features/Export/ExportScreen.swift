@@ -4,7 +4,7 @@ import SwiftData
 import UIKit
 
 /// Choose what to export and which days, see what will be produced, then
-/// make the PDF or the Excel file (Export board, phones 1 and 2).
+/// make the PDF or the Excel file (design v2, More board phone 1).
 ///
 /// WHAT is My hours, a Crew sheet for one or more sites merged, or One
 /// person's own sheet. Opened from the calendar it starts on your hours;
@@ -15,7 +15,8 @@ import UIKit
 /// PDF and Excel each write the file and open it ready to send
 /// (`ExportReadySheet`), where Send… and Save to Files are, and after that
 /// the offer to close the month. A CSV is under This sheet › CSV file, with
-/// the columns, the language and the switches for this export.
+/// the columns, the language and the switches for this export: the
+/// slider button in the toolbar.
 struct ExportScreen: View {
     let initialRange: CalendarDateRange
     private let initialSiteID: UUID?
@@ -74,7 +75,8 @@ struct ExportScreen: View {
     /// Working days in the period with nothing written: your own
     /// (`MissingDays`) or the sites' (`SiteDayStatus`).
     @State private var missingDates: [CalendarDate] = []
-    @State private var showsMissing = false
+    /// What is pushed: This sheet, or the days not written.
+    @State private var path: [ExportRoute] = []
     @State private var failureMessage: String?
     @State private var paywallReason: ProFeature?
     @State private var showsFullPage = false
@@ -125,16 +127,34 @@ struct ExportScreen: View {
     }
 
     var body: some View {
-        NavigationStack {
-            form
+        NavigationStack(path: $path) {
+            list
                 .navigationTitle("Export")
                 // A screen the UI tests wait for. The title beside it is translated.
                 .accessibilityIdentifier(mode == .crewSheet ? "screen-site-export" : "screen-export")
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                            .accessibilityIdentifier("export-done")
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button { dismiss() } label: {
+                            Label("Done", systemImage: "xmark")
+                        }
+                        .labelStyle(.iconOnly)
+                        .accessibilityIdentifier("export-done")
+                    }
+                    ToolbarItem(placement: .primaryAction) {
+                        Button { path.append(.thisSheet) } label: {
+                            Label("Columns, language and more", systemImage: "slider.horizontal.3")
+                        }
+                        .labelStyle(.iconOnly)
+                        .accessibilityIdentifier("export-this-sheet")
+                    }
+                }
+                .navigationDestination(for: ExportRoute.self) { route in
+                    switch route {
+                    case .thisSheet:
+                        thisSheetScreen
+                    case .missingDays:
+                        ExportMissingDaysScreen(dates: missingDates)
                     }
                 }
                 .safeAreaInset(edge: .bottom) { bottomBar }
@@ -156,7 +176,6 @@ struct ExportScreen: View {
                     regenerate()
                 }
                 .onChange(of: regenerationKey) { _, _ in regenerate() }
-                .onChange(of: mode) { _, _ in showsMissing = false }
                 .alert("Your name on the sheet", isPresented: $asksForName) {
                     TextField("Name and surname", text: $typedName)
                         .textInputAutocapitalization(.words)
@@ -184,15 +203,17 @@ struct ExportScreen: View {
 
     // MARK: - Sections
 
-    private var form: some View {
-        Form {
+    /// Top to bottom as on the board: what, the period, the sites or the
+    /// person, the days not written, then the page itself on the background
+    /// with one line under it. PDF and Excel are pinned under the list.
+    private var list: some View {
+        List {
             if !pickableSites.isEmpty {
                 Section {
                     ExportTargetPicker(mode: $mode)
-                        .listRowInsets(EdgeInsets())
+                        .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: Metrics.small, trailing: 0))
                         .listRowBackground(Color.clear)
-                } header: {
-                    Text("What")
+                        .listRowSeparator(.hidden)
                 }
             }
             switch mode {
@@ -211,44 +232,27 @@ struct ExportScreen: View {
                 )
                 sitesFilterSection
             case .crewSheet:
-                sitesSection
                 monthSection(monthBinding)
+                ExportSitesSection(
+                    sites: chipSites,
+                    chosen: sheetSites.map(\.id),
+                    hours: monthSiteHours,
+                    otherSitesCount: otherSiteCandidates.count,
+                    onToggle: toggleSite,
+                    onOtherSites: { choosesOtherSites = true }
+                )
             case .onePerson:
-                personSection
                 monthSection(personMonthBinding)
+                personSection
             }
             missingSection
             previewSection
-            Section {
-                NavigationLink {
-                    thisSheetScreen
-                } label: {
-                    Label("Columns, language and more", systemImage: "slider.horizontal.3")
-                }
-                .accessibilityIdentifier("export-this-sheet")
-            } footer: {
-                proFooter
-            }
         }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
     }
 
-    /// WHICH SITES · TAP MORE THAN ONE TO MERGE.
-    private var sitesSection: some View {
-        Section {
-            ExportSiteChips(
-                sites: chipSites,
-                chosen: sheetSites.map(\.id),
-                hasOtherSites: !otherSiteCandidates.isEmpty,
-                onToggle: toggleSite,
-                onOtherSites: { choosesOtherSites = true }
-            )
-            .listRowInsets(EdgeInsets(top: Metrics.tiny, leading: 0, bottom: Metrics.tiny, trailing: 0))
-            .listRowBackground(Color.clear)
-        } header: {
-            Text("Which sites · tap more than one to merge")
-        }
-    }
-
+    /// ‹ October 2026 ›, centred on the background.
     private func monthSection(_ month: Binding<YearMonth>) -> some View {
         Section {
             PeriodStepper(
@@ -257,8 +261,9 @@ struct ExportScreen: View {
                 title: formatting.monthTitle(month.wrappedValue),
                 caption: ""
             )
-        } header: {
-            Text("Which month")
+            .listRowInsets(EdgeInsets(top: Metrics.tiny, leading: 0, bottom: Metrics.tiny, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
     }
 
@@ -277,8 +282,6 @@ struct ExportScreen: View {
                 }
                 .accessibilityIdentifier("export-person")
             }
-        } header: {
-            Text("Who")
         }
     }
 
@@ -303,77 +306,83 @@ struct ExportScreen: View {
         }
     }
 
-    /// "Nothing written on 2 days · Show": orange, the colour of "look at
-    /// this", and the days themselves under it once asked for.
+    /// "3 days not written": one orange row, the colour of "look at this",
+    /// that opens the days.
     @ViewBuilder
     private var missingSection: some View {
         if mode != .onePerson, !missingDates.isEmpty {
             Section {
                 Button {
-                    withAnimation(.snappy(duration: 0.2)) { showsMissing.toggle() }
+                    path.append(.missingDays)
                 } label: {
                     HStack(spacing: Metrics.small) {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .accessibilityHidden(true)
-                        Text(String(inflected: "Nothing written on ^[\(missingDates.count) day](inflect: true)"))
+                        Text(String(inflected: "^[\(missingDates.count) day](inflect: true) not written"))
+                            .foregroundStyle(Color.hoursAttention)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Text(showsMissing ? "Hide" : "Show")
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                            .accessibilityHidden(true)
                     }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hoursAttention)
                     .frame(minHeight: 44)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("export-missing-days")
-                if showsMissing {
-                    Text(verbatim: missingDates.map { formatting.mediumDate($0) }.joined(separator: " · "))
-                        .font(.footnote)
-                        .foregroundStyle(.hoursSecondaryText)
-                }
             }
-            .listRowBackground(Color.hoursAttentionFill.opacity(0.12))
         }
     }
 
+    /// The page on the background, no card, and one line under it.
     @ViewBuilder
     private var previewSection: some View {
         Section {
-            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                Text("Preview")
-                    .font(.subheadline.weight(.bold))
-                Spacer(minLength: Metrics.small)
-                Text(verbatim: summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.hoursSecondaryText)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityIdentifier("export-summary")
-            }
-            .accessibilityElement(children: .combine)
             if hasContent {
                 ExportPagePreview(image: pageImage, title: previewTitle) { showsFullPage = pdfData != nil }
-                    .listRowInsets(EdgeInsets(top: 0, leading: Metrics.small, bottom: Metrics.small, trailing: Metrics.small))
+                    .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                if !summary.isEmpty {
+                    Text(verbatim: summary)
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .accessibilityIdentifier("export-summary")
+                }
                 if let note = personNote {
                     Text(verbatim: note)
                         .font(.footnote)
                         .foregroundStyle(.hoursSecondaryText)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
             } else if tables == nil && personSheet == nil && mode != .onePerson {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 120)
+                    .listRowBackground(Color.clear)
             } else if mode == .myHours {
                 ContentUnavailableView(
                     "Nothing in this range",
                     systemImage: "tray",
                     description: Text("Pick a different range, or switch on “Include days with no entry” under Columns, language and more.")
                 )
+                .listRowBackground(Color.clear)
             } else {
                 ContentUnavailableView(
                     "Nothing recorded this month",
                     systemImage: "tray",
                     description: Text("Choose another month to see its days.")
                 )
+                .listRowBackground(Color.clear)
             }
+        } footer: {
+            proFooter
         }
     }
 
@@ -388,7 +397,8 @@ struct ExportScreen: View {
         }
     }
 
-    /// PDF and Excel, and what went wrong writing one, if anything did.
+    /// PDF and Excel side by side, and what went wrong writing one, if
+    /// anything did.
     private var bottomBar: some View {
         VStack(spacing: Metrics.small) {
             if let failureMessage {
@@ -404,8 +414,9 @@ struct ExportScreen: View {
             )
         }
         .padding(.horizontal, Metrics.large)
-        .padding(.vertical, Metrics.small)
-        .background(.bar)
+        .padding(.top, Metrics.small)
+        .padding(.bottom, Metrics.small)
+        .background(Color.hoursCanvas)
     }
 
     private var thisSheetScreen: some View {
@@ -917,5 +928,33 @@ struct ExportScreen: View {
             settingsStore.update { $0.export.ownerName = name }
         }
         nameAnswered = true
+    }
+}
+
+/// What the export screen pushes, by value.
+enum ExportRoute: Hashable {
+    case thisSheet
+    case missingDays
+}
+
+/// The working days of the period with nothing written, one row each.
+struct ExportMissingDaysScreen: View {
+    let dates: [CalendarDate]
+
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(dates, id: \.self) { date in
+                    Text(verbatim: settingsStore.dateFormatting.mediumDate(date))
+                        .monospacedDigit()
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Not written")
+        .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier("screen-export-missing-days")
     }
 }

@@ -2,11 +2,14 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// The settings index (1.2 redesign, board 15).
+/// The settings index, like the phone's own Settings (design v2, More board
+/// phone 3): a large title, the search field, and three inset groups of
+/// rows, each with a coloured square, the title, a short value in grey and
+/// a chevron.
 ///
-/// What you look after most is on the first screen — Your work, Sites &
-/// crews, Days & sheets — each row with what it is set to on the right, so
-/// checking a setting does not need a tap. Everything else (jobs, fields,
+/// What you look after most is on the first screen — your work, then sites,
+/// reminders, days off and sheets — with what it is set to on the right
+/// where that is short, so checking a setting does not need a tap. Everything else (jobs, fields,
 /// calendar, look, iCloud, privacy, help) is one row further, under More.
 /// The search field at the top still finds any setting by its name, what it
 /// is set to, or a word it is known by ("overtime", "km", "iCloud"), the
@@ -37,23 +40,28 @@ struct SettingsScreen: View {
                         searchResults
                     } else {
                         proSection
+                        // No headers: the groups say what they are, as the
+                        // phone's own Settings does.
                         ForEach(index.homeGroups) { group in
                             Section {
                                 ForEach(group.entries) { entry in
                                     SettingsEntryLink(entry: entry)
                                 }
-                            } header: {
-                                Text(verbatim: group.title)
                             }
                         }
                         Section {
                             NavigationLink {
                                 SettingsMoreScreen(figures: figures)
                             } label: {
-                                Text("More: jobs, fields, calendar, look, iCloud, privacy, help")
-                                    .foregroundStyle(.primary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .frame(minHeight: 44, alignment: .leading)
+                                SettingsIndexRow(entry: SettingsEntry(
+                                    id: "settings-more",
+                                    title: String(localized: "More"),
+                                    detail: nil,
+                                    keywords: "",
+                                    systemImage: "ellipsis",
+                                    tint: Color(uiColor: .systemGray),
+                                    kind: .action({})
+                                ))
                             }
                             .accessibilityIdentifier("settings-more")
                         }
@@ -305,17 +313,17 @@ struct SettingsIndex {
                     title: String(localized: "Working hours"),
                     detail: scheduleSummary,
                     keywords: String(localized: "schedule, week, contract, hours, start, end, break, weekdays", comment: "Settings search words for Working hours"),
-                    systemImage: "calendar.badge.clock",
+                    systemImage: "clock",
                     tint: .blue,
                     kind: .page(AnyView(ScheduleSettingsScreen()))
                 ),
                 SettingsEntry(
                     id: "settings-calculation",
-                    title: String(localized: "Overtime & balance"),
+                    title: String(localized: "Overtime"),
                     detail: calculationSummary,
                     keywords: String(localized: "overtime, balance, rounding, daylight saving, clock change, closed months, opening balance, carry over", comment: "Settings search words for Overtime & balance"),
-                    systemImage: "plusminus",
-                    tint: .orange,
+                    systemImage: "chart.line.uptrend.xyaxis",
+                    tint: .green,
                     kind: .page(AnyView(CalculationSettingsScreen()))
                 ),
                 SettingsEntry(
@@ -324,7 +332,7 @@ struct SettingsIndex {
                     detail: paySummary,
                     keywords: String(localized: "pay, rate, money, wage, surcharge, night, currency, earnings, allowance, travel, km", comment: "Settings search words for Pay"),
                     systemImage: "eurosign",
-                    tint: .green,
+                    tint: .orange,
                     kind: .page(AnyView(PaySettingsScreen(jobID: settings.primaryJob.id)))
                 ),
                 SettingsEntry(
@@ -340,39 +348,40 @@ struct SettingsIndex {
             SettingsGroup(id: "sites", title: String(localized: "Sites & crews"), entries: [
                 SettingsEntry(
                     id: "settings-new-sites",
-                    title: String(localized: "New sites start with"),
+                    title: String(localized: "Sites"),
                     detail: newSitesSummary,
                     keywords: String(localized: "site, crew, usual day, work days, new site, wizard, allowance, kilometres", comment: "Settings search words for New sites start with"),
                     systemImage: "building.2",
-                    tint: .brown,
-                    kind: .page(AnyView(NewSitesSettingsScreen()))
+                    tint: Color(uiColor: .systemGray),
+                    kind: .page(AnyView(NewSitesSettingsScreen())),
+                    showsDetail: false
                 ),
                 SettingsEntry(
                     id: "settings-reminders",
                     title: String(localized: "Reminders"),
                     detail: remindersSummary,
                     keywords: String(localized: "reminders, notifications, evening, 1st of the month, extra work, gaps", comment: "Settings search words for Reminders"),
-                    systemImage: "bell",
+                    systemImage: "bell.fill",
                     tint: .red,
-                    kind: .page(AnyView(ReminderSettingsScreen()))
+                    kind: .page(AnyView(ReminderSettingsScreen())),
+                    showsDetail: false
                 ),
-            ]),
-            SettingsGroup(id: "days", title: String(localized: "Days & sheets"), entries: [
                 SettingsEntry(
                     id: "settings-day-types-holidays",
-                    title: String(localized: "Day types & holidays"),
+                    title: String(localized: "Days off & holidays"),
                     detail: dayTypesSummary,
                     keywords: String(localized: "day types, sick, vacation, bad weather, public holidays, holidays, country", comment: "Settings search words for Day types & holidays"),
-                    systemImage: "tag",
+                    systemImage: "calendar",
                     tint: .purple,
-                    kind: .page(AnyView(DayTypesAndHolidaysScreen()))
+                    kind: .page(AnyView(DayTypesAndHolidaysScreen())),
+                    showsDetail: false
                 ),
                 SettingsEntry(
                     id: Self.exportRow,
                     title: String(localized: "Sheets"),
                     detail: settings.export.language.title,
                     keywords: String(localized: "export options, export, timesheet, PDF, Excel, CSV, columns, report language, name on sheet, date format", comment: "Settings search words for Sheets"),
-                    systemImage: "tablecells",
+                    systemImage: "doc.text",
                     tint: .blue,
                     kind: .page(AnyView(ExportSettingsScreen()))
                 ),
@@ -539,10 +548,8 @@ struct SettingsIndex {
         guard (1...7).contains(where: { schedule.isWorkingWeekday($0) }) else {
             return String(localized: "No working days")
         }
-        return String(
-            localized: "\(settings.displayFormatting.string(schedule.weeklyTargetMinutes)) a week",
-            comment: "Settings, Working hours; the value is the hours of a week, such as 42h 30m"
-        )
+        // "40h": the week's hours, short, as the board has it.
+        return settings.displayFormatting.string(schedule.weeklyTargetMinutes)
     }
 
     /// The running balance, "+12h 40m"; while it is not counted, that it
@@ -560,7 +567,7 @@ struct SettingsIndex {
         guard let rules = settings.primaryJob.pay?.value(on: today) else {
             return String(localized: "Not set")
         }
-        return settings.money.string(rules.hourlyRateCents) + "/h"
+        return settings.money.string(rules.hourlyRateCents) + " / h"
     }
 
     /// "8 days left", or the year's allowance before it is worked out.
@@ -637,6 +644,9 @@ struct SettingsEntry: Identifiable {
     let systemImage: String
     let tint: Color
     let kind: Kind
+    /// Whether the value is shown on the row; the search reads it either
+    /// way. Off where it would be long (the usual day of a new site).
+    var showsDetail = true
 
     enum Kind {
         case page(AnyView)
@@ -691,10 +701,10 @@ struct SettingsIndexRow: View {
     var body: some View {
         HStack(spacing: Metrics.medium) {
             Image(systemName: entry.systemImage)
-                .font(.subheadline.weight(.semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 30, height: 30)
-                .background(entry.tint, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(entry.tint, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 .accessibilityHidden(true)
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: 1) {
@@ -707,7 +717,7 @@ struct SettingsIndexRow: View {
                 value
             }
         }
-        .frame(minHeight: 44)
+        .frame(minHeight: 36)
     }
 
     private var title: some View {
@@ -717,9 +727,8 @@ struct SettingsIndexRow: View {
 
     @ViewBuilder
     private var value: some View {
-        if let detail = entry.detail, !detail.isEmpty {
+        if entry.showsDetail, let detail = entry.detail, !detail.isEmpty {
             Text(verbatim: detail)
-                .font(.subheadline)
                 .foregroundStyle(.hoursSecondaryText)
                 .monospacedDigit()
                 .lineLimit(1)

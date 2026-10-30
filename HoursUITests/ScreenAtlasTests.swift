@@ -243,6 +243,15 @@ final class ScreenAtlasTests: XCTestCase {
                 }
             }
         }
+        // The days not written (design v2): one orange row that opens them.
+        let missing = app.buttons.matching(identifier: "export-missing-days").firstMatch
+        if missing.exists, bringIntoView(missing, app) {
+            tapAnyway(missing)
+            if app.screen("screen-export-missing-days").waitForExistence(timeout: 5) {
+                capture("\(prefix)-missing-days", app)
+                back(app)
+            }
+        }
         if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
             pause(0.8)
             capture("\(prefix)-this-sheet", app)

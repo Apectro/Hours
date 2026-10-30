@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Settings › Leave (1.2 redesign, board 16): the year as it stands, then
-/// the vacation allowance and the leave year it belongs to.
+/// Settings › Leave: the year as it stands, then the vacation allowance and
+/// the leave year it belongs to. A plain form (design v2).
 ///
 /// For the primary job only. The figures it feeds — the Insights card and the
 /// line in the day editor — come from `LeaveCalculator`.
@@ -10,18 +10,16 @@ struct LeaveSettingsScreen: View {
 
     var body: some View {
         Form {
-            // The year as it stands: what is left, taken and booked.
-            Section {
-                LeaveBalanceCard(
-                    date: CalendarDate.today(in: calendar),
-                    settings: settingsStore.settings,
-                    calendar: calendar,
-                    alwaysShows: true,
-                    identifier: nil
-                )
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-            }
+            // The year as it stands: what is left, taken and booked, as a
+            // section of its own with the system's progress bar.
+            LeaveBalanceCard(
+                date: CalendarDate.today(in: calendar),
+                settings: settingsStore.settings,
+                calendar: calendar,
+                alwaysShows: true,
+                identifier: nil,
+                showsHeader: false
+            )
 
             Section {
                 DaysStepperRow(
@@ -112,7 +110,8 @@ struct DaysStepperRow: View {
                 Text(title)
                 Spacer(minLength: Metrics.small)
                 Text(text)
-                    .font(.hoursFigure(.body, weight: .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(.hoursSecondaryText)
             }
         }
         .accessibilityValue(text)
