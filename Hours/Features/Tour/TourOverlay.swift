@@ -149,9 +149,9 @@ struct TourOverlay: View {
         case .welcome: return String(localized: "Zeitkonto in a minute")
         case .today: return String(localized: "Today")
         case .summary: return String(localized: "Your month")
-        case .sites: return String(localized: "Sites")
+        case .sites: return String(localized: "Your sites")
         case .insights: return String(localized: "Insights")
-        case .export: return String(localized: "Sending your hours")
+        case .export: return String(localized: "Your sheets")
         }
     }
 
@@ -160,7 +160,7 @@ struct TourOverlay: View {
         case .welcome:
             return String(localized: "Write your hours each day, and Zeitkonto keeps your balance and makes the sheets for your boss.")
         case .today:
-            return String(localized: "Tap a day to see it below. Tap it again to write your hours.")
+            return String(localized: "Your own hours live on Today. Write today in one tap, or tap a day to change it.")
         case .summary:
             if settings.showsEarnings {
                 return String(localized: "Worked is what you did this month. Earned is what those hours have paid so far.")
@@ -171,14 +171,14 @@ struct TourOverlay: View {
             return String(localized: "Worked is what you did this month, with your average day beside it.")
         case .sites:
             if tour.leadsCrew {
-                return String(localized: "Your building sites. Tick your crew once for everyone, write extra work for your boss, keep the site diary.")
+                return String(localized: "Each site keeps its crew and its usual day. Open one to write the crew's day in one tap.")
             }
             return String(localized: "Sites are there if you ever lead a crew.")
         case .insights:
             return String(localized: "Your week, month or year in figures. Pick the period here.")
         case .export:
             return String(
-                localized: "Send your hours or a site sheet as PDF or Excel. Report language: \(reportLanguageName). Change it here.",
+                localized: "A site's Sheet sends the month as PDF or Excel. Here you choose how sheets look. Report language: \(reportLanguageName).",
                 comment: "Last stop of the guided tour; the value is a language's name, such as Croatian"
             )
         }
@@ -210,8 +210,10 @@ private struct TourCard: View {
                 localized: "\(tour.number) of \(tour.count)",
                 comment: "Guided tour progress, such as 2 of 6"
             ))
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(.secondary)
+            .font(.caption.weight(.bold))
+            .textCase(.uppercase)
+            .tracking(0.6)
+            .foregroundStyle(.hoursSecondaryText)
 
             // The identifier is on the title, not on the card: the card
             // holds the buttons, and an identifier on a container that wraps
@@ -224,7 +226,7 @@ private struct TourCard: View {
                 .accessibilityIdentifier("tour-card")
 
             Text(message)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: Metrics.medium) {

@@ -16,6 +16,8 @@ struct PaywallSheet: View {
 
     @State private var isWorking = false
     @State private var message: String?
+    /// The plan Continue buys; the yearly one until another is tapped.
+    @State private var selectedID: String?
 
     var body: some View {
         NavigationStack {
@@ -29,8 +31,23 @@ struct PaywallSheet: View {
                 }
                 .padding(Metrics.large)
             }
+            // The one thing to do here, always in reach.
+            .safeAreaInset(edge: .bottom) {
+                if let product = selectedProduct {
+                    Button {
+                        Task { await buy(product) }
+                    } label: {
+                        Text("Continue")
+                    }
+                    .buttonStyle(.bigAction(.primary, isMain: true))
+                    .disabled(isWorking)
+                    .accessibilityIdentifier("paywall-continue")
+                    .padding(.horizontal, Metrics.large)
+                    .padding(.vertical, Metrics.small)
+                    .background(.bar)
+                }
+            }
             .background(Color.hoursCanvas)
-            .navigationTitle("Zeitkonto Pro")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -40,6 +57,7 @@ struct PaywallSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Restore") { Task { await restore() } }
                         .disabled(isWorking)
+                        .accessibilityIdentifier("paywall-restore")
                 }
             }
             .task { await subscriptions.loadProducts() }
@@ -59,16 +77,25 @@ struct PaywallSheet: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: Metrics.small) {
-            Text(reason?.title ?? "Everything Zeitkonto can do")
-                .font(.title2.bold())
-            Text(reason?.explanation ?? "One purchase opens the parts of the app that turn a record of your hours into something you can hand to someone else.")
+            Text(verbatim: AppIdentity.proName)
+                .font(.largeTitle.bold())
+                .accessibilityAddTraits(.isHeader)
+            if let reason {
+                Text(reason.title)
+                    .font(.headline)
+                Text(reason.explanation)
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+            Text("Your own hours stay free, whatever you decide.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var features: some View {
+        SurfaceCard {
         VStack(alignment: .leading, spacing: Metrics.medium) {
             // Sync is only sold in a build that can sync (`SyncPreference`);
             // offering a feature the build lacks is grounds for rejection.
@@ -96,6 +123,7 @@ struct PaywallSheet: View {
                 }
             }
         }
+        }
     }
 
     @ViewBuilder
@@ -110,14 +138,16 @@ struct PaywallSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             VStack(spacing: Metrics.medium) {
-                ForEach(subscriptions.products, id: \.id) { product in
+                ForEach(orderedProducts, id: \.id) { product in
                     Button {
-                        Task { await buy(product) }
+                        selectedID = product.id
                     } label: {
-                        ProductRow(product: product)
+                        ProductRow(product: product, isSelected: product.id == selectedProduct?.id)
                     }
                     .buttonStyle(.plain)
                     .disabled(isWorking)
+                    .accessibilityAddTraits(product.id == selectedProduct?.id ? .isSelected : [])
+                    .accessibilityIdentifier("paywall-plan-\(product.id)")
                 }
             }
         }
@@ -156,6 +186,19 @@ struct PaywallSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    /// Yearly, monthly, then buying it outright.
+    private var orderedProducts: [Product] {
+        let order = [SubscriptionStore.ProductID.yearly, SubscriptionStore.ProductID.monthly, SubscriptionStore.ProductID.lifetime]
+        return subscriptions.products.sorted {
+            (order.firstIndex(of: $0.id) ?? order.count) < (order.firstIndex(of: $1.id) ?? order.count)
+        }
+    }
+
+    private var selectedProduct: Product? {
+        let products = orderedProducts
+        return products.first { $0.id == selectedID } ?? products.first
+    }
+
     // MARK: - Actions
 
     private func buy(_ product: Product) async {
@@ -186,11 +229,13 @@ struct PaywallSheet: View {
     }
 }
 
-/// One purchase option.
+/// One plan, as a card: its name, the real price, and "Best value" on
+/// the yearly one. Tapping picks it; Continue buys it.
 private struct ProductRow: View {
     let product: Product
+    let isSelected: Bool
 
-    private var isLifetime: Bool { product.id == SubscriptionStore.ProductID.lifetime }
+    private var isYearly: Bool { product.id == SubscriptionStore.ProductID.yearly }
 
     /// "£2.99 / month" — built from the product's own period so it is right in
     /// every storefront rather than only in ours.
@@ -201,28 +246,42 @@ private struct ProductRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: Metrics.medium) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .font(.title3)
+                .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(product.displayName).font(.headline)
+                HStack(spacing: Metrics.small) {
+                    Text(product.displayName).font(.headline)
+                    if isYearly {
+                        Text("Best value")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.hoursPositive)
+                            .padding(.horizontal, Metrics.small)
+                            .padding(.vertical, 2)
+                            .background(Color.hoursPositive.opacity(0.12), in: Capsule())
+                    }
+                }
+                Text(priceLine)
+                    .font(.hoursFigure(.subheadline))
+                    .foregroundStyle(.hoursSecondaryText)
                 if !product.description.isEmpty {
                     Text(product.description)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
             }
             Spacer(minLength: 0)
-            Text(priceLine)
-                .font(.hoursFigure(.subheadline))
-                .foregroundStyle(isLifetime ? Color.primary : Color.accentColor)
         }
         .padding(Metrics.large)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 56)
         .background {
             RoundedRectangle(cornerRadius: Metrics.cornerRadius)
                 .fill(Color.hoursSurface)
         }
         .overlay {
             RoundedRectangle(cornerRadius: Metrics.cornerRadius)
-                .strokeBorder(Color.accentColor.opacity(isLifetime ? 0 : 0.35), lineWidth: 1)
+                .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
         }
         .contentShape(Rectangle())
     }

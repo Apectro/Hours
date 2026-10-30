@@ -16,62 +16,42 @@ struct ReminderSettingsScreen: View {
         Form {
             Section {
                 Toggle("Remind me about gaps", isOn: enabledBinding)
-            } footer: {
-                Text(authorizationDenied
-                     ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                     : "A weekly note if a working day has no hours.")
-            }
-
-            if settings.reminders.isEnabled {
-                Section("When") {
+                if settings.reminders.isEnabled {
                     Picker("Day", selection: settingsStore.binding(\.reminders.weekday)) {
                         ForEach(1...7, id: \.self) { weekday in
                             Text(settingsStore.dateFormatting.weekdayName(for: weekday)).tag(weekday)
                         }
                     }
-                    DatePicker("Time", selection: timeBinding, displayedComponents: .hourAndMinute)
-                }
-
-                Section {
+                    DatePicker("At", selection: timeBinding, displayedComponents: .hourAndMinute)
                     Stepper(
                         String(
-                localized: "Look back \(settings.reminders.lookBackDays) days",
-                comment: "How far back the gap reminder checks for missing hours"
-            ),
+                            localized: "Look back \(settings.reminders.lookBackDays) days",
+                            comment: "How far back the gap reminder checks for missing hours"
+                        ),
                         value: settingsStore.binding(\.reminders.lookBackDays),
                         in: 1...90
                     )
-                } footer: {
-                    Text("Days you excluded and days off never count as missing.")
                 }
+            } header: {
+                Text("Your own hours")
+            } footer: {
+                Text(authorizationDenied
+                     ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
+                     : "A weekly note if a working day has no hours. Days off and days you excluded never count as missing.")
             }
 
             // Only for someone who has a site; the rest never need to know.
             if hasSites {
                 Section {
-                    Toggle("Site reminders", isOn: siteEnabledBinding)
+                    Toggle("Leaving: write today's hours", isOn: siteEnabledBinding)
                     if settings.reminders.siteRemindersEnabled {
-                        DatePicker("Time", selection: siteTimeBinding, displayedComponents: .hourAndMinute)
+                        DatePicker("At", selection: siteTimeBinding, displayedComponents: .hourAndMinute)
                     }
-                } footer: {
-                    Text(siteAuthorizationDenied
-                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "In the evening, a note that a site day you normally write is still missing. Writing the day removes it.")
-                }
-
-                Section {
-                    Toggle("Monthly site sheet", isOn: sheetEnabledBinding)
+                    Toggle("Monthly sheet on the 1st", isOn: sheetEnabledBinding)
                     if settings.reminders.monthlySheetEnabled {
-                        DatePicker("Time", selection: sheetTimeBinding, displayedComponents: .hourAndMinute)
+                        DatePicker("At", selection: sheetTimeBinding, displayedComponents: .hourAndMinute)
                     }
-                } footer: {
-                    Text(sheetAuthorizationDenied
-                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "On the 1st, a note for each site from last month that its site sheet is ready. Tap it to open the sheet.")
-                }
-
-                // Off by default: not everyone with a site writes extra work.
-                Section {
+                    // Off by default: not everyone with a site writes extra work.
                     Toggle("Extra work not sent", isOn: unsentEnabledBinding)
                     if settings.reminders.unsentWorkEnabled {
                         Picker("Day", selection: unsentWeekdayBinding) {
@@ -79,12 +59,14 @@ struct ReminderSettingsScreen: View {
                                 Text(settingsStore.dateFormatting.weekdayName(for: weekday)).tag(weekday)
                             }
                         }
-                        DatePicker("Time", selection: unsentTimeBinding, displayedComponents: .hourAndMinute)
+                        DatePicker("At", selection: unsentTimeBinding, displayedComponents: .hourAndMinute)
                     }
+                } header: {
+                    Text("Sites")
                 } footer: {
-                    Text(unsentAuthorizationDenied
+                    Text(siteAuthorizationDenied || sheetAuthorizationDenied || unsentAuthorizationDenied
                          ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.")
+                         : "In the evening, a note when a site day you normally write is still missing. On the 1st, a note that last month's site sheets are ready. Once a week, a note about finished extra work not sent to your boss. The arrival reminder is in each site's settings.")
                 }
             }
         }

@@ -22,6 +22,9 @@ enum StatisticsScope: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
+    /// The periods the picker offers.
+    static let shown: [StatisticsScope] = [.week, .month, .year]
+
     func range(around date: CalendarDate, in calendar: Calendar) -> CalendarDateRange {
         switch self {
         case .today: return CalendarDateRange(single: date)
@@ -49,7 +52,7 @@ struct StatisticsScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Metrics.large) {
-                    if let year = offeredReviewYear, !(scope == .year && year == anchor.year) {
+                    if let year = offeredReviewYear, year != anchor.year {
                         YearReviewInvitation(
                             year: year,
                             open: {
@@ -60,8 +63,10 @@ struct StatisticsScreen: View {
                         )
                     }
 
+                    // Week, Month, Year (1.2): today's figures are on the
+                    // Today tab.
                     Picker("Period", selection: $scope) {
-                        ForEach(StatisticsScope.allCases) { option in
+                        ForEach(StatisticsScope.shown) { option in
                             Text(option.title).tag(option)
                         }
                     }
@@ -70,22 +75,6 @@ struct StatisticsScreen: View {
                     .tourTarget(.insights)
 
                     periodStepper
-
-                    // The review is the year's best card, so it leads the
-                    // year rather than waiting under leave and balance. The
-                    // seasonal card above steps aside for the same year, so
-                    // it is never offered twice.
-                    if scope == .year {
-                        YearReviewInvitation(
-                            year: anchor.year,
-                            open: {
-                                if offeredReviewYear == anchor.year { dismissedReviewYear = anchor.year }
-                                review = ReviewedYear(year: anchor.year)
-                            },
-                            dismiss: nil,
-                            identifier: "insights-year-review"
-                        )
-                    }
 
                     PeriodDataProvider(range: fetchedRange) { data in
                         StatisticsContent(
@@ -101,17 +90,27 @@ struct StatisticsScreen: View {
                     if settingsStore.settings.features.showsBalance {
                         CumulativeBalanceCard(
                             through: range.end,
+                            trend: range,
                             settings: settingsStore.settings,
                             calendar: calendar
                         )
                     }
 
-                    if scope != .today {
-                        LeaveBalanceCard(
-                            date: min(range.end, CalendarDate.today(in: calendar)),
-                            settings: settingsStore.settings,
-                            calendar: calendar
-                        )
+                    LeaveBalanceCard(
+                        date: min(range.end, CalendarDate.today(in: calendar)),
+                        settings: settingsStore.settings,
+                        calendar: calendar
+                    )
+
+                    // "Your 2026": the year's review, a card at a time.
+                    InsightsOpenCard(
+                        title: String(localized: "Your \(String(anchor.year))", comment: "Opens the year in review; the value is a year"),
+                        detail: String(localized: "Your year in numbers, a card at a time"),
+                        systemImage: "sparkles",
+                        identifier: "insights-year-review"
+                    ) {
+                        if offeredReviewYear == anchor.year { dismissedReviewYear = anchor.year }
+                        review = ReviewedYear(year: anchor.year)
                     }
                 }
                 .padding(.horizontal, Metrics.large)
@@ -226,5 +225,45 @@ struct StatisticsScreen: View {
                 anchor = CalendarDate(year: anchor.year + direction, month: anchor.month, day: 1)
             }
         }
+    }
+}
+
+/// A card on Insights that opens something: "Check your payslip", "Your
+/// 2026". A title, a line under it, and Open.
+struct InsightsOpenCard: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+    let identifier: String
+    let open: () -> Void
+
+    var body: some View {
+        Button(action: open) {
+            SurfaceCard {
+                HStack(spacing: Metrics.medium) {
+                    Image(systemName: systemImage)
+                        .font(.title3)
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 28)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: title)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        Text(verbatim: detail)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: Metrics.small)
+                    Text("Open")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                }
+                .frame(minHeight: 44)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 }

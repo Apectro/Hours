@@ -72,7 +72,8 @@ final class TourTests: XCTestCase {
         app.tab(.settings).tap()
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 5))
 
-        // Under Help & tour.
+        // Under More › Help & tour.
+        XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
         let help = app.buttons["settings-help"]
         for _ in 0..<6 where !(help.exists && help.isHittable) { app.swipeUp() }
         XCTAssertTrue(hittable(help, timeout: 5), "Settings has no Help & tour")

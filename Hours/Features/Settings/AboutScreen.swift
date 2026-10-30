@@ -12,12 +12,14 @@ struct AboutScreen: View {
                         .font(.headline)
                     Text(headlineDetail)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
                 .padding(.vertical, Metrics.small)
+            } header: {
+                Text("What leaves the device")
             }
 
-            Section("What leaves the device") {
+            Section {
                 PrivacyPoint(
                     symbol: "square.and.arrow.up",
                     title: String(localized: "Only what you export"),
@@ -64,6 +66,22 @@ struct AboutScreen: View {
                         : String(localized: "Because nothing is synced, a backup file is the only copy that survives losing the device. Settings › iCloud & backup.")
                 )
             }
+
+            // Opens the website in Safari, only when tapped.
+            Section {
+                Link(destination: Self.policyURL) {
+                    HStack {
+                        Text("Full privacy policy")
+                        Spacer(minLength: Metrics.small)
+                        Image(systemName: "arrow.up.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                            .accessibilityHidden(true)
+                    }
+                    .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("privacy-policy")
+            }
         }
         .navigationTitle("Privacy")
         // A screen the UI tests wait for. The title beside it is translated.
@@ -72,6 +90,13 @@ struct AboutScreen: View {
     }
 
     private var isSyncing: Bool { HoursStack.isSyncing }
+
+    /// The policy on the website, in German on a German phone (the site
+    /// has an English and a German one).
+    static var policyURL: URL {
+        let german = Locale.current.language.languageCode?.identifier == "de"
+        return URL(string: german ? "https://zeitkonto.app/privacy/de/" : "https://zeitkonto.app/privacy/")!
+    }
 
     /// Written from what is actually true of this launch rather than from what
     /// the app intends in general. A privacy screen that says "nothing leaves

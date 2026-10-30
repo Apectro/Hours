@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// The body of the insights screen for one period.
 struct StatisticsContent: View {
@@ -59,13 +60,29 @@ struct StatisticsContent: View {
         VStack(spacing: Metrics.large) {
             headline
 
+            if summary.isEmpty && summary.expectedMinutes == 0 {
+                ContentUnavailableView(
+                    "Nothing recorded",
+                    systemImage: "calendar.badge.clock",
+                    description: Text("Hours you enter in the calendar appear here.")
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Metrics.large)
+            } else {
+                chartSection
+                SiteHoursCard(
+                    totals: SiteHours.totals(days, countingThrough: CalendarDate.today(in: calendar)),
+                    duration: duration
+                )
+            }
+
             if let earnings {
                 if !summary.isEmpty || earnings.totalCents > 0 {
                     EarningsCard(
                         earnings: earnings,
                         money: settings.money,
                         formatting: formatting,
-                        showsMonths: scope == .year,
+                        showsMonths: false,
                         allowance: allowance
                     )
                 }
@@ -80,61 +97,92 @@ struct StatisticsContent: View {
                 EarningsHint(jobID: settings.primaryJob.id)
             }
 
-            if summary.isEmpty && summary.expectedMinutes == 0 {
-                ContentUnavailableView(
-                    "Nothing recorded",
-                    systemImage: "calendar.badge.clock",
-                    description: Text("Hours you enter in the calendar appear here.")
-                )
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Metrics.large)
-            } else {
+            if !(summary.isEmpty && summary.expectedMinutes == 0) {
+                if scope == .year {
+                    monthByMonth
+                }
                 breakdown
+                jobBreakdown
+                dayTypeBreakdown
                 if scope == .month {
                     payslipCheck
                 }
-                jobBreakdown
-                chartSection
-                dayTypeBreakdown
             }
         }
     }
 
     // MARK: - Headline
 
+    /// Four tiles, two by two: Worked, Overtime, Days worked, Sick / leave;
+    /// and under them how far through the expected hours the period is.
     private var headline: some View {
         SurfaceCard {
             VStack(alignment: .leading, spacing: Metrics.large) {
-                // Three columns at accessibility sizes broke "Expected" mid-word;
-                // there the tiles stack, without the dividers between them.
-                let stacks = dynamicTypeSize.isAccessibilitySize
-                let layout = stacks
-                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: Metrics.medium))
-                    : AnyLayout(HStackLayout(alignment: .top, spacing: Metrics.small))
-                layout {
+                let columns = dynamicTypeSize.isAccessibilitySize
+                    ? [GridItem(.flexible())]
+                    : [GridItem(.flexible(), alignment: .topLeading), GridItem(.flexible(), alignment: .topLeading)]
+                LazyVGrid(columns: columns, alignment: .leading, spacing: Metrics.large) {
                     StatTile(label: String(localized: "Worked"), value: duration.string(summary.workedMinutes))
-                    if settings.features.trackExpectedHours {
-                        if !stacks { Divider() }
-                        StatTile(label: String(localized: "Expected"), value: duration.string(summary.expectedMinutes))
-                    }
                     if settings.features.showsBalance {
-                        if !stacks { Divider() }
                         StatTile(
-                            label: String(localized: "Balance"),
+                            label: String(localized: "Overtime"),
                             value: duration.signedString(summary.balanceMinutes),
                             tint: Color.hoursBalance(summary.balanceMinutes)
                         )
+                    } else if settings.features.trackExpectedHours {
+                        StatTile(label: String(localized: "Expected"), value: duration.string(summary.expectedMinutes))
                     }
+                    StatTile(label: String(localized: "Days worked"), value: "\(summary.daysWorked)")
+                    StatTile(
+                        label: String(localized: "Sick / leave"),
+                        value: "\(summary.count(of: .sick)) / \(summary.count(of: .vacation))"
+                    )
                 }
-                // The dividers grow with the tiles rather than a fixed 34pt,
-                // which looked broken at the large text sizes.
-                .fixedSize(horizontal: false, vertical: true)
 
                 if settings.features.trackExpectedHours && summary.expectedMinutes > 0 {
                     ProgressBar(fraction: paidFraction, label: paidFractionLabel)
                 }
             }
         }
+    }
+
+    // MARK: - Month by month
+
+    /// "October  168h · +4h 10m · 1.596 €": hours, balance, and earnings
+    /// when pay is set, for each month of the year so far.
+    private var monthByMonth: some View {
+        let points = monthlyPoints
+        let money = Dictionary(uniqueKeysWithValues: (earnings?.months ?? []).map { ($0.month, $0.totalCents) })
+        return SurfaceCard {
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                Text("Month by month")
+                    .font(.headline)
+                MonthlyBalanceChart(
+                    points: points,
+                    formatting: formatting,
+                    showsCumulative: settings.features.showsBalance
+                )
+                ForEach(points.reversed()) { point in
+                    HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                        Text(formatting.monthName(point.month))
+                            .font(.subheadline)
+                        Spacer(minLength: Metrics.small)
+                        Text(verbatim: monthLine(point, cents: money[point.month]))
+                            .font(.hoursFigure(.subheadline, weight: .medium))
+                            .multilineTextAlignment(.trailing)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+        }
+        .accessibilityIdentifier("insights-month-by-month")
+    }
+
+    private func monthLine(_ point: MonthlyBalancePoint, cents: Int?) -> String {
+        var parts = [duration.string(point.workedMinutes)]
+        if settings.features.showsBalance { parts.append(duration.signedString(point.balanceMinutes)) }
+        if let cents, settings.showsEarnings { parts.append(settings.money.string(cents, showsCents: false)) }
+        return parts.joined(separator: " · ")
     }
 
     /// How far through the expected hours this period is, counting paid
@@ -199,7 +247,7 @@ struct StatisticsContent: View {
                     MetricRow(
                         label: String(localized: "Short"),
                         value: duration.string(summary.deficitMinutes),
-                        tint: summary.deficitMinutes > 0 ? .hoursNegative : .primary,
+                        tint: summary.deficitMinutes > 0 ? .hoursMissing : .primary,
                         systemImage: "arrow.down.right"
                     )
                 }
@@ -239,6 +287,7 @@ struct StatisticsContent: View {
         let figures = payslipFigures
         return PayslipCheckRow(
             comparison: stored.map { PayslipComparison(entry: $0, figures: figures) },
+            monthName: formatting.monthName(month),
             open: { checksPayslip = true }
         )
         .sheet(isPresented: $checksPayslip) {
@@ -256,30 +305,23 @@ struct StatisticsContent: View {
     @ViewBuilder
     private var chartSection: some View {
         switch scope {
-        case .today:
+        case .today, .year:
             EmptyView()
         case .week, .month:
             SurfaceCard {
                 VStack(alignment: .leading, spacing: Metrics.medium) {
                     Text("Hours per day")
-                        .font(.subheadline.weight(.semibold))
+                        .font(.headline)
                     DailyHoursChart(
                         days: days,
                         calendar: calendar,
                         referenceHours: referenceHours
                     )
-                }
-            }
-        case .year:
-            SurfaceCard {
-                VStack(alignment: .leading, spacing: Metrics.medium) {
-                    Text("Month by month")
-                        .font(.subheadline.weight(.semibold))
-                    MonthlyBalanceChart(
-                        points: monthlyPoints,
-                        formatting: formatting,
-                        showsCumulative: settings.features.showsBalance
-                    )
+                    if referenceHours != nil {
+                        Text("Dashed line = your normal day")
+                            .font(.caption)
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
                 }
             }
         }
@@ -421,5 +463,37 @@ struct ProgressBar: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
+    }
+}
+
+/// Insights › By site: your hours on each site in the period, from the
+/// shifts the site days wrote. Nothing while no site was worked.
+private struct SiteHoursCard: View {
+    let totals: [SiteHours.Total]
+    let duration: DurationFormatting
+
+    @Query private var sites: [SiteEntry]
+
+    var body: some View {
+        if !totals.isEmpty {
+            let names = Dictionary(sites.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
+            SurfaceCard {
+                VStack(alignment: .leading, spacing: Metrics.medium) {
+                    Text("By site")
+                        .font(.headline)
+                    ForEach(totals, id: \.siteID) { total in
+                        HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                            Text(verbatim: names[total.siteID] ?? String(localized: "A deleted site"))
+                                .font(.subheadline)
+                            Spacer(minLength: Metrics.small)
+                            Text(duration.string(total.workedMinutes))
+                                .font(.hoursFigure(.subheadline, weight: .medium))
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+            }
+            .accessibilityIdentifier("insights-by-site")
+        }
     }
 }

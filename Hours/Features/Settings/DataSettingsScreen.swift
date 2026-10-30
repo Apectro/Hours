@@ -2,7 +2,9 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
-/// Backup, restore and deletion.
+/// Settings › iCloud & backup › Backup and data (1.2 redesign, board 19):
+/// what is stored, a backup file to share, restoring one, and deleting
+/// everything.
 struct DataSettingsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
@@ -17,6 +19,7 @@ struct DataSettingsScreen: View {
         List {
             Section {
                 LabeledContent("Days recorded", value: "\(dayCount)")
+                LabeledContent("Sites", value: "\(siteCount)")
                 LabeledContent("Holidays", value: "\(holidayCount)")
                 if let bounds = repository.recordedDateBounds() {
                     LabeledContent(
@@ -29,21 +32,12 @@ struct DataSettingsScreen: View {
             }
 
             Section {
-                if let backupURL {
-                    ShareLink(item: backupURL) {
-                        Label("Share backup", systemImage: "square.and.arrow.up")
-                    }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: Metrics.medium) { backupButtons }
+                    VStack(spacing: Metrics.medium) { backupButtons }
                 }
-                Button {
-                    createBackup()
-                } label: {
-                    Label(backupURL == nil ? "Create a backup" : "Create a fresh backup", systemImage: "externaldrive.badge.plus")
-                }
-                Button {
-                    isImporting = true
-                } label: {
-                    Label("Restore from a backup", systemImage: "arrow.down.doc")
-                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
             } header: {
                 Text("Backup")
             } footer: {
@@ -51,23 +45,35 @@ struct DataSettingsScreen: View {
             }
 
             Section {
-                Button("Delete all data", role: .destructive) {
-                    isConfirmingDelete = true
+                VStack(alignment: .leading, spacing: Metrics.small) {
+                    Text("Delete everything")
+                        .font(.headline)
+                        .foregroundStyle(Color.hoursMissing)
+                    Text("This cannot be undone. Make a backup first if you are not sure.")
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                    Text(
+                        HoursStack.isSyncing
+                            ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
+                            : "Removes every recorded day, holiday and site from this device. Settings are kept."
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(.hoursSecondaryText)
+                    Button("Delete all data", role: .destructive) {
+                        isConfirmingDelete = true
+                    }
+                    .buttonStyle(.bigAction(.destructive))
+                    .padding(.top, Metrics.small)
+                    .accessibilityIdentifier("data-delete-all")
                 }
-            } footer: {
-                // With sync on, a deletion is mirrored like any other change.
-                Text(
-                    HoursStack.isSyncing
-                        ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
-                        : "Removes every recorded day, holiday and site from this device. Settings are kept."
-                )
+                .padding(.vertical, Metrics.small)
             }
 
             if let message {
                 Section {
                     Text(message)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
             }
         }
@@ -115,6 +121,26 @@ struct DataSettingsScreen: View {
 
     private var repository: WorkdayRepository { WorkdayRepository(context: modelContext) }
     private var dayCount: Int { repository.allEntries().count }
+    private var siteCount: Int { SiteRepository(context: modelContext).sites(includeArchived: true).count }
+
+    /// Share a backup file, and Restore from one.
+    @ViewBuilder
+    private var backupButtons: some View {
+        Button {
+            shareBackup()
+        } label: {
+            Label("Share a backup file", systemImage: "square.and.arrow.up")
+        }
+        .buttonStyle(.bigAction(.secondary))
+        .accessibilityIdentifier("data-share-backup")
+        Button {
+            isImporting = true
+        } label: {
+            Label("Restore from a backup", systemImage: "arrow.down.doc")
+        }
+        .buttonStyle(.bigAction(.secondary))
+        .accessibilityIdentifier("data-restore")
+    }
     private var holidayCount: Int { repository.holidayRecords().count }
 
     private var restoreConfirmationBinding: Binding<Bool> {
@@ -126,7 +152,14 @@ struct DataSettingsScreen: View {
 
     // MARK: - Actions
 
-    private func createBackup() {
+    /// A fresh backup, straight into the share sheet.
+    private func shareBackup() {
+        guard let url = createBackup() else { return }
+        ShareSheetPresenter.present(url) { _ in }
+    }
+
+    @discardableResult
+    private func createBackup() -> URL? {
         let archive = BackupRestorer(context: modelContext).makeArchive(settings: settingsStore.settings)
         do {
             let data = try archive.encoded()
@@ -137,8 +170,10 @@ struct DataSettingsScreen: View {
             try data.write(to: url, options: .atomic)
             backupURL = url
             message = String(inflected: "Backup ready: ^[\(archive.days.count) day](inflect: true).")
+            return url
         } catch {
             message = "The backup could not be created. \(error.localizedDescription)"
+            return nil
         }
     }
 
