@@ -3,10 +3,11 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// One person's month, pushed from the crew list (1.2, mockup Crew): three
-/// figures — their hours, the days they worked, their sick days — a line a
-/// day across every site ("Trg Pravde → Jarunski" for a day split between
-/// two), and at the bottom "Share Ivan's sheet" and "Sign the month".
+/// One person's month, pushed from the crew list (design v2, mockup More
+/// phone 4): the month as the inline title with ‹ ›, their name large, three
+/// figures — hours, days, sick — a row a day across every site ("then
+/// Jarunski from 12:40" in blue for a day split between two), and at the
+/// bottom "Share Ivan's sheet" and "Sign the month".
 ///
 /// The sheet shared is the same PDF as "One sheet per person" in the site
 /// export (`CrewMemberSheetBuilder`), for one person; its page is shown at
@@ -40,25 +41,21 @@ struct CrewMemberSheetScreen: View {
     @State private var signing: Site?
 
     var body: some View {
-        Form {
+        List {
             Section {
-                PeriodStepper(
-                    month: monthBinding,
-                    latest: currentMonth,
-                    title: settingsStore.dateFormatting.monthTitle(month),
-                    caption: ""
-                )
-            }
-
-            Section {
-                tiles
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                VStack(alignment: .leading, spacing: Metrics.medium) {
+                    Text(verbatim: member.name)
+                        .font(.largeTitle.bold())
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityAddTraits(.isHeader)
+                    figures
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
             }
 
             Section {
                 if let summary, !summary.days.isEmpty {
-                    dayHeader
                     ForEach(summary.days) { day in
                         dayRow(day)
                     }
@@ -89,8 +86,28 @@ struct CrewMemberSheetScreen: View {
                 }
             }
         }
-        .navigationTitle(Text(verbatim: member.name))
+        .listStyle(.insetGrouped)
+        .navigationTitle(Text(verbatim: settingsStore.dateFormatting.monthTitle(month)))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    chosenMonth = month.adding(months: -1)
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .accessibilityLabel(String(localized: "Previous month"))
+                .accessibilityIdentifier("crew-sheet-month-previous")
+                Button {
+                    chosenMonth = month.adding(months: 1)
+                } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .disabled(month >= currentMonth)
+                .accessibilityLabel(String(localized: "Next month"))
+                .accessibilityIdentifier("crew-sheet-month-next")
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             bottomButtons
         }
@@ -107,75 +124,82 @@ struct CrewMemberSheetScreen: View {
 
     // MARK: - Parts
 
-    private var tiles: some View {
+    /// Hours, days and sick days, big, with a word under each.
+    private var figures: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(spacing: Metrics.small))
-            : AnyLayout(HStackLayout(spacing: Metrics.small))
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Metrics.small))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: Metrics.extraLarge))
         return layout {
-            tile(
-                settingsStore.dateFormatting.monthName(month),
-                value: settings.displayFormatting.string(summary?.totalMinutes ?? 0)
-            )
-            tile(String(localized: "Days"), value: String(summary?.daysWorked ?? 0))
-            tile(
-                String(localized: "Sick"),
-                value: String(summary?.sickDays ?? 0),
-                colour: (summary?.sickDays ?? 0) > 0 ? .hoursAttention : .primary
-            )
+            figure(settings.displayFormatting.string(summary?.totalMinutes ?? 0), word: String(localized: "Hours"))
+            figure(String(summary?.daysWorked ?? 0), word: String(localized: "Days"))
+            figure(String(summary?.sickDays ?? 0), word: String(localized: "Sick"))
         }
     }
 
-    private func tile(_ title: String, value: String, colour: Color = .primary) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(verbatim: title)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.hoursSecondaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+    private func figure(_ value: String, word: String) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text(verbatim: value)
-                .font(.hoursFigure(.title2, weight: .heavy))
-                .foregroundStyle(colour)
+                .font(.title2.bold())
+                .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
+            Text(verbatim: word)
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
         }
-        .padding(.horizontal, Metrics.medium + 2)
-        .padding(.vertical, Metrics.medium)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 
-    private var dayHeader: some View {
-        HStack(spacing: Metrics.small) {
-            Text("Date").frame(minWidth: 56, alignment: .leading)
-            Text("Site").frame(maxWidth: .infinity, alignment: .leading)
-            Text("Hours")
-        }
-        .font(.footnote.weight(.bold))
-        .foregroundStyle(.hoursSecondaryText)
-        .accessibilityHidden(true)
-    }
-
+    /// "Thu 29 · Trg Pravde · 8h 30m", a split day with "then Jarunski from
+    /// 12:40" in blue under the site, a day away with its reason in the
+    /// day type's colour.
     private func dayRow(_ day: CrewMemberMonth.Day) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-            Text(verbatim: settingsStore.dateFormatting.shortDate(day.date))
+        HStack(alignment: .firstTextBaseline, spacing: Metrics.medium) {
+            Text(verbatim: shortDay(day.date))
                 .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
                 .frame(minWidth: 56, alignment: .leading)
-            Group {
+            VStack(alignment: .leading, spacing: 2) {
                 if let reason = day.reason {
                     Text(verbatim: reasonText(reason))
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color.hoursAttention)
+                        .foregroundStyle(reasonColor(reason))
                 } else {
-                    Text(verbatim: day.siteIDs.map { siteNames[$0] ?? "—" }.joined(separator: " → "))
+                    Text(verbatim: day.siteIDs.first.flatMap { siteNames[$0] } ?? "—")
+                    ForEach(Array(day.siteIDs.dropFirst().enumerated()), id: \.offset) { offset, siteID in
+                        Text(verbatim: thenText(siteID: siteID, start: day.starts.indices.contains(offset + 1) ? day.starts[offset + 1] : nil, on: day.date))
+                            .font(.subheadline)
+                            .foregroundStyle(Color.accentColor)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text(verbatim: day.reason == nil ? settings.displayFormatting.string(day.minutes) : "")
-                .font(.hoursFigure(.body, weight: .regular))
+            Text(verbatim: day.reason == nil ? settings.displayFormatting.string(day.minutes) : "—")
+                .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
         }
-        .font(.subheadline)
         .accessibilityElement(children: .combine)
+    }
+
+    /// "Thu 29".
+    private func shortDay(_ date: CalendarDate) -> String {
+        "\(settingsStore.dateFormatting.weekdayAbbreviation(date)) \(date.day)"
+    }
+
+    /// "then Jarunski from 12:40", or "then Jarunski" without a time.
+    private func thenText(siteID: UUID, start: TimeOfDay?, on date: CalendarDate) -> String {
+        let name = siteNames[siteID] ?? "—"
+        guard let start else {
+            return String(localized: "then \(name)", comment: "A person's month: the second site of a split day; the value is its name")
+        }
+        let time = settingsStore.dateFormatting.time(start, on: date)
+        return String(localized: "then \(name) from \(time)", comment: "A person's month: the second site of a split day; the values are its name and the time they started there")
+    }
+
+    private func reasonColor(_ reason: AbsenceReason) -> Color {
+        switch reason {
+        case let .dayType(id): return settings.dayTypeCatalog.definition(for: id).tint.color
+        case .otherSite: return .secondary
+        }
     }
 
     private func reasonText(_ reason: AbsenceReason) -> String {
@@ -187,15 +211,23 @@ struct CrewMemberSheetScreen: View {
         }
     }
 
+    /// Share and Sign, side by side; one above the other at the largest
+    /// text sizes.
     private var bottomButtons: some View {
-        VStack(spacing: Metrics.small) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: Metrics.small))
+            : AnyLayout(HStackLayout(spacing: Metrics.small))
+        return layout {
             Button(action: share) {
                 Text(String(
                     localized: "Share \(member.name)'s sheet",
                     comment: "A crew member's month: share their own sheet; the value is their name"
                 ))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             }
             .buttonStyle(.bigAction(.primary))
+            .layoutPriority(1)
             .disabled(!canShare)
             .accessibilityIdentifier("crew-sheet-share")
 
@@ -203,6 +235,8 @@ struct CrewMemberSheetScreen: View {
                 signing = site
             } label: {
                 Text("Sign the month")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             .buttonStyle(.bigAction(.secondary))
             .disabled(site == nil)
@@ -219,10 +253,6 @@ struct CrewMemberSheetScreen: View {
     private var calendar: Calendar { settingsStore.workCalendar }
     private var currentMonth: YearMonth { CalendarDate.today(in: calendar).yearMonth }
     private var month: YearMonth { chosenMonth ?? currentMonth }
-
-    private var monthBinding: Binding<YearMonth> {
-        Binding(get: { month }, set: { chosenMonth = $0 })
-    }
 
     private var shareState: ExportShareState {
         guard let sheet else { return .preparing }

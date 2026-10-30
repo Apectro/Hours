@@ -156,8 +156,6 @@ struct SiteDiarySheet: View {
         return VStack(alignment: .leading, spacing: Metrics.tiny) {
             Text(verbatim: label)
                 .font(.caption.weight(.bold))
-                .textCase(.uppercase)
-                .tracking(0.4)
                 .foregroundStyle(.hoursSecondaryText)
                 .accessibilityHidden(true)
             TextField(label, text: text, axis: .vertical)
