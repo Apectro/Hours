@@ -170,7 +170,6 @@ private struct SitesContent: View {
     @State private var loaded = LoadedSites()
     @State private var isCreating = false
     @State private var paywallReason: ProFeature?
-    @State private var exportingMonth: MonthSheet?
 
     /// How many months back the list offers a sheet for, this one included.
     private static let sheetMonths = 3
@@ -213,7 +212,7 @@ private struct SitesContent: View {
                 }
 
                 if !loaded.monthSheets.isEmpty {
-                    sheetsGroup
+                    MonthSheetsGroup(sheets: loaded.monthSheets)
                 }
 
                 if !archivedSites.isEmpty {
@@ -257,13 +256,6 @@ private struct SitesContent: View {
         .navigationDestination(for: ArchivedSitesRoute.self) { _ in
             ArchivedSitesScreen(sites: archivedSites)
         }
-        .sheet(item: $exportingMonth) { sheet in
-            ExportScreen(
-                initialRange: sheet.month.range(in: settingsStore.workCalendar),
-                month: sheet.month,
-                crewSheet: true
-            )
-        }
         .fullScreenCover(isPresented: $isCreating) {
             NewSiteWizard()
         }
@@ -287,77 +279,6 @@ private struct SitesContent: View {
         }
         .tourTarget(.sites)
         .padding(.top, Metrics.extraLarge)
-    }
-
-    /// SHEETS: one row a month with every site worked on it, so the month's
-    /// sheet goes out from here rather than from each site in turn.
-    private var sheetsGroup: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text("Sheets")
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-                .foregroundStyle(.hoursSecondaryText)
-                .padding(.horizontal, Metrics.large)
-                .accessibilityAddTraits(.isHeader)
-
-            VStack(spacing: 0) {
-                ForEach(loaded.monthSheets) { sheet in
-                    if sheet.id != loaded.monthSheets.first?.id {
-                        Divider()
-                            .padding(.leading, Metrics.large)
-                    }
-                    monthSheetRow(sheet)
-                }
-            }
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-
-            Text("One sheet for the month with every site worked on it.")
-                .font(.footnote)
-                .foregroundStyle(.hoursSecondaryText)
-                .padding(.horizontal, Metrics.large)
-        }
-        .padding(.top, Metrics.small)
-    }
-
-    /// "October 2026" over "Trg Pravde + Jarunski · 382h".
-    private func monthSheetRow(_ sheet: MonthSheet) -> some View {
-        Button {
-            exportingMonth = sheet
-        } label: {
-            HStack(spacing: Metrics.medium) {
-                Image(systemName: "doc.text")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 28)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(settingsStore.dateFormatting.monthTitle(sheet.month))
-                        .foregroundStyle(.primary)
-                    Text(verbatim: monthSheetDetail(sheet))
-                        .font(.subheadline)
-                        .monospacedDigit()
-                        .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: Metrics.small)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, Metrics.large)
-            .padding(.vertical, Metrics.small + 2)
-            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("sites-month-sheet")
-    }
-
-    private func monthSheetDetail(_ sheet: MonthSheet) -> String {
-        let hours = settingsStore.settings.displayFormatting.string(sheet.minutes)
-        return sheet.siteNames.joined(separator: " + ") + " · " + hours
     }
 
     /// "Archived sites 4 ›": one row, to a list of their own.
@@ -524,6 +445,92 @@ private struct LoadedSites {
     var canCopyLastDay: Set<UUID> = []
     /// The months offered a sheet, newest first.
     var monthSheets: [MonthSheet] = []
+}
+
+/// SHEETS under the site cards: one row a month with every site worked on
+/// it, so the month's sheet goes out from here rather than from each site
+/// in turn. The export is presented from here, not from the list's root.
+private struct MonthSheetsGroup: View {
+    let sheets: [MonthSheet]
+
+    @Environment(SettingsStore.self) private var settingsStore
+    @State private var exporting: MonthSheet?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Text("Sheets")
+                .font(.footnote.weight(.semibold))
+                .textCase(.uppercase)
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.large)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                ForEach(sheets) { sheet in
+                    if sheet.id != sheets.first?.id {
+                        Divider()
+                            .padding(.leading, Metrics.large)
+                    }
+                    monthSheetRow(sheet)
+                }
+            }
+            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+
+            Text("One sheet for the month with every site worked on it.")
+                .font(.footnote)
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.large)
+        }
+        .padding(.top, Metrics.small)
+        .sheet(item: $exporting) { sheet in
+            ExportScreen(
+                initialRange: sheet.month.range(in: settingsStore.workCalendar),
+                month: sheet.month,
+                crewSheet: true
+            )
+        }
+    }
+
+    /// "October 2026" over "Trg Pravde + Jarunski · 382h".
+    private func monthSheetRow(_ sheet: MonthSheet) -> some View {
+        Button {
+            exporting = sheet
+        } label: {
+            HStack(spacing: Metrics.medium) {
+                Image(systemName: "doc.text")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 28)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(settingsStore.dateFormatting.monthTitle(sheet.month))
+                        .foregroundStyle(.primary)
+                    Text(verbatim: monthSheetDetail(sheet))
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: Metrics.small)
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, Metrics.large)
+            .padding(.vertical, Metrics.small + 2)
+            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("sites-month-sheet")
+    }
+
+    private func monthSheetDetail(_ sheet: MonthSheet) -> String {
+        let hours = settingsStore.settings.displayFormatting.string(sheet.minutes)
+        return sheet.siteNames.joined(separator: " + ") + " · " + hours
+    }
 }
 
 /// A month's sheet of every site worked on it, as the Sites list offers it.
