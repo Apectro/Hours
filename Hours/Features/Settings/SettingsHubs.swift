@@ -6,8 +6,9 @@ import SwiftData
 /// holidays and your own days off.
 struct DayTypesAndHolidaysScreen: View {
     var body: some View {
+        // The screen's identifier is set inside, on the list: here it would
+        // wrap the editor sheet too and replace its buttons' identifiers.
         DayTypeSettingsScreen(showsHolidays: true)
-            .accessibilityIdentifier("screen-day-types-holidays")
     }
 }
 

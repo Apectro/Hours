@@ -191,10 +191,10 @@ struct SettingsMoreScreen: View {
                 }
             }
         }
+        .accessibilityIdentifier("screen-settings-more")
         .feedbackAddressAlert(isPresented: $isShowingFeedbackAddress)
         .navigationTitle("More")
         .navigationBarTitleDisplayMode(.inline)
-        .accessibilityIdentifier("screen-settings-more")
     }
 
     private var index: SettingsIndex {

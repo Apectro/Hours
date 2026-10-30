@@ -64,6 +64,8 @@ struct DayTypeSettingsScreen: View {
                 HolidayRowsSection()
             }
         }
+        // Before the sheet and the alert, so it does not reach into them.
+        .accessibilityIdentifier(showsHolidays ? "screen-day-types-holidays" : "screen-day-types")
         .navigationTitle(showsHolidays ? "Day types & holidays" : "Day types")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $draft) { draft in
