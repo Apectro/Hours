@@ -781,6 +781,7 @@ private struct WeekDayList: View {
                         }
                     }
                     .padding(.vertical, Metrics.small)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
