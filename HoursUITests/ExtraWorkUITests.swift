@@ -131,7 +131,9 @@ private extension XCUIApplication {
     func openSiteExtraWorkReport() {
         XCTAssertTrue(screen("screen-site").waitForExistence(timeout: 5), "back should lead to the site's page")
         let report = buttons["site-extra-work-report"].firstMatch
-        for _ in 0..<5 where !(report.exists && report.isHittable) { swipeUp() }
+        // The last row: scrolled to the end it sits above Write today / Sheet,
+        // which otherwise float over it and take the tap.
+        for _ in 0..<3 { swipeUp() }
         report.tap()
     }
 }

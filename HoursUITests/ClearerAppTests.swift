@@ -120,7 +120,9 @@ final class ClearerAppTests: XCTestCase {
 
         // Extra work, the report: a row further down the site's page.
         let extraWork = app.buttons["site-extra-work-report"].firstMatch
-        for _ in 0..<4 where !(extraWork.exists && extraWork.isHittable) { app.swipeUp() }
+        // The last row: scrolled to the end it sits above Write today / Sheet,
+        // which otherwise float over it and take the tap.
+        for _ in 0..<3 { app.swipeUp() }
         extraWork.tap()
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
