@@ -44,7 +44,7 @@ struct ExportSettingsScreen: View {
 
             Section {
                 NavigationLink {
-                    ExportColumnsScreen()
+                    SettingsExportColumnsScreen()
                 } label: {
                     LabeledContent("Columns") {
                         Text(verbatim: "\(settingsStore.settings.effectiveExportColumns.count)")
@@ -108,7 +108,7 @@ private struct ExportCSVScreen: View {
 }
 
 /// Sheets › Columns: which columns, in which order.
-private struct ExportColumnsScreen: View {
+private struct SettingsExportColumnsScreen: View {
     @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
