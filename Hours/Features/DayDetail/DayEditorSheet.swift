@@ -62,7 +62,8 @@ struct DayEditorSheet: View {
                 onOpenSite: { path.append(SiteRoute(siteID: $0)) },
                 earnings: earnings,
                 vacationLeft: vacationLeft,
-                onOpenExtras: { path.append(DayExtrasRoute()) }
+                onOpenExtras: { path.append(DayExtrasRoute()) },
+                onClear: storedRecord == nil ? nil : { delete() }
             )
             .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
@@ -92,15 +93,27 @@ struct DayEditorSheet: View {
             .accessibilityIdentifier("day-editor")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         if hasChanges { isConfirmingDiscard = true } else { dismiss() }
+                    } label: {
+                        Image(systemName: "xmark")
                     }
+                    .accessibilityLabel("Cancel")
                     .accessibilityIdentifier("day-editor-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
-                        .fontWeight(.semibold)
-                        .accessibilityIdentifier("day-editor-save")
+                    Button {
+                        save()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
+                    }
+                    // Prominent: the accent, filled. iOS 18 API, so it
+                    // builds with either SDK.
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel("Save")
+                    .accessibilityIdentifier("day-editor-save")
                 }
             }
             .alert(
@@ -167,7 +180,7 @@ struct DayEditorSheet: View {
     private var holidays: [HolidayRule] { holidayRecords.map(\.rule) }
 
     /// What the day resolves to with no type chosen: the schedule's day, or
-    /// a public holiday. The editor's Worked · Away · Day off leave a day
+    /// a public holiday. The editor's Work · Vacation · Sick · Day off leave a day
     /// automatic when it already is the kind chosen.
     private var automaticType: DayTypeDefinition {
         var record = draft

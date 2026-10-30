@@ -1,102 +1,88 @@
 import SwiftUI
 
-/// The live result under the times (1.2, mockup DayEditor): a big Worked
-/// figure and the day's overtime in the colour rule. Updates as you type,
-/// so the consequence of a change is visible without leaving the screen.
-struct DayResultHeader: View {
+/// What the day as drafted credits and earns, and its warnings, as plain
+/// rows of the editor (design v2). The hours themselves are the sentence
+/// under the times. Updates as you type.
+struct DayResultRows: View {
     let computation: DayComputation
     let settings: AppSettings
-    /// Small, under the hours: the hours are what is being edited.
     var earnings: DayEarnings? = nil
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
+    private var problems: [DayWarning] { computation.warnings.filter(\.isProblem) }
+
+    /// Nothing to show: the section is left out.
+    var isEmpty: Bool {
+        !settings.features.showsBalance
+            && computation.creditedMinutes == 0
+            && !(earnings.map { $0.totalCents > 0 || $0.isPaidByHealthInsurance || $0.absencePaidPercent != nil } ?? false)
+            && problems.isEmpty
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.medium) {
-            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                Text("Worked")
-                    .font(.subheadline)
-                    .foregroundStyle(.hoursSecondaryText)
-                Spacer(minLength: Metrics.small)
-                Text(duration.string(computation.workedMinutes))
-                    .font(.hoursFigure(.title, weight: .heavy))
-                    .contentTransition(.numericText())
+        if settings.features.showsBalance {
+            // The day's own balance, by the colour rule: green over, red
+            // short, grey at nothing.
+            LabeledContent {
+                Text(verbatim: computation.balanceMinutes == 0 ? "0" : duration.signedString(computation.balanceMinutes))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.hoursBalance(computation.balanceMinutes))
+            } label: {
+                Text("Overtime today")
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("day-editor-worked")
+            .accessibilityIdentifier("day-editor-overtime")
+        }
 
-            if settings.features.showsBalance {
-                Divider()
-                // The day's own balance, by the colour rule: green over,
-                // red short, grey at nothing.
-                HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                    Text("Overtime today")
-                        .font(.subheadline)
-                        .foregroundStyle(.hoursSecondaryText)
-                    Spacer(minLength: Metrics.small)
-                    Text(verbatim: computation.balanceMinutes == 0 ? "0" : duration.signedString(computation.balanceMinutes))
-                        .font(.hoursFigure(.headline, weight: .bold))
-                        .foregroundStyle(Color.hoursBalance(computation.balanceMinutes))
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("day-editor-overtime")
-            }
+        if computation.creditedMinutes > 0 {
+            Label(
+                String(
+                    localized: "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.nameInRunningText())",
+                    comment: "e.g. 8h 00m credited as paid vacation; the second value is a day type"
+                ),
+                systemImage: "checkmark.seal"
+            )
+            .foregroundStyle(.hoursSecondaryText)
+        }
 
-            if computation.creditedMinutes > 0 {
-                Label(
-                    String(
-                        localized: "\(duration.string(computation.creditedMinutes)) credited as paid \(computation.dayType.nameInRunningText())",
-                        comment: "e.g. 8h 00m credited as paid vacation; the second value is a day type"
-                    ),
-                    systemImage: "checkmark.seal"
-                )
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            }
+        if let earnings, earnings.totalCents > 0 {
+            Label(
+                String(
+                    localized: "\(settings.money.string(earnings.totalCents)) earned",
+                    comment: "Day editor, what the day earns; the value is an amount of money"
+                ),
+                systemImage: "banknote"
+            )
+            .foregroundStyle(.hoursSecondaryText)
+            .accessibilityIdentifier("day-earnings")
+        }
 
-            if let earnings, earnings.totalCents > 0 {
-                Label(
-                    String(
-                        localized: "\(settings.money.string(earnings.totalCents)) earned",
-                        comment: "Day editor, what the day earns; the value is an amount of money"
-                    ),
-                    systemImage: "banknote"
-                )
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("day-earnings")
-            }
+        // Paid absence that pays less than in full: past the employer's
+        // 42 days of sick leave (HZZO pays), or at a percentage.
+        if let earnings, earnings.isPaidByHealthInsurance {
+            Label(
+                String(
+                    localized: "Paid by health insurance",
+                    comment: "Day editor, a sick day past the employer's first 42 days; Croatian names HZZO"
+                ),
+                systemImage: "cross.case"
+            )
+            .foregroundStyle(.hoursSecondaryText)
+        } else if let percent = earnings?.absencePaidPercent {
+            let share = "\(percent)%"
+            Label(
+                String(
+                    localized: "Paid at \(share)",
+                    comment: "Day editor, paid absence at a percentage; the value is like 70%"
+                ),
+                systemImage: "percent"
+            )
+            .foregroundStyle(.hoursSecondaryText)
+        }
 
-            // Paid absence that pays less than in full: past the employer's
-            // 42 days of sick leave (HZZO pays), or at a percentage.
-            if let earnings, earnings.isPaidByHealthInsurance {
-                Label(
-                    String(
-                        localized: "Paid by health insurance",
-                        comment: "Day editor, a sick day past the employer's first 42 days; Croatian names HZZO"
-                    ),
-                    systemImage: "cross.case"
-                )
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            } else if let percent = earnings?.absencePaidPercent {
-                let share = "\(percent)%"
-                Label(
-                    String(
-                        localized: "Paid at \(share)",
-                        comment: "Day editor, paid absence at a percentage; the value is like 70%"
-                    ),
-                    systemImage: "percent"
-                )
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            }
-
-            ForEach(computation.warnings.filter(\.isProblem)) { warning in
-                Label(warning.message, systemImage: "exclamationmark.triangle")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hoursNegative)
-            }
+        ForEach(problems) { warning in
+            Label(warning.message, systemImage: "exclamationmark.triangle")
+                .foregroundStyle(Color.hoursAttention)
         }
     }
 }
