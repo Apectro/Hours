@@ -1,14 +1,15 @@
 import SwiftUI
 
-/// The month grid.
+/// The month grid (1.2, mockup Today, "The month").
 ///
-/// Reads at a glance and nothing more: a number, at most one short figure, and
-/// a colour wash for the kind of day. Anything else belongs in the day summary
-/// underneath.
+/// Reads at a glance and nothing more, by the colour rule: a written day is
+/// white with its figure; a day not written has a dashed red outline and a
+/// "?"; away (sick, leave) is an orange wash with the type's name; a public
+/// holiday is green; a day off is grey; today is filled with the accent. A
+/// tap opens the day.
 struct CalendarMonthGrid: View {
     let layout: MonthLayout
     let computations: [Int: DayComputation]
-    let selectedDate: CalendarDate
     let today: CalendarDate
     let detail: DayCellDetail
     let formatting: CalendarFormatting
@@ -25,26 +26,39 @@ struct CalendarMonthGrid: View {
 
             LazyVGrid(columns: columns, spacing: Metrics.tiny) {
                 ForEach(layout.days, id: \.key) { date in
-                    DayCell(
-                        date: date,
-                        computation: computations[date.key],
-                        isInMonth: layout.isInMonth(date),
-                        isSelected: date == selectedDate,
-                        isToday: date == today,
-                        today: today,
-                        detail: detail,
-                        durationFormatting: durationFormatting
-                    )
-                    .contentShape(Rectangle())
-                    .onTapGesture { onSelect(date) }
-                    .tourTarget(date == today ? .calendarToday : nil)
+                    if layout.isInMonth(date) {
+                        Button {
+                            onSelect(date)
+                        } label: {
+                            DayCell(
+                                date: date,
+                                computation: computations[date.key],
+                                isToday: date == today,
+                                today: today,
+                                detail: detail,
+                                durationFormatting: durationFormatting
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        // The label is a spoken sentence and will be
+                        // translated; a test that matched on it would break
+                        // on a rewording. The date does not change.
+                        .accessibilityIdentifier("day-\(date.key)")
+                        .tourTarget(date == today ? .calendarToday : nil)
+                    } else {
+                        // A neighbouring month's day: an empty place, as on
+                        // a paper calendar.
+                        Color.clear
+                            .frame(height: 1)
+                            .accessibilityHidden(true)
+                    }
                 }
             }
         }
     }
 }
 
-/// One day.
+/// One day of the month, drawn by the colour rule.
 struct DayCell: View {
     // The cell grows with the user's text size rather than clipping it.
     // Not `private`: a private stored property makes the memberwise
@@ -53,82 +67,101 @@ struct DayCell: View {
 
     let date: CalendarDate
     let computation: DayComputation?
-    let isInMonth: Bool
-    let isSelected: Bool
     let isToday: Bool
     let today: CalendarDate
     let detail: DayCellDetail
     let durationFormatting: DurationFormatting
 
-    var body: some View {
-        VStack(spacing: 2) {
-            DayNumberCircle(day: date.day, isSelected: isSelected, isToday: isToday)
+    @Environment(\.highContrast) private var highContrast
 
-            detailLabel
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: cellHeight)
-        .background { DayCellBackground(wash: washColor, isMissing: isMissingData) }
-        .overlay(alignment: .topTrailing) { workedHolidayMark }
-        .opacity(isInMonth ? 1 : 0.35)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel)
-        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-        // The label is a spoken sentence and will be translated; a test that
-        // matched on it would break on a rewording. The date does not change.
-        .accessibilityIdentifier("day-\(date.key)")
+    /// What the day is, which decides its colours.
+    enum Look: Equatable {
+        case written, missing, away, holiday, dayOff, plain, today
     }
 
-    // MARK: - Pieces
+    var body: some View {
+        let look = self.look
+        VStack(spacing: 1) {
+            Text("\(date.day)")
+                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(numberColor(look))
+            detailLabel(look)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: cellHeight)
+        .background { background(look) }
+        .overlay(alignment: .topTrailing) { workedHolidayMark(look) }
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel(look))
+        .accessibilityAddTraits(.isButton)
+    }
 
-    /// A public holiday that was worked as well as paid: the holiday's wash
-    /// stays, and a small hammer in the corner says the hours are on top.
+    // MARK: - The look
+
+    var look: Look {
+        if isToday { return .today }
+        guard let computation else { return .plain }
+        if computation.isUnrecordedWorkingDay(asOf: today) { return .missing }
+        if computation.dayType.id == .holiday { return .holiday }
+        switch DayKind.of(computation.dayType) {
+        case .away:
+            return .away
+        case .dayOff:
+            return computation.workedMinutes > 0 ? .written : .dayOff
+        case .worked:
+            if computation.dayType.expectation == .zero && computation.workedMinutes == 0 { return .dayOff }
+            return computation.hasEntry || computation.workedMinutes > 0 ? .written : .plain
+        }
+    }
+
+    private func numberColor(_ look: Look) -> Color {
+        switch look {
+        case .today: return .white
+        case .missing: return .hoursMissing
+        case .away: return .hoursAttention
+        case .holiday: return .hoursPositive
+        case .dayOff: return .secondary
+        case .written, .plain: return .primary
+        }
+    }
+
     @ViewBuilder
-    private var workedHolidayMark: some View {
-        if let computation, computation.isWorkedPublicHoliday {
-            Image(systemName: "hammer.fill")
-                .font(.system(.caption2, design: .rounded))
-                .imageScale(.small)
-                .foregroundStyle(computation.dayType.tint.color)
-                .padding(3)
+    private func detailLabel(_ look: Look) -> some View {
+        if let text = detailText(look) {
+            Text(verbatim: text)
+                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(detailColor(look))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .padding(.horizontal, 2)
+        } else {
+            Text(verbatim: " ")
+                .font(.caption2)
                 .accessibilityHidden(true)
         }
     }
 
-    @ViewBuilder
-    private var detailLabel: some View {
-        if let text = detailText {
-            Text(text)
-                // Rounded, to match the day number above it. `.caption2` alone
-                // lost that when the cell was made to scale with Dynamic Type.
-                .font(.system(.caption2, design: .rounded, weight: .medium))
-                .monospacedDigit()
-                .foregroundStyle(detailColor)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        } else if let computation, computation.hasContent {
-            Circle()
-                .fill(computation.dayType.tint.color)
-                .frame(width: 5, height: 5)
-        } else {
-            Color.clear.frame(width: 5, height: 5)
+    private func detailText(_ look: Look) -> String? {
+        guard let computation else { return nil }
+        switch look {
+        case .missing:
+            return "?"
+        case .away:
+            return computation.workedMinutes > 0 ? figure(computation) : computation.dayType.displayName()
+        case .dayOff, .plain:
+            return nil
+        case .holiday, .written, .today:
+            return figure(computation)
         }
     }
 
-    private var washColor: Color {
-        guard let computation else { return .clear }
-        switch computation.dayType.expectation {
-        case .scheduled:
-            return computation.hasEntry ? computation.dayType.tint.color.opacity(0.08) : .clear
-        case .zero:
-            return Color.hoursSubdued.opacity(0.10)
-        case .creditedAbsence:
-            return computation.dayType.tint.color.opacity(0.16)
-        }
-    }
-
-    private var detailText: String? {
-        guard let computation, computation.isIncluded else { return nil }
+    /// The figure the calendar settings choose: hours worked, the day's
+    /// balance, or nothing.
+    private func figure(_ computation: DayComputation) -> String? {
+        guard computation.isIncluded else { return nil }
         switch detail {
         case .hidden:
             return nil
@@ -141,28 +174,67 @@ struct DayCell: View {
         }
     }
 
-    private var detailColor: Color {
-        guard detail == .balance, let computation else { return .secondary }
-        return Color.hoursBalance(computation.balanceMinutes)
+    private func detailColor(_ look: Look) -> Color {
+        switch look {
+        case .today: return .white
+        case .missing: return .hoursMissing
+        case .away: return .hoursAttention
+        case .holiday: return .hoursPositive
+        default:
+            guard detail == .balance, let computation else { return .secondary }
+            return Color.hoursBalance(computation.balanceMinutes)
+        }
     }
 
-    private var isMissingData: Bool {
-        guard isInMonth, let computation else { return false }
-        return computation.isUnrecordedWorkingDay(asOf: today)
+    @ViewBuilder
+    private func background(_ look: Look) -> some View {
+        let shape = RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
+        switch look {
+        case .today:
+            shape.fill(Color.accentColor)
+        case .missing:
+            shape.fill(Color.hoursSurface)
+                .overlay {
+                    shape.strokeBorder(Color.hoursMissing, style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+                }
+        case .away:
+            shape.fill(Color.hoursAttentionFill.opacity(highContrast ? 0.22 : 0.14))
+        case .holiday:
+            shape.fill(Color.hoursPositive.opacity(highContrast ? 0.22 : 0.14))
+        case .dayOff:
+            shape.fill(Color.hoursSubdued.opacity(highContrast ? 0.30 : 0.18))
+        case .written, .plain:
+            shape.fill(Color.hoursSurface)
+        }
     }
 
-    private var accessibilityLabel: String {
+    /// A public holiday that was worked as well as paid: the holiday's wash
+    /// stays, and a small hammer in the corner says the hours are on top.
+    @ViewBuilder
+    private func workedHolidayMark(_ look: Look) -> some View {
+        if let computation, computation.isWorkedPublicHoliday {
+            Image(systemName: "hammer.fill")
+                .font(.system(.caption2, design: .rounded))
+                .imageScale(.small)
+                .foregroundStyle(look == .today ? Color.white : Color.hoursPositive)
+                .padding(3)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func accessibilityLabel(_ look: Look) -> String {
         let duration = DurationFormatting(style: .hoursAndMinutes)
         var parts: [String] = ["\(date.day)"]
         if let computation {
             parts.append(computation.dayType.displayName())
             if computation.workedMinutes > 0 {
-                parts.append(duration.string(computation.workedMinutes) + " worked")
+                parts.append(String(
+                    localized: "\(duration.string(computation.workedMinutes)) worked",
+                    comment: "VoiceOver, the hours worked on a calendar day"
+                ))
             }
-            // Whether the day ran over or short is said out loud, because the
-            // only other place it appears is the cell's tint — and a colour is
-            // not information to someone using VoiceOver, nor to the one man in
-            // twelve who cannot tell this particular green from this red.
+            // Whether the day ran over or short is said out loud: a colour
+            // is not information to someone using VoiceOver.
             if computation.balanceMinutes != 0 {
                 let magnitude = duration.string(abs(computation.balanceMinutes))
                 parts.append(computation.balanceMinutes > 0
@@ -175,9 +247,11 @@ struct DayCell: View {
                 parts.append(String(localized: "worked on a public holiday",
                                     comment: "VoiceOver, a calendar day that is a public holiday and was worked"))
             }
-            if isMissingData { parts.append("no hours recorded") }
+            if look == .missing {
+                parts.append(String(localized: "not written", comment: "VoiceOver, a past working day with nothing recorded"))
+            }
         }
-        if isToday { parts.append("today") }
+        if isToday { parts.append(String(localized: "today", comment: "VoiceOver, the calendar's today")) }
         return parts.joined(separator: ", ")
     }
 }
