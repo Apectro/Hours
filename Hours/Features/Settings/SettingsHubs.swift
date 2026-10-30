@@ -101,7 +101,7 @@ struct HelpScreen: View {
     var body: some View {
         List {
             Section {
-                place("Calendar", systemImage: "calendar", "Your days. Tap a day to see it, tap it again to write your hours. Export, for your own timesheet, is at the top.")
+                place("Today", systemImage: "sun.max", "Your days. Tap a day to see it, tap it again to write your hours. Export, for your own timesheet, is at the top.")
                 place("Sites", systemImage: "building.2", "Each building site on a card. A site has buttons for its Crew, Diary, Sheet and Extra work; the gear is its settings. New site sets one up step by step.")
                 place("Insights", systemImage: "chart.bar", "Your week, month and year in figures, your leave, and checking a payslip.")
                 place("Settings", systemImage: "gearshape", "How Zeitkonto counts and what it prints. Search at the top finds any setting.")

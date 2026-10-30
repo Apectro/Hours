@@ -22,9 +22,20 @@ struct AppearanceSettingsScreen: View {
                     }
                 }
             } header: {
-                Text("Durations")
+                Text("Durations in the app")
             } footer: {
                 Text("How hours are written throughout the app. Exports have their own setting.")
+            }
+
+            Section {
+                Toggle("Bigger buttons", isOn: settingsStore.binding(\.biggerButtons))
+                    .accessibilityIdentifier("appearance-bigger-buttons")
+                Toggle("High contrast", isOn: settingsStore.binding(\.highContrast))
+                    .accessibilityIdentifier("appearance-high-contrast")
+            } header: {
+                Text("On site")
+            } footer: {
+                Text("Bigger buttons make the daily actions easier to hit with gloves on.")
             }
         }
         .navigationTitle("Appearance")

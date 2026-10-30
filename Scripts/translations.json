@@ -13937,6 +13937,61 @@
       "Como nada é sincronizado, um ficheiro de cópia é a única cópia que sobrevive à perda do dispositivo. Definições › iCloud e cópia de segurança.",
       "Omdat er niets wordt gesynchroniseerd, is een back-upbestand de enige kopie die het verlies van je apparaat overleeft. Instellingen › iCloud en back-up.",
       "Ponieważ nic nie jest synchronizowane, plik kopii zapasowej to jedyna kopia, która przetrwa utratę urządzenia. Ustawienia › iCloud i kopia zapasowa."
+    ],
+    "Durations in the app": [
+      "Dauern in der App",
+      "Trajanja u aplikaciji",
+      "Trajanja v aplikaciji",
+      "Durate nell'app",
+      "Durées dans l'app",
+      "Duraciones en la app",
+      "Durações na app",
+      "Duur in de app",
+      "Czasy trwania w aplikacji"
+    ],
+    "On site": [
+      "Auf der Baustelle",
+      "Na gradilištu",
+      "Na gradbišču",
+      "In cantiere",
+      "Sur le chantier",
+      "En la obra",
+      "Na obra",
+      "Op de bouwplaats",
+      "Na budowie"
+    ],
+    "Bigger buttons": [
+      "Größere Schaltflächen",
+      "Veći gumbi",
+      "Večji gumbi",
+      "Pulsanti più grandi",
+      "Boutons plus grands",
+      "Botones más grandes",
+      "Botões maiores",
+      "Grotere knoppen",
+      "Większe przyciski"
+    ],
+    "High contrast": [
+      "Hoher Kontrast",
+      "Visoki kontrast",
+      "Visok kontrast",
+      "Contrasto elevato",
+      "Contraste élevé",
+      "Alto contraste",
+      "Alto contraste",
+      "Hoog contrast",
+      "Wysoki kontrast"
+    ],
+    "Bigger buttons make the daily actions easier to hit with gloves on.": [
+      "Größere Schaltflächen sind auch mit Handschuhen leichter zu treffen.",
+      "Veće gumbe za svakodnevne radnje lakše je pogoditi i s rukavicama.",
+      "Večje gumbe za vsakodnevna dejanja je lažje zadeti tudi z rokavicami.",
+      "Con i pulsanti più grandi le azioni di ogni giorno si premono meglio anche con i guanti.",
+      "Des boutons plus grands rendent les actions quotidiennes plus faciles à toucher avec des gants.",
+      "Con botones más grandes, las acciones diarias se pulsan mejor con guantes.",
+      "Botões maiores tornam as ações diárias mais fáceis de tocar com luvas.",
+      "Grotere knoppen maken de dagelijkse acties makkelijker te raken met handschoenen aan.",
+      "Większe przyciski łatwiej trafić w rękawiczkach przy codziennych czynnościach."
     ]
   },
   "sameAsEnglishOnPurpose": [
