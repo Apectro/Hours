@@ -179,27 +179,29 @@ extension XCUIApplication {
 
     /// Opens the editor for today and returns its Save button.
     ///
-    /// Today's cell is in the month under the Today section (1.2), so it is
-    /// scrolled to first. A tap on a day opens the day; its Edit opens the
-    /// editor. Which of the two a tap does is a product decision, so both are
-    /// handled here rather than assumed away.
+    /// The direct route first: the Today card at the top of the tab opens
+    /// today in the editor (1.2). Failing that — a clock running, where the
+    /// card is the clock — today's cell in the month under it, scrolled to,
+    /// opens the day, and the day's Edit opens the editor.
     func openTodaysEditor(timeout: TimeInterval = 10) -> XCUIElement {
-        let today = buttons["day-\(Self.todayKey)"].firstMatch
         let save = buttons["day-editor-save"].firstMatch
         // Still on a day opened before: back to Today first.
         if screen("screen-calendar-day").firstMatch.exists {
             navigationBars.buttons.element(boundBy: 0).tap()
         }
-        if today.waitForExistence(timeout: timeout) {
+        let card = buttons["today-card"].firstMatch
+        if card.waitForExistence(timeout: timeout) {
+            bringToScreen(card)
+            card.tap()
+            if save.waitForExistence(timeout: 5) { return save }
+        }
+        let today = buttons["day-\(Self.todayKey)"].firstMatch
+        if today.waitForExistence(timeout: 3) {
             bringToScreen(today)
             today.tap()
             if !save.waitForExistence(timeout: 3) {
                 let edit = buttons["day-card-edit"].firstMatch
-                if edit.waitForExistence(timeout: 3) {
-                    edit.tap()
-                } else if today.exists, today.isHittable {
-                    today.tap()
-                }
+                if edit.waitForExistence(timeout: 3) { edit.tap() }
             }
         }
         return save

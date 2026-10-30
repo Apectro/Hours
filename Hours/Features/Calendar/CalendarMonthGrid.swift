@@ -16,44 +16,62 @@ struct CalendarMonthGrid: View {
     let durationFormatting: DurationFormatting
     let onSelect: (CalendarDate) -> Void
 
-    private var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: Metrics.tiny), count: max(layout.columnCount, 1))
-    }
-
     var body: some View {
         VStack(spacing: Metrics.small) {
             WeekdayHeader(weekdays: layout.weekdays, formatting: formatting)
 
-            LazyVGrid(columns: columns, spacing: Metrics.tiny) {
-                ForEach(layout.days, id: \.key) { date in
-                    if layout.isInMonth(date) {
-                        Button {
-                            onSelect(date)
-                        } label: {
-                            DayCell(
-                                date: date,
-                                computation: computations[date.key],
-                                isToday: date == today,
-                                today: today,
-                                detail: detail,
-                                durationFormatting: durationFormatting
-                            )
+            // Rows of plain stacks, not a lazy grid: the month sits under
+            // Today, below the fold, and a lazy grid would not build cells
+            // that are off screen — VoiceOver and the UI tests could not
+            // reach today's day until it was scrolled to.
+            VStack(spacing: Metrics.tiny) {
+                ForEach(rows, id: \.first?.key) { week in
+                    HStack(spacing: Metrics.tiny) {
+                        ForEach(week, id: \.key) { date in
+                            cell(date)
+                                .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.plain)
-                        // The label is a spoken sentence and will be
-                        // translated; a test that matched on it would break
-                        // on a rewording. The date does not change.
-                        .accessibilityIdentifier("day-\(date.key)")
-                        .tourTarget(date == today ? .calendarToday : nil)
-                    } else {
-                        // A neighbouring month's day: an empty place, as on
-                        // a paper calendar.
-                        Color.clear
-                            .frame(height: 1)
-                            .accessibilityHidden(true)
                     }
                 }
             }
+        }
+    }
+
+    /// The layout's days, a week to a row.
+    private var rows: [[CalendarDate]] {
+        let width = max(layout.columnCount, 1)
+        return stride(from: 0, to: layout.days.count, by: width).map {
+            Array(layout.days[$0..<min($0 + width, layout.days.count)])
+        }
+    }
+
+    @ViewBuilder
+    private func cell(_ date: CalendarDate) -> some View {
+        if layout.isInMonth(date) {
+            Button {
+                onSelect(date)
+            } label: {
+                DayCell(
+                    date: date,
+                    computation: computations[date.key],
+                    isToday: date == today,
+                    today: today,
+                    detail: detail,
+                    durationFormatting: durationFormatting
+                )
+            }
+            .buttonStyle(.plain)
+            // The label is a spoken sentence and will be translated; a test
+            // that matched on it would break on a rewording. The date does
+            // not change.
+            .accessibilityIdentifier("day-\(date.key)")
+            .tourTarget(date == today ? .calendarToday : nil)
+        } else {
+            // A neighbouring month's day: an empty place, as on a paper
+            // calendar.
+            Color.clear
+                .frame(height: 1)
+                .accessibilityHidden(true)
         }
     }
 }

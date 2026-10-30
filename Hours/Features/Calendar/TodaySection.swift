@@ -399,8 +399,9 @@ struct TodayDayCard: View {
             .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+        // A button combines its label for VoiceOver by itself, and stays a
+        // button the UI tests can find by its identifier.
         .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
         .accessibilityHint(Text("Opens today"))
         .accessibilityIdentifier("today-card")
     }
@@ -541,7 +542,6 @@ struct CrewDayRow: View {
             .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
     }
 
     private var subtitle: String {

@@ -741,7 +741,6 @@ private struct MissingDaysBanner: View {
             .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("calendar-missing-fix")
     }
 }
