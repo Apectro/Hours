@@ -52,6 +52,7 @@ final class AllowanceUITests: XCTestCase {
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
 
         // Today from yesterday: everyone ticked in, nobody with the

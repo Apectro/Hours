@@ -52,9 +52,13 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(total.label.contains("16"), "the crew total should be 16 hours: \(total.label)")
 
         // Saved with no Save button: leave the site and come back.
+        // Back to the site's page (1.2), then to the list.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "could not get back to the site's page")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
         wait(for: app.buttons["site-person-you"], selected: true)
         wait(for: app.buttons["site-person-Ivan"], selected: true)
@@ -161,9 +165,13 @@ final class SiteDayTests: XCTestCase {
         let sickValue = ivan.value as? String
 
         // Kept: leave the site and come back.
+        // Back to the site's page (1.2), then to the list.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "could not get back to the site's page")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
         let again = app.buttons["site-person-Ivan"]
         wait(for: again, selected: false)
@@ -243,9 +251,13 @@ final class SiteDayTests: XCTestCase {
         visitorsRow.tap()
         XCTAssertTrue(app.descendants(matching: .any)["site-diary-visitors"].waitForExistence(timeout: 5))
 
+        // Back to the site's page (1.2), then to the list.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "could not get back to the site's page")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-sites").waitForExistence(timeout: 5), "could not get back to the list")
         app.buttons["site-card"].firstMatch.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open again")
         let againRow = app.buttons["diary-section-work"]
         for _ in 0..<4 where !againRow.isHittable { app.swipeUp() }
@@ -378,6 +390,7 @@ final class SiteDayTests: XCTestCase {
         let card = app.buttons["site-card"].firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
+        app.openTodayOnSite()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
     }
 

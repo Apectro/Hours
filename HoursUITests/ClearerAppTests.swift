@@ -95,7 +95,7 @@ final class ClearerAppTests: XCTestCase {
         let card = app.buttons.matching(identifier: "site-card").firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
         card.tap()
-        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site did not open")
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "the site did not open")
 
         // Crew, pushed.
         app.buttons["site-crew"].firstMatch.tap()
