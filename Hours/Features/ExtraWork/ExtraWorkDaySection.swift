@@ -1,9 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// The selected day's extra work on a site (mockup 13): each job with its
-/// material, who worked on it, whether it is finished and whether the boss
-/// has it, and "Add extra work".
+/// The selected day's extra work on a site (Extra work board, phone 1): a
+/// card per job with its Finished or In progress tag and its material, time
+/// and photos, "Add extra work", and what happens to finished jobs.
 ///
 /// Not under the month lock — extra work is not anyone's hours (see
 /// `ExtraWorkRepository`) — so only a read-only site stops it from being
@@ -33,10 +33,9 @@ struct ExtraWorkDaySection: View {
     @State private var editing: ExtraWorkEditorRequest?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
+        VStack(alignment: .leading, spacing: Metrics.medium) {
             // The title, with "Send to boss" beside it when there is
-            // something to send; the counts under it as chips, since on the
-            // title's line they wrapped into a ragged block.
+            // something to send.
             HStack(alignment: .center, spacing: Metrics.small) {
                 SectionHeading("Extra work")
                     // The listing's screenshot scrolls this to the top.
@@ -59,57 +58,52 @@ struct ExtraWorkDaySection: View {
 
             countChips
 
-            if !jobs.isEmpty {
-                VStack(spacing: 0) {
-                    ForEach(Array(jobs.enumerated()), id: \.element.id) { index, job in
-                        HStack(alignment: .top, spacing: 0) {
-                            ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
-                                .accessibilityIdentifier("extra-work-tick-\(index)")
-                                .padding(.leading, Metrics.small)
-                                .padding(.top, Metrics.small)
-                            Button {
-                                editing = ExtraWorkEditorRequest(job: job)
-                            } label: {
-                                ExtraWorkJobCard(
-                                    job: job,
-                                    photoCount: photoCounts[job.id] ?? 0,
-                                    durations: settingsStore.settings.displayFormatting
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            // Rows here are not a List, so there is no swipe:
-                            // a long press offers the same as the checkmark.
-                            .contextMenu {
-                                if canEdit { ExtraWorkDoneMenuItem(job: job) { toggleDone(job) } }
-                            }
-                            .accessibilityIdentifier("extra-work-job-\(index)")
-                        }
-                        if index < jobs.count - 1 {
-                            Divider().padding(.leading, Metrics.large)
-                        }
+            // A card per job (Extra work board, phone 1): what was done and
+            // whether it is finished, the material, time and photos under it.
+            ForEach(Array(jobs.enumerated()), id: \.element.id) { index, job in
+                HStack(alignment: .top, spacing: 0) {
+                    ExtraWorkDoneButton(job: job, canEdit: canEdit) { toggleDone(job) }
+                        .accessibilityIdentifier("extra-work-tick-\(index)")
+                        .padding(.leading, Metrics.tiny)
+                        .padding(.top, Metrics.tiny)
+                    Button {
+                        editing = ExtraWorkEditorRequest(job: job)
+                    } label: {
+                        ExtraWorkJobCard(
+                            job: job,
+                            photoCount: photoCounts[job.id] ?? 0,
+                            durations: settingsStore.settings.displayFormatting
+                        )
                     }
+                    .buttonStyle(.plain)
+                    // Rows here are not a List, so there is no swipe:
+                    // a long press offers the same as the checkmark.
+                    .contextMenu {
+                        if canEdit { ExtraWorkDoneMenuItem(job: job) { toggleDone(job) } }
+                    }
+                    .accessibilityIdentifier("extra-work-job-\(index)")
                 }
-                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+                .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
 
             if canEdit {
-                // Bordered, not prominent: on the site screen the crew's
-                // "Same as last day" is the one filled button.
                 Button {
                     editing = ExtraWorkEditorRequest(job: nil)
                 } label: {
                     Label("Add extra work", systemImage: "plus")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                .buttonStyle(.bigAction(.secondary))
                 .accessibilityIdentifier("extra-work-add")
             } else if jobs.isEmpty {
                 Text("No extra work on this day.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
             }
+
+            Text("Finished jobs go in the extra-work report for your boss.")
+                .font(.footnote)
+                .foregroundStyle(.hoursSecondaryText)
+                .padding(.horizontal, Metrics.tiny)
         }
         .onAppear(perform: load)
         .sheet(item: $editing) { request in
@@ -126,31 +120,30 @@ struct ExtraWorkDaySection: View {
         }
     }
 
-    /// "This day: 2", "In progress: 1" and, where the header has no button
-    /// for it, "Not sent: 5" — labels rather than sentences, so no plural to
-    /// agree. The last two are the whole site's, so a job left in progress
-    /// on another day is not lost.
+    /// The site's jobs in progress, whatever their day, and where the
+    /// header has no button for it, "Not sent: 5" — labels rather than
+    /// sentences, so no plural to agree. Nothing when there is neither.
+    @ViewBuilder
     private var countChips: some View {
-        HStack(spacing: Metrics.tiny) {
-            countChip(
-                String(localized: "This day: \(jobs.count)", comment: "Extra work on a site day: how many jobs on the selected day"),
-                color: .secondary
-            )
-            if inProgress > 0 {
-                countChip(
-                    String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"),
-                    color: .hoursNegative
-                )
+        let showsNotSent = notSent > 0 && onOpenReport == nil
+        if inProgress > 0 || showsNotSent {
+            HStack(spacing: Metrics.tiny) {
+                if inProgress > 0 {
+                    countChip(
+                        String(localized: "In progress: \(inProgress)", comment: "Extra work on a site day: how many jobs on the site are not finished yet, whatever their day"),
+                        color: .hoursAttention
+                    )
+                }
+                if showsNotSent {
+                    countChip(
+                        String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"),
+                        color: .accentColor
+                    )
+                }
             }
-            if notSent > 0, onOpenReport == nil {
-                countChip(
-                    String(localized: "Not sent: \(notSent)", comment: "Extra work on a site day: how many finished jobs on the site the boss has not had yet"),
-                    color: .accentColor
-                )
-            }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("extra-work-counts")
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("extra-work-counts")
     }
 
     /// The jobs' own chip style (see `ExtraWorkChipView`).
@@ -196,16 +189,16 @@ struct ExtraWorkEditorRequest: Identifiable {
     let job: ExtraWorkJob?
 }
 
-/// One job in the day's list: what was done, whether it is finished and
-/// whether the boss has it, the material as chips, and who worked on it or
-/// who signed.
+/// One job's card: what was done with its Finished or In progress tag, and
+/// under it one line of the material, the time and the photos ("6 × LED
+/// fitting · 20 m Cable · 2h 30m · Photos: 2").
 struct ExtraWorkJobCard: View {
     let job: ExtraWorkJob
     let photoCount: Int
     let durations: DurationFormatting
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
+        VStack(alignment: .leading, spacing: Metrics.tiny + 2) {
             HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
                 Text(verbatim: job.description.isEmpty ? String(localized: "Extra work") : job.description)
                     .font(.body.weight(.semibold))
@@ -214,29 +207,14 @@ struct ExtraWorkJobCard: View {
                 Spacer(minLength: Metrics.small)
                 ExtraWorkChips(job: job)
             }
-
-            // One item under another, leading-aligned: "4 × P7" over
-            // "2 × P6" reads as a list, where a flow of chips side by side
-            // read as one long line.
-            if !job.items.isEmpty {
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    ForEach(Array(job.items.enumerated()), id: \.offset) { _, item in
-                        Text(verbatim: item.line(in: .device, decimalSeparator: ExtraWorkFormatting.decimalSeparator))
-                            .font(.footnote)
-                            .padding(.horizontal, Metrics.small)
-                            .padding(.vertical, Metrics.tiny)
-                            .background(Color.hoursCanvas, in: RoundedRectangle(cornerRadius: Metrics.chipCornerRadius, style: .continuous))
-                    }
-                }
-            }
-
             if let detail = detailLine {
                 Text(verbatim: detail)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+                    .multilineTextAlignment(.leading)
             }
         }
-        .padding(.leading, Metrics.small)
+        .padding(.leading, Metrics.tiny)
         .padding(.trailing, Metrics.large)
         .padding(.vertical, Metrics.medium)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -244,10 +222,9 @@ struct ExtraWorkJobCard: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// "1h · Marijo Mikša, Dusko Bajlović · Photos: 2" — how long the job
-    /// took, then who was on it — or "Signed by Ing. Horvat".
+    /// The material, then how long and who, the photos, and who signed.
     private var detailLine: String? {
-        var parts: [String] = []
+        var parts = job.items.map { $0.line(in: .device, decimalSeparator: ExtraWorkFormatting.decimalSeparator) }
         let time = job.timeLine(durations)
         if !time.isEmpty { parts.append(time) }
         if photoCount > 0 {
@@ -301,7 +278,7 @@ struct ExtraWorkProgressChip: View {
     }
 
     private var color: Color {
-        progress == .done ? .hoursPositive : .hoursNegative
+        progress == .done ? .hoursDone : .hoursAttention
     }
 }
 
@@ -338,8 +315,9 @@ struct ExtraWorkChipView: View {
 
     private var color: Color {
         switch chip {
+        // Green: sent is done (the colour rule); signed is a note.
         case .signed: return .secondary
-        case .sent: return .accentColor
+        case .sent: return .hoursDone
         }
     }
 }

@@ -85,7 +85,7 @@ struct ExportPreviewTable: View {
             ForEach(table.columns.indices, id: \.self) { index in
                 Text(grouped.contains(index) ? titles[index] : "")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.hoursSecondaryText)
                     .lineLimit(1)
                     .previewCell(width: widths[index], numeric: table.columns[index].isNumeric)
                     .accessibilityIdentifier("export-preview-subheading")
@@ -98,7 +98,7 @@ struct ExportPreviewTable: View {
     private func headingText(_ title: String) -> some View {
         Text(title)
             .font(.caption2.weight(.semibold))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.hoursSecondaryText)
             .lineLimit(1)
     }
 
@@ -112,13 +112,13 @@ struct ExportPreviewTable: View {
         VStack(alignment: .leading, spacing: Metrics.tiny) {
             Text(table.language(.summary))
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
                 .padding(.top, Metrics.small)
             ForEach(table.totals) { total in
                 HStack {
                     Text(total.label)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                     Spacer(minLength: Metrics.large)
                     Text(total.value)
                         .font(.caption.weight(total.isEmphasised ? .semibold : .regular))
@@ -137,7 +137,7 @@ struct ExportPreviewTable: View {
         VStack(alignment: .leading, spacing: Metrics.tiny) {
             Text(table.language(.bySite))
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.hoursSecondaryText)
                 .padding(.top, Metrics.small)
             ForEach(Array(table.bySite.enumerated()), id: \.offset) { _, site in
                 HStack {

@@ -163,6 +163,8 @@ APP_STRINGS = {
         "towards your balance. The hours recorded on them are kept.",
         DAYS(),
     ),
+    # Export (1.2): the working days of the period with nothing written.
+    "Nothing written on ^[%lld day](inflect: true)": entry("Nothing written on %#@days@", DAYS()),
 }
 
 WIDGET_STRINGS = {

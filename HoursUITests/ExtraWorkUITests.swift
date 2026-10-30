@@ -32,14 +32,9 @@ final class ExtraWorkUITests: XCTestCase {
         description.tap()
         description.typeText("Emergency lighting")
 
-        // Material is the one section a new job opens on; the others are
-        // closed under their headers.
+        // Material offers the items used before and + New.
         let newItem = app.buttons["extra-work-new-item"]
-        if !newItem.waitForExistence(timeout: 2) {
-            app.buttons["extra-work-section-material"].tap()
-        }
-        XCTAssertTrue(newItem.waitForExistence(timeout: 5), "Material should offer New item…")
-        XCTAssertFalse(app.buttons["extra-work-hours-toggle"].exists, "Time on this job starts closed")
+        XCTAssertTrue(newItem.waitForExistence(timeout: 5), "Material should offer + New")
         newItem.tap()
         let name = app.textFields["extra-work-item-name"]
         XCTAssertTrue(name.waitForExistence(timeout: 5), "New item… should ask for a name")
@@ -54,11 +49,9 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertEqual(app.buttons["extra-work-quantity-0"].label.isEmpty, false)
 
         // One time for the job, and who was on it: the day's crew chosen.
-        let timeHeader = app.buttons["extra-work-section-time"]
-        for _ in 0..<3 where !timeHeader.isHittable { app.swipeUp() }
-        timeHeader.tap()
         let addTime = app.buttons["extra-work-hours-toggle"]
-        XCTAssertTrue(addTime.waitForExistence(timeout: 5), "the time section should open")
+        XCTAssertTrue(addTime.waitForExistence(timeout: 5), "How long it took should offer Add")
+        for _ in 0..<3 where !addTime.isHittable { app.swipeUp() }
         addTime.tap()
         let more = app.buttons["extra-work-time-plus"]
         XCTAssertTrue(more.waitForExistence(timeout: 5), "one stepper for the job's time")

@@ -214,11 +214,10 @@ final class ScreenAtlasTests: XCTestCase {
         swipeDown(app, times: 4)
     }
 
-    /// The export screen in each format and the PDF at full size. Shared by
+    /// The export screen (1.2 redesign): the preview, the PDF at full size,
+    /// PDF and Excel ready to send, and This sheet with the CSV. Shared by
     /// the personal and the site export.
     private func exportScreens(_ app: XCUIApplication, prefix: String) {
-        let pdf = app.buttons.matching(identifier: "export-format-pdf").firstMatch
-        if pdf.waitForExistence(timeout: 10) { tapAnyway(pdf) }
         let page = app.descendants(matching: .any)["export-preview-page"]
         if page.waitForExistence(timeout: 10) { _ = waitUntilEnabled(page, timeout: 15) }
         capture("\(prefix)-pdf", app)
@@ -230,19 +229,42 @@ final class ScreenAtlasTests: XCTestCase {
         } else {
             miss("\(prefix)-pdf-full-page (the page was never drawn)")
         }
-        for format in ["xlsx", "csv"] {
-            let card = app.buttons.matching(identifier: "export-format-\(format)").firstMatch
-            if bringIntoView(card, app) {
-                tapAnyway(card)
-                pause(1)
-                swipeDown(app, times: 2)
-                capture("\(prefix)-\(format)", app)
-            } else {
-                miss("\(prefix)-\(format) (no format card)")
+        for format in ["pdf", "xlsx"] {
+            let button = app.buttons.matching(identifier: "export-format-\(format)").firstMatch
+            if tap(button, "the \(format) button", app) {
+                answerNameIfAsked(app)
+                if app.buttons.matching(identifier: "export-share").firstMatch.waitForExistence(timeout: 10) {
+                    pause(1)
+                    capture("\(prefix)-\(format)", app)
+                    close(app, "export-full-page-done")
+                } else {
+                    miss("\(prefix)-\(format) (nothing ready to send)")
+                }
             }
         }
-        if bringIntoView(pdf, app) { tapAnyway(pdf) }
+        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+            pause(0.8)
+            capture("\(prefix)-this-sheet", app)
+            if tap(app.buttons.matching(identifier: "export-format-csv").firstMatch, "CSV file", app),
+               app.buttons.matching(identifier: "export-share").firstMatch.waitForExistence(timeout: 10) {
+                pause(1)
+                capture("\(prefix)-csv", app)
+                close(app, "export-full-page-done")
+            }
+            back(app)
+        }
         swipeDown(app, times: 2)
+    }
+
+    /// The name on the sheet is asked for once, at the first file; any of
+    /// its buttons answers it.
+    private func answerNameIfAsked(_ app: XCUIApplication) {
+        let alert = app.alerts.firstMatch
+        if alert.waitForExistence(timeout: 2) {
+            capture("export-name-alert", app)
+            alert.buttons.firstMatch.tap()
+            pause(1)
+        }
     }
 
     // MARK: Sites
@@ -370,9 +392,8 @@ final class ScreenAtlasTests: XCTestCase {
             if editor.waitForExistence(timeout: 10) {
                 pause(0.5)
                 capture("extra-work-new", app)
-                for section in ["time", "photos", "signature"] {
-                    let header = app.buttons.matching(identifier: "extra-work-section-\(section)").firstMatch
-                    if bringIntoView(header, app) { tapAnyway(header) }
+                if tap(app.buttons.matching(identifier: "extra-work-hours-toggle").firstMatch, "How long it took", app) {
+                    pause(0.5)
                 }
                 swipeDown(app, times: 3)
                 capture("extra-work-new-open", app)
@@ -515,29 +536,33 @@ final class ScreenAtlasTests: XCTestCase {
         if tap(app.buttons.matching(identifier: "site-export").firstMatch, "the site's Sheet", app),
            app.screen("screen-site-export").waitForExistence(timeout: 10) {
             exportScreens(app, prefix: "site-export")
-            // One sheet per person: the option, and the first person's page.
-            let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
-            if bringIntoView(perPerson, app) {
-                flip(perPerson)
-                pause(1.5)
-                capture("site-export-per-person", app)
-                swipeDown(app, times: 3)
-                capture("site-export-per-person-preview", app)
-                if bringIntoView(perPerson, app) { flip(perPerson) }
-                swipeDown(app, times: 3)
-            } else {
-                miss("site-export-per-person (no switch)")
-            }
-            // Sites on this sheet (1.2): the list, a second site picked, and
-            // the one sheet for both.
-            if tap(app.buttons.matching(identifier: "export-sheet-sites").firstMatch, "Sites on this sheet", app) {
-                pause(0.8)
-                capture("site-export-sheet-sites", app)
-                if tap(app.buttons.matching(identifier: "export-sheet-site-0").firstMatch, "a second site", app) {
-                    capture("site-export-sheet-sites-chosen", app)
+            // One sheet per person, in This sheet: the switch, and the first
+            // person's page back on the export screen.
+            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+                let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
+                if perPerson.waitForExistence(timeout: 5) {
+                    flip(perPerson)
+                    pause(1)
+                    capture("site-export-per-person", app)
+                    back(app)
+                    pause(1.5)
+                    capture("site-export-per-person-preview", app)
+                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app),
+                       perPerson.waitForExistence(timeout: 5) {
+                        flip(perPerson)
+                    }
+                } else {
+                    miss("site-export-per-person (no switch)")
                 }
-                close(app, "export-sheet-sites-done")
+                back(app)
+            }
+            // Which sites (1.2): the chips, a second site ticked, and the one
+            // sheet for both.
+            swipeDown(app, times: 2)
+            capture("site-export-sheet-sites", app)
+            if tap(app.buttons.matching(identifier: "export-sheet-site-0").firstMatch, "a second site", app) {
                 pause(1.5)
+                capture("site-export-sheet-sites-chosen", app)
                 capture("site-export-combined", app)
             }
             close(app, "export-done")
@@ -1297,8 +1322,6 @@ final class ScreenAtlasTests: XCTestCase {
     /// from the system picker, which belongs to the simulator, so a picker
     /// that cannot be driven is noted rather than failed.
     private func photoViewer(_ app: XCUIApplication) {
-        let header = app.buttons.matching(identifier: "extra-work-section-photos").firstMatch
-        if bringIntoView(header, app) { tapAnyway(header) }
         let add = app.buttons.matching(identifier: "extra-work-add-photos").firstMatch
         guard bringIntoView(add, app) else {
             optional.append("photo-viewer (no Add photos)")

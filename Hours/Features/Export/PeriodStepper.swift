@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// ‹ October 2026 › with what the period holds underneath.
+/// ‹ October 2026 › with what the period holds underneath (the Export
+/// board's month stepper: blue arrows, the period in bold between them).
 ///
 /// One stepper for every period the app pages through, so they all look and
 /// behave the same: 44-point arrows either side, the title and a caption in
@@ -24,11 +25,11 @@ struct PeriodStepper: View {
             Spacer(minLength: Metrics.small)
             VStack(spacing: 2) {
                 Text(verbatim: title)
-                    .font(.headline)
+                    .font(.headline.weight(.bold))
                 if !caption.isEmpty {
                     Text(verbatim: caption)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                 }
             }
             .multilineTextAlignment(.center)
