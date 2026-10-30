@@ -1,8 +1,10 @@
 import SwiftUI
 import SwiftData
 
-/// One site's crew: add, rename, reorder, hide and bring back, and open a
-/// person's own sheet to share (`CrewMemberSheetScreen`).
+/// One site's crew (1.2, mockup Crew): you first, then each person with
+/// their hours on the site this month; tap a person for their month and
+/// their own sheet (`CrewMemberSheetScreen`); add, rename, reorder, hide and
+/// bring back.
 ///
 /// There is no delete, on purpose. A crew member is named on every day they
 /// were ticked present, and on the director's sheet those days produce; taking
@@ -30,8 +32,10 @@ struct CrewScreen: View {
     /// People on your other crews who are not on this one.
     @State private var candidates: [CrewCandidate] = []
     @State private var isPicking = false
-    /// Whose own sheet is open, to read and share.
-    @State private var sharing: CrewMember?
+    /// Each member's hours on this site this month.
+    @State private var monthMinutes: [UUID: Int] = [:]
+    /// Each candidate's sites, for "Add from other sites".
+    @State private var candidateSites: [String: [String]] = [:]
     /// Crew sign-off, from the toolbar (1.2): with the site's "…" menu gone,
     /// this and the site's Sheet are where people sign their month.
     @State private var signingOff: Site?
@@ -56,10 +60,21 @@ struct CrewScreen: View {
                     memberRow(member, hiding: true)
                 }
                 .onMove(perform: moveAction)
+            } footer: {
+                if isReadOnly {
+                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                } else {
+                    Text("Tap a person for their month and their own sheet. Swipe to rename or hide.")
+                }
+            }
 
-                if !isReadOnly {
+            if !isReadOnly {
+                Section {
                     // The return key adds too; the button says that it can.
                     HStack(spacing: Metrics.small) {
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.accentColor)
+                            .accessibilityHidden(true)
                         TextField("Add a coworker", text: $newName)
                             .textInputAutocapitalization(.words)
                             .submitLabel(.done)
@@ -67,28 +82,24 @@ struct CrewScreen: View {
                             .onSubmit(add)
                             .frame(minHeight: 44)
                             .accessibilityIdentifier("crew-new-name")
-                        Button("Add", action: add)
-                            .buttonStyle(.borderless)
-                            .fontWeight(.semibold)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .disabled(trimmedNewName.isEmpty)
-                            .accessibilityIdentifier("crew-add")
+                        if !trimmedNewName.isEmpty {
+                            Button("Add", action: add)
+                                .buttonStyle(.borderless)
+                                .fontWeight(.semibold)
+                                .frame(minWidth: 44, minHeight: 44)
+                                .accessibilityIdentifier("crew-add")
+                        }
                     }
 
                     if !candidates.isEmpty {
                         Button {
                             isPicking = true
                         } label: {
-                            Label("Add from other sites", systemImage: "person.badge.plus")
+                            Label("Add from other sites", systemImage: "plus")
+                                .fontWeight(.semibold)
                         }
                         .accessibilityIdentifier("crew-add-from-sites")
                     }
-                }
-            } footer: {
-                if isReadOnly {
-                    Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
-                } else {
-                    Text("Swipe to rename or hide. Hidden people keep their hours.")
                 }
             }
 
@@ -98,7 +109,7 @@ struct CrewScreen: View {
                         memberRow(member, hiding: false)
                     }
                 } header: {
-                    Text("Hidden")
+                    Text("Hidden · keep their hours")
                         .accessibilityIdentifier("crew-hidden-header")
                 } footer: {
                     Text("Not offered for new days. Every day already recorded for them stays, on screen and on exports.")
@@ -107,6 +118,11 @@ struct CrewScreen: View {
         }
         .navigationTitle("Crew")
         .navigationBarTitleDisplayMode(.inline)
+        // A person's month, pushed by value onto whichever stack shows the
+        // crew; declared here, so every such stack has it.
+        .navigationDestination(for: CrewMemberRoute.self) { route in
+            CrewMemberSheetScreen(member: route.member)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -134,14 +150,11 @@ struct CrewScreen: View {
                 .accessibilityIdentifier("crew-rename-cancel")
         }
         .sheet(isPresented: $isPicking) {
-            CrewPickerSheet(candidates: candidates) { chosen in
+            CrewPickerSheet(candidates: candidates, siteNames: candidateSites) { chosen in
                 repository.addCrew(chosen, to: siteID)
                 // The site widget draws the crew by their initials.
                 HoursStack.refreshWidget()
             }
-        }
-        .sheet(item: $sharing) { member in
-            CrewMemberSheetScreen(member: member)
         }
         .onChange(of: changeToken, initial: true) { _, _ in
             reload()
@@ -152,61 +165,61 @@ struct CrewScreen: View {
 
     private var youRow: some View {
         HStack(spacing: Metrics.medium) {
-            Text("You")
-            Spacer(minLength: Metrics.medium)
-            Text("Always on the crew")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            CrewInitial(name: yourName, isHidden: false)
+            HStack(spacing: 0) {
+                Text(verbatim: yourName)
+                Text(verbatim: " · ")
+                    .foregroundStyle(.hoursSecondaryText)
+                Text("you")
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Text("always")
+                .font(.subheadline)
+                .foregroundStyle(.hoursSecondaryText)
                 // What the UI tests wait for: this text is on screen whenever
                 // the crew is. Not on the List, which would hand the
                 // identifier down to every row and button inside it.
                 .accessibilityIdentifier("screen-crew")
         }
+        .frame(minHeight: 44)
     }
 
-    /// Plain text rather than a button, with the actions on a swipe and a
-    /// long press: a row that is a button reads as "open this", and there is
-    /// nothing behind a name to open. Renaming also has a visible pencil, as
-    /// a leading swipe is the one nobody finds.
+    /// The name in Export options, or "You".
+    private var yourName: String {
+        let owner = settingsStore.settings.export.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return owner.isEmpty ? String(localized: "You") : owner
+    }
+
+    /// The row opens the person's month; rename and hide are on a swipe and
+    /// a long press. A hidden person has a Show button instead.
     private func memberRow(_ member: CrewMember, hiding: Bool) -> some View {
         HStack(spacing: Metrics.small) {
-            Text(member.name)
-                .foregroundStyle(hiding ? .primary : .secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("crew-member")
-            // Their own sheet: reading and sharing it changes nothing, so it
-            // is offered on a crew that cannot be changed too.
-            Button {
-                sharing = member
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(String(
-                localized: "Share the sheet of \(member.name)",
-                comment: "VoiceOver, the share button beside a crew member; the value is their name"
-            ))
-            .accessibilityIdentifier("crew-share-\(member.name)")
-            if !isReadOnly {
-                Button {
-                    startRenaming(member)
-                } label: {
-                    Image(systemName: "pencil")
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+            NavigationLink(value: CrewMemberRoute(member: member)) {
+                HStack(spacing: Metrics.medium) {
+                    CrewInitial(name: member.name, isHidden: !hiding)
+                    Text(member.name)
+                        .foregroundStyle(hiding ? AnyShapeStyle(.primary) : AnyShapeStyle(.hoursSecondaryText))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if hiding {
+                        Text(verbatim: settingsStore.settings.displayFormatting.string(monthMinutes[member.id] ?? 0))
+                            .font(.subheadline)
+                            .monospacedDigit()
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel(String(
-                    localized: "Rename \(member.name)",
-                    comment: "VoiceOver, the pencil beside a crew member; the value is their name"
-                ))
-                .accessibilityIdentifier("crew-rename-\(member.name)")
+                .frame(minHeight: 44)
+            }
+            .accessibilityIdentifier("crew-member")
+            if !hiding && !isReadOnly {
+                Button("Show") { setHidden(member, false) }
+                    .buttonStyle(.borderless)
+                    .fontWeight(.semibold)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityIdentifier("crew-show")
             }
         }
-        // The whole row takes the swipe, gaps included, not only the text.
-        .contentShape(Rectangle())
         .swipeActions(edge: .trailing) {
             if !isReadOnly {
                 if hiding {
@@ -224,11 +237,10 @@ struct CrewScreen: View {
             if !isReadOnly {
                 Button("Rename", systemImage: "pencil") { startRenaming(member) }
                     .tint(.gray)
+                    .accessibilityIdentifier("crew-rename-swipe")
             }
         }
         .contextMenu {
-            Button("Share sheet", systemImage: "square.and.arrow.up") { sharing = member }
-                .accessibilityIdentifier("crew-share-sheet")
             if !isReadOnly {
                 Button("Rename", systemImage: "pencil") { startRenaming(member) }
                     .accessibilityIdentifier("crew-rename")
@@ -274,7 +286,25 @@ struct CrewScreen: View {
         members = store.crew(for: siteID, includeHidden: true)
         sites = store.sites(includeArchived: true)
         let calendar = settingsStore.workCalendar
-        candidates = store.crewCandidates(for: siteID, today: CalendarDate.today(in: calendar), calendar: calendar)
+        let today = CalendarDate.today(in: calendar)
+        candidates = store.crewCandidates(for: siteID, today: today, calendar: calendar)
+
+        // Who is on which other crew, by the name that makes them one person.
+        var onSites: [String: [String]] = [:]
+        for site in sites where site.id != siteID {
+            for member in store.crew(for: site.id, includeHidden: true) {
+                let key = CrewCandidates.key(for: member.name)
+                if !(onSites[key]?.contains(site.name) ?? false) { onSites[key, default: []].append(site.name) }
+            }
+        }
+        candidateSites = onSites
+
+        let calculator = SiteDayCalculator(settings: settingsStore.settings, calendar: calendar)
+        var minutes: [UUID: Int] = [:]
+        for day in store.siteDays(siteID: siteID, in: today.yearMonth.range(in: calendar)) {
+            for person in calculator.compute(day).people { minutes[person.memberID, default: 0] += person.workedMinutes }
+        }
+        monthMinutes = minutes
     }
 
     private var isRenaming: Binding<Bool> {
@@ -346,5 +376,29 @@ struct CrewScreen: View {
         for member in renumbered where previous[member.id] != member.sortOrder {
             store.upsert(member)
         }
+    }
+}
+
+/// One person's month, pushed from the crew list.
+struct CrewMemberRoute: Hashable {
+    let member: CrewMember
+}
+
+/// A person's initial in a circle, as the mockup's crew list has them.
+private struct CrewInitial: View {
+    let name: String
+    let isHidden: Bool
+
+    @ScaledMetric(relativeTo: .body) private var diameter: CGFloat = 32
+
+    var body: some View {
+        Text(verbatim: String(name.trimmingCharacters(in: .whitespaces).prefix(1)).uppercased())
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(isHidden ? Color.secondary : Color.accentColor)
+            .frame(width: diameter, height: diameter)
+            .background(
+                Circle().fill(isHidden ? Color(uiColor: .systemGray5) : Color.accentColor.opacity(0.13))
+            )
+            .accessibilityHidden(true)
     }
 }
