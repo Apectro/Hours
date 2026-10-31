@@ -227,7 +227,6 @@ struct CrewMemberSheetScreen: View {
                 .minimumScaleFactor(0.7)
             }
             .buttonStyle(.bigAction(.primary))
-            .layoutPriority(1)
             .disabled(!canShare)
             .accessibilityIdentifier("crew-sheet-share")
 

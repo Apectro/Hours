@@ -478,7 +478,6 @@ struct SiteDetailScreen: View {
                 }
             }
             .buttonStyle(.bigAction(.primary))
-            .layoutPriority(1)
             .accessibilityIdentifier("site-write-today")
 
             Button {
