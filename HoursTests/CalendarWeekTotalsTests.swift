@@ -218,4 +218,13 @@ final class CalendarWeekTotalsTests: XCTestCase {
 
         XCTAssertEqual(CalendarWeekList.siteIDs(of: day), [first, second])
     }
+
+    func testAWeekRowsDateIsTheShortWeekdayAndTheDay() {
+        let formatting = CalendarFormatting(locale: Locale(identifier: "en_GB"), calendar: calendar)
+        let label = formatting.shortWeekdayAndDay(Fixture.date(2026, 10, 26))
+
+        XCTAssertTrue(label.contains("Mon"), label)
+        XCTAssertTrue(label.contains("26"), label)
+        XCTAssertFalse(label.contains("Oct"), "the week is the screen's title: \(label)")
+    }
 }
