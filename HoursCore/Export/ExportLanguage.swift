@@ -273,6 +273,11 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
         case .generated:      return pick(en: "generated", de: "erstellt", hr: "izrađeno", sl: "ustvarjeno",
                                           it: "generato", fr: "généré", es: "generado", pt: "gerado",
                                           nl: "gemaakt", pl: "wygenerowano")
+        // "Ilica 207C, Zagreb · made 3 Nov 2026", under a printed sheet's
+        // title: the day the sheet was made, without the time.
+        case .made:           return pick(en: "made", de: "erstellt am", hr: "izrađeno", sl: "narejeno",
+                                          it: "creato il", fr: "établi le", es: "hecho el", pt: "feito a",
+                                          nl: "gemaakt op", pl: "sporządzono")
         case .hours:          return pick(en: "Hours", de: "Stunden", hr: "Sati", sl: "Ure", it: "Ore",
                                           fr: "Heures", es: "Horas", pt: "Horas", nl: "Uren", pl: "Godziny")
         case .weekOf:         return pick(en: "week of", de: "Woche vom", hr: "tjedan od", sl: "teden od",
@@ -601,7 +606,7 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case totalWorked, totalPaid, totalExpected, short, carriedForward, daysWorked
     case scheduledDays, daysOff, totalBreaks
 
-    case summary, total, name, page, generated, hours, weekOf
+    case summary, total, name, page, generated, made, hours, weekOf
 
     /// The director's sheet for a site.
     case day, monthTotal, you, fromTo, siteHours, recordedBy, daysOnSite, crewHours, people, siteLegend

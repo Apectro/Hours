@@ -342,6 +342,7 @@ extension SiteSheetBuilder {
         )
         table.kind = .siteSheet
         table.eyebrow = "\(language(.siteHours)) · \(month)"
+        table.period = month
         table.detail = (recorded + [language.people(people.count), language.daysOnSite(dates.count)])
             .joined(separator: " · ")
         table.columnGroups = leadingKinds.map { ReportColumnGroup(title: $0.heading(in: language), span: 1) }
@@ -352,6 +353,8 @@ extension SiteSheetBuilder {
             ReportTile(label: language(.crewHours), value: duration.string(crewMinutes)),
             ReportTile(label: language(.people), value: "\(people.count)")
         ]
+        // The crew's hours and the days, as two plain figures at the top.
+        table.keyFigures = [table.tiles[1], table.tiles[0]]
         let badWeatherDays = dates.filter { date in byDate[date].map(isRainedOff) ?? false }.count
         if badWeatherDays > 0 {
             table.tiles.append(ReportTile(label: language(.badWeatherDays), value: "\(badWeatherDays)"))

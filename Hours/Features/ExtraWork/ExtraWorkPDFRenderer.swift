@@ -1,10 +1,10 @@
 import UIKit
 
 /// Draws the extra-work report as a PDF, in the look of the app's other
-/// exports (mockup 16): the orange eyebrow ("EXTRA WORK DONE · dates"), the
-/// site's name in bold, who recorded it, grey tiles, grey upper-case column
-/// heads over thin rules, a heavier rule under the last line, and
-/// "Zeitkonto · page 1 of 2".
+/// exports: the site's name in bold, "Extra work done · dates" under it,
+/// who recorded it in grey, two figures as plain text on the right, grey
+/// upper-case column heads over thin rules, a heavier rule under the last
+/// line, and "Zeitkonto · page 1 of 2".
 ///
 /// It tells the boss what is done, so the work comes first and big: the
 /// jobs day by day with their photos (each item on a line of its own, then

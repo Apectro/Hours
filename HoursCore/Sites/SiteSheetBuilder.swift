@@ -235,6 +235,7 @@ struct SiteSheetBuilder: Sendable {
         table.kind = .siteSheet
         table.address = SiteAddress.singleLine(site.address)
         table.eyebrow = "\(language(.siteHours)) · \(month)"
+        table.period = month
         table.detail = (recorded + [language.people(people.count), language.daysOnSite(dates.count)])
             .joined(separator: " · ")
         // The date and the day each head their own column, as on a timesheet:
@@ -249,6 +250,8 @@ struct SiteSheetBuilder: Sendable {
             ReportTile(label: language(.crewHours), value: duration.string(crewMinutes)),
             ReportTile(label: language(.people), value: "\(people.count)")
         ]
+        // The crew's hours and the days, as two plain figures at the top.
+        table.keyFigures = [table.tiles[1], table.tiles[0]]
         // Counted apart, and only when there were any: a month without a stop
         // has nothing to say about the weather.
         let badWeatherDays = byDate.values.filter(\.day.isBadWeatherStop).count

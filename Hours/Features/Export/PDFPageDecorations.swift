@@ -1,85 +1,61 @@
 import UIKit
 
-/// Everything on a printed page that is not the table: the header block with
-/// its tiles, the summary under the total, and the footer with the page count
-/// and the lines to sign on.
+/// Everything on a printed page that is not the table: the header block,
+/// the summary under the total, and the footer with the page count and the
+/// lines to sign on.
 struct PDFPageDecorations {
     let table: ReportTable
     let layout: PDFReportLayout
     let generatedOn: Date
     let pageCount: Int
 
-    private static let tileWidth: CGFloat = 88
-    private static let tileHeight: CGFloat = 40
-    private static let tileGap: CGFloat = 6
-
     // MARK: - Header block
 
-    /// The eyebrow as it fits beside the tiles. "Timesheet · Site A · Site B"
-    /// that is too long loses "Timesheet" first, so the sites — the part that
-    /// says something — are what is left whole; only then is it cut short.
-    static func fittedEyebrow(_ text: String, width: CGFloat) -> String {
-        func fits(_ candidate: String) -> Bool {
-            let attributes: [NSAttributedString.Key: Any] = [.font: PDFReportStyle.eyebrowFont, .kern: 0.8]
-            return (candidate as NSString).size(withAttributes: attributes).width <= width
-        }
-        guard !fits(text), let range = text.range(of: " · ") else { return text }
-        return String(text[range.upperBound...])
-    }
-
-    /// Eyebrow, headline and byline on the left, the tiles on the right, and
-    /// a heavy rule under both. A site's address is one smaller line under
-    /// the byline, in its grey.
+    /// The site or the person as the title, "Site hours · October 2026"
+    /// under it, the address and the day it was made in grey, and up to two
+    /// figures as plain right-aligned text, over a thin rule (polish,
+    /// 2026-11: no orange capitals over the title, no tiles). The words come
+    /// from `ReportTable.pageHeader`.
     func drawHeader(at y: CGFloat) -> CGFloat {
         let margin = PDFReportStyle.margin
-        let tiles = table.tiles
-        let widths = tiles.map(PDFPageDecorations.width(of:))
-        let tilesWidth = tiles.isEmpty
-            ? 0
-            : widths.reduce(0, +) + CGFloat(tiles.count - 1) * PDFPageDecorations.tileGap
-        let textWidth = PDFReportStyle.contentWidth - tilesWidth - (tiles.isEmpty ? 0 : 16)
+        let header = table.pageHeader(
+            madeOn: CalendarDate(generatedOn, calendar: .current),
+            calendar: .current
+        )
+        let figuresWidth = PDFPageDecorations.figuresWidth(header.figures)
+        let textWidth = PDFReportStyle.contentWidth - figuresWidth - (header.figures.isEmpty ? 0 : 24)
 
         PDFReportStyle.draw(
-            Self.fittedEyebrow(table.eyebrow.uppercased(with: table.language.locale), width: textWidth),
-            in: CGRect(x: margin, y: y, width: textWidth, height: 11),
-            font: PDFReportStyle.eyebrowFont,
-            color: PDFReportStyle.accent,
-            kern: 0.8
-        )
-        PDFReportStyle.draw(
-            table.headline,
-            in: CGRect(x: margin, y: y + 12, width: textWidth, height: 30),
+            header.title,
+            in: CGRect(x: margin, y: y, width: textWidth, height: 30),
             font: PDFReportStyle.titleFont,
             color: PDFReportStyle.ink
         )
         PDFReportStyle.draw(
-            table.byline,
-            in: CGRect(x: margin, y: y + 43, width: textWidth, height: 13),
-            font: PDFReportStyle.bylineFont,
+            header.kindLine,
+            in: CGRect(x: margin, y: y + 31, width: textWidth, height: 14),
+            font: PDFReportStyle.headerKindFont,
+            color: PDFReportStyle.ink
+        )
+        PDFReportStyle.draw(
+            header.detailLine,
+            in: CGRect(x: margin, y: y + 45, width: textWidth, height: 12),
+            font: PDFReportStyle.headerDetailFont,
             color: PDFReportStyle.secondary
         )
 
-        let addressHeight = table.address.isEmpty ? 0 : PDFReportLayout.addressLineHeight
-        if !table.address.isEmpty {
-            PDFReportStyle.draw(
-                table.address,
-                in: CGRect(x: margin, y: y + 56, width: textWidth, height: addressHeight),
-                font: PDFReportStyle.addressFont,
-                color: PDFReportStyle.secondary
-            )
+        // The figures, bottom-aligned with the two lines under the title.
+        let figuresX = margin + PDFReportStyle.contentWidth - figuresWidth
+        let firstFigureY = y + 45 - CGFloat(max(header.figures.count - 1, 0)) * 14
+        for (index, figure) in header.figures.enumerated() {
+            drawFigure(figure, in: CGRect(x: figuresX, y: firstFigureY + CGFloat(index) * 14, width: figuresWidth, height: 13))
         }
 
-        var x = margin + PDFReportStyle.contentWidth - tilesWidth
-        for (tile, width) in zip(tiles, widths) {
-            drawTile(tile, in: CGRect(x: x, y: y, width: width, height: PDFPageDecorations.tileHeight))
-            x += width + PDFPageDecorations.tileGap
-        }
-
-        let ruleY = y + 60 + addressHeight
+        let ruleY = y + 60
         PDFReportStyle.line(
             from: CGPoint(x: margin, y: ruleY),
             to: CGPoint(x: margin + PDFReportStyle.contentWidth, y: ruleY),
-            width: 2,
+            width: 1,
             color: PDFReportStyle.ink
         )
         // A part of a sheet split across pages says whose hours it holds.
@@ -94,31 +70,37 @@ struct PDFPageDecorations {
         return y + layout.titleBlockHeight
     }
 
-    /// As wide as its figure or its label needs, and never narrower than the
-    /// others' 88 points: "489h 30m" of crew hours was cut to "489h…".
-    private static func width(of tile: ReportTile) -> CGFloat {
-        func measured(_ text: String, _ font: UIFont) -> CGFloat {
-            ceil((text as NSString).size(withAttributes: [.font: font]).width)
-        }
-        let content = max(measured(tile.value, PDFReportStyle.tileValueFont), measured(tile.label, PDFReportStyle.tileLabelFont))
-        return max(tileWidth, content + 18)
+    /// The gap between a figure's label and its value.
+    private static let figureGap: CGFloat = 6
+
+    /// As wide as the widest "Crew hours  489h 30m", so the values line up
+    /// on the right.
+    private static func figuresWidth(_ figures: [ReportTile]) -> CGFloat {
+        figures.map { figure in
+            ceil(PDFReportStyle.width(of: figure.label, font: PDFReportStyle.figureLabelFont)
+                + figureGap
+                + PDFReportStyle.width(of: figure.value, font: PDFReportStyle.figureValueFont))
+        }.max() ?? 0
     }
 
-    private func drawTile(_ tile: ReportTile, in rect: CGRect) {
-        (tile.isNegative ? PDFReportStyle.negativeTile : PDFReportStyle.tile).setFill()
-        UIBezierPath(roundedRect: rect, cornerRadius: 6).fill()
-        let inner = rect.insetBy(dx: 8, dy: 0)
+    /// "Crew hours" in grey, then "489h 30m" in bold, right-aligned. Plain
+    /// ink even below zero: the table's late and early are the one colour.
+    private func drawFigure(_ figure: ReportTile, in rect: CGRect) {
+        let valueWidth = ceil(PDFReportStyle.width(of: figure.value, font: PDFReportStyle.figureValueFont)) + 1
         PDFReportStyle.draw(
-            tile.label,
-            in: CGRect(x: inner.minX, y: rect.minY + 5, width: inner.width, height: 10),
-            font: PDFReportStyle.tileLabelFont,
-            color: PDFReportStyle.secondary
+            figure.value,
+            in: CGRect(x: rect.maxX - valueWidth, y: rect.minY, width: valueWidth, height: rect.height),
+            font: PDFReportStyle.figureValueFont,
+            color: PDFReportStyle.ink,
+            alignment: .right
         )
+        let labelWidth = max(0, rect.width - valueWidth - PDFPageDecorations.figureGap)
         PDFReportStyle.draw(
-            tile.value,
-            in: CGRect(x: inner.minX, y: rect.minY + 16, width: inner.width, height: 21),
-            font: PDFReportStyle.tileValueFont,
-            color: tile.isNegative ? PDFReportStyle.negative : PDFReportStyle.ink
+            figure.label,
+            in: CGRect(x: rect.minX, y: rect.minY, width: labelWidth, height: rect.height),
+            font: PDFReportStyle.figureLabelFont,
+            color: PDFReportStyle.secondary,
+            alignment: .right
         )
     }
 
@@ -126,7 +108,7 @@ struct PDFPageDecorations {
 
     /// Every figure the summary holds, in three columns of label and value.
     ///
-    /// The tiles repeat four of them, and they are kept here as well: this
+    /// The header repeats two of them, and they are kept here as well: this
     /// block is where the figures have always been, and a test reads it back
     /// out of the finished page to be sure the summary was never dropped.
     func drawSummary(at y: CGFloat) -> CGFloat {
