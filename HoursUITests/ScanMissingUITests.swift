@@ -91,10 +91,8 @@ final class ScanMissingUITests: XCTestCase {
         app.launch()
         openSite(app)
 
-        let row = app.buttons["site-missing"].firstMatch
-        for _ in 0..<3 where !row.isHittable { app.swipeUp() }
-        XCTAssertTrue(row.waitForExistence(timeout: 5), "the site's page should have a Missing row")
-        row.tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tapSiteRow("site-missing"), "the site's page should have a Missing row")
         XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "Missing did not open")
 
         // A new item, by name.
@@ -177,9 +175,8 @@ final class ScanMissingUITests: XCTestCase {
 
         // On the site's page it is one needed.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        let row = app.buttons["site-missing"].firstMatch
-        for _ in 0..<3 where !row.isHittable { app.swipeUp() }
-        row.tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tapSiteRow("site-missing"), "the site's page should have a Missing row")
         XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5), "the item noted on the day is on the list")
     }
 
