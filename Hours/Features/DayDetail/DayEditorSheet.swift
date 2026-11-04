@@ -292,12 +292,14 @@ struct DayEditorSheet: View {
     private func delete() {
         do {
             // Your site hours stay: they go when the site day does, on the
-            // site. Everything typed in here is deleted.
-            let siteShifts = storedSiteShifts()
-            if siteShifts.isEmpty {
+            // site. Everything typed in here is deleted (`DayClearing`).
+            switch DayClearing.plan(for: repository.record(on: date)) {
+            case .nothing:
+                break
+            case let .delete(date):
                 try repository.delete(on: date)
-            } else {
-                try repository.save(DayRecord(date: date, shifts: siteShifts))
+            case let .keep(record):
+                try repository.save(record)
             }
         } catch {
             refusal = error
