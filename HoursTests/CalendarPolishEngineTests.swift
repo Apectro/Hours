@@ -128,4 +128,52 @@ final class CalendarPolishEngineTests: XCTestCase {
     func testAnEmptyWeekHasNoTotal() {
         XCTAssertNil(CalendarWeekTotals.label(0, formatting: DurationFormatting(style: .hoursAndMinutes)))
     }
+
+    // MARK: - What VoiceOver calls a day
+
+    private var english: CalendarFormatting {
+        CalendarFormatting(locale: Locale(identifier: "en_GB"), calendar: calendar)
+    }
+
+    func testADayOfTheMonthIsCalledByItsNumber() {
+        let name = english.spokenDay(Fixture.date(2026, 11, 1), in: november())
+
+        XCTAssertEqual(name, "1", "a day of the month shown keeps its number alone")
+    }
+
+    func testALeadingNeighbourDayNamesItsMonth() {
+        // November 2026's first row starts on Monday 26 October.
+        let layout = november()
+        let leading = Fixture.date(2026, 10, 31)
+        XCTAssertTrue(layout.days.contains(leading))
+
+        XCTAssertEqual(english.spokenDay(leading, in: layout), "31 October")
+    }
+
+    func testATrailingNeighbourDayNamesItsMonth() {
+        let layout = november()
+        let trailing = Fixture.date(2026, 12, 6)
+        XCTAssertTrue(layout.days.contains(trailing))
+
+        XCTAssertEqual(english.spokenDay(trailing, in: layout), "6 December")
+    }
+
+    func testTheWeekNamesNoMonth() {
+        // A week has no outside: the days of a week across two months are
+        // all called by their number, as the week's own tiles show them.
+        let week = MonthLayout.week(containing: Fixture.date(2026, 11, 1), calendar: calendar, includesWeekends: true)
+        XCTAssertTrue(week.days.contains(Fixture.date(2026, 10, 31)))
+
+        XCTAssertEqual(english.spokenDay(Fixture.date(2026, 10, 31), in: week), "31")
+    }
+
+    func testTheMonthIsInTheLanguagesOwnWords() {
+        let german = CalendarFormatting(locale: Locale(identifier: "de_DE"), calendar: calendar)
+
+        XCTAssertEqual(german.spokenDay(Fixture.date(2026, 10, 31), in: november()), "31. Oktober")
+    }
+
+    func testDayAndMonthLeavesOutTheWeekdayAndYear() {
+        XCTAssertEqual(english.dayAndMonth(Fixture.date(2026, 10, 31)), "31 October")
+    }
 }

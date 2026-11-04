@@ -84,6 +84,21 @@ struct CalendarFormatting: Sendable {
         formatter("EEEEd").string(from: date.date(in: calendar))
     }
 
+    /// "31 October": a day with its month and nothing else, as VoiceOver
+    /// says a neighbouring month's day in a month's grid.
+    func dayAndMonth(_ date: CalendarDate) -> String {
+        formatter("dMMMM").string(from: date.date(in: calendar))
+    }
+
+    /// What VoiceOver calls a day's tile in `layout`: a day of the month
+    /// shown by its number ("1"), the screen's title being the month; a
+    /// faded day borrowed from the month before or after with its month
+    /// ("31 October"), so it is not taken for a day of this one. A week has
+    /// no outside, so its days keep their numbers.
+    func spokenDay(_ date: CalendarDate, in layout: MonthLayout) -> String {
+        layout.isInMonth(date) ? "\(date.day)" : dayAndMonth(date)
+    }
+
     /// "Mon 26": a day's row under the calendar's week, the week being the
     /// screen's title, or when something was noted missing.
     func shortWeekdayAndDay(_ date: CalendarDate) -> String {

@@ -174,4 +174,54 @@ final class CalendarPolishTests: XCTestCase {
         mode.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(waitUntilGone(row), "Month kept the week's list")
     }
+
+    /// A faded day from the month before (or, when the month starts its
+    /// grid, the month after) is read with its month, "31 October", not
+    /// like a day of this month; the month's own days keep their number.
+    /// The expected words come from the device's own date format, the one
+    /// the app uses, never from English written here.
+    func testANeighbouringMonthsDayIsReadWithItsMonth() throws {
+        let app = XCUIApplication.hours()
+        app.launch()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+
+        let calendar = Calendar.current
+        let firstOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) ?? Date()
+        let lastOfPrevious = calendar.date(byAdding: .day, value: -1, to: firstOfMonth) ?? firstOfMonth
+        let firstOfNext = calendar.date(byAdding: .month, value: 1, to: firstOfMonth) ?? firstOfMonth
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        formatter.setLocalizedDateFormatFromTemplate("dMMMM")
+
+        // The month's own first day is drawn in every month; the day before
+        // it only when the month does not start the week.
+        let own = app.buttons["day-\(Self.key(firstOfMonth, calendar))"].firstMatch
+        XCTAssertTrue(own.waitForExistence(timeout: 10), "the month has no first day")
+        let neighbour = [lastOfPrevious, firstOfNext]
+            .map { (date: $0, tile: app.buttons["day-\(Self.key($0, calendar))"].firstMatch) }
+            .first { $0.tile.exists }
+        guard let neighbour else {
+            throw XCTSkip("this month's grid holds no day of another month")
+        }
+
+        let expected = formatter.string(from: neighbour.date)
+        XCTAssertTrue(neighbour.tile.label.hasPrefix(expected), "a faded day should say its month: \(neighbour.tile.label)")
+        // Found by that label too, which is what VoiceOver reads out.
+        let byLabel = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", expected)).firstMatch
+        XCTAssertTrue(byLabel.exists, "no day reads \(expected)")
+        XCTAssertEqual(byLabel.identifier, neighbour.tile.identifier)
+
+        // The month's own 1st is still called 1.
+        let ownLabel = own.label
+        XCTAssertTrue(ownLabel == "1" || ownLabel.hasPrefix("1,"), "a day of this month keeps its number: \(ownLabel)")
+    }
+
+    /// `yyyyMMdd`, as the calendar's days are identified.
+    private static func key(_ date: Date, _ calendar: Calendar) -> Int {
+        let parts = calendar.dateComponents([.year, .month, .day], from: date)
+        return (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
+    }
 }
