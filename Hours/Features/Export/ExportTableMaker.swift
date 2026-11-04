@@ -171,6 +171,10 @@ struct ExportTableMaker {
             uniquingKeysWith: { first, _ in first }
         )
 
+        // 1.3: the open defects of each site whose sign-off sheet asks for
+        // them, after the signatures; with several sites, each under its name.
+        let openDefects = includeSignatures ? signOffDefects(of: sites) : []
+
         func build(_ placeholder: String) -> ReportTable {
             var table = SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: placeholder)
                 .makeTable(
@@ -183,12 +187,50 @@ struct ExportTableMaker {
                     siteNames: siteNames
                 )
             if printsDiary { table.diary = diary }
+            if includeSignatures { table.openDefects = openDefects }
             return table
         }
         var tables = ExportTables(file: build(""), preview: build("—"))
         tables.hasDiary = !diary.isEmpty
-        tables.photoIDs = printsDiary ? Set(diary.blocks.flatMap(\.photoIDs)) : []
+        tables.photoIDs = (printsDiary ? Set(diary.blocks.flatMap(\.photoIDs)) : [])
+            .union(openDefects.compactMap(\.photoID))
         return tables
+    }
+
+    /// The open defects the sheet lists, numbered across the sites, for each
+    /// site with "Open defects on the sign-off" on.
+    private func signOffDefects(of sites: [Site]) -> [ReportDefect] {
+        let repository = DefectRepository(context: context)
+        var rows: [ReportDefect] = []
+        for site in sites {
+            let setup = settings.siteSetup(for: site.id)
+            guard setup.defectsOnSignOff else { continue }
+            let defects = repository.defects(siteID: site.id)
+            guard DefectList.count(.open, in: defects) > 0 else { continue }
+            let document = DefectsDocument(
+                siteName: site.name,
+                address: "",
+                date: CalendarDate.today(in: calendar),
+                defects: defects,
+                floors: setup.floorList(defaults: SiteFloorNames.defaults),
+                onlyOpen: true,
+                showsAssignee: false,
+                ownerName: "",
+                language: settings.export.language,
+                calendar: calendar
+            )
+            for row in document.signOffRows(firstPhotos: repository.firstPhotos(siteID: site.id)) {
+                rows.append(ReportDefect(
+                    number: rows.count + 1,
+                    what: row.what,
+                    whereLine: sites.count > 1 ? [site.name, row.whereLine].filter { !$0.isEmpty }.joined(separator: " · ") : row.whereLine,
+                    since: row.since,
+                    photoID: row.photoID,
+                    marks: row.marks
+                ))
+            }
+        }
+        return rows
     }
 
     /// The crew's hours of every site with days in the month, by site, for
@@ -217,6 +259,13 @@ struct ExportTableMaker {
             for (id, data) in stored {
                 missing.remove(id)
                 if let small = DiaryPhotoProcessor.printJPEG(from: data) { result[id] = small }
+            }
+        }
+        // What is left is a defect's photo on the sign-off pages: printed as
+        // a thumbnail.
+        if !missing.isEmpty {
+            for (id, data) in DefectRepository(context: context).photoData(ids: missing) {
+                if let small = DiaryPhotoProcessor.thumbnailPrintJPEG(from: data) { result[id] = small }
             }
         }
         return result

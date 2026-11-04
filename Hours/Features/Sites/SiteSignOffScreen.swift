@@ -43,6 +43,7 @@ struct SiteSignOffScreen: View {
     @State private var signatures: [CrewSignature] = []
     @State private var signing: SignOffPerson?
     @State private var loaded = false
+    @State private var openDefects = 0
 
     var body: some View {
         List {
@@ -75,6 +76,19 @@ struct SiteSignOffScreen: View {
                 }
             } footer: {
                 Text("Each person checks their own days and signs here with a finger.")
+            }
+            // 1.3: the site's open defects can go on the signed sheet. A
+            // note, never a reason not to sign.
+            Section {
+                Toggle("Open defects on the sign-off", isOn: defectsOnSignOff)
+                    .accessibilityIdentifier("signoff-defects")
+            } footer: {
+                if openDefects > 0 {
+                    Text(String(inflected: "^[\(openDefects) defect](inflect: true) still open."))
+                        .accessibilityIdentifier("signoff-defects-open")
+                } else {
+                    Text("The sheet lists the open ones, with a photo each.")
+                }
             }
         }
         .confirmationDialog(
@@ -203,7 +217,24 @@ struct SiteSignOffScreen: View {
         results = book.results
         signatures = book.signatures
         people = book.people
+        openDefects = DefectRepository(context: modelContext).openCount(siteID: site.id)
         loaded = true
+    }
+
+    /// The site's own switch, kept in its setup.
+    private var defectsOnSignOff: Binding<Bool> {
+        Binding(
+            get: { settingsStore.settings.siteSetup(for: site.id).defectsOnSignOff },
+            set: { isOn in
+                let siteID = site.id
+                settingsStore.update { settings in
+                    var setup = settings.siteSetup(for: siteID)
+                    setup.defectsOnSignOff = isOn
+                    settings.setSiteSetup(setup, for: siteID)
+                }
+                onChange()
+            }
+        )
     }
 
     private func removeSignature(of person: SignOffPerson) {
