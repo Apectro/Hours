@@ -137,4 +137,27 @@ final class BoxTextSuggestionsTests: XCTestCase {
         XCTAssertEqual(tray, "Junction box IP65", "an empty line adds nothing")
         XCTAssertEqual(BoxTextSuggestions.appending("grey\nsurface", to: "Box"), "Box grey surface")
     }
+
+    // MARK: - Scan text into a field that already has words
+
+    /// What was done takes the scanned text after what is typed (the field
+    /// is a description); a name field is replaced instead, elsewhere.
+    func testScannedTextIsAddedAfterWhatIsTyped() {
+        XCTAssertEqual(BoxTextSuggestions.adding("LED panel 60x60", to: "Fitted"), "Fitted LED panel 60x60")
+        XCTAssertEqual(BoxTextSuggestions.adding("LED panel", to: "Fitted "), "Fitted LED panel",
+                       "a field ending in a space gets no second one")
+        XCTAssertEqual(BoxTextSuggestions.adding("LED panel", to: "Fitted:\n"), "Fitted:\nLED panel",
+                       "a field ending in a new line goes on under it")
+    }
+
+    func testScannedTextIntoAnEmptyFieldIsJustTheText() {
+        XCTAssertEqual(BoxTextSuggestions.adding("  Emergency light 3h ", to: ""), "Emergency light 3h")
+        XCTAssertEqual(BoxTextSuggestions.adding("Emergency light", to: "   "), "Emergency light",
+                       "spaces alone count as empty")
+    }
+
+    func testNothingScannedLeavesTheFieldAsTyped() {
+        XCTAssertEqual(BoxTextSuggestions.adding("   ", to: "Fitted "), "Fitted ")
+        XCTAssertEqual(BoxTextSuggestions.adding("", to: ""), "")
+    }
 }

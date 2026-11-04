@@ -244,8 +244,10 @@ struct ExtraWorkEditorSheet: View {
                     .frame(minHeight: 32)
                     .accessibilityLabel(String(localized: "What was done"))
                     .accessibilityIdentifier("extra-work-description")
+                // Added after what is typed, not in its place: a
+                // description is often a word or two and then the box's name.
                 ScanTextButton(identifier: "extra-work-description-scan-text") { text in
-                    draft.description = text
+                    draft.description = BoxTextSuggestions.adding(text, to: draft.description)
                 }
             }
         } header: {
