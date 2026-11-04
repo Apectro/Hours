@@ -356,7 +356,12 @@ struct DayTile: View {
         switch look {
         case .written, .missing: return .primary
         case .away, .holiday: return typeTextColor
-        case .dayOff, .plain: return Color(uiColor: .tertiaryLabel)
+        // A day of the shown month reads clearly without a tile: a workday
+        // (gone by or to come) in the primary colour, a weekend or day off
+        // in the secondary one. Only a neighbouring month's day is faded,
+        // here and by the tile's own 40%.
+        case .plain: return isOutsideMonth ? Color(uiColor: .tertiaryLabel) : .primary
+        case .dayOff: return isOutsideMonth ? Color(uiColor: .tertiaryLabel) : .secondary
         }
     }
 

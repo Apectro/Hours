@@ -118,7 +118,13 @@ private struct SiteDayTile: View {
 
     private var numberColor: Color {
         if isToday { return .white }
-        return hasTile ? .primary : Color(uiColor: .tertiaryLabel)
+        if hasTile { return .primary }
+        // A day of the shown month reads clearly without a tile: a workday
+        // to come in the primary colour, a day off in the secondary one.
+        // Only a neighbouring month's day is faded, here and by the tile's
+        // own 40%.
+        if isOutsideMonth { return Color(uiColor: .tertiaryLabel) }
+        return status == .dayOff ? .secondary : .primary
     }
 
     /// "• 5" on a written day, orange while partly written; a red dot on a

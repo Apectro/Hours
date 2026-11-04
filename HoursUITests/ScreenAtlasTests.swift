@@ -375,11 +375,19 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// Today on the showcase site, from the top to the diary.
     private func siteDayScreens(_ app: XCUIApplication) {
-        // The calendar button: a month to go to another day, closed again.
-        if tap(app.buttons.matching(identifier: "site-day-pick-date").firstMatch, "Choose a day", app) {
+        // The day's ⋯ menu: another day, bad weather, the move and the crew.
+        let dayMenu = app.buttons.matching(identifier: "site-day-menu").firstMatch
+        if tap(dayMenu, "the day's menu", app) {
             pause(0.5)
-            capture("site-day-pick-date", app)
-            close(app, "site-day-date-done")
+            capture("site-day-menu", app)
+            // Choose a day: a month to go to another day, closed again.
+            if tap(app.buttons.matching(identifier: "site-day-pick-date").firstMatch, "Choose a day", app) {
+                pause(0.5)
+                capture("site-day-pick-date", app)
+                close(app, "site-day-date-done")
+            } else {
+                dismissMenu(app)
+            }
         }
 
         swipeUp(app)
@@ -404,22 +412,26 @@ final class ScreenAtlasTests: XCTestCase {
         siteMoveScreens(app)
 
         let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
-        if bringIntoView(weather, app), tap(weather, "Bad weather", app) {
-            capture("site-rained-off-sheet", app)
-            if tap(app.buttons.matching(identifier: "site-weather-stop-all").firstMatch, "No work today", app) {
-                capture("site-rained-off-no-work", app)
+        if tap(dayMenu, "the day's menu", app) {
+            if tap(weather, "Bad weather", app) {
+                capture("site-rained-off-sheet", app)
+                if tap(app.buttons.matching(identifier: "site-weather-stop-all").firstMatch, "No work today", app) {
+                    capture("site-rained-off-no-work", app)
+                }
+                close(app, "site-weather-stop-cancel")
+            } else {
+                dismissMenu(app)
             }
-            close(app, "site-weather-stop-cancel")
         }
 
-        let addExtraWork = app.buttons.matching(identifier: "extra-work-add").firstMatch
-        if bringIntoView(addExtraWork, app) {
+        let extraWork = app.descendants(matching: .any).matching(identifier: "extra-work-heading").firstMatch
+        if bringIntoView(extraWork, app) {
             capture("site-day-extra-work", app)
         } else {
             miss("site-day-extra-work (no extra work section)")
         }
         // The sample's finished jobs are not sent yet: "Send to boss (N)"
-        // beside the Extra work heading.
+        // as the section's last row.
         if bringIntoView(app.buttons.matching(identifier: "extra-work-send-report").firstMatch, app) {
             capture("site-day-send-to-boss", app)
         } else {
@@ -1380,8 +1392,13 @@ final class ScreenAtlasTests: XCTestCase {
     /// the export's Sites picker for the month. Undone at the end, so nothing
     /// after this sees the move.
     private func siteMoveScreens(_ app: XCUIApplication) {
+        // In the day's ⋯ menu.
         let move = app.buttons.matching(identifier: "site-day-move").firstMatch
-        guard bringIntoView(move, app), tap(move, "Moved to another site", app) else { return }
+        guard tap(app.buttons.matching(identifier: "site-day-menu").firstMatch, "the day's menu", app) else { return }
+        guard tap(move, "Moved to another site", app) else {
+            dismissMenu(app)
+            return
+        }
         pause(0.8)
         capture("site-move-sheet", app)
         guard tap(app.buttons.matching(identifier: "site-move-to-0").firstMatch, "the other site", app) else {
