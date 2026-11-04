@@ -168,7 +168,6 @@ struct DeliveryCheckFlow: View {
         .frame(minHeight: 44)
         .padding(.horizontal, Metrics.medium)
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("delivery-expected-\(index)")
     }
 
     private func extraRow(_ line: DeliveryLine, index: Int) -> some View {

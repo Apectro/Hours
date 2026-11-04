@@ -424,6 +424,16 @@ final class ScreenAtlasTests: XCTestCase {
             miss("site-day-missing (no Something's missing on the day)")
         }
 
+        // 1.3: "Found a defect", where there is no camera.
+        let defect = app.buttons.matching(identifier: "site-day-defect").firstMatch
+        if bringIntoView(defect, app), tap(defect, "Found a defect on the day", app) {
+            pause(0.5)
+            capture("site-day-defect", app)
+            close(app, "defect-camera-cancel")
+        } else {
+            miss("site-day-defect (no Found a defect on the day)")
+        }
+
         let diary = app.buttons.matching(identifier: "site-day-diary").firstMatch
         if bringIntoView(diary, app), tap(diary, "Diary for this day", app) {
             pause(0.5)
@@ -666,6 +676,39 @@ final class ScreenAtlasTests: XCTestCase {
         if states.waitForExistence(timeout: 5) {
             states.buttons.element(boundBy: 1).tap()
             capture("site-missing-ordered", app)
+            // 1.3: the delivery check, with the typed code where there is
+            // no camera.
+            if tap(app.buttons.matching(identifier: "missing-delivery-check").firstMatch, "Check a delivery", app) {
+                pause(0.5)
+                capture("delivery-scan", app)
+                // A box of the sample's junction boxes, which are needed but
+                // not ordered: it came anyway.
+                let field = app.textFields["scanner-code-field"]
+                if field.waitForExistence(timeout: 5) {
+                    field.tap()
+                    field.typeText("4015081677891\n")
+                    pause(0.5)
+                    capture("delivery-scan-scanned", app)
+                }
+                if tap(app.buttons.matching(identifier: "delivery-done").firstMatch, "Done scanning", app) {
+                    pause(0.5)
+                    capture("delivery-result", app)
+                    if tap(app.buttons.matching(identifier: "delivery-save").firstMatch, "Save the delivery", app) {
+                        pause(0.5)
+                        capture("delivery-saved", app)
+                        close(app, "delivery-finish")
+                    }
+                } else {
+                    close(app, "delivery-close")
+                }
+            }
+            states.buttons.element(boundBy: 2).tap()
+            capture("site-missing-arrived", app)
+            if tap(app.buttons.matching(identifier: "missing-delivery-row-0").firstMatch, "a saved delivery", app) {
+                pause(0.5)
+                capture("delivery-detail", app)
+                close(app, "delivery-detail-done")
+            }
             states.buttons.element(boundBy: 0).tap()
         } else {
             miss("site-missing-ordered (no Needed · Ordered · Arrived)")
@@ -673,6 +716,49 @@ final class ScreenAtlasTests: XCTestCase {
         if tap(app.buttons.matching(identifier: "missing-send").firstMatch, "Send the list", app) {
             capture("site-missing-send", app)
             close(app, "missing-send-close")
+        }
+        back(app)
+    }
+
+    /// A site's defects (1.3): the list, the viewer of a defect, a new one
+    /// where there is no camera with its details, and Send the list.
+    private func defectScreens(_ app: XCUIApplication) {
+        let row = app.buttons.matching(identifier: "site-defects").firstMatch
+        guard bringIntoView(row, app), tap(row, "the Defects row", app) else { return }
+        guard app.screen("screen-defects").waitForExistence(timeout: 8) else {
+            miss("site-defects (Defects did not open)")
+            return
+        }
+        pause(0.5)
+        capture("site-defects", app)
+        if tap(app.buttons.matching(identifier: "defects-row-0").firstMatch, "a defect", app) {
+            pause(1)
+            capture("defect-viewer", app)
+            close(app, "defect-viewer-done")
+        }
+        if tap(app.buttons.matching(identifier: "defects-add").firstMatch, "+ on Defects", app) {
+            pause(0.5)
+            capture("defect-camera", app)
+            if tap(app.buttons.matching(identifier: "defect-camera-skip").firstMatch, "Without a photo", app) {
+                pause(0.5)
+                capture("defect-details", app)
+                close(app, "defect-cancel")
+            } else {
+                close(app, "defect-camera-cancel")
+            }
+        }
+        let states = app.segmentedControls["defects-state"]
+        if states.waitForExistence(timeout: 5) {
+            states.buttons.element(boundBy: 1).tap()
+            capture("site-defects-fixed", app)
+            states.buttons.element(boundBy: 0).tap()
+        } else {
+            miss("site-defects-fixed (no Open · Fixed)")
+        }
+        if tap(app.buttons.matching(identifier: "defects-send").firstMatch, "Send the list", app) {
+            pause(1)
+            capture("site-defects-send", app)
+            close(app, "defects-send-close")
         }
         back(app)
     }
@@ -735,6 +821,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         missingScreens(app)
+        defectScreens(app)
 
         if tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
             pause(1)
@@ -791,6 +878,18 @@ final class ScreenAtlasTests: XCTestCase {
             if tap(app.buttons.matching(identifier: "site-editor-work-days").firstMatch, "Work days", app) {
                 capture("site-edit-work-days", app)
                 back(app)
+            }
+            // 1.3: the Defects section and the floors.
+            let floors = app.buttons.matching(identifier: "site-floors-row").firstMatch
+            if bringIntoView(floors, app) {
+                capture("site-edit-defects", app)
+                if tap(floors, "Floors", app) {
+                    pause(0.5)
+                    capture("site-floors", app)
+                    back(app)
+                }
+            } else {
+                miss("site-edit-defects (no Floors row)")
             }
             swipeDown(app, times: 3)
             arrivalReminderScreens(app)
