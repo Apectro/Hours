@@ -40,6 +40,11 @@ struct SiteBlueprint: Hashable, Sendable {
         fallback: SiteSetup
     ) -> SiteBlueprint {
         var copied = setup
+        // Another building: its floors and rooms are its own. Whether
+        // defects are assigned and go on the sign-off is how you work, and
+        // comes along.
+        copied.floors = nil
+        copied.rooms = []
         let own = recentDays.filter { $0.siteID == site.id }
         if !copied.hasUsualTimes {
             let latest = own

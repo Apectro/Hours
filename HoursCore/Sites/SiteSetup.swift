@@ -30,6 +30,19 @@ struct SiteSetup: Hashable, Codable, Sendable {
     var monthlySheet: Bool
     /// The day screen shows the site diary.
     var keepsDiary: Bool
+    /// The site's floors (1.3), in order from the bottom: what a defect's
+    /// floor is picked from and the defects are grouped by. `nil` until
+    /// edited: the screens offer Ground, 1st floor, 2nd floor and Roof in
+    /// the language (`floorList(defaults:)`).
+    var floors: [String]?
+    /// The rooms typed for defects on the site, remembered as chips.
+    var rooms: [String]
+    /// "Assign defects to people": whether a defect says who fixes it. Off,
+    /// the field is nowhere — the sheet, the rows, the viewer, the PDF.
+    var assignsDefects: Bool
+    /// "Open defects on the sign-off": the site's sheet lists its open
+    /// defects after the crew's signatures.
+    var defectsOnSignOff: Bool
 
     init(
         start: TimeOfDay? = nil,
@@ -39,7 +52,11 @@ struct SiteSetup: Hashable, Codable, Sendable {
         asksKilometres: Bool = true,
         eveningReminder: Bool = true,
         monthlySheet: Bool = true,
-        keepsDiary: Bool = true
+        keepsDiary: Bool = true,
+        floors: [String]? = nil,
+        rooms: [String] = [],
+        assignsDefects: Bool = false,
+        defectsOnSignOff: Bool = false
     ) {
         self.start = start
         self.end = end
@@ -49,6 +66,10 @@ struct SiteSetup: Hashable, Codable, Sendable {
         self.eveningReminder = eveningReminder
         self.monthlySheet = monthlySheet
         self.keepsDiary = keepsDiary
+        self.floors = floors.map(SiteFloors.normalised)
+        self.rooms = SiteFloors.normalised(rooms)
+        self.assignsDefects = assignsDefects
+        self.defectsOnSignOff = defectsOnSignOff
     }
 
     /// Both times are set, so a new day can start with them.
@@ -59,6 +80,7 @@ struct SiteSetup: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case start, end, breakMinutes, workDays, asksKilometres, eveningReminder, monthlySheet, keepsDiary
+        case floors, rooms, assignsDefects, defectsOnSignOff
     }
 
     init(from decoder: Decoder) throws {
@@ -71,7 +93,11 @@ struct SiteSetup: Hashable, Codable, Sendable {
             asksKilometres: container.lenient(.asksKilometres, true),
             eveningReminder: container.lenient(.eveningReminder, true),
             monthlySheet: container.lenient(.monthlySheet, true),
-            keepsDiary: container.lenient(.keepsDiary, true)
+            keepsDiary: container.lenient(.keepsDiary, true),
+            floors: container.lenientOptional(.floors, [String].self),
+            rooms: container.lenient(.rooms, [String]()),
+            assignsDefects: container.lenient(.assignsDefects, false),
+            defectsOnSignOff: container.lenient(.defectsOnSignOff, false)
         )
     }
 
@@ -86,6 +112,10 @@ struct SiteSetup: Hashable, Codable, Sendable {
         if !eveningReminder { try container.encode(false, forKey: .eveningReminder) }
         if !monthlySheet { try container.encode(false, forKey: .monthlySheet) }
         if !keepsDiary { try container.encode(false, forKey: .keepsDiary) }
+        try container.encodeIfPresent(floors, forKey: .floors)
+        if !rooms.isEmpty { try container.encode(rooms, forKey: .rooms) }
+        if assignsDefects { try container.encode(true, forKey: .assignsDefects) }
+        if defectsOnSignOff { try container.encode(true, forKey: .defectsOnSignOff) }
     }
 
     /// Monday to Friday: what a week with no working day falls back to.

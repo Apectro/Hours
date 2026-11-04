@@ -180,6 +180,10 @@ struct ReportTable: Hashable, Sendable {
     /// A box per person with their signature, on the director's sheet once
     /// anyone has signed. Empty prints nothing.
     var signOff: [ReportSignOff] = []
+    /// The site's open defects, on pages after the sign-off, when the
+    /// sign-off sheet's "Open defects on the sign-off" is on (1.3). Empty
+    /// prints nothing.
+    var openDefects: [ReportDefect] = []
     /// Which part of a split sheet this is — "People 1–5 of 9" — printed
     /// small under the header block. Empty, as on every table that was not
     /// split (`SiteSheetBuilder.split`), prints nothing.
