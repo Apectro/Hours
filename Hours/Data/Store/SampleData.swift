@@ -284,6 +284,42 @@ enum SampleData {
             ).settingTime(150, for: [person(1), person(3)]),
         ]
         for job in jobs { repository.storeJob(job) }
+        seedMaterialsAndMissing(into: repository, site: site, crew: crew, jobs: jobs, now: now)
+    }
+
+    /// The materials (1.3) — the jobs' items remembered, two of them with a
+    /// barcode — and the site's Missing list: two items needed, one noticed
+    /// by someone on the crew, and one ordered.
+    private static func seedMaterialsAndMissing(
+        into repository: ExtraWorkRepository,
+        site: Site,
+        crew: [CrewMember],
+        jobs: [ExtraWorkJob],
+        now: Date
+    ) {
+        for job in jobs { repository.recordUse(of: job.items, at: job.createdAt, siteID: site.id) }
+        repository.nameCode("4015081123456", name: "Emergency light", unit: .pieces, at: now)
+        let box = repository.nameCode("4015081677891", name: "Junction box IP65", unit: .pieces, at: now)
+
+        let missing = MissingRepository(context: repository.context)
+        missing.add(
+            MissingDraft(name: box.name, quantity: 6, unit: .pieces, note: "2nd floor corridor", catalogItemID: box.id),
+            siteID: site.id,
+            at: now.addingTimeInterval(-6 * 86_400)
+        )
+        missing.add(
+            MissingDraft(name: "Cable NYM-J 3×1.5", quantity: 50, unit: .metres),
+            siteID: site.id,
+            at: now.addingTimeInterval(-5 * 86_400)
+        )
+        missing.add(
+            MissingDraft(name: "LED panel 60×60", quantity: 4, unit: .pieces, notedBy: crew.first?.name ?? ""),
+            siteID: site.id,
+            at: now.addingTimeInterval(-3600)
+        )
+        if let ordered = missing.add(MissingDraft(name: "Wall bracket", quantity: 20, unit: .pieces), siteID: site.id, at: now.addingTimeInterval(-8 * 86_400)) {
+            missing.mark(ordered.id, .ordered, siteID: site.id, at: now.addingTimeInterval(-7 * 86_400))
+        }
     }
 
     /// An ordinary day on the showcase site: 07:00 to 16:00 with half an

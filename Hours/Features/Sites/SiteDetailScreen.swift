@@ -353,6 +353,7 @@ struct SiteDetailScreen: View {
         linkRow("Crew", value: "\(counts.crew + 1)", identifier: "site-crew") {
             openSiteCrew(SiteCrewRoute(siteID: site.id))
         }
+        missingRow(for: site)
         linkRow("A usual day", value: usualDayText(setup), identifier: "site-usual-day") {
             editing = site
         }
@@ -367,6 +368,29 @@ struct SiteDetailScreen: View {
         linkRow("Extra work", value: extraWorkText, identifier: "site-extra-work-report") {
             reporting = site
         }
+    }
+
+    /// Missing (1.3): "3 needed" in orange, or "None" in grey. Pushed by
+    /// value onto the Sites tab's stack, the one place the site's page is.
+    private func missingRow(for site: Site) -> some View {
+        NavigationLink(value: SiteMissingRoute(siteID: site.id)) {
+            HStack(spacing: Metrics.small) {
+                Text("Missing")
+                    .foregroundStyle(.primary)
+                Spacer(minLength: Metrics.small)
+                if counts.missingNeeded > 0 {
+                    Text(String(localized: "\(counts.missingNeeded) needed", comment: "A site's Missing row: how many items are still needed"))
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.hoursAttention)
+                } else {
+                    Text("None")
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+        }
+        .frame(minHeight: 44)
+        .accessibilityIdentifier("site-missing")
     }
 
     private func showsDiary(for site: Site) -> Bool {
@@ -512,7 +536,8 @@ struct SiteDetailScreen: View {
             openExtraWork: ExtraWorkRepository(context: modelContext)
                 .jobs(siteID: siteID)
                 .filter { !$0.isDone || $0.awaitsReport }
-                .count
+                .count,
+            missingNeeded: MissingRepository(context: modelContext).neededCount(siteID: siteID)
         )
         guard !showsDay else {
             counts = loaded
@@ -568,6 +593,8 @@ private struct SiteCounts {
     var diary = 0
     /// Extra-work jobs still in progress or not sent to the boss yet.
     var openExtraWork = 0
+    /// Items on the site's Missing list still needed.
+    var missingNeeded = 0
     /// The shown month, day by day.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
     var missing = 0
