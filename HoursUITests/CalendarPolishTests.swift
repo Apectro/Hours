@@ -103,19 +103,45 @@ final class CalendarPolishTests: XCTestCase {
         XCTAssertTrue(disappears(app.buttons["day-editor-save"]), "Discard did not close the editor")
     }
 
-    /// The month's eighth column: a total for each row's week.
+    /// The month's eighth column: a total for each row's week with hours
+    /// in it, beside the days it counts (the neighbouring months' too).
     func testTheMonthHasAWeekTotalOnEachRow() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-data"]
+        app.launch()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+
+        // The sample data writes the days around today, so today's row has
+        // a total; which row that is depends on the date.
+        let total = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'calendar-week-total-'")).firstMatch
+        XCTAssertTrue(total.waitForExistence(timeout: 5), "the month has no week totals")
+        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.exists, "today's tile keeps its identifier")
+    }
+
+    /// The header at the top of the list: the title with ‹ › beside it and
+    /// Month | Week under it. Today is in the toolbar only while today is
+    /// not on screen.
+    func testTodayShowsOnlyAwayFromTodaysMonth() {
         let app = XCUIApplication.hours()
         app.launch()
         XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
 
-        let first = app.staticTexts.matching(identifier: "calendar-week-total-0").firstMatch
-        XCTAssertTrue(first.waitForExistence(timeout: 5), "the month has no week totals")
-        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.exists, "today's tile keeps its identifier")
+        let next = app.buttons["calendar-next"].firstMatch
+        XCTAssertTrue(next.waitForExistence(timeout: 5), "no › beside the title")
+        XCTAssertTrue(app.buttons["calendar-previous"].firstMatch.exists, "no ‹ beside the title")
+        XCTAssertTrue(app.segmentedControls.matching(identifier: "calendar-mode").firstMatch.exists, "no Month | Week")
+        let todayButton = app.buttons["calendar-today"].firstMatch
+        XCTAssertFalse(todayButton.exists, "Today is hidden on this month")
+
+        next.tap()
+        XCTAssertTrue(todayButton.waitForExistence(timeout: 5), "Today is not offered on next month")
+        todayButton.tap()
+        XCTAssertTrue(disappears(todayButton), "Today stayed after coming back")
+        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 5))
     }
 
-    /// Month | Week in the navigation bar: the week's tiles, its total and
-    /// its list; the arrows page by the week; back to Month again.
+    /// Month | Week under the title: the week's tiles, its total and its
+    /// list; the arrows page by the week; back to Month again.
     func testTheWeekShowsItsTilesTotalAndDays() {
         let app = XCUIApplication.hours()
         app.launchArguments += ["-hours-sample-data"]
@@ -148,7 +174,9 @@ final class CalendarPolishTests: XCTestCase {
         app.buttons["calendar-next"].firstMatch.tap()
         XCTAssertFalse(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 2),
                        "next did not page the week")
-        app.buttons["calendar-today"].firstMatch.tap()
+        let todayButton = app.buttons["calendar-today"].firstMatch
+        XCTAssertTrue(todayButton.waitForExistence(timeout: 5), "Today is not offered on another week")
+        todayButton.tap()
         XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 5),
                       "Today did not come back to this week")
 
