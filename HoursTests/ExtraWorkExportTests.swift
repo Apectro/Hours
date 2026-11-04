@@ -316,6 +316,85 @@ final class ExtraWorkExportTests: XCTestCase {
         XCTAssertEqual(page.linesTable().rows.last?.values[7], "in progress")
     }
 
+    // MARK: - Codes
+
+    private func catalog() -> [ExtraWorkCatalogItem] {
+        [
+            ExtraWorkCatalogItem(name: "EMERGENCY LIGHT ", unit: .pieces, barcodes: ["4006381333931", "9002490100070"]),
+            ExtraWorkCatalogItem(name: "Junction box", unit: .pieces),
+            ExtraWorkCatalogItem(name: "Cable NYM 3×1.5", unit: .metres, barcodes: ["4011558123456"])
+        ]
+    }
+
+    private func coded(_ catalog: [ExtraWorkCatalogItem]) -> ExtraWorkDocument {
+        ExtraWorkDocumentBuilder(settings: settings(), calendar: calendar)
+            .make(report: report(), siteName: site.name, catalog: catalog)
+    }
+
+    /// An item with a barcode in the material catalogue has it printed in the
+    /// material summary: its first code, found by name the way the catalogue
+    /// finds names (case, accents and spacing do not count).
+    func testTheMaterialSummaryShowsEachItemsFirstBarcode() {
+        let page = coded(catalog())
+        XCTAssertEqual(page.materialHeadings, ["Item", "Code", "Quantity", "Unit"])
+        XCTAssertEqual(page.material.map(\.code), ["4006381333931", "", "", "4011558123456"])
+        XCTAssertTrue(page.showsCodes)
+    }
+
+    func testAccentsDoNotHideACode() {
+        let page = coded([ExtraWorkCatalogItem(name: "Céiling lamp led", unit: .pieces, barcodes: ["12345678"])])
+        XCTAssertEqual(page.material[1].name, "Ceiling lamp LED", "the name is the report's own")
+        XCTAssertEqual(page.material[1].code, "12345678")
+    }
+
+    func testTheMaterialSheetHasTheCodeColumnWhenAnyItemHasACode() {
+        let table = coded(catalog()).materialTable()
+        XCTAssertEqual(table.columnHeadings(), ["Item", "Code", "Quantity", "Unit"])
+        XCTAssertEqual(table.rows[0].values, ["Emergency light", "4006381333931", "8", "pcs"])
+        XCTAssertEqual(table.rows[0].numbers, [nil, nil, 8, nil])
+        XCTAssertEqual(table.rows[2].values, ["Junction box", "", "10", "pcs"])
+    }
+
+    func testWithoutCodesTheMaterialTableIsAsBefore() {
+        for page in [document(), coded([]), coded([ExtraWorkCatalogItem(name: "Junction box", unit: .pieces)])] {
+            XCTAssertFalse(page.showsCodes)
+            XCTAssertEqual(page.materialHeadings, ["Item", "Quantity", "Unit"])
+            XCTAssertTrue(page.material.allSatisfy { $0.code.isEmpty })
+            XCTAssertEqual(page.materialTable().columnHeadings(), ["Item", "Quantity", "Unit"])
+            XCTAssertEqual(page.materialTable().rows[0].values, ["Emergency light", "8", "pcs"])
+        }
+    }
+
+    /// Codes are in the summary only: a job's lines stay short.
+    func testJobLinesCarryNoCodes() {
+        let page = coded(catalog())
+        XCTAssertEqual(page.jobs[0].materialLines, ["8 × Emergency light", "25.5 m Cable NYM 3×1.5"])
+        XCTAssertFalse(page.jobsTable().rows.contains { $0.values.joined().contains("4006381333931") })
+        XCTAssertFalse(page.linesTable().columnHeadings().contains("Code"))
+    }
+
+    /// The same name remembered in two units: the code of the one in the
+    /// report's unit wins; another unit's code is used only when that one has
+    /// none.
+    func testTheCodeOfTheItemInTheSameUnitWins() {
+        let page = coded([
+            ExtraWorkCatalogItem(name: "Cable NYM 3×1.5", unit: .pieces, barcodes: ["11111111"]),
+            ExtraWorkCatalogItem(name: "Cable NYM 3×1.5", unit: .metres, barcodes: ["22222222"]),
+            ExtraWorkCatalogItem(name: "Junction box", unit: .metres, barcodes: ["33333333"])
+        ])
+        XCTAssertEqual(page.material[3].code, "22222222")
+        XCTAssertEqual(page.material[2].code, "33333333")
+    }
+
+    func testTheCodeHeadingIsInEveryExportLanguage() {
+        for language in ExportLanguage.allCases {
+            let page = ExtraWorkDocumentBuilder(settings: settings(language), calendar: calendar)
+                .make(report: report(), siteName: site.name, catalog: catalog())
+            XCTAssertEqual(page.materialHeadings[1], language(ExtraWorkTerm.code), "\(language)")
+            XCTAssertEqual(page.materialHeadings.count, 4)
+        }
+    }
+
     func testTheCSVLeavesOutHoursWhenNoneWereNoted() {
         let header = document(withHours: false).linesTable().headerTitles()
         XCTAssertEqual(header, ["Date", "Job", "Item", "Quantity", "Unit", "Confirmed on site"])

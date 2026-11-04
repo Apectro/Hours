@@ -16,7 +16,8 @@ final class ExtraWorkPDFTests: XCTestCase {
         jobs count: Int = 3,
         signed: Bool = false,
         inProgress: Bool = false,
-        address: String = ""
+        address: String = "",
+        catalog: [ExtraWorkCatalogItem] = []
     ) -> ExtraWorkDocument {
         let settings = Fixture.settings(export: ExportPreferences(language: language, ownerName: "Marijo Mikša"))
         let jobs = (0..<count).map { index in
@@ -37,7 +38,19 @@ final class ExtraWorkPDFTests: XCTestCase {
                                  strokes: [[SignaturePoint(x: 0.1, y: 0.5), SignaturePoint(x: 2.5, y: 0.3)]])
             : nil
         return ExtraWorkDocumentBuilder(settings: settings, calendar: calendar)
-            .make(report: ExtraWorkReport(siteID: site.id, jobs: jobs, clientSignature: signature), siteName: site.name, siteAddress: address)
+            .make(report: ExtraWorkReport(siteID: site.id, jobs: jobs, clientSignature: signature), siteName: site.name, siteAddress: address, catalog: catalog)
+    }
+
+    /// An item's barcode from the material catalogue is printed in the
+    /// material summary, under a column of its own; without codes there is
+    /// no such column.
+    func testTheMaterialSummaryPrintsBarcodes() throws {
+        let catalog = [ExtraWorkCatalogItem(name: "Emergency light", unit: .pieces, barcodes: ["4006381333931"])]
+        let text = try pages(document(.english, catalog: catalog)).joined(separator: "\n")
+        XCTAssertTrue(text.contains("4006381333931"), text)
+        XCTAssertTrue(text.contains("CODE"), text)
+        let plain = try pages(document(.english)).joined(separator: "\n")
+        XCTAssertFalse(plain.contains("CODE"), plain)
     }
 
     /// The site's address (1.2): one line under the byline, the work still

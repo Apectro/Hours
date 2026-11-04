@@ -617,7 +617,14 @@ struct ExtraWorkReportScreen: View {
         // and the count is one of the tiles.
         let photoIDs = repository.photoIDs(siteID: site.id, jobIDs: Set(report.jobs.map(\.id)))
         let document = ExtraWorkDocumentBuilder(settings: settingsStore.settings, calendar: settingsStore.workCalendar)
-            .make(report: report, siteName: site.name, siteAddress: currentAddress, photoIDs: photoIDs)
+            .make(
+                report: report,
+                siteName: site.name,
+                siteAddress: currentAddress,
+                photoIDs: photoIDs,
+                // Each item's barcode, read now, for the material summary.
+                catalog: repository.catalog()
+            )
 
         Task { @MainActor in
             // A turn of the run loop, so the spinner shows before a PDF with

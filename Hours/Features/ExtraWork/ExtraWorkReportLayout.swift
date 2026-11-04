@@ -34,6 +34,9 @@ struct ExtraWorkReportLayout {
         /// The material columns beside the name.
         var quantityWidth: CGFloat
         var unitWidth: CGFloat
+        /// The item's barcode, when any item has one: an EAN-13 in the
+        /// cell's monospaced digits, narrower than the name.
+        var codeWidth: CGFloat
         /// The client's signature under the whole report.
         var signatureWidth: CGFloat
         var jobSignatureWidth: CGFloat
@@ -51,6 +54,7 @@ struct ExtraWorkReportLayout {
             tileWidth: 76,
             quantityWidth: 80,
             unitWidth: 60,
+            codeWidth: 96,
             signatureWidth: 220,
             jobSignatureWidth: 90
         )
@@ -71,6 +75,7 @@ struct ExtraWorkReportLayout {
             tileWidth: 228,
             quantityWidth: 200,
             unitWidth: 150,
+            codeWidth: 300,
             signatureWidth: 440,
             jobSignatureWidth: 324
         )
@@ -125,6 +130,9 @@ struct ExtraWorkReportLayout {
         return metrics.thumbnail * count + thumbnailGap * (count - 1) + 12 * k
     }
     private var workWidth: CGFloat { width - metrics.dayWidth - photosWidth }
+    /// The code column's width, nothing when no item has a code.
+    private var codeWidth: CGFloat { document.showsCodes ? metrics.codeWidth : 0 }
+    private var materialNameWidth: CGFloat { width - codeWidth - metrics.quantityWidth - metrics.unitWidth }
 
     // MARK: - Type
 
@@ -274,13 +282,7 @@ struct ExtraWorkReportLayout {
         case let .progressJob(index):
             drawJob(document.inProgressJobs[index], isLast: index == document.inProgressJobs.count - 1, at: y)
         case .materialHead:
-            drawSection(
-                document.materialHeading,
-                columns: [(document.materialHeadings[0], width - metrics.quantityWidth - metrics.unitWidth, .left),
-                          (document.materialHeadings[1], metrics.quantityWidth, .right),
-                          (document.materialHeadings[2], metrics.unitWidth, .left)],
-                at: y
-            )
+            drawSection(document.materialHeading, columns: materialColumns, at: y)
         case let .material(index):
             drawMaterial(document.material[index], isLast: index == document.material.count - 1, at: y)
         }
@@ -365,16 +367,40 @@ struct ExtraWorkReportLayout {
                             width: (isLast ? 1.2 : 0.5) * k, color: isLast ? PDFReportStyle.ink : PDFReportStyle.rule)
     }
 
+    /// Item, then its code when any item has one, then quantity and unit:
+    /// the headings come from the document, which has the code's only when
+    /// the column is there.
+    private var materialColumns: [(String, CGFloat, NSTextAlignment)] {
+        let headings = document.materialHeadings
+        guard headings.count >= 3 else { return [] }
+        if document.showsCodes, headings.count >= 4 {
+            return [(headings[0], materialNameWidth, .left),
+                    (headings[1], codeWidth, .left),
+                    (headings[2], metrics.quantityWidth, .right),
+                    (headings[3], metrics.unitWidth, .left)]
+        }
+        return [(headings[0], materialNameWidth, .left),
+                (headings[1], metrics.quantityWidth, .right),
+                (headings[2], metrics.unitWidth, .left)]
+    }
+
     private func drawMaterial(_ line: ExtraWorkDocument.MaterialRow, isLast: Bool, at y: CGFloat) {
         let padding = cellPadding
         let quantityWidth = metrics.quantityWidth
         let unitWidth = metrics.unitWidth
-        let nameWidth = width - quantityWidth - unitWidth
+        let nameWidth = materialNameWidth
+        let codeWidth = self.codeWidth
         PDFReportStyle.draw(line.name, in: CGRect(x: margin + padding, y: y, width: nameWidth - padding * 2, height: materialRowHeight),
                             font: cellFont, color: PDFReportStyle.ink)
-        PDFReportStyle.draw(line.quantity, in: CGRect(x: margin + nameWidth + padding, y: y, width: quantityWidth - padding * 2, height: materialRowHeight),
+        if codeWidth > 0, !line.code.isEmpty {
+            // The cell font has monospaced digits, so codes line up.
+            PDFReportStyle.draw(line.code, in: CGRect(x: margin + nameWidth + padding, y: y, width: codeWidth - padding * 2, height: materialRowHeight),
+                                font: cellFont, color: PDFReportStyle.secondary)
+        }
+        let quantityX = margin + nameWidth + codeWidth
+        PDFReportStyle.draw(line.quantity, in: CGRect(x: quantityX + padding, y: y, width: quantityWidth - padding * 2, height: materialRowHeight),
                             font: cellBoldFont, color: PDFReportStyle.ink, alignment: .right)
-        PDFReportStyle.draw(line.unit, in: CGRect(x: margin + nameWidth + quantityWidth + padding, y: y, width: unitWidth - padding * 2, height: materialRowHeight),
+        PDFReportStyle.draw(line.unit, in: CGRect(x: quantityX + quantityWidth + padding, y: y, width: unitWidth - padding * 2, height: materialRowHeight),
                             font: cellFont, color: PDFReportStyle.secondary)
         rowRule(at: y + materialRowHeight, isLast: isLast)
     }

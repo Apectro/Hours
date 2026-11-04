@@ -78,6 +78,17 @@ enum ExtraWorkCatalog {
             .joined(separator: " ")
     }
 
+    /// The first barcode of the remembered item with this name (by `key`),
+    /// for a report's material summary: the one remembered in the same unit
+    /// first, else any with that name that has a code; `nil` when none has.
+    static func firstCode(forName name: String, unit: ExtraWorkUnit, in catalog: [ExtraWorkCatalogItem]) -> String? {
+        let nameKey = key(name)
+        guard !nameKey.isEmpty else { return nil }
+        let named = catalog.filter { $0.hasBarcode && key($0.name) == nameKey }
+        let match = named.first { $0.unit.groupingKey == unit.groupingKey } ?? named.first
+        return match?.barcodes.first
+    }
+
     /// The catalogue after a job with these items was saved: each item
     /// remembered once, with the spelling and unit it was last used with.
     /// With a site, the site is remembered on each item, so it is offered
