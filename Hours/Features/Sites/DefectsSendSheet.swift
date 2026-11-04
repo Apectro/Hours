@@ -1,9 +1,10 @@
 import SwiftUI
 import UIKit
 
-/// Send the list (Camera board, phone 21): the PDF as it will be sent —
-/// "<site> · Defects", the address, the date and how many are open, then a
-/// numbered row per defect with its marked photo — and "Only open" (on).
+/// Send the list (Camera board, phone 21): the PDF's first page as it will
+/// be sent — "<site> · Defects", the figures and the table by floor, with
+/// half a page per open defect after it (`DefectsPDFRenderer`) — and "Only
+/// open" (on), which leaves the fixed lines out.
 /// Send shares the PDF; Send as message the same lines as text, without
 /// the photos. In the export language.
 struct DefectsSendSheet: View {
@@ -155,19 +156,88 @@ struct DefectsSendSheet: View {
     }
 }
 
-/// The defects list on A4 pages, in the look of the app's other exports:
-/// the orange eyebrow, "<site> · Defects", "address · date · N open", then
-/// a row per defect — its marked photo on the left, "1. Socket loose",
-/// where, and "Fixes: Ivan · since 3 Nov" or "fixed 4 Nov" — over thin
-/// rules, running on over as many pages as it needs.
+/// The defects list on A4 pages (Polish pages 22–24). Page 1 is the whole
+/// list: "<site> · Defects", the address, the day and your name, four
+/// figures, and a table grouped by the site's floors in which a fixed
+/// defect is one line. From the page after the table each open defect has
+/// half a page: its number and an Open pill, what and where, its marked
+/// photo across the page, who noted it, how long it has been open (red past
+/// a week), who fixes it, and boxes to tick walking the site. Every page has
+/// "<site> · Defects · as of <date>" and "Page N of M" at the foot. The
+/// words are the export language's (`DefectsDocument`); the photos are
+/// printed at print size, not as taken.
 enum DefectsPDFRenderer {
     static let pageSize = CGSize(width: 595, height: 842)
 
     private static let margin: CGFloat = 40
-    private static let photoSide: CGFloat = 72
-    private static let rowPadding: CGFloat = 8
-    private static let titleFont = UIFont.systemFont(ofSize: 11.5, weight: .semibold)
-    private static let lineFont = UIFont.systemFont(ofSize: 10)
+    private static var width: CGFloat { pageSize.width - margin * 2 }
+    /// Where the footer's rule is; nothing is drawn below it but the footer.
+    private static var footerTop: CGFloat { pageSize.height - margin - 12 }
+    private static var contentBottom: CGFloat { footerTop - 8 }
+
+    // The page's own type and colours, in the look of the mockup: plain
+    // black titles, grey detail, red open, green fixed.
+    private static let titleFont = UIFont.systemFont(ofSize: 20, weight: .bold)
+    private static let bylineFont = UIFont.systemFont(ofSize: 9)
+    private static let figureFont = UIFont.monospacedDigitSystemFont(ofSize: 18, weight: .semibold)
+    private static let figureLabelFont = UIFont.systemFont(ofSize: 7.5)
+    private static let columnFont = UIFont.systemFont(ofSize: 7, weight: .semibold)
+    private static let groupFont = UIFont.systemFont(ofSize: 8.5, weight: .semibold)
+    private static let cellFont = UIFont.systemFont(ofSize: 8.5)
+    private static let cellBoldFont = UIFont.systemFont(ofSize: 8.5, weight: .semibold)
+    private static let pillFont = UIFont.systemFont(ofSize: 7.5, weight: .semibold)
+    private static let noteFont = UIFont.systemFont(ofSize: 8.5)
+    private static let runningFont = UIFont.systemFont(ofSize: 11, weight: .semibold)
+    private static let runningDetailFont = UIFont.systemFont(ofSize: 8)
+    private static let numberFont = UIFont.monospacedDigitSystemFont(ofSize: 22, weight: .semibold)
+    private static let cardTitleFont = UIFont.systemFont(ofSize: 15, weight: .bold)
+    private static let placeFont = UIFont.systemFont(ofSize: 9)
+    private static let infoFont = UIFont.systemFont(ofSize: 8.5)
+    private static let footerFont = UIFont.systemFont(ofSize: 7)
+
+    private static let ink = UIColor(red: 0.11, green: 0.11, blue: 0.12, alpha: 1)
+    private static let secondary = UIColor(red: 0.39, green: 0.39, blue: 0.40, alpha: 1)
+    private static let faint = UIColor(red: 0.68, green: 0.68, blue: 0.70, alpha: 1)
+    private static let rule = UIColor(red: 0.88, green: 0.88, blue: 0.90, alpha: 1)
+    private static let openRed = UIColor(red: 0.78, green: 0.16, blue: 0.16, alpha: 1)
+    private static let openWash = UIColor(red: 0.99, green: 0.93, blue: 0.92, alpha: 1)
+    private static let fixedGreen = UIColor(red: 0.18, green: 0.49, blue: 0.20, alpha: 1)
+    private static let fixedWash = UIColor(red: 0.91, green: 0.96, blue: 0.91, alpha: 1)
+
+    /// The photo across the page: 515 × 215 points, filled and rounded.
+    private static let photoHeight: CGFloat = 215
+    private static let cellPadding: CGFloat = 5
+
+    /// The table's columns, left to right; Fixes only while the site
+    /// assigns defects.
+    private struct Columns {
+        let x: [CGFloat]
+        let widths: [CGFloat]
+        let showsFixes: Bool
+
+        init(showsFixes: Bool) {
+            self.showsFixes = showsFixes
+            let widths: [CGFloat] = showsFixes
+                ? [30, 160, 110, 52, 70, 93]
+                : [30, 190, 140, 52, 103]
+            self.widths = widths
+            var x: [CGFloat] = []
+            var running = DefectsPDFRenderer.margin
+            for width in widths {
+                x.append(running)
+                running += width
+            }
+            self.x = x
+        }
+
+        var status: Int { widths.count - 1 }
+    }
+
+    /// One thing in the table: a floor's heading or a defect's line.
+    private enum TableItem {
+        case floor(String)
+        case row(DefectsDocument.TableRow)
+    }
 
     static func data(for document: DefectsDocument, photos: [UUID: DefectPhoto]) -> Data {
         let format = UIGraphicsPDFRendererFormat()
@@ -176,105 +246,319 @@ enum DefectsPDFRenderer {
             kCGPDFContextCreator as String: "Zeitkonto"
         ]
         let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pageSize), format: format)
-        let width = pageSize.width - margin * 2
-        let bottom = pageSize.height - margin - 24
-        let images = photos.compactMapValues { photo -> (UIImage, [DefectMark])? in
-            guard let small = DiaryPhotoProcessor.thumbnailPrintJPEG(from: photo.jpegData),
+        let columns = Columns(showsFixes: document.showsAssignee)
+        let cards = document.cards
+        // Print size, not the photo as taken, and only the ones printed.
+        let printed = Set(cards.map(\.defectID))
+        let images = photos.filter { printed.contains($0.key) }.compactMapValues { photo -> (UIImage, [DefectMark])? in
+            guard let small = DiaryPhotoProcessor.printJPEG(from: photo.jpegData),
                   let image = DiaryPhotoProcessor.printableImage(from: small) else { return nil }
             return (image, photo.marks)
         }
 
+        let tablePages = paginate(document.table, document: document, columns: columns)
+        let cardPages = stride(from: 0, to: cards.count, by: 2).map { Array(cards[$0..<min($0 + 2, cards.count)]) }
+        let pageCount = tablePages.count + cardPages.count
+
         return renderer.pdfData { context in
-            var page = 1
-            context.beginPage()
-            var y = drawHeader(document, at: margin, width: width)
-            for row in document.rows {
-                let textWidth = width - photoSide - 12
-                let detailHeight = height(of: row.detail, width: textWidth, font: lineFont)
-                let textHeight = titleFont.lineHeight + 3 + (row.whereLine.isEmpty ? 0 : lineFont.lineHeight + 2) + detailHeight
-                let rowHeight = max(photoSide, textHeight) + rowPadding * 2
-                if y + rowHeight > bottom {
-                    drawFooter(page: page, language: document.language)
-                    context.beginPage()
-                    page += 1
-                    y = margin
+            var page = 0
+            for (index, items) in tablePages.enumerated() {
+                context.beginPage()
+                page += 1
+                var y = index == 0 ? drawFirstHeader(document) : drawRunningHeader(document, detail: "")
+                y = drawColumnHeadings(document.columns, columns: columns, at: y)
+                for item in items {
+                    y = draw(item, columns: columns, at: y)
                 }
-                let photoFrame = CGRect(x: margin, y: y + rowPadding, width: photoSide, height: photoSide)
-                if let printed = images[row.defectID] {
-                    drawPhoto(printed.0, marks: printed.1, in: photoFrame, context: context.cgContext)
-                } else {
-                    PDFReportStyle.tile.setFill()
-                    UIBezierPath(roundedRect: photoFrame, cornerRadius: 6).fill()
+                if index == tablePages.count - 1, !cards.isEmpty {
+                    let note = document.tableNote(firstCardPage: tablePages.count + 1)
+                    PDFReportStyle.drawWrapping(
+                        note,
+                        in: CGRect(x: margin, y: y + 12, width: width, height: height(of: note, width: width, font: noteFont) + 2),
+                        font: noteFont,
+                        color: secondary
+                    )
                 }
-                var textY = y + rowPadding
-                let textX = margin + photoSide + 12
-                PDFReportStyle.draw(row.title, in: CGRect(x: textX, y: textY, width: textWidth, height: titleFont.lineHeight + 2),
-                                    font: titleFont, color: PDFReportStyle.ink)
-                textY += titleFont.lineHeight + 3
-                if !row.whereLine.isEmpty {
-                    PDFReportStyle.draw(row.whereLine, in: CGRect(x: textX, y: textY, width: textWidth, height: lineFont.lineHeight + 1),
-                                        font: lineFont, color: PDFReportStyle.ink)
-                    textY += lineFont.lineHeight + 2
-                }
-                PDFReportStyle.drawWrapping(
-                    row.detail,
-                    in: CGRect(x: textX, y: textY, width: textWidth, height: detailHeight + 1),
-                    font: lineFont,
-                    color: row.isFixed ? PDFReportStyle.positive : PDFReportStyle.secondary
-                )
-                y += rowHeight
-                PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.5, color: PDFReportStyle.rule)
+                drawFooter(document, page: page, of: pageCount)
             }
-            drawFooter(page: page, language: document.language)
+            for pair in cardPages {
+                context.beginPage()
+                page += 1
+                var seen = Set<String>()
+                let floors = pair.map(\.floor).filter { !$0.isEmpty && seen.insert($0).inserted }
+                let top = drawRunningHeader(document, detail: floors.joined(separator: " · "))
+                let slot = (contentBottom - top) / 2
+                for (index, card) in pair.enumerated() {
+                    let slotTop = top + slot * CGFloat(index)
+                    if index > 0 {
+                        PDFReportStyle.line(from: CGPoint(x: margin, y: slotTop), to: CGPoint(x: margin + width, y: slotTop), width: 0.6, color: rule)
+                    }
+                    drawCard(card, document: document, image: images[card.defectID], at: slotTop + 14, context: context.cgContext)
+                }
+                drawFooter(document, page: page, of: pageCount)
+            }
         }
     }
 
-    /// The photo cropped to its square, its marks over it, clipped there.
-    static func drawPhoto(_ image: UIImage, marks: [DefectMark], in frame: CGRect, context: CGContext) {
+    /// The photo cropped to its frame, its marks over it, clipped there.
+    static func drawPhoto(_ image: UIImage, marks: [DefectMark], in frame: CGRect, context: CGContext, cornerRadius: CGFloat = 6) {
         context.saveGState()
-        UIBezierPath(roundedRect: frame, cornerRadius: 6).addClip()
+        UIBezierPath(roundedRect: frame, cornerRadius: cornerRadius).addClip()
         let drawn = DefectMarkPainter.filled(image.size, in: frame)
         image.draw(in: drawn)
         DefectMarkPainter.draw(marks, in: drawn, context: context)
         context.restoreGState()
     }
 
-    private static func drawHeader(_ document: DefectsDocument, at top: CGFloat, width: CGFloat) -> CGFloat {
-        var y = top
-        PDFReportStyle.draw(
-            document.language(.defects).uppercased(with: document.language.locale),
-            in: CGRect(x: margin, y: y, width: width, height: 12),
-            font: PDFReportStyle.eyebrowFont,
-            color: PDFReportStyle.accent,
-            kern: 0.6
-        )
-        y += 16
-        PDFReportStyle.draw(
-            document.title,
-            in: CGRect(x: margin, y: y, width: width, height: 30),
-            font: PDFReportStyle.titleFont,
-            color: PDFReportStyle.ink
-        )
-        y += 32
-        PDFReportStyle.draw(
-            document.subtitle,
-            in: CGRect(x: margin, y: y, width: width, height: 14),
-            font: PDFReportStyle.bylineFont,
-            color: PDFReportStyle.secondary
-        )
-        y += 22
-        PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.8, color: PDFReportStyle.faint)
-        return y
+    // MARK: - Laying out the table
+
+    /// Where page 1's table starts, under the title, the byline and the
+    /// figures.
+    private static var firstTableTop: CGFloat { margin + 104 }
+    /// Where a later page's table starts, under the running header.
+    private static var runningTop: CGFloat { margin + 22 }
+    private static let headingsHeight: CGFloat = 20
+    private static let floorHeight: CGFloat = 22
+
+    /// The table's items on as many pages as they need: a floor's heading
+    /// is never left at the foot of a page without a line under it, and the
+    /// line about the half pages fits under the last.
+    private static func paginate(_ groups: [DefectsDocument.TableGroup], document: DefectsDocument, columns: Columns) -> [[TableItem]] {
+        var pages: [[TableItem]] = [[]]
+        var y = firstTableTop + headingsHeight
+        let top = runningTop + headingsHeight
+        for group in groups {
+            let first = group.rows.first.map { rowHeight($0, columns: columns) } ?? 0
+            if y + floorHeight + first > contentBottom, !(pages.last?.isEmpty ?? true) {
+                pages.append([])
+                y = top
+            }
+            pages[pages.count - 1].append(.floor(group.floor))
+            y += floorHeight
+            for row in group.rows {
+                let height = rowHeight(row, columns: columns)
+                if y + height > contentBottom {
+                    pages.append([])
+                    y = top
+                }
+                pages[pages.count - 1].append(.row(row))
+                y += height
+            }
+        }
+        // The note under the table, which names the page the half pages
+        // start on: on a page of its own if it does not fit.
+        if y + 40 > contentBottom, !document.cards.isEmpty {
+            pages.append([])
+        }
+        return pages
     }
 
-    private static func drawFooter(page: Int, language: ExportLanguage) {
-        let pageText = [language(.page), String(page)].joined(separator: " ")
-        PDFReportStyle.draw(
-            ["Zeitkonto", pageText].joined(separator: " · "),
-            in: CGRect(x: margin, y: pageSize.height - margin, width: pageSize.width - margin * 2, height: 12),
-            font: PDFReportStyle.footerFont,
-            color: PDFReportStyle.faint
+    private static func rowHeight(_ row: DefectsDocument.TableRow, columns: Columns) -> CGFloat {
+        var tallest = height(of: row.what, width: columns.widths[1] - cellPadding * 2, font: cellBoldFont)
+        tallest = max(tallest, height(of: row.room, width: columns.widths[2] - cellPadding * 2, font: cellFont))
+        if columns.showsFixes, let fixes = row.fixes {
+            tallest = max(tallest, height(of: fixes, width: columns.widths[4] - cellPadding * 2, font: cellFont))
+        }
+        return max(tallest, pillFont.lineHeight + 4) + 12
+    }
+
+    // MARK: - Drawing the table
+
+    /// "<site> · Defects", the byline, the four figures. Returns where the
+    /// table starts.
+    private static func drawFirstHeader(_ document: DefectsDocument) -> CGFloat {
+        var y = margin
+        PDFReportStyle.draw(document.title, in: CGRect(x: margin, y: y, width: width, height: 26), font: titleFont, color: ink)
+        y += 28
+        PDFReportStyle.draw(document.byline, in: CGRect(x: margin, y: y, width: width, height: 13), font: bylineFont, color: secondary)
+        y += 24
+        var x = margin
+        for figure in document.figureTexts {
+            let color: UIColor
+            switch figure.tone {
+            case .open: color = openRed
+            case .fixed: color = fixedGreen
+            case .plain: color = ink
+            }
+            let figureWidth = min(
+                max(PDFReportStyle.width(of: figure.value, font: figureFont), PDFReportStyle.width(of: figure.label, font: figureLabelFont)),
+                margin + width - x
+            )
+            guard figureWidth > 0 else { break }
+            PDFReportStyle.draw(figure.value, in: CGRect(x: x, y: y, width: figureWidth, height: 22), font: figureFont, color: color)
+            PDFReportStyle.draw(figure.label, in: CGRect(x: x, y: y + 23, width: figureWidth, height: 10), font: figureLabelFont, color: secondary)
+            x += figureWidth + 28
+        }
+        y = firstTableTop - 8
+        PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.8, color: ink)
+        return firstTableTop
+    }
+
+    /// "<site> · Defects" on the left, the floors on the right, a rule.
+    private static func drawRunningHeader(_ document: DefectsDocument, detail: String) -> CGFloat {
+        let detailWidth = detail.isEmpty ? 0 : min(PDFReportStyle.width(of: detail, font: runningDetailFont) + 2, width / 2)
+        PDFReportStyle.draw(document.title, in: CGRect(x: margin, y: margin, width: width - detailWidth - 8, height: 14), font: runningFont, color: ink)
+        if !detail.isEmpty {
+            PDFReportStyle.draw(detail, in: CGRect(x: margin + width - detailWidth, y: margin, width: detailWidth, height: 14),
+                                font: runningDetailFont, color: secondary, alignment: .right)
+        }
+        let y = margin + 20
+        PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.8, color: ink)
+        return runningTop
+    }
+
+    private static func drawColumnHeadings(_ headings: [String], columns: Columns, at top: CGFloat) -> CGFloat {
+        for (index, heading) in headings.enumerated() where index < columns.x.count {
+            PDFReportStyle.draw(
+                heading,
+                in: CGRect(x: columns.x[index] + cellPadding, y: top, width: columns.widths[index] - cellPadding * 2, height: 14),
+                font: columnFont,
+                color: secondary
+            )
+        }
+        let y = top + headingsHeight - 3
+        PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.5, color: rule)
+        return top + headingsHeight
+    }
+
+    private static func draw(_ item: TableItem, columns: Columns, at top: CGFloat) -> CGFloat {
+        switch item {
+        case let .floor(name):
+            PDFReportStyle.draw(name, in: CGRect(x: margin + cellPadding, y: top + 6, width: width, height: 12), font: groupFont, color: ink)
+            let y = top + floorHeight - 1
+            PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.6, color: ink)
+            return top + floorHeight
+        case let .row(row):
+            let rowHeight = rowHeight(row, columns: columns)
+            let textTop = top + 6
+            func cell(_ text: String, _ column: Int, font: UIFont) {
+                PDFReportStyle.drawWrapping(
+                    text,
+                    in: CGRect(
+                        x: columns.x[column] + cellPadding,
+                        y: textTop,
+                        width: columns.widths[column] - cellPadding * 2,
+                        height: rowHeight - 8
+                    ),
+                    font: font,
+                    color: ink
+                )
+            }
+            cell(String(row.number), 0, font: cellFont)
+            cell(row.what, 1, font: cellBoldFont)
+            cell(row.room, 2, font: cellFont)
+            cell(row.since, 3, font: cellFont)
+            if columns.showsFixes, let fixes = row.fixes {
+                cell(fixes, 4, font: cellFont)
+            }
+            let isFixed: Bool
+            if case .fixed = row.status { isFixed = true } else { isFixed = false }
+            drawPill(
+                row.statusText,
+                at: CGPoint(x: columns.x[columns.status] + cellPadding, y: textTop - 1),
+                maxWidth: columns.widths[columns.status] - cellPadding * 2,
+                isFixed: isFixed
+            )
+            let y = top + rowHeight
+            PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.5, color: rule)
+            return y
+        }
+    }
+
+    /// "Open" on light red, "Fixed 2 Nov" on light green.
+    @discardableResult
+    private static func drawPill(_ text: String, at origin: CGPoint, maxWidth: CGFloat, isFixed: Bool, alignRight: Bool = false) -> CGRect {
+        let textWidth = min(PDFReportStyle.width(of: text, font: pillFont), maxWidth - 10)
+        let frame = CGRect(
+            x: alignRight ? origin.x - textWidth - 10 : origin.x,
+            y: origin.y,
+            width: textWidth + 10,
+            height: pillFont.lineHeight + 4
         )
+        (isFixed ? fixedWash : openWash).setFill()
+        UIBezierPath(roundedRect: frame, cornerRadius: frame.height / 2).fill()
+        PDFReportStyle.draw(text, in: frame.insetBy(dx: 5, dy: 0), font: pillFont, color: isFixed ? fixedGreen : openRed)
+        return frame
+    }
+
+    // MARK: - An open defect's half page
+
+    private static func drawCard(_ card: DefectsDocument.Card, document: DefectsDocument, image: (UIImage, [DefectMark])?, at top: CGFloat, context: CGContext) {
+        let textX = margin + 54
+        PDFReportStyle.draw(String(card.number), in: CGRect(x: margin, y: top, width: 50, height: 28), font: numberFont, color: ink)
+        let pill = drawPill(
+            document.statusText(.open),
+            at: CGPoint(x: margin + width, y: top + 4),
+            maxWidth: 120,
+            isFixed: false,
+            alignRight: true
+        )
+        PDFReportStyle.draw(card.what, in: CGRect(x: textX, y: top + 2, width: pill.minX - textX - 8, height: 20), font: cardTitleFont, color: ink)
+        var y = top + 24
+        if !card.place.isEmpty {
+            PDFReportStyle.draw(card.place, in: CGRect(x: textX, y: y, width: width - 54, height: 12), font: placeFont, color: ink)
+        }
+        y += 20
+        if let image {
+            drawPhoto(image.0, marks: image.1, in: CGRect(x: margin, y: y, width: width, height: photoHeight), context: context, cornerRadius: 4)
+            y += photoHeight + 10
+        }
+
+        // Noted · Open for (red past a week) · Fixes, on one line or two.
+        let info = NSMutableAttributedString()
+        let gap = NSAttributedString(string: "     ", attributes: [.font: infoFont])
+        info.append(NSAttributedString(string: card.noted, attributes: [.font: infoFont, .foregroundColor: secondary]))
+        info.append(gap)
+        info.append(NSAttributedString(string: card.openFor, attributes: [
+            .font: infoFont,
+            .foregroundColor: card.isLongOpen ? openRed : secondary,
+        ]))
+        if let fixes = card.fixes {
+            info.append(gap)
+            info.append(NSAttributedString(string: fixes, attributes: [.font: infoFont, .foregroundColor: secondary]))
+        }
+        let infoHeight = ceil(info.boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            context: nil
+        ).height)
+        info.draw(with: CGRect(x: margin, y: y, width: width, height: infoHeight + 1), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+        y += infoHeight + 10
+
+        drawWalkRound(document.walkRound, at: y)
+    }
+
+    /// "☐ Fixed   Date ________   Initials ______": ticked on paper.
+    private static func drawWalkRound(_ words: [String], at top: CGFloat) {
+        guard words.count == 3 else { return }
+        let box = CGRect(x: margin, y: top + 1.5, width: 8, height: 8)
+        ink.setStroke()
+        let square = UIBezierPath(rect: box)
+        square.lineWidth = 0.7
+        square.stroke()
+        var x = box.maxX + 5
+        let fixedWidth = PDFReportStyle.width(of: words[0], font: infoFont)
+        PDFReportStyle.draw(words[0], in: CGRect(x: x, y: top, width: fixedWidth + 2, height: 11), font: infoFont, color: ink)
+        x += fixedWidth + 24
+        for (word, line) in [(words[1], CGFloat(100)), (words[2], CGFloat(70))] {
+            let wordWidth = PDFReportStyle.width(of: word, font: infoFont)
+            PDFReportStyle.draw(word, in: CGRect(x: x, y: top, width: wordWidth + 2, height: 11), font: infoFont, color: ink)
+            x += wordWidth + 5
+            PDFReportStyle.line(from: CGPoint(x: x, y: top + 10), to: CGPoint(x: x + line, y: top + 10), width: 0.5, color: secondary)
+            x += line + 20
+        }
+    }
+
+    // MARK: - Every page
+
+    private static func drawFooter(_ document: DefectsDocument, page: Int, of count: Int) {
+        PDFReportStyle.line(from: CGPoint(x: margin, y: footerTop), to: CGPoint(x: margin + width, y: footerTop), width: 0.5, color: rule)
+        let pageText = document.pageText(page, of: count)
+        let pageWidth = PDFReportStyle.width(of: pageText, font: footerFont) + 2
+        PDFReportStyle.draw(document.footer, in: CGRect(x: margin, y: footerTop + 4, width: width - pageWidth - 12, height: 10),
+                            font: footerFont, color: faint)
+        PDFReportStyle.draw(pageText, in: CGRect(x: margin + width - pageWidth, y: footerTop + 4, width: pageWidth, height: 10),
+                            font: footerFont, color: faint, alignment: .right)
     }
 
     private static func height(of text: String, width: CGFloat, font: UIFont) -> CGFloat {
