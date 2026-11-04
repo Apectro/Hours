@@ -63,7 +63,9 @@ final class SignaturePadUITests: XCTestCase {
         let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
         XCTAssertTrue(tapUntil(open, shows: canvas), "Sign should open the pad")
         if isPhone {
-            XCTAssertTrue(waitForWindow(landscape: true, app), "a phone signs in landscape")
+            // The pad says when the app lays it out wider than tall.
+            XCTAssertTrue(app.descendants(matching: .any)["signature-pad-wide"].firstMatch.waitForExistence(timeout: 8),
+                          "a phone signs in landscape")
         }
         // Full screen: the pad is (nearly) as wide as the window, and most of its height.
         let window = app.windows.firstMatch.frame

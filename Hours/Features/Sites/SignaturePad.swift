@@ -151,6 +151,17 @@ struct SignaturePad: View {
         .accessibilityLabel(String(localized: "Signature area"))
         .accessibilityHint(String(localized: "Sign with a finger."))
         .accessibilityIdentifier(identifierPrefix + "-canvas")
+        .overlay(alignment: .topLeading) {
+            // For the UI tests: the pad as the app lays it out, wider than
+            // tall. A test reads window frames in the device's portrait
+            // coordinates, which do not follow a rotation the app asked for.
+            if padSize.width > padSize.height {
+                Color.clear
+                    .frame(width: 1, height: 1)
+                    .accessibilityElement()
+                    .accessibilityIdentifier(identifierPrefix + "-pad-wide")
+            }
+        }
     }
 }
 
