@@ -218,8 +218,8 @@ final class ScanMissingUITests: XCTestCase {
             let new = app.buttons["missing-add-new"]
             XCTAssertTrue(new.waitForExistence(timeout: 5), "typed text should offer Add as a new item")
             new.tap()
-            let plus = app.buttons["missing-add-plus"]
-            XCTAssertTrue(plus.waitForExistence(timeout: 5), "How many should have a stepper")
+            let plus = app.buttons["missing-add-new-plus"]
+            XCTAssertTrue(plus.waitForExistence(timeout: 5), "the row should have its own +")
             plus.tap()
             plus.tap()
             self.type("2nd floor corridor", into: app.textFields["missing-add-note"])
@@ -270,6 +270,76 @@ final class ScanMissingUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5), "the ordered item is under Ordered")
     }
 
+    /// Two items with their quantities in one go: each row has its own − / +,
+    /// the first stays on top when the search changes, and one Add puts both
+    /// on the list with their counts.
+    func testSeveralItemsAreAddedInOneGo() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        XCTAssertTrue(app.tapSiteRow("site-missing"), "the site's page should have a Missing row")
+        XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "Missing did not open")
+        app.buttons["missing-add"].tap()
+        XCTAssertTrue(app.screen("screen-missing-add").waitForExistence(timeout: 5), "the add sheet did not open")
+        let save = app.buttons["missing-add-save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        XCTAssertFalse(save.isEnabled, "nothing chosen yet")
+
+        // The first: + from nothing is one, + again is two; − takes one back.
+        let search = app.textFields["missing-add-search"]
+        type("Junction box IP65", into: search)
+        let firstPlus = app.buttons["missing-add-new-plus"]
+        XCTAssertTrue(firstPlus.waitForExistence(timeout: 5), "the typed row should have its own +")
+        XCTAssertFalse(app.buttons["missing-add-new-minus"].exists, "at nothing the row shows only +")
+        firstPlus.tap()
+        firstPlus.tap()
+        firstPlus.tap()
+        let firstMinus = app.buttons["missing-add-new-minus"]
+        XCTAssertTrue(firstMinus.waitForExistence(timeout: 5), "a chosen row has −")
+        firstMinus.tap()
+        XCTAssertTrue(
+            (app.buttons["missing-add-new-quantity"].value as? String)?.hasPrefix("2") == true,
+            "two of the first: \(String(describing: app.buttons["missing-add-new-quantity"].value))"
+        )
+        XCTAssertTrue(save.isEnabled, "one item chosen")
+
+        // A new search: the first stays chosen, on top.
+        search.tap()
+        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "Junction box IP65".count))
+        search.typeText("Cable grey")
+        let kept = app.buttons["missing-add-match-0-quantity"]
+        XCTAssertTrue(kept.waitForExistence(timeout: 5), "the first item stays on top, chosen")
+        XCTAssertTrue((kept.value as? String)?.hasPrefix("2") == true, "still two: \(String(describing: kept.value))")
+
+        // The second: a tap on the row is one, then two more.
+        let second = app.buttons["missing-add-new"]
+        XCTAssertTrue(second.waitForExistence(timeout: 5))
+        second.tap()
+        let secondPlus = app.buttons["missing-add-new-plus"]
+        secondPlus.tap()
+        secondPlus.tap()
+        XCTAssertTrue(
+            (app.buttons["missing-add-new-quantity"].value as? String)?.hasPrefix("3") == true,
+            "three of the second: \(String(describing: app.buttons["missing-add-new-quantity"].value))"
+        )
+
+        save.tap()
+        XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "back on the list")
+        let rows = [app.descendants(matching: .any)["missing-row-0"], app.descendants(matching: .any)["missing-row-1"]]
+        XCTAssertTrue(rows[0].waitForExistence(timeout: 5), "the first item should be listed")
+        XCTAssertTrue(rows[1].exists, "the second item should be listed")
+        XCTAssertFalse(app.descendants(matching: .any)["missing-row-2"].exists, "two items, two rows")
+
+        // The counts: the message names both, with how many.
+        app.buttons["missing-send"].tap()
+        let text = app.descendants(matching: .any)["missing-send-text"]
+        XCTAssertTrue(text.waitForExistence(timeout: 5), "Send the list should show the message")
+        XCTAssertTrue(text.label.contains("2 × Junction box IP65"), "the message: \(text.label)")
+        XCTAssertTrue(text.label.contains("3 × Cable grey"), "the message: \(text.label)")
+        app.buttons["missing-send-close"].tap()
+    }
+
     /// The crew's day opens the add sheet for its site.
     func testTheCrewsDayNotesSomethingMissing() {
         let app = XCUIApplication.hours()
@@ -286,6 +356,9 @@ final class ScanMissingUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-missing-add").waitForExistence(timeout: 5), "the add sheet did not open")
         type("Wago 221", into: app.textFields["missing-add-search"])
         app.buttons["missing-add-new"].tap()
+        let plus = app.buttons["missing-add-new-plus"]
+        XCTAssertTrue(plus.waitForExistence(timeout: 5), "the day's sheet has the same − / + on each row")
+        plus.tap()
         app.buttons["missing-add-save"].tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "back on the day")
 

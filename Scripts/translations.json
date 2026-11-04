@@ -555,6 +555,49 @@
         "many": "%lld usterek",
         "other": "%lld usterki"
       }
+    },
+    "missingItems": {
+      "de": {
+        "one": "%lld Artikel",
+        "other": "%lld Artikel"
+      },
+      "hr": {
+        "one": "%lld stavku",
+        "few": "%lld stavke",
+        "other": "%lld stavki"
+      },
+      "sl": {
+        "one": "%lld postavko",
+        "two": "%lld postavki",
+        "few": "%lld postavke",
+        "other": "%lld postavk"
+      },
+      "it": {
+        "one": "%lld articolo",
+        "other": "%lld articoli"
+      },
+      "fr": {
+        "one": "%lld article",
+        "other": "%lld articles"
+      },
+      "es": {
+        "one": "%lld artículo",
+        "other": "%lld artículos"
+      },
+      "pt": {
+        "one": "%lld artigo",
+        "other": "%lld artigos"
+      },
+      "nl": {
+        "one": "%lld artikel",
+        "other": "%lld artikelen"
+      },
+      "pl": {
+        "one": "%lld pozycję",
+        "few": "%lld pozycje",
+        "many": "%lld pozycji",
+        "other": "%lld pozycji"
+      }
     }
   },
   "countedSentences": {
@@ -964,6 +1007,17 @@
       "pt": "Ainda por corrigir: %#@defects@.",
       "nl": "Nog open: %#@defects@.",
       "pl": "Nadal otwarte: %#@defects@."
+    },
+    "Add ^[%lld item](inflect: true) to missing": {
+      "de": "%#@missingItems@ zu Fehlendem hinzufügen",
+      "hr": "Dodaj %#@missingItems@ u nedostaje",
+      "sl": "Dodaj %#@missingItems@ med manjkajoče",
+      "it": "Aggiungi %#@missingItems@ ai mancanti",
+      "fr": "Ajouter %#@missingItems@ aux manquants",
+      "es": "Añadir %#@missingItems@ a lo que falta",
+      "pt": "Adicionar %#@missingItems@ ao que falta",
+      "nl": "%#@missingItems@ toevoegen aan ontbrekend",
+      "pl": "Dodaj %#@missingItems@ do brakujących"
     }
   },
   "interface": {

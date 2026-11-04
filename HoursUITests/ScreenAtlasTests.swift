@@ -667,7 +667,10 @@ final class ScreenAtlasTests: XCTestCase {
                 search.tap()
                 search.typeText("junc")
                 pause(0.5)
+                // Two of the first match chosen on its own row: the − / +
+                // and the amount in the accent, "Add 1 item to missing".
                 tapAnyway(app.buttons.matching(identifier: "missing-add-match-0").firstMatch)
+                tapAnyway(app.buttons.matching(identifier: "missing-add-match-0-plus").firstMatch)
                 capture("site-missing-add-search", app)
             }
             close(app, "missing-add-cancel")
