@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// This sheet (Export board, phone 3): the name on the sheet, its language
+/// Sheet options (Export board, phone 3; called This sheet until the
+/// 2026-11 polish gave it one name, the toolbar button's): the name on the sheet, its language
 /// and file name; the switches the sheet has; Columns and the CSV file.
 ///
 /// Everything but the name is for this export only: the screen edits a copy
@@ -105,7 +106,7 @@ struct ExportThisSheetScreen: View {
                 .accessibilityIdentifier("export-defaults")
             }
         }
-        .navigationTitle("This sheet")
+        .navigationTitle("Sheet options")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("screen-export-this-sheet")
         .alert("Your name on the sheet", isPresented: $asksForName) {
@@ -178,7 +179,7 @@ struct ExportThisSheetScreen: View {
             }
         case .myHours:
             Section {
-                Toggle("Include days with no entry", isOn: $preferences.includeEmptyDays)
+                Toggle("Show empty days", isOn: $preferences.includeEmptyDays)
                     .accessibilityIdentifier("export-include-empty-days")
                 Toggle("Include a summary", isOn: $preferences.includeSummaryRows)
                     .accessibilityIdentifier("export-include-summary")

@@ -20116,6 +20116,50 @@
       "%@ de %@",
       "%@ van %@",
       "%@ z %@"
+    ],
+    "Show empty days": [
+      "Leere Tage zeigen",
+      "Prikaži prazne dane",
+      "Prikaži prazne dneve",
+      "Mostra i giorni vuoti",
+      "Afficher les jours vides",
+      "Mostrar días vacíos",
+      "Mostrar dias vazios",
+      "Lege dagen tonen",
+      "Pokaż puste dni"
+    ],
+    "Show empty days too": [
+      "Auch leere Tage zeigen",
+      "Prikaži i prazne dane",
+      "Prikaži tudi prazne dneve",
+      "Mostra anche i giorni vuoti",
+      "Afficher aussi les jours vides",
+      "Mostrar también los días vacíos",
+      "Mostrar também os dias vazios",
+      "Ook lege dagen tonen",
+      "Pokaż też puste dni"
+    ],
+    "The sheet only lists days with hours.": [
+      "Der Stundenzettel zeigt nur Tage mit Stunden.",
+      "Popis sadrži samo dane sa satima.",
+      "Seznam vsebuje samo dneve z urami.",
+      "Il foglio elenca solo i giorni con ore.",
+      "La feuille ne liste que les jours avec des heures.",
+      "La hoja solo incluye los días con horas.",
+      "A folha só inclui os dias com horas.",
+      "De urenstaat toont alleen dagen met uren.",
+      "Karta zawiera tylko dni z godzinami."
+    ],
+    "Sheet options": [
+      "Optionen für den Zettel",
+      "Opcije lista",
+      "Možnosti lista",
+      "Opzioni del foglio",
+      "Options de la feuille",
+      "Opciones de la hoja",
+      "Opções da folha",
+      "Opties voor de urenstaat",
+      "Opcje karty"
     ]
   },
   "sameAsEnglishOnPurpose": [

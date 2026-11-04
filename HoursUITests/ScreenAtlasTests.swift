@@ -270,7 +270,7 @@ final class ScreenAtlasTests: XCTestCase {
                 back(app)
             }
         }
-        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
             pause(0.8)
             capture("\(prefix)-this-sheet", app)
             if tap(app.buttons.matching(identifier: "export-format-csv").firstMatch, "CSV file", app),
@@ -859,7 +859,7 @@ final class ScreenAtlasTests: XCTestCase {
             exportScreens(app, prefix: "site-export")
             // One sheet per person, in This sheet: the switch, and the first
             // person's page back on the export screen.
-            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
                 let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
                 if perPerson.waitForExistence(timeout: 5) {
                     flip(perPerson)
@@ -868,7 +868,7 @@ final class ScreenAtlasTests: XCTestCase {
                     back(app)
                     pause(1.5)
                     capture("site-export-per-person-preview", app)
-                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app),
+                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app),
                        perPerson.waitForExistence(timeout: 5) {
                         flip(perPerson)
                     }
