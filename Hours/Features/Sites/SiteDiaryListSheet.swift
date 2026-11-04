@@ -9,6 +9,8 @@ import SwiftData
 /// the site screen shows that date.
 struct SiteDiaryListSheet: View {
     let site: Site
+    /// False on a read-only site: its diary is read, not deleted.
+    var canEdit = true
     /// Shows a date on the site screen underneath.
     var onSelect: (CalendarDate) -> Void = { _ in }
 
@@ -18,6 +20,8 @@ struct SiteDiaryListSheet: View {
 
     @State private var entries: [Entry] = []
     @State private var loaded = false
+    /// The day a swipe asked to delete the diary of, while the question is asked.
+    @State private var deleting: Entry?
 
     struct Entry: Identifiable {
         var date: CalendarDate
@@ -43,6 +47,20 @@ struct SiteDiaryListSheet: View {
                             Section {
                                 ForEach(group.entries) { entry in
                                     row(entry)
+                                        // 1.3: what was written that day and its
+                                        // photos; the hours stay. Not under the
+                                        // month lock, as the diary never is.
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                            if canEdit {
+                                                Button {
+                                                    deleting = entry
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                                .tint(.red)
+                                                .accessibilityIdentifier("site-diary-entry-\(entry.date.key)-swipe-delete")
+                                            }
+                                        }
                                 }
                             } header: {
                                 Text(verbatim: monthLine(group.month, count: group.entries.count))
@@ -72,6 +90,16 @@ struct SiteDiaryListSheet: View {
             }
             .accessibilityIdentifier("screen-site-diary")
             .task { load() }
+            .confirmationDialog(
+                String(localized: "Delete this day's diary and its photos? The hours stay."),
+                isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+                titleVisibility: .visible,
+                presenting: deleting
+            ) { entry in
+                Button("Delete", role: .destructive) { delete(entry) }
+                    .accessibilityIdentifier("site-diary-delete-confirm")
+                Button("Cancel", role: .cancel) { deleting = nil }
+            }
         }
     }
 
@@ -190,6 +218,19 @@ struct SiteDiaryListSheet: View {
             localized: "\(days) in \(settingsStore.dateFormatting.monthTitle(month)) · printed with the site sheet",
             comment: "Above a month of site diary days; the values are how many days and the month"
         )
+    }
+
+    /// The day's diary and every photo of it. Writing a blank diary is how
+    /// the repository removes one.
+    private func delete(_ entry: Entry) {
+        deleting = nil
+        guard canEdit else { return }
+        let repository = SiteDiaryRepository(context: modelContext)
+        repository.store(SiteDiary(siteID: site.id, date: entry.date))
+        for photo in repository.photoReferences(siteID: site.id, in: CalendarDateRange(single: entry.date)) {
+            repository.removePhoto(id: photo.id)
+        }
+        load()
     }
 
     /// Read outside `body`, as every repository read is.

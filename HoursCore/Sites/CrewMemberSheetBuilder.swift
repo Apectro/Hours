@@ -299,6 +299,8 @@ struct CrewMemberSheetBuilder: Sendable {
             table.address = SiteAddress.singleLine(site.address)
         }
         table.eyebrow = sitesText.isEmpty ? language(.timesheet) : "\(language(.timesheet)) · \(sitesText)"
+        table.period = period
+        table.sitesText = sitesText
         let recorded = person.isYou || owner.isEmpty ? [] : ["\(language(.recordedBy)) \(owner)"]
         table.detail = ((isMonth ? [period, dates] : [dates]) + recorded).joined(separator: " · ")
 

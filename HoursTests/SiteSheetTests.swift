@@ -266,6 +266,24 @@ final class SiteSheetTests: XCTestCase {
         XCTAssertTrue(t.legend.hasPrefix("Each person: on site – off site"), t.legend)
     }
 
+    /// The printed header: the site as the title, "Site hours · August
+    /// 2026" under it, the day it was made, and the crew's hours and the
+    /// days as two plain figures.
+    func testThePrintedHeaderIsTheSiteThenTheKindAndTheMonth() {
+        let ana = member("Ana")
+        let t = table(crew: [ana], days: [
+            day(3, present: [CrewMember.youID, ana.id]),
+            day(4, present: [CrewMember.youID, ana.id])
+        ])
+        let header = t.pageHeader(madeOn: Fixture.date(2026, 11, 3), calendar: calendar)
+        XCTAssertEqual(header.title, "Bau Süd")
+        XCTAssertEqual(header.kindLine, "Site hours · August 2026")
+        XCTAssertTrue(header.detailLine.hasSuffix("made 3 Nov 2026"), header.detailLine)
+        XCTAssertEqual(header.figures.map(\.label), ["Crew hours", "Days on site"])
+        XCTAssertEqual(header.figures.last?.value, "2")
+        XCTAssertFalse(header.figures.contains(where: \.isNegative))
+    }
+
     // MARK: - Legend and paid breaks
 
     private let paidJobID = UUID(uuidString: "00000000-0000-4000-8000-0000000000DD")!

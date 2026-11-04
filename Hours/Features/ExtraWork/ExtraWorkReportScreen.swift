@@ -50,6 +50,8 @@ struct ExtraWorkReportScreen: View {
     @State private var preparing: ReportOutput?
     @State private var notice: String?
     @State private var failure: String?
+    /// The job a swipe asked to delete, while the question is asked.
+    @State private var deleting: ExtraWorkJob?
 
     /// What the share bar can send: the three export formats, and the
     /// report as one tall picture for a chat (`ExtraWorkPictureRenderer`).
@@ -151,6 +153,19 @@ struct ExtraWorkReportScreen: View {
                 case let .job(job):
                     ExtraWorkEditorSheet(site: site, date: job.date, job: job, canEdit: canEdit, onDone: load)
                 }
+            }
+            // The editor's own question, for a swipe's Delete.
+            .confirmationDialog(
+                "Delete this extra work?",
+                isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+                titleVisibility: .visible,
+                presenting: deleting
+            ) { job in
+                Button("Delete", role: .destructive) { delete(job) }
+                    .accessibilityIdentifier("extra-work-delete-confirm")
+                Button("Cancel", role: .cancel) { deleting = nil }
+            } message: { _ in
+                Text("Its material, hours, photos and signature are deleted with it.")
             }
             .alert("Could not share", isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
                 Button("OK", role: .cancel) { failure = nil }
@@ -370,6 +385,8 @@ struct ExtraWorkReportScreen: View {
                 .accessibilityIdentifier("extra-work-in-progress-\(index)")
             }
             .buttonStyle(.borderless)
+            .modifier(JobSwipes(job: job, rowID: "extra-work-in-progress-\(index)", canEdit: canEdit,
+                                onToggleDone: { toggleDone(job) }, onDelete: { deleting = job }))
         }
     }
 
@@ -392,6 +409,8 @@ struct ExtraWorkReportScreen: View {
                     jobRow(job)
                 }
                 .accessibilityIdentifier("extra-work-report-job-\(index)")
+                .modifier(JobSwipes(job: job, rowID: "extra-work-report-job-\(index)", canEdit: canEdit,
+                                    onToggleDone: { toggleDone(job) }, onDelete: { deleting = job }))
             }
             if hiddenCount > 0 {
                 Button {
@@ -418,6 +437,8 @@ struct ExtraWorkReportScreen: View {
                     jobRow(job)
                 }
                 .accessibilityIdentifier("extra-work-report-in-progress-\(index)")
+                .modifier(JobSwipes(job: job, rowID: "extra-work-report-in-progress-\(index)", canEdit: canEdit,
+                                    onToggleDone: { toggleDone(job) }, onDelete: { deleting = job }))
             }
         } header: {
             Text("Still in progress")
@@ -698,6 +719,14 @@ struct ExtraWorkReportScreen: View {
         refreshUnsentWorkReminder()
     }
 
+    private func delete(_ job: ExtraWorkJob) {
+        deleting = nil
+        guard canEdit else { return }
+        ExtraWorkRepository(context: modelContext).removeJob(id: job.id)
+        load()
+        refreshUnsentWorkReminder()
+    }
+
     /// Sent, or finished: what the weekly "extra work not sent" note says,
     /// or whether there is one, has changed.
     private func refreshUnsentWorkReminder() {
@@ -811,5 +840,49 @@ struct SignaturePreview: View {
             RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous)
                 .strokeBorder(Color.hoursHairline, lineWidth: 1)
         }
+    }
+}
+
+/// A job's swipes (1.3), as Missing has them: Finished, or back to In
+/// progress, from the leading edge; Delete from the trailing edge, asked
+/// first, as the editor does. Nothing on a read-only site.
+private struct JobSwipes: ViewModifier {
+    let job: ExtraWorkJob
+    /// The row's identifier, which the swipe buttons' identifiers start with.
+    let rowID: String
+    let canEdit: Bool
+    let onToggleDone: () -> Void
+    let onDelete: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .swipeActions(edge: .leading) {
+                if canEdit {
+                    if job.isDone {
+                        Button(action: onToggleDone) {
+                            Label("In progress", systemImage: "arrow.uturn.backward")
+                        }
+                        .tint(.orange)
+                        .accessibilityIdentifier(rowID + "-swipe-in-progress")
+                    } else {
+                        Button(action: onToggleDone) {
+                            Label("Finished", systemImage: "checkmark.circle")
+                        }
+                        .tint(.green)
+                        .accessibilityIdentifier(rowID + "-swipe-finished")
+                    }
+                }
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                if canEdit {
+                    // Red rather than `role: .destructive`: that role slides
+                    // the row away at once, before the question is answered.
+                    Button(action: onDelete) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .tint(.red)
+                    .accessibilityIdentifier(rowID + "-swipe-delete")
+                }
+            }
     }
 }

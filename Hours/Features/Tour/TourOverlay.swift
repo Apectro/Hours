@@ -241,20 +241,14 @@ private struct TourCard: View {
                 if tour.isLast {
                     Button(action: onEnd) {
                         Text("Done")
-                            .font(.headline)
-                            .frame(minWidth: 64, minHeight: 32)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
+                    .buttonStyle(.bigAction(.primary))
                     .accessibilityIdentifier("tour-done")
                 } else {
                     Button(action: onNext) {
                         Text("Next")
-                            .font(.headline)
-                            .frame(minWidth: 64, minHeight: 32)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
+                    .buttonStyle(.bigAction(.primary))
                     .accessibilityIdentifier("tour-next")
                 }
             }

@@ -11,6 +11,8 @@ struct JobSettingsScreen: View {
     @State private var editing: Job?
     @State private var isCreating = false
     @State private var paywallReason: ProFeature?
+    /// The job a swipe asked to delete, while the question is asked.
+    @State private var deleting: Job?
 
     var body: some View {
         List {
@@ -66,6 +68,24 @@ struct JobSettingsScreen: View {
         .sheet(isPresented: $isCreating) {
             JobEditor(job: Job(name: "", tint: .teal), isNew: true)
         }
+        .confirmationDialog(
+            "Delete job",
+            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible,
+            presenting: deleting
+        ) { job in
+            Button("Delete job", role: .destructive) {
+                deleting = nil
+                settingsStore.update { $0.removeJob(id: job.id) }
+            }
+            .accessibilityIdentifier("jobs-delete-confirm")
+            Button("Cancel", role: .cancel) { deleting = nil }
+        } message: { _ in
+            Text(String(
+                localized: "Hours already recorded against this job stay, and count towards \(settingsStore.settings.primaryJob.displayName()).",
+                comment: "Deleting a job; the value is the name of the job they move to"
+            ))
+        }
     }
 
     private var activeJobs: [Job] { settingsStore.settings.resolvedJobs.filter { !$0.isArchived } }
@@ -79,6 +99,34 @@ struct JobSettingsScreen: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("jobs-row")
+        // 1.3: what the job's editor has, on a swipe. The main job is what
+        // everything falls back to, so it has neither.
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            if !job.isPrimary {
+                // Red rather than `role: .destructive`, which slides the row
+                // away before the question is answered.
+                Button {
+                    deleting = job
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                .tint(.red)
+                .accessibilityIdentifier("jobs-row-swipe-delete")
+                Button {
+                    let id = job.id
+                    let archived = !job.isArchived
+                    settingsStore.update { $0.updateJob(id: id) { $0.isArchived = archived } }
+                } label: {
+                    if job.isArchived {
+                        Label("Unarchive", systemImage: "arrow.uturn.backward")
+                    } else {
+                        Label("Archive", systemImage: "archivebox")
+                    }
+                }
+                .tint(.indigo)
+                .accessibilityIdentifier("jobs-row-swipe-archive")
+            }
+        }
     }
 
     /// "Work · 40h over 5 days", and on the right "9,50 €/h · main".

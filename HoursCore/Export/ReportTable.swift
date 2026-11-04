@@ -85,6 +85,18 @@ struct ReportTile: Identifiable, Hashable, Sendable {
     var id: String { label }
 }
 
+/// What the top of a printed page says (`ReportTable.pageHeader`).
+struct ReportPageHeader: Hashable, Sendable {
+    /// The site, or the person: "Trg Pravde Zagreb".
+    var title: String
+    /// "Site hours · October 2026".
+    var kindLine: String
+    /// "Ilica 207C, Zagreb · made 3 Nov 2026", in grey.
+    var detailLine: String
+    /// At most two, right-aligned: "Crew hours  489h 30m".
+    var figures: [ReportTile]
+}
+
 /// Which report a table is, for the few places the two are drawn differently.
 enum ReportKind: String, Hashable, Sendable {
     /// One person's days, from `ReportBuilder`.
@@ -196,6 +208,16 @@ struct ReportTable: Hashable, Sendable {
     /// more than one site (1.2); a sheet for several sites' month has it
     /// under the days, with a total line. Empty prints nothing.
     var bySite: [ReportSiteTotal] = []
+    /// The period in words, "August 2026", for the line under the printed
+    /// title (polish, 2026-11). Empty falls back to the subtitle.
+    var period: String = ""
+    /// The one or two figures printed at the top right of the page as plain
+    /// text. Empty takes the first two tiles.
+    var keyFigures: [ReportTile] = []
+    /// The sites a person's timesheet covers, "Hauptstraße 12 · Trg Pravde",
+    /// said under the title where there is no single address. Empty prints
+    /// nothing.
+    var sitesText: String = ""
 
     var isEmpty: Bool { rows.isEmpty }
 
@@ -208,6 +230,32 @@ struct ReportTable: Hashable, Sendable {
 
     /// The grey line under the headline.
     var byline: String { detail.isEmpty ? subtitle : detail }
+
+    /// The top of a printed page (polish, 2026-11): the site or the person
+    /// as the title, the kind and the period under it, the place and the
+    /// day it was made in grey, and at most two figures as plain text.
+    func pageHeader(madeOn: CalendarDate, calendar: Calendar) -> ReportPageHeader {
+        let title = headline
+        let when = period.isEmpty ? subtitle : period
+        // A title without a name is "Hours — August 2026": the month is
+        // said already.
+        let kindWord: String
+        switch kind {
+        case .timesheet: kindWord = language(.timesheet)
+        case .siteSheet: kindWord = language(.siteHours)
+        case .extraWork: kindWord = language(.extraWorkDone)
+        case .siteDiary: kindWord = language(.siteDiary)
+        }
+        let kindParts = when.isEmpty || title.contains(when) ? [kindWord] : [kindWord, when]
+        let place = address.isEmpty ? sitesText : address
+        let made = "\(language(.made)) \(CalendarFormatting(locale: language.locale, calendar: calendar).dateWithYear(madeOn))"
+        return ReportPageHeader(
+            title: title,
+            kindLine: kindParts.joined(separator: " · "),
+            detailLine: ([place, made].filter { !$0.isEmpty }).joined(separator: " · "),
+            figures: Array((keyFigures.isEmpty ? tiles : keyFigures).prefix(2))
+        )
+    }
 
     /// The groups, when they describe these columns exactly.
     var validGroups: [ReportColumnGroup] {

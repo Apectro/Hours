@@ -356,15 +356,16 @@ struct ArrivalExplanationSheet: View {
                 .padding(Metrics.large)
             }
             .safeAreaInset(edge: .bottom) {
+                // The app's big rounded button on the sheet's own plain
+                // background (polish, 2026-11), not a bar of its own.
                 Button(action: onContinue) {
                     Text("Continue")
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("site-arrival-continue")
-                .padding(Metrics.large)
-                .background(.bar)
+                .padding(.horizontal, Metrics.large)
+                .padding(.vertical, Metrics.small)
+                .background(Color(uiColor: .systemBackground))
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -1208,6 +1208,17 @@
       "Geldt voor het totaal van elke dag, niet voor de tijden die je invult.",
       "Dotyczy sumy każdego dnia, nie godzin, które wpisujesz."
     ],
+    "Archive": [
+      "Archivieren",
+      "Arhiviraj",
+      "Arhiviraj",
+      "Archivia",
+      "Archiver",
+      "Archivar",
+      "Arquivar",
+      "Archiveren",
+      "Archiwizuj"
+    ],
     "At": [
       "Um",
       "U",
@@ -1372,6 +1383,17 @@
       "Dias sem nada registado",
       "Dagen zonder invoer",
       "Dni bez wpisu"
+    ],
+    "Delete this day's diary and its photos? The hours stay.": [
+      "Das Bautagebuch dieses Tages und seine Fotos löschen? Die Stunden bleiben.",
+      "Izbrisati građevinski dnevnik ovog dana i njegove fotografije? Sati ostaju.",
+      "Izbrišem gradbeni dnevnik tega dne in njegove fotografije? Ure ostanejo.",
+      "Eliminare il giornale dei lavori di questo giorno e le sue foto? Le ore restano.",
+      "Supprimer le journal de chantier de ce jour et ses photos ? Les heures restent.",
+      "¿Eliminar el diario de obra de este día y sus fotos? Las horas se quedan.",
+      "Apagar o diário de obra deste dia e as suas fotos? As horas ficam.",
+      "Het bouwdagboek van deze dag en de foto’s verwijderen? De uren blijven.",
+      "Usunąć dziennik budowy z tego dnia i jego zdjęcia? Godziny zostają."
     ],
     "Each site keeps its crew and its usual day. Open one to write the crew's day in one tap.": [
       "Jede Baustelle behält ihre Kolonne und ihren üblichen Tag. Öffne eine, um den Tag der Kolonne mit einem Tipp einzutragen.",
@@ -1802,6 +1824,17 @@
       "Ziek / verlof",
       "Chorobowe / urlop"
     ],
+    "Sign-off, %@": [
+      "Stundenbestätigung, %@",
+      "Potvrda sati, %@",
+      "Potrditev ur, %@",
+      "Conferma ore, %@",
+      "Validation des heures, %@",
+      "Confirmación de horas, %@",
+      "Confirmação de horas, %@",
+      "Urenbevestiging, %@",
+      "Potwierdzenie godzin, %@"
+    ],
     "Sites › Sheet": [
       "Baustellen › Liste",
       "Gradilišta › Lista",
@@ -1933,6 +1966,17 @@
       "Quem está marcado num dia de obra recebe as ajudas de custo. Os quilómetros da carrinha registam-se uma vez por dia de obra. Os valores e limites isentos dependem do teu contrato e do teu país.",
       "Wie op een bouwdag is aangevinkt, krijgt de toelage. De kilometers van het busje worden één keer per bouwdag ingevuld. Bedragen en belastingvrije grenzen hangen af van je contract en je land.",
       "Zaznaczeni w dniu budowy dostają dietę. Kilometry busa wpisuje się raz na dzień budowy. Kwoty i limity zwolnione z podatku zależą od twojej umowy i kraju."
+    ],
+    "Unarchive": [
+      "Zurückholen",
+      "Vrati iz arhive",
+      "Vrni iz arhiva",
+      "Ripristina",
+      "Désarchiver",
+      "Desarchivar",
+      "Desarquivar",
+      "Terugzetten",
+      "Przywróć z archiwum"
     ],
     "Untitled": [
       "Ohne Namen",
@@ -20072,6 +20116,127 @@
       "%@ de %@",
       "%@ van %@",
       "%@ z %@"
+    ],
+    "Show empty days": [
+      "Leere Tage zeigen",
+      "Prikaži prazne dane",
+      "Prikaži prazne dneve",
+      "Mostra i giorni vuoti",
+      "Afficher les jours vides",
+      "Mostrar días vacíos",
+      "Mostrar dias vazios",
+      "Lege dagen tonen",
+      "Pokaż puste dni"
+    ],
+    "Show empty days too": [
+      "Auch leere Tage zeigen",
+      "Prikaži i prazne dane",
+      "Prikaži tudi prazne dneve",
+      "Mostra anche i giorni vuoti",
+      "Afficher aussi les jours vides",
+      "Mostrar también los días vacíos",
+      "Mostrar também os dias vazios",
+      "Ook lege dagen tonen",
+      "Pokaż też puste dni"
+    ],
+    "The sheet only lists days with hours.": [
+      "Der Stundenzettel zeigt nur Tage mit Stunden.",
+      "Popis sadrži samo dane sa satima.",
+      "Seznam vsebuje samo dneve z urami.",
+      "Il foglio elenca solo i giorni con ore.",
+      "La feuille ne liste que les jours avec des heures.",
+      "La hoja solo incluye los días con horas.",
+      "A folha só inclui os dias com horas.",
+      "De urenstaat toont alleen dagen met uren.",
+      "Karta zawiera tylko dni z godzinami."
+    ],
+    "Sheet options": [
+      "Optionen für den Zettel",
+      "Opcije lista",
+      "Možnosti lista",
+      "Opzioni del foglio",
+      "Options de la feuille",
+      "Opciones de la hoja",
+      "Opções da folha",
+      "Opties voor de urenstaat",
+      "Opcje karty"
+    ],
+    "Copy a site": [
+      "Baustelle kopieren",
+      "Kopiraj gradilište",
+      "Kopiraj gradbišče",
+      "Copia un cantiere",
+      "Copier un chantier",
+      "Copiar una obra",
+      "Copiar uma obra",
+      "Bouwplaats kopiëren",
+      "Skopiuj budowę"
+    ],
+    "Its crew, times and extras": [
+      "Mit Mannschaft, Zeiten und Extras",
+      "Njegova ekipa, vremena i dodaci",
+      "Njegova ekipa, časi in dodatki",
+      "Squadra, orari ed extra",
+      "Son équipe, ses horaires et ses extras",
+      "Su cuadrilla, horarios y extras",
+      "A equipa, os horários e os extras",
+      "De ploeg, tijden en extra’s",
+      "Ekipa, godziny i dodatki"
+    ],
+    "Start empty": [
+      "Leer beginnen",
+      "Kreni od praznog",
+      "Začni prazno",
+      "Parti da vuoto",
+      "Partir de rien",
+      "Empezar vacía",
+      "Começar vazia",
+      "Leeg beginnen",
+      "Zacznij od pustej"
+    ],
+    "Set it up step by step": [
+      "Schritt für Schritt einrichten",
+      "Postavi korak po korak",
+      "Nastavi korak za korakom",
+      "Impostalo passo per passo",
+      "La configurer étape par étape",
+      "Configúrala paso a paso",
+      "Configura passo a passo",
+      "Stap voor stap instellen",
+      "Ustaw krok po kroku"
+    ],
+    "Several at once": [
+      "Mehrere auf einmal",
+      "Više odjednom",
+      "Več hkrati",
+      "Più insieme",
+      "Plusieurs à la fois",
+      "Varias a la vez",
+      "Várias de uma vez",
+      "Meerdere tegelijk",
+      "Kilka naraz"
+    ],
+    "Paste a list of names": [
+      "Eine Liste von Namen einfügen",
+      "Zalijepi popis imena",
+      "Prilepi seznam imen",
+      "Incolla un elenco di nomi",
+      "Coller une liste de noms",
+      "Pega una lista de nombres",
+      "Cola uma lista de nomes",
+      "Plak een lijst met namen",
+      "Wklej listę nazw"
+    ],
+    "You change the name and the place next.": [
+      "Name und Ort änderst du als Nächstes.",
+      "Ime i mjesto mijenjaš u sljedećem koraku.",
+      "Ime in kraj spremeniš v naslednjem koraku.",
+      "Nome e luogo li cambi al passo successivo.",
+      "Vous changez le nom et le lieu à l’étape suivante.",
+      "El nombre y el lugar los cambias a continuación.",
+      "O nome e o local mudas a seguir.",
+      "De naam en de plek pas je hierna aan.",
+      "Nazwę i miejsce zmienisz w następnym kroku."
     ]
   },
   "sameAsEnglishOnPurpose": [

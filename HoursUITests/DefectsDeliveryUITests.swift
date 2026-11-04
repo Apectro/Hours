@@ -227,4 +227,40 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         XCTAssertTrue(row.label.contains("Ivan"), "the row says who fixes it: \(row.label)")
     }
+
+    /// Swipe › Delete on a defect (1.3) asks first, as the viewer does, and
+    /// takes the defect off the list once confirmed.
+    func testSwipingADefectAwayAsksFirst() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        XCTAssertTrue(app.tapSiteRow("site-defects"), "the site's page should have a Defects row")
+        XCTAssertTrue(app.screen("screen-defects").waitForExistence(timeout: 5), "Defects did not open")
+
+        startDefect(app)
+        typeWhat("Socket loose", app)
+        app.buttons["defect-floor-0"].tap()
+        let room = app.textFields["defect-room-field"]
+        XCTAssertTrue(room.waitForExistence(timeout: 5), "with no rooms yet, the room is typed")
+        XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
+        room.typeText("Room 1")
+        app.buttons["defect-add"].tap()
+
+        let row = app.buttons["defects-row-0"]
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the defect should be listed")
+        row.swipeLeft()
+        let delete = app.buttons["defects-delete"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 5), "a swipe should offer Delete")
+        // Fixed sits beside it, as Arrived does on Missing.
+        XCTAssertTrue(app.buttons["defects-fix"].exists, "a swipe should offer Fixed too")
+        delete.tap()
+
+        let confirm = app.buttons["defects-delete-confirm"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "deleting a defect asks first")
+        XCTAssertTrue(row.exists, "nothing is deleted before the answer")
+        confirm.tap()
+        XCTAssertTrue(waitUntilGone(row, timeout: 5), "confirmed, the defect is gone")
+        XCTAssertTrue(app.descendants(matching: .any)["defects-empty"].waitForExistence(timeout: 5), "and the list is empty")
+    }
 }

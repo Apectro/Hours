@@ -129,7 +129,7 @@ struct SettingsScreen: View {
                             ? AppIdentity.proName
                             : String(localized: "Unlock Zeitkonto Pro"),
                         value: subscriptions.isPro ? String(localized: "Active") : nil,
-                        systemImage: subscriptions.isPro ? "checkmark.seal" : "sparkles"
+                        systemImage: subscriptions.isPro ? "checkmark.seal" : "star"
                     )
                 }
                 .tint(.primary)

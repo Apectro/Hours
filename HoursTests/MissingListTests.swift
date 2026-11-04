@@ -248,6 +248,7 @@ final class MissingListTests: XCTestCase {
         )
         XCTAssertEqual(message.title, "Missing material")
         XCTAssertEqual(message.subtitle, "Trg Pravde Zagreb · 4 Nov 2026")
+        XCTAssertEqual(message.dateText, "4 Nov 2026", "under the site's name on the PDF")
         XCTAssertEqual(message.headings, ["Quantity", "Item", "Code", "Note"])
         XCTAssertEqual(message.rows.map(\.quantity), ["6 pcs", "50 m"])
         XCTAssertEqual(message.rows.map(\.code), ["4015081677891", ""])

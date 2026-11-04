@@ -270,7 +270,7 @@ final class ScreenAtlasTests: XCTestCase {
                 back(app)
             }
         }
-        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
             pause(0.8)
             capture("\(prefix)-this-sheet", app)
             if tap(app.buttons.matching(identifier: "export-format-csv").firstMatch, "CSV file", app),
@@ -305,6 +305,16 @@ final class ScreenAtlasTests: XCTestCase {
             return
         }
         capture("sites-list", app)
+        // 1.3: a site's swipe (Archive), shown and closed again untouched.
+        let firstCard = app.buttons.matching(identifier: "site-card").firstMatch
+        firstCard.swipeLeft()
+        if app.buttons.matching(identifier: "site-card-swipe-archive").firstMatch.waitForExistence(timeout: 3) {
+            capture("sites-list-swipe", app)
+            firstCard.swipeRight()
+            pause(0.5)
+        } else {
+            miss("sites-list-swipe (no Archive on the swipe)")
+        }
 
         newSiteWizardScreens(app)
 
@@ -511,6 +521,12 @@ final class ScreenAtlasTests: XCTestCase {
                 _ = bringIntoView(sign, app)
                 if tap(sign, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
+                    if tap(app.buttons.matching(identifier: "extra-work-signature-open").firstMatch, "Sign (the client's pad)", app) {
+                        pause(1)
+                        capture("extra-work-client-signature-pad", app)
+                        close(app, "extra-work-signature-pad-cancel")
+                        pause(1)
+                    }
                     close(app, "extra-work-signature-cancel")
                 }
                 let editItems = app.buttons.matching(identifier: "extra-work-edit-items").firstMatch
@@ -843,7 +859,7 @@ final class ScreenAtlasTests: XCTestCase {
             exportScreens(app, prefix: "site-export")
             // One sheet per person, in This sheet: the switch, and the first
             // person's page back on the export screen.
-            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
                 let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
                 if perPerson.waitForExistence(timeout: 5) {
                     flip(perPerson)
@@ -852,7 +868,7 @@ final class ScreenAtlasTests: XCTestCase {
                     back(app)
                     pause(1.5)
                     capture("site-export-per-person-preview", app)
-                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app),
+                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app),
                        perPerson.waitForExistence(timeout: 5) {
                         flip(perPerson)
                     }
@@ -913,17 +929,24 @@ final class ScreenAtlasTests: XCTestCase {
                 if tap(person, "a person to sign", app) {
                     pause(0.5)
                     capture("site-signing", app)
-                    let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
-                    if canvas.waitForExistence(timeout: 5) {
-                        let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
-                        let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-                        let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
-                        start.press(forDuration: 0.1, thenDragTo: middle)
-                        middle.press(forDuration: 0.1, thenDragTo: end)
-                        pause(0.5)
-                        capture("site-signing-drawn", app)
-                    } else {
-                        miss("site-signing-drawn (no signature area)")
+                    // 1.3: Sign opens the pad full screen, in landscape on a phone.
+                    if tap(app.buttons.matching(identifier: "signature-open").firstMatch, "Sign (the pad)", app) {
+                        let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
+                        if canvas.waitForExistence(timeout: 5) {
+                            pause(1)
+                            capture("site-signing-pad", app)
+                            let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
+                            let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+                            let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
+                            start.press(forDuration: 0.1, thenDragTo: middle)
+                            middle.press(forDuration: 0.1, thenDragTo: end)
+                            pause(0.5)
+                            capture("site-signing-drawn", app)
+                        } else {
+                            miss("site-signing-drawn (no signature area)")
+                        }
+                        close(app, "signature-pad-cancel")
+                        pause(1)
                     }
                     close(app, "signature-cancel")
                 }
@@ -940,7 +963,7 @@ final class ScreenAtlasTests: XCTestCase {
     private func newSiteWizardScreens(_ app: XCUIApplication) {
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site", app) else { return }
         capture("wizard-1-start", app)
-        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy from a site", app) {
+        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy a site", app) {
             capture("wizard-1-copy", app)
         }
         if tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the place", app) {
@@ -959,7 +982,7 @@ final class ScreenAtlasTests: XCTestCase {
         close(app, "wizard-cancel")
 
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site again", app) else { return }
-        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several sites at once", app),
+        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several at once", app),
            tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the names", app) {
             let names = app.descendants(matching: .any).matching(identifier: "wizard-several-names").firstMatch
             if names.waitForExistence(timeout: 5) {
@@ -1041,6 +1064,15 @@ final class ScreenAtlasTests: XCTestCase {
         }
         pause(1)
         capture("insights-month", app)
+        // A bar tapped: its callout, "Thu 29  10h 30m" (polish, 2026-11).
+        let chart = app.descendants(matching: .any)["insights-chart"].firstMatch
+        if chart.waitForExistence(timeout: 3) {
+            chart.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.6)).tap()
+            pause(0.8)
+            capture("insights-month-callout", app)
+        } else {
+            miss("insights-month-callout (no chart)")
+        }
         swipeUp(app)
         capture("insights-month-lower", app)
         swipeUp(app)

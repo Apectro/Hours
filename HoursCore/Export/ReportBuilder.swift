@@ -149,6 +149,13 @@ struct ReportBuilder: Sendable {
             table.detail = "\(period) · \(dates)"
         }
         table.tiles = makeTiles(summary: summary)
+        table.period = period.isEmpty ? dates : period
+        // The worked hours and the balance at the top right; the days when
+        // the balance is not shown.
+        table.keyFigures = Array(table.tiles.filter { tile in
+            tile.label == language(.worked)
+                || tile.label == (settings.features.showsBalance ? language(.balance) : language(.daysWorked))
+        }.prefix(2))
         if let earnings {
             let money = MoneyFormatting(currencyCode: currencyCode, locale: language.locale)
             table.tiles.insert(ReportTile(label: language(.earnings), value: money.string(earnings.totalCents)), at: 1)
@@ -665,6 +672,7 @@ extension ReportBuilder {
             let name = siteNames[onlySite] ?? ""
             if !name.isEmpty {
                 table.eyebrow = "\(language(.timesheet)) · \(name)"
+                table.sitesText = name
                 table.title = "\(table.title) — \(name)"
             }
             table.address = SiteAddress.singleLine(siteAddresses[onlySite] ?? "")
@@ -674,6 +682,7 @@ extension ReportBuilder {
         let names = language.combinedSiteNames(order.compactMap { siteNames[$0] })
         if !names.isEmpty {
             table.eyebrow = "\(language(.timesheet)) · \(names)"
+            table.sitesText = names
             table.title = "\(table.title) — \(names)"
         }
         let counted = days.filter { $0.counts(through: countingThrough) }

@@ -314,7 +314,10 @@ struct MissingMessage: Sendable {
 
     var title: String { language(.missingMaterial) }
 
-    var subtitle: String { "\(siteName) · \(formatting.dateWithYear(date))" }
+    var subtitle: String { "\(siteName) · \(dateText)" }
+
+    /// "4 Nov 2026", beside the title under the site's name on the PDF.
+    var dateText: String { formatting.dateWithYear(date) }
 
     var byline: String { owner.isEmpty ? "" : "\(language(.recordedBy)) \(owner)" }
 

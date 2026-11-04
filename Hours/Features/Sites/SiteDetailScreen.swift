@@ -111,7 +111,7 @@ struct SiteDetailScreen: View {
             openSiteDay(SiteRoute(siteID: siteID, date: date))
         }
         .sheet(item: $readingDiary) { site in
-            SiteDiaryListSheet(site: site) { requestedDate = $0 }
+            SiteDiaryListSheet(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites)) { requestedDate = $0 }
         }
         .sheet(item: $reporting) { site in
             ExtraWorkReportScreen(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites))
