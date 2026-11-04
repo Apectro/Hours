@@ -1,0 +1,199 @@
+import XCTest
+
+/// Scanning material and the site's Missing list (1.3), on the seeded site.
+/// The simulator has no camera scanner, so the scanner offers its typed-code
+/// field — the same path every real scan takes after the camera reads it.
+final class ScanMissingUITests: XCTestCase {
+    private let code = "4015081677891"
+
+    override func setUp() {
+        super.setUp()
+        continueAfterFailure = false
+    }
+
+    private func openSite(_ app: XCUIApplication) {
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        let card = app.buttons["site-card"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
+        card.tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10), "the site's page did not open")
+    }
+
+    private func type(_ text: String, into field: XCUIElement) {
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(text)
+    }
+
+    // MARK: - Scanning in the extra-work editor
+
+    /// A new code is named once and added; the same code again counts the
+    /// line up to 2 without asking again.
+    func testAScannedCodeIsNamedOnceAndCountsUp() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        app.openTodayOnSite()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+
+        let add = app.buttons["extra-work-add"]
+        for _ in 0..<4 where !add.isHittable { app.swipeUp() }
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "the day should offer Add extra work")
+        add.tap()
+        XCTAssertTrue(app.screen("screen-extra-work-editor").waitForExistence(timeout: 5), "the editor did not open")
+
+        let scan = app.buttons["extra-work-scan"]
+        XCTAssertTrue(scan.waitForExistence(timeout: 5), "Material should offer Scan")
+        scan.tap()
+        XCTAssertTrue(app.screen("screen-scanner").waitForExistence(timeout: 5), "the scanner did not open")
+
+        // No camera here: the code is typed.
+        let field = app.textFields["scanner-code-field"]
+        type(code, into: field)
+        app.buttons["scanner-code-add"].tap()
+
+        // Seen for the first time: named once.
+        let name = app.textFields["new-item-name"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5), "a new code should ask for a name")
+        XCTAssertTrue(app.descendants(matching: .any)["new-item-code"].exists, "the New item sheet shows the code")
+        name.tap()
+        name.typeText("Junction box IP65")
+        app.buttons["new-item-save"].tap()
+
+        let last = app.descendants(matching: .any)["scanner-last-amount"]
+        XCTAssertTrue(last.waitForExistence(timeout: 5), "the card should say what was added")
+        XCTAssertTrue(app.descendants(matching: .any)["scanner-line-0"].exists, "the session lists the item")
+
+        // The same code again: known now, no question, one more.
+        type(code, into: field)
+        app.buttons["scanner-code-add"].tap()
+        XCTAssertFalse(app.textFields["new-item-name"].waitForExistence(timeout: 2), "a named code is not asked for again")
+        XCTAssertFalse(app.descendants(matching: .any)["scanner-line-1"].exists, "still one item in the session")
+
+        app.buttons["scanner-done"].tap()
+        let quantity = app.buttons["extra-work-quantity-0"]
+        XCTAssertTrue(quantity.waitForExistence(timeout: 5), "the scanned item should be a line on the job")
+        XCTAssertTrue((quantity.value as? String)?.hasPrefix("2") == true, "two scans are two: \(String(describing: quantity.value))")
+        XCTAssertFalse(app.buttons["extra-work-quantity-1"].exists, "one line, not two")
+        app.buttons["extra-work-cancel"].tap()
+    }
+
+    // MARK: - Missing
+
+    /// Added by a new name, the same item found by search counts it up,
+    /// a second item added; Send the list says what is needed; a swipe
+    /// orders one.
+    func testTheMissingListAddsSendsAndOrders() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+
+        let row = app.buttons["site-missing"].firstMatch
+        for _ in 0..<3 where !row.isHittable { app.swipeUp() }
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the site's page should have a Missing row")
+        row.tap()
+        XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "Missing did not open")
+
+        // A new item, by name.
+        addMissing(app) {
+            self.type("Junction box IP65", into: app.textFields["missing-add-search"])
+            let new = app.buttons["missing-add-new"]
+            XCTAssertTrue(new.waitForExistence(timeout: 5), "typed text should offer Add as a new item")
+            new.tap()
+            let plus = app.buttons["missing-add-plus"]
+            XCTAssertTrue(plus.waitForExistence(timeout: 5), "How many should have a stepper")
+            plus.tap()
+            plus.tap()
+            self.type("2nd floor corridor", into: app.textFields["missing-add-note"])
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5), "the item should be listed")
+
+        // The same item again, found by search: counted up, not listed twice.
+        addMissing(app) {
+            self.type("junc", into: app.textFields["missing-add-search"])
+            let match = app.buttons["missing-add-match-0"]
+            XCTAssertTrue(match.waitForExistence(timeout: 5), "the search should find the item")
+            XCTAssertFalse(app.buttons["missing-add-new"].exists, "no new item for a name already there")
+            match.tap()
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.descendants(matching: .any)["missing-row-1"].exists, "the same needed item is counted up")
+
+        // A second item.
+        addMissing(app) {
+            self.type("Cable NYM 3x1.5", into: app.textFields["missing-add-search"])
+            app.buttons["missing-add-new"].tap()
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["missing-row-1"].waitForExistence(timeout: 5), "a second item should be listed")
+
+        // Send the list: the message names what is needed, with how many.
+        let send = app.buttons["missing-send"]
+        XCTAssertTrue(send.waitForExistence(timeout: 5), "the list should offer Send the list")
+        send.tap()
+        let text = app.descendants(matching: .any)["missing-send-text"]
+        XCTAssertTrue(text.waitForExistence(timeout: 5), "Send the list should show the message")
+        XCTAssertTrue(text.label.contains("4 × Junction box IP65"), "the message: \(text.label)")
+        XCTAssertTrue(text.label.contains("Cable NYM 3x1.5"), "the message: \(text.label)")
+        XCTAssertTrue(app.switches["missing-send-mark"].exists, "Mark them as ordered is offered")
+        XCTAssertTrue(app.buttons["missing-send-message"].exists)
+        XCTAssertTrue(app.buttons["missing-send-pdf"].exists)
+        app.buttons["missing-send-close"].tap()
+
+        // A swipe orders the first; it leaves Needed and is under Ordered.
+        let first = app.descendants(matching: .any)["missing-row-0"]
+        XCTAssertTrue(first.waitForExistence(timeout: 5))
+        first.swipeLeft()
+        let ordered = app.buttons["missing-mark-ordered"]
+        XCTAssertTrue(ordered.waitForExistence(timeout: 5), "a swipe should offer Ordered")
+        ordered.tap()
+        XCTAssertFalse(app.descendants(matching: .any)["missing-row-1"].waitForExistence(timeout: 2), "one left needed")
+        let states = app.segmentedControls["missing-state"]
+        XCTAssertTrue(states.waitForExistence(timeout: 5))
+        states.buttons.element(boundBy: 1).tap()
+        XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5), "the ordered item is under Ordered")
+    }
+
+    /// The crew's day opens the add sheet for its site.
+    func testTheCrewsDayNotesSomethingMissing() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        app.openTodayOnSite()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+
+        let link = app.buttons["site-day-missing"]
+        for _ in 0..<6 where !link.isHittable { app.swipeUp() }
+        XCTAssertTrue(link.waitForExistence(timeout: 5), "the day should offer Something's missing")
+        link.tap()
+        XCTAssertTrue(app.screen("screen-missing-add").waitForExistence(timeout: 5), "the add sheet did not open")
+        type("Wago 221", into: app.textFields["missing-add-search"])
+        app.buttons["missing-add-new"].tap()
+        app.buttons["missing-add-save"].tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "back on the day")
+
+        // On the site's page it is one needed.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let row = app.buttons["site-missing"].firstMatch
+        for _ in 0..<3 where !row.isHittable { app.swipeUp() }
+        row.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5), "the item noted on the day is on the list")
+    }
+
+    /// Opens the add sheet, does what is given, and adds.
+    private func addMissing(_ app: XCUIApplication, _ fill: () -> Void) {
+        let add = app.buttons["missing-add"]
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "Missing should have + in its toolbar")
+        add.tap()
+        XCTAssertTrue(app.screen("screen-missing-add").waitForExistence(timeout: 5), "the add sheet did not open")
+        fill()
+        let save = app.buttons["missing-add-save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        XCTAssertTrue(save.isEnabled, "something is chosen")
+        save.tap()
+        XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "back on the list")
+    }
+}
