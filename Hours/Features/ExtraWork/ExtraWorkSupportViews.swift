@@ -106,8 +106,8 @@ struct ExtraWorkItemSheet: View {
 }
 
 /// The client signing on the supervisor's phone (Extra work board, phone
-/// 4): who signs and what they sign for, in a form; the signature with a
-/// finger in the crew sign-off's canvas under it; Clear / Sign at the bottom.
+/// 4): who signs and what they sign for, in a form, and Sign at the bottom,
+/// which opens the full-screen pad (`SignaturePad`, 1.3) the crew signs on.
 struct ExtraWorkSignSheet: View {
     let prompt: String
     /// "3 jobs · 26–29 Oct · 4h 30m": what is being signed for.
@@ -116,7 +116,9 @@ struct ExtraWorkSignSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var signer = ""
-    @State private var strokes: [[SignaturePoint]] = []
+    @State private var showsPad = false
+    /// What the pad handed back, signed once the pad has closed.
+    @State private var signed: [[SignaturePoint]]?
 
     var body: some View {
         NavigationStack {
@@ -138,34 +140,15 @@ struct ExtraWorkSignSheet: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
 
-                // Outside the form, so a stroke is never taken for a scroll.
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    Text(verbatim: prompt)
-                        .font(.subheadline.weight(.semibold))
-                    SignatureCanvas(strokes: $strokes)
-                        .overlay(alignment: .bottomLeading) {
-                            Text("Sign here")
-                                .font(.caption)
-                                .foregroundStyle(.hoursSecondaryText)
-                                .padding(.leading, Metrics.large)
-                                .padding(.bottom, Metrics.tiny)
-                                .allowsHitTesting(false)
-                                .accessibilityHidden(true)
-                        }
-                        .accessibilityIdentifier("extra-work-signature-canvas")
+                // Signing itself is full screen, in landscape on a phone
+                // (1.3): more room for a finger than a strip under the name.
+                Button {
+                    showsPad = true
+                } label: {
+                    Label("Sign", systemImage: "signature")
                 }
-                .padding(.horizontal, Metrics.large)
-
-                HStack(spacing: Metrics.medium) {
-                    Button("Clear") { strokes = [] }
-                        .buttonStyle(.bigAction(.secondary))
-                        .disabled(strokes.isEmpty)
-                        .accessibilityIdentifier("extra-work-signature-clear")
-                    Button("Sign", action: sign)
-                        .buttonStyle(.bigAction(.primary))
-                        .disabled(!canSign)
-                        .accessibilityIdentifier("extra-work-signature-sign")
-                }
+                .buttonStyle(.bigAction(.primary))
+                .accessibilityIdentifier("extra-work-signature-open")
                 .padding(.horizontal, Metrics.large)
                 .padding(.bottom, Metrics.small)
             }
@@ -185,21 +168,30 @@ struct ExtraWorkSignSheet: View {
                 }
             }
         }
-        // A downward stroke must not close the sheet halfway through a name.
-        .interactiveDismissDisabled()
+        .fullScreenCover(isPresented: $showsPad, onDismiss: {
+            guard let signed, CrewSignature.isSignature(signed) else { return }
+            onSign(ExtraWorkSignature(
+                signerName: signerName,
+                signedAt: Date(),
+                strokes: signed,
+                aspectRatio: SignatureFit.boxAspectRatio
+            ))
+            dismiss()
+        }) {
+            SignaturePad(caption: padCaption, identifierPrefix: "extra-work-signature") { strokes in
+                signed = strokes
+            }
+        }
+        .interactiveDismissDisabled(showsPad)
     }
 
-    private var canSign: Bool { CrewSignature.isSignature(strokes) }
+    private var signerName: String {
+        signer.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
-    private func sign() {
-        guard canSign else { return }
-        onSign(ExtraWorkSignature(
-            signerName: signer.trimmingCharacters(in: .whitespacesAndNewlines),
-            signedAt: Date(),
-            strokes: strokes,
-            aspectRatio: SignatureCanvas.aspectRatio
-        ))
-        dismiss()
+    /// "Ing. Horvat, site manager · Sign to confirm these jobs".
+    private var padCaption: String {
+        signerName.isEmpty ? prompt : "\(signerName) · \(prompt)"
     }
 }
 

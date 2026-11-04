@@ -1802,6 +1802,17 @@
       "Ziek / verlof",
       "Chorobowe / urlop"
     ],
+    "Sign-off, %@": [
+      "Stundenbestätigung, %@",
+      "Potvrda sati, %@",
+      "Potrditev ur, %@",
+      "Conferma ore, %@",
+      "Validation des heures, %@",
+      "Confirmación de horas, %@",
+      "Confirmação de horas, %@",
+      "Urenbevestiging, %@",
+      "Potwierdzenie godzin, %@"
+    ],
     "Sites › Sheet": [
       "Baustellen › Liste",
       "Gradilišta › Lista",

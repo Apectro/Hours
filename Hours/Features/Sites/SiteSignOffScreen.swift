@@ -330,7 +330,7 @@ enum SignOffBook {
             signedOn: CalendarDate.today(in: calendar),
             fingerprint: SignatureFingerprint.make(memberID: memberID, results: results, month: month),
             strokes: strokes,
-            aspectRatio: SignatureCanvas.aspectRatio
+            aspectRatio: SignatureFit.boxAspectRatio
         ))
     }
 }
@@ -422,8 +422,8 @@ struct SignOffPerson: Identifiable, Hashable {
 
 /// One person's month on a site, to check and sign (1.2, mockup Crew):
 /// "Ivan · October" in the bar, the total on the site, "Hand the phone to
-/// Ivan…", their days folded under it, the area to sign in, and Clear and
-/// Sign at the bottom.
+/// Ivan…", their days folded under it, and Sign at the bottom, which opens
+/// the full-screen pad (`SignaturePad`, 1.3).
 struct SignatureSheet: View {
     struct DayRow: Identifiable, Hashable {
         let id: Int
@@ -440,9 +440,10 @@ struct SignatureSheet: View {
     let onSign: ([[SignaturePoint]]) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var strokes: [[SignaturePoint]] = []
     @State private var showsDays = false
+    @State private var showsPad = false
+    /// What the pad handed back, signed once the pad has closed.
+    @State private var signed: [[SignaturePoint]]?
 
     var body: some View {
         NavigationStack {
@@ -487,43 +488,15 @@ struct SignatureSheet: View {
                     }
                 }
 
-                // Outside the form, so a stroke is never taken for a scroll.
-                SignatureCanvas(strokes: $strokes)
-                    .overlay(alignment: .bottomLeading) {
-                        Text("Sign here")
-                            .font(.caption)
-                            .foregroundStyle(.hoursSecondaryText)
-                            .padding(.leading, Metrics.large)
-                            .padding(.bottom, Metrics.tiny)
-                            .allowsHitTesting(false)
-                            .accessibilityHidden(true)
-                    }
-                    .accessibilityIdentifier("signature-canvas")
-                    .padding(.horizontal, Metrics.large)
-
-                let layout = dynamicTypeSize.isAccessibilitySize
-                    ? AnyLayout(VStackLayout(spacing: Metrics.small))
-                    : AnyLayout(HStackLayout(spacing: Metrics.small))
-                layout {
-                    Button {
-                        strokes = []
-                    } label: {
-                        Text("Clear")
-                    }
-                    .buttonStyle(.bigAction(.secondary))
-                    .disabled(strokes.isEmpty)
-                    .accessibilityIdentifier("signature-clear")
-
-                    Button {
-                        onSign(strokes)
-                        dismiss()
-                    } label: {
-                        Text("Sign")
-                    }
-                    .buttonStyle(.bigAction(.primary))
-                    .disabled(!CrewSignature.isSignature(strokes))
-                    .accessibilityIdentifier("signature-sign")
+                // Signing itself is full screen, in landscape on a phone
+                // (1.3): more room for a finger than a strip under the days.
+                Button {
+                    showsPad = true
+                } label: {
+                    Label("Sign", systemImage: "signature")
                 }
+                .buttonStyle(.bigAction(.primary))
+                .accessibilityIdentifier("signature-open")
                 .padding(.horizontal, Metrics.large)
                 .padding(.bottom, Metrics.small)
             }
@@ -542,65 +515,23 @@ struct SignatureSheet: View {
                 }
             }
         }
-        // A downward stroke must not close the sheet halfway through a name.
-        .interactiveDismissDisabled()
-    }
-}
-
-/// A box to sign in with a finger. Strokes are kept as points in a box one
-/// unit high (see `SignaturePoint`), so they print sharp at any size.
-struct SignatureCanvas: View {
-    /// Width over height, fixed so every signature has the same box.
-    static let aspectRatio: Double = 3
-
-    @Binding var strokes: [[SignaturePoint]]
-    @State private var current: [SignaturePoint] = []
-
-    var body: some View {
-        GeometryReader { geometry in
-            let height = max(geometry.size.height, 1)
-            Canvas { context, _ in
-                var path = Path()
-                for stroke in strokes + [current] {
-                    guard let first = stroke.first else { continue }
-                    path.move(to: CGPoint(x: CGFloat(first.x) * height, y: CGFloat(first.y) * height))
-                    for point in stroke.dropFirst() {
-                        path.addLine(to: CGPoint(x: CGFloat(point.x) * height, y: CGFloat(point.y) * height))
-                    }
-                }
-                context.stroke(path, with: .color(.primary), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+        .fullScreenCover(isPresented: $showsPad, onDismiss: {
+            guard let signed else { return }
+            onSign(signed)
+            dismiss()
+        }) {
+            SignaturePad(caption: padCaption, identifierPrefix: "signature") { strokes in
+                signed = strokes
             }
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        current.append(point(value.location, height: height))
-                    }
-                    .onEnded { _ in
-                        if !current.isEmpty { strokes.append(current) }
-                        current = []
-                    }
-            )
         }
-        .aspectRatio(CGFloat(SignatureCanvas.aspectRatio), contentMode: .fit)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.smallCornerRadius, style: .continuous))
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color.hoursHairline)
-                .frame(height: 1)
-                .padding(.horizontal, Metrics.large)
-                .padding(.bottom, Metrics.large)
-                .allowsHitTesting(false)
-        }
-        .accessibilityElement()
-        .accessibilityLabel(String(localized: "Signature area"))
-        .accessibilityHint(String(localized: "Sign with a finger."))
+        .interactiveDismissDisabled(showsPad)
     }
 
-    private func point(_ location: CGPoint, height: CGFloat) -> SignaturePoint {
-        SignaturePoint(
-            x: min(max(Double(location.x / height), 0), SignatureCanvas.aspectRatio),
-            y: min(max(Double(location.y / height), 0), 1)
-        )
+    /// "Ivan Horvat · Sign-off, Trg Pravde Zagreb".
+    private var padCaption: String {
+        let what = siteName.isEmpty
+            ? String(localized: "Sign-off")
+            : String(localized: "Sign-off, \(siteName)", comment: "Signature pad caption: what is being signed; the value is the site's name")
+        return "\(person.name) · \(what)"
     }
 }

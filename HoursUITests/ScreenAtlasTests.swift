@@ -511,6 +511,12 @@ final class ScreenAtlasTests: XCTestCase {
                 _ = bringIntoView(sign, app)
                 if tap(sign, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
+                    if tap(app.buttons.matching(identifier: "extra-work-signature-open").firstMatch, "Sign (the client's pad)", app) {
+                        pause(1)
+                        capture("extra-work-client-signature-pad", app)
+                        close(app, "extra-work-signature-pad-cancel")
+                        pause(1)
+                    }
                     close(app, "extra-work-signature-cancel")
                 }
                 let editItems = app.buttons.matching(identifier: "extra-work-edit-items").firstMatch
@@ -913,17 +919,24 @@ final class ScreenAtlasTests: XCTestCase {
                 if tap(person, "a person to sign", app) {
                     pause(0.5)
                     capture("site-signing", app)
-                    let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
-                    if canvas.waitForExistence(timeout: 5) {
-                        let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
-                        let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-                        let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
-                        start.press(forDuration: 0.1, thenDragTo: middle)
-                        middle.press(forDuration: 0.1, thenDragTo: end)
-                        pause(0.5)
-                        capture("site-signing-drawn", app)
-                    } else {
-                        miss("site-signing-drawn (no signature area)")
+                    // 1.3: Sign opens the pad full screen, in landscape on a phone.
+                    if tap(app.buttons.matching(identifier: "signature-open").firstMatch, "Sign (the pad)", app) {
+                        let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
+                        if canvas.waitForExistence(timeout: 5) {
+                            pause(1)
+                            capture("site-signing-pad", app)
+                            let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
+                            let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+                            let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
+                            start.press(forDuration: 0.1, thenDragTo: middle)
+                            middle.press(forDuration: 0.1, thenDragTo: end)
+                            pause(0.5)
+                            capture("site-signing-drawn", app)
+                        } else {
+                            miss("site-signing-drawn (no signature area)")
+                        }
+                        close(app, "signature-pad-cancel")
+                        pause(1)
                     }
                     close(app, "signature-cancel")
                 }
