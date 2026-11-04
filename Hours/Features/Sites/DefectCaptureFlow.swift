@@ -225,6 +225,9 @@ struct DefectCaptureFlow: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Metrics.extraLarge)
+                    // What the UI tests wait for. On a leaf, not on the
+                    // stack, whose identifier would replace the buttons'.
+                    .accessibilityIdentifier("screen-defect-camera")
                 if isLoading { ProgressView() }
                 Spacer()
                 VStack(spacing: Metrics.small) {
@@ -246,7 +249,6 @@ struct DefectCaptureFlow: View {
             }
             .frame(maxWidth: .infinity)
             .background(Color.hoursCanvas)
-            .accessibilityIdentifier("screen-defect-camera")
             .navigationTitle(Text(String(localized: "Defect · \(site.name)", comment: "Over the defect camera; the value is the site's name")))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

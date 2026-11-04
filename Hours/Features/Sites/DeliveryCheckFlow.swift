@@ -68,7 +68,6 @@ struct DeliveryCheckFlow: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 card
             }
-            .accessibilityIdentifier("screen-delivery-scan")
             .navigationTitle("Delivery")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

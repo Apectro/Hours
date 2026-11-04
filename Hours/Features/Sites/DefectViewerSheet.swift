@@ -47,7 +47,6 @@ struct DefectViewerSheet: View {
             .padding(.bottom, Metrics.small)
             .background(Color.black.ignoresSafeArea())
             .environment(\.colorScheme, .dark)
-            .accessibilityIdentifier("screen-defect-viewer")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -207,7 +206,9 @@ struct DefectViewerSheet: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
         .padding(.horizontal, Metrics.large)
         .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("defect-viewer-caption")
+        // The viewer's screen identifier lives on this leaf: on the stack
+        // around it, it would replace the buttons' identifiers.
+        .accessibilityIdentifier("screen-defect-viewer")
     }
 
     private func buttons(_ defect: Defect) -> some View {
