@@ -18380,6 +18380,50 @@
       "Adicionar da lista",
       "Uit de lijst",
       "Dodaj z listy"
+    ],
+    "Nobody gets hours, and the day is marked “Bad weather” on the sheet.": [
+      "Niemand bekommt Stunden, und der Tag steht auf dem Blatt als „Schlechtwetter“.",
+      "Nitko ne dobiva sate, a dan je na listu označen kao „Loše vrijeme“.",
+      "Nihče ne dobi ur, dan pa je na listu označen kot »Slabo vreme«.",
+      "Nessuno riceve ore e il giorno è segnato come “Maltempo” sul foglio.",
+      "Personne ne reçoit d’heures, et le jour est marqué « Intempéries » sur la feuille.",
+      "Nadie recibe horas y el día figura como «Mal tiempo» en la hoja.",
+      "Ninguém recebe horas e o dia fica marcado como «Mau tempo» na folha.",
+      "Niemand krijgt uren, en de dag staat als ‘Slecht weer’ op het blad.",
+      "Nikt nie dostaje godzin, a dzień jest oznaczony na arkuszu jako „Zła pogoda”."
+    ],
+    "Everyone ticked gets %@, and the day is marked “Bad weather” on the sheet.": [
+      "Alle Abgehakten bekommen %@, und der Tag steht auf dem Blatt als „Schlechtwetter“.",
+      "Svi označeni dobivaju %@, a dan je na listu označen kao „Loše vrijeme“.",
+      "Vsi označeni dobijo %@, dan pa je na listu označen kot »Slabo vreme«.",
+      "Tutti quelli spuntati ricevono %@ e il giorno è segnato come “Maltempo” sul foglio.",
+      "Tous ceux cochés reçoivent %@, et le jour est marqué « Intempéries » sur la feuille.",
+      "Todos los marcados reciben %@ y el día figura como «Mal tiempo» en la hoja.",
+      "Todos os marcados recebem %@ e o dia fica marcado como «Mau tempo» na folha.",
+      "Iedereen die is aangevinkt krijgt %@, en de dag staat als ‘Slecht weer’ op het blad.",
+      "Wszyscy zaznaczeni dostają %@, a dzień jest oznaczony na arkuszu jako „Zła pogoda”."
+    ],
+    "Each person checks their own days and signs here with a finger.": [
+      "Jede Person prüft ihre eigenen Tage und unterschreibt hier mit dem Finger.",
+      "Svaka osoba provjeri svoje dane i ovdje se potpiše prstom.",
+      "Vsaka oseba preveri svoje dneve in se tukaj podpiše s prstom.",
+      "Ogni persona controlla i propri giorni e firma qui con un dito.",
+      "Chaque personne vérifie ses propres jours et signe ici du doigt.",
+      "Cada persona revisa sus propios días y firma aquí con el dedo.",
+      "Cada pessoa verifica os seus próprios dias e assina aqui com o dedo.",
+      "Ieder controleert de eigen dagen en tekent hier met een vinger.",
+      "Każda osoba sprawdza swoje dni i podpisuje się tutaj palcem."
+    ],
+    "Hand the phone to %@ to sign that these hours are right.": [
+      "Gib das Telefon %@, um zu unterschreiben, dass die Stunden stimmen.",
+      "Daj telefon osobi %@ da potpiše da su ovi sati točni.",
+      "Daj telefon osebi %@, da podpiše, da so te ure pravilne.",
+      "Passa il telefono a %@ per firmare che queste ore sono giuste.",
+      "Passez le téléphone à %@ pour signer que ces heures sont justes.",
+      "Pasa el teléfono a %@ para firmar que estas horas son correctas.",
+      "Passa o telemóvel a %@ para assinar que estas horas estão certas.",
+      "Geef de telefoon aan %@ om te tekenen dat deze uren kloppen.",
+      "Podaj telefon osobie %@, aby podpisała, że te godziny się zgadzają."
     ]
   },
   "sameAsEnglishOnPurpose": [

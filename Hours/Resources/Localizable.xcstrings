@@ -29032,6 +29032,65 @@
         }
       }
     },
+    "Each person checks their own days and signs here with a finger.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede Person prüft ihre eigenen Tage und unterschreibt hier mit dem Finger."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada persona revisa sus propios días y firma aquí con el dedo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque personne vérifie ses propres jours et signe ici du doigt."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svaka osoba provjeri svoje dane i ovdje se potpiše prstom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni persona controlla i propri giorni e firma qui con un dito."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ieder controleert de eigen dagen en tekent hier met een vinger."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Każda osoba sprawdza swoje dni i podpisuje się tutaj palcem."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada pessoa verifica os seus próprios dias e assina aqui com o dedo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsaka oseba preveri svoje dneve in se tukaj podpiše s prstom."
+          }
+        }
+      }
+    },
     "Each person's hours a day are added up across the sites you pick, on one sheet with a By site total.": {
       "extractionState": "manual",
       "localizations": {
@@ -30680,6 +30739,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vsi ta dan končajo ob tej uri. Kdor je že odšel, obdrži svojo uro odhoda."
+          }
+        }
+      }
+    },
+    "Everyone ticked gets %@, and the day is marked “Bad weather” on the sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Abgehakten bekommen %@, und der Tag steht auf dem Blatt als „Schlechtwetter“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los marcados reciben %@ y el día figura como «Mal tiempo» en la hoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous ceux cochés reçoivent %@, et le jour est marqué « Intempéries » sur la feuille."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svi označeni dobivaju %@, a dan je na listu označen kao „Loše vrijeme“."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti quelli spuntati ricevono %@ e il giorno è segnato come “Maltempo” sul foglio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iedereen die is aangevinkt krijgt %@, en de dag staat als ‘Slecht weer’ op het blad."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszyscy zaznaczeni dostają %@, a dzień jest oznaczony na arkuszu jako „Zła pogoda”."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os marcados recebem %@ e o dia fica marcado como «Mau tempo» na folha."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vsi označeni dobijo %@, dan pa je na listu označen kot »Slabo vreme«."
           }
         }
       }
@@ -35361,6 +35479,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pol na vsakem"
+          }
+        }
+      }
+    },
+    "Hand the phone to %@ to sign that these hours are right.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib das Telefon %@, um zu unterschreiben, dass die Stunden stimmen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasa el teléfono a %@ para firmar que estas horas son correctas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passez le téléphone à %@ pour signer que ces heures sont justes."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daj telefon osobi %@ da potpiše da su ovi sati točni."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa il telefono a %@ per firmare che queste ore sono giuste."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geef de telefoon aan %@ om te tekenen dat deze uren kloppen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podaj telefon osobie %@, aby podpisała, że te godziny się zgadzają."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa o telemóvel a %@ para assinar que estas horas estão certas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daj telefon osebi %@, da podpiše, da so te ure pravilne."
           }
         }
       }
@@ -47043,6 +47220,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nihče ne dobi ur za ta dan. Na listu je označen kot »Slabo vreme« in štet v ploščicah."
+          }
+        }
+      }
+    },
+    "Nobody gets hours, and the day is marked “Bad weather” on the sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niemand bekommt Stunden, und der Tag steht auf dem Blatt als „Schlechtwetter“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nadie recibe horas y el día figura como «Mal tiempo» en la hoja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personne ne reçoit d’heures, et le jour est marqué « Intempéries » sur la feuille."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nitko ne dobiva sate, a dan je na listu označen kao „Loše vrijeme“."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuno riceve ore e il giorno è segnato come “Maltempo” sul foglio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niemand krijgt uren, en de dag staat als ‘Slecht weer’ op het blad."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nikt nie dostaje godzin, a dzień jest oznaczony na arkuszu jako „Zła pogoda”."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguém recebe horas e o dia fica marcado como «Mau tempo» na folha."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nihče ne dobi ur, dan pa je na listu označen kot »Slabo vreme«."
           }
         }
       }
