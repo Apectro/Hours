@@ -100,6 +100,19 @@ final class ScreenAtlasTests: XCTestCase {
             dismissMenu(app)
         }
 
+        // The week (Month | Week in the navigation bar): its tiles, its
+        // total and its days, then back to the month.
+        let mode = app.segmentedControls.matching(identifier: "calendar-mode").firstMatch
+        if mode.waitForExistence(timeout: 5), mode.buttons.count > 1 {
+            tapAnyway(mode.buttons.element(boundBy: 1))
+            pause(0.6)
+            capture("calendar-week", app)
+            tapAnyway(mode.buttons.element(boundBy: 0))
+            pause(0.6)
+        } else {
+            miss("calendar-week (no Month | Week control)")
+        }
+
         // A day other than today, opened from the month as a sheet; its ✕
         // is the sheet's first navigation bar button, which back() taps.
         if let key = dayKey(monthsFromNow: 0, day: 3), key != Self.todayKey,
