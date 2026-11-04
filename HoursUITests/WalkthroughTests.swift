@@ -84,6 +84,16 @@ final class WalkthroughTests: XCTestCase {
         print("WALKTHROUGH_READY \(Date().timeIntervalSince1970)")
         pause(2)
 
+        // The week, from Month | Week in the navigation bar, and back to
+        // the month.
+        let mode = app.segmentedControls.matching(identifier: "calendar-mode").firstMatch
+        if reached("week", mode, timeout: 5), mode.buttons.count > 1 {
+            mode.buttons.element(boundBy: 1).tap()
+            pause(2)
+            mode.buttons.element(boundBy: 0).tap()
+            pause()
+        }
+
         // 2 — a day, opened and closed again. Today, because the sample month
         // is seeded around it and it is the day already selected.
         let save = app.openTodaysEditor()
@@ -153,7 +163,7 @@ final class WalkthroughTests: XCTestCase {
 
         XCTAssertEqual(
             visited,
-            ["calendar", "day editor", "insights", "settings", "privacy", "export"],
+            ["calendar", "week", "day editor", "insights", "settings", "privacy", "export"],
             "the walkthrough skipped a screen"
         )
     }

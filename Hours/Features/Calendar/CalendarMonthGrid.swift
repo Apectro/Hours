@@ -1,51 +1,71 @@
 import SwiftUI
 
-/// The month grid (design v2, mockup Main, "the month first").
+/// The Today tab's month (the owner's combined mockup, 2026-10-31): worked
+/// days on light accent tiles, the hours under the date; days away on a
+/// tile in the day type's own colour, with a short word; a working day
+/// nobody wrote on an accent tile with a red dot; days off, weekends and
+/// days still to come with nothing on them without a tile, the date in the
+/// tertiary colour. Today's tile is filled with the accent.
 ///
-/// In the look of Apple's Calendar: no boxes and no tiles, a hairline
-/// between weeks, each date in a 32pt circle that is filled with the accent
-/// for today. Under the date, the hours worked ("8h", "8.5h"), or a 6pt dot
-/// where the day wants a look: red for a working day nobody wrote, the
-/// type's own colour for sick, vacation and the other day types. Days off
-/// and weekends are in the tertiary label colour. A tap opens the day.
+/// An eighth column on the right holds each row's week total: the whole
+/// calendar week's hours worked and credited (`CalendarWeekTotals`), even
+/// where the row runs into the month before or after. A tap on a day opens
+/// it.
 struct CalendarMonthGrid: View {
+    // Grows with the user's text size. Not `private`: a private stored
+    // property makes the memberwise initializer private too.
+    @ScaledMetric(relativeTo: .subheadline) var totalWidth: CGFloat = 46
+
     let layout: MonthLayout
     let computations: [Int: DayComputation]
+    /// One per row of the layout, in minutes; empty hides the column.
+    let weekTotals: [Int]
     let today: CalendarDate
     let detail: DayCellDetail
     let formatting: CalendarFormatting
     let durationFormatting: DurationFormatting
     let onSelect: (CalendarDate) -> Void
 
+    static let gap: CGFloat = 4
+
     var body: some View {
-        VStack(spacing: 0) {
-            WeekdayHeader(weekdays: layout.weekdays, formatting: formatting)
-                .padding(.bottom, Metrics.small)
+        VStack(spacing: Self.gap) {
+            HStack(spacing: Self.gap) {
+                ForEach(layout.weekdays, id: \.self) { weekday in
+                    Text(verbatim: formatting.veryShortWeekdaySymbol(for: weekday))
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityLabel(Text(verbatim: formatting.weekdayName(for: weekday)))
+                }
+                if showsTotals {
+                    // The totals column has no heading.
+                    Color.clear
+                        .frame(width: totalWidth, height: 1)
+                        .accessibilityHidden(true)
+                }
+            }
+            .padding(.bottom, 2)
 
             // Rows of plain stacks, not a lazy grid: VoiceOver and the UI
             // tests reach every day of the month without scrolling to it.
-            ForEach(rows, id: \.first?.key) { week in
-                Rectangle()
-                    .fill(.hoursHairlineStyle)
-                    .frame(height: 0.5)
-                    .accessibilityHidden(true)
-                HStack(spacing: Metrics.tiny) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { index, week in
+                HStack(spacing: Self.gap) {
                     ForEach(week, id: \.key) { date in
                         cell(date)
                             .frame(maxWidth: .infinity)
+                    }
+                    if showsTotals {
+                        total(row: index, week: week)
                     }
                 }
             }
         }
     }
 
-    /// The layout's days, a week to a row.
-    private var rows: [[CalendarDate]] {
-        let width = max(layout.columnCount, 1)
-        return stride(from: 0, to: layout.days.count, by: width).map {
-            Array(layout.days[$0..<min($0 + width, layout.days.count)])
-        }
-    }
+    private var showsTotals: Bool { !weekTotals.isEmpty }
+
+    private var rows: [[CalendarDate]] { CalendarWeekTotals.rows(of: layout) }
 
     @ViewBuilder
     private func cell(_ date: CalendarDate) -> some View {
@@ -53,10 +73,9 @@ struct CalendarMonthGrid: View {
             Button {
                 onSelect(date)
             } label: {
-                DayCell(
+                DayTile(
                     date: date,
                     computation: computations[date.key],
-                    isToday: date == today,
                     today: today,
                     detail: detail,
                     durationFormatting: durationFormatting
@@ -75,49 +94,131 @@ struct CalendarMonthGrid: View {
                 .accessibilityHidden(true)
         }
     }
+
+    /// The row's week total, right-aligned: "40h". A week still to come
+    /// with nothing in it shows nothing rather than "0h".
+    private func total(row index: Int, week: [CalendarDate]) -> some View {
+        let minutes = index < weekTotals.count ? weekTotals[index] : 0
+        let isAhead = (week.first.map { $0 > today }) ?? false
+        let text = minutes > 0
+            ? DurationFormatting.compactHours(minutes, decimalSeparator: Locale.current.decimalSeparator ?? ".")
+            : (isAhead ? "" : "0h")
+        return Text(verbatim: text)
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(width: totalWidth, alignment: .trailing)
+            .accessibilityLabel(Text("Sum of the week"))
+            .accessibilityValue(Text(verbatim: DurationFormatting(style: .hoursAndMinutes).string(minutes)))
+            .accessibilityIdentifier("calendar-week-total-\(index)")
+    }
 }
 
-/// One day of the month: the date in its circle and, under it, the hours or
-/// a dot (see `CalendarMonthGrid`).
-struct DayCell: View {
-    // The cell grows with the user's text size rather than clipping it.
-    // Not `private`: a private stored property makes the memberwise
-    // initializer private too.
-    @ScaledMetric(relativeTo: .body) var cellHeight: CGFloat = Metrics.dayCellHeight
-    @ScaledMetric(relativeTo: .body) var diameter: CGFloat = 32
+/// The calendar's week (the owner's combined mockup, phone 2): the week's
+/// days as tall tiles, each with its weekday letter, the date and the
+/// hours, by the month's colour rules. Same identifiers as the month's
+/// days.
+struct CalendarWeekTiles: View {
+    let layout: MonthLayout
+    let computations: [Int: DayComputation]
+    let today: CalendarDate
+    let detail: DayCellDetail
+    let formatting: CalendarFormatting
+    let durationFormatting: DurationFormatting
+    let onSelect: (CalendarDate) -> Void
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(layout.days, id: \.key) { date in
+                Button {
+                    onSelect(date)
+                } label: {
+                    DayTile(
+                        date: date,
+                        computation: computations[date.key],
+                        today: today,
+                        detail: detail,
+                        durationFormatting: durationFormatting,
+                        weekday: formatting.veryShortWeekdaySymbol(for: date.weekday(in: formatting.calendar)),
+                        height: 84
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("day-\(date.key)")
+                .tourTarget(date == today ? .calendarToday : nil)
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+}
+
+/// One day on its tile (see `CalendarMonthGrid`): the date, and under it
+/// the hours, a short word for a day away, or a red dot for a working day
+/// nobody wrote. In the week, the weekday letter above.
+struct DayTile: View {
+    @ScaledMetric(relativeTo: .body) var height: CGFloat = Metrics.dayCellHeight
     @ScaledMetric(relativeTo: .caption2) var underHeight: CGFloat = 13
 
     let date: CalendarDate
     let computation: DayComputation?
-    let isToday: Bool
     let today: CalendarDate
     let detail: DayCellDetail
     let durationFormatting: DurationFormatting
+    /// The week's tiles: the weekday's letter above the date.
+    let weekday: String?
 
-    /// What the day is, which decides what is under the date.
+    init(
+        date: CalendarDate,
+        computation: DayComputation?,
+        today: CalendarDate,
+        detail: DayCellDetail,
+        durationFormatting: DurationFormatting,
+        weekday: String? = nil,
+        height: CGFloat = Metrics.dayCellHeight
+    ) {
+        self.date = date
+        self.computation = computation
+        self.today = today
+        self.detail = detail
+        self.durationFormatting = durationFormatting
+        self.weekday = weekday
+        self._height = ScaledMetric(wrappedValue: height, relativeTo: .body)
+    }
+
+    /// What the day is, which decides its tile and what is under the date.
     enum Look: Equatable {
         case written, missing, away, holiday, dayOff, plain
     }
 
+    private var isToday: Bool { date == today }
+
     var body: some View {
         let look = self.look
         VStack(spacing: 2) {
-            Text("\(date.day)")
-                .font(isToday ? Font.body.weight(.semibold) : Font.body)
+            if let weekday {
+                Text(verbatim: weekday)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(isToday ? Color.white : Color.secondary)
+            }
+            Text(verbatim: "\(date.day)")
+                .font(hasTile(look) ? Font.body.weight(.semibold) : Font.body)
                 .monospacedDigit()
                 .foregroundStyle(numberColor(look))
-                .frame(width: diameter, height: diameter)
-                .background {
-                    if isToday {
-                        Circle().fill(Color.accentColor)
-                    }
-                }
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             under(look)
                 .frame(height: underHeight)
         }
-        .padding(.top, Metrics.tiny)
-        .frame(maxWidth: .infinity, minHeight: cellHeight, alignment: .top)
-        .contentShape(Rectangle())
+        .frame(maxWidth: .infinity, minHeight: height)
+        .background {
+            if let fill = fill(look) {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(fill)
+            }
+        }
+        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel(look))
         .accessibilityAddTraits(.isButton)
@@ -142,39 +243,76 @@ struct DayCell: View {
         }
     }
 
+    private func hasTile(_ look: Look) -> Bool {
+        isToday || fill(look) != nil
+    }
+
+    /// The day type's own colour, for a day away or a public holiday.
+    private var typeColor: Color {
+        computation?.dayType.tint.color ?? .secondary
+    }
+
+    /// The type's colour, darkened in Light mode and lightened in Dark so
+    /// it reads as text on its own wash.
+    private var typeTextColor: Color {
+        typeColor.mix(with: .primary, by: 0.35)
+    }
+
+    private func fill(_ look: Look) -> Color? {
+        if isToday { return .accentColor }
+        switch look {
+        case .written, .missing: return Color.accentColor.opacity(0.14)
+        case .away, .holiday: return typeColor.opacity(0.16)
+        case .dayOff, .plain: return nil
+        }
+    }
+
     private func numberColor(_ look: Look) -> Color {
         if isToday { return .white }
-        if look == .dayOff { return Color(uiColor: .tertiaryLabel) }
-        return .primary
+        switch look {
+        case .written, .missing: return .primary
+        case .away, .holiday: return typeTextColor
+        case .dayOff, .plain: return Color(uiColor: .tertiaryLabel)
+        }
     }
 
     @ViewBuilder
     private func under(_ look: Look) -> some View {
-        if let dot = dotColor(look) {
+        switch look {
+        case .missing where !isToday:
             Circle()
-                .fill(dot)
+                .fill(Color.hoursMissingFill)
                 .frame(width: 6, height: 6)
                 .accessibilityHidden(true)
-        } else if let text = figure {
-            Text(verbatim: text)
+        case .away, .holiday:
+            Text(verbatim: shortWord)
                 .font(.caption2.weight(.semibold))
-                .monospacedDigit()
-                .foregroundStyle(figureColor)
+                .foregroundStyle(isToday ? Color.white : typeTextColor)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
-        } else {
-            Color.clear
+                .minimumScaleFactor(0.5)
+        default:
+            if let text = figure {
+                Text(verbatim: text)
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(figureColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                Color.clear
+            }
         }
     }
 
-    /// Red for a day nobody wrote; the type's own colour for a day away or
-    /// a public holiday; nothing for the rest.
-    private func dotColor(_ look: Look) -> Color? {
-        guard let computation else { return nil }
-        switch look {
-        case .missing: return .hoursMissingFill
-        case .away, .holiday: return computation.dayType.tint.color
-        case .written, .dayOff, .plain: return nil
+    /// "Sick", "Leave", "Holiday"; any other type by its own name, shrunk
+    /// to fit.
+    private var shortWord: String {
+        guard let computation else { return "" }
+        switch computation.dayType.id {
+        case .sick: return String(localized: "Sick")
+        case .vacation: return String(localized: "Leave")
+        case .holiday: return String(localized: "Holiday")
+        default: return computation.dayType.displayName()
         }
     }
 
@@ -198,7 +336,8 @@ struct DayCell: View {
     }
 
     private var figureColor: Color {
-        guard detail == .balance, let computation else { return .secondary }
+        if isToday { return .white }
+        guard detail == .balance, let computation else { return .accentColor }
         return Color.hoursBalance(computation.balanceMinutes)
     }
 
