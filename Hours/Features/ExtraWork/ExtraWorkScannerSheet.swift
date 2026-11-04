@@ -39,7 +39,6 @@ struct ExtraWorkScannerSheet: View {
                 }
                 .navigationTitle("Scan material")
                 .navigationBarTitleDisplayMode(.inline)
-                .accessibilityIdentifier("screen-scanner")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button {

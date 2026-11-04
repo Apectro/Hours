@@ -131,6 +131,10 @@ struct BarcodeScanArea: View {
                     .ignoresSafeArea()
                     .accessibilityLabel(String(localized: "Camera"))
                     .accessibilityHint(hint)
+                    // What the UI tests wait for. On a leaf, not on a
+                    // container, whose identifier would replace the ones of
+                    // the controls inside it.
+                    .accessibilityIdentifier("screen-scanner")
                     Text(verbatim: hint)
                         .font(.subheadline)
                         .foregroundStyle(.white)
@@ -156,6 +160,8 @@ struct BarcodeScanArea: View {
             Text("Type the code")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.hoursSecondaryText)
+                // What the UI tests wait for where there is no camera.
+                .accessibilityIdentifier("screen-scanner")
             HStack(spacing: Metrics.small) {
                 Image(systemName: "barcode")
                     .foregroundStyle(.hoursSecondaryText)

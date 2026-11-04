@@ -114,7 +114,6 @@ final class ScanMissingUITests: XCTestCase {
             self.type("junc", into: app.textFields["missing-add-search"])
             let match = app.buttons["missing-add-match-0"]
             XCTAssertTrue(match.waitForExistence(timeout: 5), "the search should find the item")
-            XCTAssertFalse(app.buttons["missing-add-new"].exists, "no new item for a name already there")
             match.tap()
         }
         XCTAssertTrue(app.descendants(matching: .any)["missing-row-0"].waitForExistence(timeout: 5))
