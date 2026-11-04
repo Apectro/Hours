@@ -1706,9 +1706,9 @@ dark #0A84FF). The daily actions use `BigActionButtonStyle`
 accent for the one primary action, the tertiary system fill for secondary and
 destructive (red text), green for Clock in only. And Appearance › On site sets two environment
 values at the root, `biggerButtons` (taller big buttons) and `highContrast`
-(read through `.hoursSecondaryText` and `.hoursHairlineStyle`). A scrolling screen that is not a `Form` is `SectionHeading`
-over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
-every in-scroll section. Sheets that write something have Cancel on the left
+(read through `.hoursSecondaryText` and `.hoursHairlineStyle`). Screens are native `List`s and `Form`s with
+sentence-case section headers; the hand-made cards and upper-case headings of
+before design v2 (`SurfaceCard`, `SectionHeading`, `SiteGroup`) are gone. Sheets that write something have Cancel on the left
 and Save (or a more precise verb, such as Sign) on the right; sheets that only
 show or share have Done on the right.
 

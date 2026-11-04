@@ -287,8 +287,7 @@ private struct SitesContent: View {
             Text("Add the site you work on, then its crew. Each day the times are entered once, for everyone who was there.")
         } actions: {
             Button("New site", action: addSite)
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.capsule)
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("sites-empty-add")
         }
         .tourTarget(.sites)

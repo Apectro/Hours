@@ -1,23 +1,8 @@
 import SwiftUI
 
 /// Small pieces the crew's day screens share (1.2 redesign, mockups 06–08):
-/// the rounded groups of rows, the caption above a group, the status dot,
+/// the hairline between rows, the caption above a group, the status dot,
 /// the four-way choice buttons and how a time range is written.
-
-/// A white rounded group of rows, as the mockups draw "Field allowance /
-/// Van kilometres / Note on the sheet". Put a `SiteDivider` between rows.
-struct SiteGroup<Content: View>: View {
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            content
-        }
-        .padding(.horizontal, Metrics.medium + 2)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
-    }
-}
 
 /// The hairline between two rows of a group, following High contrast.
 struct SiteDivider: View {

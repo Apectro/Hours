@@ -359,7 +359,7 @@ struct YearReviewInvitation: View {
         HStack(spacing: Metrics.small) {
             Button(action: open) {
                 HStack(spacing: Metrics.medium) {
-                    Image(systemName: "sparkles")
+                    Image(systemName: "calendar")
                         .foregroundStyle(Color.accentColor)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
