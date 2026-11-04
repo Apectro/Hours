@@ -72,8 +72,9 @@ extension XCTestCase {
     /// calls `waitForExpectations`, which would wait on this one again.
     @discardableResult
     func waitUntilGone(_ element: XCUIElement, timeout: TimeInterval = 5) -> Bool {
-        let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: element)
-        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
+        // A free-standing expectation, as the tests' own copies were: one made
+        // with `expectation(for:evaluatedWith:)` belongs to the test case.
+        element.waitUntilGone(timeout: timeout)
     }
 
     /// Swipes `container` up until `element` can be hit: see
