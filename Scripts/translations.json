@@ -469,6 +469,49 @@
         "many": "%lld budów",
         "other": "%lld budowy"
       }
+    },
+    "items": {
+      "de": {
+        "one": "%lld Stück",
+        "other": "%lld Stück"
+      },
+      "hr": {
+        "one": "%lld komad",
+        "few": "%lld komada",
+        "other": "%lld komada"
+      },
+      "sl": {
+        "one": "%lld kos",
+        "two": "%lld kosa",
+        "few": "%lld kosi",
+        "other": "%lld kosov"
+      },
+      "it": {
+        "one": "%lld pezzo",
+        "other": "%lld pezzi"
+      },
+      "fr": {
+        "one": "%lld article",
+        "other": "%lld articles"
+      },
+      "es": {
+        "one": "%lld artículo",
+        "other": "%lld artículos"
+      },
+      "pt": {
+        "one": "%lld artigo",
+        "other": "%lld artigos"
+      },
+      "nl": {
+        "one": "%lld stuk",
+        "other": "%lld stuks"
+      },
+      "pl": {
+        "one": "%lld sztuka",
+        "few": "%lld sztuki",
+        "many": "%lld sztuk",
+        "other": "%lld sztuki"
+      }
     }
   },
   "countedSentences": {
@@ -856,6 +899,17 @@
       "pt": "O dia habitual: %#@people@, %@.",
       "nl": "De gewone dag: %#@people@, %@.",
       "pl": "Zwykły dzień: %#@people@, %@."
+    },
+    "Done · ^[%lld item](inflect: true)": {
+      "de": "Fertig · %#@items@",
+      "hr": "Gotovo · %#@items@",
+      "sl": "Končano · %#@items@",
+      "it": "Fine · %#@items@",
+      "fr": "Terminé · %#@items@",
+      "es": "Listo · %#@items@",
+      "pt": "Concluído · %#@items@",
+      "nl": "Klaar · %#@items@",
+      "pl": "Gotowe · %#@items@"
     }
   },
   "interface": {
@@ -17424,6 +17478,798 @@
       "depois %@ a partir das %@",
       "daarna %@ vanaf %@",
       "potem %@ od %@"
+    ],
+    "A code belongs to one item: given to this one, it leaves any other.": [
+      "Ein Code gehört zu einem Artikel: Gibst du ihn diesem, verschwindet er bei jedem anderen.",
+      "Kod pripada jednoj stavci: kad ga daš ovoj, nestaje s bilo koje druge.",
+      "Koda pripada eni postavki: ko jo daš tej, izgine z vseh drugih.",
+      "Un codice appartiene a una sola voce: se lo dai a questa, lascia tutte le altre.",
+      "Un code appartient à un seul article : donné à celui-ci, il quitte tous les autres.",
+      "Un código pertenece a un solo artículo: si se lo das a este, deja cualquier otro.",
+      "Um código pertence a um só artigo: dado a este, sai de qualquer outro.",
+      "Een code hoort bij één artikel: geef je hem aan dit artikel, dan verdwijnt hij bij elk ander.",
+      "Kod należy do jednej pozycji: przypisany tej, znika z każdej innej."
+    ],
+    "Add it": [
+      "Hinzufügen",
+      "Dodaj",
+      "Dodaj",
+      "Aggiungi",
+      "L’ajouter",
+      "Añadirlo",
+      "Adicionar",
+      "Toevoegen",
+      "Dodaj"
+    ],
+    "Add something missing": [
+      "Fehlendes hinzufügen",
+      "Dodaj što nedostaje",
+      "Dodaj, kar manjka",
+      "Aggiungi ciò che manca",
+      "Ajouter ce qui manque",
+      "Añadir lo que falta",
+      "Adicionar o que falta",
+      "Iets wat ontbreekt toevoegen",
+      "Dodaj brakujące"
+    ],
+    "Add to missing": [
+      "Zu Fehlendem hinzufügen",
+      "Dodaj u nedostaje",
+      "Dodaj med manjkajoče",
+      "Aggiungi ai mancanti",
+      "Ajouter aux manquants",
+      "Añadir a lo que falta",
+      "Adicionar ao que falta",
+      "Toevoegen aan ontbrekend",
+      "Dodaj do brakujących"
+    ],
+    "Add “%@” as a new item": [
+      "„%@“ als neuen Artikel hinzufügen",
+      "Dodaj „%@” kao novu stavku",
+      "Dodaj »%@« kot novo postavko",
+      "Aggiungi “%@” come nuova voce",
+      "Ajouter « %@ » comme nouvel article",
+      "Añadir «%@» como artículo nuevo",
+      "Adicionar “%@” como novo artigo",
+      "„%@” als nieuw artikel toevoegen",
+      "Dodaj „%@” jako nową pozycję"
+    ],
+    "Added · now %@": [
+      "Hinzugefügt · jetzt %@",
+      "Dodano · sad %@",
+      "Dodano · zdaj %@",
+      "Aggiunto · ora %@",
+      "Ajouté · maintenant %@",
+      "Añadido · ahora %@",
+      "Adicionado · agora %@",
+      "Toegevoegd · nu %@",
+      "Dodano · teraz %@"
+    ],
+    "Arrived": [
+      "Angekommen",
+      "Stiglo",
+      "Prispelo",
+      "Arrivato",
+      "Arrivé",
+      "Llegado",
+      "Chegou",
+      "Binnen",
+      "Dotarło"
+    ],
+    "As a message": [
+      "Als Nachricht",
+      "Kao poruka",
+      "Kot sporočilo",
+      "Come messaggio",
+      "En message",
+      "Como mensaje",
+      "Como mensagem",
+      "Als bericht",
+      "Jako wiadomość"
+    ],
+    "Barcodes": [
+      "Barcodes",
+      "Barkodovi",
+      "Črtne kode",
+      "Codici a barre",
+      "Codes-barres",
+      "Códigos de barras",
+      "Códigos de barras",
+      "Barcodes",
+      "Kody kreskowe"
+    ],
+    "Barcodes in the list": [
+      "Barcodes in der Liste",
+      "Barkodovi na popisu",
+      "Črtne kode na seznamu",
+      "Codici a barre nell’elenco",
+      "Codes-barres dans la liste",
+      "Códigos de barras en la lista",
+      "Códigos de barras na lista",
+      "Barcodes in de lijst",
+      "Kody kreskowe na liście"
+    ],
+    "Camera": [
+      "Kamera",
+      "Kamera",
+      "Kamera",
+      "Fotocamera",
+      "Appareil photo",
+      "Cámara",
+      "Câmara",
+      "Camera",
+      "Aparat"
+    ],
+    "Chosen": [
+      "Ausgewählt",
+      "Odabrano",
+      "Izbrano",
+      "Scelto",
+      "Choisi",
+      "Elegido",
+      "Escolhido",
+      "Gekozen",
+      "Wybrane"
+    ],
+    "Code": [
+      "Code",
+      "Kod",
+      "Koda",
+      "Codice",
+      "Code",
+      "Código",
+      "Código",
+      "Code",
+      "Kod"
+    ],
+    "Code under the barcode": [
+      "Code unter dem Barcode",
+      "Kod ispod barkoda",
+      "Koda pod črtno kodo",
+      "Codice sotto il codice a barre",
+      "Code sous le code-barres",
+      "Código bajo el código de barras",
+      "Código por baixo do código de barras",
+      "Code onder de barcode",
+      "Kod pod kodem kreskowym"
+    ],
+    "Counted in": [
+      "Gezählt in",
+      "Broji se u",
+      "Šteje se v",
+      "Contato in",
+      "Compté en",
+      "Se cuenta en",
+      "Contado em",
+      "Geteld in",
+      "Liczone w"
+    ],
+    "Delete this item": [
+      "Diesen Artikel löschen",
+      "Izbriši ovu stavku",
+      "Izbriši to postavko",
+      "Elimina questa voce",
+      "Supprimer cet article",
+      "Eliminar este artículo",
+      "Apagar este artigo",
+      "Dit artikel verwijderen",
+      "Usuń tę pozycję"
+    ],
+    "Delete this item?": [
+      "Diesen Artikel löschen?",
+      "Izbrisati ovu stavku?",
+      "Izbrišem to postavko?",
+      "Eliminare questa voce?",
+      "Supprimer cet article ?",
+      "¿Eliminar este artículo?",
+      "Apagar este artigo?",
+      "Dit artikel verwijderen?",
+      "Usunąć tę pozycję?"
+    ],
+    "Each code you scan adds one to the job.": [
+      "Jeder gescannte Code fügt der Arbeit eins hinzu.",
+      "Svaki skenirani kod dodaje jedan na posao.",
+      "Vsaka skenirana koda doda enega k delu.",
+      "Ogni codice scansionato ne aggiunge uno al lavoro.",
+      "Chaque code scanné en ajoute un aux travaux.",
+      "Cada código que escanees añade uno al trabajo.",
+      "Cada código lido adiciona um ao trabalho.",
+      "Elke gescande code voegt er één toe aan het werk.",
+      "Każdy zeskanowany kod dodaje jedną sztukę do pracy."
+    ],
+    "Every item you have written or scanned. Tap one to rename it, change its unit, or add a second barcode.": [
+      "Jeder Artikel, den du eingetragen oder gescannt hast. Tippe auf einen, um ihn umzubenennen, die Einheit zu ändern oder einen zweiten Barcode hinzuzufügen.",
+      "Svaka stavka koju si upisao ili skenirao. Dodirni jednu da je preimenuješ, promijeniš jedinicu ili dodaš drugi barkod.",
+      "Vsaka postavka, ki si jo vpisal ali skeniral. Tapni eno, da jo preimenuješ, spremeniš enoto ali dodaš drugo črtno kodo.",
+      "Ogni voce che hai scritto o scansionato. Toccane una per rinominarla, cambiarne l’unità o aggiungere un secondo codice a barre.",
+      "Chaque article que vous avez saisi ou scanné. Touchez-en un pour le renommer, changer son unité ou ajouter un second code-barres.",
+      "Cada artículo que has escrito o escaneado. Toca uno para cambiarle el nombre, la unidad o añadir un segundo código de barras.",
+      "Cada artigo que escreveste ou leste. Toca num para lhe mudar o nome, a unidade ou adicionar um segundo código de barras.",
+      "Elk artikel dat je hebt ingevoerd of gescand. Tik op een artikel om het te hernoemen, de eenheid te wijzigen of een tweede barcode toe te voegen.",
+      "Każda pozycja, którą wpisałeś lub zeskanowałeś. Stuknij, aby zmienić nazwę, jednostkę lub dodać drugi kod kreskowy."
+    ],
+    "From your list": [
+      "Aus deiner Liste",
+      "S tvog popisa",
+      "S tvojega seznama",
+      "Dal tuo elenco",
+      "De votre liste",
+      "De tu lista",
+      "Da tua lista",
+      "Uit je lijst",
+      "Z twojej listy"
+    ],
+    "Has a barcode": [
+      "Hat einen Barcode",
+      "Ima barkod",
+      "Ima črtno kodo",
+      "Ha un codice a barre",
+      "A un code-barres",
+      "Tiene código de barras",
+      "Tem código de barras",
+      "Heeft een barcode",
+      "Ma kod kreskowy"
+    ],
+    "How many": [
+      "Wie viele",
+      "Koliko",
+      "Koliko",
+      "Quanti",
+      "Combien",
+      "Cuántos",
+      "Quantos",
+      "Hoeveel",
+      "Ile"
+    ],
+    "It is no longer offered under Material, and its barcodes are forgotten.": [
+      "Er wird unter Material nicht mehr angeboten, und seine Barcodes werden vergessen.",
+      "Više se ne nudi pod Materijal, a njeni barkodovi se zaboravljaju.",
+      "Ne bo več ponujena pod Material, njene črtne kode pa bodo pozabljene.",
+      "Non viene più proposta sotto Materiale e i suoi codici a barre vengono dimenticati.",
+      "Il n’est plus proposé sous Matériel, et ses codes-barres sont oubliés.",
+      "Deja de ofrecerse en Material y se olvidan sus códigos de barras.",
+      "Deixa de ser sugerido em Material e os seus códigos de barras são esquecidos.",
+      "Het wordt niet meer aangeboden onder Materiaal en de barcodes worden vergeten.",
+      "Nie będzie już proponowana w Materiale, a jej kody kreskowe zostaną zapomniane."
+    ],
+    "Items you add to extra work, or scan, appear here.": [
+      "Artikel, die du bei Zusatzarbeiten einträgst oder scannst, erscheinen hier.",
+      "Ovdje se pojavljuju stavke koje dodaš dodatnim radovima ili skeniraš.",
+      "Tu se prikažejo postavke, ki jih dodaš dodatnim delom ali skeniraš.",
+      "Qui compaiono le voci che aggiungi ai lavori extra o scansioni.",
+      "Les articles que vous ajoutez aux travaux supplémentaires, ou scannez, apparaissent ici.",
+      "Aquí aparecen los artículos que añades a los trabajos adicionales o escaneas.",
+      "Aqui aparecem os artigos que adicionas aos trabalhos adicionais ou lês.",
+      "Artikelen die je aan meerwerk toevoegt of scant, verschijnen hier.",
+      "Tu pojawiają się pozycje dodane do prac dodatkowych lub zeskanowane."
+    ],
+    "Jobs that used it keep it as they were written.": [
+      "Arbeiten, die ihn verwendet haben, bleiben, wie sie eingetragen wurden.",
+      "Radovi koji su je koristili ostaju kako su upisani.",
+      "Dela, ki so jo uporabila, ostanejo, kot so bila vpisana.",
+      "I lavori che l’hanno usata restano come sono stati scritti.",
+      "Les travaux qui l’ont utilisé restent tels qu’ils ont été saisis.",
+      "Los trabajos que lo usaron se quedan como se escribieron.",
+      "Os trabalhos que o usaram ficam como foram escritos.",
+      "Werk dat het gebruikte, blijft zoals het is ingevoerd.",
+      "Prace, które jej użyły, zostają takie, jak je wpisano."
+    ],
+    "Kept on this phone and in your own iCloud. Nothing is looked up online.": [
+      "Auf diesem iPhone und in deiner eigenen iCloud gespeichert. Nichts wird online nachgeschlagen.",
+      "Čuva se na ovom telefonu i u tvom iCloudu. Ništa se ne traži na internetu.",
+      "Shranjeno na tem telefonu in v tvojem iCloudu. Nič se ne išče na spletu.",
+      "Conservato su questo telefono e nel tuo iCloud. Niente viene cercato online.",
+      "Conservé sur ce téléphone et dans votre propre iCloud. Rien n’est recherché en ligne.",
+      "Se guarda en este teléfono y en tu propio iCloud. No se busca nada en internet.",
+      "Fica guardado neste telemóvel e na tua iCloud. Nada é procurado na internet.",
+      "Bewaard op deze telefoon en in je eigen iCloud. Er wordt niets online opgezocht.",
+      "Przechowywane na tym telefonie i w twoim iCloud. Nic nie jest wyszukiwane w internecie."
+    ],
+    "Kept on this phone. Nothing is looked up online.": [
+      "Auf diesem iPhone gespeichert. Nichts wird online nachgeschlagen.",
+      "Čuva se na ovom telefonu. Ništa se ne traži na internetu.",
+      "Shranjeno na tem telefonu. Nič se ne išče na spletu.",
+      "Conservato su questo telefono. Niente viene cercato online.",
+      "Conservé sur ce téléphone. Rien n’est recherché en ligne.",
+      "Se guarda en este teléfono. No se busca nada en internet.",
+      "Fica guardado neste telemóvel. Nada é procurado na internet.",
+      "Bewaard op deze telefoon. Er wordt niets online opgezocht.",
+      "Przechowywane na tym telefonie. Nic nie jest wyszukiwane w internecie."
+    ],
+    "Mark %@ as arrived?": [
+      "%@ als angekommen markieren?",
+      "Označiti %@ kao stiglo?",
+      "Označim %@ kot prispelo?",
+      "Segnare %@ come arrivato?",
+      "Marquer %@ comme arrivé ?",
+      "¿Marcar %@ como llegado?",
+      "Marcar %@ como chegou?",
+      "%@ als binnen markeren?",
+      "Oznaczyć %@ jako dostarczone?"
+    ],
+    "Mark them as ordered": [
+      "Als bestellt markieren",
+      "Označi kao naručeno",
+      "Označi kot naročeno",
+      "Segnali come ordinati",
+      "Les marquer comme commandés",
+      "Marcarlos como pedidos",
+      "Marcá-los como encomendados",
+      "Als besteld markeren",
+      "Oznacz jako zamówione"
+    ],
+    "Materials": [
+      "Materialien",
+      "Materijali",
+      "Materiali",
+      "Materiali",
+      "Matériaux",
+      "Materiales",
+      "Materiais",
+      "Materialen",
+      "Materiały"
+    ],
+    "Missing": [
+      "Fehlendes",
+      "Nedostaje",
+      "Manjkajoče",
+      "Mancanti",
+      "Manquants",
+      "Lo que falta",
+      "Em falta",
+      "Ontbrekend",
+      "Braki"
+    ],
+    "Needed": [
+      "Benötigt",
+      "Potrebno",
+      "Potrebno",
+      "Serve",
+      "À commander",
+      "Necesario",
+      "Necessário",
+      "Nodig",
+      "Potrzebne"
+    ],
+    "Needed %lld": [
+      "Benötigt %lld",
+      "Potrebno %lld",
+      "Potrebno %lld",
+      "Servono %lld",
+      "À commander %lld",
+      "Necesario %lld",
+      "Necessário %lld",
+      "Nodig %lld",
+      "Potrzebne %lld"
+    ],
+    "No materials yet": [
+      "Noch keine Materialien",
+      "Još nema materijala",
+      "Še ni materialov",
+      "Ancora nessun materiale",
+      "Aucun matériau pour l’instant",
+      "Aún no hay materiales",
+      "Ainda não há materiais",
+      "Nog geen materialen",
+      "Jeszcze brak materiałów"
+    ],
+    "Not on the list": [
+      "Nicht auf der Liste",
+      "Nije na popisu",
+      "Ni na seznamu",
+      "Non è nell’elenco",
+      "Pas dans la liste",
+      "No está en la lista",
+      "Não está na lista",
+      "Niet op de lijst",
+      "Nie ma na liście"
+    ],
+    "Note it the moment you notice: tap + or scan the box.": [
+      "Trag es ein, sobald es dir auffällt: Tippe auf + oder scanne den Karton.",
+      "Zabilježi čim primijetiš: dodirni + ili skeniraj kutiju.",
+      "Zapiši takoj, ko opaziš: tapni + ali skeniraj škatlo.",
+      "Annotalo appena te ne accorgi: tocca + o scansiona la scatola.",
+      "Notez-le dès que vous le remarquez : touchez + ou scannez le carton.",
+      "Anótalo en cuanto lo notes: toca + o escanea la caja.",
+      "Anota assim que reparares: toca em + ou lê a caixa.",
+      "Noteer het zodra je het merkt: tik op + of scan de doos.",
+      "Zapisz od razu, gdy zauważysz: stuknij + lub zeskanuj karton."
+    ],
+    "Nothing arrived yet": [
+      "Noch nichts angekommen",
+      "Još ništa nije stiglo",
+      "Še nič ni prispelo",
+      "Ancora niente arrivato",
+      "Rien n’est encore arrivé",
+      "Aún no ha llegado nada",
+      "Ainda não chegou nada",
+      "Nog niets binnen",
+      "Jeszcze nic nie dotarło"
+    ],
+    "Nothing missing": [
+      "Nichts fehlt",
+      "Ništa ne nedostaje",
+      "Nič ne manjka",
+      "Non manca niente",
+      "Rien ne manque",
+      "No falta nada",
+      "Não falta nada",
+      "Er ontbreekt niets",
+      "Niczego nie brakuje"
+    ],
+    "Nothing needed or ordered here has this code.": [
+      "Nichts Benötigtes oder Bestelltes hier hat diesen Code.",
+      "Ništa potrebno ili naručeno ovdje nema ovaj kod.",
+      "Nič potrebnega ali naročenega tukaj nima te kode.",
+      "Niente di ciò che serve o è ordinato qui ha questo codice.",
+      "Rien de ce qui est à commander ou commandé ici n’a ce code.",
+      "Nada de lo necesario o pedido aquí tiene este código.",
+      "Nada do que é necessário ou está encomendado aqui tem este código.",
+      "Niets wat hier nodig of besteld is, heeft deze code.",
+      "Nic potrzebnego ani zamówionego tutaj nie ma tego kodu."
+    ],
+    "Nothing ordered": [
+      "Nichts bestellt",
+      "Ništa naručeno",
+      "Nič naročeno",
+      "Niente ordinato",
+      "Rien de commandé",
+      "Nada pedido",
+      "Nada encomendado",
+      "Niets besteld",
+      "Nic nie zamówiono"
+    ],
+    "Noticed by": [
+      "Bemerkt von",
+      "Primijetio",
+      "Opazil",
+      "Notato da",
+      "Remarqué par",
+      "Lo vio",
+      "Reparado por",
+      "Opgemerkt door",
+      "Zauważył"
+    ],
+    "Ordered": [
+      "Bestellt",
+      "Naručeno",
+      "Naročeno",
+      "Ordinato",
+      "Commandé",
+      "Pedido",
+      "Encomendado",
+      "Besteld",
+      "Zamówione"
+    ],
+    "Ordered %lld": [
+      "Bestellt %lld",
+      "Naručeno %lld",
+      "Naročeno %lld",
+      "Ordinati %lld",
+      "Commandé %lld",
+      "Pedido %lld",
+      "Encomendado %lld",
+      "Besteld %lld",
+      "Zamówione %lld"
+    ],
+    "PDF": [
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF",
+      "PDF"
+    ],
+    "Point at the barcode on the box": [
+      "Auf den Barcode am Karton richten",
+      "Usmjeri na barkod na kutiji",
+      "Usmeri na črtno kodo na škatli",
+      "Inquadra il codice a barre sulla scatola",
+      "Visez le code-barres sur le carton",
+      "Apunta al código de barras de la caja",
+      "Aponta para o código de barras da caixa",
+      "Richt op de barcode op de doos",
+      "Skieruj na kod kreskowy na kartonie"
+    ],
+    "Save and add 1": [
+      "Sichern und 1 hinzufügen",
+      "Spremi i dodaj 1",
+      "Shrani in dodaj 1",
+      "Salva e aggiungi 1",
+      "Enregistrer et ajouter 1",
+      "Guardar y añadir 1",
+      "Guardar e adicionar 1",
+      "Bewaren en 1 toevoegen",
+      "Zapisz i dodaj 1"
+    ],
+    "Scan": [
+      "Scannen",
+      "Skeniraj",
+      "Skeniraj",
+      "Scansiona",
+      "Scanner",
+      "Escanear",
+      "Ler",
+      "Scannen",
+      "Skanuj"
+    ],
+    "Scan a barcode": [
+      "Barcode scannen",
+      "Skeniraj barkod",
+      "Skeniraj črtno kodo",
+      "Scansiona un codice a barre",
+      "Scanner un code-barres",
+      "Escanear un código de barras",
+      "Ler um código de barras",
+      "Barcode scannen",
+      "Zeskanuj kod kreskowy"
+    ],
+    "Scan a delivery": [
+      "Lieferung scannen",
+      "Skeniraj isporuku",
+      "Skeniraj dobavo",
+      "Scansiona una consegna",
+      "Scanner une livraison",
+      "Escanear una entrega",
+      "Ler uma entrega",
+      "Levering scannen",
+      "Zeskanuj dostawę"
+    ],
+    "Scan material": [
+      "Material scannen",
+      "Skeniraj materijal",
+      "Skeniraj material",
+      "Scansiona materiale",
+      "Scanner du matériel",
+      "Escanear material",
+      "Ler material",
+      "Materiaal scannen",
+      "Skanuj materiał"
+    ],
+    "Scan the barcodes on the boxes; each one adds one to the job.": [
+      "Scanne die Barcodes auf den Kartons; jeder fügt der Arbeit eins hinzu.",
+      "Skeniraj barkodove na kutijama; svaki dodaje jedan na posao.",
+      "Skeniraj črtne kode na škatlah; vsaka doda enega k delu.",
+      "Scansiona i codici a barre sulle scatole; ognuno ne aggiunge uno al lavoro.",
+      "Scannez les codes-barres des cartons ; chacun en ajoute un aux travaux.",
+      "Escanea los códigos de barras de las cajas; cada uno añade uno al trabajo.",
+      "Lê os códigos de barras das caixas; cada um adiciona um ao trabalho.",
+      "Scan de barcodes op de dozen; elke code voegt er één toe aan het werk.",
+      "Skanuj kody kreskowe na kartonach; każdy dodaje jedną sztukę do pracy."
+    ],
+    "Scan the box": [
+      "Karton scannen",
+      "Skeniraj kutiju",
+      "Skeniraj škatlo",
+      "Scansiona la scatola",
+      "Scanner le carton",
+      "Escanear la caja",
+      "Ler a caixa",
+      "Doos scannen",
+      "Zeskanuj karton"
+    ],
+    "Scan to find": [
+      "Zum Finden scannen",
+      "Skeniraj za traženje",
+      "Skeniraj za iskanje",
+      "Scansiona per trovare",
+      "Scanner pour trouver",
+      "Escanear para buscar",
+      "Ler para encontrar",
+      "Scannen om te zoeken",
+      "Skanuj, aby znaleźć"
+    ],
+    "Search": [
+      "Suchen",
+      "Traži",
+      "Iskanje",
+      "Cerca",
+      "Rechercher",
+      "Buscar",
+      "Procurar",
+      "Zoeken",
+      "Szukaj"
+    ],
+    "Search or type a name": [
+      "Suchen oder Namen eingeben",
+      "Traži ili upiši naziv",
+      "Išči ali vpiši ime",
+      "Cerca o scrivi un nome",
+      "Rechercher ou saisir un nom",
+      "Busca o escribe un nombre",
+      "Procura ou escreve um nome",
+      "Zoek of typ een naam",
+      "Szukaj lub wpisz nazwę"
+    ],
+    "Send as message": [
+      "Als Nachricht senden",
+      "Pošalji kao poruku",
+      "Pošlji kot sporočilo",
+      "Invia come messaggio",
+      "Envoyer en message",
+      "Enviar como mensaje",
+      "Enviar como mensagem",
+      "Als bericht versturen",
+      "Wyślij jako wiadomość"
+    ],
+    "Send the list": [
+      "Liste senden",
+      "Pošalji popis",
+      "Pošlji seznam",
+      "Invia l’elenco",
+      "Envoyer la liste",
+      "Enviar la lista",
+      "Enviar a lista",
+      "Lijst versturen",
+      "Wyślij listę"
+    ],
+    "Something's missing": [
+      "Etwas fehlt",
+      "Nešto nedostaje",
+      "Nekaj manjka",
+      "Manca qualcosa",
+      "Il manque quelque chose",
+      "Falta algo",
+      "Falta alguma coisa",
+      "Er ontbreekt iets",
+      "Czegoś brakuje"
+    ],
+    "Swipe an item to mark it ordered or arrived. Scanning a delivered box ticks it off as arrived.": [
+      "Wische über einen Artikel, um ihn als bestellt oder angekommen zu markieren. Ein gescannter gelieferter Karton hakt ihn als angekommen ab.",
+      "Povuci stavku da je označiš kao naručenu ili stiglu. Skeniranje isporučene kutije označava je kao stiglu.",
+      "Podrsaj po postavki, da jo označiš kot naročeno ali prispelo. Skeniranje dobavljene škatle jo označi kot prispelo.",
+      "Scorri una voce per segnarla come ordinata o arrivata. Scansionare una scatola consegnata la segna come arrivata.",
+      "Balayez un article pour le marquer commandé ou arrivé. Scanner un carton livré le coche comme arrivé.",
+      "Desliza un artículo para marcarlo como pedido o llegado. Escanear una caja entregada lo marca como llegado.",
+      "Desliza um artigo para o marcar como encomendado ou chegado. Ler uma caixa entregue marca-o como chegado.",
+      "Veeg over een artikel om het als besteld of binnen te markeren. Een geleverde doos scannen vinkt het af als binnen.",
+      "Przesuń pozycję, aby oznaczyć ją jako zamówioną lub dostarczoną. Zeskanowanie dostarczonego kartonu odhacza ją jako dostarczoną."
+    ],
+    "The camera isn't available here, so type the numbers under the barcode.": [
+      "Die Kamera ist hier nicht verfügbar, also gib die Zahlen unter dem Barcode ein.",
+      "Kamera ovdje nije dostupna, pa upiši brojeve ispod barkoda.",
+      "Kamera tu ni na voljo, zato vpiši številke pod črtno kodo.",
+      "La fotocamera qui non è disponibile, quindi scrivi i numeri sotto il codice a barre.",
+      "L’appareil photo n’est pas disponible ici : saisissez les chiffres sous le code-barres.",
+      "La cámara no está disponible aquí, así que escribe los números bajo el código de barras.",
+      "A câmara não está disponível aqui, por isso escreve os números por baixo do código de barras.",
+      "De camera is hier niet beschikbaar, dus typ de cijfers onder de barcode.",
+      "Aparat nie jest tu dostępny, więc wpisz cyfry spod kodu kreskowego."
+    ],
+    "The list couldn't be shared": [
+      "Die Liste konnte nicht geteilt werden",
+      "Popis se nije mogao podijeliti",
+      "Seznama ni bilo mogoče deliti",
+      "Non è stato possibile condividere l’elenco",
+      "La liste n’a pas pu être partagée",
+      "No se pudo compartir la lista",
+      "Não foi possível partilhar a lista",
+      "De lijst kon niet worden gedeeld",
+      "Nie udało się udostępnić listy"
+    ],
+    "The message goes through WhatsApp, Viber, Mail or any app you choose. The PDF is the same list with the codes, for the warehouse.": [
+      "Die Nachricht geht über WhatsApp, Viber, Mail oder eine App deiner Wahl. Das PDF ist dieselbe Liste mit den Codes, für das Lager.",
+      "Poruka ide preko WhatsAppa, Vibera, Maila ili bilo koje aplikacije koju odabereš. PDF je isti popis s kodovima, za skladište.",
+      "Sporočilo gre prek WhatsAppa, Vibra, Pošte ali katere koli aplikacije, ki jo izbereš. PDF je isti seznam s kodami, za skladišče.",
+      "Il messaggio passa da WhatsApp, Viber, Mail o qualsiasi app tu scelga. Il PDF è lo stesso elenco con i codici, per il magazzino.",
+      "Le message passe par WhatsApp, Viber, Mail ou l’app de votre choix. Le PDF est la même liste avec les codes, pour l’entrepôt.",
+      "El mensaje va por WhatsApp, Viber, Mail o la app que elijas. El PDF es la misma lista con los códigos, para el almacén.",
+      "A mensagem vai por WhatsApp, Viber, Mail ou qualquer app que escolheres. O PDF é a mesma lista com os códigos, para o armazém.",
+      "Het bericht gaat via WhatsApp, Viber, Mail of een andere app naar keuze. De pdf is dezelfde lijst met de codes, voor het magazijn.",
+      "Wiadomość idzie przez WhatsApp, Viber, Mail lub dowolną wybraną aplikację. PDF to ta sama lista z kodami, dla magazynu."
+    ],
+    "This code isn't in your list yet. Name it once and it fills itself in next time.": [
+      "Dieser Code ist noch nicht in deiner Liste. Benenne ihn einmal, dann füllt er sich beim nächsten Mal selbst aus.",
+      "Ovaj kod još nije na tvom popisu. Imenuj ga jednom i idući put se sam popuni.",
+      "Te kode še ni na tvojem seznamu. Poimenuj jo enkrat in naslednjič se izpolni sama.",
+      "Questo codice non è ancora nel tuo elenco. Dagli un nome una volta e la prossima volta si compila da solo.",
+      "Ce code n’est pas encore dans votre liste. Nommez-le une fois et il se remplira tout seul la prochaine fois.",
+      "Este código aún no está en tu lista. Ponle nombre una vez y la próxima vez se rellena solo.",
+      "Este código ainda não está na tua lista. Dá-lhe um nome uma vez e da próxima vez preenche-se sozinho.",
+      "Deze code staat nog niet in je lijst. Geef hem één keer een naam en de volgende keer vult hij zich vanzelf in.",
+      "Tego kodu nie ma jeszcze na twojej liście. Nazwij go raz, a następnym razem uzupełni się sam."
+    ],
+    "Torch": [
+      "Taschenlampe",
+      "Svjetiljka",
+      "Svetilka",
+      "Torcia",
+      "Lampe torche",
+      "Linterna",
+      "Lanterna",
+      "Zaklamp",
+      "Latarka"
+    ],
+    "Type a barcode": [
+      "Barcode eingeben",
+      "Upiši barkod",
+      "Vpiši črtno kodo",
+      "Scrivi un codice a barre",
+      "Saisir un code-barres",
+      "Escribir un código de barras",
+      "Escrever um código de barras",
+      "Barcode typen",
+      "Wpisz kod kreskowy"
+    ],
+    "Type the code": [
+      "Code eingeben",
+      "Upiši kod",
+      "Vpiši kodo",
+      "Scrivi il codice",
+      "Saisir le code",
+      "Escribe el código",
+      "Escreve o código",
+      "Typ de code",
+      "Wpisz kod"
+    ],
+    "Where or why (optional)": [
+      "Wo oder warum (optional)",
+      "Gdje ili zašto (neobavezno)",
+      "Kje ali zakaj (neobvezno)",
+      "Dove o perché (facoltativo)",
+      "Où ou pourquoi (facultatif)",
+      "Dónde o por qué (opcional)",
+      "Onde ou porquê (opcional)",
+      "Waar of waarom (optioneel)",
+      "Gdzie lub dlaczego (opcjonalnie)"
+    ],
+    "%lld needed": [
+      "%lld benötigt",
+      "Potrebno: %lld",
+      "Potrebno: %lld",
+      "%lld da ordinare",
+      "%lld à commander",
+      "%lld necesarios",
+      "%lld necessários",
+      "%lld nodig",
+      "Potrzebne: %lld"
+    ],
+    "materials, barcode, scan, items, extra work, used before, units": [
+      "Materialien, Barcode, scannen, Artikel, Zusatzarbeiten, schon verwendet, Einheiten",
+      "materijali, barkod, skeniranje, stavke, dodatni radovi, već korišteno, jedinice",
+      "materiali, črtna koda, skeniranje, postavke, dodatna dela, že uporabljeno, enote",
+      "materiali, codice a barre, scansione, voci, lavori extra, già usati, unità",
+      "matériaux, code-barres, scanner, articles, travaux supplémentaires, déjà utilisés, unités",
+      "materiales, código de barras, escanear, artículos, trabajos adicionales, ya usados, unidades",
+      "materiais, código de barras, ler, artigos, trabalhos adicionais, já usados, unidades",
+      "materialen, barcode, scannen, artikelen, meerwerk, eerder gebruikt, eenheden",
+      "materiały, kod kreskowy, skanowanie, pozycje, prace dodatkowe, używane wcześniej, jednostki"
+    ],
+    "scanned": [
+      "gescannt",
+      "skenirano",
+      "skenirano",
+      "scansionato",
+      "scanné",
+      "escaneado",
+      "lido",
+      "gescand",
+      "zeskanowane"
+    ],
+    "used %lld times": [
+      "%lld-mal verwendet",
+      "korišteno %lld puta",
+      "uporabljeno %lld-krat",
+      "usato %lld volte",
+      "utilisé %lld fois",
+      "usado %lld veces",
+      "usado %lld vezes",
+      "%lld keer gebruikt",
+      "użyte %lld razy"
+    ],
+    "used once": [
+      "einmal verwendet",
+      "korišteno jednom",
+      "uporabljeno enkrat",
+      "usato una volta",
+      "utilisé une fois",
+      "usado una vez",
+      "usado uma vez",
+      "één keer gebruikt",
+      "użyte raz"
     ]
   },
   "sameAsEnglishOnPurpose": [
