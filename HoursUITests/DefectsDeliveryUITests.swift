@@ -132,6 +132,13 @@ final class DefectsDeliveryUITests: XCTestCase {
         // The field sits just above Add defect: tapped plainly, with the
         // keyboard up, the tap can land on the button instead.
         XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
+        if !room.waitForExistence(timeout: 3) {
+            // Left here until the cause is known: what the screen holds when
+            // the room field has gone after being tapped.
+            print("ROOM-FIELD-GONE\n" + app.debugDescription)
+            XCTFail("the room field went away when tapped")
+            return
+        }
         room.typeText("Room 4")
         app.buttons["defect-add"].tap()
         XCTAssertTrue(app.buttons["defects-row-0"].waitForExistence(timeout: 5), "the defect should be listed")

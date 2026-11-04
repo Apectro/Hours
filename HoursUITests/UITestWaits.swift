@@ -118,10 +118,10 @@ extension XCTestCase {
         } else {
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
-        let changed = NSPredicate { object, _ in
-            guard let element = object as? XCUIElement else { return false }
-            return !element.exists || element.value as? String != before
-        }
+        // A format predicate, not a block: XCTest re-reads the element for a
+        // format predicate, while a block can see the value from before the tap
+        // and tap a second time, turning the switch back.
+        let changed = NSPredicate(format: "exists == false OR value != %@", before ?? "")
         for attempt in 0...retries {
             if let shows, shows.waitForExistence(timeout: 2) { return true }
             if XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: changed, object: toggle)], timeout: 1) == .completed {
