@@ -49,6 +49,11 @@ struct BackupArchive: Codable, Sendable {
     var extraWorkReports: [ExtraWorkReportRecord]? = nil
     var extraWorkItems: [ExtraWorkCatalogItem]? = nil
 
+    /// Each site's Missing list (1.3). Optional and set after `init` for the
+    /// reasons extra work is; an older file keeps the device's list for the
+    /// sites it restores (`restoredItems`).
+    var missingItems: [MissingItem]? = nil
+
     /// Days that were in the file and could not be read.
     ///
     /// Damage is rarely total. One day mangled by a bad edit, a truncated
@@ -109,6 +114,7 @@ struct BackupArchive: Codable, Sendable {
         case formatVersion, exportedAt, settings, days, holidays, sites, crew, siteDays
         case diaries, diaryPhotos, signatures
         case extraWorkJobs, extraWorkPhotos, extraWorkReports, extraWorkItems
+        case missingItems
     }
 
     /// Written out rather than synthesised, so that `damagedDays` being absent
@@ -132,6 +138,7 @@ struct BackupArchive: Codable, Sendable {
         try container.encodeIfPresent(extraWorkPhotos, forKey: .extraWorkPhotos)
         try container.encodeIfPresent(extraWorkReports, forKey: .extraWorkReports)
         try container.encodeIfPresent(extraWorkItems, forKey: .extraWorkItems)
+        try container.encodeIfPresent(missingItems, forKey: .missingItems)
     }
 
     /// What a restore leaves of a kind of site record the file may not know
@@ -267,6 +274,7 @@ struct BackupArchive: Codable, Sendable {
         extraWorkPhotos = container.lenientOptional(.extraWorkPhotos)
         extraWorkReports = container.lenientOptional(.extraWorkReports)
         extraWorkItems = container.lenientOptional(.extraWorkItems)
+        missingItems = container.lenientOptional(.missingItems)
     }
 }
 
