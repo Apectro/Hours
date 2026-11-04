@@ -129,7 +129,9 @@ final class DefectsDeliveryUITests: XCTestCase {
         app.buttons["defect-floor-2"].tap() // 2nd floor
         let room = app.textFields["defect-room-field"]
         XCTAssertTrue(room.waitForExistence(timeout: 5), "with no rooms yet, the room is typed")
-        room.tap()
+        // The field sits just above Add defect: tapped plainly, with the
+        // keyboard up, the tap can land on the button instead.
+        XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
         room.typeText("Room 4")
         app.buttons["defect-add"].tap()
         XCTAssertTrue(app.buttons["defects-row-0"].waitForExistence(timeout: 5), "the defect should be listed")
@@ -141,7 +143,7 @@ final class DefectsDeliveryUITests: XCTestCase {
         app.buttons["defect-floor-0"].tap() // Ground
         let remembered = app.buttons["defect-room-0"]
         XCTAssertTrue(remembered.waitForExistence(timeout: 5), "the room is remembered as a chip")
-        remembered.tap()
+        XCTAssertTrue(app.tapAboveBottomBar(remembered, bar: app.buttons["defect-add"]))
         app.buttons["defect-add"].tap()
 
         let first = app.buttons["defects-row-0"]
@@ -201,7 +203,7 @@ final class DefectsDeliveryUITests: XCTestCase {
         for _ in 0..<6 where !(toggle.exists && toggle.isHittable) { app.swipeUp() }
         XCTAssertTrue(toggle.exists, "site settings should have Assign defects to people")
         XCTAssertEqual(toggle.value as? String, "0")
-        toggle.tap()
+        XCTAssertTrue(flip(toggle))
         XCTAssertEqual(toggle.value as? String, "1")
         app.buttons["site-editor-save"].tap()
 
@@ -211,7 +213,7 @@ final class DefectsDeliveryUITests: XCTestCase {
         let ivan = app.buttons["defect-fixer-1"]
         XCTAssertTrue(ivan.waitForExistence(timeout: 5), "who fixes it is asked now")
         XCTAssertTrue(app.buttons["defect-fixer-0"].exists, "Me")
-        ivan.tap()
+        XCTAssertTrue(app.tapAboveBottomBar(ivan, bar: app.buttons["defect-add"]))
         typeWhat("Cover missing", app)
         app.buttons["defect-add"].tap()
         let row = app.buttons["defects-row-0"]
