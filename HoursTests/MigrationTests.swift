@@ -603,6 +603,52 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(reread.place, site.place, "the address leaves the place alone")
     }
 
+    // MARK: - Barcodes and the Missing list (V9 to V10)
+
+    /// Writes a store as the 1.2 builds leave one: V9's frozen copies, with a
+    /// site and a remembered extra-work item.
+    private func writeVersionNineStore() throws -> UUID {
+        let schema = Schema(versionedSchema: HoursSchemaV9.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV9.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        site.address = "Ilica 207C"
+        context.insert(site)
+        let item = HoursSchemaV9.ExtraWorkItemEntry(itemID: UUID().uuidString)
+        item.name = "Junction box IP65"
+        item.unitCode = "pcs"
+        item.useCount = 3
+        context.insert(item)
+        try context.save()
+        return siteID
+    }
+
+    /// A V9 store opens as V10 with every site and remembered item as it
+    /// was, no codes and an empty Missing list, and then takes both.
+    func testAVersionNineStoreOpensWithNoCodesAndTakesThem() throws {
+        let siteID = try writeVersionNineStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        XCTAssertEqual(SiteRepository(context: context).site(id: siteID)?.address, "Ilica 207C")
+        let extraWork = ExtraWorkRepository(context: context)
+        let item = try XCTUnwrap(extraWork.catalog().first)
+        XCTAssertEqual(item.name, "Junction box IP65")
+        XCTAssertEqual(item.useCount, 3)
+        XCTAssertEqual(item.barcodes, [])
+        XCTAssertEqual(item.siteIDs, [])
+
+        extraWork.addCode("4015081677891", to: item.id)
+        XCTAssertEqual(ExtraWorkRepository(context: context).catalog().first?.barcodes, ["4015081677891"])
+
+        let missing = MissingRepository(context: context)
+        XCTAssertTrue(missing.items(siteID: siteID).isEmpty)
+        missing.add(MissingDraft(name: "Junction box IP65", quantity: 6, unit: .pieces), siteID: siteID)
+        XCTAssertEqual(MissingRepository(context: context).neededCount(siteID: siteID), 1)
+    }
+
     func testAnAddressIsStoredOnlyWhenSet() {
         let entry = SiteEntry(site: Site(name: "Bau Süd"))
         XCTAssertNil(entry.address)
@@ -843,8 +889,8 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 9)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 8)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 10)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 9)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
@@ -854,6 +900,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(HoursSchemaV7.versionIdentifier, Schema.Version(7, 0, 0))
         XCTAssertEqual(HoursSchemaV8.versionIdentifier, Schema.Version(8, 0, 0))
         XCTAssertEqual(HoursSchemaV9.versionIdentifier, Schema.Version(9, 0, 0))
+        XCTAssertEqual(HoursSchemaV10.versionIdentifier, Schema.Version(10, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is
@@ -863,7 +910,8 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(names, [
             "DayEntry", "HolidayRecord", "SiteEntry", "CrewMemberEntry", "SiteDayEntry",
             "SiteDiaryEntry", "SiteDiaryPhotoEntry", "CrewSignatureEntry",
-            "ExtraWorkJobEntry", "ExtraWorkPhotoEntry", "ExtraWorkReportEntry", "ExtraWorkItemEntry"
+            "ExtraWorkJobEntry", "ExtraWorkPhotoEntry", "ExtraWorkReportEntry", "ExtraWorkItemEntry",
+            "MissingItemEntry"
         ])
     }
 

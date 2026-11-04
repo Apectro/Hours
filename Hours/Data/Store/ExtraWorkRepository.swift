@@ -213,10 +213,37 @@ struct ExtraWorkRepository {
         return byName.values.map(\.item).sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
-    /// Remembers the items of a job that was just written.
-    func recordUse(of items: [ExtraWorkItem], at moment: Date = Date()) {
+    /// Remembers the items of a job that was just written, and on which
+    /// site they were used.
+    func recordUse(of items: [ExtraWorkItem], at moment: Date = Date(), siteID: UUID? = nil) {
         let before = catalog()
-        let after = ExtraWorkCatalog.recording(items, into: before, at: moment)
+        let after = ExtraWorkCatalog.recording(items, into: before, at: moment, siteID: siteID)
+        storeChanges(from: before, to: after)
+    }
+
+    /// A code seen for the first time, named (`ExtraWorkCatalog.naming`):
+    /// known from now on, on every site. Returns the item it names.
+    @discardableResult
+    func nameCode(_ code: String, name: String, unit: ExtraWorkUnit, at moment: Date = Date()) -> ExtraWorkCatalogItem {
+        let before = catalog()
+        let named = ExtraWorkCatalog.naming(code: code, name: name, unit: unit, in: before, at: moment)
+        storeChanges(from: before, to: named.catalog)
+        return named.item
+    }
+
+    /// Gives a remembered item another code, taking it off any other item.
+    func addCode(_ code: String, to itemID: UUID) {
+        let before = catalog()
+        storeChanges(from: before, to: ExtraWorkCatalog.addingCode(code, to: itemID, in: before))
+    }
+
+    func removeCode(_ code: String, from itemID: UUID) {
+        let before = catalog()
+        storeChanges(from: before, to: ExtraWorkCatalog.removingCode(code, from: itemID, in: before))
+    }
+
+    /// Writes the items that differ between two versions of the catalogue.
+    private func storeChanges(from before: [ExtraWorkCatalogItem], to after: [ExtraWorkCatalogItem]) {
         for item in after where !before.contains(item) {
             storeCatalogEntry(item)
         }

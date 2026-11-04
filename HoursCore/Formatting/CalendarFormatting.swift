@@ -85,7 +85,7 @@ struct CalendarFormatting: Sendable {
     }
 
     /// "Mon 26": a day's row under the calendar's week, the week being the
-    /// screen's title.
+    /// screen's title, or when something was noted missing.
     func shortWeekdayAndDay(_ date: CalendarDate) -> String {
         formatter("EEEd").string(from: date.date(in: calendar))
     }

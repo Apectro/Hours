@@ -136,10 +136,7 @@ final class ScreenshotTests: XCTestCase {
         // material added up, in the export language. From the site's page.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10), "could not get back to the site's page")
-        // Scrolled to the end, the row sits above Write today / Sheet, which
-        // otherwise float over it and take the tap.
-        for _ in 0..<3 { app.swipeUp() }
-        app.buttons["site-extra-work-report"].firstMatch.tap()
+        app.tapSiteRow("site-extra-work-report")
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "the report did not open")
         XCTAssertTrue(app.buttons["extra-work-report-job-0"].waitForExistence(timeout: 10), "the report has no finished jobs")
         capture("04-extra-work-report", app)

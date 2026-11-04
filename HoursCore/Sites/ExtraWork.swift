@@ -11,10 +11,14 @@ import Foundation
 /// (Stk, kom, …); a unit the user typed is kept exactly as typed.
 enum ExtraWorkUnit: Hashable, Sendable {
     case pieces, metres, squareMetres, cubicMetres, kilograms, hours, sets
+    /// A box or carton (1.3, for scanned material). A build from before it
+    /// reads the code "box" as a unit of that name, so the line still says
+    /// what it was.
+    case boxes
     case custom(String)
 
     /// In the order they are offered, and the order totals are grouped in.
-    static let builtIn: [ExtraWorkUnit] = [.pieces, .metres, .squareMetres, .cubicMetres, .kilograms, .hours, .sets]
+    static let builtIn: [ExtraWorkUnit] = [.pieces, .metres, .squareMetres, .cubicMetres, .kilograms, .hours, .sets, .boxes]
 
     private static let customPrefix = "custom:"
 
@@ -28,6 +32,7 @@ enum ExtraWorkUnit: Hashable, Sendable {
         case .kilograms: return "kg"
         case .hours: return "h"
         case .sets: return "set"
+        case .boxes: return "box"
         case let .custom(text): return ExtraWorkUnit.customPrefix + text
         }
     }
@@ -69,6 +74,7 @@ enum ExtraWorkUnit: Hashable, Sendable {
         case .kilograms: return "kg"
         case .hours: return "h"
         case .sets: return language(.unitSets)
+        case .boxes: return language(.unitBoxes)
         case let .custom(text): return text
         }
     }

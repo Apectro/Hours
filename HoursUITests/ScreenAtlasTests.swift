@@ -414,6 +414,14 @@ final class ScreenAtlasTests: XCTestCase {
             miss("site-day-send-to-boss (no Send to boss button)")
         }
 
+        let missing = app.buttons.matching(identifier: "site-day-missing").firstMatch
+        if bringIntoView(missing, app), tap(missing, "Something's missing on the day", app) {
+            capture("site-day-missing", app)
+            close(app, "missing-add-cancel")
+        } else {
+            miss("site-day-missing (no Something's missing on the day)")
+        }
+
         let diary = app.buttons.matching(identifier: "site-day-diary").firstMatch
         if bringIntoView(diary, app), tap(diary, "Diary for this day", app) {
             pause(0.5)
@@ -472,6 +480,7 @@ final class ScreenAtlasTests: XCTestCase {
                     capture("extra-work-new-item", app)
                     close(app, "extra-work-item-cancel")
                 }
+                scannerScreens(app)
                 if tap(app.buttons.matching(identifier: "extra-work-sign").firstMatch, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
                     close(app, "extra-work-signature-cancel")
@@ -547,6 +556,75 @@ final class ScreenAtlasTests: XCTestCase {
     /// Everything behind the site's page (1.2): crew (and from it the
     /// sign-off and a person's month), diary, the sign-off row, the sheet's
     /// export, and the settings.
+    /// Scanning material (1.3): the scanner, here with its typed-code field
+    /// (no camera in the simulator), a new code being named, and the card
+    /// once it is added.
+    private func scannerScreens(_ app: XCUIApplication) {
+        guard tap(app.buttons.matching(identifier: "extra-work-scan").firstMatch, "Scan in the extra-work editor", app) else { return }
+        guard app.screen("screen-scanner").waitForExistence(timeout: 8) else {
+            miss("extra-work-scanner (the scanner did not open)")
+            return
+        }
+        capture("extra-work-scanner", app)
+        let field = app.textFields["scanner-code-field"]
+        if field.waitForExistence(timeout: 5) {
+            field.tap()
+            field.typeText("4015081999990")
+            tapAnyway(app.buttons.matching(identifier: "scanner-code-add").firstMatch)
+            let name = app.textFields["new-item-name"]
+            if name.waitForExistence(timeout: 5) {
+                capture("extra-work-scanner-new-item", app)
+                name.typeText("Cable tie 200 mm")
+                tapAnyway(app.buttons.matching(identifier: "new-item-save").firstMatch)
+                pause(0.8)
+                capture("extra-work-scanner-added", app)
+            } else {
+                miss("extra-work-scanner-new-item (a new code was not asked for)")
+            }
+        } else {
+            miss("extra-work-scanner (no typed-code field)")
+        }
+        close(app, "scanner-done")
+    }
+
+    /// The site's Missing list (1.3): the list, adding with a search, the
+    /// ordered items, and Send the list.
+    private func missingScreens(_ app: XCUIApplication) {
+        let row = app.buttons.matching(identifier: "site-missing").firstMatch
+        guard bringIntoView(row, app), tap(row, "the Missing row", app) else { return }
+        guard app.screen("screen-missing").waitForExistence(timeout: 8) else {
+            miss("site-missing (Missing did not open)")
+            return
+        }
+        pause(0.5)
+        capture("site-missing", app)
+        if tap(app.buttons.matching(identifier: "missing-add").firstMatch, "+ on Missing", app) {
+            capture("site-missing-add", app)
+            let search = app.textFields["missing-add-search"]
+            if search.waitForExistence(timeout: 5) {
+                search.tap()
+                search.typeText("junc")
+                pause(0.5)
+                tapAnyway(app.buttons.matching(identifier: "missing-add-match-0").firstMatch)
+                capture("site-missing-add-search", app)
+            }
+            close(app, "missing-add-cancel")
+        }
+        let states = app.segmentedControls["missing-state"]
+        if states.waitForExistence(timeout: 5) {
+            states.buttons.element(boundBy: 1).tap()
+            capture("site-missing-ordered", app)
+            states.buttons.element(boundBy: 0).tap()
+        } else {
+            miss("site-missing-ordered (no Needed · Ordered · Arrived)")
+        }
+        if tap(app.buttons.matching(identifier: "missing-send").firstMatch, "Send the list", app) {
+            capture("site-missing-send", app)
+            close(app, "missing-send-close")
+        }
+        back(app)
+    }
+
     private func siteMenuScreens(_ app: XCUIApplication) {
         swipeDown(app, times: 8)
         capture("site-buttons", app)
@@ -603,6 +681,8 @@ final class ScreenAtlasTests: XCTestCase {
                 back(app)
             }
         }
+
+        missingScreens(app)
 
         if tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
             pause(1)
@@ -955,6 +1035,12 @@ final class ScreenAtlasTests: XCTestCase {
             if self.tap(app.buttons.matching(identifier: "jobs-add").firstMatch, "Add a job", app) {
                 self.capture("settings-job-new", app)
                 self.close(app, "job-editor-cancel")
+            }
+        }
+        settingsPage("settings-materials", "settings-materials", app) {
+            if self.tap(app.buttons.matching(identifier: "materials-item-0").firstMatch, "a material", app) {
+                self.capture("settings-material-editor", app)
+                self.close(app, "materials-cancel")
             }
         }
         settingsPage("settings-fields", "settings-fields", app)

@@ -37,6 +37,22 @@ extension XCUIApplication {
     }
 
     /// From a site's page (1.2) to today on the site: its big Write today.
+    /// Taps a row of the site's page once it sits above Write today / Sheet,
+    /// which float over the bottom of the list and would take the tap.
+    /// False when the row never appeared.
+    @discardableResult
+    func tapSiteRow(_ identifier: String) -> Bool {
+        let row = buttons[identifier].firstMatch
+        let bar = buttons["site-write-today"].firstMatch
+        for _ in 0..<6 {
+            if row.exists, row.isHittable, !bar.exists || row.frame.maxY < bar.frame.minY - 4 { break }
+            swipeUp()
+        }
+        guard row.exists else { return false }
+        row.tap()
+        return true
+    }
+
     func openTodayOnSite(file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(screen("screen-site").waitForExistence(timeout: 10), "the site's page did not open", file: file, line: line)
         let today = buttons.matching(identifier: "site-write-today").firstMatch

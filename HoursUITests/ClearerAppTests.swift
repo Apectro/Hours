@@ -104,9 +104,7 @@ final class ClearerAppTests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         // Diary, a sheet.
-        let diary = app.buttons["site-diary-list"].firstMatch
-        XCTAssertTrue(diary.waitForExistence(timeout: 5), "the site has no Diary button")
-        diary.tap()
+        XCTAssertTrue(app.tapSiteRow("site-diary-list"), "the site has no Diary row")
         XCTAssertTrue(app.buttons["site-diary-list-done"].firstMatch.waitForExistence(timeout: 5), "Diary did not open the diary")
         app.buttons["site-diary-list-done"].firstMatch.tap()
 
@@ -119,13 +117,12 @@ final class ClearerAppTests: XCTestCase {
         wait(for: [exportGone], timeout: 10)
 
         // Extra work, the report: a row further down the site's page.
-        let extraWork = app.buttons["site-extra-work-report"].firstMatch
-        // The last row: scrolled to the end it sits above Write today / Sheet,
-        // which otherwise float over it and take the tap.
-        for _ in 0..<3 { app.swipeUp() }
-        extraWork.tap()
+        XCTAssertTrue(app.tapSiteRow("site-extra-work-report"), "the site has no Extra work row")
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
+        // The report's sheet has to be gone before the site's menu is opened.
+        let reportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-extra-work-report"))
+        wait(for: [reportGone], timeout: 10)
 
         // And the gear, the site's settings, with its usual day.
         app.openSiteSettings()
