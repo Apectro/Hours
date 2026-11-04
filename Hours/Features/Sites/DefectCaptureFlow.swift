@@ -459,7 +459,7 @@ struct DefectDetailsForm: View {
                 .accessibilityIdentifier("defect-what")
             if !whatChips.isEmpty {
                 DefectChips(
-                    options: whatChips.map { ($0, $0) },
+                    options: whatChips.map { text -> (String, String) in (text, text) },
                     selected: DefectList.tidy(what),
                     identifier: "defect-what-chip"
                 ) { what = $0 }
@@ -476,14 +476,14 @@ struct DefectDetailsForm: View {
     private var whereSection: some View {
         Section {
             DefectChips(
-                options: floors.map { ($0, $0) },
+                options: floors.map { floor -> (String, String) in (floor, floor) },
                 selected: floor,
                 identifier: "defect-floor"
             ) { choice in
                 floor = floor == choice ? "" : choice
             }
             DefectChips(
-                options: roomChips.map { ($0, $0) },
+                options: roomChips.map { room -> (String, String) in (room, room) },
                 selected: room,
                 identifier: "defect-room",
                 trailing: typesRoom ? nil : (String(localized: "+ Room"), "defect-room-add")
@@ -510,7 +510,7 @@ struct DefectDetailsForm: View {
     private var fixerSection: some View {
         Section {
             DefectChips(
-                options: [(String(localized: "Me"), "you")] + crew.map { ($0, "person:" + $0) } + [(String(localized: "Later"), "later")],
+                options: fixerOptions,
                 selected: fixerKey,
                 identifier: "defect-fixer"
             ) { key in
@@ -528,7 +528,7 @@ struct DefectDetailsForm: View {
     private var notedBySection: some View {
         Section {
             DefectChips(
-                options: [(String(localized: "You"), "")] + crew.map { ($0, $0) },
+                options: notedByOptions,
                 selected: notedBy,
                 identifier: "defect-noted-by"
             ) { notedBy = $0 }
@@ -545,6 +545,21 @@ struct DefectDetailsForm: View {
 
     private var floors: [String] {
         setup.floorList(defaults: SiteFloorNames.defaults)
+    }
+
+    /// Me, the crew, Later.
+    private var fixerOptions: [(String, String)] {
+        var options: [(String, String)] = [(String(localized: "Me"), "you")]
+        options += crew.map { name -> (String, String) in (name, "person:" + name) }
+        options.append((String(localized: "Later"), "later"))
+        return options
+    }
+
+    /// You, then the crew.
+    private var notedByOptions: [(String, String)] {
+        var options: [(String, String)] = [(String(localized: "You"), "")]
+        options += crew.map { name -> (String, String) in (name, name) }
+        return options
     }
 
     private var fixerKey: String {
