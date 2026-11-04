@@ -21,7 +21,7 @@ struct ExportSettingsScreen: View {
                 }
                 .pickerStyle(.navigationLink)
             } footer: {
-                Text("The name is printed under the title of every timesheet and names the file. The language covers the words the app writes; anything you typed yourself is left exactly as you wrote it.")
+                Text("The name is printed under the title of every timesheet and names the file.")
             }
 
             Section("How things are written") {
@@ -72,7 +72,7 @@ struct ExportSettingsScreen: View {
             } header: {
                 Text("What's on it")
             } footer: {
-                Text("Including empty days keeps every date in the range on its own row, which is what most timesheets expect. Earnings are off by default: timesheets usually go to someone. A site sheet never shows money.")
+                Text("Including empty days keeps every date in the range on its own row, which is what most timesheets expect.")
             }
         }
         .navigationTitle("Sheets")
@@ -99,7 +99,7 @@ private struct ExportCSVScreen: View {
                 }
                 Toggle("Byte-order mark", isOn: settingsStore.binding(\.export.includeByteOrderMark))
             } footer: {
-                Text("Excel on Windows needs the byte-order mark to read accented characters correctly. Numbers, Google Sheets and LibreOffice are happy either way.")
+                Text("Excel on Windows needs the byte-order mark to read accented characters correctly.")
             }
         }
         .navigationTitle("CSV options")
@@ -137,7 +137,7 @@ private struct SettingsExportColumnsScreen: View {
         } header: {
             Text("Columns")
         } footer: {
-            Text("Drag to reorder. Columns for fields you have switched off are never offered.")
+            Text("Drag to reorder.")
         }
 
         if !availableColumns.isEmpty {

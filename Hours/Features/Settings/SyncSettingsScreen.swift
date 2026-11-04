@@ -60,16 +60,7 @@ struct SyncSettingsScreen: View {
                         problem = nil
                     }
             } footer: {
-                Text(
-                    """
-                    Your days, holidays and settings are kept on this device. \
-                    Turning this on also keeps them in your own private iCloud \
-                    storage, so your other devices see the same hours and \
-                    count them the same way. Nothing is sent anywhere else, \
-                    and there is still no account to make and no server of \
-                    ours involved.
-                    """
-                )
+                Text("Turning this on keeps your hours in your own private iCloud, so your other devices see the same.")
             }
 
             if case .unavailable(let reason) = offer {
@@ -84,7 +75,7 @@ struct SyncSettingsScreen: View {
                         .foregroundStyle(Color.hoursNegative)
                         .accessibilityIdentifier("sync-problem")
                 } footer: {
-                    Text("Sync has been switched off, and everything is still saved on this device. Turn it on again to try once more.")
+                    Text("Sync has been switched off, and everything is still saved on this device.")
                 }
             }
 
@@ -128,14 +119,7 @@ struct SyncSettingsScreen: View {
             } footer: {
                 // Worth saying out loud: a private database is not a backup,
                 // and deleting a day on one device deletes it on all of them.
-                Text(
-                    """
-                    Sync is not a backup. A day you delete is deleted \
-                    everywhere. Settings › iCloud & backup › Backup and data \
-                    writes a file that \
-                    keeps a copy no sync can undo.
-                    """
-                )
+                Text("Sync is not a backup: a day you delete is deleted everywhere.")
             }
 
             #if DEBUG || CLOUDKIT_SCHEMA_TOOLS

@@ -19,7 +19,7 @@ struct CalendarSettingsScreen: View {
                 }
                 Toggle("Show totals", isOn: settingsStore.binding(\.calendar.showMonthSummary))
             } footer: {
-                Text("Automatic follows your region. Hiding weekends removes the Saturday and Sunday columns from the grid. The days themselves are still recorded and still counted.")
+                Text("Hiding weekends removes the Saturday and Sunday columns from the grid.")
             }
 
             Section {
@@ -33,7 +33,7 @@ struct CalendarSettingsScreen: View {
             } header: {
                 Text("Inside each day")
             } footer: {
-                Text("One figure at most. A calendar that shows everything shows nothing.")
+                Text("One figure at most.")
             }
 
             Section {

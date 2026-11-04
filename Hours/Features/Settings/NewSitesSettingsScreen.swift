@@ -26,7 +26,7 @@ struct NewSitesSettingsScreen: View {
             } header: {
                 Text("Usual day")
             } footer: {
-                Text("A new day on a site starts with these times for everyone ticked. Following your working hours takes the start, end, break and work days from Settings › Working hours.")
+                Text("A new day on a site starts with these times for everyone ticked.")
             }
 
             Section {
