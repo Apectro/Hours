@@ -79,19 +79,13 @@ struct CalendarFormatting: Sendable {
         formatter("EEEEdMMM").string(from: date.date(in: calendar))
     }
 
-    /// "Thu 29": a day on a list that is about the last few weeks, such as
-    /// when something was noted missing.
-    func shortWeekdayAndDay(_ date: CalendarDate) -> String {
-        formatter("EEEd").string(from: date.date(in: calendar))
-    }
-
     /// "Thursday 29": a day's title in its sheet, under the month it is in.
     func weekdayAndDay(_ date: CalendarDate) -> String {
         formatter("EEEEd").string(from: date.date(in: calendar))
     }
 
     /// "Mon 26": a day's row under the calendar's week, the week being the
-    /// screen's title.
+    /// screen's title, or when something was noted missing.
     func shortWeekdayAndDay(_ date: CalendarDate) -> String {
         formatter("EEEd").string(from: date.date(in: calendar))
     }
