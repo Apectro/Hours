@@ -7,7 +7,8 @@ import SwiftUI
 /// Everything that was under the editor's old "More" and its lower
 /// sections is here: allowance, kilometres and travel; note, location and
 /// tags; expected hours, adjustments and a balance set by hand; whether the
-/// day counts; and "Delete this day" at the bottom.
+/// day counts. Clearing the day is on the editor itself ("Clear this
+/// day"), once, not here as well.
 struct DayExtrasRoute: Hashable {}
 
 struct DayExtrasScreen: View {
@@ -16,12 +17,7 @@ struct DayExtrasScreen: View {
     let settings: AppSettings
     let calendar: Calendar
     let formatting: CalendarFormatting
-    /// Present only for a day that is stored: deletes it and closes the
-    /// editor.
-    var onDelete: (() -> Void)? = nil
     let onDone: () -> Void
-
-    @State private var isConfirmingDelete = false
 
     private var formatter: DurationFormatting { settings.displayFormatting }
 
@@ -30,29 +26,8 @@ struct DayExtrasScreen: View {
             onTheDaySection
             correctionsSection
             inclusionSection
-            if let onDelete {
-                Section {
-                    Button(role: .destructive) {
-                        isConfirmingDelete = true
-                    } label: {
-                        Text("Delete this day")
-                    }
-                    .buttonStyle(.bigAction(.destructive))
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .accessibilityIdentifier("day-editor-delete")
-                }
-            }
         }
         .scrollDismissesKeyboard(.interactively)
-        .confirmationDialog(
-            "Delete this day? Hours written on a site stay.",
-            isPresented: $isConfirmingDelete,
-            titleVisibility: .visible
-        ) {
-            Button("Delete day", role: .destructive) { onDelete?() }
-            Button("Cancel", role: .cancel) {}
-        }
         .navigationTitle(formatting.mediumDate(draft.date))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

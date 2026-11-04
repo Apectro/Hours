@@ -67,7 +67,9 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// The whole app with the sample month, Pro on and nothing for sale.
     private func sampleDataTour() {
-        let app = launch(["-hours-sample-data"])
+        // The text the "camera" read on a box, handed over with each typed
+        // code, so New item shows names "From the box".
+        let app = launch(["-hours-sample-data", "-hours-box-text", "Cable tie 200 mm|4015081999990|€ 4,99|Black UV"])
         guard app.tab(.calendar).waitForExistence(timeout: 20) else {
             miss("the app did not start with sample data")
             return
@@ -468,7 +470,11 @@ final class ScreenAtlasTests: XCTestCase {
             if editor.waitForExistence(timeout: 10) {
                 pause(0.5)
                 capture("extra-work-new", app)
-                if tap(app.buttons.matching(identifier: "extra-work-hours-toggle").firstMatch, "How long it took", app) {
+                // The editor is a form: a list only makes the rows on
+                // screen, so each control lower down is scrolled to first.
+                let hoursToggle = app.buttons.matching(identifier: "extra-work-hours-toggle").firstMatch
+                _ = bringIntoView(hoursToggle, app)
+                if tap(hoursToggle, "How long it took", app) {
                     pause(0.5)
                 }
                 swipeDown(app, times: 3)
@@ -476,16 +482,30 @@ final class ScreenAtlasTests: XCTestCase {
                 swipeUp(app)
                 capture("extra-work-new-open-lower", app)
 
-                if tap(app.buttons.matching(identifier: "extra-work-new-item").firstMatch, "New item", app) {
+                let newItem = app.buttons.matching(identifier: "extra-work-new-item").firstMatch
+                _ = bringIntoView(newItem, app)
+                if tap(newItem, "New item", app) {
                     capture("extra-work-new-item", app)
                     close(app, "extra-work-item-cancel")
                 }
+                let addFromList = app.buttons.matching(identifier: "extra-work-add-from-list").firstMatch
+                _ = bringIntoView(addFromList, app)
+                if tap(addFromList, "Add from list", app) {
+                    capture("extra-work-add-from-list", app)
+                    // Closes the menu without choosing anything.
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12)).tap()
+                    pause(0.6)
+                }
                 scannerScreens(app)
-                if tap(app.buttons.matching(identifier: "extra-work-sign").firstMatch, "the client's signature", app) {
+                let sign = app.buttons.matching(identifier: "extra-work-sign").firstMatch
+                _ = bringIntoView(sign, app)
+                if tap(sign, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
                     close(app, "extra-work-signature-cancel")
                 }
-                if tap(app.buttons.matching(identifier: "extra-work-edit-items").firstMatch, "the item list", app) {
+                let editItems = app.buttons.matching(identifier: "extra-work-edit-items").firstMatch
+                _ = bringIntoView(editItems, app)
+                if tap(editItems, "the item list", app) {
                     capture("extra-work-catalogue", app)
                     if tap(app.buttons.matching(identifier: "extra-work-catalog-item").firstMatch, "an item in the list", app) {
                         capture("extra-work-catalogue-item", app)
@@ -574,7 +594,16 @@ final class ScreenAtlasTests: XCTestCase {
             let name = app.textFields["new-item-name"]
             if name.waitForExistence(timeout: 5) {
                 capture("extra-work-scanner-new-item", app)
-                name.typeText("Cable tie 200 mm")
+                let suggestion = app.buttons.matching(identifier: "new-item-suggestion-0").firstMatch
+                if suggestion.waitForExistence(timeout: 3) {
+                    tapAnyway(suggestion)
+                    pause(0.5)
+                    capture("extra-work-scanner-new-item-from-the-box", app)
+                } else {
+                    miss("extra-work-scanner-new-item-from-the-box (no names from the box)")
+                    name.typeText("Cable tie 200 mm")
+                }
+                textScanScreens(app)
                 tapAnyway(app.buttons.matching(identifier: "new-item-save").firstMatch)
                 pause(0.8)
                 capture("extra-work-scanner-added", app)
@@ -585,6 +614,29 @@ final class ScreenAtlasTests: XCTestCase {
             miss("extra-work-scanner (no typed-code field)")
         }
         close(app, "scanner-done")
+    }
+
+    /// Scan text (1.3), from New item's name: the sheet with its typed
+    /// fallback (no camera in the simulator) and a line in the tray; closed
+    /// with ✕, so the name stays as it was.
+    private func textScanScreens(_ app: XCUIApplication) {
+        guard tap(app.buttons.matching(identifier: "new-item-scan-text").firstMatch, "Scan text beside the name", app) else { return }
+        guard app.screen("screen-text-scan").waitForExistence(timeout: 8) else {
+            miss("text-scan (the sheet did not open)")
+            return
+        }
+        capture("text-scan", app)
+        let field = app.textFields["text-scan-field"]
+        if field.waitForExistence(timeout: 5) {
+            field.tap()
+            field.typeText("Cable tie 200 mm")
+            tapAnyway(app.buttons.matching(identifier: "text-scan-add").firstMatch)
+            pause(0.5)
+            capture("text-scan-tray", app)
+        } else {
+            miss("text-scan-tray (no typed-text field)")
+        }
+        close(app, "text-scan-close")
     }
 
     /// The site's Missing list (1.3): the list, adding with a search, the

@@ -36,8 +36,8 @@ struct ReminderSettingsScreen: View {
                 Text("Your own hours")
             } footer: {
                 Text(authorizationDenied
-                     ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                     : "A weekly note if a working day has no hours. Days off and days you excluded never count as missing.")
+                     ? "Turn on notifications for Zeitkonto in the Settings app."
+                     : "A weekly note if a working day has no hours.")
             }
 
             // Only for someone who has a site; the rest never need to know.
@@ -65,8 +65,8 @@ struct ReminderSettingsScreen: View {
                     Text("Sites")
                 } footer: {
                     Text(siteAuthorizationDenied || sheetAuthorizationDenied || unsentAuthorizationDenied
-                         ? "Notifications are switched off for Zeitkonto in the Settings app. Turn them on there and this will start working."
-                         : "In the evening, a note when a site day you normally write is still missing. On the 1st, a note that last month's site sheets are ready. Once a week, a note about finished extra work not sent to your boss. The arrival reminder is in each site's settings.")
+                         ? "Turn on notifications for Zeitkonto in the Settings app."
+                         : "A note for a missing site day, last month's site sheets and unsent extra work.")
                 }
             }
         }

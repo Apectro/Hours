@@ -35,7 +35,7 @@ struct AllowanceSettingsScreen: View {
                 } header: {
                     Text("Rates")
                 } footer: {
-                    Text("Ticked people on a site day get the allowance. The van's kilometres are written once per site day. Amounts and tax-free limits depend on your contract and your country.")
+                    Text("Ticked people on a site day get the allowance.")
                 }
 
                 Section {

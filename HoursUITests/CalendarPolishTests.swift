@@ -83,6 +83,9 @@ final class CalendarPolishTests: XCTestCase {
         let count = app.switches["day-editor-count-day"]
         for _ in 0..<4 where !(count.exists && count.isHittable) { app.swipeUp() }
         XCTAssertTrue(count.isHittable, "the extras did not open")
+        // One way to clear a day, on the editor ("Clear this day"): the
+        // extras page has no delete of its own any more.
+        XCTAssertFalse(app.buttons["day-editor-delete"].exists, "the extras page still has Delete this day")
         // A tap on the middle of a Form toggle lands on its label, which
         // does not flip it; the switch itself sits at the trailing edge.
         let knob = count.switches.firstMatch

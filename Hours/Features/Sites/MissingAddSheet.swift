@@ -33,6 +33,9 @@ struct MissingAddSheet: View {
     /// A code scanned, waiting for the scanner's sheet to go.
     @State private var pendingCode: String?
     @State private var handledInitialCode = false
+    /// The text the camera saw around the code scanned: a new code's name
+    /// is offered from it.
+    @State private var boxText: [RecognisedLine] = []
     @State private var showsQuantityAlert = false
     @State private var typedQuantity = ""
     @FocusState private var searchFocused: Bool
@@ -75,6 +78,9 @@ struct MissingAddSheet: View {
                             .autocorrectionDisabled()
                             .accessibilityLabel(String(localized: "Search or type a name"))
                             .accessibilityIdentifier("missing-add-search")
+                        ScanTextButton(identifier: "missing-add-scan-text") { text in
+                            query = text
+                        }
                     }
                 }
 
@@ -194,11 +200,18 @@ struct MissingAddSheet: View {
         .sheet(item: $inner, onDismiss: innerClosed) { sheet in
             switch sheet {
             case .scan:
-                BarcodeScanSheet(title: String(localized: "Scan the box")) { code in
+                BarcodeScanSheet(title: String(localized: "Scan the box"), onCode: { code in
                     pendingCode = ExtraWorkCatalog.code(code)
-                }
+                }, onBoxText: { lines in
+                    boxText = lines
+                })
             case let .name(code):
-                NewScannedItemSheet(code: code, saveTitle: String(localized: "Save"), initialName: trimmedQuery) { name, unit in
+                NewScannedItemSheet(
+                    code: code,
+                    saveTitle: String(localized: "Save"),
+                    initialName: trimmedQuery,
+                    suggestions: BoxTextSuggestions.names(from: boxText, code: code)
+                ) { name, unit in
                     let item = ExtraWorkRepository(context: modelContext).nameCode(code, name: name, unit: unit)
                     catalog = ExtraWorkRepository(context: modelContext).catalog()
                     choose(catalog.first { $0.id == item.id } ?? item)

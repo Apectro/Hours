@@ -102,7 +102,7 @@ struct PublicHolidayPicker: View {
                         .accessibilityIdentifier("public-holidays-country-\(country.rawValue)")
                     }
                 } footer: {
-                    Text("Nothing is added until you have seen the list. The holidays come from tables inside the app; nothing is looked up online.")
+                    Text("Nothing is added until you have seen the list.")
                 }
             }
             .navigationTitle("Public holidays")
@@ -198,7 +198,7 @@ struct PublicHolidayPreview: View {
                         Text(tipText(tip))
                     }
                     Text(String(
-                        localized: "Checked for \(String(set.checkedFor)). Paid days off: your contracted hours are credited. Each one can be edited, switched off or deleted later.",
+                        localized: "Checked for \(String(set.checkedFor)).",
                         comment: "Public holidays preview footer; the value is a year such as 2026"
                     ))
                 }
@@ -239,13 +239,13 @@ struct PublicHolidayPreview: View {
     private func tipText(_ tip: PublicHolidayTip) -> String {
         switch tip {
         case .christmasEveAndNewYearsEve:
-            return String(localized: "24 and 31 December are often days off by collective agreement. Add them by hand if yours are.")
+            return String(localized: "24 and 31 December are often days off by collective agreement.")
         case .cantonalHolidaysMissing:
-            return String(localized: "Only the days every canton shares. Add your canton's other holidays by hand.")
+            return String(localized: "Only the days every canton shares.")
         case .regionalHolidaysNotIncluded:
-            return String(localized: "National holidays only. Add regional and local ones by hand.")
+            return String(localized: "National holidays only.")
         case .sundayMovedToMonday:
-            return String(localized: "When a holiday falls on a Sunday, your region may move it to the Monday. Check the regional list.")
+            return String(localized: "When a holiday falls on a Sunday, your region may move it to the Monday.")
         }
     }
 }

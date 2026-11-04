@@ -82,7 +82,6 @@ struct SiteMoveSheet: View {
                         } label: {
                             HStack {
                                 Text(verbatim: other.name)
-                                    .fontWeight(other.id == siteID ? .semibold : .regular)
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 if other.id == siteID {
@@ -100,6 +99,7 @@ struct SiteMoveSheet: View {
                     }
                 } header: {
                     Text("Went to")
+                        .textCase(nil)
                 }
 
                 Section {
@@ -129,6 +129,7 @@ struct SiteMoveSheet: View {
                         .accessibilityIdentifier("site-move-break")
                     } header: {
                         Text("Break")
+                            .textCase(nil)
                     }
                 }
 
@@ -159,27 +160,38 @@ struct SiteMoveSheet: View {
                     }
                 } header: {
                     Text("Who went")
+                        .textCase(nil)
                 } footer: {
                     Text(verbatim: footer)
                         .accessibilityIdentifier("site-move-summary")
                 }
             }
             .navigationTitle("Moved to another site")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .accessibilityIdentifier("site-move-sheet")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("site-move-cancel")
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Cancel"))
+                    .accessibilityIdentifier("site-move-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Move") {
+                    Button {
                         guard let choice else { return }
                         onMove(choice)
                         dismiss()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
                     }
-                    .fontWeight(.semibold)
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
                     .disabled(choice == nil || problem != nil)
+                    .accessibilityLabel(String(localized: "Move"))
                     .accessibilityIdentifier("site-move-confirm")
                 }
             }

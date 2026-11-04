@@ -136,7 +136,7 @@ struct SettingsScreen: View {
                 .accessibilityIdentifier("settings-pro")
             } footer: {
                 if !subscriptions.isPro {
-                    Text("Timesheets, widgets, a second job and range editing. Recording your hours is free and stays free.")
+                    Text("Timesheets, widgets, a second job and range editing.")
                 }
             }
 
@@ -156,7 +156,7 @@ struct SettingsScreen: View {
                 } header: {
                     Text("TestFlight")
                 } footer: {
-                    Text("Only in TestFlight builds. Switch it off to see the paywall and try buying as a customer would. The App Store version always asks people to pay.")
+                    Text("Switch it off to see the paywall and try buying as a customer would.")
                 }
             }
         }

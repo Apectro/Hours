@@ -15,7 +15,7 @@ struct CalculationSettingsScreen: View {
             } header: {
                 Text("Overtime counts")
             } footer: {
-                Text("Overtime is what you work beyond your week in Working hours. Switch these off to enter worked hours, or the balance, by hand on each day.")
+                Text("Switch these off to enter worked hours, or the balance, by hand on each day.")
             }
 
             Section {
@@ -52,7 +52,7 @@ struct CalculationSettingsScreen: View {
             } header: {
                 Text("Balance")
             } footer: {
-                Text("Overtime you had before using the app. The balance counts from the start date, or else from your first recorded day.")
+                Text("Overtime you had before using the app.")
             }
 
             carryOverSection
@@ -129,7 +129,7 @@ struct CalculationSettingsScreen: View {
             // A shortfall carries in full because forgiving it would invent
             // hours nobody worked; later edits to a closed year no longer
             // move what it handed over.
-            Text("Closing a year fixes what it carries into the next. A cap limits overtime carried; a shortfall always carries in full.")
+            Text("Closing a year fixes what it carries into the next.")
         }
     }
 

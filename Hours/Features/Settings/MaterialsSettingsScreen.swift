@@ -15,6 +15,9 @@ struct MaterialsSettingsScreen: View {
     @State private var sheet: MaterialsSheet?
     /// What a scan found, opened once the scanner's sheet has gone.
     @State private var afterScan: MaterialsSheet?
+    /// The text the camera saw around the code scanned: a new code's name
+    /// is offered from it.
+    @State private var boxText: [RecognisedLine] = []
 
     private enum MaterialsSheet: Identifiable {
         case scan
@@ -49,7 +52,7 @@ struct MaterialsSettingsScreen: View {
                 }
             } footer: {
                 if !items.isEmpty {
-                    Text("Every item you have written or scanned. Tap one to rename it, change its unit, or add a second barcode.")
+                    Text("Tap one to rename it, change its unit, or add a second barcode.")
                 }
             }
         }
@@ -84,9 +87,13 @@ struct MaterialsSettingsScreen: View {
         .sheet(item: $sheet, onDismiss: sheetClosed) { sheet in
             switch sheet {
             case .scan:
-                BarcodeScanSheet(title: String(localized: "Scan to find"), onCode: found)
+                BarcodeScanSheet(title: String(localized: "Scan to find"), onCode: found, onBoxText: { lines in boxText = lines })
             case let .name(code):
-                NewScannedItemSheet(code: code, saveTitle: String(localized: "Save")) { name, unit in
+                NewScannedItemSheet(
+                    code: code,
+                    saveTitle: String(localized: "Save"),
+                    suggestions: BoxTextSuggestions.names(from: boxText, code: code)
+                ) { name, unit in
                     ExtraWorkRepository(context: modelContext).nameCode(code, name: name, unit: unit)
                     reload()
                 }
@@ -204,9 +211,14 @@ struct MaterialEditorSheet: View {
         NavigationStack {
             Form {
                 Section("Name") {
-                    TextField(String(localized: "Name, e.g. Junction box"), text: $name)
-                        .accessibilityLabel(String(localized: "Name"))
-                        .accessibilityIdentifier("materials-name")
+                    HStack(spacing: Metrics.small) {
+                        TextField(String(localized: "Name, e.g. Junction box"), text: $name)
+                            .accessibilityLabel(String(localized: "Name"))
+                            .accessibilityIdentifier("materials-name")
+                        ScanTextButton(identifier: "materials-scan-text") { text in
+                            name = text
+                        }
+                    }
                 }
                 Section {
                     Picker(selection: $unitCode) {

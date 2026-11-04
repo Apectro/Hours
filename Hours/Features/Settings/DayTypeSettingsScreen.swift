@@ -321,7 +321,7 @@ struct DayTypeEditor: View {
                 // read as the start of a format.
                 let seventy = "70%"
                 Text(String(
-                    localized: "In Croatia sick leave is paid at least \(seventy) for the first 42 days, then by HZZO; a work injury is paid in full. Check your contract: the app uses your hourly rate, not your average pay.",
+                    localized: "In Croatia sick leave is paid at least \(seventy) for the first 42 days, then by HZZO; a work injury is paid in full.",
                     comment: "Footer under Sick's pay in Settings › Day types; the value is 70%"
                 ))
             } else {

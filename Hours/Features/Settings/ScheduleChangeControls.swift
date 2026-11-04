@@ -105,8 +105,8 @@ struct ScheduleChangePrompt<Value: DatedValue>: ViewModifier {
         )
         guard !closed.isEmpty else {
             return subject == .week
-                ? String(localized: "The new week applies from this day on. Days before it keep the week they had.")
-                : String(localized: "The new pay applies from this day on. Days before it keep the pay they had.")
+                ? String(localized: "The new week applies from this day on.")
+                : String(localized: "The new pay applies from this day on.")
         }
         return String(
             localized: "This changes closed months: \(names(closed)).",
@@ -174,7 +174,7 @@ struct ScheduleHistorySection: View {
             } header: {
                 Text("Changes")
             } footer: {
-                Text("Swipe to remove a change. The week before it then runs on in its place.")
+                Text("Swipe to remove a change.")
             }
         }
     }

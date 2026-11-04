@@ -2,9 +2,9 @@ import SwiftUI
 import SwiftData
 
 /// Every diary written for a site, a month at a time, the most recent day
-/// first (1.2 redesign, mockup 08 "The month's diary"): one card per day
-/// with its weather and photos on the right — a day the weather stopped in
-/// orange — and the first line written under it. Written on the site's own
+/// first (1.2 redesign, mockup 08 "The month's diary"): a section per month,
+/// a row per day with its weather and photos on the right — a day the
+/// weather stopped with an orange cloud — and the first line written under it. Written on the site's own
 /// day screen; this only reads. A card goes to its day: the sheet closes and
 /// the site screen shows that date.
 struct SiteDiaryListSheet: View {
@@ -38,35 +38,36 @@ struct SiteDiaryListSheet: View {
                         description: Text("Write one under a day's hours on the site screen.")
                     )
                 } else {
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: Metrics.medium) {
-                            ForEach(months, id: \.month) { group in
-                                Text(verbatim: monthLine(group.month, count: group.entries.count))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.hoursSecondaryText)
-                                    .padding(.horizontal, Metrics.tiny)
-                                    .padding(.top, Metrics.small)
-                                    .accessibilityAddTraits(.isHeader)
+                    List {
+                        ForEach(months, id: \.month) { group in
+                            Section {
                                 ForEach(group.entries) { entry in
-                                    card(entry)
+                                    row(entry)
+                                }
+                            } header: {
+                                Text(verbatim: monthLine(group.month, count: group.entries.count))
+                                    .textCase(nil)
+                            } footer: {
+                                if group.month == months.last?.month {
+                                    Text("Write one under a day's hours on the site screen.")
                                 }
                             }
-                            Text("Write one under a day's hours on the site screen.")
-                                .font(.footnote)
-                                .foregroundStyle(.hoursSecondaryText)
-                                .padding(.horizontal, Metrics.small)
                         }
-                        .padding(Metrics.large)
                     }
-                    .background(Color.hoursCanvas)
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("Site diary")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .accessibilityIdentifier("site-diary-list-done")
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Done"))
+                    .accessibilityIdentifier("site-diary-list-done")
                 }
             }
             .accessibilityIdentifier("screen-site-diary")
@@ -76,12 +77,12 @@ struct SiteDiaryListSheet: View {
 
     // MARK: - A day
 
-    private func card(_ entry: Entry) -> some View {
+    private func row(_ entry: Entry) -> some View {
         Button {
             onSelect(entry.date)
             dismiss()
         } label: {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
+            VStack(alignment: .leading, spacing: 2) {
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
                         dateText(entry)
@@ -101,29 +102,31 @@ struct SiteDiaryListSheet: View {
                         .multilineTextAlignment(.leading)
                 }
             }
-            .padding(.horizontal, Metrics.medium + 2)
-            .padding(.vertical, Metrics.medium)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-            .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("site-diary-entry-\(entry.date.key)")
     }
 
     private func dateText(_ entry: Entry) -> some View {
         Text(verbatim: settingsStore.dateFormatting.dayTitle(entry.date))
-            .font(.body.weight(.bold))
             .foregroundStyle(.primary)
     }
 
     @ViewBuilder
     private func detailText(_ entry: Entry) -> some View {
         if let stop = entry.stop {
-            Text(verbatim: stopLine(stop, diary: entry.diary))
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color.hoursAttention)
+            // The colour is the symbol's; the words stay grey.
+            HStack(spacing: Metrics.tiny) {
+                Image(systemName: "cloud.rain.fill")
+                    .foregroundStyle(Color.hoursAttention)
+                    .accessibilityHidden(true)
+                Text(verbatim: stopLine(stop, diary: entry.diary))
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+            .font(.subheadline)
         } else if let line = detailLine(entry) {
             Text(verbatim: line)
                 .font(.subheadline)

@@ -1553,7 +1553,9 @@ sees the pictures chosen. The camera is `UIImagePickerController` and asks for
 camera access with a purpose string, the first and only permission the diary
 adds. Scanning a barcode (1.3) uses the same permission, through VisionKit on
 the device; a code is matched against the user's own list and never sent or
-looked up anywhere. Every photo, picked or taken, is decoded and written again as a new JPEG
+looked up anywhere. Reading the text on a box (a new code's name "From the box",
+and Scan text beside name fields) is VisionKit on the device too; the lines are
+cleaned by `BoxTextSuggestions` and only ever fill a field. Every photo, picked or taken, is decoded and written again as a new JPEG
 with no metadata at all (`DiaryPhotoProcessor`), which is what takes the GPS
 coordinates out: the app keeps no location but a site's saved place, and only
 for an arrival reminder the user turned on, and a GPS position in a picture

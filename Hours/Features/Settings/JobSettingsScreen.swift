@@ -41,7 +41,7 @@ struct JobSettingsScreen: View {
                 .accessibilityIdentifier("jobs-add")
             } footer: {
                 if needsProForAnotherJob {
-                    Text("A second job is part of Zeitkonto Pro. The job you have keeps working either way.")
+                    Text("A second job is part of Zeitkonto Pro.")
                 } else {
                     Text("Each job keeps its own contracted week, so two jobs with different hours each get their own balance rather than sharing one.")
                 }

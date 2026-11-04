@@ -47,7 +47,7 @@ struct DataSettingsScreen: View {
             } header: {
                 Text("Backup")
             } footer: {
-                Text("A backup is a JSON file containing every day, every holiday, every site and all your settings. Nothing is uploaded — you choose where the file goes.")
+                Text("A backup is a JSON file containing every day, every holiday, every site and all your settings.")
             }
 
             // A plain red row, as the phone's own Settings has it; the
@@ -60,8 +60,8 @@ struct DataSettingsScreen: View {
             } footer: {
                 Text(
                     HoursStack.isSyncing
-                        ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too. Settings are kept."
-                        : "Removes every recorded day, holiday and site from this device. Settings are kept."
+                        ? "Removes every recorded day, holiday and site from this device and, because sync is on, from your other devices too; settings are kept."
+                        : "Removes every recorded day, holiday and site from this device; settings are kept."
                 )
             }
 

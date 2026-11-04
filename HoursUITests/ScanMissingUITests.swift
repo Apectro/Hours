@@ -80,6 +80,123 @@ final class ScanMissingUITests: XCTestCase {
         app.buttons["extra-work-cancel"].tap()
     }
 
+    // MARK: - Reading the name off the box
+
+    /// A new code offers the names the camera read around it (here handed
+    /// in by `-hours-box-text`, cleaned: no code, no price); a tap fills the
+    /// name, which stays editable.
+    func testANewCodeOffersNamesFromTheBox() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site", "-hours-box-text", "Junction box IP65|\(code)|4,99 €|Abzweigdose grau"]
+        app.launch()
+        openSite(app)
+        app.openTodayOnSite()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+
+        let add = app.buttons["extra-work-add"]
+        for _ in 0..<4 where !add.isHittable { app.swipeUp() }
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "the day should offer Add extra work")
+        add.tap()
+        XCTAssertTrue(app.screen("screen-extra-work-editor").waitForExistence(timeout: 5), "the editor did not open")
+        app.buttons["extra-work-scan"].tap()
+        XCTAssertTrue(app.screen("screen-scanner").waitForExistence(timeout: 5), "the scanner did not open")
+        type(code, into: app.textFields["scanner-code-field"])
+        app.buttons["scanner-code-add"].tap()
+
+        let name = app.textFields["new-item-name"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5), "a new code should ask for a name")
+        let first = app.buttons["new-item-suggestion-0"]
+        XCTAssertTrue(first.waitForExistence(timeout: 5), "the names read off the box should be offered")
+        XCTAssertEqual(first.label, "Junction box IP65")
+        XCTAssertEqual(app.buttons["new-item-suggestion-1"].label, "Abzweigdose grau")
+        XCTAssertFalse(app.buttons["new-item-suggestion-2"].exists, "the code and the price are not names")
+
+        app.buttons["new-item-suggestion-1"].tap()
+        XCTAssertEqual(name.value as? String, "Abzweigdose grau", "a tap fills the name")
+        name.tap()
+        name.typeText(" 5x")
+        XCTAssertEqual(name.value as? String, "Abzweigdose grau 5x", "the name stays editable")
+        app.buttons["new-item-save"].tap()
+
+        let last = app.descendants(matching: .any)["scanner-last-amount"]
+        XCTAssertTrue(last.waitForExistence(timeout: 5), "the named item is added")
+        app.buttons["scanner-done"].tap()
+        app.buttons["extra-work-cancel"].tap()
+    }
+
+    /// Scan text beside Missing's search: lines added to the tray (typed
+    /// here, as the simulator has no camera) are joined with a space, Clear
+    /// empties it, and Use fills the field.
+    func testScanTextFillsTheMissingAddField() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        XCTAssertTrue(app.tapSiteRow("site-missing"), "the site's page should have a Missing row")
+        XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "Missing did not open")
+        app.buttons["missing-add"].tap()
+        XCTAssertTrue(app.screen("screen-missing-add").waitForExistence(timeout: 5), "the add sheet did not open")
+
+        let scanText = app.buttons["missing-add-scan-text"]
+        XCTAssertTrue(scanText.waitForExistence(timeout: 5), "the search field should offer Scan text")
+        scanText.tap()
+        XCTAssertTrue(app.screen("screen-text-scan").waitForExistence(timeout: 5), "Scan text did not open")
+        XCTAssertFalse(app.buttons["text-scan-use"].isEnabled, "nothing to use yet")
+
+        let field = app.textFields["text-scan-field"]
+        type("Old line", into: field)
+        app.buttons["text-scan-add"].tap()
+        app.buttons["text-scan-clear"].tap()
+        type("Junction box", into: field)
+        app.buttons["text-scan-add"].tap()
+        type("IP65", into: field)
+        app.buttons["text-scan-add"].tap()
+        let tray = app.descendants(matching: .any)["text-scan-tray"]
+        XCTAssertTrue(tray.waitForExistence(timeout: 5))
+        XCTAssertEqual(tray.label, "Junction box IP65", "lines are joined with a space; Clear emptied the first")
+        app.buttons["text-scan-use"].tap()
+
+        let search = app.textFields["missing-add-search"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        XCTAssertEqual(search.value as? String, "Junction box IP65", "Use fills the field")
+        XCTAssertTrue(app.buttons["missing-add-new"].waitForExistence(timeout: 5), "the text read is offered as a new item")
+        app.buttons["missing-add-cancel"].tap()
+    }
+
+    /// Scan text beside What was done adds the text after what is typed,
+    /// with a space, instead of replacing it.
+    func testScanTextIsAddedAfterWhatWasDone() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        app.openTodayOnSite()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+
+        let add = app.buttons["extra-work-add"]
+        for _ in 0..<4 where !add.isHittable { app.swipeUp() }
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "the day should offer Add extra work")
+        add.tap()
+        XCTAssertTrue(app.screen("screen-extra-work-editor").waitForExistence(timeout: 5), "the editor did not open")
+
+        let description = app.descendants(matching: .any)["extra-work-description"].firstMatch
+        XCTAssertTrue(description.waitForExistence(timeout: 5))
+        description.tap()
+        description.typeText("Fitted")
+
+        app.buttons["extra-work-description-scan-text"].tap()
+        XCTAssertTrue(app.screen("screen-text-scan").waitForExistence(timeout: 5), "Scan text did not open")
+        type("LED panel", into: app.textFields["text-scan-field"])
+        app.buttons["text-scan-add"].tap()
+        app.buttons["text-scan-use"].tap()
+        // Wait for the sheet to close before looking at the field.
+        let closed = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-text-scan"))
+        wait(for: [closed], timeout: 5)
+
+        XCTAssertEqual(description.value as? String, "Fitted LED panel", "Use adds after what was typed")
+        app.buttons["extra-work-cancel"].tap()
+    }
+
     // MARK: - Missing
 
     /// Added by a new name, the same item found by search counts it up,

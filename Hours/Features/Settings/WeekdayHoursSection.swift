@@ -172,7 +172,7 @@ struct ShiftDefaultsSection: View {
             Text("Usual day")
         } footer: {
             Text(String(
-                localized: "These pre-fill the editor when you add hours to a working day. That comes to \(durationFormatting.string(defaultWorkedMinutes)) worked.",
+                localized: "These pre-fill a working day: \(durationFormatting.string(defaultWorkedMinutes)) worked.",
                 comment: "Under the default start and end times; the value is the resulting length"
             ))
         }
@@ -200,7 +200,7 @@ struct PaidBreaksSection: View {
             Toggle("Breaks are paid", isOn: $breaksArePaid)
                 .accessibilityIdentifier("breaks-are-paid")
         } footer: {
-            Text("Your break still gets written down, but it counts as worked time. Turn this on if your employer pays your breaks.")
+            Text("Turn this on if your employer pays your breaks.")
         }
     }
 }
