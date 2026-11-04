@@ -193,12 +193,17 @@ struct ExtraWorkEditorSheet: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.hoursSecondaryText)
                     .accessibilityHidden(true)
-                TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
-                    .lineLimit(1...4)
-                    .font(.body)
-                    .frame(minHeight: 32)
-                    .accessibilityLabel(String(localized: "What was done"))
-                    .accessibilityIdentifier("extra-work-description")
+                HStack(alignment: .top, spacing: Metrics.small) {
+                    TextField(String(localized: "e.g. Emergency lighting, stairwell"), text: $draft.description, axis: .vertical)
+                        .lineLimit(1...4)
+                        .font(.body)
+                        .frame(minHeight: 32)
+                        .accessibilityLabel(String(localized: "What was done"))
+                        .accessibilityIdentifier("extra-work-description")
+                    ScanTextButton(identifier: "extra-work-description-scan-text") { text in
+                        draft.description = text
+                    }
+                }
             }
             .padding(.horizontal, Metrics.large)
             .padding(.vertical, Metrics.medium)

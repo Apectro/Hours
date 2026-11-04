@@ -25,15 +25,19 @@ struct ExtraWorkScannerSheet: View {
     @State private var naming: NamingCode?
     @State private var feedback = 0
     @State private var torchIsOn = false
+    /// The text the camera saw around the last code: a new code's name is
+    /// offered from it.
+    @State private var boxText: [RecognisedLine] = []
 
     private struct NamingCode: Identifiable {
         let code: String
+        let suggestions: [String]
         var id: String { code }
     }
 
     var body: some View {
         NavigationStack {
-            BarcodeScanArea(isPaused: naming != nil, onCode: scanned)
+            BarcodeScanArea(isPaused: naming != nil, onCode: scanned, onBoxText: { lines in boxText = lines })
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     card
                 }
@@ -60,7 +64,7 @@ struct ExtraWorkScannerSheet: View {
         .onAppear { catalog = ExtraWorkRepository(context: modelContext).catalog() }
         .onDisappear { if torchIsOn { BarcodeScanning.setTorch(false) } }
         .sheet(item: $naming) { pending in
-            NewScannedItemSheet(code: pending.code) { name, unit in
+            NewScannedItemSheet(code: pending.code, suggestions: pending.suggestions) { name, unit in
                 let item = ExtraWorkRepository(context: modelContext).nameCode(pending.code, name: name, unit: unit)
                 catalog = ExtraWorkRepository(context: modelContext).catalog()
                 onCatalogChange()
@@ -195,7 +199,7 @@ struct ExtraWorkScannerSheet: View {
         if let item = ExtraWorkCatalog.item(forCode: code, in: catalog) {
             add(item, by: 1)
         } else if let kept = ExtraWorkCatalog.code(code) {
-            naming = NamingCode(code: kept)
+            naming = NamingCode(code: kept, suggestions: BoxTextSuggestions.names(from: boxText, code: kept))
         }
     }
 

@@ -67,7 +67,9 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// The whole app with the sample month, Pro on and nothing for sale.
     private func sampleDataTour() {
-        let app = launch(["-hours-sample-data"])
+        // The text the "camera" read on a box, handed over with each typed
+        // code, so New item shows names "From the box".
+        let app = launch(["-hours-sample-data", "-hours-box-text", "Cable tie 200 mm|4015081999990|€ 4,99|Black UV"])
         guard app.tab(.calendar).waitForExistence(timeout: 20) else {
             miss("the app did not start with sample data")
             return
@@ -570,7 +572,16 @@ final class ScreenAtlasTests: XCTestCase {
             let name = app.textFields["new-item-name"]
             if name.waitForExistence(timeout: 5) {
                 capture("extra-work-scanner-new-item", app)
-                name.typeText("Cable tie 200 mm")
+                let suggestion = app.buttons.matching(identifier: "new-item-suggestion-0").firstMatch
+                if suggestion.waitForExistence(timeout: 3) {
+                    tapAnyway(suggestion)
+                    pause(0.5)
+                    capture("extra-work-scanner-new-item-from-the-box", app)
+                } else {
+                    miss("extra-work-scanner-new-item-from-the-box (no names from the box)")
+                    name.typeText("Cable tie 200 mm")
+                }
+                textScanScreens(app)
                 tapAnyway(app.buttons.matching(identifier: "new-item-save").firstMatch)
                 pause(0.8)
                 capture("extra-work-scanner-added", app)
@@ -581,6 +592,29 @@ final class ScreenAtlasTests: XCTestCase {
             miss("extra-work-scanner (no typed-code field)")
         }
         close(app, "scanner-done")
+    }
+
+    /// Scan text (1.3), from New item's name: the sheet with its typed
+    /// fallback (no camera in the simulator) and a line in the tray; closed
+    /// with ✕, so the name stays as it was.
+    private func textScanScreens(_ app: XCUIApplication) {
+        guard tap(app.buttons.matching(identifier: "new-item-scan-text").firstMatch, "Scan text beside the name", app) else { return }
+        guard app.screen("screen-text-scan").waitForExistence(timeout: 8) else {
+            miss("text-scan (the sheet did not open)")
+            return
+        }
+        capture("text-scan", app)
+        let field = app.textFields["text-scan-field"]
+        if field.waitForExistence(timeout: 5) {
+            field.tap()
+            field.typeText("Cable tie 200 mm")
+            tapAnyway(app.buttons.matching(identifier: "text-scan-add").firstMatch)
+            pause(0.5)
+            capture("text-scan-tray", app)
+        } else {
+            miss("text-scan-tray (no typed-text field)")
+        }
+        close(app, "text-scan-close")
     }
 
     /// The site's Missing list (1.3): the list, adding with a search, the
