@@ -115,6 +115,8 @@ struct SiteDayScreen: View {
         case extraWork(ExtraWorkEditorRequest)
         /// The calendar button: go to another day.
         case pickDate
+        /// "Something's missing": the site's Missing list's add sheet (1.3).
+        case missing
 
         var id: String {
             switch self {
@@ -128,6 +130,7 @@ struct SiteDayScreen: View {
             case let .away(person): return "away-\(person.id.uuidString)"
             case let .extraWork(request): return "extra-work-\(request.id.uuidString)"
             case .pickDate: return "pick-date"
+            case .missing: return "missing"
             }
         }
     }
@@ -704,6 +707,16 @@ struct SiteDayScreen: View {
                 openSiteCrew(SiteCrewRoute(siteID: site.id))
             }
             .accessibilityIdentifier("site-day-edit-crew")
+            // Noted the moment it is noticed (1.3). Not hours: only a
+            // read-only site stops it, not a closed month.
+            if !isReadOnly {
+                SiteLinkRow(title: String(localized: "Something's missing")) {
+                    commitNote()
+                    commitKilometres()
+                    activeSheet = .missing
+                }
+                .accessibilityIdentifier("site-day-missing")
+            }
         }
     }
 
@@ -712,6 +725,8 @@ struct SiteDayScreen: View {
     @ViewBuilder
     private func sheetContent(_ sheet: ActiveSheet) -> some View {
         switch sheet {
+        case .missing:
+            MissingAddSheet(site: site, onAdded: {})
         case let .crewDay(initial):
             SiteCrewDaySheet(
                 title: dayTitle,

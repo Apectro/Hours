@@ -70,6 +70,7 @@ MINUTES = lambda n=1: plural("minutes", n, "%lld minute", "%lld minutes")
 COWORKERS = lambda n=1: plural("coworkers", n, "%lld coworker", "%lld coworkers")
 PEOPLE = lambda n=1: plural("people", n, "%lld person", "%lld people")
 EXTRA_JOBS = lambda n=1: plural("extraJobs", n, "%lld extra job", "%lld extra jobs")
+ITEMS = lambda n=1: plural("items", n, "%lld item", "%lld items")
 DIFFERENCES = lambda n=1: plural("differences", n, "%lld difference", "%lld differences")
 SITES = lambda n=1: plural("sites", n, "%lld site", "%lld sites")
 
@@ -130,6 +131,8 @@ APP_STRINGS = {
     "%@: ^[%lld extra job](inflect: true) not sent yet": entry(
         "%@: %#@extraJobs@ not sent yet", EXTRA_JOBS(2)
     ),
+    # The barcode scanner's Done (1.3): how many it added to the job.
+    "Done · ^[%lld item](inflect: true)": entry("Done · %#@items@", ITEMS()),
     "^[%lld extra job](inflect: true) not sent to your boss yet": entry(
         "%#@extraJobs@ not sent to your boss yet", EXTRA_JOBS()
     ),

@@ -16,11 +16,24 @@ enum ShareSheetPresenter {
 
     /// Several files in one share: a crew's sheets, one per person.
     static func present(_ urls: [URL], completion: @escaping (ExtraWorkShareOutcome) -> Void) {
-        guard let presenter = frontMostController(), !urls.isEmpty else {
+        guard !urls.isEmpty else {
             completion(.failed)
             return
         }
-        let controller = UIActivityViewController(activityItems: urls, applicationActivities: nil)
+        present(items: urls, completion: completion)
+    }
+
+    /// A message to paste into a chat: the Missing list (1.3).
+    static func present(text: String, completion: @escaping (ExtraWorkShareOutcome) -> Void) {
+        present(items: [text], completion: completion)
+    }
+
+    private static func present(items: [Any], completion: @escaping (ExtraWorkShareOutcome) -> Void) {
+        guard let presenter = frontMostController() else {
+            completion(.failed)
+            return
+        }
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, completed, _, error in
             if error != nil {
                 completion(.failed)

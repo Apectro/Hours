@@ -175,6 +175,10 @@ final class ExtraWorkItemEntry {
     var unitCode: String = "pcs"
     var useCount: Int = 0
     var lastUsed: Date = Date()
+    /// JSON-encoded `[String]`, the codes on its box (V10); `nil` for none.
+    var barcodesData: Data?
+    /// JSON-encoded `[UUID]`, the sites it was used on (V10); `nil` for none.
+    var siteIDsData: Data?
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
 
@@ -192,7 +196,9 @@ extension ExtraWorkItemEntry {
             name: name,
             unit: ExtraWorkUnit(code: unitCode),
             useCount: useCount,
-            lastUsed: lastUsed
+            lastUsed: lastUsed,
+            barcodes: barcodesData.flatMap { try? JSONDecoder().decode([String].self, from: $0) } ?? [],
+            siteIDs: siteIDsData.flatMap { try? JSONDecoder().decode([UUID].self, from: $0) } ?? []
         )
     }
 
@@ -201,6 +207,8 @@ extension ExtraWorkItemEntry {
         unitCode = item.unit.code
         useCount = item.useCount
         lastUsed = item.lastUsed
+        barcodesData = item.barcodes.isEmpty ? nil : try? JSONEncoder().encode(item.barcodes)
+        siteIDsData = item.siteIDs.isEmpty ? nil : try? JSONEncoder().encode(item.siteIDs)
         updatedAt = Date()
     }
 }

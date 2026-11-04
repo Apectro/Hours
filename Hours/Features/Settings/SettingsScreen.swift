@@ -278,7 +278,7 @@ struct SettingsIndex {
 
     /// The rows under More, in their sections.
     static let moreSections: [[String]] = [
-        ["settings-jobs", "settings-fields", "settings-calendar", "settings-theme"],
+        ["settings-jobs", "settings-materials", "settings-fields", "settings-calendar", "settings-theme"],
         ["settings-icloud-backup", "settings-privacy"],
         ["settings-help", "settings-rate", "settings-feedback"],
     ]
@@ -401,6 +401,15 @@ struct SettingsIndex {
                 systemImage: "bag",
                 tint: .indigo,
                 kind: .page(AnyView(JobSettingsScreen()))
+            ),
+            SettingsEntry(
+                id: "settings-materials",
+                title: String(localized: "Materials"),
+                detail: nil,
+                keywords: String(localized: "materials, barcode, scan, items, extra work, used before, units", comment: "Settings search words for Materials"),
+                systemImage: "shippingbox",
+                tint: .brown,
+                kind: .page(AnyView(MaterialsSettingsScreen()))
             ),
             SettingsEntry(
                 id: "settings-fields",
