@@ -102,7 +102,7 @@ final class ScreenAtlasTests: XCTestCase {
             dismissMenu(app)
         }
 
-        // The week (Month | Week in the navigation bar): its tiles, its
+        // The week (Month | Week under the title): its tiles, its
         // total and its days, then back to the month.
         let mode = app.segmentedControls.matching(identifier: "calendar-mode").firstMatch
         if mode.waitForExistence(timeout: 5), mode.buttons.count > 1 {
@@ -145,9 +145,12 @@ final class ScreenAtlasTests: XCTestCase {
         back(app)
 
         // A new day: next month has nothing in it.
-        bringIntoView(app.buttons.matching(identifier: "calendar-next").firstMatch, app)
-        if tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "next month", app),
+        if tap(calendarButton("calendar-next", app), "next month", app),
            let key = dayKey(monthsFromNow: 1, day: 10) {
+            // Away from this month: Today in the toolbar, the
+            // neighbouring months' days faded in the first and last rows.
+            swipeDown(app, times: 2)
+            capture("calendar-next-month", app)
             let day = calendarButton("day-\(key)", app)
             if tap(day, "the 10th of next month", app) {
                 capture("calendar-empty-day", app)
@@ -181,7 +184,7 @@ final class ScreenAtlasTests: XCTestCase {
                 }
                 back(app)
             }
-            tap(app.buttons.matching(identifier: "calendar-previous").firstMatch, "back to this month", app)
+            tap(calendarButton("calendar-previous", app), "back to this month", app)
         }
 
         // The public holiday the sample month has, and "I worked".
@@ -306,7 +309,8 @@ final class ScreenAtlasTests: XCTestCase {
         newSiteWizardScreens(app)
 
         tapAnyway(app.buttons.matching(identifier: "site-card").firstMatch)
-        // The site's page (1.2): the month, the group, Write today and Sheet.
+        // The site's page (1.2): the month in the Today tab's tiles with
+        // its week totals, the group, Write today and Sheet.
         guard app.screen("screen-site").waitForExistence(timeout: 10) else {
             miss("site (the site did not open)")
             return
@@ -1289,7 +1293,7 @@ final class ScreenAtlasTests: XCTestCase {
     private func closedMonthScreens(_ app: XCUIApplication) {
         app.tab(.calendar).tap()
         pause(1)
-        guard tap(app.buttons.matching(identifier: "calendar-previous").firstMatch, "last month (closed)", app) else { return }
+        guard tap(calendarButton("calendar-previous", app), "last month (closed)", app) else { return }
         pause(0.5)
         capture("calendar-closed-month", app)
         if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu on a closed month", app) {
@@ -1300,7 +1304,7 @@ final class ScreenAtlasTests: XCTestCase {
             capture("calendar-reopen-confirm", app)
             tap(app.buttons.matching(identifier: "calendar-reopen-confirm").firstMatch, "Reopen", app)
         }
-        tap(app.buttons.matching(identifier: "calendar-next").firstMatch, "back to this month", app)
+        tap(calendarButton("calendar-next", app), "back to this month", app)
     }
 
     /// The countries, a country's regions, and a set before it is added.

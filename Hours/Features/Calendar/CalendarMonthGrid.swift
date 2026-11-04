@@ -7,15 +7,15 @@ import SwiftUI
 /// days still to come with nothing on them without a tile, the date in the
 /// tertiary colour. Today's tile is filled with the accent.
 ///
+/// The first and last rows show the neighbouring months' days too, by the
+/// same rules but faded, so a row's week total sits beside the days it
+/// counts; a tap on one opens it like any other day. A row with no tile at
+/// all (the empty end of a month) is drawn shorter.
+///
 /// An eighth column on the right holds each row's week total: the whole
-/// calendar week's hours worked and credited (`CalendarWeekTotals`), even
-/// where the row runs into the month before or after. A tap on a day opens
-/// it.
+/// calendar week's hours worked and credited (`CalendarWeekTotals`), in the
+/// app's duration format, as This week. A tap on a day opens it.
 struct CalendarMonthGrid: View {
-    // Grows with the user's text size. Not `private`: a private stored
-    // property makes the memberwise initializer private too.
-    @ScaledMetric(relativeTo: .subheadline) var totalWidth: CGFloat = 46
-
     let layout: MonthLayout
     let computations: [Int: DayComputation]
     /// One per row of the layout, in minutes; empty hides the column.
@@ -26,7 +26,79 @@ struct CalendarMonthGrid: View {
     let durationFormatting: DurationFormatting
     let onSelect: (CalendarDate) -> Void
 
-    static let gap: CGFloat = 4
+    var body: some View {
+        CalendarTileGrid(
+            layout: layout,
+            formatting: formatting,
+            weekTotals: weekTotals,
+            durationFormatting: durationFormatting,
+            totalIdentifier: "calendar-week-total-",
+            shortRows: CalendarWeekTotals.shortRows(of: layout, computations: computations, today: today)
+        ) { date, height in
+            Button {
+                onSelect(date)
+            } label: {
+                DayTile(
+                    date: date,
+                    computation: computations[date.key],
+                    today: today,
+                    detail: detail,
+                    durationFormatting: durationFormatting,
+                    isOutsideMonth: !layout.isInMonth(date),
+                    height: height
+                )
+            }
+            .buttonStyle(.plain)
+            // The label is a spoken sentence and will be translated; a test
+            // that matched on it would break on a rewording. The date does
+            // not change.
+            .accessibilityIdentifier("day-\(date.key)")
+            .tourTarget(date == today ? .calendarToday : nil)
+        }
+    }
+}
+
+/// The month grid of tiles both the Today tab and a site's page draw: the
+/// weekday letters, the layout's days a week to a row, and an eighth column
+/// with each row's week total in the app's duration format. A row with no
+/// tile in it is drawn shorter (`shortRows`). What a day looks like and
+/// what a tap on it does is the caller's `cell`, given the row's height.
+struct CalendarTileGrid<Cell: View>: View {
+    // Grows with the user's text size, and fits "44h 18m".
+    @ScaledMetric(relativeTo: .footnote) var totalWidth: CGFloat = 58
+
+    let layout: MonthLayout
+    let formatting: CalendarFormatting
+    /// One per row of the layout, in minutes; empty hides the column.
+    let weekTotals: [Int]
+    let durationFormatting: DurationFormatting
+    /// Each total's identifier is this and its row: "calendar-week-total-0".
+    let totalIdentifier: String
+    /// One per row: whether it has no tile at all.
+    let shortRows: [Bool]
+    let cell: (CalendarDate, CGFloat) -> Cell
+
+    static var gap: CGFloat { 4 }
+    /// A row with no tile in it, against `Metrics.dayCellHeight`.
+    static var shortRowHeight: CGFloat { 40 }
+
+    init(
+        layout: MonthLayout,
+        formatting: CalendarFormatting,
+        weekTotals: [Int],
+        durationFormatting: DurationFormatting,
+        totalIdentifier: String,
+        shortRows: [Bool],
+        @ViewBuilder cell: @escaping (CalendarDate, CGFloat) -> Cell
+    ) {
+        self.layout = layout
+        self.formatting = formatting
+        self.weekTotals = weekTotals
+        self.durationFormatting = durationFormatting
+        self.totalIdentifier = totalIdentifier
+        self.shortRows = shortRows
+        self.cell = cell
+    }
 
     var body: some View {
         VStack(spacing: Self.gap) {
@@ -52,11 +124,11 @@ struct CalendarMonthGrid: View {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, week in
                 HStack(spacing: Self.gap) {
                     ForEach(week, id: \.key) { date in
-                        cell(date)
+                        cell(date, rowHeight(index))
                             .frame(maxWidth: .infinity)
                     }
                     if showsTotals {
-                        total(row: index, week: week)
+                        total(row: index)
                     }
                 }
             }
@@ -67,52 +139,105 @@ struct CalendarMonthGrid: View {
 
     private var rows: [[CalendarDate]] { CalendarWeekTotals.rows(of: layout) }
 
+    private func rowHeight(_ index: Int) -> CGFloat {
+        index < shortRows.count && shortRows[index] ? Self.shortRowHeight : Metrics.dayCellHeight
+    }
+
+    /// The row's week total, right-aligned, in the app's duration format
+    /// ("44h 18m", "44:18"). A week with nothing in it shows nothing; the
+    /// column stays so the grid keeps its shape.
     @ViewBuilder
-    private func cell(_ date: CalendarDate) -> some View {
-        if layout.isInMonth(date) {
-            Button {
-                onSelect(date)
-            } label: {
-                DayTile(
-                    date: date,
-                    computation: computations[date.key],
-                    today: today,
-                    detail: detail,
-                    durationFormatting: durationFormatting
-                )
-            }
-            .buttonStyle(.plain)
-            // The label is a spoken sentence and will be translated; a test
-            // that matched on it would break on a rewording. The date does
-            // not change.
-            .accessibilityIdentifier("day-\(date.key)")
-            .tourTarget(date == today ? .calendarToday : nil)
+    private func total(row index: Int) -> some View {
+        let minutes = index < weekTotals.count ? weekTotals[index] : 0
+        if let text = CalendarWeekTotals.label(minutes, formatting: durationFormatting) {
+            Text(verbatim: text)
+                .font(.footnote.weight(.semibold).monospacedDigit())
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .frame(width: totalWidth, alignment: .trailing)
+                .accessibilityLabel(Text("Sum of the week"))
+                .accessibilityValue(Text(verbatim: DurationFormatting(style: .hoursAndMinutes).string(minutes)))
+                .accessibilityIdentifier("\(totalIdentifier)\(index)")
         } else {
-            // A neighbouring month's day is not shown, as in Calendar.
             Color.clear
-                .frame(height: 1)
+                .frame(width: totalWidth, height: 1)
                 .accessibilityHidden(true)
         }
     }
+}
 
-    /// The row's week total, right-aligned: "40h". A week still to come
-    /// with nothing in it shows nothing rather than "0h".
-    private func total(row index: Int, week: [CalendarDate]) -> some View {
-        let minutes = index < weekTotals.count ? weekTotals[index] : 0
-        let isAhead = (week.first.map { $0 > today }) ?? false
-        let text = minutes > 0
-            ? DurationFormatting.compactHours(minutes, decimalSeparator: Locale.current.decimalSeparator ?? ".")
-            : (isAhead ? "" : "0h")
-        return Text(verbatim: text)
-            .font(.subheadline.weight(.semibold))
-            .monospacedDigit()
-            .foregroundStyle(.primary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.6)
-            .frame(width: totalWidth, alignment: .trailing)
-            .accessibilityLabel(Text("Sum of the week"))
-            .accessibilityValue(Text(verbatim: DurationFormatting(style: .hoursAndMinutes).string(minutes)))
-            .accessibilityIdentifier("calendar-week-total-\(index)")
+/// One tile of `CalendarTileGrid`, as drawn: the date (in the week, its
+/// weekday letter above), a small figure, word or dot under it, on a
+/// rounded fill or none. A neighbouring month's day is faded to about 40%
+/// and its date is not bold. Shared by the Today tab's days (`DayTile`)
+/// and a site's (`SiteDayTile`), so the two months cannot drift apart.
+struct CalendarTileFace<Under: View>: View {
+    @ScaledMetric(relativeTo: .body) var height: CGFloat = Metrics.dayCellHeight
+    @ScaledMetric(relativeTo: .caption2) var underHeight: CGFloat = 13
+
+    let day: Int
+    let weekday: String?
+    let isToday: Bool
+    let fill: Color?
+    let numberColor: Color
+    let isBold: Bool
+    let isOutsideMonth: Bool
+    let accessibilityLabel: String
+    let under: Under
+
+    init(
+        day: Int,
+        weekday: String? = nil,
+        isToday: Bool,
+        fill: Color?,
+        numberColor: Color,
+        isBold: Bool,
+        isOutsideMonth: Bool = false,
+        height: CGFloat = Metrics.dayCellHeight,
+        accessibilityLabel: String,
+        @ViewBuilder under: () -> Under
+    ) {
+        self.day = day
+        self.weekday = weekday
+        self.isToday = isToday
+        self.fill = fill
+        self.numberColor = numberColor
+        self.isBold = isBold
+        self.isOutsideMonth = isOutsideMonth
+        self.accessibilityLabel = accessibilityLabel
+        self.under = under()
+        self._height = ScaledMetric(wrappedValue: height, relativeTo: .body)
+    }
+
+    var body: some View {
+        VStack(spacing: 2) {
+            if let weekday {
+                Text(verbatim: weekday)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(isToday ? Color.white : Color.secondary)
+            }
+            Text(verbatim: "\(day)")
+                .font(isBold && !isOutsideMonth ? Font.body.weight(.semibold) : Font.body)
+                .monospacedDigit()
+                .foregroundStyle(numberColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            under
+                .frame(height: underHeight)
+        }
+        .frame(maxWidth: .infinity, minHeight: height)
+        .background {
+            if let fill {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(fill)
+            }
+        }
+        .opacity(isOutsideMonth ? 0.4 : 1)
+        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -158,93 +283,47 @@ struct CalendarWeekTiles: View {
 /// the hours, a short word for a day away, or a red dot for a working day
 /// nobody wrote. In the week, the weekday letter above.
 struct DayTile: View {
-    @ScaledMetric(relativeTo: .body) var height: CGFloat = Metrics.dayCellHeight
-    @ScaledMetric(relativeTo: .caption2) var underHeight: CGFloat = 13
-
     let date: CalendarDate
     let computation: DayComputation?
     let today: CalendarDate
     let detail: DayCellDetail
     let durationFormatting: DurationFormatting
     /// The week's tiles: the weekday's letter above the date.
-    let weekday: String?
-
-    init(
-        date: CalendarDate,
-        computation: DayComputation?,
-        today: CalendarDate,
-        detail: DayCellDetail,
-        durationFormatting: DurationFormatting,
-        weekday: String? = nil,
-        height: CGFloat = Metrics.dayCellHeight
-    ) {
-        self.date = date
-        self.computation = computation
-        self.today = today
-        self.detail = detail
-        self.durationFormatting = durationFormatting
-        self.weekday = weekday
-        self._height = ScaledMetric(wrappedValue: height, relativeTo: .body)
-    }
+    var weekday: String? = nil
+    /// A neighbouring month's day in a month's first or last row: the
+    /// same tile, faded, and the date not bold.
+    var isOutsideMonth = false
+    /// Before the user's text size; `CalendarTileFace` scales it.
+    var height: CGFloat = Metrics.dayCellHeight
 
     /// What the day is, which decides its tile and what is under the date.
-    enum Look: Equatable {
-        case written, missing, away, holiday, dayOff, plain
-    }
+    typealias Look = CalendarDayLook
 
     private var isToday: Bool { date == today }
 
     var body: some View {
         let look = self.look
-        VStack(spacing: 2) {
-            if let weekday {
-                Text(verbatim: weekday)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(isToday ? Color.white : Color.secondary)
-            }
-            Text(verbatim: "\(date.day)")
-                .font(hasTile(look) ? Font.body.weight(.semibold) : Font.body)
-                .monospacedDigit()
-                .foregroundStyle(numberColor(look))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+        CalendarTileFace(
+            day: date.day,
+            weekday: weekday,
+            isToday: isToday,
+            fill: fill(look),
+            numberColor: numberColor(look),
+            isBold: hasTile(look),
+            isOutsideMonth: isOutsideMonth,
+            height: height,
+            accessibilityLabel: accessibilityLabel(look)
+        ) {
             under(look)
-                .frame(height: underHeight)
         }
-        .frame(maxWidth: .infinity, minHeight: height)
-        .background {
-            if let fill = fill(look) {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(fill)
-            }
-        }
-        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel(look))
-        .accessibilityAddTraits(.isButton)
     }
 
     // MARK: - The look
 
-    var look: Look {
-        guard let computation else { return .plain }
-        if computation.isUnrecordedWorkingDay(asOf: today) { return .missing }
-        if computation.dayType.id == .holiday {
-            return computation.workedMinutes > 0 ? .written : .holiday
-        }
-        switch DayKind.of(computation.dayType) {
-        case .away:
-            return computation.workedMinutes > 0 ? .written : .away
-        case .dayOff:
-            return computation.workedMinutes > 0 ? .written : .dayOff
-        case .worked:
-            if computation.dayType.expectation == .zero && computation.workedMinutes == 0 { return .dayOff }
-            return computation.hasEntry || computation.workedMinutes > 0 ? .written : .plain
-        }
-    }
+    var look: Look { CalendarDayLook.of(computation, today: today) }
 
     private func hasTile(_ look: Look) -> Bool {
-        isToday || fill(look) != nil
+        isToday || look.hasTile
     }
 
     /// The day type's own colour, for a day away or a public holiday.

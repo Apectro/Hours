@@ -84,7 +84,7 @@ final class WalkthroughTests: XCTestCase {
         print("WALKTHROUGH_READY \(Date().timeIntervalSince1970)")
         pause(2)
 
-        // The week, from Month | Week in the navigation bar, and back to
+        // The week, from Month | Week under the title, and back to
         // the month.
         let mode = app.segmentedControls.matching(identifier: "calendar-mode").firstMatch
         if reached("week", mode, timeout: 5), mode.buttons.count > 1 {

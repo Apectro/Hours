@@ -61,7 +61,11 @@ final class PaywallTests: XCTestCase {
         openSettings(app)
         app.staticTexts["Unlock Zeitkonto Pro"].tap()
 
-        XCTAssertTrue(app.staticTexts["Free, whatever you decide"].waitForExistence(timeout: 5))
+        // The paywall is a list: its "stays free" part is further down.
+        let free = app.staticTexts["Free, whatever you decide"]
+        XCTAssertTrue(app.buttons.firstMatch.waitForExistence(timeout: 5))
+        for _ in 0..<4 where !free.exists { app.swipeUp() }
+        XCTAssertTrue(free.waitForExistence(timeout: 5))
         for line in [
             "Recording and editing your hours",
             "The calendar, the balance and every total",

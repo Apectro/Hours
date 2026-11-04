@@ -147,6 +147,34 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(app.screen("site-day-not-written").waitForExistence(timeout: 5), "cancelling writes nothing")
     }
 
+    /// The site's month in the Today tab's tiles: yesterday, written by the
+    /// sample site, has its tile and its row the crew's week total; the
+    /// tile opens that day on the site.
+    func testTheSitesMonthHasTilesAndAWeekTotal() throws {
+        let calendar = Calendar.current
+        // On the 1st, yesterday can fall before the grid's first row.
+        if calendar.component(.day, from: Date()) == 1 { throw XCTSkip("yesterday may not be drawn on the 1st") }
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let parts = calendar.dateComponents([.year, .month, .day], from: yesterday)
+        let key = (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0)
+
+        let app = launch()
+        XCTAssertTrue(app.tab(.sites).waitForExistence(timeout: 10))
+        app.tab(.sites).tap()
+        let card = app.buttons["site-card"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "the seeded site has no card")
+        card.tap()
+        XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 5), "the site's page did not open")
+
+        let tile = app.buttons["site-overview-day-\(key)"].firstMatch
+        XCTAssertTrue(tile.waitForExistence(timeout: 5), "yesterday has no tile in the site's month")
+        let total = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'site-week-total-'")).firstMatch
+        XCTAssertTrue(total.exists, "a week with a written day has no crew total")
+
+        tile.tap()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the tile did not open its day")
+    }
+
     // MARK: - Why someone was not here
 
     /// Ivan off sick: Away on his row gives him a reason, his row says so,

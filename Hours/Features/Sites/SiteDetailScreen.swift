@@ -157,6 +157,13 @@ struct SiteDetailScreen: View {
         CalendarDate.today(in: settingsStore.workCalendar)
     }
 
+    /// The shown month as tiles, the neighbouring months' days in its
+    /// first and last rows. A site's work can fall on a weekend, so the
+    /// weekends are always there.
+    private var monthLayout: MonthLayout {
+        MonthLayout.make(month: month, calendar: settingsStore.workCalendar, includesWeekends: true)
+    }
+
     private var month: YearMonth {
         shownMonth ?? today.yearMonth
     }
@@ -237,20 +244,24 @@ struct SiteDetailScreen: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
                     .listRowBackground(Color.clear)
 
+                // The same margins as the Today tab's header and month.
                 monthHeader
-                    .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.small))
+                    .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.medium, bottom: Metrics.small, trailing: Metrics.medium))
                     .listRowBackground(Color.clear)
 
-                // The month sits on the background, not in a card.
+                // The month sits on the background, not in a card, in the
+                // Today tab's tiles.
                 SiteMonthCalendar(
-                    month: month,
+                    layout: monthLayout,
                     statuses: counts.statuses,
+                    people: counts.people,
+                    weekTotals: counts.weekMinutes,
                     today: today,
-                    calendar: settingsStore.workCalendar,
                     formatting: settingsStore.dateFormatting,
+                    durationFormatting: settingsStore.settings.displayFormatting,
                     onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
                 )
-                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.small, bottom: 0, trailing: Metrics.small))
+                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.medium, bottom: 0, trailing: Metrics.medium))
                 .listRowBackground(Color.clear)
             }
             .listRowSeparator(.hidden)
@@ -543,29 +554,33 @@ struct SiteDetailScreen: View {
             return
         }
 
-        // The shown month with the look-back its first days are judged by,
-        // on every site: someone another site had that day is not missing.
-        let range = month.range(in: calendar)
-        let lookBack = CalendarDateRange(
-            start: range.start.adding(days: -SiteWorkDays.lookBackDays, in: calendar),
-            end: range.end
-        )
+        // Every day the grid draws (the neighbouring months' too, and their
+        // rows' whole weeks), with the look-back each month's first days are
+        // judged by, on every site: someone another site had that day is
+        // not missing.
+        let layout = monthLayout
+        let lookBack = SiteCalendarGrid.fetchRange(of: layout, calendar: calendar)
         let allDays = repository.siteDays(siteID: nil, in: lookBack)
         let members = repository.sites(includeArchived: true).flatMap { repository.crew(for: $0.id, includeHidden: true) }
-        loaded.statuses = SiteMonthStatuses.statuses(
+        loaded.statuses = SiteCalendarGrid.statuses(
+            layout: layout,
             siteID: siteID,
-            month: month,
             siteDays: allDays,
             members: members,
-            settings: settings,
-            calendar: calendar,
+            setup: settings.siteSetup(for: siteID),
             today: today,
+            calendar: calendar,
             holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
         )
-        loaded.missing = SiteDayStatus.missingCount(in: loaded.statuses)
+        loaded.people = SiteCalendarGrid.people(siteID: siteID, siteDays: allDays)
+        // "N days not written" stays the shown month's own.
+        loaded.missing = SiteDayStatus.missingCount(in: loaded.statuses.filter { month.contains($0.key) })
         loaded.writtenToday = repository.siteDay(siteID: siteID, on: today) != nil
 
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        loaded.weekMinutes = SiteCalendarGrid.weekMinutes(
+            of: layout, siteID: siteID, siteDays: allDays, calculator: calculator, calendar: calendar
+        )
         loaded.figures = SiteMonthFigures(
             days: allDays.filter { $0.siteID == siteID },
             month: month,
@@ -594,8 +609,12 @@ private struct SiteCounts {
     var openExtraWork = 0
     /// Items on the site's Missing list still needed.
     var missingNeeded = 0
-    /// The shown month, day by day.
+    /// Every day the month's grid draws, by status.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
+    /// People present on each of the site's days the grid draws.
+    var people: [CalendarDate: Int] = [:]
+    /// The crew's minutes on the site in each row's week.
+    var weekMinutes: [Int] = []
     var missing = 0
     var writtenToday = false
     var signOff = SiteMonthOverview.SignOffProgress.notYet

@@ -120,6 +120,9 @@ final class ClearerAppTests: XCTestCase {
         XCTAssertTrue(app.tapSiteRow("site-extra-work-report"), "the site has no Extra work row")
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
+        // The report's sheet has to be gone before the site's menu is opened.
+        let reportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-extra-work-report"))
+        wait(for: [reportGone], timeout: 10)
 
         // And the gear, the site's settings, with its usual day.
         app.openSiteSettings()

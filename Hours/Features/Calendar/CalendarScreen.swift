@@ -3,9 +3,11 @@ import SwiftData
 
 /// The Today tab (design v2, mockup Main, "the month first").
 ///
-/// One inset-grouped list under a large title, the month and year: the
-/// month grid on the background (‹ › in the toolbar, or a sideways swipe,
-/// change the month; Today goes back), then Today (`TodaySection`): today's
+/// One inset-grouped list. At its top, on the background, the period's
+/// title ("November 2026") with ‹ › beside it and Month | Week under it;
+/// then the month grid (‹ ›, or a sideways swipe, change the month; Today
+/// in the toolbar, while today is not on screen, goes back), then Today
+/// (`TodaySection`): today's
 /// row, the week and the balance, the site days to write and the day's big
 /// buttons; then the notices, the month's totals, Edit a range and Export.
 /// A tap on a date opens that day as a sheet (`CalendarDaySheet`); Edit
@@ -59,6 +61,7 @@ struct CalendarScreen: View {
         NavigationStack(path: $path) {
             ScrollViewReader { scroller in
                 List {
+                    header
                     PeriodDataProvider(range: fetchedRange) { data in
                         CalendarPeriodView(
                             layout: layout,
@@ -115,8 +118,11 @@ struct CalendarScreen: View {
                 .listStyle(.insetGrouped)
                 .listSectionSpacing(.compact)
                 .animation(.snappy(duration: 0.25), value: clockStore.running)
+                // The title is the list's own header, so the bar does not
+                // repeat it; it is still the screen's name for VoiceOver and
+                // the back button of a pushed screen.
                 .navigationTitle(periodTitle)
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbar }
                 // The tour's stops on the calendar: what they point at has to be
                 // on screen.
@@ -177,44 +183,79 @@ struct CalendarScreen: View {
         .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
     }
 
-    /// Month | Week on the left; ‹ Today › and the ⋯ menu on the right.
+    /// Today on the left while today is not on screen (hidden, not
+    /// disabled, when it is); the ⋯ menu on the right. The bar's title is
+    /// left empty: the header at the top of the list says it.
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityHidden(true)
+        }
         ToolbarItem(placement: .topBarLeading) {
-            Picker("View", selection: Binding(get: { scope }, set: setScope)) {
-                ForEach(CalendarScope.allCases) { option in
-                    Text(verbatim: option.title).tag(option)
-                }
+            if !summaryRange.contains(today) {
+                Button("Today", action: goToToday)
+                    .accessibilityIdentifier("calendar-today")
             }
-            .pickerStyle(.segmented)
-            .fixedSize()
-            .accessibilityIdentifier("calendar-mode")
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            // Kept beside Today: a sideways swipe pages too, but a swipe is
-            // not something VoiceOver or Switch Control can do.
-            stepButton(-1)
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            // Back to this month and today; nothing to do when already there.
-            Button("Today", action: goToToday)
-                .disabled(summaryRange.contains(today))
-                .accessibilityIdentifier("calendar-today")
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            stepButton(1)
         }
         ToolbarItem(placement: .topBarTrailing) {
             moreMenu
         }
     }
 
+    /// The top of the list, on the background: "November 2026" (or the
+    /// week's dates) in a large title with ‹ › beside it, and Month | Week
+    /// under it, full width.
+    private var header: some View {
+        Section {
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                HStack(alignment: .center, spacing: Metrics.small) {
+                    Text(verbatim: periodTitle)
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .accessibilityAddTraits(.isHeader)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    // Kept beside the title: a sideways swipe pages too, but
+                    // a swipe is not something VoiceOver or Switch Control
+                    // can do.
+                    stepButton(-1)
+                    stepButton(1)
+                }
+                Picker("View", selection: Binding(get: { scope }, set: setScope)) {
+                    ForEach(CalendarScope.allCases) { option in
+                        Text(verbatim: option.title).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityIdentifier("calendar-mode")
+            }
+            // The same side margin as the month under it.
+            .padding(.horizontal, Metrics.medium)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: Metrics.small, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+        }
+    }
+
+    /// A small round ‹ or ›, with a 44 pt target.
     private func stepButton(_ direction: Int) -> some View {
         Button {
             step(direction)
         } label: {
             Image(systemName: direction < 0 ? "chevron.left" : "chevron.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(Color(uiColor: .tertiarySystemFill)))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
         }
+        // Borderless, so each button in the row takes only its own tap.
+        .buttonStyle(.borderless)
         .accessibilityLabel(direction < 0
             ? (scope == .month ? String(localized: "Previous month") : String(localized: "Previous week"))
             : (scope == .month ? String(localized: "Next month") : String(localized: "Next week")))
@@ -651,15 +692,14 @@ private struct CalendarPeriodView<Middle: View>: View {
         }
     }
 
-    /// "This week 33h" under the large title; another week says Total.
+    /// "This week 33h" over the week's tiles; another week says Total. In
+    /// the app's duration format, as the month's totals column.
     private var weekTotalLine: some View {
         let minutes = weekTotals.first ?? 0
         return HStack(spacing: Metrics.tiny) {
             (isThisPeriod ? Text("This week") : Text("Total"))
                 .foregroundStyle(.hoursSecondaryText)
-            Text(verbatim: minutes > 0
-                ? DurationFormatting.compactHours(minutes, decimalSeparator: Locale.current.decimalSeparator ?? ".")
-                : "0h")
+            Text(verbatim: duration.string(minutes))
                 .fontWeight(.semibold)
                 .monospacedDigit()
                 .foregroundStyle(.primary)

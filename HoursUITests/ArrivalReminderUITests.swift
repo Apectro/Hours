@@ -21,10 +21,9 @@ final class ArrivalReminderUITests: XCTestCase {
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
         XCTAssertEqual(toggle.value as? String, "0", "the reminder is off unless turned on")
-        flip(toggle)
-
         // The explanation comes before anything is asked of iOS.
         let explanation = app.staticTexts["site-arrival-explanation"].firstMatch
+        flip(toggle, shows: explanation)
         XCTAssertTrue(explanation.waitForExistence(timeout: 5), "turning the reminder on should explain it first")
         let proceed = app.buttons["site-arrival-continue"].firstMatch
         XCTAssertTrue(proceed.exists, "the explanation should offer Continue")
@@ -69,8 +68,8 @@ final class ArrivalReminderUITests: XCTestCase {
 
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
-        flip(toggle)
         let proceed = app.buttons["site-arrival-continue"].firstMatch
+        flip(toggle, shows: proceed)
         XCTAssertTrue(proceed.waitForExistence(timeout: 5), "turning the reminder on should explain it first")
         proceed.tap()
 
@@ -88,8 +87,8 @@ final class ArrivalReminderUITests: XCTestCase {
 
         let toggle = app.switches["site-editor-arrival"].firstMatch
         scroll(to: toggle, in: app)
-        flip(toggle)
         let cancel = app.buttons["site-arrival-cancel"].firstMatch
+        flip(toggle, shows: cancel)
         XCTAssertTrue(cancel.waitForExistence(timeout: 5))
         cancel.tap()
         XCTAssertEqual(app.switches["site-editor-arrival"].firstMatch.value as? String, "0")
@@ -122,12 +121,21 @@ final class ArrivalReminderUITests: XCTestCase {
 
     /// A Form switch: its own knob when it can be hit, else the trailing
     /// edge of the row where the knob is drawn.
-    private func flip(_ toggle: XCUIElement) {
+    /// - Parameter shows: what the flip brings up instead of changing the
+    ///   switch at once (the explanation before turning the reminder on).
+    private func flip(_ toggle: XCUIElement, shows: XCUIElement? = nil) {
         XCTAssertTrue(toggle.waitForExistence(timeout: 5), "\(toggle) is missing")
+        let before = toggle.value as? String
         let inner = toggle.switches.firstMatch
         if inner.exists, inner.isHittable {
             inner.tap()
         } else {
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        }
+        // A tap on a Form switch is now and then not taken: once more on
+        // the knob itself when nothing happened.
+        let changed = shows?.waitForExistence(timeout: 2) ?? false
+        if !changed, toggle.exists, toggle.value as? String == before {
             toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
     }

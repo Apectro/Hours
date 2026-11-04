@@ -27,116 +27,132 @@ extension SiteDayStatus {
     }
 }
 
-/// A site's month on its own page, in the one calendar look of the app: no
-/// boxes, the weekday letters, a hairline between weeks, each date in a
-/// circle (today filled in the accent, days off in the tertiary colour) and
-/// a small dot under it for how the day stands (`SiteDayStatus.dot`). Days
-/// of other months are not shown. A day opens that day on the site.
+/// A site's month on its own page, in the Today tab's look
+/// (`CalendarTileGrid`): a written day on an accent tile with "• 5" under
+/// the date, the people on it (you included when listed), orange while
+/// someone on the crew is neither ticked nor given a reason; a work day
+/// before today nobody wrote on a tile with a red dot; days off and days
+/// still to come without a tile, the date in the tertiary colour; today's
+/// tile filled. The first and last rows show the neighbouring months' days,
+/// faded. The eighth column is the crew's hours on the site in each row's
+/// whole week. A day opens that day on the site.
 struct SiteMonthCalendar: View {
-    let month: YearMonth
+    let layout: MonthLayout
+    /// Every drawn day (`SiteCalendarGrid.statuses`).
     let statuses: [CalendarDate: SiteDayStatus]
+    /// People present on each written day (`SiteCalendarGrid.people`).
+    let people: [CalendarDate: Int]
+    /// One per row, in minutes (`SiteCalendarGrid.weekMinutes`).
+    let weekTotals: [Int]
     let today: CalendarDate
-    let calendar: Calendar
     let formatting: CalendarFormatting
+    let durationFormatting: DurationFormatting
     /// Opens a day on the site. Buttons rather than links: the month is one
     /// row of a List, where links would make the whole row one.
     let onSelect: (CalendarDate) -> Void
 
-    /// The month in weeks, nil where a week runs into another month.
-    private var weeks: [[CalendarDate?]] {
-        let days = month.range(in: calendar).days(in: calendar)
-        guard let first = days.first else { return [] }
-        let order = formatting.orderedWeekdayNumbers
-        let lead = order.firstIndex(of: first.weekday(in: calendar)) ?? 0
-        var cells: [CalendarDate?] = Array(repeating: nil, count: lead) + days.map { Optional($0) }
-        while cells.count % 7 != 0 { cells.append(nil) }
-        return stride(from: 0, to: cells.count, by: 7).map { Array(cells[$0..<($0 + 7)]) }
-    }
-
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                ForEach(formatting.orderedWeekdayNumbers, id: \.self) { weekday in
-                    Text(verbatim: formatting.veryShortWeekdaySymbol(for: weekday))
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.hoursSecondaryText)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityHidden(true)
-                }
+        CalendarTileGrid(
+            layout: layout,
+            formatting: formatting,
+            weekTotals: weekTotals,
+            durationFormatting: durationFormatting,
+            totalIdentifier: "site-week-total-",
+            shortRows: SiteCalendarGrid.shortRows(of: layout, statuses: statuses, today: today)
+        ) { date, height in
+            Button {
+                onSelect(date)
+            } label: {
+                SiteDayTile(
+                    date: date,
+                    status: statuses[date] ?? .dayOff,
+                    people: people[date] ?? 0,
+                    isToday: date == today,
+                    isOutsideMonth: !layout.isInMonth(date),
+                    height: height
+                )
             }
-            .padding(.bottom, Metrics.tiny)
-
-            ForEach(Array(weeks.enumerated()), id: \.offset) { _, week in
-                Divider()
-                HStack(spacing: 0) {
-                    ForEach(Array(week.enumerated()), id: \.offset) { _, date in
-                        if let date {
-                            Button {
-                                onSelect(date)
-                            } label: {
-                                SiteMonthDayCell(
-                                    date: date,
-                                    status: statuses[date] ?? .dayOff,
-                                    isToday: date == today
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .frame(maxWidth: .infinity)
-                            .accessibilityIdentifier("site-overview-day-\(date.key)")
-                        } else {
-                            Color.clear
-                                .frame(maxWidth: .infinity, minHeight: 1)
-                                .accessibilityHidden(true)
-                        }
-                    }
-                }
-            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("site-overview-day-\(date.key)")
         }
     }
 }
 
-/// One day of `SiteMonthCalendar`: the date in a circle, a dot under it.
-private struct SiteMonthDayCell: View {
+/// One day of `SiteMonthCalendar`, on the Today tab's tile
+/// (`CalendarTileFace`).
+private struct SiteDayTile: View {
     let date: CalendarDate
     let status: SiteDayStatus
+    let people: Int
     let isToday: Bool
+    let isOutsideMonth: Bool
+    let height: CGFloat
 
-    @ScaledMetric(relativeTo: .body) private var circle: CGFloat = 32
-    @ScaledMetric(relativeTo: .body) private var dotSize: CGFloat = 6
+    @ScaledMetric(relativeTo: .caption2) private var dotSize: CGFloat = 6
 
     var body: some View {
-        VStack(spacing: 3) {
-            Text(verbatim: "\(date.day)")
-                .font(.body.weight(isToday ? .semibold : .regular))
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .foregroundStyle(numberColor)
-                .frame(width: circle, height: circle)
-                .background {
-                    if isToday {
-                        Circle().fill(Color.accentColor)
-                    }
-                }
-            Circle()
-                .fill(status.dot ?? .clear)
-                .frame(width: dotSize, height: dotSize)
+        CalendarTileFace(
+            day: date.day,
+            isToday: isToday,
+            fill: fill,
+            numberColor: numberColor,
+            isBold: isToday || hasTile,
+            isOutsideMonth: isOutsideMonth,
+            height: height,
+            accessibilityLabel: accessibilityLabel
+        ) {
+            under
         }
-        .padding(.vertical, Metrics.tiny)
-        .frame(maxWidth: .infinity, minHeight: 44)
-        .contentShape(Rectangle())
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel)
-        .accessibilityAddTraits(.isButton)
+    }
+
+    private var hasTile: Bool { SiteCalendarGrid.hasTile(status) }
+
+    private var fill: Color? {
+        if isToday { return .accentColor }
+        return hasTile ? Color.accentColor.opacity(0.14) : nil
     }
 
     private var numberColor: Color {
         if isToday { return .white }
-        return status == .dayOff ? Color(uiColor: .tertiaryLabel) : .primary
+        return hasTile ? .primary : Color(uiColor: .tertiaryLabel)
+    }
+
+    /// "• 5" on a written day, orange while partly written; a red dot on a
+    /// day nobody wrote; nothing on a day off or a day to come.
+    @ViewBuilder
+    private var under: some View {
+        switch status {
+        case .written, .partly:
+            if people > 0 {
+                Text(verbatim: "• \(people)")
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(peopleColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                Color.clear
+            }
+        case .missing where !isToday:
+            Circle()
+                .fill(Color.hoursMissingFill)
+                .frame(width: dotSize, height: dotSize)
+                .accessibilityHidden(true)
+        default:
+            Color.clear
+        }
+    }
+
+    private var peopleColor: Color {
+        if isToday { return .white }
+        return status == .partly ? .hoursAttention : .accentColor
     }
 
     private var accessibilityLabel: String {
         var parts = ["\(date.day)", status.title]
+        if people > 0, status == .written || status == .partly {
+            parts.append(String(inflected: "^[\(people) person](inflect: true)"))
+        }
         if isToday { parts.append(String(localized: "Today")) }
         return parts.joined(separator: ", ")
     }
