@@ -305,6 +305,16 @@ final class ScreenAtlasTests: XCTestCase {
             return
         }
         capture("sites-list", app)
+        // 1.3: a site's swipe (Archive), shown and closed again untouched.
+        let firstCard = app.buttons.matching(identifier: "site-card").firstMatch
+        firstCard.swipeLeft()
+        if app.buttons.matching(identifier: "site-card-swipe-archive").firstMatch.waitForExistence(timeout: 3) {
+            capture("sites-list-swipe", app)
+            firstCard.swipeRight()
+            pause(0.5)
+        } else {
+            miss("sites-list-swipe (no Archive on the swipe)")
+        }
 
         newSiteWizardScreens(app)
 

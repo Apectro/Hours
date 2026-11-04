@@ -22,6 +22,9 @@ struct CalendarScreen: View {
     @State private var activeSheet: ActiveSheet?
     /// Reopening a closed month is deliberate, so it is asked once more.
     @State private var monthToReopen: YearMonth?
+    /// The day a swipe on the week's list asked to clear, while the
+    /// question is asked (1.3).
+    @State private var dayToClear: CalendarDate?
     /// Only whether there are any, for the one-time public holidays card.
     @Query private var holidayRecords: [HolidayRecord]
     /// A site's day and the site's crew, pushed by value.
@@ -87,7 +90,8 @@ struct CalendarScreen: View {
                                 activeSheet = .bulkEdit(CalendarDateRange(single: start))
                             },
                             onExport: { activeSheet = .export(summaryRange) },
-                            onReopen: { monthToReopen = $0 }
+                            onReopen: { monthToReopen = $0 },
+                            onClear: { dayToClear = $0 }
                         ) {
                             TodaySection(
                                 today: today,
@@ -181,6 +185,19 @@ struct CalendarScreen: View {
         }
         // The site screen's crew, pushed onto this stack by value.
         .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
+        // On the stack rather than the list, which already has Reopen's
+        // question: two dialogs on one view is asking for one not to show.
+        // The editor's own words.
+        .confirmationDialog(
+            "Delete this day? Hours written on a site stay.",
+            isPresented: Binding(get: { dayToClear != nil }, set: { if !$0 { dayToClear = nil } }),
+            titleVisibility: .visible,
+            presenting: dayToClear
+        ) { date in
+            Button("Delete day", role: .destructive) { clearDay(date) }
+                .accessibilityIdentifier("calendar-clear-day-confirm")
+            Button("Cancel", role: .cancel) { dayToClear = nil }
+        }
     }
 
     /// Today on the left while today is not on screen (hidden, not
@@ -491,6 +508,29 @@ struct CalendarScreen: View {
         settingsStore.update { $0.monthLock.lock(month) }
     }
 
+    /// What the editor's "Clear this day" does (`DayClearing`): the site
+    /// hours stay. A closed month refuses, and the swipe is not offered there.
+    private func clearDay(_ date: CalendarDate) {
+        dayToClear = nil
+        let repository = WorkdayRepository(context: modelContext, lock: settings.monthLock)
+        do {
+            switch DayClearing.plan(for: repository.record(on: date)) {
+            case .nothing:
+                return
+            case let .delete(date):
+                try repository.delete(on: date)
+            case let .keep(record):
+                try repository.save(record)
+            }
+        } catch {
+            // Only a closed month refuses; the editor says so and offers to
+            // reopen it.
+            activeSheet = .editor(date)
+            return
+        }
+        HoursStack.refreshWidget()
+    }
+
     private func reopen(_ month: YearMonth) {
         settingsStore.update { $0.monthLock.unlock(month) }
         monthToReopen = nil
@@ -573,6 +613,7 @@ private struct CalendarPeriodView<Middle: View>: View {
     let onEditRange: () -> Void
     let onExport: () -> Void
     let onReopen: (YearMonth) -> Void
+    let onClear: (CalendarDate) -> Void
     let middle: Middle
 
     private let computationsByKey: [Int: DayComputation]
@@ -611,6 +652,7 @@ private struct CalendarPeriodView<Middle: View>: View {
         onEditRange: @escaping () -> Void,
         onExport: @escaping () -> Void,
         onReopen: @escaping (YearMonth) -> Void,
+        onClear: @escaping (CalendarDate) -> Void,
         @ViewBuilder middle: () -> Middle
     ) {
         self.layout = layout
@@ -628,6 +670,7 @@ private struct CalendarPeriodView<Middle: View>: View {
         self.onEditRange = onEditRange
         self.onExport = onExport
         self.onReopen = onReopen
+        self.onClear = onClear
         self.middle = middle()
 
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
@@ -739,7 +782,11 @@ private struct CalendarPeriodView<Middle: View>: View {
                 formatting: formatting,
                 siteNames: siteNames,
                 onSelect: onSelect,
-                onWrite: onFix
+                onWrite: onFix,
+                // Something of yours on it, and the month open: no swipe
+                // clears a closed month's day.
+                canClear: { $0.hasEntry && !settings.monthLock.isLocked($0.date) },
+                onClear: onClear
             )
         }
 
@@ -829,11 +876,42 @@ private struct WeekDayList: View {
     let siteNames: [UUID: String]
     let onSelect: (CalendarDate) -> Void
     let onWrite: (CalendarDate) -> Void
+    let canClear: (DayComputation) -> Bool
+    /// Asks before clearing; the calendar does the clearing.
+    let onClear: (CalendarDate) -> Void
 
     var body: some View {
         Section {
             ForEach(rows) { row in
                 rowView(row)
+                    // 1.3: Write (or Edit) from the leading edge, Delete from
+                    // the trailing one. The row's own buttons stay.
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            onWrite(row.day.date)
+                        } label: {
+                            if row.status == .written {
+                                Label("Edit", systemImage: "pencil")
+                            } else {
+                                Label("Write", systemImage: "square.and.pencil")
+                            }
+                        }
+                        .tint(.accentColor)
+                        .accessibilityIdentifier("calendar-week-row-\(row.day.date.key)-swipe-write")
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if row.status == .written, canClear(row.day) {
+                            // Red rather than `role: .destructive`, which
+                            // slides the row away before the question is answered.
+                            Button {
+                                onClear(row.day.date)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .tint(.red)
+                            .accessibilityIdentifier("calendar-week-row-\(row.day.date.key)-swipe-delete")
+                        }
+                    }
             }
         }
     }

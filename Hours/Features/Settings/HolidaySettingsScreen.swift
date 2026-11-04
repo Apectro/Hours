@@ -39,6 +39,7 @@ struct HolidaySettingsScreen: View {
                 Section {
                     ForEach(publicRecords) { record in
                         tickRow(record)
+                            .swipeActions(edge: .trailing) { deleteSwipe(record) }
                     }
                     .onDelete { delete(publicRecords, at: $0) }
                 } header: {
@@ -62,6 +63,7 @@ struct HolidaySettingsScreen: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("holidays-row")
+                    .swipeActions(edge: .trailing) { deleteSwipe(record) }
                 }
                 .onDelete { delete(ownRecords, at: $0) }
 
@@ -199,6 +201,18 @@ struct HolidaySettingsScreen: View {
 
     private func newRule() -> HolidayRule {
         HolidayEditor.blankRule(on: CalendarDate.today(in: calendar))
+    }
+
+    /// 1.3: the swipe the rows always had, drawn as Missing's are. A rule
+    /// is added back from the editor or the country's list.
+    private func deleteSwipe(_ record: HolidayRecord) -> some View {
+        Button(role: .destructive) {
+            WorkdayRepository(context: modelContext).deleteHoliday(id: record.identifier)
+            HoursStack.refreshWidget()
+        } label: {
+            Label("Delete", systemImage: "trash")
+        }
+        .accessibilityIdentifier("holidays-row-swipe-delete")
     }
 
     private func delete(_ list: [HolidayRecord], at offsets: IndexSet) {

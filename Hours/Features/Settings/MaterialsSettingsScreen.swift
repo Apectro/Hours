@@ -44,6 +44,17 @@ struct MaterialsSettingsScreen: View {
                     }
                     .tint(.primary)
                     .accessibilityIdentifier("materials-item-\(index)")
+                    // 1.3: the swipe the rows always had, drawn as Missing's
+                    // are. Nothing on a list or a job changes.
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            ExtraWorkRepository(context: modelContext).removeCatalogItem(id: item.id)
+                            reload()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .accessibilityIdentifier("materials-item-\(index)-swipe-delete")
+                    }
                 }
                 .onDelete { offsets in
                     let repository = ExtraWorkRepository(context: modelContext)

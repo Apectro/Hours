@@ -66,11 +66,18 @@ struct SiteSignOffScreen: View {
                     }
                     .foregroundStyle(.primary)
                     .accessibilityIdentifier("sign-off-person-\(person.id.uuidString)")
-                    .swipeActions {
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         if SignOff.latest(for: person.id, in: signatures, month: month) != nil {
-                            Button("Remove signature", role: .destructive) {
+                            // Drawn as Missing's swipes are (1.3). Red rather
+                            // than `role: .destructive`, which slides the row
+                            // away before the question below is answered.
+                            Button {
                                 removing = person
+                            } label: {
+                                Label("Remove signature", systemImage: "trash")
                             }
+                            .tint(.red)
+                            .accessibilityIdentifier("sign-off-swipe-remove-\(person.id.uuidString)")
                         }
                     }
                 }

@@ -29,6 +29,8 @@ struct SiteDefectsScreen: View {
     @State private var shownState: DefectState = .open
     @State private var cover: Cover?
     @State private var sending = false
+    /// The defect a swipe asked to delete, while the question is asked.
+    @State private var deleting: Defect?
 
     private enum Cover: Identifiable {
         case capture
@@ -156,18 +158,36 @@ struct SiteDefectsScreen: View {
                 DefectsSendSheet(site: site, defects: defects, thumbnails: thumbnails)
             }
         }
+        // The viewer's own question: the photos go with the defect.
+        .confirmationDialog(
+            String(localized: "Delete this defect and its photos?"),
+            isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible,
+            presenting: deleting
+        ) { defect in
+            Button("Delete", role: .destructive) {
+                deleting = nil
+                DefectRepository(context: modelContext).remove(id: defect.id)
+                reload()
+            }
+            .accessibilityIdentifier("defects-delete-confirm")
+            Button("Cancel", role: .cancel) { deleting = nil }
+        }
     }
 
     // MARK: - Rows
 
     @ViewBuilder
     private func swipeButtons(for defect: Defect) -> some View {
-        Button(role: .destructive) {
-            DefectRepository(context: modelContext).remove(id: defect.id)
-            reload()
+        // Asked first, as the viewer does: a defect's photos cannot be
+        // taken again. Red rather than `role: .destructive`, which slides
+        // the row away before the question is answered.
+        Button {
+            deleting = defect
         } label: {
             Label("Delete", systemImage: "trash")
         }
+        .tint(.red)
         .accessibilityIdentifier("defects-delete")
         switch defect.state {
         case .open:

@@ -222,6 +222,16 @@ struct ExtraWorkCatalogScreen: View {
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("extra-work-catalog-item")
+                    // 1.3: the swipe the rows always had, drawn as Missing's are.
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            ExtraWorkRepository(context: modelContext).removeCatalogItem(id: item.id)
+                            reload()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .accessibilityIdentifier("extra-work-catalog-item-swipe-delete")
+                    }
                 }
                 .onDelete { offsets in
                     let repository = ExtraWorkRepository(context: modelContext)

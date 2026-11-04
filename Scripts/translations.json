@@ -1208,6 +1208,17 @@
       "Geldt voor het totaal van elke dag, niet voor de tijden die je invult.",
       "Dotyczy sumy każdego dnia, nie godzin, które wpisujesz."
     ],
+    "Archive": [
+      "Archivieren",
+      "Arhiviraj",
+      "Arhiviraj",
+      "Archivia",
+      "Archiver",
+      "Archivar",
+      "Arquivar",
+      "Archiveren",
+      "Archiwizuj"
+    ],
     "At": [
       "Um",
       "U",
@@ -1372,6 +1383,17 @@
       "Dias sem nada registado",
       "Dagen zonder invoer",
       "Dni bez wpisu"
+    ],
+    "Delete this day's diary and its photos? The hours stay.": [
+      "Das Bautagebuch dieses Tages und seine Fotos löschen? Die Stunden bleiben.",
+      "Izbrisati građevinski dnevnik ovog dana i njegove fotografije? Sati ostaju.",
+      "Izbrišem gradbeni dnevnik tega dne in njegove fotografije? Ure ostanejo.",
+      "Eliminare il giornale dei lavori di questo giorno e le sue foto? Le ore restano.",
+      "Supprimer le journal de chantier de ce jour et ses photos ? Les heures restent.",
+      "¿Eliminar el diario de obra de este día y sus fotos? Las horas se quedan.",
+      "Apagar o diário de obra deste dia e as suas fotos? As horas ficam.",
+      "Het bouwdagboek van deze dag en de foto’s verwijderen? De uren blijven.",
+      "Usunąć dziennik budowy z tego dnia i jego zdjęcia? Godziny zostają."
     ],
     "Each site keeps its crew and its usual day. Open one to write the crew's day in one tap.": [
       "Jede Baustelle behält ihre Kolonne und ihren üblichen Tag. Öffne eine, um den Tag der Kolonne mit einem Tipp einzutragen.",
@@ -1944,6 +1966,17 @@
       "Quem está marcado num dia de obra recebe as ajudas de custo. Os quilómetros da carrinha registam-se uma vez por dia de obra. Os valores e limites isentos dependem do teu contrato e do teu país.",
       "Wie op een bouwdag is aangevinkt, krijgt de toelage. De kilometers van het busje worden één keer per bouwdag ingevuld. Bedragen en belastingvrije grenzen hangen af van je contract en je land.",
       "Zaznaczeni w dniu budowy dostają dietę. Kilometry busa wpisuje się raz na dzień budowy. Kwoty i limity zwolnione z podatku zależą od twojej umowy i kraju."
+    ],
+    "Unarchive": [
+      "Zurückholen",
+      "Vrati iz arhive",
+      "Vrni iz arhiva",
+      "Ripristina",
+      "Désarchiver",
+      "Desarchivar",
+      "Desarquivar",
+      "Terugzetten",
+      "Przywróć z archiwum"
     ],
     "Untitled": [
       "Ohne Namen",
