@@ -64,6 +64,12 @@ struct BackupRestorer {
         archive.extraWorkItems = extraWork.items
         // The Missing lists, always written for the same reason.
         archive.missingItems = MissingRepository(context: context).everything()
+        // Defects with their photos, and the deliveries checked (1.3), the
+        // same way.
+        let defects = DefectRepository(context: context).everything()
+        archive.defects = defects.defects
+        archive.defectPhotos = defects.photos
+        archive.deliveries = DeliveryRepository(context: context).everything()
         return archive
     }
 
@@ -109,6 +115,7 @@ struct BackupRestorer {
         restoreDiary(from: archive)
         restoreExtraWork(from: archive)
         restoreMissing(from: archive)
+        restoreDefectsAndDeliveries(from: archive)
 
         rebuildSiteShifts(workdays: workdays, siteRepository: siteRepository)
     }
@@ -169,8 +176,30 @@ struct BackupRestorer {
         ))
     }
 
+    /// Defects, their photos and the deliveries (1.3), by the diary's rule:
+    /// the file's when it has them; from a file older than them, the
+    /// device's are kept for the sites the file restores.
+    private func restoreDefectsAndDeliveries(from archive: BackupArchive) {
+        let restoredSites = archive.sites.map { Set($0.map(\.id)) }
+        let defects = DefectRepository(context: context)
+        let onDevice = defects.everything()
+        defects.replaceEverything(
+            defects: BackupArchive.restoredItems(
+                fromFile: archive.defects, onDevice: onDevice.defects, restoredSiteIDs: restoredSites, siteID: \.siteID
+            ),
+            photos: BackupArchive.restoredItems(
+                fromFile: archive.defectPhotos, onDevice: onDevice.photos, restoredSiteIDs: restoredSites, siteID: \.siteID
+            )
+        )
+        let deliveries = DeliveryRepository(context: context)
+        deliveries.replaceEverything(BackupArchive.restoredItems(
+            fromFile: archive.deliveries, onDevice: deliveries.everything(), restoredSiteIDs: restoredSites, siteID: \.siteID
+        ))
+    }
+
     /// Removes every day, holiday, site, crew member and site day, every
-    /// diary, photo and signature, all extra work and the Missing lists.
+    /// diary, photo and signature, all extra work, the Missing lists, the
+    /// defects and the deliveries.
     ///
     /// Sites go with the days because the calendar's site shifts are made from
     /// them: keeping one without the other would leave the two disagreeing.
@@ -185,6 +214,9 @@ struct BackupRestorer {
         ExtraWorkRepository(context: context).replaceEverything(jobs: [], photos: [], reports: [], items: [])
         // The Missing lists go with their sites.
         MissingRepository(context: context).replaceEverything([])
+        // And their defects and deliveries.
+        DefectRepository(context: context).replaceEverything(defects: [], photos: [])
+        DeliveryRepository(context: context).replaceEverything([])
     }
 
     /// Brings the calendar's site shifts into line with the site days now in

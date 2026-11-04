@@ -407,4 +407,43 @@ final class DefectListTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - Backups
+
+    func testABackupCarriesDefectsTheirPhotosAndDeliveriesAndAnOlderOneHasNone() throws {
+        var archive = BackupArchive(settings: AppSettings(), days: [], holidays: [], sites: [Site(name: "A")])
+        let noted = defect("Socket loose", floor: "Ground")
+        let photo = DefectPhoto(
+            defectID: noted.id, siteID: site, sortOrder: 0,
+            marks: [DefectMark(kind: .arrow, points: [DefectPoint(x: 0.1, y: 0.1), DefectPoint(x: 0.4, y: 0.4)])],
+            takenAt: monday, jpegData: Data([1, 2, 3])
+        )
+        let delivery = Delivery(
+            siteID: site, receivedAt: monday,
+            lines: [DeliveryLine(kind: .arrived, name: "Box", unit: .pieces, came: 6, ordered: 6)],
+            photoData: Data([4]), updatedAt: monday
+        )
+        archive.defects = [noted]
+        archive.defectPhotos = [photo]
+        archive.deliveries = [delivery]
+        var settings = AppSettings()
+        settings.setSiteSetup(SiteSetup(floors: ["Ground", "Roof"], rooms: ["Room 4"], assignsDefects: true), for: site)
+        archive.settings = settings
+
+        let decoded = try BackupArchive.decoded(from: archive.encoded())
+        XCTAssertEqual(decoded.defects, [noted])
+        XCTAssertEqual(decoded.defectPhotos, [photo])
+        XCTAssertEqual(decoded.deliveries, [delivery])
+        XCTAssertEqual(decoded.settings.siteSetup(for: site).floors, ["Ground", "Roof"])
+        XCTAssertEqual(decoded.settings.siteSetup(for: site).rooms, ["Room 4"])
+        XCTAssertTrue(decoded.settings.siteSetup(for: site).assignsDefects)
+
+        let older = BackupArchive(settings: AppSettings(), days: [], holidays: [])
+        let olderDecoded = try BackupArchive.decoded(from: older.encoded())
+        XCTAssertNil(olderDecoded.defects)
+        XCTAssertNil(olderDecoded.defectPhotos)
+        XCTAssertNil(olderDecoded.deliveries)
+        let text = String(decoding: try older.encoded(), as: UTF8.self)
+        XCTAssertFalse(text.contains("defects") || text.contains("deliveries"))
+    }
 }

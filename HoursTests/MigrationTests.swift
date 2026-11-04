@@ -649,6 +649,60 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(MissingRepository(context: context).neededCount(siteID: siteID), 1)
     }
 
+    // MARK: - Defects and deliveries (V10 to V11)
+
+    /// Writes a store as the first 1.3 builds leave one: V10's frozen
+    /// copies, with a site and an ordered Missing item.
+    private func writeVersionTenStore() throws -> (site: UUID, item: UUID) {
+        let schema = Schema(versionedSchema: HoursSchemaV10.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = ModelContext(container)
+        let siteID = UUID()
+        let site = HoursSchemaV10.SiteEntry(siteID: siteID.uuidString)
+        site.name = "Trg Pravde Zagreb"
+        context.insert(site)
+        let itemID = UUID()
+        let item = HoursSchemaV10.MissingItemEntry(itemID: itemID.uuidString)
+        item.siteID = siteID.uuidString
+        item.name = "Junction box IP65"
+        item.quantityText = "6"
+        item.stateRawValue = "ordered"
+        item.orderedAt = Date()
+        context.insert(item)
+        try context.save()
+        return (siteID, itemID)
+    }
+
+    /// A V10 store opens as V11 with its Missing list as it was and no
+    /// defects or deliveries, and then takes both.
+    func testAVersionTenStoreOpensWithNoDefectsAndTakesThem() throws {
+        let written = try writeVersionTenStore()
+
+        let context = ModelContext(try HoursModelContainer.make(at: storeURL))
+        let missing = MissingRepository(context: context).items(siteID: written.site)
+        XCTAssertEqual(missing.map(\.name), ["Junction box IP65"])
+        XCTAssertEqual(missing.first?.state, .ordered)
+
+        let defects = DefectRepository(context: context)
+        XCTAssertTrue(defects.defects(siteID: written.site).isEmpty)
+        let mark = DefectMark(kind: .circle, points: [DefectPoint(x: 0.2, y: 0.2), DefectPoint(x: 0.5, y: 0.5)])
+        let added = try XCTUnwrap(defects.add(
+            DefectDraft(what: "Socket loose", floor: "2nd floor"), siteID: written.site, photos: [(Data([1, 2]), [mark])]
+        ))
+        XCTAssertEqual(DefectRepository(context: context).openCount(siteID: written.site), 1)
+        XCTAssertEqual(DefectRepository(context: context).photos(defectID: added.id).first?.marks, [mark])
+
+        let deliveries = DeliveryRepository(context: context)
+        XCTAssertTrue(deliveries.deliveries(siteID: written.site).isEmpty)
+        let line = DeliveryLine(kind: .short, name: "Junction box IP65", unit: .pieces, came: 2, ordered: 6, missingItemID: written.item)
+        deliveries.record(lines: [line], photo: nil, siteID: written.site)
+        XCTAssertEqual(DeliveryRepository(context: context).deliveries(siteID: written.site).count, 1)
+        let after = MissingRepository(context: context).items(siteID: written.site)
+        XCTAssertEqual(MissingList.items(.ordered, in: after).first?.quantity, 4)
+        XCTAssertEqual(MissingList.items(.arrived, in: after).first?.quantity, 2)
+    }
+
     func testAnAddressIsStoredOnlyWhenSet() {
         let entry = SiteEntry(site: Site(name: "Bau Süd"))
         XCTAssertNil(entry.address)
@@ -889,8 +943,8 @@ final class MigrationTests: XCTestCase {
     // MARK: - The plan itself
 
     func testThePlanGoesFromTheOldestVersionToTheCurrentOne() {
-        XCTAssertEqual(HoursMigrationPlan.schemas.count, 10)
-        XCTAssertEqual(HoursMigrationPlan.stages.count, 9)
+        XCTAssertEqual(HoursMigrationPlan.schemas.count, 11)
+        XCTAssertEqual(HoursMigrationPlan.stages.count, 10)
         XCTAssertEqual(HoursSchemaV1.versionIdentifier, Schema.Version(1, 0, 0))
         XCTAssertEqual(HoursSchemaV2.versionIdentifier, Schema.Version(2, 0, 0))
         XCTAssertEqual(HoursSchemaV3.versionIdentifier, Schema.Version(3, 0, 0))
@@ -901,6 +955,7 @@ final class MigrationTests: XCTestCase {
         XCTAssertEqual(HoursSchemaV8.versionIdentifier, Schema.Version(8, 0, 0))
         XCTAssertEqual(HoursSchemaV9.versionIdentifier, Schema.Version(9, 0, 0))
         XCTAssertEqual(HoursSchemaV10.versionIdentifier, Schema.Version(10, 0, 0))
+        XCTAssertEqual(HoursSchemaV11.versionIdentifier, Schema.Version(11, 0, 0))
     }
 
     /// The container is built from the newest schema, so a new model that is
@@ -911,7 +966,8 @@ final class MigrationTests: XCTestCase {
             "DayEntry", "HolidayRecord", "SiteEntry", "CrewMemberEntry", "SiteDayEntry",
             "SiteDiaryEntry", "SiteDiaryPhotoEntry", "CrewSignatureEntry",
             "ExtraWorkJobEntry", "ExtraWorkPhotoEntry", "ExtraWorkReportEntry", "ExtraWorkItemEntry",
-            "MissingItemEntry"
+            "MissingItemEntry",
+            "DefectEntry", "DefectPhotoEntry", "DeliveryEntry"
         ])
     }
 

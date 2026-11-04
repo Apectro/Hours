@@ -30,6 +30,7 @@ let package = Package(
             exclude: [
                 // Not a source file; the scheme and the StoreKit tests read it.
                 "Hours.storekit",
+                "DefectRepositoryTests.swift",
                 "DuplicateReconciliationTests.swift",
                 "ExtraWorkPDFTests.swift",
                 "ExtraWorkPictureTests.swift",

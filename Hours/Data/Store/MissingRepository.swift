@@ -56,6 +56,14 @@ struct MissingRepository {
         storeChanges(from: before, to: MissingList.markingOrdered(sent, at: moment, in: before))
     }
 
+    /// A checked delivery saved (`DeliveryRepository.record`): what all
+    /// came arrived, what partly came split off as arrived, the rest still
+    /// ordered (`DeliveryCheck.applying`).
+    func applyDelivery(_ lines: [DeliveryLine], siteID: UUID, at moment: Date = Date()) {
+        let before = items(siteID: siteID)
+        storeChanges(from: before, to: DeliveryCheck.applying(lines, to: before, at: moment))
+    }
+
     func remove(id: UUID) {
         for entry in entries(id: id) { context.delete(entry) }
         persist()
