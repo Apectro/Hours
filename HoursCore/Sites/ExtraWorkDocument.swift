@@ -15,6 +15,9 @@ struct ExtraWorkDocument: Hashable, Sendable {
         /// The same quantity as a number, for a workbook cell.
         var quantityValue: Double
         var unit: String
+        /// The item's first barcode from the material catalogue, or "" when
+        /// it has none: printed in a column of its own, monospaced.
+        var code: String = ""
     }
 
     struct JobRow: Hashable, Sendable {
@@ -76,8 +79,13 @@ struct ExtraWorkDocument: Hashable, Sendable {
     var hasHours: Bool
 
     var materialHeading: String
+    /// Item, then Code when any item has one, then Quantity and Unit.
     var materialHeadings: [String]
     var material: [MaterialRow]
+
+    /// A code column in the material summary, only when an item has a code:
+    /// without any the table is exactly as it always was.
+    var showsCodes: Bool { material.contains { !$0.code.isEmpty } }
 
     var legend: String
     /// The client's signature under the whole report, drawn at its foot
@@ -154,10 +162,14 @@ struct ExtraWorkDocument: Hashable, Sendable {
 
     /// The workbook's material sheet: a row per item and unit.
     func materialTable() -> ReportTable {
+        let codes = showsCodes
         let rows = material.enumerated().map { index, line in
-            row(index, values: [line.name, line.quantity, line.unit], numbers: [nil, line.quantityValue, nil])
+            codes
+                ? row(index, values: [line.name, line.code, line.quantity, line.unit], numbers: [nil, nil, line.quantityValue, nil])
+                : row(index, values: [line.name, line.quantity, line.unit], numbers: [nil, line.quantityValue, nil])
         }
-        return table(columns: [.note, .note, .note], headings: materialHeadings, rows: rows)
+        let columns: [ReportColumn] = Array(repeating: .note, count: codes ? 4 : 3)
+        return table(columns: columns, headings: materialHeadings, rows: rows)
     }
 
     /// The time columns, when any job has its time noted: how long the job
@@ -260,11 +272,14 @@ struct ExtraWorkDocumentBuilder: Sendable {
     ///   bytes are the app's business.
     /// - Parameter siteAddress: the site's address as typed; printed on one
     ///   line under its name.
+    /// - Parameter catalog: the material catalogue, for each item's barcode
+    ///   in the material summary.
     func make(
         report: ExtraWorkReport,
         siteName: String,
         siteAddress: String = "",
-        photoIDs: [UUID: [UUID]] = [:]
+        photoIDs: [UUID: [UUID]] = [:],
+        catalog: [ExtraWorkCatalogItem] = []
     ) -> ExtraWorkDocument {
         let language = settings.export.language
         let reportBuilder = ReportBuilder(settings: settings, calendar: calendar)
@@ -281,9 +296,11 @@ struct ExtraWorkDocumentBuilder: Sendable {
                 name: total.name,
                 quantity: ExtraWorkQuantity.string(total.quantity, decimalSeparator: decimal),
                 quantityValue: ExtraWorkQuantity.double(total.quantity),
-                unit: total.unit.name(in: language)
+                unit: total.unit.name(in: language),
+                code: ExtraWorkCatalog.firstCode(forName: total.name, unit: total.unit, in: catalog) ?? ""
             )
         }
+        let showsCodes = material.contains { !$0.code.isEmpty }
 
         func confirmedBy(_ signature: ExtraWorkSignature) -> (sentence: String, short: String) {
             let name = signature.signerName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -357,7 +374,9 @@ struct ExtraWorkDocumentBuilder: Sendable {
             inProgressJobs: inProgress,
             hasHours: report.hasHours,
             materialHeading: language(.materialUsed),
-            materialHeadings: [language(.item), language(.quantity), language(.unit)],
+            materialHeadings: [language(.item)]
+                + (showsCodes ? [language(.code)] : [])
+                + [language(.quantity), language(.unit)],
             material: material,
             legend: report.hasHours ? language(.legend) : language(.legendWithoutHours),
             clientSignature: report.clientSignature,

@@ -125,7 +125,6 @@ struct MissingSendSheet: View {
                 Text("Send as message")
             }
             .buttonStyle(.bigAction(.primary))
-            .layoutPriority(1)
             .accessibilityIdentifier("missing-send-message")
 
             Button(action: sendPDF) {
