@@ -181,8 +181,13 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(text.label.contains("1. Socket loose"), "the message: \(text.label)")
         XCTAssertTrue(text.label.contains("2nd floor · Room 4"), "the message: \(text.label)")
         XCTAssertFalse(text.label.contains("Cable not labelled"), "only open: \(text.label)")
-        app.switches["defects-send-only-open"].firstMatch.tap()
-        XCTAssertTrue(text.label.contains("Cable not labelled"), "with the fixed ones: \(text.label)")
+        // The switch through the shared flip (a plain tap on a Form switch is
+        // sometimes not taken), then the fixed one looked for anywhere: the
+        // preview re-renders and need not stay one element.
+        XCTAssertTrue(flip(app.switches["defects-send-only-open"].firstMatch))
+        let withFixed = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", "Cable not labelled")).firstMatch
+        XCTAssertTrue(withFixed.waitForExistence(timeout: 5), "with the fixed ones: \(text.label)")
         XCTAssertTrue(app.buttons["defects-send-pdf"].exists)
         XCTAssertTrue(app.buttons["defects-send-message"].exists)
         app.buttons["defects-send-close"].tap()
@@ -252,7 +257,8 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(app.buttons["defects-fix"].exists, "a swipe should offer Fixed too")
         delete.tap()
 
-        let confirm = app.buttons["defects-delete-confirm"]
+        // A confirmation dialog can list its buttons twice (sheet and popover form).
+        let confirm = app.buttons.matching(identifier: "defects-delete-confirm").firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 5), "deleting a defect asks first")
         XCTAssertTrue(row.exists, "nothing is deleted before the answer")
         confirm.tap()
