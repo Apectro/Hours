@@ -556,7 +556,7 @@ final class ScreenAtlasTests: XCTestCase {
                     close(app, "extra-work-signature-cancel")
                 }
                 swipeDown(app, times: 4)
-                flip(inProgress)
+                if inProgress.exists { flip(inProgress) }
             } else {
                 miss("extra-work-report-in-progress (no switch)")
             }
@@ -891,8 +891,9 @@ final class ScreenAtlasTests: XCTestCase {
             miss("site-arrival-explanation (no arrival switch)")
             return
         }
-        flip(arrival)
-        guard app.staticTexts["site-arrival-explanation"].firstMatch.waitForExistence(timeout: 5) else {
+        let explanation = app.staticTexts["site-arrival-explanation"].firstMatch
+        flip(arrival, shows: explanation)
+        guard explanation.waitForExistence(timeout: 5) else {
             miss("site-arrival-explanation (the explanation did not open)")
             return
         }
@@ -1653,18 +1654,6 @@ final class ScreenAtlasTests: XCTestCase {
             element.tap()
         } else {
             element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        }
-    }
-
-    /// A switch, by its switch rather than the middle of its row, which on
-    /// a full-width toggle is the label.
-    private func flip(_ toggle: XCUIElement) {
-        guard toggle.exists else { return }
-        let inner = toggle.switches.firstMatch
-        if inner.exists, inner.isHittable {
-            inner.tap()
-        } else {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
     }
 

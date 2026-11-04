@@ -40,8 +40,7 @@ extension XCUIApplication {
     @discardableResult
     func openSettingsMore() -> Bool {
         let more = buttons.matching(identifier: "settings-more").firstMatch
-        for _ in 0..<6 where !(more.exists && more.isHittable) { swipeUp() }
-        guard more.exists, more.isHittable else { return false }
+        guard scrollTo(more) else { return false }
         more.tap()
         return descendants(matching: .any)["screen-settings-more"].waitForExistence(timeout: 5)
     }

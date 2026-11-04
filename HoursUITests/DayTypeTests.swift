@@ -31,15 +31,13 @@ final class DayTypeTests: XCTestCase {
         XCTAssertTrue(limit.isHittable, "Sick should offer the 42-day rule")
         XCTAssertEqual(limit.value as? String, "0")
         // The switch itself, at the trailing edge, not the label.
-        let knob = limit.switches.firstMatch
-        if knob.exists, knob.isHittable {
-            knob.tap()
-        } else {
-            limit.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-        }
+        flip(limit)
         XCTAssertEqual(limit.value as? String, "1")
 
-        app.buttons.matching(identifier: "day-type-editor-save").firstMatch.tap()
+        let save = app.buttons.matching(identifier: "day-type-editor-save").firstMatch
+        save.tap()
+        // The editor has to be gone before Sick's row is tapped again.
+        waitUntilGone(save, timeout: 10)
 
         // Opened again, it is as saved.
         openSickRow(app)

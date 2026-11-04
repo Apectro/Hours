@@ -262,6 +262,8 @@ final class SiteDayTests: XCTestCase {
         work.tap()
         work.typeText("Formwork")
         app.buttons["site-diary-save"].tap()
+        // The diary's sheet has to be gone, or the back tap lands on its toolbar.
+        waitUntilGone(app.screen("screen-site-diary-day"), timeout: 10)
 
         // Back to the site's page (1.2), then to the list.
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -369,11 +371,7 @@ final class SiteDayTests: XCTestCase {
         let undo = app.buttons["site-move-undo"].firstMatch
         XCTAssertTrue(undo.waitForExistence(timeout: 5))
         undo.tap()
-        XCTAssertTrue(
-            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: banner)], timeout: 5)
-                == .completed,
-            "Undo should take the move back"
-        )
+        XCTAssertTrue(banner.waitUntilGone(timeout: 5), "Undo should take the move back")
         XCTAssertFalse((ivan.value as? String ?? "").contains("Trg Pravde"), "Ivan is back on this site's times")
     }
 

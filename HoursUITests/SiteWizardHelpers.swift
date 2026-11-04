@@ -42,15 +42,7 @@ extension XCUIApplication {
     /// False when the row never appeared.
     @discardableResult
     func tapSiteRow(_ identifier: String) -> Bool {
-        let row = buttons[identifier].firstMatch
-        let bar = buttons["site-write-today"].firstMatch
-        for _ in 0..<6 {
-            if row.exists, row.isHittable, !bar.exists || row.frame.maxY < bar.frame.minY - 4 { break }
-            swipeUp()
-        }
-        guard row.exists else { return false }
-        row.tap()
-        return true
+        tapAboveBottomBar(buttons[identifier].firstMatch, bar: buttons["site-write-today"].firstMatch)
     }
 
     func openTodayOnSite(file: StaticString = #filePath, line: UInt = #line) {
@@ -69,9 +61,10 @@ extension XCUIApplication {
             XCTFail("the site has no menu", file: file, line: line)
             return false
         }
-        menu.tap()
         let edit = buttons.matching(identifier: "site-edit").firstMatch
-        guard edit.waitForExistence(timeout: 5) else {
+        // Tapped again when the menu did not open: a sheet that was still
+        // closing takes the first tap.
+        guard menu.tapUntil(shows: edit) else {
             XCTFail("the site's menu has no Site settings", file: file, line: line)
             return false
         }
