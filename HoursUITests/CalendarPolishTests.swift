@@ -102,4 +102,57 @@ final class CalendarPolishTests: XCTestCase {
         discard.tap()
         XCTAssertTrue(disappears(app.buttons["day-editor-save"]), "Discard did not close the editor")
     }
+
+    /// The month's eighth column: a total for each row's week.
+    func testTheMonthHasAWeekTotalOnEachRow() {
+        let app = XCUIApplication.hours()
+        app.launch()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+
+        let first = app.staticTexts.matching(identifier: "calendar-week-total-0").firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 5), "the month has no week totals")
+        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.exists, "today's tile keeps its identifier")
+    }
+
+    /// Month | Week in the navigation bar: the week's tiles, its total and
+    /// its list; the arrows page by the week; back to Month again.
+    func testTheWeekShowsItsTilesTotalAndDays() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-data"]
+        app.launch()
+        XCTAssertTrue(app.tab(.calendar).waitForExistence(timeout: 10))
+
+        let mode = app.segmentedControls.matching(identifier: "calendar-mode").firstMatch
+        XCTAssertTrue(mode.waitForExistence(timeout: 5), "no Month | Week control")
+        XCTAssertEqual(mode.buttons.count, 2)
+        mode.buttons.element(boundBy: 1).tap()
+
+        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 5),
+                      "today's tile is not in the week")
+        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "calendar-week-total-0").firstMatch.exists,
+                      "the week has no total")
+        XCTAssertFalse(app.staticTexts.matching(identifier: "calendar-week-total-1").firstMatch.exists,
+                       "a week is one row")
+
+        // The sample data writes the days around today: the week has rows.
+        let row = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'calendar-week-row-'")).firstMatch
+        app.bringToScreen(row)
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "the week has no list of days")
+        row.tap()
+        XCTAssertTrue(app.screen("screen-calendar-day").waitForExistence(timeout: 5), "a row did not open its day")
+        app.closeDaySheet()
+
+        // A week on, today is not on screen; Today brings it back.
+        app.swipeDown()
+        app.swipeDown()
+        app.buttons["calendar-next"].firstMatch.tap()
+        XCTAssertFalse(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 2),
+                       "next did not page the week")
+        app.buttons["calendar-today"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["day-\(XCUIApplication.todayKey)"].firstMatch.waitForExistence(timeout: 5),
+                      "Today did not come back to this week")
+
+        mode.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(disappears(row), "Month kept the week's list")
+    }
 }
