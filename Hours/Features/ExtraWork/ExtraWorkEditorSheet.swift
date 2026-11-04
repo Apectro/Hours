@@ -374,7 +374,11 @@ struct ExtraWorkEditorSheet: View {
                 .accessibilityLabel(String(localized: "New item…"))
                 .accessibilityIdentifier("extra-work-new-item")
                 if !catalog.isEmpty {
-                    NavigationLink(value: ExtraWorkCatalogRoute()) {
+                    // A button pushing the route, not a link: a link inside
+                    // a form row would make the whole row a disclosure.
+                    Button {
+                        path.append(ExtraWorkCatalogRoute())
+                    } label: {
                         Text("Edit list")
                             .font(.subheadline.weight(.medium))
                             .chipStyle()
