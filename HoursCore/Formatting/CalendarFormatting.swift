@@ -111,6 +111,11 @@ struct CalendarFormatting: Sendable {
         formatter("dMMMy").string(from: date.date(in: calendar))
     }
 
+    /// "Wednesday 4 Nov 2026": the day a list stands at, on its first page.
+    func weekdayDateWithYear(_ date: CalendarDate) -> String {
+        formatter("EEEEdMMMy").string(from: date.date(in: calendar))
+    }
+
     /// "4 Aug"
     func shortDate(_ date: CalendarDate) -> String {
         formatter("dMMM").string(from: date.date(in: calendar))

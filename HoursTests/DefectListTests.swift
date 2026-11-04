@@ -400,6 +400,173 @@ final class DefectListTests: XCTestCase {
         XCTAssertNil(rows[1].photoID)
     }
 
+    // MARK: - The PDF (Polish pages 22–24)
+
+    /// Noted on 26 Oct, nine days before the list's date: long open.
+    private func longOpenDocument(onlyOpen: Bool = true, assigns: Bool = true) -> DefectsDocument {
+        let base = document(onlyOpen: onlyOpen, assigns: assigns)
+        let old = defect("Exit light not lit", floor: "2nd floor", room: "Stairs", at: monday.addingTimeInterval(-7 * 86_400))
+        return DefectsDocument(
+            siteName: base.siteName, address: base.address, date: base.date, defects: base.defects + [old],
+            floors: base.floors, onlyOpen: onlyOpen, showsAssignee: assigns, ownerName: base.ownerName,
+            language: .english, calendar: utc
+        )
+    }
+
+    func testTheFiguresCountOpenAndFixedTheOldestAndTheFloorWithMost() {
+        let figures = document().figures
+        XCTAssertEqual(figures.open, 3)
+        XCTAssertEqual(figures.fixed, 1, "fixed ones are counted even when only open ones are listed")
+        XCTAssertEqual(figures.oldestOpenDays, 2)
+        XCTAssertEqual(figures.oldestOpenSince, CalendarDate(year: 2026, month: 11, day: 2))
+        XCTAssertEqual(figures.mostOpenFloor, "Ground")
+        XCTAssertEqual(figures.mostOpenCount, 2)
+
+        let tiles = document().figureTexts
+        XCTAssertEqual(tiles.map(\.value), ["3", "1", "2 days", "Ground"])
+        XCTAssertEqual(tiles.map(\.label), ["open", "fixed", "oldest open (since 2 Nov)", "most open (2)"])
+        XCTAssertEqual(tiles.map(\.tone), [.open, .fixed, .plain, .plain])
+    }
+
+    func testTheFloorWithMostOpenBreaksATieByTheSiteFloorOrder() {
+        let defects = [
+            defect("A", floor: "Roof", at: monday),
+            defect("B", floor: "2nd floor", at: monday),
+            defect("C", floor: "Roof", at: tuesday),
+            defect("D", floor: "2nd floor", at: tuesday),
+        ]
+        let document = DefectsDocument(
+            siteName: "S", address: "", date: CalendarDate(year: 2026, month: 11, day: 4), defects: defects,
+            floors: ["Ground", "1st floor", "2nd floor", "Roof"], onlyOpen: true, showsAssignee: false,
+            ownerName: "", language: .english, calendar: utc
+        )
+        XCTAssertEqual(document.figures.mostOpenFloor, "2nd floor")
+        XCTAssertEqual(document.figures.mostOpenCount, 2)
+    }
+
+    func testNothingOpenHasNoOldestAndNoFloor() {
+        let fixed = DefectList.fixed(defect("A", floor: "Roof", at: monday), at: tuesday)
+        let document = DefectsDocument(
+            siteName: "S", address: "", date: CalendarDate(year: 2026, month: 11, day: 4), defects: [fixed],
+            floors: [], onlyOpen: false, showsAssignee: false, ownerName: "", language: .english, calendar: utc
+        )
+        XCTAssertNil(document.figures.oldestOpenDays)
+        XCTAssertNil(document.figures.mostOpenFloor)
+        XCTAssertEqual(document.figureTexts.map(\.value), ["0", "1"])
+        XCTAssertTrue(document.cards.isEmpty)
+    }
+
+    func testOpenLongerThanSevenDaysSaysHowLong() {
+        let document = longOpenDocument()
+        let old = document.listed.first { $0.what == "Exit light not lit" }!
+        XCTAssertEqual(document.daysOpen(old), 9)
+        XCTAssertEqual(document.status(of: old), .longOpen(days: 9))
+        XCTAssertEqual(document.statusText(document.status(of: old)), "Open · 9 days")
+
+        // Seven days is not yet long.
+        let week = defect("Week old", at: monday.addingTimeInterval(-5 * 86_400))
+        XCTAssertEqual(document.daysOpen(week), 7)
+        XCTAssertEqual(document.status(of: week), .open)
+        XCTAssertEqual(document.statusText(.open), "Open")
+        XCTAssertEqual(DefectsDocument.longOpenDays, 7)
+    }
+
+    func testTheTableIsGroupedByFloorWithFixedOnesAsLines() {
+        let document = document(onlyOpen: false)
+        let groups = document.table
+        XCTAssertEqual(groups.map(\.floor), ["Ground", "2nd floor"])
+        XCTAssertEqual(groups[0].rows.map(\.number), [1, 2])
+        XCTAssertEqual(groups[0].rows.map(\.what), ["Cable not labelled", "Emergency light not lit"])
+        XCTAssertEqual(groups[0].rows[0].room, "Panel room")
+        XCTAssertEqual(groups[0].rows[0].since, "2 Nov")
+        XCTAssertEqual(groups[0].rows[0].fixes, "Marijo Mikša")
+        XCTAssertEqual(groups[0].rows[1].fixes, "—", "nobody yet is a dash in the table")
+        XCTAssertEqual(groups[1].rows.map(\.what), ["Socket loose", "Cover plate missing"])
+        XCTAssertEqual(groups[1].rows[1].status, .fixed(CalendarDate(year: 2026, month: 11, day: 4)))
+        XCTAssertEqual(groups[1].rows[1].statusText, "Fixed 4 Nov")
+        XCTAssertEqual(document.columns, ["No.", "What's wrong", "Where", "Since", "Fixes", "Status"])
+        XCTAssertEqual(document.tableNote(firstCardPage: 2), "Each open defect has its own half page with the photo, from page 2.")
+
+        // Only open leaves the fixed one out; no assigning, no Fixes column.
+        let open = self.document(onlyOpen: true, assigns: false)
+        XCTAssertEqual(open.table.flatMap(\.rows).map(\.what), ["Cable not labelled", "Emergency light not lit", "Socket loose"])
+        XCTAssertNil(open.table[0].rows[0].fixes)
+        XCTAssertEqual(open.columns, ["No.", "What's wrong", "Where", "Since", "Status"])
+    }
+
+    func testDefectsWithoutAFloorComeLastUnderTheirOwnHeading() {
+        let defects = [defect("Loose", at: monday), defect("Cracked", floor: "Roof", at: monday)]
+        let document = DefectsDocument(
+            siteName: "S", address: "", date: CalendarDate(year: 2026, month: 11, day: 4), defects: defects,
+            floors: ["Roof"], onlyOpen: true, showsAssignee: false, ownerName: "", language: .english, calendar: utc
+        )
+        XCTAssertEqual(document.table.map(\.floor), ["Roof", "No floor"])
+        XCTAssertEqual(document.table[1].rows[0].room, "—")
+    }
+
+    func testEachOpenDefectGetsACardNumberedAsInTheTable() {
+        let document = longOpenDocument(onlyOpen: false)
+        let cards = document.cards
+        XCTAssertEqual(cards.map(\.what), ["Cable not labelled", "Emergency light not lit", "Exit light not lit", "Socket loose"],
+                       "open only, the fixed one is a line in the table")
+        let numbers = Dictionary(uniqueKeysWithValues: document.table.flatMap(\.rows).map { ($0.what, $0.number) })
+        XCTAssertEqual(cards.map(\.number), cards.map { numbers[$0.what]! })
+        let socket = cards[3]
+        XCTAssertEqual(socket.place, "2nd floor · Room 4")
+        XCTAssertEqual(socket.floor, "2nd floor")
+        XCTAssertTrue(socket.noted.hasPrefix("Noted 3 Nov, "), socket.noted)
+        XCTAssertTrue(socket.noted.hasSuffix(" by Ivan"), socket.noted)
+        XCTAssertEqual(socket.openFor, "Open for 1 day")
+        XCTAssertFalse(socket.isLongOpen)
+        XCTAssertEqual(socket.fixes, "Fixes: Ivan")
+        let exit = cards[2]
+        XCTAssertEqual(exit.openFor, "Open for 9 days")
+        XCTAssertTrue(exit.isLongOpen)
+        XCTAssertEqual(exit.fixes, "Fixes: nobody yet")
+        // Noted by you: your name on the sheets.
+        XCTAssertTrue(cards[0].noted.hasSuffix(" by Marijo Mikša"), cards[0].noted)
+        XCTAssertNil(self.document(assigns: false).cards[0].fixes, "no assigning, no Fixes")
+        XCTAssertEqual(document.walkRound, ["Fixed", "Date", "Initials"])
+    }
+
+    func testNotedTodayByYouWithNoName() {
+        let today = defect("Fresh", at: monday.addingTimeInterval(2 * 86_400))
+        let document = DefectsDocument(
+            siteName: "S", address: "", date: CalendarDate(year: 2026, month: 11, day: 4), defects: [today],
+            floors: [], onlyOpen: true, showsAssignee: false, ownerName: "", language: .english, calendar: utc
+        )
+        XCTAssertEqual(document.cards[0].openFor, "Open since today")
+        XCTAssertTrue(document.cards[0].noted.hasPrefix("Noted 4 Nov, "), document.cards[0].noted)
+        XCTAssertFalse(document.cards[0].noted.contains(" by "), "no name, no by")
+    }
+
+    func testTheBylineAndTheFooter() {
+        let document = document()
+        XCTAssertTrue(document.byline.hasPrefix("Ilica 207C · as of "), document.byline)
+        XCTAssertTrue(document.byline.contains("4 Nov 2026"), document.byline)
+        XCTAssertTrue(document.byline.hasSuffix(" · Marijo Mikša"), document.byline)
+        XCTAssertEqual(document.footer, "Trg Pravde Zagreb · Defects · as of 4 Nov 2026")
+        XCTAssertEqual(document.pageText(2, of: 4), "Page 2 of 4")
+        let anonymous = self.document(owner: "")
+        XCTAssertEqual(anonymous.byline.components(separatedBy: " · ").count, 2, anonymous.byline)
+    }
+
+    func testThePDFWordsInGermanAndTheirPlurals() {
+        let base = longOpenDocument()
+        let german = DefectsDocument(
+            siteName: base.siteName, address: base.address, date: base.date, defects: base.defects, floors: base.floors,
+            onlyOpen: true, showsAssignee: true, ownerName: "", language: .german, calendar: utc
+        )
+        XCTAssertEqual(german.statusText(.longOpen(days: 9)), "Offen · 9 Tage")
+        XCTAssertEqual(german.footer, "Trg Pravde Zagreb · Mängel · Stand \(german.formattedDate)")
+        XCTAssertEqual(ExportLanguage.german.days(1), "1 Tag")
+        XCTAssertEqual(ExportLanguage.croatian.days(1), "1 dan")
+        XCTAssertEqual(ExportLanguage.croatian.days(3), "3 dana")
+        XCTAssertEqual(ExportLanguage.slovenian.days(2), "2 dneva")
+        XCTAssertEqual(ExportLanguage.polish.days(5), "5 dni")
+        XCTAssertEqual(ExportLanguage.polish.days(1), "1 dzień")
+    }
+
     func testEveryTermHasAWordInEveryLanguage() {
         for language in ExportLanguage.allCases {
             for term in SiteListTerm.allCases {
