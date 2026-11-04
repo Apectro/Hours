@@ -3,8 +3,8 @@ import SwiftData
 
 /// Setting up a new site, step by step (1.2, mockups W1–W6): how to start,
 /// where it is, who works there, a usual day, the extras, and a check
-/// before anything is written. For someone with a lot of sites, "Copy from a
-/// site" and "Several sites at once" are the fast ways; "Create and set up
+/// before anything is written. For someone with a lot of sites, "Copy a
+/// site" and "Several at once" are the fast ways; "Create and set up
 /// another like it" keeps the crew, the day and the extras for the next one.
 ///
 /// Nothing is stored until Create. The engine decides what is made
@@ -62,41 +62,48 @@ struct NewSiteWizard: View {
 
     // MARK: - Frame
 
+    /// The first start's frame (polish, 2026-11): ✕ at the top leading
+    /// edge, "1 of 6" in the middle, the big rounded Continue at the bottom
+    /// on the plain background. From the second step ‹ goes back and the ✕
+    /// moves to the trailing edge.
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItem(placement: .topBarLeading) {
             if step == 1 {
-                Button("Cancel") { dismiss() }
-                    .accessibilityIdentifier("wizard-cancel")
+                cancelButton
             } else {
                 Button {
                     withAnimation { step = previousStep }
                 } label: {
-                    Label("Back", systemImage: "chevron.backward")
-                        .labelStyle(.titleAndIcon)
+                    Label("Back", systemImage: "chevron.left")
                 }
+                .labelStyle(.iconOnly)
                 .accessibilityIdentifier("wizard-back")
             }
         }
         ToolbarItem(placement: .principal) {
-            VStack(spacing: Metrics.tiny) {
-                Text(String(
-                    localized: "Step \(step) of \(Self.stepCount)",
-                    comment: "New-site wizard; the values are the step and how many there are"
-                ))
-                .font(.subheadline.weight(.semibold))
-                .accessibilityIdentifier("wizard-step")
-                ProgressView(value: Double(step), total: Double(Self.stepCount))
-                    .frame(width: 120)
-                    .accessibilityHidden(true)
-            }
+            Text(String(
+                localized: "\(step) of \(Self.stepCount)",
+                comment: "First-run setup progress, such as 2 of 6"
+            ))
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.hoursSecondaryText)
+            .monospacedDigit()
+            .accessibilityIdentifier("wizard-step")
         }
         ToolbarItem(placement: .topBarTrailing) {
             if step > 1 {
-                Button("Cancel") { dismiss() }
-                    .accessibilityIdentifier("wizard-cancel")
+                cancelButton
             }
         }
+    }
+
+    private var cancelButton: some View {
+        Button { dismiss() } label: {
+            Label("Cancel", systemImage: "xmark")
+        }
+        .labelStyle(.iconOnly)
+        .accessibilityIdentifier("wizard-cancel")
     }
 
     @ViewBuilder
@@ -106,11 +113,9 @@ struct NewSiteWizard: View {
                 Button {
                     next()
                 } label: {
-                    Text("Next")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                    Text("Continue")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bigAction(.primary))
                 .disabled(!canContinue)
                 .accessibilityIdentifier("wizard-next")
             } else {
@@ -118,10 +123,8 @@ struct NewSiteWizard: View {
                     create(another: false)
                 } label: {
                     Text(createTitle)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bigAction(.primary))
                 .disabled(!canCreate)
                 .accessibilityIdentifier("wizard-create")
                 if start != .several {
@@ -129,17 +132,16 @@ struct NewSiteWizard: View {
                         create(another: true)
                     } label: {
                         Text("Create and set up another like it")
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity, minHeight: 44)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.bigAction(.secondary))
                     .disabled(!canCreate)
                     .accessibilityIdentifier("wizard-create-another")
                 }
             }
         }
-        .padding(Metrics.large)
-        .background(.bar)
+        .padding(.horizontal, Metrics.large)
+        .padding(.vertical, Metrics.small)
+        .background(Color.hoursCanvas)
     }
 
     @ViewBuilder
@@ -176,6 +178,8 @@ struct NewSiteWizard: View {
 
     // MARK: - 1 · Start
 
+    /// Plain choice rows with a ✓ and a short line under each (polish,
+    /// 2026-11, phone 10).
     private var startStep: some View {
         Form {
             heading(String(localized: "New site"), String(localized: "How do you want to start?"))
@@ -183,9 +187,8 @@ struct NewSiteWizard: View {
                 if !activeSites.isEmpty {
                     option(
                         .copy,
-                        title: String(localized: "Copy from a site"),
-                        detail: String(localized: "Same crew, times, allowance and reminders as one of your sites. You only change the name and place."),
-                        systemImage: "doc.on.doc",
+                        title: String(localized: "Copy a site"),
+                        detail: String(localized: "Its crew, times and extras"),
                         identifier: "wizard-start-copy"
                     )
                     if start == .copy {
@@ -199,50 +202,47 @@ struct NewSiteWizard: View {
                 }
                 option(
                     .fresh,
-                    title: String(localized: "Start fresh"),
-                    detail: String(localized: "Set everything step by step: place, crew, usual day, extras."),
-                    systemImage: "sparkles",
+                    title: String(localized: "Start empty"),
+                    detail: String(localized: "Set it up step by step"),
                     identifier: "wizard-start-fresh"
                 )
                 option(
                     .several,
-                    title: String(localized: "Several sites at once"),
-                    detail: String(localized: "Type or paste the names, one per line. They all get the same setup; add the places later."),
-                    systemImage: "square.stack.3d.up",
+                    title: String(localized: "Several at once"),
+                    detail: String(localized: "Paste a list of names"),
                     identifier: "wizard-start-several"
                 )
+            } footer: {
+                if start == .copy && !activeSites.isEmpty {
+                    Text("You change the name and the place next.")
+                }
             }
         }
     }
 
-    private func option(_ value: Start, title: String, detail: String, systemImage: String, identifier: String) -> some View {
+    private func option(_ value: Start, title: String, detail: String, identifier: String) -> some View {
         Button {
             start = value
             if value == .copy, sourceID == nil { sourceID = activeSites.first?.id }
         } label: {
-            HStack(alignment: .top, spacing: Metrics.medium) {
-                Image(systemName: systemImage)
-                    .font(.title3)
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 40, height: 40)
-                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: Metrics.tiny) {
+            HStack(spacing: Metrics.medium) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: title)
-                        .font(.headline)
                         .foregroundStyle(.primary)
                     Text(verbatim: detail)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.hoursSecondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 0)
-                Image(systemName: start == value ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
-                    .foregroundStyle(start == value ? Color.accentColor : Color.secondary)
+                Image(systemName: "checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .opacity(start == value ? 1 : 0)
                     .accessibilityHidden(true)
             }
-            .padding(.vertical, Metrics.small)
+            .frame(minHeight: 44)
+            .padding(.vertical, Metrics.tiny)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

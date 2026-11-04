@@ -963,7 +963,7 @@ final class ScreenAtlasTests: XCTestCase {
     private func newSiteWizardScreens(_ app: XCUIApplication) {
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site", app) else { return }
         capture("wizard-1-start", app)
-        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy from a site", app) {
+        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy a site", app) {
             capture("wizard-1-copy", app)
         }
         if tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the place", app) {
@@ -982,7 +982,7 @@ final class ScreenAtlasTests: XCTestCase {
         close(app, "wizard-cancel")
 
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site again", app) else { return }
-        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several sites at once", app),
+        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several at once", app),
            tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the names", app) {
             let names = app.descendants(matching: .any).matching(identifier: "wizard-several-names").firstMatch
             if names.waitForExistence(timeout: 5) {
