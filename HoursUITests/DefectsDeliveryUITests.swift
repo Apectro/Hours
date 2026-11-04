@@ -106,7 +106,7 @@ final class DefectsDeliveryUITests: XCTestCase {
     }
 
     private func typeWhat(_ text: String, _ app: XCUIApplication) {
-        let what = app.textFields["defect-what"].firstMatch
+        let what = app.descendants(matching: .any)["defect-what"].firstMatch
         XCTAssertTrue(what.waitForExistence(timeout: 5))
         what.tap()
         what.typeText(text)
@@ -211,8 +211,8 @@ final class DefectsDeliveryUITests: XCTestCase {
         let ivan = app.buttons["defect-fixer-1"]
         XCTAssertTrue(ivan.waitForExistence(timeout: 5), "who fixes it is asked now")
         XCTAssertTrue(app.buttons["defect-fixer-0"].exists, "Me")
-        typeWhat("Cover missing", app)
         ivan.tap()
+        typeWhat("Cover missing", app)
         app.buttons["defect-add"].tap()
         let row = app.buttons["defects-row-0"]
         XCTAssertTrue(row.waitForExistence(timeout: 5))

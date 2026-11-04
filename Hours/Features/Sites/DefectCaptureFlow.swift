@@ -576,7 +576,6 @@ struct DefectDetailsForm: View {
         whatChips = DefectList.whatSuggestions(earlier, limit: 6)
         roomChips = DefectList.roomSuggestions(earlier, remembered: setup.rooms, limit: 8)
         typesRoom = roomChips.isEmpty
-        if first == nil, focusedField == nil { focusedField = .what }
     }
 
     private func add() {
