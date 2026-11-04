@@ -73,6 +73,8 @@ final class ScanMissingUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["scanner-line-1"].exists, "still one item in the session")
 
         app.buttons["scanner-done"].tap()
+        // The scanner's sheet has to be gone before the editor is read and its Cancel tapped.
+        waitUntilGone(app.screen("screen-scanner"), timeout: 10)
         let quantity = app.buttons["extra-work-quantity-0"]
         XCTAssertTrue(quantity.waitForExistence(timeout: 5), "the scanned item should be a line on the job")
         XCTAssertTrue((quantity.value as? String)?.hasPrefix("2") == true, "two scans are two: \(String(describing: quantity.value))")
@@ -121,6 +123,8 @@ final class ScanMissingUITests: XCTestCase {
         let last = app.descendants(matching: .any)["scanner-last-amount"]
         XCTAssertTrue(last.waitForExistence(timeout: 5), "the named item is added")
         app.buttons["scanner-done"].tap()
+        // Cancel is the editor's, under the scanner's sheet: closed first.
+        waitUntilGone(app.screen("screen-scanner"), timeout: 10)
         app.buttons["extra-work-cancel"].tap()
     }
 
@@ -190,8 +194,7 @@ final class ScanMissingUITests: XCTestCase {
         app.buttons["text-scan-add"].tap()
         app.buttons["text-scan-use"].tap()
         // Wait for the sheet to close before looking at the field.
-        let closed = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-text-scan"))
-        wait(for: [closed], timeout: 5)
+        XCTAssertTrue(waitUntilGone(app.screen("screen-text-scan"), timeout: 5), "Use did not close Scan text")
 
         XCTAssertEqual(description.value as? String, "Fitted LED panel", "Use adds after what was typed")
         app.buttons["extra-work-cancel"].tap()
@@ -255,6 +258,8 @@ final class ScanMissingUITests: XCTestCase {
         XCTAssertTrue(app.buttons["missing-send-message"].exists)
         XCTAssertTrue(app.buttons["missing-send-pdf"].exists)
         app.buttons["missing-send-close"].tap()
+        // Its sheet has to be gone before a row is swiped.
+        waitUntilGone(app.screen("screen-missing-send"), timeout: 10)
 
         // A swipe orders the first; it leaves Needed and is under Ordered.
         let first = app.descendants(matching: .any)["missing-row-0"]
@@ -361,6 +366,8 @@ final class ScanMissingUITests: XCTestCase {
         plus.tap()
         app.buttons["missing-add-save"].tap()
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "back on the day")
+        // The add sheet has to be gone before the day's back button is tapped.
+        waitUntilGone(app.screen("screen-missing-add"), timeout: 10)
 
         // On the site's page it is one needed.
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -381,5 +388,7 @@ final class ScanMissingUITests: XCTestCase {
         XCTAssertTrue(save.isEnabled, "something is chosen")
         save.tap()
         XCTAssertTrue(app.screen("screen-missing").waitForExistence(timeout: 5), "back on the list")
+        // The add sheet has to be gone before the list's + is tapped again.
+        waitUntilGone(app.screen("screen-missing-add"), timeout: 10)
     }
 }

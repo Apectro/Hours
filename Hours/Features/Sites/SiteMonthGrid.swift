@@ -69,6 +69,7 @@ struct SiteMonthCalendar: View {
                     people: people[date] ?? 0,
                     isToday: date == today,
                     isOutsideMonth: !layout.isInMonth(date),
+                    spokenDay: formatting.spokenDay(date, in: layout),
                     height: height
                 )
             }
@@ -86,6 +87,9 @@ private struct SiteDayTile: View {
     let people: Int
     let isToday: Bool
     let isOutsideMonth: Bool
+    /// "1", or "31 October" for a neighbouring month's day
+    /// (`CalendarFormatting.spokenDay`).
+    let spokenDay: String
     let height: CGFloat
 
     @ScaledMetric(relativeTo: .caption2) private var dotSize: CGFloat = 6
@@ -149,7 +153,7 @@ private struct SiteDayTile: View {
     }
 
     private var accessibilityLabel: String {
-        var parts = ["\(date.day)", status.title]
+        var parts = [spokenDay, status.title]
         if people > 0, status == .written || status == .partly {
             parts.append(String(inflected: "^[\(people) person](inflect: true)"))
         }

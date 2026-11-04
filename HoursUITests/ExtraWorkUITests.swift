@@ -73,6 +73,8 @@ final class ExtraWorkUITests: XCTestCase {
         let tick = app.buttons["extra-work-tick-0"]
         XCTAssertTrue(tick.waitForExistence(timeout: 5), "the job should have its checkmark")
         XCTAssertFalse(tick.isSelected, "a new job starts in progress")
+        // The editor's sheet has to be gone, or the back tap lands on its toolbar.
+        app.screen("screen-extra-work-editor").waitUntilGone(timeout: 10)
 
         // In progress, it is not in the report, and the empty report says
         // why: Include them, or Mark finished… to list it with its checkmark.
@@ -99,6 +101,8 @@ final class ExtraWorkUITests: XCTestCase {
                       "Include them puts the job in the report, as still in progress")
         XCTAssertTrue(share.isEnabled, "a report with a job in it can be sent")
         app.buttons["extra-work-report-done"].tap()
+        // The report's sheet has to be gone, or Write today's tap lands on it.
+        app.screen("screen-extra-work-report").waitUntilGone(timeout: 10)
         app.openTodayOnSite()
 
         // Ticked, it is finished. The day is a list: scroll down to the job.

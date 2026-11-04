@@ -10,14 +10,6 @@ final class LeaveAndReviewTests: XCTestCase {
         continueAfterFailure = false
     }
 
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 5) -> Bool {
-        for _ in 0..<swipes {
-            if element.exists, element.isHittable { return true }
-            app.swipeUp()
-        }
-        return element.exists && element.isHittable
-    }
-
     func testTheLeaveScreenOpensAndComesBack() {
         let app = XCUIApplication.hours()
         app.launch()
@@ -26,7 +18,7 @@ final class LeaveAndReviewTests: XCTestCase {
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 5))
 
         let row = app.buttons["settings-leave"]
-        XCTAssertTrue(reveal(row, in: app), "the Leave row is not there")
+        XCTAssertTrue(scrollTo(row, in: app, swipes: 5), "the Leave row is not there")
         row.tap()
         XCTAssertTrue(app.screen("screen-leave").waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["leave-allowance"].exists)
@@ -50,7 +42,7 @@ final class LeaveAndReviewTests: XCTestCase {
         year.tap()
 
         let open = app.buttons["insights-year-review"]
-        XCTAssertTrue(reveal(open, in: app), "the review button is not on the year")
+        XCTAssertTrue(scrollTo(open, in: app, swipes: 5), "the review button is not on the year")
         open.tap()
 
         XCTAssertTrue(app.screen("year-review-empty").waitForExistence(timeout: 5))
@@ -69,7 +61,7 @@ final class LeaveAndReviewTests: XCTestCase {
 
         // Under More (1.2).
         XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
-        XCTAssertTrue(reveal(app.buttons["settings-rate"], in: app, swipes: 8), "Settings has no Rate row")
-        XCTAssertTrue(reveal(app.buttons["settings-feedback"], in: app, swipes: 3), "Settings has no Send feedback row")
+        XCTAssertTrue(scrollTo(app.buttons["settings-rate"], in: app, swipes: 8), "Settings has no Rate row")
+        XCTAssertTrue(scrollTo(app.buttons["settings-feedback"], in: app, swipes: 3), "Settings has no Send feedback row")
     }
 }
