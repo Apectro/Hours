@@ -100,8 +100,8 @@ final class ScreenshotTests: XCTestCase {
         capture("02-site", app)
 
         // 3 — today's extra work under the site day: the "Extra work"
-        // heading with "Send to boss", one job done, one in progress, with
-        // their material and who was on them. The heading is scrolled up to
+        // heading, one job done, one in progress, each with its photo and
+        // time, and "Send to boss" under them. The heading is scrolled up to
         // just under the navigation bar, so it is not cut off and the jobs
         // fit below it.
         let heading = app.descendants(matching: .any)["extra-work-heading"].firstMatch

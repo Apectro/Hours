@@ -12,9 +12,11 @@ import SwiftData
 /// writes it, **Someone was different** opens the crew's day. A work day
 /// gone by offers **Same as the day before** first. Written: a green tick
 /// and "Written" with the crew's hours, a row per person with only the
-/// difference under the name, then the day's allowance, kilometres, note,
-/// diary, bad weather, the move and the crew, then the day's extra work.
-/// Edit opens the crew's day (`SiteCrewDaySheet`).
+/// difference under the name, then the day's allowance, kilometres and
+/// note, then the day's extra work. Under the header on every day, four
+/// round buttons note what was found: Diary, Missing, Defect, Extra work.
+/// The ⋯ menu has another day, bad weather, the move and the crew; Edit
+/// opens the crew's day (`SiteCrewDaySheet`).
 ///
 /// Edits are saved as they are made. Every write goes through
 /// `SiteRepository` with the month lock, which writes your calendar day in
@@ -190,8 +192,6 @@ struct SiteDayScreen: View {
                 writtenSections
             }
 
-            linksSection
-
             // Extra work is not hours (see `ExtraWorkRepository`): only a
             // read-only site stops it.
             ExtraWorkDaySection(
@@ -213,15 +213,7 @@ struct SiteDayScreen: View {
                 titleView
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    commitNote()
-                    commitKilometres()
-                    activeSheet = .pickDate
-                } label: {
-                    Image(systemName: "calendar")
-                }
-                .accessibilityLabel(String(localized: "Choose a day"))
-                .accessibilityIdentifier("site-day-pick-date")
+                dayMenu
             }
             if stored != nil {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -356,6 +348,7 @@ struct SiteDayScreen: View {
             )
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: 0, trailing: Metrics.large))
+            captureRow
         }
 
         Section {
@@ -511,6 +504,7 @@ struct SiteDayScreen: View {
             )
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: 0, trailing: Metrics.large + 4))
+            captureRow
         }
 
         Section {
@@ -678,58 +672,108 @@ struct SiteDayScreen: View {
         .accessibilityIdentifier("site-day-note")
     }
 
-    /// The diary, bad weather, the move and the crew: on every day.
-    private var linksSection: some View {
-        Section {
-            // Unless the site's settings leave the diary out (1.2). A day
-            // that already has one still shows it.
-            if setup.keepsDiary || hasDiary {
-                SiteLinkRow(
-                    title: String(localized: "Diary for this day"),
-                    detail: hasDiary ? String(localized: "Written") : nil
-                ) {
-                    commitNote()
-                    commitKilometres()
-                    activeSheet = .diary
+    /// Diary, Missing, Defect and Extra work: four round buttons under the
+    /// day's header, on every day (Polish phone 2). Nil when the day offers
+    /// none of them, a read-only site with no diary.
+    @ViewBuilder
+    private var captureRow: some View {
+        let showsDiary = setup.keepsDiary || hasDiary
+        // Noted the moment it is noticed (1.3). Not hours: only a read-only
+        // site stops these, not a closed month.
+        let capturesMore = !isReadOnly
+        if showsDiary || capturesMore {
+            HStack(alignment: .top, spacing: Metrics.small) {
+                // Unless the site's settings leave the diary out (1.2). A
+                // day that already has one still shows it.
+                if showsDiary {
+                    SiteCaptureButton(
+                        title: String(localized: "Diary"),
+                        systemImage: "doc.text",
+                        isDone: hasDiary
+                    ) {
+                        commitNote()
+                        commitKilometres()
+                        activeSheet = .diary
+                    }
+                    .accessibilityLabel(String(localized: "Diary for this day"))
+                    .accessibilityValue(hasDiary ? String(localized: "Written") : "")
+                    .accessibilityIdentifier("site-day-diary")
                 }
-                .accessibilityIdentifier("site-day-diary")
+                if capturesMore {
+                    SiteCaptureButton(title: String(localized: "Missing"), systemImage: "shippingbox") {
+                        commitNote()
+                        commitKilometres()
+                        activeSheet = .missing
+                    }
+                    .accessibilityLabel(String(localized: "Something's missing"))
+                    .accessibilityIdentifier("site-day-missing")
+                    // Noted on the spot (1.3), camera first.
+                    SiteCaptureButton(title: String(localized: "Defect"), systemImage: "camera") {
+                        commitNote()
+                        commitKilometres()
+                        capturesDefect = true
+                    }
+                    .accessibilityLabel(String(localized: "Found a defect"))
+                    .accessibilityIdentifier("site-day-defect")
+                    // Extra work is not hours (see `ExtraWorkRepository`).
+                    SiteCaptureButton(title: String(localized: "Extra work"), systemImage: "hammer") {
+                        commitNote()
+                        commitKilometres()
+                        activeSheet = .extraWork(ExtraWorkEditorRequest(job: nil))
+                    }
+                    .accessibilityLabel(String(localized: "Add extra work"))
+                    .accessibilityIdentifier("extra-work-add")
+                }
             }
+            .frame(maxWidth: .infinity)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: Metrics.small, leading: Metrics.small, bottom: Metrics.small, trailing: Metrics.small))
+        }
+    }
+
+    /// The day's ⋯ menu: another day, bad weather, the move and the crew,
+    /// which used to be rows of their own under the crew.
+    private var dayMenu: some View {
+        Menu {
+            Button {
+                commitNote()
+                commitKilometres()
+                activeSheet = .pickDate
+            } label: {
+                Label("Choose a day", systemImage: "calendar")
+            }
+            .accessibilityIdentifier("site-day-pick-date")
             if canEdit && !day.isBadWeatherStop {
-                SiteLinkRow(title: String(localized: "Bad weather…")) {
+                Button {
                     activeSheet = .weatherStop(stored == nil ? draftDay : day)
+                } label: {
+                    Label("Bad weather…", systemImage: "cloud.rain")
                 }
                 .accessibilityIdentifier("site-weather-menu")
             }
             if canMove {
-                SiteLinkRow(title: String(localized: "Moved to another site…")) {
+                Button {
                     activeSheet = .move(nil)
+                } label: {
+                    Label("Moved to another site…", systemImage: "arrow.right")
                 }
                 .accessibilityIdentifier("site-day-move")
             }
             // Open even when the day cannot be changed: the crew list says
             // for itself what can be done there.
-            SiteLinkRow(title: String(localized: "Add or edit crew")) {
+            Button {
                 openSiteCrew(SiteCrewRoute(siteID: site.id))
+            } label: {
+                Label("Add or edit crew", systemImage: "person.2")
             }
             .accessibilityIdentifier("site-day-edit-crew")
-            // Noted the moment it is noticed (1.3). Not hours: only a
-            // read-only site stops it, not a closed month.
-            if !isReadOnly {
-                SiteLinkRow(title: String(localized: "Something's missing")) {
-                    commitNote()
-                    commitKilometres()
-                    activeSheet = .missing
-                }
-                .accessibilityIdentifier("site-day-missing")
-                // Noted on the spot (1.3), camera first.
-                SiteLinkRow(title: String(localized: "Found a defect")) {
-                    commitNote()
-                    commitKilometres()
-                    capturesDefect = true
-                }
-                .accessibilityIdentifier("site-day-defect")
-            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .frame(minWidth: 32, minHeight: 44)
         }
+        .accessibilityLabel(String(localized: "More"))
+        .accessibilityIdentifier("site-day-menu")
     }
 
     // MARK: - Sheets
@@ -1451,5 +1495,46 @@ private struct SiteDayPickerSheet: View {
                 }
         }
         .presentationDetents([.medium, .large])
+    }
+}
+
+/// One of the day's capture buttons: a 52-point circle in the grouped
+/// row colour with a tinted symbol, its word under it. A small green
+/// checkmark on the circle when there is already one (the day's diary).
+private struct SiteCaptureButton: View {
+    let title: String
+    let systemImage: String
+    var isDone = false
+    let action: () -> Void
+
+    @ScaledMetric(relativeTo: .body) private var circle: CGFloat = 52
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: Metrics.tiny + 2) {
+                Image(systemName: systemImage)
+                    .font(.title3.weight(.medium))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: max(circle, 44), height: max(circle, 44))
+                    .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                    .overlay(alignment: .topTrailing) {
+                        if isDone {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.footnote)
+                                .foregroundStyle(.white, Color.hoursDone)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                Text(verbatim: title)
+                    .font(.footnote)
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }

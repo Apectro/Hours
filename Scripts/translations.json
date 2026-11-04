@@ -20116,6 +20116,17 @@
       "%@ de %@",
       "%@ van %@",
       "%@ z %@"
+    ],
+    "Defect": [
+      "Mangel",
+      "Nedostatak",
+      "Pomanjkljivost",
+      "Difetto",
+      "Défaut",
+      "Defecto",
+      "Defeito",
+      "Gebrek",
+      "Usterka"
     ]
   },
   "sameAsEnglishOnPurpose": [
