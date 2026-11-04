@@ -18270,6 +18270,105 @@
       "usado uma vez",
       "één keer gebruikt",
       "użyte raz"
+    ],
+    "Scan text": [
+      "Text scannen",
+      "Skeniraj tekst",
+      "Skeniraj besedilo",
+      "Scansiona testo",
+      "Scanner du texte",
+      "Escanear texto",
+      "Ler texto",
+      "Tekst scannen",
+      "Zeskanuj tekst"
+    ],
+    "Tap the words on the box": [
+      "Tippe auf die Wörter auf dem Karton",
+      "Dodirni riječi na kutiji",
+      "Tapni besede na škatli",
+      "Tocca le parole sulla scatola",
+      "Touchez les mots sur le carton",
+      "Toca las palabras de la caja",
+      "Toca nas palavras da caixa",
+      "Tik op de woorden op de doos",
+      "Stuknij słowa na kartonie"
+    ],
+    "Type the text": [
+      "Text eingeben",
+      "Upiši tekst",
+      "Vpiši besedilo",
+      "Scrivi il testo",
+      "Saisir le texte",
+      "Escribe el texto",
+      "Escreve o texto",
+      "Typ de tekst",
+      "Wpisz tekst"
+    ],
+    "What the box says": [
+      "Was auf dem Karton steht",
+      "Što piše na kutiji",
+      "Kar piše na škatli",
+      "Cosa c’è scritto sulla scatola",
+      "Ce qui est écrit sur le carton",
+      "Lo que pone en la caja",
+      "O que diz a caixa",
+      "Wat er op de doos staat",
+      "Co jest napisane na kartonie"
+    ],
+    "The camera isn't available here, so type what the box says.": [
+      "Die Kamera ist hier nicht verfügbar, also gib ein, was auf dem Karton steht.",
+      "Kamera ovdje nije dostupna, pa upiši što piše na kutiji.",
+      "Kamera tu ni na voljo, zato vpiši, kar piše na škatli.",
+      "La fotocamera qui non è disponibile, quindi scrivi cosa c’è scritto sulla scatola.",
+      "L’appareil photo n’est pas disponible ici : saisissez ce qui est écrit sur le carton.",
+      "La cámara no está disponible aquí, así que escribe lo que pone en la caja.",
+      "A câmara não está disponível aqui, por isso escreve o que diz a caixa.",
+      "De camera is hier niet beschikbaar, dus typ wat er op de doos staat.",
+      "Aparat nie jest tu dostępny, więc wpisz, co jest napisane na kartonie."
+    ],
+    "Tap a line of text to add it here.": [
+      "Tippe auf eine Textzeile, um sie hier hinzuzufügen.",
+      "Dodirni redak teksta da ga dodaš ovdje.",
+      "Tapni vrstico besedila, da jo dodaš sem.",
+      "Tocca una riga di testo per aggiungerla qui.",
+      "Touchez une ligne de texte pour l’ajouter ici.",
+      "Toca una línea de texto para añadirla aquí.",
+      "Toca numa linha de texto para a adicionar aqui.",
+      "Tik op een regel tekst om die hier toe te voegen.",
+      "Stuknij wiersz tekstu, aby dodać go tutaj."
+    ],
+    "Use": [
+      "Übernehmen",
+      "Upotrijebi",
+      "Uporabi",
+      "Usa",
+      "Utiliser",
+      "Usar",
+      "Usar",
+      "Gebruiken",
+      "Użyj"
+    ],
+    "From the box": [
+      "Vom Karton",
+      "S kutije",
+      "S škatle",
+      "Dalla scatola",
+      "Sur le carton",
+      "De la caja",
+      "Da caixa",
+      "Van de doos",
+      "Z kartonu"
+    ],
+    "Fills in the name": [
+      "Trägt den Namen ein",
+      "Upisuje naziv",
+      "Vpiše ime",
+      "Inserisce il nome",
+      "Remplit le nom",
+      "Rellena el nombre",
+      "Preenche o nome",
+      "Vult de naam in",
+      "Wpisuje nazwę"
     ]
   },
   "sameAsEnglishOnPurpose": [

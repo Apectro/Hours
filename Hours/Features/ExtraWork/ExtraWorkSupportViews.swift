@@ -32,11 +32,16 @@ struct ExtraWorkItemSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(String(localized: "Name, e.g. Junction box"), text: $name)
-                        .focused($nameFocused)
-                        .submitLabel(.done)
-                        .accessibilityLabel(String(localized: "Name"))
-                        .accessibilityIdentifier("extra-work-item-name")
+                    HStack(spacing: Metrics.small) {
+                        TextField(String(localized: "Name, e.g. Junction box"), text: $name)
+                            .focused($nameFocused)
+                            .submitLabel(.done)
+                            .accessibilityLabel(String(localized: "Name"))
+                            .accessibilityIdentifier("extra-work-item-name")
+                        ScanTextButton(identifier: "extra-work-item-scan-text") { text in
+                            name = text
+                        }
+                    }
                 }
                 Section {
                     Picker(selection: $unitCode) {

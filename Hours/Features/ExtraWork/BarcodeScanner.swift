@@ -49,15 +49,24 @@ enum BarcodeScanning {
 
 /// The camera, scanning barcodes and handing each one recognised to
 /// `onCode`. Paused, it stops looking (a sheet is over it).
+///
+/// Reading text too (`readsText`), it also keeps the lines of text it saw in
+/// the last two seconds and hands them over with each code, the box's name
+/// among them (`BoxTextSuggestions`); text never adds anything by itself.
+/// Seeing several things at once, it hands over only the barcode nearest
+/// the middle, so a box with two codes still counts once.
 struct BarcodeCameraView: UIViewControllerRepresentable {
     var isPaused: Bool
-    let onCode: (String) -> Void
+    var readsText = false
+    let onCode: (String, [RecognisedLine]) -> Void
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
+        var types: Set<DataScannerViewController.RecognizedDataType> = [.barcode(symbologies: BarcodeScanning.symbologies)]
+        if readsText { types.insert(.text()) }
         let controller = DataScannerViewController(
-            recognizedDataTypes: [.barcode(symbologies: BarcodeScanning.symbologies)],
+            recognizedDataTypes: types,
             qualityLevel: .balanced,
-            recognizesMultipleItems: false,
+            recognizesMultipleItems: readsText,
             isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
             isGuidanceEnabled: true,
@@ -85,9 +94,17 @@ struct BarcodeCameraView: UIViewControllerRepresentable {
     }
 
     final class Coordinator: NSObject, DataScannerViewControllerDelegate {
-        var onCode: (String) -> Void
+        var onCode: (String, [RecognisedLine]) -> Void
+        /// The lines of text seen lately, by the scanner's id for each.
+        private var recentText: [UUID: SeenText] = [:]
 
-        init(onCode: @escaping (String) -> Void) {
+        private struct SeenText {
+            let transcript: String
+            let bounds: RecognizedItem.Bounds
+            let seen: Date
+        }
+
+        init(onCode: @escaping (String, [RecognisedLine]) -> Void) {
             self.onCode = onCode
         }
 
@@ -96,11 +113,56 @@ struct BarcodeCameraView: UIViewControllerRepresentable {
             didAdd addedItems: [RecognizedItem],
             allItems: [RecognizedItem]
         ) {
+            note(addedItems)
+            let middle = CGPoint(x: dataScanner.view.bounds.midX, y: dataScanner.view.bounds.midY)
+            let nearest = allItems
+                .compactMap { item -> (id: UUID, distance: Double)? in
+                    guard case let .barcode(barcode) = item else { return nil }
+                    return (item.id, TextScanning.distance(TextScanning.centre(of: barcode.bounds), middle))
+                }
+                .min { $0.distance < $1.distance }
+                .map { $0.id }
             for item in addedItems {
-                if case let .barcode(barcode) = item, let value = barcode.payloadStringValue {
-                    onCode(value)
+                guard case let .barcode(barcode) = item, let value = barcode.payloadStringValue else { continue }
+                if let nearest, nearest != item.id { continue }
+                onCode(value, lines(near: barcode.bounds))
+            }
+        }
+
+        func dataScanner(
+            _ dataScanner: DataScannerViewController,
+            didUpdate updatedItems: [RecognizedItem],
+            allItems: [RecognizedItem]
+        ) {
+            note(updatedItems)
+        }
+
+        /// Keeps the text items seen, and forgets those not seen lately.
+        private func note(_ items: [RecognizedItem]) {
+            let now = Date()
+            for item in items {
+                if case let .text(text) = item {
+                    recentText[item.id] = SeenText(transcript: text.transcript, bounds: text.bounds, seen: now)
                 }
             }
+            recentText = recentText.filter { now.timeIntervalSince($0.value.seen) <= TextScanning.recentWindow }
+        }
+
+        private func lines(near codeBounds: RecognizedItem.Bounds) -> [RecognisedLine] {
+            let now = Date()
+            let codeCentre = TextScanning.centre(of: codeBounds)
+            return recentText.values
+                .filter { now.timeIntervalSince($0.seen) <= TextScanning.recentWindow }
+                .flatMap { seen in
+                    // One item can hold more than one line; each is offered.
+                    seen.transcript.split(whereSeparator: \.isNewline).map { part in
+                        RecognisedLine(
+                            text: String(part),
+                            area: TextScanning.area(of: seen.bounds),
+                            distanceToCode: TextScanning.distance(TextScanning.centre(of: seen.bounds), codeCentre)
+                        )
+                    }
+                }
         }
     }
 }
@@ -114,6 +176,10 @@ struct BarcodeScanArea: View {
     /// "Point at the barcode on the box".
     var hint: String = String(localized: "Point at the barcode on the box")
     let onCode: (String) -> Void
+    /// Set where a new code is named: the camera reads the box's text too,
+    /// and the lines seen around each code are handed here just before the
+    /// code itself (the UI tests' typed code brings `TextScanning.testBoxText`).
+    var onBoxText: (([RecognisedLine]) -> Void)? = nil
 
     @State private var cameraIsAvailable = BarcodeScanning.cameraIsAvailable
     @State private var filter = ScanRepeatFilter()
@@ -124,8 +190,9 @@ struct BarcodeScanArea: View {
         Group {
             if cameraIsAvailable {
                 ZStack(alignment: .bottom) {
-                    BarcodeCameraView(isPaused: isPaused) { code in
+                    BarcodeCameraView(isPaused: isPaused, readsText: onBoxText != nil) { code, lines in
                         guard filter.accepts(code, at: Date()) else { return }
+                        onBoxText?(lines)
                         onCode(code)
                     }
                     .ignoresSafeArea()
@@ -197,6 +264,7 @@ struct BarcodeScanArea: View {
     private func submit() {
         guard !isPaused, let code = ExtraWorkCatalog.code(typed) else { return }
         typed = ""
+        onBoxText?(TextScanning.testBoxText)
         onCode(code)
     }
 }
@@ -208,6 +276,9 @@ struct BarcodeScanSheet: View {
     let title: String
     var hint: String = String(localized: "Point at the barcode on the box")
     let onCode: (String) -> Void
+    /// The text seen around the code, handed over just before it; set where
+    /// a new code is then named (see `BarcodeScanArea.onBoxText`).
+    var onBoxText: (([RecognisedLine]) -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var torchIsOn = false
@@ -216,12 +287,12 @@ struct BarcodeScanSheet: View {
 
     var body: some View {
         NavigationStack {
-            BarcodeScanArea(isPaused: handled, hint: hint) { code in
+            BarcodeScanArea(isPaused: handled, hint: hint, onCode: { code in
                 guard !handled else { return }
                 handled = true
                 onCode(code)
                 dismiss()
-            }
+            }, onBoxText: boxTextUntilHandled)
             .navigationTitle(Text(verbatim: title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -241,6 +312,15 @@ struct BarcodeScanSheet: View {
                 }
             }
             .onDisappear { if torchIsOn { BarcodeScanning.setTorch(false) } }
+        }
+    }
+
+    /// `onBoxText`, quiet once the code is handed back.
+    private var boxTextUntilHandled: (([RecognisedLine]) -> Void)? {
+        guard let onBoxText else { return nil }
+        return { lines in
+            guard !handled else { return }
+            onBoxText(lines)
         }
     }
 }
@@ -271,6 +351,8 @@ struct NewScannedItemSheet: View {
     /// "Save and add 1" in the extra-work scanner.
     var saveTitle: String = String(localized: "Save and add 1")
     var initialName: String = ""
+    /// Names read off the box as its code was scanned ("From the box").
+    var suggestions: [String] = []
     let onSave: (String, ExtraWorkUnit) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -282,11 +364,13 @@ struct NewScannedItemSheet: View {
         code: String,
         saveTitle: String = String(localized: "Save and add 1"),
         initialName: String = "",
+        suggestions: [String] = [],
         onSave: @escaping (String, ExtraWorkUnit) -> Void
     ) {
         self.code = code
         self.saveTitle = saveTitle
         self.initialName = initialName
+        self.suggestions = suggestions
         self.onSave = onSave
         _name = State(initialValue: initialName)
     }
@@ -309,11 +393,21 @@ struct NewScannedItemSheet: View {
                 }
 
                 Section("Name") {
-                    TextField(String(localized: "Name, e.g. Junction box"), text: $name)
-                        .focused($nameFocused)
-                        .submitLabel(.done)
-                        .accessibilityLabel(String(localized: "Name"))
-                        .accessibilityIdentifier("new-item-name")
+                    HStack(spacing: Metrics.small) {
+                        TextField(String(localized: "Name, e.g. Junction box"), text: $name)
+                            .focused($nameFocused)
+                            .submitLabel(.done)
+                            .accessibilityLabel(String(localized: "Name"))
+                            .accessibilityIdentifier("new-item-name")
+                        ScanTextButton(identifier: "new-item-scan-text") { text in
+                            name = text
+                        }
+                    }
+                    if !suggestions.isEmpty {
+                        BoxSuggestionChips(suggestions: suggestions) { suggestion in
+                            name = suggestion
+                        }
+                    }
                 }
 
                 Section {
