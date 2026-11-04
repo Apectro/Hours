@@ -449,7 +449,9 @@ Steps 3 and 4 are needed again whenever a release adds columns to the store:
 1.2's schema V8 (field allowance, kilometres, travel and the site's arrival
 fields) and V9 (the site's address) do, so they must be initialised and
 deployed to Production before 1.2 ships, or a syncing 1.2 device cannot upload
-what it records.
+what it records. Schema V10 (barcodes and sites on the remembered extra-work items,
+and the new `MissingItemEntry` record type for a site's Missing list) needs
+steps 3 and 4 again before a build with scanning and Missing syncs.
 
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new

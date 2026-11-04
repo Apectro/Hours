@@ -421,8 +421,9 @@ site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
   `SiteDiaryEntry` (one per site and `dateKey`), `SiteDiaryPhotoEntry` and
   `CrewSignatureEntry` (one per site, person and month), and extra work:
   `ExtraWorkJobEntry`, `ExtraWorkPhotoEntry`, `ExtraWorkReportEntry` (a report
-  that was sent) and `ExtraWorkItemEntry` (the remembered items). These are
-  records the user creates, queries and exports.
+  that was sent) and `ExtraWorkItemEntry` (the remembered items), and since 1.3
+  `MissingItemEntry` (a site's Missing list). These are records the user
+  creates, queries and exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -454,7 +455,7 @@ a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
 **Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7
-→ V8 → V9, every stage lightweight. The live classes are always the newest version; the moment
+→ V8 → V9 → V10, every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
 describing exactly what stores written by it hold. V4 (1.1) adds
@@ -485,7 +486,12 @@ allowance) and `kilometres` (0). `allowanceData` is a column of its own for
 would be dropped by any older build that wrote the day again. V9 (1.2)
 freezes V8's twelve classes — TestFlight installs already hold V8 stores, so
 V8 is never changed in place — and adds the site's `address` (optional text,
-nil and empty both none). Every
+nil and empty both none). V10 (1.3) freezes V9's twelve classes and adds
+to the remembered extra-work item its barcodes (`barcodesData`, optional
+JSON `[String]`) and the sites it was used on (`siteIDsData`, optional JSON
+`[UUID]`), and a thirteenth entity, `MissingItemEntry`, with a default on
+every property — the quantity as text, the state as its raw value, the site
+and the remembered item as id strings. Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -536,8 +542,10 @@ stop *is* hours, so it goes through `SiteRepository` and the lock like any
 other change to a site day.
 
 **Backups.** The diary, its photos and the signatures are three optional lists
-in the backup JSON (`diaries`, `diaryPhotos`, `signatures`), and extra work four
-more (`extraWorkJobs`, `extraWorkPhotos`, `extraWorkReports`, `extraWorkItems`),
+in the backup JSON (`diaries`, `diaryPhotos`, `signatures`), extra work four
+more (`extraWorkJobs`, `extraWorkPhotos`, `extraWorkReports`, `extraWorkItems`,
+whose items carry `barcodes` and `siteIDs` since 1.3, written only when set)
+and the Missing lists one more (`missingItems`, 1.3),
 set after `init` so the initialiser stays as it was. Quantities are written as
 text ("12.5"), exact on every platform. A job's `isDone` and `doneAt` are
 optional keys: missing, the job is done (it was written before a job could be
@@ -573,7 +581,7 @@ version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
 every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
 initialises the live version's models; each version that adds a column (V6,
-V7, V8 and V9 do) has to be initialised and deployed to Production again.
+V7, V8, V9 and V10 do) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -1317,7 +1325,39 @@ a JPEG at 0.85, whichever is smaller; the file is named as the PDF is, with
 once the share sheet reports a completed share.
 
 The remembered items ("Used before") are one list for the user, not per site:
-saving a job records its items, most recently used offered first.
+saving a job records its items, most recently used offered first — since 1.3
+the items used on this site first (`ExtraWorkCatalogItem.siteIDs`).
+
+**Scanning material (1.3).** The editor's **Scan** opens VisionKit's
+`DataScannerViewController` (EAN-13/8, UPC-E, Code 128, Code 39, QR,
+DataMatrix) full screen, on the device only; where it cannot run (the
+simulator, no camera access, the UI tests) the same place is a "Type the
+code" field. Each code recognised adds one of its item to the draft
+(`ExtraWorkScan.adding`); the same code seen again within 1.5 s is the same
+box (`ScanRepeatFilter`). A code not known pauses the scanner for **New item**
+(name, Counted in pcs/m/kg/box — box is a built-in unit since 1.3, code
+`box`, which older builds read as a unit of that name): named once, it is on
+the remembered item (`ExtraWorkCatalog.naming`) and known on every site — one
+list for the user, as the items are, so nobody names the same box twice on
+another site. One code is one item. Nothing is looked up online. Settings ›
+More › Materials lists, searches, renames, re-units and deletes the items and
+adds or removes their codes; its toolbar scan finds the item a box is.
+
+**Missing (1.3).** A site has a Missing list (`MissingItem`, `MissingList`):
+a name (from the remembered items or new text), a quantity and unit, an
+optional note, who noticed (you or a crew member) and when, and needed →
+ordered → arrived with the days. Adding a needed item that is already there
+counts it up. The site's page has a Missing row ("3 needed" in orange), the
+crew's day has "Something's missing"; the list (`SiteMissingScreen`, pushed by
+value on the Sites tab) swipes rows to Ordered or Arrived, and a scanned box
+matching an ordered (or needed) item asks to mark it arrived. **Send the list**
+shares `MissingMessage` — "Site · missing, 4 Nov", a line per item, your name,
+in the export language, the codes optional — as text, or as a one-page PDF with
+the codes; only a completed share moves the needed items to Ordered, as only a
+completed share marks extra work sent. Like extra work it is not hours and
+not under the month lock (`MissingRepository` avoids the lock's method names);
+a read-only site shows it and changes nothing. Backups carry it as
+`missingItems`, restored by the diary's rule.
 
 **Not under the month lock.** `ExtraWorkRepository` writes without
 `MonthLock`, for the diary's reason: none of it is anyone's hours, and the
@@ -1511,7 +1551,9 @@ data.
 runs out of process and needs no photo-library permission: the app only ever
 sees the pictures chosen. The camera is `UIImagePickerController` and asks for
 camera access with a purpose string, the first and only permission the diary
-adds. Every photo, picked or taken, is decoded and written again as a new JPEG
+adds. Scanning a barcode (1.3) uses the same permission, through VisionKit on
+the device; a code is matched against the user's own list and never sent or
+looked up anywhere. Every photo, picked or taken, is decoded and written again as a new JPEG
 with no metadata at all (`DiaryPhotoProcessor`), which is what takes the GPS
 coordinates out: the app keeps no location but a site's saved place, and only
 for an arrival reminder the user turned on, and a GPS position in a picture
