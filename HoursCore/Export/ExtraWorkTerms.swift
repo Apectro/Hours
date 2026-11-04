@@ -22,7 +22,10 @@ enum ExtraWorkTerm: String, CaseIterable, Hashable, Sendable {
     case progress, progressDone, progressInProgress
     case confirmedOnSite, confirmedOnSiteBy
     case legend, legendWithoutHours
-    case unitPieces, unitSets
+    case unitPieces, unitSets, unitBoxes
+    /// The Missing list (1.3): "Trg Pravde Zagreb · missing, 4 Nov", and
+    /// its PDF's title and columns.
+    case missing, missingMaterial, code, note
 }
 
 extension ExportLanguage {
@@ -137,6 +140,24 @@ extension ExportLanguage {
         case .unitSets:
             return pick(en: "set", de: "Satz", hr: "kompl.", sl: "kpl.", it: "set", fr: "lot", es: "juego",
                         pt: "conj.", nl: "set", pl: "kpl.")
+        case .unitBoxes:
+            return pick(en: "box", de: "Karton", hr: "kut.", sl: "škatla", it: "scatola", fr: "carton", es: "caja",
+                        pt: "caixa", nl: "doos", pl: "kart.")
+        case .missing:
+            // After the site's name and before the date: "· missing, 4 Nov".
+            return pick(en: "missing", de: "fehlt", hr: "nedostaje", sl: "manjka", it: "manca", fr: "manque",
+                        es: "falta", pt: "em falta", nl: "ontbreekt", pl: "brakuje")
+        case .missingMaterial:
+            return pick(en: "Missing material", de: "Fehlendes Material", hr: "Materijal koji nedostaje",
+                        sl: "Manjkajoči material", it: "Materiale mancante", fr: "Matériel manquant",
+                        es: "Material que falta", pt: "Material em falta", nl: "Ontbrekend materiaal",
+                        pl: "Brakujący materiał")
+        case .code:
+            return pick(en: "Code", de: "Code", hr: "Kod", sl: "Koda", it: "Codice", fr: "Code", es: "Código",
+                        pt: "Código", nl: "Code", pl: "Kod")
+        case .note:
+            return pick(en: "Note", de: "Hinweis", hr: "Napomena", sl: "Opomba", it: "Nota", fr: "Remarque",
+                        es: "Nota", pt: "Nota", nl: "Opmerking", pl: "Uwaga")
         }
     }
 }
