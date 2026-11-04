@@ -62,6 +62,8 @@ struct BackupRestorer {
         archive.extraWorkPhotos = extraWork.photos
         archive.extraWorkReports = extraWork.reports
         archive.extraWorkItems = extraWork.items
+        // The Missing lists, always written for the same reason.
+        archive.missingItems = MissingRepository(context: context).everything()
         return archive
     }
 
@@ -106,6 +108,7 @@ struct BackupRestorer {
         }
         restoreDiary(from: archive)
         restoreExtraWork(from: archive)
+        restoreMissing(from: archive)
 
         rebuildSiteShifts(workdays: workdays, siteRepository: siteRepository)
     }
@@ -153,8 +156,21 @@ struct BackupRestorer {
         )
     }
 
+    /// The Missing lists, by the diary's rule: the file's when it has them;
+    /// from a file older than them, the device's are kept for the sites the
+    /// file restores.
+    private func restoreMissing(from archive: BackupArchive) {
+        let repository = MissingRepository(context: context)
+        repository.replaceEverything(BackupArchive.restoredItems(
+            fromFile: archive.missingItems,
+            onDevice: repository.everything(),
+            restoredSiteIDs: archive.sites.map { Set($0.map(\.id)) },
+            siteID: \.siteID
+        ))
+    }
+
     /// Removes every day, holiday, site, crew member and site day, every
-    /// diary, photo and signature, and all extra work.
+    /// diary, photo and signature, all extra work and the Missing lists.
     ///
     /// Sites go with the days because the calendar's site shifts are made from
     /// them: keeping one without the other would leave the two disagreeing.
@@ -167,6 +183,8 @@ struct BackupRestorer {
         SiteDiaryRepository(context: context).replaceAll(diaries: [], photos: [], signatures: [])
         // Extra work goes with its sites; the remembered items with the rest.
         ExtraWorkRepository(context: context).replaceEverything(jobs: [], photos: [], reports: [], items: [])
+        // The Missing lists go with their sites.
+        MissingRepository(context: context).replaceEverything([])
     }
 
     /// Brings the calendar's site shifts into line with the site days now in

@@ -39,6 +39,7 @@ let package = Package(
                 // these is what the app bundle renders.
                 "InflectionTests.swift",
                 "MigrationTests.swift",
+                "MissingRepositoryTests.swift",
                 "PersistenceCodingTests.swift",
                 "SiteReminderIdentifierTests.swift",
                 "SiteRepositoryTests.swift",
