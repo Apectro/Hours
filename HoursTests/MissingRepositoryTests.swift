@@ -25,6 +25,20 @@ final class MissingRepositoryTests: XCTestCase {
         XCTAssertEqual(repository.neededCount(siteID: other.id), 0, "the list is the site's")
     }
 
+    func testSeveralAddedInOneGoCountUpWhatIsAlreadyNeeded() {
+        let repository = MissingRepository(context: makeContext())
+        repository.add(MissingDraft(name: "Junction box IP65", quantity: 6, unit: .pieces), siteID: site.id)
+        repository.add([
+            MissingDraft(name: "junction box IP65", quantity: 2, unit: .pieces, note: "2nd floor"),
+            MissingDraft(name: "Cable", quantity: 50, unit: .metres, note: "2nd floor"),
+        ], siteID: site.id)
+        let items = repository.items(siteID: site.id)
+        XCTAssertEqual(items.count, 2)
+        XCTAssertEqual(items.first { $0.name == "Junction box IP65" }?.quantity, 8)
+        XCTAssertEqual(items.first { $0.name == "Cable" }?.quantity, 50)
+        XCTAssertEqual(items.first { $0.name == "Cable" }?.note, "2nd floor")
+    }
+
     func testMarkingAndRemovingAreKept() throws {
         let context = makeContext()
         let repository = MissingRepository(context: context)

@@ -44,6 +44,13 @@ struct MissingRepository {
         return result.item
     }
 
+    /// Adds several in one go ("Add 3 to missing"), each by
+    /// `MissingList.adding`: one written once, as one change.
+    func add(_ drafts: [MissingDraft], siteID: UUID, at moment: Date = Date()) {
+        let before = items(siteID: siteID)
+        storeChanges(from: before, to: MissingList.adding(drafts, siteID: siteID, at: moment, to: before))
+    }
+
     /// Moves one row to a state: swiped, or a delivery scanned.
     func mark(_ id: UUID, _ state: MissingState, siteID: UUID, at moment: Date = Date()) {
         let before = items(siteID: siteID)
