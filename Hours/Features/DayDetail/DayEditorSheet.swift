@@ -77,7 +77,6 @@ struct DayEditorSheet: View {
                     settings: settingsStore.settings,
                     calendar: settingsStore.workCalendar,
                     formatting: settingsStore.dateFormatting,
-                    onDelete: storedRecord == nil ? nil : { delete() },
                     onDone: { if !path.isEmpty { path.removeLast() } }
                 )
             }
