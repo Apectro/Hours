@@ -512,6 +512,49 @@
         "many": "%lld sztuk",
         "other": "%lld sztuki"
       }
+    },
+    "defects": {
+      "de": {
+        "one": "%lld Mangel",
+        "other": "%lld Mängel"
+      },
+      "hr": {
+        "one": "%lld nedostatak",
+        "few": "%lld nedostatka",
+        "other": "%lld nedostataka"
+      },
+      "sl": {
+        "one": "%lld pomanjkljivost",
+        "two": "%lld pomanjkljivosti",
+        "few": "%lld pomanjkljivosti",
+        "other": "%lld pomanjkljivosti"
+      },
+      "it": {
+        "one": "%lld difetto",
+        "other": "%lld difetti"
+      },
+      "fr": {
+        "one": "%lld défaut",
+        "other": "%lld défauts"
+      },
+      "es": {
+        "one": "%lld defecto",
+        "other": "%lld defectos"
+      },
+      "pt": {
+        "one": "%lld defeito",
+        "other": "%lld defeitos"
+      },
+      "nl": {
+        "one": "%lld gebrek",
+        "other": "%lld gebreken"
+      },
+      "pl": {
+        "one": "%lld usterka",
+        "few": "%lld usterki",
+        "many": "%lld usterek",
+        "other": "%lld usterki"
+      }
     }
   },
   "countedSentences": {
@@ -910,6 +953,17 @@
       "pt": "Concluído · %#@items@",
       "nl": "Klaar · %#@items@",
       "pl": "Gotowe · %#@items@"
+    },
+    "^[%lld defect](inflect: true) still open.": {
+      "de": "Noch offen: %#@defects@.",
+      "hr": "Još otvoreno: %#@defects@.",
+      "sl": "Še odprto: %#@defects@.",
+      "it": "Ancora da risolvere: %#@defects@.",
+      "fr": "Encore à corriger : %#@defects@.",
+      "es": "Aún por arreglar: %#@defects@.",
+      "pt": "Ainda por corrigir: %#@defects@.",
+      "nl": "Nog open: %#@defects@.",
+      "pl": "Nadal otwarte: %#@defects@."
     }
   },
   "interface": {
@@ -18941,6 +18995,1029 @@
       "Ligado, as tuas horas ficam também no teu iCloud privado, para os teus outros dispositivos verem o mesmo.",
       "Met dit aan staan je uren ook in je eigen privé-iCloud, zodat je andere apparaten hetzelfde zien.",
       "Po włączeniu twoje godziny są też w twoim prywatnym iCloud, więc twoje inne urządzenia widzą to samo."
+    ],
+    "+ Room": [
+      "+ Raum",
+      "+ Prostorija",
+      "+ Prostor",
+      "+ Locale",
+      "+ Pièce",
+      "+ Estancia",
+      "+ Divisão",
+      "+ Ruimte",
+      "+ Pomieszczenie"
+    ],
+    "Add a close-up": [
+      "Nahaufnahme hinzufügen",
+      "Dodaj krupni plan",
+      "Dodaj bližnji posnetek",
+      "Aggiungi un primo piano",
+      "Ajouter un gros plan",
+      "Añadir un primer plano",
+      "Adicionar um grande plano",
+      "Detailfoto toevoegen",
+      "Dodaj zbliżenie"
+    ],
+    "Add a defect": [
+      "Mangel hinzufügen",
+      "Dodaj nedostatak",
+      "Dodaj pomanjkljivost",
+      "Aggiungi un difetto",
+      "Ajouter un défaut",
+      "Añadir un defecto",
+      "Adicionar um defeito",
+      "Gebrek toevoegen",
+      "Dodaj usterkę"
+    ],
+    "Add defect": [
+      "Mangel erfassen",
+      "Dodaj nedostatak",
+      "Dodaj pomanjkljivost",
+      "Aggiungi difetto",
+      "Ajouter le défaut",
+      "Añadir defecto",
+      "Adicionar defeito",
+      "Gebrek toevoegen",
+      "Dodaj usterkę"
+    ],
+    "Add floors 1 to %lld": [
+      "Stockwerke 1 bis %lld hinzufügen",
+      "Dodaj katove 1 do %lld",
+      "Dodaj nadstropja 1 do %lld",
+      "Aggiungi i piani da 1 a %lld",
+      "Ajouter les étages 1 à %lld",
+      "Añadir las plantas 1 a %lld",
+      "Adicionar os andares 1 a %lld",
+      "Verdiepingen 1 tot %lld toevoegen",
+      "Dodaj piętra od 1 do %lld"
+    ],
+    "Added under the roof; floors already there are left as they are.": [
+      "Kommt unter das Dach; vorhandene Stockwerke bleiben, wie sie sind.",
+      "Dodaju se ispod krova; postojeći katovi ostaju kakvi jesu.",
+      "Dodajo se pod streho; obstoječa nadstropja ostanejo, kot so.",
+      "Vanno sotto il tetto; i piani già presenti restano come sono.",
+      "Ajoutés sous le toit ; les étages déjà là restent tels quels.",
+      "Se añaden bajo la cubierta; las plantas que ya están se quedan como están.",
+      "Ficam abaixo do telhado; os andares que já existem ficam como estão.",
+      "Komen onder het dak; verdiepingen die er al zijn blijven zoals ze zijn.",
+      "Dodane pod dachem; istniejące piętra zostają bez zmian."
+    ],
+    "After": [
+      "Nachher",
+      "Poslije",
+      "Potem",
+      "Dopo",
+      "Après",
+      "Después",
+      "Depois",
+      "Na",
+      "Po"
+    ],
+    "Arrow": [
+      "Pfeil",
+      "Strelica",
+      "Puščica",
+      "Freccia",
+      "Flèche",
+      "Flecha",
+      "Seta",
+      "Pijl",
+      "Strzałka"
+    ],
+    "Assign defects to people": [
+      "Mängel Personen zuweisen",
+      "Dodijeli nedostatke osobama",
+      "Dodeli pomanjkljivosti osebam",
+      "Assegna i difetti alle persone",
+      "Attribuer les défauts à des personnes",
+      "Asignar los defectos a personas",
+      "Atribuir defeitos a pessoas",
+      "Gebreken aan mensen toewijzen",
+      "Przypisuj usterki osobom"
+    ],
+    "Back to scanning": [
+      "Zurück zum Scannen",
+      "Natrag na skeniranje",
+      "Nazaj na skeniranje",
+      "Torna alla scansione",
+      "Revenir au scan",
+      "Volver a escanear",
+      "Voltar a digitalizar",
+      "Terug naar scannen",
+      "Wróć do skanowania"
+    ],
+    "Before": [
+      "Vorher",
+      "Prije",
+      "Prej",
+      "Prima",
+      "Avant",
+      "Antes",
+      "Antes",
+      "Voor",
+      "Przed"
+    ],
+    "Check a delivery": [
+      "Lieferung prüfen",
+      "Provjeri isporuku",
+      "Preveri dobavo",
+      "Controlla una consegna",
+      "Vérifier une livraison",
+      "Revisar una entrega",
+      "Verificar uma entrega",
+      "Levering controleren",
+      "Sprawdź dostawę"
+    ],
+    "Circle": [
+      "Kreis",
+      "Krug",
+      "Krog",
+      "Cerchio",
+      "Cercle",
+      "Círculo",
+      "Círculo",
+      "Cirkel",
+      "Okrąg"
+    ],
+    "Close-up": [
+      "Nahaufnahme",
+      "Krupni plan",
+      "Bližnji posnetek",
+      "Primo piano",
+      "Gros plan",
+      "Primer plano",
+      "Grande plano",
+      "Detailfoto",
+      "Zbliżenie"
+    ],
+    "Defect · %@": [
+      "Mangel · %@",
+      "Nedostatak · %@",
+      "Pomanjkljivost · %@",
+      "Difetto · %@",
+      "Défaut · %@",
+      "Defecto · %@",
+      "Defeito · %@",
+      "Gebrek · %@",
+      "Usterka · %@"
+    ],
+    "Defects": [
+      "Mängel",
+      "Nedostaci",
+      "Pomanjkljivosti",
+      "Difetti",
+      "Défauts",
+      "Defectos",
+      "Defeitos",
+      "Gebreken",
+      "Usterki"
+    ],
+    "Delete defect": [
+      "Mangel löschen",
+      "Izbriši nedostatak",
+      "Izbriši pomanjkljivost",
+      "Elimina difetto",
+      "Supprimer le défaut",
+      "Eliminar defecto",
+      "Apagar defeito",
+      "Gebrek verwijderen",
+      "Usuń usterkę"
+    ],
+    "Delete this defect and its photos?": [
+      "Diesen Mangel und seine Fotos löschen?",
+      "Izbrisati ovaj nedostatak i njegove fotografije?",
+      "Izbrišem to pomanjkljivost in njene fotografije?",
+      "Eliminare questo difetto e le sue foto?",
+      "Supprimer ce défaut et ses photos ?",
+      "¿Eliminar este defecto y sus fotos?",
+      "Apagar este defeito e as suas fotos?",
+      "Dit gebrek en de foto’s verwijderen?",
+      "Usunąć tę usterkę i jej zdjęcia?"
+    ],
+    "Deliveries": [
+      "Lieferungen",
+      "Isporuke",
+      "Dobave",
+      "Consegne",
+      "Livraisons",
+      "Entregas",
+      "Entregas",
+      "Leveringen",
+      "Dostawy"
+    ],
+    "Delivery": [
+      "Lieferung",
+      "Isporuka",
+      "Dobava",
+      "Consegna",
+      "Livraison",
+      "Entrega",
+      "Entrega",
+      "Levering",
+      "Dostawa"
+    ],
+    "Delivery saved": [
+      "Lieferung gespeichert",
+      "Isporuka spremljena",
+      "Dobava shranjena",
+      "Consegna salvata",
+      "Livraison enregistrée",
+      "Entrega guardada",
+      "Entrega guardada",
+      "Levering bewaard",
+      "Dostawa zapisana"
+    ],
+    "Delivery, %@": [
+      "Lieferung, %@",
+      "Isporuka, %@",
+      "Dobava, %@",
+      "Consegna, %@",
+      "Livraison, %@",
+      "Entrega, %@",
+      "Entrega, %@",
+      "Levering, %@",
+      "Dostawa, %@"
+    ],
+    "Drag around the problem. Optional.": [
+      "Um das Problem herum ziehen. Optional.",
+      "Povuci oko problema. Neobavezno.",
+      "Povleci okoli težave. Neobvezno.",
+      "Trascina intorno al problema. Facoltativo.",
+      "Faites glisser autour du problème. Facultatif.",
+      "Arrastra alrededor del problema. Opcional.",
+      "Arraste à volta do problema. Opcional.",
+      "Sleep om het probleem heen. Optioneel.",
+      "Przeciągnij wokół problemu. Opcjonalnie."
+    ],
+    "Draw": [
+      "Zeichnen",
+      "Crtaj",
+      "Riši",
+      "Disegna",
+      "Dessiner",
+      "Dibujar",
+      "Desenhar",
+      "Tekenen",
+      "Rysuj"
+    ],
+    "Each photo keeps its marks. They are drawn over the photo, so the original is never changed.": [
+      "Jedes Foto behält seine Markierungen. Sie liegen über dem Foto, das Original bleibt unverändert.",
+      "Svaka fotografija zadržava svoje oznake. Crtaju se preko fotografije, pa se original nikad ne mijenja.",
+      "Vsaka fotografija obdrži svoje oznake. Narisane so čez fotografijo, zato se izvirnik nikoli ne spremeni.",
+      "Ogni foto conserva i suoi segni. Sono disegnati sopra la foto, quindi l’originale non cambia mai.",
+      "Chaque photo garde ses marques. Elles sont dessinées par-dessus, l’original n’est jamais modifié.",
+      "Cada foto conserva sus marcas. Se dibujan encima de la foto, así que el original nunca cambia.",
+      "Cada foto mantém as suas marcas. São desenhadas por cima da foto, por isso o original nunca muda.",
+      "Elke foto houdt zijn markeringen. Ze liggen over de foto, dus het origineel verandert nooit.",
+      "Każde zdjęcie zachowuje swoje oznaczenia. Są rysowane na zdjęciu, więc oryginał nigdy się nie zmienia."
+    ],
+    "Edit marking": [
+      "Markierung bearbeiten",
+      "Uredi oznake",
+      "Uredi oznake",
+      "Modifica i segni",
+      "Modifier les marques",
+      "Editar marcas",
+      "Editar marcas",
+      "Markering bewerken",
+      "Edytuj oznaczenia"
+    ],
+    "Fixed": [
+      "Behoben",
+      "Popravljeno",
+      "Odpravljeno",
+      "Risolti",
+      "Corrigés",
+      "Arreglados",
+      "Corrigidos",
+      "Verholpen",
+      "Naprawione"
+    ],
+    "Fixed %@": [
+      "Behoben am %@",
+      "Popravljeno %@",
+      "Odpravljeno %@",
+      "Risolto il %@",
+      "Corrigé le %@",
+      "Arreglado el %@",
+      "Corrigido a %@",
+      "Verholpen op %@",
+      "Naprawione %@"
+    ],
+    "Fixed %lld": [
+      "Behoben %lld",
+      "Popravljeno %lld",
+      "Odpravljeno %lld",
+      "Risolti %lld",
+      "Corrigés %lld",
+      "Arreglados %lld",
+      "Corrigidos %lld",
+      "Verholpen %lld",
+      "Naprawione %lld"
+    ],
+    "Open %lld": [
+      "Offen %lld",
+      "Otvoreno %lld",
+      "Odprto %lld",
+      "Aperti %lld",
+      "Ouverts %lld",
+      "Abiertos %lld",
+      "Em aberto %lld",
+      "Open %lld",
+      "Otwarte %lld"
+    ],
+    "Floors": [
+      "Stockwerke",
+      "Katovi",
+      "Nadstropja",
+      "Piani",
+      "Étages",
+      "Plantas",
+      "Andares",
+      "Verdiepingen",
+      "Piętra"
+    ],
+    "Floors 1 to %lld": [
+      "Stockwerke 1 bis %lld",
+      "Katovi 1 do %lld",
+      "Nadstropja 1 do %lld",
+      "Piani da 1 a %lld",
+      "Étages 1 à %lld",
+      "Plantas 1 a %lld",
+      "Andares 1 a %lld",
+      "Verdiepingen 1 tot %lld",
+      "Piętra od 1 do %lld"
+    ],
+    "Found a defect": [
+      "Mangel gefunden",
+      "Pronađen nedostatak",
+      "Najdena pomanjkljivost",
+      "Trovato un difetto",
+      "Défaut trouvé",
+      "Encontré un defecto",
+      "Encontrei um defeito",
+      "Gebrek gevonden",
+      "Znaleziono usterkę"
+    ],
+    "Found something wrong? Tap + and take a photo of it.": [
+      "Etwas nicht in Ordnung? Auf + tippen und ein Foto machen.",
+      "Nešto nije u redu? Dodirni + i snimi fotografiju.",
+      "Je kaj narobe? Tapni + in ga fotografiraj.",
+      "Qualcosa non va? Tocca + e scatta una foto.",
+      "Quelque chose ne va pas ? Touchez + et prenez-le en photo.",
+      "¿Algo está mal? Toca + y hazle una foto.",
+      "Algo está mal? Toque em + e tire uma foto.",
+      "Iets niet in orde? Tik op + en maak er een foto van.",
+      "Coś jest nie tak? Stuknij + i zrób zdjęcie."
+    ],
+    "From photos": [
+      "Aus Fotos",
+      "Iz fotografija",
+      "Iz fotografij",
+      "Dalle foto",
+      "Depuis les photos",
+      "De las fotos",
+      "Das fotos",
+      "Uit foto’s",
+      "Ze zdjęć"
+    ],
+    "From the bottom up. Defects are grouped in this order.": [
+      "Von unten nach oben. Mängel werden in dieser Reihenfolge gruppiert.",
+      "Odozdo prema gore. Nedostaci se grupiraju ovim redom.",
+      "Od spodaj navzgor. Pomanjkljivosti so razvrščene v tem vrstnem redu.",
+      "Dal basso verso l’alto. I difetti sono raggruppati in quest’ordine.",
+      "Du bas vers le haut. Les défauts sont regroupés dans cet ordre.",
+      "De abajo arriba. Los defectos se agrupan en este orden.",
+      "De baixo para cima. Os defeitos são agrupados por esta ordem.",
+      "Van onder naar boven. Gebreken worden in deze volgorde gegroepeerd.",
+      "Od dołu do góry. Usterki są grupowane w tej kolejności."
+    ],
+    "Ground": [
+      "EG",
+      "Prizemlje",
+      "Pritličje",
+      "Piano terra",
+      "Rez-de-chaussée",
+      "Planta baja",
+      "Rés-do-chão",
+      "Begane grond",
+      "Parter"
+    ],
+    "Later": [
+      "Später",
+      "Kasnije",
+      "Pozneje",
+      "Più tardi",
+      "Plus tard",
+      "Más tarde",
+      "Mais tarde",
+      "Later",
+      "Później"
+    ],
+    "Mark fixed": [
+      "Als behoben markieren",
+      "Označi popravljenim",
+      "Označi kot odpravljeno",
+      "Segna come risolto",
+      "Marquer comme corrigé",
+      "Marcar como arreglado",
+      "Marcar como corrigido",
+      "Als verholpen markeren",
+      "Oznacz jako naprawione"
+    ],
+    "Mark the problem": [
+      "Problem markieren",
+      "Označi problem",
+      "Označi težavo",
+      "Segna il problema",
+      "Marquer le problème",
+      "Marca el problema",
+      "Marque o problema",
+      "Markeer het probleem",
+      "Zaznacz problem"
+    ],
+    "Me": [
+      "Ich",
+      "Ja",
+      "Jaz",
+      "Io",
+      "Moi",
+      "Yo",
+      "Eu",
+      "Ik",
+      "Ja"
+    ],
+    "Message": [
+      "Nachricht",
+      "Poruka",
+      "Sporočilo",
+      "Messaggio",
+      "Message",
+      "Mensaje",
+      "Mensagem",
+      "Bericht",
+      "Wiadomość"
+    ],
+    "New defect": [
+      "Neuer Mangel",
+      "Novi nedostatak",
+      "Nova pomanjkljivost",
+      "Nuovo difetto",
+      "Nouveau défaut",
+      "Defecto nuevo",
+      "Novo defeito",
+      "Nieuw gebrek",
+      "Nowa usterka"
+    ],
+    "New floor": [
+      "Neues Stockwerk",
+      "Novi kat",
+      "Novo nadstropje",
+      "Nuovo piano",
+      "Nouvel étage",
+      "Planta nueva",
+      "Novo andar",
+      "Nieuwe verdieping",
+      "Nowe piętro"
+    ],
+    "New floor, e.g. Basement": [
+      "Neues Stockwerk, z. B. Keller",
+      "Novi kat, npr. Podrum",
+      "Novo nadstropje, npr. Klet",
+      "Nuovo piano, es. Cantina",
+      "Nouvel étage, p. ex. Sous-sol",
+      "Planta nueva, p. ej. Sótano",
+      "Novo andar, p. ex. Cave",
+      "Nieuwe verdieping, bijv. Kelder",
+      "Nowe piętro, np. Piwnica"
+    ],
+    "No floor": [
+      "Kein Stockwerk",
+      "Bez kata",
+      "Brez nadstropja",
+      "Nessun piano",
+      "Sans étage",
+      "Sin planta",
+      "Sem andar",
+      "Geen verdieping",
+      "Bez piętra"
+    ],
+    "No open defects": [
+      "Keine offenen Mängel",
+      "Nema otvorenih nedostataka",
+      "Ni odprtih pomanjkljivosti",
+      "Nessun difetto aperto",
+      "Aucun défaut ouvert",
+      "No hay defectos abiertos",
+      "Sem defeitos em aberto",
+      "Geen openstaande gebreken",
+      "Brak otwartych usterek"
+    ],
+    "No photo": [
+      "Kein Foto",
+      "Nema fotografije",
+      "Ni fotografije",
+      "Nessuna foto",
+      "Pas de photo",
+      "Sin foto",
+      "Sem foto",
+      "Geen foto",
+      "Brak zdjęcia"
+    ],
+    "No photo of this one yet.": [
+      "Davon gibt es noch kein Foto.",
+      "Za ovaj još nema fotografije.",
+      "Za to še ni fotografije.",
+      "Di questo non c’è ancora una foto.",
+      "Pas encore de photo de celui-ci.",
+      "De este todavía no hay foto.",
+      "Ainda não há foto deste.",
+      "Hiervan is nog geen foto.",
+      "Tego jeszcze nie sfotografowano."
+    ],
+    "Nobody yet": [
+      "Noch niemand",
+      "Još nitko",
+      "Še nihče",
+      "Ancora nessuno",
+      "Personne pour l’instant",
+      "Nadie todavía",
+      "Ninguém ainda",
+      "Nog niemand",
+      "Jeszcze nikt"
+    ],
+    "Noted by": [
+      "Erfasst von",
+      "Zabilježio",
+      "Zabeležil",
+      "Annotato da",
+      "Noté par",
+      "Anotado por",
+      "Registado por",
+      "Genoteerd door",
+      "Zgłosił"
+    ],
+    "Noted by %@ · %@, %@": [
+      "Erfasst von %@ · %@, %@",
+      "Zabilježio %@ · %@, %@",
+      "Zabeležil %@ · %@, %@",
+      "Annotato da %@ · %@, %@",
+      "Noté par %@ · %@, %@",
+      "Anotado por %@ · %@, %@",
+      "Registado por %@ · %@, %@",
+      "Genoteerd door %@ · %@, %@",
+      "Zgłosił %@ · %@, %@"
+    ],
+    "Nothing came": [
+      "Nichts gekommen",
+      "Ništa nije stiglo",
+      "Nič ni prispelo",
+      "Non è arrivato niente",
+      "Rien n’est arrivé",
+      "No llegó nada",
+      "Não chegou nada",
+      "Niets gekomen",
+      "Nic nie dotarło"
+    ],
+    "Nothing fixed yet": [
+      "Noch nichts behoben",
+      "Još ništa nije popravljeno",
+      "Še nič ni odpravljeno",
+      "Ancora niente di risolto",
+      "Rien de corrigé pour l’instant",
+      "Todavía no hay nada arreglado",
+      "Ainda nada corrigido",
+      "Nog niets verholpen",
+      "Jeszcze nic nie naprawiono"
+    ],
+    "Off, anybody fixes a defect and nobody is asked who.": [
+      "Aus: Jeder behebt einen Mangel, und niemand wird gefragt, wer.",
+      "Isključeno: svatko popravlja nedostatak i nitko se ne pita tko.",
+      "Izklopljeno: pomanjkljivost odpravi kdorkoli in nihče ne sprašuje, kdo.",
+      "Disattivato: chiunque risolve un difetto e nessuno chiede chi.",
+      "Désactivé : n’importe qui corrige un défaut, sans qu’on demande qui.",
+      "Desactivado: cualquiera arregla un defecto y no se pregunta quién.",
+      "Desligado: qualquer pessoa corrige um defeito e ninguém pergunta quem.",
+      "Uit: iedereen verhelpt een gebrek en er wordt niet gevraagd wie.",
+      "Wyłączone: usterkę naprawia każdy i nikt nie pyta, kto."
+    ],
+    "Only open": [
+      "Nur offene",
+      "Samo otvoreni",
+      "Samo odprte",
+      "Solo aperti",
+      "Ouverts seulement",
+      "Solo abiertos",
+      "Só em aberto",
+      "Alleen open",
+      "Tylko otwarte"
+    ],
+    "Open defects on the sign-off": [
+      "Offene Mängel auf die Abnahme",
+      "Otvoreni nedostaci na potpisu",
+      "Odprte pomanjkljivosti na podpisu",
+      "Difetti aperti sulla firma",
+      "Défauts ouverts sur la signature",
+      "Defectos abiertos en la firma",
+      "Defeitos em aberto na assinatura",
+      "Openstaande gebreken op de aftekening",
+      "Otwarte usterki na podpisie"
+    ],
+    "Photo": [
+      "Foto",
+      "Fotografija",
+      "Fotografija",
+      "Foto",
+      "Photo",
+      "Foto",
+      "Foto",
+      "Foto",
+      "Zdjęcie"
+    ],
+    "Photo after": [
+      "Foto danach",
+      "Fotografija poslije",
+      "Fotografija potem",
+      "Foto dopo",
+      "Photo après",
+      "Foto después",
+      "Foto depois",
+      "Foto erna",
+      "Zdjęcie po"
+    ],
+    "Photo of the defect": [
+      "Foto des Mangels",
+      "Fotografija nedostatka",
+      "Fotografija pomanjkljivosti",
+      "Foto del difetto",
+      "Photo du défaut",
+      "Foto del defecto",
+      "Foto do defeito",
+      "Foto van het gebrek",
+      "Zdjęcie usterki"
+    ],
+    "Photo of the delivery note": [
+      "Foto des Lieferscheins",
+      "Fotografija otpremnice",
+      "Fotografija dobavnice",
+      "Foto della bolla",
+      "Photo du bon de livraison",
+      "Foto del albarán",
+      "Foto da guia de remessa",
+      "Foto van de pakbon",
+      "Zdjęcie dowodu dostawy"
+    ],
+    "Red": [
+      "Rot",
+      "Crvena",
+      "Rdeča",
+      "Rosso",
+      "Rouge",
+      "Rojo",
+      "Vermelho",
+      "Rood",
+      "Czerwony"
+    ],
+    "Retake": [
+      "Neu aufnehmen",
+      "Snimi ponovo",
+      "Posnemi znova",
+      "Rifai",
+      "Reprendre",
+      "Repetir",
+      "Repetir",
+      "Opnieuw",
+      "Powtórz"
+    ],
+    "Roof": [
+      "Dach",
+      "Krov",
+      "Streha",
+      "Tetto",
+      "Toit",
+      "Cubierta",
+      "Telhado",
+      "Dak",
+      "Dach"
+    ],
+    "Room": [
+      "Raum",
+      "Prostorija",
+      "Prostor",
+      "Locale",
+      "Pièce",
+      "Estancia",
+      "Divisão",
+      "Ruimte",
+      "Pomieszczenie"
+    ],
+    "Room, e.g. Corridor": [
+      "Raum, z. B. Flur",
+      "Prostorija, npr. Hodnik",
+      "Prostor, npr. Hodnik",
+      "Locale, es. Corridoio",
+      "Pièce, p. ex. Couloir",
+      "Estancia, p. ej. Pasillo",
+      "Divisão, p. ex. Corredor",
+      "Ruimte, bijv. Gang",
+      "Pomieszczenie, np. Korytarz"
+    ],
+    "Save the delivery": [
+      "Lieferung speichern",
+      "Spremi isporuku",
+      "Shrani dobavo",
+      "Salva la consegna",
+      "Enregistrer la livraison",
+      "Guardar la entrega",
+      "Guardar a entrega",
+      "Levering bewaren",
+      "Zapisz dostawę"
+    ],
+    "Scan each box. The list fills up as you go.": [
+      "Jeden Karton scannen. Die Liste füllt sich dabei.",
+      "Skeniraj svaku kutiju. Popis se puni usput.",
+      "Skeniraj vsako škatlo. Seznam se sproti polni.",
+      "Scansiona ogni scatola. L’elenco si riempie man mano.",
+      "Scannez chaque carton. La liste se remplit au fur et à mesure.",
+      "Escanea cada caja. La lista se va llenando.",
+      "Digitalize cada caixa. A lista vai-se preenchendo.",
+      "Scan elke doos. De lijst vult zich gaandeweg.",
+      "Skanuj każdy karton. Lista wypełnia się na bieżąco."
+    ],
+    "Send": [
+      "Senden",
+      "Pošalji",
+      "Pošlji",
+      "Invia",
+      "Envoyer",
+      "Enviar",
+      "Enviar",
+      "Versturen",
+      "Wyślij"
+    ],
+    "Short · stays ordered": [
+      "Fehlt · bleibt bestellt",
+      "Manjka · ostaje naručeno",
+      "Manjka · ostane naročeno",
+      "Mancante · resta ordinato",
+      "Manquant · reste commandé",
+      "Falta · sigue pedido",
+      "Em falta · continua encomendado",
+      "Te weinig · blijft besteld",
+      "Brakuje · zostaje zamówione"
+    ],
+    "Still on order": [
+      "Noch bestellt",
+      "Još naručeno",
+      "Še naročeno",
+      "Ancora ordinato",
+      "Encore en commande",
+      "Todavía pedido",
+      "Ainda encomendado",
+      "Nog besteld",
+      "Nadal zamówione"
+    ],
+    "Suggestions are this site's earlier defects.": [
+      "Vorschläge sind frühere Mängel dieser Baustelle.",
+      "Prijedlozi su raniji nedostaci ovog gradilišta.",
+      "Predlogi so prejšnje pomanjkljivosti tega gradbišča.",
+      "I suggerimenti sono i difetti precedenti di questo cantiere.",
+      "Les suggestions sont les défauts précédents de ce chantier.",
+      "Las sugerencias son defectos anteriores de esta obra.",
+      "As sugestões são defeitos anteriores desta obra.",
+      "Suggesties zijn eerdere gebreken van deze bouwplaats.",
+      "Podpowiedzi to wcześniejsze usterki z tej budowy."
+    ],
+    "The delivery and its photo stay under Missing › Arrived, so later you can show what came and when.": [
+      "Die Lieferung und ihr Foto bleiben unter Fehlendes › Angekommen, so kannst du später zeigen, was wann kam.",
+      "Isporuka i njezina fotografija ostaju pod Nedostaje › Stiglo, pa kasnije možeš pokazati što je i kada stiglo.",
+      "Dobava in njena fotografija ostaneta pod Manjkajoče › Prispelo, da lahko pozneje pokažeš, kaj je prispelo in kdaj.",
+      "La consegna e la sua foto restano in Mancanti › Arrivato, così dopo puoi mostrare cosa è arrivato e quando.",
+      "La livraison et sa photo restent dans Manquants › Arrivé : vous pourrez montrer plus tard ce qui est arrivé et quand.",
+      "La entrega y su foto quedan en Lo que falta › Llegado, así luego puedes enseñar qué llegó y cuándo.",
+      "A entrega e a sua foto ficam em Em falta › Chegou, para mais tarde mostrar o que chegou e quando.",
+      "De levering en de foto blijven onder Ontbrekend › Binnen, zodat je later kunt laten zien wat er kwam en wanneer.",
+      "Dostawa i jej zdjęcie zostają w Braki › Dotarło, żeby później pokazać, co i kiedy przyszło."
+    ],
+    "The first page of the PDF": [
+      "Die erste Seite des PDFs",
+      "Prva stranica PDF-a",
+      "Prva stran PDF-ja",
+      "La prima pagina del PDF",
+      "La première page du PDF",
+      "La primera página del PDF",
+      "A primeira página do PDF",
+      "De eerste pagina van de pdf",
+      "Pierwsza strona PDF"
+    ],
+    "The sheet lists the open ones, with a photo each.": [
+      "Der Bogen listet die offenen auf, jeden mit Foto.",
+      "List navodi otvorene, svaki s fotografijom.",
+      "List navede odprte, vsako s fotografijo.",
+      "Il foglio elenca quelli aperti, ognuno con una foto.",
+      "La feuille liste ceux qui sont ouverts, chacun avec une photo.",
+      "La hoja enumera los abiertos, cada uno con una foto.",
+      "A folha lista os que estão em aberto, cada um com uma foto.",
+      "Het blad somt de openstaande op, elk met een foto.",
+      "Arkusz wymienia otwarte, każdą ze zdjęciem."
+    ],
+    "There's no camera here. Pick a photo, or note the defect without one.": [
+      "Hier gibt es keine Kamera. Wähle ein Foto oder erfasse den Mangel ohne.",
+      "Ovdje nema kamere. Odaberi fotografiju ili zabilježi nedostatak bez nje.",
+      "Tu ni kamere. Izberi fotografijo ali zabeleži pomanjkljivost brez nje.",
+      "Qui non c’è una fotocamera. Scegli una foto o annota il difetto senza.",
+      "Pas d’appareil photo ici. Choisissez une photo, ou notez le défaut sans photo.",
+      "Aquí no hay cámara. Elige una foto o anota el defecto sin ella.",
+      "Aqui não há câmara. Escolha uma foto ou registe o defeito sem ela.",
+      "Hier is geen camera. Kies een foto of noteer het gebrek zonder.",
+      "Tu nie ma aparatu. Wybierz zdjęcie albo zgłoś usterkę bez niego."
+    ],
+    "What's wrong": [
+      "Was ist los",
+      "Što ne valja",
+      "Kaj je narobe",
+      "Cosa non va",
+      "Ce qui ne va pas",
+      "Qué está mal",
+      "O que está mal",
+      "Wat is er mis",
+      "Co jest nie tak"
+    ],
+    "When the van comes, check everything in one go instead of ticking items one by one.": [
+      "Wenn der Lieferwagen kommt, alles auf einmal prüfen, statt Artikel einzeln abzuhaken.",
+      "Kad dođe kombi, provjeri sve odjednom umjesto da označavaš stavku po stavku.",
+      "Ko pride kombi, preveri vse naenkrat, namesto da odkljukaš postavko za postavko.",
+      "Quando arriva il furgone, controlla tutto in una volta invece di spuntare le voci una a una.",
+      "Quand la camionnette arrive, vérifiez tout d’un coup au lieu de cocher les articles un par un.",
+      "Cuando llegue la furgoneta, revisa todo de una vez en lugar de marcar artículo por artículo.",
+      "Quando a carrinha chegar, verifique tudo de uma vez em vez de marcar artigo a artigo.",
+      "Als het busje komt, controleer je alles in één keer in plaats van artikelen een voor een af te vinken.",
+      "Gdy przyjedzie dostawczak, sprawdź wszystko naraz, zamiast odhaczać pozycje po kolei."
+    ],
+    "Where": [
+      "Wo",
+      "Gdje",
+      "Kje",
+      "Dove",
+      "Où",
+      "Dónde",
+      "Onde",
+      "Waar",
+      "Gdzie"
+    ],
+    "White": [
+      "Weiß",
+      "Bijela",
+      "Bela",
+      "Bianco",
+      "Blanc",
+      "Blanco",
+      "Branco",
+      "Wit",
+      "Biały"
+    ],
+    "Who fixes it": [
+      "Wer behebt es",
+      "Tko popravlja",
+      "Kdo odpravi",
+      "Chi lo risolve",
+      "Qui le corrige",
+      "Quién lo arregla",
+      "Quem corrige",
+      "Wie verhelpt het",
+      "Kto naprawia"
+    ],
+    "Without a photo": [
+      "Ohne Foto",
+      "Bez fotografije",
+      "Brez fotografije",
+      "Senza foto",
+      "Sans photo",
+      "Sin foto",
+      "Sem foto",
+      "Zonder foto",
+      "Bez zdjęcia"
+    ],
+    "Yellow": [
+      "Gelb",
+      "Žuta",
+      "Rumena",
+      "Giallo",
+      "Jaune",
+      "Amarillo",
+      "Amarelo",
+      "Geel",
+      "Żółty"
+    ],
+    "%@ fixes it": [
+      "%@ behebt es",
+      "Popravlja: %@",
+      "Odpravi: %@",
+      "Lo risolve: %@",
+      "Corrigé par : %@",
+      "Lo arregla: %@",
+      "Corrige: %@",
+      "%@ verhelpt het",
+      "Naprawia: %@"
+    ],
+    "%@ of %@ came": [
+      "%@ von %@ gekommen",
+      "Stiglo %@ od %@",
+      "Prispelo %@ od %@",
+      "Arrivati %@ su %@",
+      "%@ sur %@ arrivés",
+      "Llegaron %@ de %@",
+      "Chegaram %@ de %@",
+      "%@ van %@ gekomen",
+      "Dotarło %@ z %@"
+    ],
+    "%lld of %lld here": [
+      "%lld von %lld da",
+      "%lld od %lld ovdje",
+      "%lld od %lld tukaj",
+      "%lld su %lld qui",
+      "%lld sur %lld ici",
+      "%lld de %lld aquí",
+      "%lld de %lld aqui",
+      "%lld van %lld binnen",
+      "%lld z %lld na miejscu"
+    ],
+    "%@ delivery": [
+      "Lieferung %@",
+      "Isporuka %@",
+      "Dobava %@",
+      "Consegna del %@",
+      "Livraison du %@",
+      "Entrega del %@",
+      "Entrega de %@",
+      "Levering %@",
+      "Dostawa %@"
+    ],
+    "%@ floor": [
+      "%@ OG",
+      "%@ kat",
+      "%@ nadstropje",
+      "%@ piano",
+      "%@ étage",
+      "%@ planta",
+      "%@ andar",
+      "%@ verdieping",
+      "%@ piętro"
+    ],
+    "came anyway": [
+      "trotzdem gekommen",
+      "ipak stiglo",
+      "vseeno prispelo",
+      "arrivato comunque",
+      "arrivé quand même",
+      "llegó igualmente",
+      "chegou na mesma",
+      "toch gekomen",
+      "dotarło mimo to"
+    ],
+    "e.g. Socket loose": [
+      "z. B. Steckdose locker",
+      "npr. Utičnica labava",
+      "npr. Vtičnica se maje",
+      "es. Presa allentata",
+      "p. ex. Prise desserrée",
+      "p. ej. Enchufe suelto",
+      "p. ex. Tomada solta",
+      "bijv. Stopcontact los",
+      "np. Luźne gniazdko"
+    ],
+    "fixed %@": [
+      "behoben %@",
+      "popravljeno %@",
+      "odpravljeno %@",
+      "risolto %@",
+      "corrigé %@",
+      "arreglado %@",
+      "corrigido %@",
+      "verholpen %@",
+      "naprawione %@"
+    ],
+    "photo": [
+      "Foto",
+      "fotografija",
+      "fotografija",
+      "foto",
+      "photo",
+      "foto",
+      "foto",
+      "foto",
+      "zdjęcie"
+    ],
+    "%@ of %@": [
+      "%@ von %@",
+      "%@ od %@",
+      "%@ od %@",
+      "%@ su %@",
+      "%@ sur %@",
+      "%@ de %@",
+      "%@ de %@",
+      "%@ van %@",
+      "%@ z %@"
     ]
   },
   "sameAsEnglishOnPurpose": [

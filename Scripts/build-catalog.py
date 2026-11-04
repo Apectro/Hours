@@ -73,6 +73,7 @@ EXTRA_JOBS = lambda n=1: plural("extraJobs", n, "%lld extra job", "%lld extra jo
 ITEMS = lambda n=1: plural("items", n, "%lld item", "%lld items")
 DIFFERENCES = lambda n=1: plural("differences", n, "%lld difference", "%lld differences")
 SITES = lambda n=1: plural("sites", n, "%lld site", "%lld sites")
+DEFECTS = lambda n=1: plural("defects", n, "%lld defect", "%lld defects")
 
 APP_STRINGS = {
     "^[%lld day](inflect: true)": entry("%#@days@", DAYS()),
@@ -133,6 +134,8 @@ APP_STRINGS = {
     ),
     # The barcode scanner's Done (1.3): how many it added to the job.
     "Done · ^[%lld item](inflect: true)": entry("Done · %#@items@", ITEMS()),
+    # The sign-off's note on a site's open defects (1.3).
+    "^[%lld defect](inflect: true) still open.": entry("%#@defects@ still open.", DEFECTS()),
     "^[%lld extra job](inflect: true) not sent to your boss yet": entry(
         "%#@extraJobs@ not sent to your boss yet", EXTRA_JOBS()
     ),
