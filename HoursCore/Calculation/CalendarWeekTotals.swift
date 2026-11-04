@@ -57,4 +57,25 @@ enum CalendarWeekTotals {
             }
         }
     }
+
+    /// Which rows have no tile at all, today's included, so the grid can
+    /// draw them shorter: an empty end of the month does not stretch the
+    /// screen. One per row, in row order.
+    static func shortRows(
+        of layout: MonthLayout,
+        computations: [Int: DayComputation],
+        today: CalendarDate
+    ) -> [Bool] {
+        rows(of: layout).map { row in
+            !row.contains { date in
+                date == today || CalendarDayLook.of(computations[date.key], today: today).hasTile
+            }
+        }
+    }
+
+    /// A row's total in the app's duration format, the same text as This
+    /// week; nothing for a week with nothing in it.
+    static func label(_ minutes: Int, formatting: DurationFormatting) -> String? {
+        minutes > 0 ? formatting.string(minutes) : nil
+    }
 }
