@@ -3,14 +3,15 @@ import SwiftData
 
 /// A day tapped in the month, or today's written row (design v2, mockup
 /// Main, "tap a day"): a sheet at half height, with a drag indicator, that
-/// pulls up to full. Previous day steps back a day inside it.
+/// pulls up to full. ‹ › in its top bar step a day either way inside it,
+/// as on a site's day (Polish phone 3).
 struct CalendarDaySheet: View {
     let date: CalendarDate
     /// A site's day, pushed onto the Today tab's stack as the sheet goes.
     let onOpenSite: (CalendarSiteRoute) -> Void
 
     @Environment(SettingsStore.self) private var settingsStore
-    /// The day on screen, once Previous day has been tapped.
+    /// The day on screen, once ‹ or › has been tapped.
     @State private var shown: CalendarDate?
 
     var body: some View {
@@ -19,7 +20,7 @@ struct CalendarDaySheet: View {
             CalendarDayScreen(
                 date: day,
                 onOpenSite: onOpenSite,
-                onPrevious: { shown = day.adding(days: -1, in: settingsStore.workCalendar) }
+                onStep: { direction in shown = day.adding(days: direction, in: settingsStore.workCalendar) }
             )
             // A new day is a new screen: its queries are built for its date.
             .id(day.key)
@@ -34,11 +35,13 @@ struct CalendarDaySheet: View {
 /// row per site with its times, or the one time range — and the Total; one
 /// sentence against a normal day. Then Expected, the overtime and the
 /// balance after the day, and the allowance, kilometres and note. Edit (or
-/// Write this day) at the bottom opens the editor; ✕ closes.
+/// Write this day) at the bottom opens the editor; ✕ closes; ‹ › go to the
+/// day before or after.
 struct CalendarDayScreen: View {
     let date: CalendarDate
     var onOpenSite: ((CalendarSiteRoute) -> Void)? = nil
-    var onPrevious: (() -> Void)? = nil
+    /// The day before (-1) or after (+1); nil hides ‹ ›.
+    var onStep: ((Int) -> Void)? = nil
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.modelContext) private var modelContext
@@ -61,11 +64,11 @@ struct CalendarDayScreen: View {
     init(
         date: CalendarDate,
         onOpenSite: ((CalendarSiteRoute) -> Void)? = nil,
-        onPrevious: (() -> Void)? = nil
+        onStep: ((Int) -> Void)? = nil
     ) {
         self.date = date
         self.onOpenSite = onOpenSite
-        self.onPrevious = onPrevious
+        self.onStep = onStep
         let upper = date.key
         _entries = Query(filter: #Predicate<DayEntry> { $0.dateKey <= upper }, sort: \DayEntry.dateKey)
         _holidayRecords = Query(sort: \HolidayRecord.name)
@@ -89,7 +92,7 @@ struct CalendarDayScreen: View {
         .navigationBarTitleDisplayMode(.large)
         .accessibilityIdentifier("screen-calendar-day")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     dismiss()
                 } label: {
@@ -97,6 +100,24 @@ struct CalendarDayScreen: View {
                 }
                 .accessibilityLabel("Close")
                 .accessibilityIdentifier("day-sheet-close")
+            }
+            if let onStep {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        onStep(-1)
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                    .accessibilityLabel(String(localized: "Previous day"))
+                    .accessibilityIdentifier("day-sheet-previous")
+                    Button {
+                        onStep(1)
+                    } label: {
+                        Image(systemName: "chevron.right")
+                    }
+                    .accessibilityLabel(String(localized: "Next day"))
+                    .accessibilityIdentifier("day-sheet-next")
+                }
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -110,8 +131,8 @@ struct CalendarDayScreen: View {
         }
     }
 
-    /// Two side by side: Previous day (or I worked, on a public holiday
-    /// off) and the one primary, Edit or Write this day.
+    /// The one primary, Edit or Write this day; on a public holiday off, I
+    /// worked beside it.
     private func buttons(_ content: DayDetailContent) -> some View {
         HStack(spacing: Metrics.small) {
             if content.isPublicHolidayOff {
@@ -123,12 +144,6 @@ struct CalendarDayScreen: View {
                 .buttonStyle(.bigAction(.secondary))
                 .accessibilityHint(Text("Opens the day with your usual times filled in. The holiday stays paid."))
                 .accessibilityIdentifier("day-card-holiday-worked")
-            } else if let onPrevious {
-                Button(action: onPrevious) {
-                    Text("Previous day")
-                }
-                .buttonStyle(.bigAction(.secondary))
-                .accessibilityIdentifier("day-sheet-previous")
             }
             Button {
                 sheet = .edit
