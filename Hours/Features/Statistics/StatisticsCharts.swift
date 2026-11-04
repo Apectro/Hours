@@ -17,6 +17,9 @@ struct DailyHoursChart: View {
     /// The day under his finger: tapping or dragging over a bar shows
     /// "Thu 29  10h 30m" over it (polish, 2026-11).
     @State private var selectedDate: Date?
+    /// The last day touched, kept once the finger lifts so a tap leaves
+    /// its callout up. A day outside the period shows nothing.
+    @State private var shownDate: Date?
 
     var body: some View {
         Chart {
@@ -53,6 +56,9 @@ struct DailyHoursChart: View {
             }
         }
         .chartXSelection(value: $selectedDate)
+        .onChange(of: selectedDate) { _, date in
+            if let date { shownDate = date }
+        }
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
                 AxisGridLine()
@@ -70,11 +76,12 @@ struct DailyHoursChart: View {
         }
         .frame(height: 160)
         .accessibilityLabel("Hours worked per day")
+        .accessibilityIdentifier("insights-chart")
     }
 
     private var selectedDay: DayComputation? {
-        guard let selectedDate else { return nil }
-        let date = CalendarDate(selectedDate, calendar: calendar)
+        guard let shown = selectedDate ?? shownDate else { return nil }
+        let date = CalendarDate(shown, calendar: calendar)
         return days.first { $0.date == date }
     }
 

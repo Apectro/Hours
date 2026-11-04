@@ -1064,6 +1064,15 @@ final class ScreenAtlasTests: XCTestCase {
         }
         pause(1)
         capture("insights-month", app)
+        // A bar tapped: its callout, "Thu 29  10h 30m" (polish, 2026-11).
+        let chart = app.descendants(matching: .any)["insights-chart"].firstMatch
+        if chart.waitForExistence(timeout: 3) {
+            chart.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.6)).tap()
+            pause(0.8)
+            capture("insights-month-callout", app)
+        } else {
+            miss("insights-month-callout (no chart)")
+        }
         swipeUp(app)
         capture("insights-month-lower", app)
         swipeUp(app)
