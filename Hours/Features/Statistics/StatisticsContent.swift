@@ -147,7 +147,9 @@ struct StatisticsContent: View {
                 DailyHoursChart(
                     days: days,
                     calendar: calendar,
-                    referenceHours: referenceHours
+                    referenceHours: referenceHours,
+                    duration: duration,
+                    formatting: formatting
                 )
                 .listRowInsets(EdgeInsets(top: Metrics.small, leading: Metrics.large + Metrics.tiny, bottom: Metrics.small, trailing: Metrics.large))
                 .listRowBackground(Color.clear)
@@ -276,6 +278,7 @@ struct StatisticsContent: View {
             MonthlyBalanceChart(
                 points: points,
                 formatting: formatting,
+                duration: duration,
                 showsCumulative: settings.features.showsBalance
             )
             .padding(.vertical, Metrics.small)
