@@ -105,6 +105,16 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-defect-details").waitForExistence(timeout: 5), "the details did not open")
     }
 
+    /// The room, typed first, while no keyboard is up: with the keyboard
+    /// open, the form shifts as the tap lands and the tap can hit Add defect
+    /// below the field, saving the defect before its room is typed.
+    private func typeRoom(_ text: String, _ app: XCUIApplication) {
+        let room = app.textFields["defect-room-field"]
+        XCTAssertTrue(room.waitForExistence(timeout: 5), "with no rooms yet, the room is typed")
+        XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
+        room.typeText(text)
+    }
+
     private func typeWhat(_ text: String, _ app: XCUIApplication) {
         let what = app.descendants(matching: .any)["defect-what"].firstMatch
         XCTAssertTrue(what.waitForExistence(timeout: 5))
@@ -125,32 +135,21 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-defects").waitForExistence(timeout: 5), "Defects did not open")
 
         startDefect(app)
-        typeWhat("Socket loose", app)
+        typeRoom("Room 4", app)
         app.buttons["defect-floor-2"].tap() // 2nd floor
-        let room = app.textFields["defect-room-field"]
-        XCTAssertTrue(room.waitForExistence(timeout: 5), "with no rooms yet, the room is typed")
-        // The field sits just above Add defect: tapped plainly, with the
-        // keyboard up, the tap can land on the button instead.
-        XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
-        if !room.waitForExistence(timeout: 3) {
-            // Left here until the cause is known: what the screen holds when
-            // the room field has gone after being tapped.
-            print("ROOM-FIELD-GONE\n" + app.debugDescription)
-            XCTFail("the room field went away when tapped")
-            return
-        }
-        room.typeText("Room 4")
+        typeWhat("Socket loose", app)
         app.buttons["defect-add"].tap()
         XCTAssertTrue(app.buttons["defects-row-0"].waitForExistence(timeout: 5), "the defect should be listed")
 
         startDefect(app)
         let suggestion = app.buttons["defect-what-chip-0"]
         XCTAssertTrue(suggestion.waitForExistence(timeout: 5), "the site's earlier defect is offered")
-        typeWhat("Cable not labelled", app)
+        // Where first, with no keyboard up (see typeRoom), then what.
         app.buttons["defect-floor-0"].tap() // Ground
         let remembered = app.buttons["defect-room-0"]
         XCTAssertTrue(remembered.waitForExistence(timeout: 5), "the room is remembered as a chip")
         XCTAssertTrue(app.tapAboveBottomBar(remembered, bar: app.buttons["defect-add"]))
+        typeWhat("Cable not labelled", app)
         app.buttons["defect-add"].tap()
 
         let first = app.buttons["defects-row-0"]
@@ -239,12 +238,9 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-defects").waitForExistence(timeout: 5), "Defects did not open")
 
         startDefect(app)
-        typeWhat("Socket loose", app)
+        typeRoom("Room 1", app)
         app.buttons["defect-floor-0"].tap()
-        let room = app.textFields["defect-room-field"]
-        XCTAssertTrue(room.waitForExistence(timeout: 5), "with no rooms yet, the room is typed")
-        XCTAssertTrue(app.tapAboveBottomBar(room, bar: app.buttons["defect-add"]), "the room field could not be reached")
-        room.typeText("Room 1")
+        typeWhat("Socket loose", app)
         app.buttons["defect-add"].tap()
 
         let row = app.buttons["defects-row-0"]
