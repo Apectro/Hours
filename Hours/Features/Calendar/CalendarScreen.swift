@@ -24,6 +24,8 @@ struct CalendarScreen: View {
     @Query private var holidayRecords: [HolidayRecord]
     /// A site's day and the site's crew, pushed by value.
     @State private var path = NavigationPath()
+    /// Every site, archived too, for the names on the week's rows.
+    @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
 
     /// One sheet at a time, chosen by value. Stacking several `.sheet`
     /// modifiers on a single view has undefined behaviour.
@@ -70,6 +72,7 @@ struct CalendarScreen: View {
                             summaryTitle: summaryTitle,
                             closedMonth: closedMonthOnScreen,
                             exportTitle: exportTitle,
+                            siteNames: siteNames,
                             onSelect: { activeSheet = .day($0) },
                             onStep: step,
                             onFix: { activeSheet = .editor($0) },
@@ -174,18 +177,32 @@ struct CalendarScreen: View {
         .environment(\.openSiteCrew, OpenSiteCrewAction { path.append($0) })
     }
 
-    /// ‹ › on the left; Today and the ⋯ menu on the right.
+    /// Month | Week on the left; ‹ Today › and the ⋯ menu on the right.
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarLeading) {
+        ToolbarItem(placement: .topBarLeading) {
+            Picker("View", selection: Binding(get: { scope }, set: setScope)) {
+                ForEach(CalendarScope.allCases) { option in
+                    Text(verbatim: option.title).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+            .fixedSize()
+            .accessibilityIdentifier("calendar-mode")
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            // Kept beside Today: a sideways swipe pages too, but a swipe is
+            // not something VoiceOver or Switch Control can do.
             stepButton(-1)
-            stepButton(1)
         }
         ToolbarItem(placement: .topBarTrailing) {
             // Back to this month and today; nothing to do when already there.
             Button("Today", action: goToToday)
                 .disabled(summaryRange.contains(today))
                 .accessibilityIdentifier("calendar-today")
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            stepButton(1)
         }
         ToolbarItem(placement: .topBarTrailing) {
             moreMenu
@@ -216,6 +233,10 @@ struct CalendarScreen: View {
     private var scope: CalendarScope { settings.calendar.preferredScope }
     private var today: CalendarDate { CalendarDate.today(in: calendar) }
 
+    private var siteNames: [UUID: String] {
+        Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
+    }
+
     private var layout: MonthLayout {
         switch scope {
         case .month:
@@ -244,7 +265,9 @@ struct CalendarScreen: View {
     /// count overtime from the first day of a week, which a month that starts
     /// on a Thursday does not show.
     private var fetchedRange: CalendarDateRange {
-        let covered = layout.coveredRange
+        // The rows' whole weeks, for the week totals: a hidden weekend
+        // still counts.
+        let covered = CalendarWeekTotals.span(of: layout, calendar: calendar)
         let weeks = CalendarDateRange(
             start: CalendarDateRange.week(containing: summaryRange.start, in: calendar).start,
             end: CalendarDateRange.week(containing: summaryRange.end, in: calendar).end
@@ -340,8 +363,12 @@ struct CalendarScreen: View {
         }
     }
 
+    /// Remembered in the settings (and so in a backup), as the ⋯ menu's
+    /// View did before the segmented control replaced it.
     private func setScope(_ newScope: CalendarScope) {
-        settingsStore.update { $0.calendar.preferredScope = newScope }
+        withAnimation(.snappy(duration: 0.25)) {
+            settingsStore.update { $0.calendar.preferredScope = newScope }
+        }
     }
 
     /// "I worked the usual day": today with the week's times, saved in one
@@ -430,19 +457,10 @@ struct CalendarScreen: View {
 
     // MARK: - The ⋯ menu
 
-    /// In the toolbar: the view, closing or reopening the month on screen,
-    /// and the list of closed months.
+    /// In the toolbar: closing or reopening the month on screen, and the
+    /// list of closed months. (Month or week is the segmented control.)
     private var moreMenu: some View {
         Menu {
-            Picker("View", selection: Binding(get: { scope }, set: setScope)) {
-                ForEach(CalendarScope.allCases) { option in
-                    Text(option.title).tag(option)
-                }
-            }
-            .pickerStyle(.inline)
-
-            Divider()
-
             switch lockOffer {
             case .close?:
                 Button {
@@ -507,6 +525,7 @@ private struct CalendarPeriodView<Middle: View>: View {
     let summaryTitle: String
     let closedMonth: YearMonth?
     let exportTitle: String
+    let siteNames: [UUID: String]
     let onSelect: (CalendarDate) -> Void
     let onStep: (Int) -> Void
     let onFix: (CalendarDate) -> Void
@@ -523,7 +542,12 @@ private struct CalendarPeriodView<Middle: View>: View {
     /// Field allowance, kilometres and travel through today, while they are
     /// tracked.
     private let allowance: AllowanceSummary
-    private let weekDays: [DayComputation]
+    /// Each row's week total, in minutes (`CalendarWeekTotals`).
+    private let weekTotals: [Int]
+    /// The week's list under its tiles (`CalendarWeekList`).
+    private let weekRows: [CalendarWeekList.Row]
+    /// Whether today is in the period on screen.
+    private let isThisPeriod: Bool
     /// Your days not written in the period, in order (`MissingDays`).
     private let missing: [CalendarDate]
 
@@ -539,6 +563,7 @@ private struct CalendarPeriodView<Middle: View>: View {
         summaryTitle: String,
         closedMonth: YearMonth?,
         exportTitle: String,
+        siteNames: [UUID: String],
         onSelect: @escaping (CalendarDate) -> Void,
         onStep: @escaping (Int) -> Void,
         onFix: @escaping (CalendarDate) -> Void,
@@ -555,6 +580,7 @@ private struct CalendarPeriodView<Middle: View>: View {
         self.summaryTitle = summaryTitle
         self.closedMonth = closedMonth
         self.exportTitle = exportTitle
+        self.siteNames = siteNames
         self.onSelect = onSelect
         self.onStep = onStep
         self.onFix = onFix
@@ -564,9 +590,10 @@ private struct CalendarPeriodView<Middle: View>: View {
         self.middle = middle()
 
         let engine = PeriodEngine(settings: settings, calendar: calendar, firstRecorded: data.firstRecorded)
+        let rowWeeks = CalendarWeekTotals.span(of: layout, calendar: calendar)
         let span = CalendarDateRange(
-            start: min(layout.coveredRange.start, summaryRange.start),
-            end: max(layout.coveredRange.end, summaryRange.end)
+            start: min(rowWeeks.start, summaryRange.start),
+            end: max(rowWeeks.end, summaryRange.end)
         )
         let resolved = engine.days(in: span, records: data.records, holidays: data.holidays)
 
@@ -581,39 +608,99 @@ private struct CalendarPeriodView<Middle: View>: View {
             ? engine.earnings(in: summaryRange, records: data.records, holidays: data.holidays, countingThrough: today)
             : nil
         self.allowance = AllowanceSummary(days: inPeriod, settings: settings, countingThrough: today)
-        self.weekDays = scope == .week ? inPeriod : []
+        self.weekTotals = CalendarWeekTotals.minutes(
+            of: layout, days: resolved, calendar: calendar, countingThrough: today
+        )
+        self.isThisPeriod = summaryRange.contains(today)
+        self.weekRows = scope == .week ? CalendarWeekList.rows(inPeriod, today: today) : []
         self.missing = MissingDays.personal(days: inPeriod, today: today)
     }
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
-    var body: some View {
-        // The grid sits on the background, not in a card.
-        Section {
+    /// The month with its week totals, or the week: "This week 33h" over
+    /// its seven tiles.
+    @ViewBuilder
+    private var calendarView: some View {
+        switch scope {
+        case .month:
             CalendarMonthGrid(
                 layout: layout,
                 computations: computationsByKey,
+                weekTotals: weekTotals,
                 today: today,
                 detail: settings.calendar.dayCellDetail,
                 formatting: formatting,
                 durationFormatting: duration,
                 onSelect: onSelect
             )
-            // A sideways swipe pages the period, as the arrows do.
-            // Simultaneous, so the list still scrolls and a date still
-            // takes its tap; only a clearly horizontal drag counts.
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 30)
-                    .onEnded { value in
-                        let width = value.translation.width
-                        guard abs(width) > 50, abs(width) > abs(value.translation.height) * 1.5 else { return }
-                        onStep(width < 0 ? 1 : -1)
-                    }
+        case .week:
+            VStack(alignment: .leading, spacing: Metrics.medium) {
+                weekTotalLine
+                    .padding(.horizontal, Metrics.small)
+                CalendarWeekTiles(
+                    layout: layout,
+                    computations: computationsByKey,
+                    today: today,
+                    detail: settings.calendar.dayCellDetail,
+                    formatting: formatting,
+                    durationFormatting: duration,
+                    onSelect: onSelect
+                )
+            }
+        }
+    }
+
+    /// "This week 33h" under the large title; another week says Total.
+    private var weekTotalLine: some View {
+        let minutes = weekTotals.first ?? 0
+        return HStack(spacing: Metrics.tiny) {
+            (isThisPeriod ? Text("This week") : Text("Total"))
+                .foregroundStyle(.hoursSecondaryText)
+            Text(verbatim: minutes > 0
+                ? DurationFormatting.compactHours(minutes, decimalSeparator: Locale.current.decimalSeparator ?? ".")
+                : "0h")
+                .fontWeight(.semibold)
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+        }
+        .font(.subheadline)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("calendar-week-total-0")
+    }
+
+    var body: some View {
+        // The calendar sits on the background, not in a card.
+        Section {
+            calendarView
+                // A sideways swipe pages the period, as the arrows do.
+                // Simultaneous, so the list still scrolls and a date still
+                // takes its tap; only a clearly horizontal drag counts.
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 30)
+                        .onEnded { value in
+                            let width = value.translation.width
+                            guard abs(width) > 50, abs(width) > abs(value.translation.height) * 1.5 else { return }
+                            onStep(width < 0 ? 1 : -1)
+                        }
+                )
+                .padding(.horizontal, Metrics.medium)
+                .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: 0, trailing: 0))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .id(CalendarScreen.monthAnchor)
+        }
+
+        // The week's days as rows, straight under its tiles.
+        if scope == .week && !weekRows.isEmpty {
+            WeekDayList(
+                rows: weekRows,
+                today: today,
+                formatting: formatting,
+                siteNames: siteNames,
+                onSelect: onSelect,
+                onWrite: onFix
             )
-            .listRowInsets(EdgeInsets(top: Metrics.small, leading: 0, bottom: 0, trailing: 0))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .id(CalendarScreen.monthAnchor)
         }
 
         middle
@@ -627,15 +714,6 @@ private struct CalendarPeriodView<Middle: View>: View {
                     MissingDaysBanner(count: missing.count) { onFix(first) }
                 }
             }
-        }
-
-        if scope == .week && !weekDays.isEmpty {
-            WeekDayList(
-                days: weekDays,
-                settings: settings,
-                formatting: formatting,
-                onSelect: onSelect
-            )
         }
 
         if settings.calendar.showMonthSummary {
@@ -695,56 +773,131 @@ private struct MissingDaysBanner: View {
     }
 }
 
-/// The week's days as rows, shown only in week scope where there is room
-/// to say more than a date in the grid can.
+/// The week's days under its tiles (the owner's combined mockup, phone 2):
+/// "Mon 26", the times over the site or sites, the hours on the right. A
+/// working day nobody wrote says so in red, with Write, which opens the
+/// editor. Today's date is in the accent. A tap on a row opens the day's
+/// sheet.
 private struct WeekDayList: View {
-    let days: [DayComputation]
-    let settings: AppSettings
-    let formatting: CalendarFormatting
-    let onSelect: (CalendarDate) -> Void
+    // Grows with the user's text size. Not `private`, so the memberwise
+    // initializer stays usable.
+    @ScaledMetric(relativeTo: .body) var dateWidth: CGFloat = 60
 
-    private var duration: DurationFormatting { settings.displayFormatting }
+    let rows: [CalendarWeekList.Row]
+    let today: CalendarDate
+    let formatting: CalendarFormatting
+    let siteNames: [UUID: String]
+    let onSelect: (CalendarDate) -> Void
+    let onWrite: (CalendarDate) -> Void
 
     var body: some View {
         Section {
-            ForEach(days) { day in
-                Button {
-                    onSelect(day.date)
-                } label: {
-                    HStack(spacing: Metrics.medium) {
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(formatting.mediumDate(day.date))
-                                .foregroundStyle(.primary)
-                            Text(subtitle(for: day))
-                                .font(.subheadline)
-                                .monospacedDigit()
-                                .foregroundStyle(.hoursSecondaryText)
-                        }
-                        Spacer(minLength: Metrics.small)
-                        if settings.features.showsBalance && day.hasEntry {
-                            Text(verbatim: duration.signedString(day.balanceMinutes))
-                                .monospacedDigit()
-                                .foregroundStyle(Color.hoursBalance(day.balanceMinutes))
-                        }
-                    }
-                    .contentShape(Rectangle())
-                }
+            ForEach(rows) { row in
+                rowView(row)
             }
         }
     }
 
-    private func subtitle(for day: DayComputation) -> String {
-        if let start = day.start, let end = day.end {
-            let times = "\(formatting.time(start, on: day.date)) – \(formatting.time(end, on: day.date))"
-            return "\(times) · \(duration.string(day.workedMinutes))"
+    private func rowView(_ row: CalendarWeekList.Row) -> some View {
+        let day = row.day
+        return HStack(spacing: Metrics.medium) {
+            Button {
+                onSelect(day.date)
+            } label: {
+                HStack(spacing: Metrics.medium) {
+                    Text(verbatim: formatting.shortWeekdayAndDay(day.date))
+                        .font(day.date == today ? Font.body.weight(.semibold) : Font.body)
+                        .monospacedDigit()
+                        .foregroundStyle(dateColor(row))
+                        .frame(minWidth: dateWidth, alignment: .leading)
+                    details(row)
+                    Spacer(minLength: Metrics.small)
+                    if row.status == .written, let hours = hours(day) {
+                        Text(verbatim: hours)
+                            .monospacedDigit()
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
+                }
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("calendar-week-row-\(day.date.key)")
+
+            if row.status == .missing {
+                Button("Write") {
+                    onWrite(day.date)
+                }
+                .font(.subheadline.weight(.semibold))
+                .buttonStyle(.borderless)
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("calendar-week-write-\(day.date.key)")
+            }
         }
-        if day.creditedMinutes > 0 {
-            return String(
-                localized: "\(day.dayType.displayName())  ·  \(duration.string(day.creditedMinutes)) credited",
-                comment: "A day with no worked hours but paid time, e.g. Vacation · 8h 00m credited"
-            )
+    }
+
+    @ViewBuilder
+    private func details(_ row: CalendarWeekList.Row) -> some View {
+        switch row.status {
+        case .missing:
+            Text("Not written")
+                .foregroundStyle(Color.hoursMissing)
+        case .notYet:
+            Text("Not written yet")
+                .foregroundStyle(.hoursSecondaryText)
+        case .written:
+            VStack(alignment: .leading, spacing: 1) {
+                if let times = times(row.day) {
+                    Text(verbatim: times)
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                    if let place = place(row.day) {
+                        Text(verbatim: place)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
+                } else {
+                    Text(verbatim: row.day.holidayName ?? row.day.dayType.displayName())
+                        .foregroundStyle(.primary)
+                    if let place = place(row.day) {
+                        Text(verbatim: place)
+                            .font(.subheadline)
+                            .foregroundStyle(.hoursSecondaryText)
+                    }
+                }
+            }
+            .lineLimit(2)
         }
-        return day.dayType.displayName()
+    }
+
+    private func dateColor(_ row: CalendarWeekList.Row) -> Color {
+        if row.status == .missing { return .hoursMissing }
+        if row.day.date == today { return .accentColor }
+        return .secondary
+    }
+
+    /// "7:00 – 15:00": the first block's start to the last block's end.
+    private func times(_ day: DayComputation) -> String? {
+        guard let start = day.start, let end = day.end else { return nil }
+        return "\(formatting.time(start, on: day.date)) – \(formatting.time(end, on: day.date))"
+    }
+
+    /// The site, or "Trg Pravde → Jarunski" for a day on two; the day's
+    /// place when it has no site.
+    private func place(_ day: DayComputation) -> String? {
+        let names = CalendarWeekList.siteIDs(of: day).compactMap { siteNames[$0] }
+        if !names.isEmpty { return names.joined(separator: " → ") }
+        let location = day.location.trimmingCharacters(in: .whitespacesAndNewlines)
+        return location.isEmpty ? nil : location
+    }
+
+    /// "8h", "8.5h": worked and credited.
+    private func hours(_ day: DayComputation) -> String? {
+        guard day.isIncluded, day.paidMinutes > 0 else { return nil }
+        return DurationFormatting.compactHours(
+            day.paidMinutes,
+            decimalSeparator: Locale.current.decimalSeparator ?? "."
+        )
     }
 }
 
