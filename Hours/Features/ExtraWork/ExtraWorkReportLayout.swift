@@ -75,7 +75,7 @@ struct ExtraWorkReportLayout {
             tileWidth: 228,
             quantityWidth: 200,
             unitWidth: 150,
-            codeWidth: 300,
+            codeWidth: 290,
             signatureWidth: 440,
             jobSignatureWidth: 324
         )
