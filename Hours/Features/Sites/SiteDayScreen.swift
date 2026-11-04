@@ -93,6 +93,8 @@ struct SiteDayScreen: View {
     @State private var savedRevision = 0
     /// Counts ticks and unticks, for the haptic.
     @State private var ticks = 0
+    /// "Found a defect": the defect camera, full screen (1.3).
+    @State private var capturesDefect = false
 
     /// One sheet at a time, chosen by value: stacking several `.sheet`
     /// modifiers on one view has undefined behaviour.
@@ -267,6 +269,9 @@ struct SiteDayScreen: View {
         }
         .sheet(item: $activeSheet) { sheet in
             sheetContent(sheet)
+        }
+        .fullScreenCover(isPresented: $capturesDefect) {
+            DefectCaptureFlow(site: site, onAdded: {})
         }
         .alert(
             "This month is closed",
@@ -716,6 +721,13 @@ struct SiteDayScreen: View {
                     activeSheet = .missing
                 }
                 .accessibilityIdentifier("site-day-missing")
+                // Noted on the spot (1.3), camera first.
+                SiteLinkRow(title: String(localized: "Found a defect")) {
+                    commitNote()
+                    commitKilometres()
+                    capturesDefect = true
+                }
+                .accessibilityIdentifier("site-day-defect")
             }
         }
     }

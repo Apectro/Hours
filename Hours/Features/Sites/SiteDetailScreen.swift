@@ -365,6 +365,7 @@ struct SiteDetailScreen: View {
             openSiteCrew(SiteCrewRoute(siteID: site.id))
         }
         missingRow(for: site)
+        defectsRow(for: site)
         linkRow("A usual day", value: usualDayText(setup), identifier: "site-usual-day") {
             editing = site
         }
@@ -402,6 +403,29 @@ struct SiteDetailScreen: View {
         }
         .frame(minHeight: 44)
         .accessibilityIdentifier("site-missing")
+    }
+
+    /// Defects (1.3): "4 open" in red, or "None" in grey. Pushed by value,
+    /// as Missing is.
+    private func defectsRow(for site: Site) -> some View {
+        NavigationLink(value: SiteDefectsRoute(siteID: site.id)) {
+            HStack(spacing: Metrics.small) {
+                Text("Defects")
+                    .foregroundStyle(.primary)
+                Spacer(minLength: Metrics.small)
+                if counts.openDefects > 0 {
+                    Text(String(localized: "\(counts.openDefects) open", comment: "A site's Defects row: how many defects are still open"))
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.hoursMissing)
+                } else {
+                    Text("None")
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+        }
+        .frame(minHeight: 44)
+        .accessibilityIdentifier("site-defects")
     }
 
     private func showsDiary(for site: Site) -> Bool {
@@ -547,7 +571,8 @@ struct SiteDetailScreen: View {
                 .jobs(siteID: siteID)
                 .filter { !$0.isDone || $0.awaitsReport }
                 .count,
-            missingNeeded: MissingRepository(context: modelContext).neededCount(siteID: siteID)
+            missingNeeded: MissingRepository(context: modelContext).neededCount(siteID: siteID),
+            openDefects: DefectRepository(context: modelContext).openCount(siteID: siteID)
         )
         guard !showsDay else {
             counts = loaded
@@ -609,6 +634,8 @@ private struct SiteCounts {
     var openExtraWork = 0
     /// Items on the site's Missing list still needed.
     var missingNeeded = 0
+    /// Defects on the site still open.
+    var openDefects = 0
     /// Every day the month's grid draws, by status.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
     /// People present on each of the site's days the grid draws.

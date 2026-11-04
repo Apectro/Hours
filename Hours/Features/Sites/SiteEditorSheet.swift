@@ -146,6 +146,22 @@ struct SiteEditorSheet: View {
                     }
                 }
 
+                // Defects (1.3): who fixes them, and the floors they are
+                // noted on.
+                Section {
+                    Toggle("Assign defects to people", isOn: $setup.assignsDefects)
+                        .accessibilityIdentifier("defects-assign-switch")
+                        .disabled(isReadOnly)
+                    NavigationLink(value: SiteEditorRoute.floors) {
+                        LabeledContent("Floors", value: floorsSummary)
+                    }
+                    .accessibilityIdentifier("site-floors-row")
+                } header: {
+                    Text("Defects")
+                } footer: {
+                    Text("Off, anybody fixes a defect and nobody is asked who.")
+                }
+
                 if isNew && !candidates.isEmpty {
                     Section {
                         ForEach(candidates) { candidate in
@@ -168,6 +184,8 @@ struct SiteEditorSheet: View {
                     SiteArrivalScreen(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
                 case .workDays:
                     SiteWorkDaysScreen(days: $setup.workDays, isReadOnly: isReadOnly)
+                case .floors:
+                    SiteFloorsScreen(floors: $setup.floors, isReadOnly: isReadOnly)
                 }
             }
             .toolbar {
@@ -188,6 +206,13 @@ struct SiteEditorSheet: View {
                 loadCandidates()
             }
         }
+    }
+
+    /// "Ground – Roof · 4", or the first floor alone.
+    private var floorsSummary: String {
+        let floors = setup.floorList(defaults: SiteFloorNames.defaults)
+        guard let first = floors.first, let last = floors.last else { return "" }
+        return floors.count == 1 ? first : "\(first) – \(last)"
     }
 
     /// "150 m" while it is on, "Off" otherwise.
@@ -387,6 +412,7 @@ struct SiteEditorSheet: View {
 enum SiteEditorRoute: Hashable {
     case arrival
     case workDays
+    case floors
 }
 
 /// The days the site is worked, on a page of their own.

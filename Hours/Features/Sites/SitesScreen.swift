@@ -262,6 +262,9 @@ private struct SitesContent: View {
         .navigationDestination(for: SiteMissingRoute.self) { route in
             SiteMissingScreen(siteID: route.siteID)
         }
+        .navigationDestination(for: SiteDefectsRoute.self) { route in
+            SiteDefectsScreen(siteID: route.siteID)
+        }
         .navigationDestination(for: ArchivedSitesRoute.self) { _ in
             ArchivedSitesScreen(sites: archivedSites)
         }
