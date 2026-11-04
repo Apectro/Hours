@@ -307,7 +307,8 @@ final class ScreenAtlasTests: XCTestCase {
         newSiteWizardScreens(app)
 
         tapAnyway(app.buttons.matching(identifier: "site-card").firstMatch)
-        // The site's page (1.2): the month, the group, Write today and Sheet.
+        // The site's page (1.2): the month in the Today tab's tiles with
+        // its week totals, the group, Write today and Sheet.
         guard app.screen("screen-site").waitForExistence(timeout: 10) else {
             miss("site (the site did not open)")
             return

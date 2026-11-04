@@ -1,6 +1,6 @@
 {
   "_comment": "Seconds each UI test class took on a CI run (2026-10-29). Used only to balance the parallel UI-test parts; a class missing here counts as 60. Refresh by hand when the parts drift apart.",
-  "SiteDayTests": 317,
+  "SiteDayTests": 340,
   "SitesTests": 228,
   "ArrivalReminderUITests": 183,
   "AllowanceUITests": 166,
