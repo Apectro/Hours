@@ -466,7 +466,11 @@ final class ScreenAtlasTests: XCTestCase {
             if editor.waitForExistence(timeout: 10) {
                 pause(0.5)
                 capture("extra-work-new", app)
-                if tap(app.buttons.matching(identifier: "extra-work-hours-toggle").firstMatch, "How long it took", app) {
+                // The editor is a form: a list only makes the rows on
+                // screen, so each control lower down is scrolled to first.
+                let hoursToggle = app.buttons.matching(identifier: "extra-work-hours-toggle").firstMatch
+                _ = bringIntoView(hoursToggle, app)
+                if tap(hoursToggle, "How long it took", app) {
                     pause(0.5)
                 }
                 swipeDown(app, times: 3)
@@ -474,16 +478,30 @@ final class ScreenAtlasTests: XCTestCase {
                 swipeUp(app)
                 capture("extra-work-new-open-lower", app)
 
-                if tap(app.buttons.matching(identifier: "extra-work-new-item").firstMatch, "New item", app) {
+                let newItem = app.buttons.matching(identifier: "extra-work-new-item").firstMatch
+                _ = bringIntoView(newItem, app)
+                if tap(newItem, "New item", app) {
                     capture("extra-work-new-item", app)
                     close(app, "extra-work-item-cancel")
                 }
+                let addFromList = app.buttons.matching(identifier: "extra-work-add-from-list").firstMatch
+                _ = bringIntoView(addFromList, app)
+                if tap(addFromList, "Add from list", app) {
+                    capture("extra-work-add-from-list", app)
+                    // Closes the menu without choosing anything.
+                    app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12)).tap()
+                    pause(0.6)
+                }
                 scannerScreens(app)
-                if tap(app.buttons.matching(identifier: "extra-work-sign").firstMatch, "the client's signature", app) {
+                let sign = app.buttons.matching(identifier: "extra-work-sign").firstMatch
+                _ = bringIntoView(sign, app)
+                if tap(sign, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
                     close(app, "extra-work-signature-cancel")
                 }
-                if tap(app.buttons.matching(identifier: "extra-work-edit-items").firstMatch, "the item list", app) {
+                let editItems = app.buttons.matching(identifier: "extra-work-edit-items").firstMatch
+                _ = bringIntoView(editItems, app)
+                if tap(editItems, "the item list", app) {
                     capture("extra-work-catalogue", app)
                     if tap(app.buttons.matching(identifier: "extra-work-catalog-item").firstMatch, "an item in the list", app) {
                         capture("extra-work-catalogue-item", app)

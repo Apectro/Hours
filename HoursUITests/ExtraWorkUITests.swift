@@ -50,15 +50,19 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertEqual(app.buttons["extra-work-quantity-0"].label.isEmpty, false)
 
         // One time for the job, and who was on it: the day's crew chosen.
+        // The editor is a form: a list only makes the rows on screen, so
+        // scroll to each one lower down before looking for it.
         let addTime = app.buttons["extra-work-hours-toggle"]
+        for _ in 0..<4 where !(addTime.exists && addTime.isHittable) { app.swipeUp() }
         XCTAssertTrue(addTime.waitForExistence(timeout: 5), "How long it took should offer Add")
-        for _ in 0..<3 where !addTime.isHittable { app.swipeUp() }
         addTime.tap()
         let more = app.buttons["extra-work-time-plus"]
+        for _ in 0..<3 where !(more.exists && more.isHittable) { app.swipeUp() }
         XCTAssertTrue(more.waitForExistence(timeout: 5), "one stepper for the job's time")
         for _ in 0..<4 { more.tap() }
         let firstPerson = app.buttons["extra-work-person-0"]
-        XCTAssertTrue(firstPerson.waitForExistence(timeout: 5), "the day's crew as chips")
+        for _ in 0..<3 where !firstPerson.exists { app.swipeUp() }
+        XCTAssertTrue(firstPerson.waitForExistence(timeout: 5), "the day's crew as rows to tick")
         XCTAssertTrue(firstPerson.isSelected, "someone is on the job when the time is added")
 
         app.buttons["extra-work-save"].tap()

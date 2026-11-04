@@ -24,7 +24,7 @@ struct TrackingSettingsScreen: View {
             } header: {
                 Text("Recording")
             } footer: {
-                Text("Clock in and out adds a button on today that starts and stops a clock. With several breaks switched on, each can be a length or a pair of times.")
+                Text("Clock in and out adds a button on today that starts and stops a clock.")
             }
 
             Section {

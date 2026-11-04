@@ -24,7 +24,7 @@ struct AppearanceSettingsScreen: View {
             } header: {
                 Text("Durations in the app")
             } footer: {
-                Text("How hours are written throughout the app. Exports have their own setting.")
+                Text("How hours are written throughout the app.")
             }
 
             Section {

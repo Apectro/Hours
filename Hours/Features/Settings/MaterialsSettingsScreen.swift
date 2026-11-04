@@ -52,7 +52,7 @@ struct MaterialsSettingsScreen: View {
                 }
             } footer: {
                 if !items.isEmpty {
-                    Text("Every item you have written or scanned. Tap one to rename it, change its unit, or add a second barcode.")
+                    Text("Tap one to rename it, change its unit, or add a second barcode.")
                 }
             }
         }

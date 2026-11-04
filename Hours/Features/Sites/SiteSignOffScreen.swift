@@ -74,7 +74,7 @@ struct SiteSignOffScreen: View {
                     }
                 }
             } footer: {
-                Text("Hand the phone to each person. They check their own days and sign with a finger. The signature is printed on the site sheet.")
+                Text("Each person checks their own days and signs here with a finger.")
             }
         }
         .confirmationDialog(
@@ -122,14 +122,15 @@ struct SiteSignOffScreen: View {
         HStack(spacing: Metrics.medium) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: person.name)
-                    .font(.body.weight(.semibold))
+                // The colour is the symbol's on the right; the words stay grey.
                 Text(verbatim: statusText(for: person))
-                    .font(.footnote)
-                    .foregroundStyle(isChanged(person) ? Color.hoursAttention : Color.secondary)
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
             }
             Spacer(minLength: Metrics.small)
             Text(verbatim: settings.displayFormatting.string(person.minutes))
-                .font(.hoursFigure(.body))
+                .foregroundStyle(.hoursSecondaryText)
+                .monospacedDigit()
             Image(systemName: icon(for: person))
                 .foregroundStyle(iconColour(for: person))
                 .accessibilityHidden(true)
@@ -154,11 +155,6 @@ struct SiteSignOffScreen: View {
 
     private func state(for person: SignOffPerson) -> SignOffState {
         SignOff.state(for: person.id, signatures: signatures, results: results, month: month, siteID: site.id)
-    }
-
-    private func isChanged(_ person: SignOffPerson) -> Bool {
-        if case .changedAfterSigning = state(for: person) { return true }
-        return false
     }
 
     private func statusText(for person: SignOffPerson) -> String {
@@ -272,7 +268,7 @@ enum SignOffBook {
                 guard let entry = result.people.first(where: { $0.memberID == memberID }) else { return nil }
                 let times: String
                 if let start = entry.start, let end = entry.end {
-                    times = "\(formatting.time(start, on: result.day.date))–\(formatting.time(end, on: result.day.date))"
+                    times = "\(formatting.time(start, on: result.day.date)) – \(formatting.time(end, on: result.day.date))"
                 } else if result.day.isBadWeatherStop {
                     times = DayTypeCatalog.standard.definition(for: .badWeather).displayName()
                 } else {
@@ -420,57 +416,47 @@ struct SignatureSheet: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: Metrics.medium) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: Metrics.medium) {
-                        HStack(alignment: .firstTextBaseline) {
+                Form {
+                    Section {
+                        LabeledContent {
+                            Text(verbatim: total)
+                                .font(.title3.weight(.semibold))
+                                .monospacedDigit()
+                                .foregroundStyle(.primary)
+                        } label: {
                             Text(siteName.isEmpty
                                 ? String(localized: "Total")
                                 : String(localized: "Total on \(siteName)", comment: "Sign-off: the person's hours on the site; the value is the site's name"))
-                            Spacer(minLength: Metrics.small)
-                            Text(verbatim: total)
-                                .font(.hoursFigure(.title2, weight: .heavy))
                         }
-                        .padding(Metrics.large)
-                        .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
                         .accessibilityElement(children: .combine)
 
-                        Text(String(
-                            localized: "Hand the phone to \(person.name). They sign that these hours are right.",
-                            comment: "Sign-off, above the signature area; the value is the person's name"
-                        ))
-                        .font(.subheadline)
-                        .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-
                         DisclosureGroup(isExpanded: $showsDays) {
-                            VStack(spacing: Metrics.small) {
-                                ForEach(rows) { row in
-                                    HStack {
-                                        Text(verbatim: row.date)
-                                        Spacer(minLength: Metrics.small)
-                                        Text(verbatim: row.times)
-                                            .foregroundStyle(.hoursSecondaryText)
-                                        Text(verbatim: row.hours)
-                                            .font(.hoursFigure(.body))
-                                            .frame(minWidth: 64, alignment: .trailing)
-                                    }
-                                    .font(.subheadline)
-                                    .accessibilityElement(children: .combine)
+                            ForEach(rows) { row in
+                                HStack {
+                                    Text(verbatim: row.date)
+                                    Spacer(minLength: Metrics.small)
+                                    Text(verbatim: row.times)
+                                        .foregroundStyle(.hoursSecondaryText)
+                                    Text(verbatim: row.hours)
+                                        .monospacedDigit()
+                                        .frame(minWidth: 64, alignment: .trailing)
                                 }
+                                .font(.subheadline)
+                                .accessibilityElement(children: .combine)
                             }
-                            .padding(.top, Metrics.small)
                         } label: {
                             Text(String(inflected: "^[\(rows.count) day](inflect: true)"))
-                                .font(.subheadline.weight(.semibold))
                         }
                         .accessibilityIdentifier("signature-days")
+                    } footer: {
+                        Text(String(
+                            localized: "Hand the phone to \(person.name) to sign that these hours are right.",
+                            comment: "Sign-off, above the signature area; the value is the person's name"
+                        ))
                     }
-                    .padding(.horizontal, Metrics.large)
-                    .padding(.top, Metrics.small)
                 }
 
-                // Outside the scroll view, so a stroke is never taken for a
-                // scroll.
+                // Outside the form, so a stroke is never taken for a scroll.
                 SignatureCanvas(strokes: $strokes)
                     .overlay(alignment: .bottomLeading) {
                         Text("Sign here")
@@ -515,8 +501,13 @@ struct SignatureSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("signature-cancel")
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Cancel"))
+                    .accessibilityIdentifier("signature-cancel")
                 }
             }
         }

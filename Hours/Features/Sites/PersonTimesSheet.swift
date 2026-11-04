@@ -61,33 +61,40 @@ struct PersonTimesSheet: View {
                 Section {
                     HStack(alignment: .firstTextBaseline) {
                         Text("Worked")
-                            .foregroundStyle(.hoursSecondaryText)
                         Spacer(minLength: Metrics.small)
                         Text(verbatim: settings.displayFormatting.string(workedMinutes))
-                            .font(.hoursFigure(.title, weight: .heavy))
+                            .font(.title3.weight(.semibold))
+                            .monospacedDigit()
                             .contentTransition(.numericText())
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("person-times-worked")
-                } footer: {
-                    VStack(alignment: .leading, spacing: Metrics.tiny) {
-                        if let explanation {
+                    // Why the row is orange on the sheet: the colour is the
+                    // dot's, the words stay grey.
+                    if let explanation {
+                        HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+                            Circle()
+                                .fill(Color.hoursAttention)
+                                .frame(width: 8, height: 8)
+                                .accessibilityHidden(true)
                             Text(verbatim: explanation)
-                                .foregroundStyle(Color.hoursAttention)
-                                .accessibilityIdentifier("person-times-explanation")
+                                .font(.subheadline)
+                                .foregroundStyle(.hoursSecondaryText)
                         }
-                        Text(String(
-                            localized: "Everyone else keeps the site times: \(siteTimes).",
-                            comment: "Under one person's changed times; the value is a time range"
-                        ))
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("person-times-explanation")
                     }
+                } footer: {
+                    Text(String(
+                        localized: "Everyone else keeps the site times: \(siteTimes).",
+                        comment: "Under one person's changed times; the value is a time range"
+                    ))
                 }
 
                 Section {
                     Button("Use the site's times again") {
                         attendance = Attendance(memberID: attendance.memberID)
                     }
-                    .fontWeight(.semibold)
                     .disabled(!hasOwnTimes)
                     .accessibilityIdentifier("person-times-reset")
                 }
@@ -97,15 +104,25 @@ struct PersonTimesSheet: View {
             .accessibilityIdentifier("person-times")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("person-times-cancel")
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Cancel"))
+                    .accessibilityIdentifier("person-times-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button {
                         onSave(attendance)
                         dismiss()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
                     }
-                    .fontWeight(.semibold)
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel(String(localized: "Save"))
                     .accessibilityIdentifier("person-times-save")
                 }
             }

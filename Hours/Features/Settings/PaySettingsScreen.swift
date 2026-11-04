@@ -51,7 +51,7 @@ struct PaySettingsScreen: View {
                 Section {
                     Button("Stop working out earnings", role: .destructive) { isConfirmingRemoval = true }
                 } footer: {
-                    Text("Removes this job's rate and every change to it. Your hours are not touched.")
+                    Text("Removes this job's rate and every change to it.")
                 }
             }
         }
@@ -202,13 +202,11 @@ struct PaySettingsScreen: View {
     /// Where the figures go, said where the rate is typed in, and with
     /// several jobs whose rate this is.
     private var rateFooter: String {
-        let privacy = String(localized: "Only you see earnings. They go on a sheet only if you add the column. Paid days off earn the hours credited for them, at the rate, with no surcharges.")
-        guard settings.tracksMultipleJobs else { return privacy }
-        let whose = String(
-            localized: "This is what \(job.displayName()) pays. Every job keeps its own rate.",
+        guard settings.tracksMultipleJobs else { return String(localized: "Only you see earnings.") }
+        return String(
+            localized: "This is what \(job.displayName()) pays; only you see earnings.",
             comment: "Pay settings with several jobs; the value is a job's name"
         )
-        return whose + " " + privacy
     }
 
     private var overtimeFooter: String {
@@ -216,9 +214,9 @@ struct PaySettingsScreen: View {
         case .sameRate:
             return String(localized: "Every hour pays the same.")
         case .afterDailyHours:
-            return String(localized: "Hours beyond your normal day pay the surcharge on top. Unless you set it here, your normal day is what your working schedule expects that day.")
+            return String(localized: "Hours beyond your normal day pay the surcharge on top.")
         case .afterWeeklyHours:
-            return String(localized: "Hours beyond your week pay the surcharge on top, counted from the first day of the week. Unless you set it here, your week is your working schedule's.")
+            return String(localized: "Hours beyond your week pay the surcharge on top, counted from the first day of the week.")
         }
     }
 
@@ -251,7 +249,7 @@ struct PaySettingsScreen: View {
         } header: {
             Text("Surcharges")
         } footer: {
-            Text("Added on top of the rate, and to each other: an hour on a Sunday night pays the Sunday and the night surcharge. Public holidays come from your holidays in Settings.")
+            Text("Added on top of the rate, and to each other: an hour on a Sunday night pays the Sunday and the night surcharge.")
         }
     }
 
@@ -292,7 +290,7 @@ struct PaySettingsScreen: View {
         } header: {
             Text("Showing earnings")
         } footer: {
-            Text("With a rate set, the calendar, Insights and widgets lead with earnings. Choose Hours balance to see hours instead. Sites never show money.")
+            Text("With a rate set, the calendar, Insights and widgets lead with earnings.")
         }
     }
 
@@ -417,7 +415,7 @@ struct PayHistorySection: View {
         } header: {
             Text("Changes")
         } footer: {
-            Text("Swipe to remove a change. The pay before it then runs on in its place.")
+            Text("Swipe to remove a change.")
         }
     }
 

@@ -17,9 +17,9 @@ struct SiteWeatherStopRow: View {
             HStack(spacing: Metrics.medium) {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
+                        // The colour is the symbol's; the words stay plain.
                         Text(stopTitle)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.hoursAttention)
                         Text(stopDetail)
                             .font(.footnote)
                             .foregroundStyle(.hoursSecondaryText)
@@ -65,9 +65,9 @@ struct SiteWeatherStopRow: View {
     }
 }
 
-/// "Stopped for bad weather" (1.2 redesign, mockup 07): stopped at a time,
-/// with the hours until then kept, or no work at all; what that means for
-/// the sheet, and what the crew gets.
+/// "Stopped for bad weather" (1.2 redesign, mockup 07), as a form: stopped at
+/// a time, with the hours until then kept, or no work at all; what the crew
+/// gets, and in one sentence what that means for the sheet.
 struct WeatherStopSheet: View {
     let day: SiteDay
     /// The crew's figures for a stop at a time, or nil for no work.
@@ -94,71 +94,64 @@ struct WeatherStopSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.medium) {
+            Form {
+                Section {
+                    choiceRow(String(localized: "Stopped at…"), isOn: !noWork, identifier: "site-weather-stop-at") { noWork = false }
+                    choiceRow(String(localized: "No work today"), isOn: noWork, identifier: "site-weather-stop-all") { noWork = true }
+                } header: {
                     Text("Stopped for bad weather")
-                        .font(.title2.weight(.heavy))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityAddTraits(.isHeader)
+                        .textCase(nil)
+                }
 
-                    HStack(spacing: 3) {
-                        segment(String(localized: "Stopped at…"), isOn: !noWork, identifier: "site-weather-stop-at") { noWork = false }
-                        segment(String(localized: "No work today"), isOn: noWork, identifier: "site-weather-stop-all") { noWork = true }
-                    }
-                    .padding(3)
-                    .background(Color(uiColor: .tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-
+                Section {
                     if !noWork {
-                        SiteGroup {
-                            DatePicker(
-                                String(localized: "Stopped at"),
-                                selection: Binding(
-                                    get: { OptionalTimeRow.date(from: stop, in: settingsStore.workCalendar) },
-                                    set: { stop = OptionalTimeRow.time(from: $0, in: settingsStore.workCalendar) }
-                                ),
-                                displayedComponents: .hourAndMinute
-                            )
-                            .frame(minHeight: SiteDayStyle.rowHeight)
-                            .accessibilityIdentifier("site-weather-stop-wheel")
-                        }
+                        DatePicker(
+                            String(localized: "Stopped at"),
+                            selection: Binding(
+                                get: { OptionalTimeRow.date(from: stop, in: settingsStore.workCalendar) },
+                                set: { stop = OptionalTimeRow.time(from: $0, in: settingsStore.workCalendar) }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .accessibilityIdentifier("site-weather-stop-wheel")
                     }
-
-                    Text(verbatim: explanation)
-                        .font(.footnote)
-                        .foregroundStyle(.hoursSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, Metrics.small)
-
-                    HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
-                        Text("Crew today")
-                        Spacer(minLength: Metrics.small)
+                    LabeledContent {
                         Text(verbatim: SiteDayStyle.figures(figures(noWork ? nil : stop), durations: settingsStore.settings.displayFormatting, prefersEach: true))
-                            .font(.body.weight(.bold))
+                            .monospacedDigit()
                             .multilineTextAlignment(.trailing)
+                    } label: {
+                        Text("Crew today")
                     }
-                    .padding(.horizontal, Metrics.large)
-                    .frame(minHeight: SiteDayStyle.rowHeight)
-                    .background(Color.hoursSurface, in: RoundedRectangle(cornerRadius: SiteDayStyle.groupRadius, style: .continuous))
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("site-weather-crew")
+                } footer: {
+                    Text(verbatim: explanation)
                 }
-                .padding(Metrics.large)
             }
-            .background(Color.hoursCanvas)
+            .accessibilityIdentifier("site-weather-sheet")
             .navigationTitle(Text(verbatim: settingsStore.dateFormatting.dayTitle(day.date)))
             .navigationBarTitleDisplayMode(.inline)
-            .accessibilityIdentifier("site-weather-sheet")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("site-weather-stop-cancel")
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Cancel"))
+                    .accessibilityIdentifier("site-weather-stop-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button {
                         onSave(noWork ? nil : stop)
                         dismiss()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
                     }
-                    .fontWeight(.semibold)
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel(String(localized: "Save"))
                     .accessibilityIdentifier("site-weather-stop-save")
                 }
             }
@@ -166,20 +159,24 @@ struct WeatherStopSheet: View {
         .presentationDetents([.large])
     }
 
-    private func segment(_ title: String, isOn: Bool, identifier: String, action: @escaping () -> Void) -> some View {
+    /// One of the two ways the weather stopped the day, ticked like a
+    /// choice in Settings.
+    private func choiceRow(_ title: String, isOn: Bool, identifier: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(verbatim: title)
-                .font(.subheadline.weight(isOn ? .bold : .regular))
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(
-                    isOn ? Color.hoursSurface : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                )
-                .contentShape(Rectangle())
+            HStack {
+                Text(verbatim: title)
+                    .foregroundStyle(.primary)
+                Spacer(minLength: Metrics.small)
+                if isOn {
+                    Image(systemName: "checkmark")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityHidden(true)
+                }
+            }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
         .accessibilityAddTraits(isOn ? .isSelected : [])
         .accessibilityIdentifier(identifier)
     }
@@ -187,13 +184,13 @@ struct WeatherStopSheet: View {
     /// What the stop writes, in the words of the sheet.
     private var explanation: String {
         guard !noWork else {
-            return String(localized: "Nobody gets hours for this day. It is marked “Bad weather” on the sheet and counted in the tiles.")
+            return String(localized: "Nobody gets hours, and the day is marked “Bad weather” on the sheet.")
         }
         let formatting = settingsStore.dateFormatting
         let start = day.start.map { formatting.time($0, on: day.date) } ?? "—"
-        let range = "\(start)–\(formatting.time(stop, on: day.date))"
+        let range = "\(start) – \(formatting.time(stop, on: day.date))"
         return String(
-            localized: "Everyone ticked gets \(range). The day is marked “Bad weather” on the sheet and counted in the tiles.",
+            localized: "Everyone ticked gets \(range), and the day is marked “Bad weather” on the sheet.",
             comment: "Bad weather sheet; the value is a time range such as 07:00–11:00"
         )
     }

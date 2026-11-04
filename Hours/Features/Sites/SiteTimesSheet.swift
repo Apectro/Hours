@@ -4,10 +4,12 @@ import SwiftUI
 /// and the break, which everyone ticked shares unless their own times were
 /// changed.
 ///
-/// One save on Save rather than one per turn of the wheel, as with a single
-/// person's times: the day screen writes through the month lock and your
-/// calendar day, and doing that for every minute the wheel passes would be
-/// sixty writes for one change. Cancel leaves the day exactly as it was.
+/// A form: Start and End as the day editor's time rows, the break as one
+/// tap of a segmented picker. One save on Save rather than one per change,
+/// as with a single person's times: the day screen writes through the month
+/// lock and your calendar day, and doing that for every minute a picker
+/// passes would be sixty writes for one change. Cancel leaves the day
+/// exactly as it was.
 struct SiteTimesSheet: View {
     let day: SiteDay
     let onSave: (SiteDay) -> Void
@@ -18,12 +20,6 @@ struct SiteTimesSheet: View {
     @State private var start: TimeOfDay?
     @State private var end: TimeOfDay?
     @State private var breakMinutes: Int
-    @State private var editing: TimeField = .start
-
-    /// Which of the two times the wheel is turning.
-    private enum TimeField: Hashable {
-        case start, end
-    }
 
     /// The breaks a site actually takes, one tap each. Anything else already
     /// on the day is shown beside them rather than silently rounded away.
@@ -48,48 +44,65 @@ struct SiteTimesSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Metrics.large) {
-                    HStack(spacing: Metrics.medium) {
-                        timeTile(.start)
-                        timeTile(.end)
-                    }
-
-                    DatePicker(
-                        editing == .start ? String(localized: "Start") : String(localized: "End"),
-                        selection: wheelBinding,
-                        displayedComponents: .hourAndMinute
+            Form {
+                Section {
+                    OptionalTimeRow(
+                        title: String(localized: "Start"),
+                        time: $start,
+                        calendar: calendar,
+                        fallback: defaultStart
                     )
-                    .datePickerStyle(.wheel)
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    .accessibilityIdentifier("site-hours-wheel")
-
-                    breakChips
-
+                    .accessibilityIdentifier("site-hours-start")
+                    OptionalTimeRow(
+                        title: String(localized: "End"),
+                        time: $end,
+                        calendar: calendar,
+                        fallback: defaultEnd
+                    )
+                    .accessibilityIdentifier("site-hours-end")
+                } footer: {
                     Text("Everyone ticked on this day gets these times, except people whose own times you changed.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(Metrics.large)
+
+                Section {
+                    Picker(String(localized: "Break"), selection: $breakMinutes) {
+                        ForEach(choices, id: \.self) { value in
+                            Text(verbatim: chipTitle(value)).tag(value)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .accessibilityIdentifier("site-hours-break")
+                } header: {
+                    Text("Break")
+                        .textCase(nil)
+                }
             }
-            .background(Color.hoursCanvas)
+            .accessibilityIdentifier("site-hours")
             .navigationTitle(String(
                 localized: "Site times · \(formatting.mediumDate(day.date))",
                 comment: "Title of the sheet that changes a site day's times; the value is a date"
             ))
             .navigationBarTitleDisplayMode(.inline)
-            .accessibilityIdentifier("site-hours")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityIdentifier("site-hours-cancel")
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Cancel"))
+                    .accessibilityIdentifier("site-hours-cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
-                        .fontWeight(.semibold)
-                        .accessibilityIdentifier("site-hours-save")
+                    Button(action: save) {
+                        Image(systemName: "checkmark")
+                            .fontWeight(.semibold)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel(String(localized: "Save"))
+                    .accessibilityIdentifier("site-hours-save")
                 }
             }
         }
@@ -98,95 +111,11 @@ struct SiteTimesSheet: View {
         .interactiveDismissDisabled(hasChanges)
     }
 
-    // MARK: - Times
-
-    private func timeTile(_ edge: TimeField) -> some View {
-        let isSelected = editing == edge
-        let title = edge == .start ? String(localized: "Start") : String(localized: "End")
-        let value = edge == .start ? start : end
-
-        return Button {
-            editing = edge
-            // Choosing an empty time is choosing to set it: it starts where
-            // the wheel shows it, so what is on screen is what Save saves.
-            if value == nil {
-                setTime(fallback(for: edge), for: edge)
-            }
-        } label: {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                Text(value.map { formatting.time($0, on: day.date) } ?? "—")
-                    .font(.hoursFigure(.largeTitle))
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            }
-            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-            .padding(Metrics.medium)
-            .background(
-                Color.hoursSurface,
-                in: RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(title)
-        .accessibilityValue(value.map { formatting.time($0, on: day.date) } ?? "—")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityIdentifier(edge == .start ? "site-hours-start" : "site-hours-end")
-    }
-
-    private var wheelBinding: Binding<Date> {
-        Binding(
-            get: {
-                let time = (editing == .start ? start : end) ?? fallback(for: editing)
-                return OptionalTimeRow.date(from: time, in: calendar)
-            },
-            set: { setTime(OptionalTimeRow.time(from: $0, in: calendar), for: editing) }
-        )
-    }
-
-    private func setTime(_ time: TimeOfDay, for edge: TimeField) {
-        switch edge {
-        case .start: start = time
-        case .end: end = time
-        }
-    }
-
-    private func fallback(for edge: TimeField) -> TimeOfDay {
-        edge == .start ? defaultStart : defaultEnd
-    }
-
     // MARK: - Break
 
-    private var breakChips: some View {
-        VStack(alignment: .leading, spacing: Metrics.small) {
-            Text("Break")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            // Wraps onto a second line at large text sizes rather than
-            // squeezing the chips below a usable size.
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: Metrics.small) { chipRow(choices[...]) }
-                VStack(alignment: .leading, spacing: Metrics.small) {
-                    HStack(spacing: Metrics.small) { chipRow(choices.prefix(3)) }
-                    HStack(spacing: Metrics.small) { chipRow(choices.dropFirst(3)) }
-                }
-            }
-        }
-    }
-
     private var choices: [Int] {
-        // The day's own break stays on offer after another chip is tapped,
-        // so changing your mind is one tap back.
+        // The day's own break stays on offer after another is picked, so
+        // changing your mind is one tap back.
         var all = Self.breakChoices
         for extra in [day.breakMinutes, breakMinutes] where !all.contains(extra) {
             all.append(extra)
@@ -194,33 +123,10 @@ struct SiteTimesSheet: View {
         return all.sorted()
     }
 
-    private func chipRow(_ minutes: ArraySlice<Int>) -> some View {
-        ForEach(Array(minutes), id: \.self) { value in
-            let isSelected = value == breakMinutes
-            Button {
-                breakMinutes = value
-            } label: {
-                Text(chipTitle(value))
-                    .font(.subheadline.weight(isSelected ? .semibold : .regular))
-                    .foregroundStyle(isSelected ? Color.white : Color.primary)
-                    .lineLimit(1)
-                    .padding(.horizontal, Metrics.medium)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .background(
-                        isSelected ? Color.accentColor : Color.hoursSurface,
-                        in: Capsule()
-                    )
-            }
-            .buttonStyle(.plain)
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityIdentifier("site-break-\(value)")
-        }
-    }
-
     private func chipTitle(_ minutes: Int) -> String {
         guard minutes > 0 else { return String(localized: "None") }
-        // Hours and minutes whatever the display setting: "0:15" on a chip
-        // reads as a time of day, "15m" cannot.
+        // Hours and minutes whatever the display setting: "0:15" in a
+        // segment reads as a time of day, "15m" cannot.
         return DurationFormatting(style: .hoursAndMinutes).string(minutes)
     }
 

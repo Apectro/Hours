@@ -61,6 +61,21 @@ enum BoxTextSuggestions {
         return current.isEmpty ? added : "\(current) \(added)"
     }
 
+    /// Scan text's "Use" in a field that is a description (What was done):
+    /// the text goes after what is already typed, with a space between
+    /// unless the field already ends in a space or a new line. A field with
+    /// nothing but spaces is empty; nothing scanned leaves it as it is.
+    /// Name fields are replaced instead, by their own sheets.
+    static func adding(_ scanned: String, to typed: String) -> String {
+        let added = cleaned(scanned)
+        guard !added.isEmpty else { return typed }
+        guard typed.contains(where: { !($0.isWhitespace || $0.isNewline) }) else { return added }
+        if let last = typed.last, last.isWhitespace || last.isNewline {
+            return typed + added
+        }
+        return typed + " " + added
+    }
+
     /// Trimmed, with every run of spaces or line breaks one space.
     static func cleaned(_ text: String) -> String {
         text.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).joined(separator: " ")

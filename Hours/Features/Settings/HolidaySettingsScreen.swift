@@ -75,7 +75,7 @@ struct HolidaySettingsScreen: View {
             } header: {
                 Text("Your own days off")
             } footer: {
-                Text("A public holiday is paid at your normal day. Work on one and it counts as overtime.")
+                Text("A public holiday is paid at your normal day.")
             }
         }
         .navigationTitle("Public holidays")
@@ -125,7 +125,7 @@ struct HolidaySettingsScreen: View {
             }
         } footer: {
             if settingsStore.settings.publicHolidays.addedSet == nil {
-                Text("Pick your country, and your state or canton where it matters. You see the list before anything is added.")
+                Text("Pick your country, and your state or canton where it matters.")
             }
         }
     }
@@ -359,7 +359,7 @@ struct HolidayEditor: View {
                     Toggle("Enabled", isOn: $draft.isEnabled)
                 } footer: {
                     Text(draft.countsAsWorkingDay
-                         ? "The day keeps its contracted hours and is expected to be worked. Only the name is carried through."
+                         ? "The day keeps its contracted hours and is expected to be worked."
                          : "The day is paid absence: your contracted hours are credited, so the balance is unchanged.")
                 }
 

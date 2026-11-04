@@ -39,7 +39,7 @@ struct ScheduleSettingsScreen: View {
                 }
                 .accessibilityIdentifier("schedule-changes")
             } footer: {
-                Text("Changed jobs or hours? Save the change “from a date” so older months keep their old hours.")
+                Text("Save the change “from a date” so older months keep their old hours.")
             }
 
             ShiftDefaultsSection(
@@ -58,7 +58,10 @@ struct ScheduleSettingsScreen: View {
                         SettingsRow(title: String(localized: "All jobs"), value: "\(settings.activeJobs.count)", systemImage: "bag")
                     }
                 } footer: {
-                    Text("This screen edits \(settings.primaryJob.displayName()). Every job keeps its own week.")
+                    Text(String(
+                        localized: "This screen edits \(settings.primaryJob.displayName()).",
+                        comment: "Working hours with several jobs; the value is the job being edited"
+                    ))
                 }
             }
         }

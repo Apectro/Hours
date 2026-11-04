@@ -163,6 +163,40 @@ final class ScanMissingUITests: XCTestCase {
         app.buttons["missing-add-cancel"].tap()
     }
 
+    /// Scan text beside What was done adds the text after what is typed,
+    /// with a space, instead of replacing it.
+    func testScanTextIsAddedAfterWhatWasDone() {
+        let app = XCUIApplication.hours()
+        app.launchArguments += ["-hours-sample-site"]
+        app.launch()
+        openSite(app)
+        app.openTodayOnSite()
+        XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
+
+        let add = app.buttons["extra-work-add"]
+        for _ in 0..<4 where !add.isHittable { app.swipeUp() }
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "the day should offer Add extra work")
+        add.tap()
+        XCTAssertTrue(app.screen("screen-extra-work-editor").waitForExistence(timeout: 5), "the editor did not open")
+
+        let description = app.descendants(matching: .any)["extra-work-description"].firstMatch
+        XCTAssertTrue(description.waitForExistence(timeout: 5))
+        description.tap()
+        description.typeText("Fitted")
+
+        app.buttons["extra-work-description-scan-text"].tap()
+        XCTAssertTrue(app.screen("screen-text-scan").waitForExistence(timeout: 5), "Scan text did not open")
+        type("LED panel", into: app.textFields["text-scan-field"])
+        app.buttons["text-scan-add"].tap()
+        app.buttons["text-scan-use"].tap()
+        // Wait for the sheet to close before looking at the field.
+        let closed = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-text-scan"))
+        wait(for: [closed], timeout: 5)
+
+        XCTAssertEqual(description.value as? String, "Fitted LED panel", "Use adds after what was typed")
+        app.buttons["extra-work-cancel"].tap()
+    }
+
     // MARK: - Missing
 
     /// Added by a new name, the same item found by search counts it up,
