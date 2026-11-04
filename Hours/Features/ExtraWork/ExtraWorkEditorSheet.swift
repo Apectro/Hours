@@ -59,6 +59,8 @@ struct ExtraWorkEditorSheet: View {
     @State private var sheet: EditorSheet?
     @State private var confirmsDelete = false
     @State private var path: [ExtraWorkCatalogRoute] = []
+    /// The barcode scanner, full screen (1.3).
+    @State private var isScanning = false
 
     private enum EditorSheet: String, Identifiable {
         case newItem, signature
@@ -253,6 +255,22 @@ struct ExtraWorkEditorSheet: View {
                 .foregroundStyle(.hoursSecondaryText)
                 .padding(.horizontal, Metrics.tiny)
                 .accessibilityAddTraits(.isHeader)
+            // Scanning (1.3): each code read adds one of its item.
+            Button {
+                isScanning = true
+            } label: {
+                Label("Scan", systemImage: "barcode.viewfinder")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(minHeight: 36)
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .frame(minHeight: 44)
+            .accessibilityHint(String(localized: "Scan the barcodes on the boxes; each one adds one to the job."))
+            .accessibilityIdentifier("extra-work-scan")
+            .fullScreenCover(isPresented: $isScanning) {
+                ExtraWorkScannerSheet(items: $draft.items, onCatalogChange: loadCatalog)
+            }
             ExtraWorkFlow(spacing: Metrics.small) {
                 ForEach(suggestions) { item in
                     Button {
@@ -301,9 +319,17 @@ struct ExtraWorkEditorSheet: View {
 
     private func materialRow(_ item: ExtraWorkItem, index: Int) -> some View {
         HStack(spacing: Metrics.medium) {
-            Text(verbatim: item.name)
-                .font(.body)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: item.name)
+                    .font(.body)
+                // An item whose box has a code on it, as on the board.
+                if isScanned(item) {
+                    Text("scanned")
+                        .font(.footnote)
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             RoundStepButton(
                 systemImage: item.quantity > 0 ? "minus" : "trash",
@@ -355,8 +381,14 @@ struct ExtraWorkEditorSheet: View {
         .padding(.vertical, Metrics.medium)
     }
 
+    /// The site's own items first (1.3), then the most recently used.
     private var suggestions: [ExtraWorkCatalogItem] {
-        Array(ExtraWorkCatalog.suggestions(from: catalog, excluding: draft.items.map(\.name)).prefix(8))
+        Array(ExtraWorkCatalog.suggestions(from: catalog, excluding: draft.items.map(\.name), siteID: site.id).prefix(8))
+    }
+
+    private func isScanned(_ item: ExtraWorkItem) -> Bool {
+        let key = ExtraWorkCatalog.key(item.name)
+        return catalog.contains { $0.hasBarcode && ExtraWorkCatalog.key($0.name) == key }
     }
 
     // MARK: - Time on this job
@@ -841,7 +873,7 @@ struct ExtraWorkEditorSheet: View {
         if !cleaned.isBlank {
             for id in removedPhotoIDs { repository.removePhoto(id: id) }
             for photo in pending { repository.addPhoto(photo.data, jobID: next.id, siteID: site.id) }
-            repository.recordUse(of: cleaned.items)
+            repository.recordUse(of: cleaned.items, siteID: site.id)
         }
         refreshUnsentWorkReminder()
         onDone()
