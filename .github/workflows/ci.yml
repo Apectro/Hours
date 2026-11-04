@@ -136,6 +136,14 @@ jobs:
       - name: Every writing path carries the month lock
         run: python3 Scripts/check-repository-lock.py
 
+      # Two big buttons in a row each take half. A layoutPriority on one
+      # squeezed the PDF button on Missing › Send the list to a sliver, and
+      # nothing failed. The check's own tests plant that first.
+      - name: No big button squeezes its neighbour
+        run: |
+          python3 Scripts/test_check_big_buttons.py
+          python3 Scripts/check-big-buttons.py
+
       # A model CloudKit refuses compiles and passes every test, and then the
       # syncing store will not open on the phones of exactly the people who
       # turned sync on. The check's own tests plant each violation first, so
