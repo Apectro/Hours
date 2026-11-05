@@ -119,9 +119,14 @@ final class ExtraWorkUITests: XCTestCase {
         let ticked = NSPredicate(format: "isSelected == true")
         var isTicked = false
         for _ in 0..<2 where !isTicked {
+            guard tick.isHittable else { break }
             tick.tap()
             let wait = XCTNSPredicateExpectation(predicate: ticked, object: app.buttons["extra-work-tick-0"])
             isTicked = XCTWaiter().wait(for: [wait], timeout: 5) == .completed
+        }
+        if !isTicked {
+            // Until the cause is known: what lies over the tick after a tap.
+            print("TICK-COVERED\n" + app.debugDescription)
         }
         XCTAssertTrue(isTicked, "the tick should mark the job finished")
 
