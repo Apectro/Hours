@@ -54,6 +54,15 @@ struct BackupArchive: Codable, Sendable {
     /// sites it restores (`restoredItems`).
     var missingItems: [MissingItem]? = nil
 
+    /// Each site's defects, their photos (base64, as the diary's) and the
+    /// deliveries checked against Missing (1.3). Optional and set after
+    /// `init` for the reasons extra work is; an older file keeps the
+    /// device's for the sites it restores. A site's floors, rooms and defect
+    /// switches are in its `SiteSetup`, in the settings.
+    var defects: [Defect]? = nil
+    var defectPhotos: [DefectPhoto]? = nil
+    var deliveries: [Delivery]? = nil
+
     /// Days that were in the file and could not be read.
     ///
     /// Damage is rarely total. One day mangled by a bad edit, a truncated
@@ -115,6 +124,7 @@ struct BackupArchive: Codable, Sendable {
         case diaries, diaryPhotos, signatures
         case extraWorkJobs, extraWorkPhotos, extraWorkReports, extraWorkItems
         case missingItems
+        case defects, defectPhotos, deliveries
     }
 
     /// Written out rather than synthesised, so that `damagedDays` being absent
@@ -139,6 +149,9 @@ struct BackupArchive: Codable, Sendable {
         try container.encodeIfPresent(extraWorkReports, forKey: .extraWorkReports)
         try container.encodeIfPresent(extraWorkItems, forKey: .extraWorkItems)
         try container.encodeIfPresent(missingItems, forKey: .missingItems)
+        try container.encodeIfPresent(defects, forKey: .defects)
+        try container.encodeIfPresent(defectPhotos, forKey: .defectPhotos)
+        try container.encodeIfPresent(deliveries, forKey: .deliveries)
     }
 
     /// What a restore leaves of a kind of site record the file may not know
@@ -275,6 +288,9 @@ struct BackupArchive: Codable, Sendable {
         extraWorkReports = container.lenientOptional(.extraWorkReports)
         extraWorkItems = container.lenientOptional(.extraWorkItems)
         missingItems = container.lenientOptional(.missingItems)
+        defects = container.lenientOptional(.defects)
+        defectPhotos = container.lenientOptional(.defectPhotos)
+        deliveries = container.lenientOptional(.deliveries)
     }
 }
 

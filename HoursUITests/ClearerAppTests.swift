@@ -107,22 +107,22 @@ final class ClearerAppTests: XCTestCase {
         XCTAssertTrue(app.tapSiteRow("site-diary-list"), "the site has no Diary row")
         XCTAssertTrue(app.buttons["site-diary-list-done"].firstMatch.waitForExistence(timeout: 5), "Diary did not open the diary")
         app.buttons["site-diary-list-done"].firstMatch.tap()
+        // The diary's sheet has to be gone, or Sheet's tap lands on it as it slides away.
+        waitUntilGone(app.screen("screen-site-diary"), timeout: 10)
 
         // Sheet, the site's export.
         app.buttons["site-export"].firstMatch.tap()
         XCTAssertTrue(app.screen("screen-site-export").waitForExistence(timeout: 10), "Sheet did not open the export")
         app.buttons["export-done"].firstMatch.tap()
         // The export's sheet has to be gone, or the next tap lands on it as it slides away.
-        let exportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-site-export"))
-        wait(for: [exportGone], timeout: 10)
+        XCTAssertTrue(waitUntilGone(app.screen("screen-site-export"), timeout: 10), "Done did not close the export")
 
         // Extra work, the report: a row further down the site's page.
         XCTAssertTrue(app.tapSiteRow("site-extra-work-report"), "the site has no Extra work row")
         XCTAssertTrue(app.screen("screen-extra-work-report").waitForExistence(timeout: 10), "Extra work did not open the report")
         app.buttons["extra-work-report-done"].firstMatch.tap()
         // The report's sheet has to be gone before the site's menu is opened.
-        let reportGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: app.screen("screen-extra-work-report"))
-        wait(for: [reportGone], timeout: 10)
+        XCTAssertTrue(waitUntilGone(app.screen("screen-extra-work-report"), timeout: 10), "Done did not close the report")
 
         // And the gear, the site's settings, with its usual day.
         app.openSiteSettings()

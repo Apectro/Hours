@@ -239,12 +239,25 @@ extension XCUIApplication {
         for _ in 0..<10 where !(element.exists && element.isHittable) { swipeDown() }
     }
 
-    /// Closes a day's sheet (design v2) if one is open, by its ✕.
+    /// Closes a day's sheet (design v2) if one is open, by its ✕, and
+    /// waits for the sheet itself to be gone: a tap that comes while it is
+    /// still sliding away lands on it. A ✕ that was not taken (the sheet's
+    /// own editor still closing over it) is tapped once more.
     func closeDaySheet() {
-        guard screen("screen-calendar-day").firstMatch.exists else { return }
+        let sheet = screen("screen-calendar-day").firstMatch
+        guard sheet.exists else { return }
         let close = buttons["day-sheet-close"].firstMatch
-        if close.exists { close.tap() }
-        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: close)
-        _ = XCTWaiter().wait(for: [gone], timeout: 3)
+        for _ in 0..<2 {
+            guard close.waitForExistence(timeout: 3) else { break }
+            // Under the day's editor as it closes, the ✕ is there before it can be hit.
+            let hittable = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "exists == true AND hittable == true"),
+                object: close
+            )
+            _ = XCTWaiter().wait(for: [hittable], timeout: 3)
+            close.tap()
+            if sheet.waitUntilGone(timeout: 5) { return }
+        }
+        close.waitUntilGone(timeout: 3)
     }
 }

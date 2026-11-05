@@ -12,18 +12,6 @@ final class PaywallTests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// Settings is longer than a screen — more so since the Pro row went on
-    /// top of it — so anything in the last section has to be scrolled to
-    /// before it can be tapped.
-    @discardableResult
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 5) -> Bool {
-        for _ in 0..<swipes {
-            if element.exists, element.isHittable { return true }
-            app.swipeUp()
-        }
-        return element.exists && element.isHittable
-    }
-
     private func openSettings(_ app: XCUIApplication) {
         app.launch()
         XCTAssertTrue(app.tabBars.buttons["Settings"].waitForExistence(timeout: 10))
@@ -101,12 +89,12 @@ final class PaywallTests: XCTestCase {
         // Backup lives under More › "iCloud & backup" since the redesign.
         XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
         let hub = app.staticTexts["iCloud & backup"]
-        XCTAssertTrue(reveal(hub, in: app), "iCloud & backup should be reachable without paying")
+        XCTAssertTrue(scrollTo(hub, in: app, swipes: 5), "iCloud & backup should be reachable without paying")
         _ = XCTWaiter().wait(for: [XCTestExpectation(description: "the list settles")], timeout: 1)
         hub.tap()
         let row = app.staticTexts["Backup and data"]
         XCTAssertTrue(row.waitForExistence(timeout: 5), "the backup row should be reachable without paying")
-        // reveal() stops swiping as soon as the row is on screen, while the
+        // scrollTo() stops swiping as soon as the row is on screen, while the
         // list is still gliding; a tap in that moment can land on nothing,
         // and Settings now holds enough rows (iCloud among them) for the
         // row to arrive mid-glide. Let the list come to rest first.

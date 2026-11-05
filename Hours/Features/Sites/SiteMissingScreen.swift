@@ -34,17 +34,24 @@ struct SiteMissingScreen: View {
     @State private var arriving: MissingItem?
     /// A code scanned that nothing on the list has.
     @State private var unmatchedCode: String?
+    /// The deliveries checked here (1.3), shown under Arrived.
+    @State private var deliveries: [Delivery] = []
+    /// "Check a delivery": the scanner over everything ordered, full screen.
+    @State private var checksDelivery = false
 
     private enum MissingSheet: Identifiable {
         case add(code: String?)
         case scan
         case send
+        /// A saved delivery, read-only.
+        case delivery(UUID)
 
         var id: String {
             switch self {
             case let .add(code): return "add-\(code ?? "")"
             case .scan: return "scan"
             case .send: return "send"
+            case let .delivery(id): return "delivery-\(id.uuidString)"
             }
         }
     }
@@ -81,6 +88,20 @@ struct SiteMissingScreen: View {
             }
             .listRowSeparator(.hidden)
 
+            if shownState == .arrived && !deliveries.isEmpty {
+                Section("Deliveries") {
+                    ForEach(Array(deliveries.enumerated()), id: \.element.id) { index, delivery in
+                        Button {
+                            sheet = .delivery(delivery.id)
+                        } label: {
+                            deliveryRow(delivery)
+                        }
+                        .foregroundStyle(.primary)
+                        .accessibilityIdentifier("missing-delivery-row-\(index)")
+                    }
+                }
+            }
+
             Section {
                 ForEach(Array(shown.enumerated()), id: \.element.id) { index, item in
                     MissingRow(item: item, state: shownState, today: today, formatting: settingsStore.dateFormatting)
@@ -92,7 +113,9 @@ struct SiteMissingScreen: View {
                         }
                 }
             } footer: {
-                if !shown.isEmpty, canEdit {
+                if shownState == .ordered, !shown.isEmpty, canEdit {
+                    Text("When the van comes, check everything in one go instead of ticking items one by one.")
+                } else if !shown.isEmpty, canEdit {
                     Text("Swipe an item to mark it ordered or arrived. Scanning a delivered box ticks it off as arrived.")
                 }
             }
@@ -100,7 +123,7 @@ struct SiteMissingScreen: View {
         .listStyle(.insetGrouped)
         .listSectionSpacing(.compact)
         .overlay {
-            if shown.isEmpty {
+            if shown.isEmpty && !(shownState == .arrived && !deliveries.isEmpty) {
                 ContentUnavailableView {
                     Label(emptyTitle, systemImage: "shippingbox")
                 } description: {
@@ -135,7 +158,19 @@ struct SiteMissingScreen: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            if canEdit && !MissingList.toSend(items).isEmpty {
+            if canEdit && shownState == .ordered && !shown.isEmpty {
+                // 1.3: the whole delivery in one go.
+                Button {
+                    checksDelivery = true
+                } label: {
+                    Text("Check a delivery")
+                }
+                .buttonStyle(.bigAction(.primary))
+                .accessibilityIdentifier("missing-delivery-check")
+                .padding(.horizontal, Metrics.large)
+                .padding(.vertical, Metrics.small)
+                .background(Color.hoursCanvas)
+            } else if canEdit && !MissingList.toSend(items).isEmpty {
                 Button {
                     sheet = .send
                 } label: {
@@ -161,6 +196,13 @@ struct SiteMissingScreen: View {
                 if let site {
                     MissingSendSheet(site: site, items: items, catalog: catalog, onSent: reload)
                 }
+            case let .delivery(id):
+                DeliveryDetailSheet(deliveryID: id)
+            }
+        }
+        .fullScreenCover(isPresented: $checksDelivery, onDismiss: reload) {
+            if let site {
+                DeliveryCheckFlow(site: site, onSaved: reload)
             }
         }
         .confirmationDialog(
@@ -271,6 +313,36 @@ struct SiteMissingScreen: View {
     private func reload() {
         items = MissingRepository(context: modelContext).items(siteID: siteID)
         catalog = ExtraWorkRepository(context: modelContext).catalog()
+        deliveries = DeliveryRepository(context: modelContext).deliveries(siteID: siteID)
+    }
+
+    /// "4 Nov delivery · photo", and what came under it.
+    private func deliveryRow(_ delivery: Delivery) -> some View {
+        let day = CalendarDate(delivery.receivedAt, calendar: settingsStore.workCalendar)
+        let title = DeliveryWords.title(day, formatting: settingsStore.dateFormatting)
+        let came = delivery.lines.filter { $0.came > 0 }.map(\.name).joined(separator: ", ")
+        return HStack(spacing: Metrics.medium) {
+            Image(systemName: "shippingbox.fill")
+                .foregroundStyle(.hoursSecondaryText)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: delivery.hasPhoto ? "\(title) · \(String(localized: "photo", comment: "A saved delivery has a photo of its delivery note"))" : title)
+                if !came.isEmpty {
+                    Text(verbatim: came)
+                        .font(.subheadline)
+                        .foregroundStyle(.hoursSecondaryText)
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
+        }
+        .frame(minHeight: 52)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
     }
 
     private func mark(_ item: MissingItem, _ state: MissingState) {

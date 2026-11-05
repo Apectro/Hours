@@ -270,7 +270,7 @@ final class ScreenAtlasTests: XCTestCase {
                 back(app)
             }
         }
-        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+        if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
             pause(0.8)
             capture("\(prefix)-this-sheet", app)
             if tap(app.buttons.matching(identifier: "export-format-csv").firstMatch, "CSV file", app),
@@ -305,6 +305,16 @@ final class ScreenAtlasTests: XCTestCase {
             return
         }
         capture("sites-list", app)
+        // 1.3: a site's swipe (Archive), shown and closed again untouched.
+        let firstCard = app.buttons.matching(identifier: "site-card").firstMatch
+        firstCard.swipeLeft()
+        if app.buttons.matching(identifier: "site-card-swipe-archive").firstMatch.waitForExistence(timeout: 3) {
+            capture("sites-list-swipe", app)
+            firstCard.swipeRight()
+            pause(0.5)
+        } else {
+            miss("sites-list-swipe (no Archive on the swipe)")
+        }
 
         newSiteWizardScreens(app)
 
@@ -365,11 +375,19 @@ final class ScreenAtlasTests: XCTestCase {
 
     /// Today on the showcase site, from the top to the diary.
     private func siteDayScreens(_ app: XCUIApplication) {
-        // The calendar button: a month to go to another day, closed again.
-        if tap(app.buttons.matching(identifier: "site-day-pick-date").firstMatch, "Choose a day", app) {
+        // The day's ⋯ menu: another day, bad weather, the move and the crew.
+        let dayMenu = app.buttons.matching(identifier: "site-day-menu").firstMatch
+        if tap(dayMenu, "the day's menu", app) {
             pause(0.5)
-            capture("site-day-pick-date", app)
-            close(app, "site-day-date-done")
+            capture("site-day-menu", app)
+            // Choose a day: a month to go to another day, closed again.
+            if tap(app.buttons.matching(identifier: "site-day-pick-date").firstMatch, "Choose a day", app) {
+                pause(0.5)
+                capture("site-day-pick-date", app)
+                close(app, "site-day-date-done")
+            } else {
+                dismissMenu(app)
+            }
         }
 
         swipeUp(app)
@@ -394,22 +412,26 @@ final class ScreenAtlasTests: XCTestCase {
         siteMoveScreens(app)
 
         let weather = app.buttons.matching(identifier: "site-weather-menu").firstMatch
-        if bringIntoView(weather, app), tap(weather, "Bad weather", app) {
-            capture("site-rained-off-sheet", app)
-            if tap(app.buttons.matching(identifier: "site-weather-stop-all").firstMatch, "No work today", app) {
-                capture("site-rained-off-no-work", app)
+        if tap(dayMenu, "the day's menu", app) {
+            if tap(weather, "Bad weather", app) {
+                capture("site-rained-off-sheet", app)
+                if tap(app.buttons.matching(identifier: "site-weather-stop-all").firstMatch, "No work today", app) {
+                    capture("site-rained-off-no-work", app)
+                }
+                close(app, "site-weather-stop-cancel")
+            } else {
+                dismissMenu(app)
             }
-            close(app, "site-weather-stop-cancel")
         }
 
-        let addExtraWork = app.buttons.matching(identifier: "extra-work-add").firstMatch
-        if bringIntoView(addExtraWork, app) {
+        let extraWork = app.descendants(matching: .any).matching(identifier: "extra-work-heading").firstMatch
+        if bringIntoView(extraWork, app) {
             capture("site-day-extra-work", app)
         } else {
             miss("site-day-extra-work (no extra work section)")
         }
         // The sample's finished jobs are not sent yet: "Send to boss (N)"
-        // beside the Extra work heading.
+        // as the section's last row.
         if bringIntoView(app.buttons.matching(identifier: "extra-work-send-report").firstMatch, app) {
             capture("site-day-send-to-boss", app)
         } else {
@@ -422,6 +444,16 @@ final class ScreenAtlasTests: XCTestCase {
             close(app, "missing-add-cancel")
         } else {
             miss("site-day-missing (no Something's missing on the day)")
+        }
+
+        // 1.3: "Found a defect", where there is no camera.
+        let defect = app.buttons.matching(identifier: "site-day-defect").firstMatch
+        if bringIntoView(defect, app), tap(defect, "Found a defect on the day", app) {
+            pause(0.5)
+            capture("site-day-defect", app)
+            close(app, "defect-camera-cancel")
+        } else {
+            miss("site-day-defect (no Found a defect on the day)")
         }
 
         let diary = app.buttons.matching(identifier: "site-day-diary").firstMatch
@@ -501,6 +533,12 @@ final class ScreenAtlasTests: XCTestCase {
                 _ = bringIntoView(sign, app)
                 if tap(sign, "the client's signature", app) {
                     capture("extra-work-client-signature", app)
+                    if tap(app.buttons.matching(identifier: "extra-work-signature-open").firstMatch, "Sign (the client's pad)", app) {
+                        pause(1)
+                        capture("extra-work-client-signature-pad", app)
+                        close(app, "extra-work-signature-pad-cancel")
+                        pause(1)
+                    }
                     close(app, "extra-work-signature-cancel")
                 }
                 let editItems = app.buttons.matching(identifier: "extra-work-edit-items").firstMatch
@@ -556,7 +594,7 @@ final class ScreenAtlasTests: XCTestCase {
                     close(app, "extra-work-signature-cancel")
                 }
                 swipeDown(app, times: 4)
-                flip(inProgress)
+                if inProgress.exists { flip(inProgress) }
             } else {
                 miss("extra-work-report-in-progress (no switch)")
             }
@@ -657,7 +695,10 @@ final class ScreenAtlasTests: XCTestCase {
                 search.tap()
                 search.typeText("junc")
                 pause(0.5)
+                // Two of the first match chosen on its own row: the − / +
+                // and the amount in the accent, "Add 1 item to missing".
                 tapAnyway(app.buttons.matching(identifier: "missing-add-match-0").firstMatch)
+                tapAnyway(app.buttons.matching(identifier: "missing-add-match-0-plus").firstMatch)
                 capture("site-missing-add-search", app)
             }
             close(app, "missing-add-cancel")
@@ -666,6 +707,39 @@ final class ScreenAtlasTests: XCTestCase {
         if states.waitForExistence(timeout: 5) {
             states.buttons.element(boundBy: 1).tap()
             capture("site-missing-ordered", app)
+            // 1.3: the delivery check, with the typed code where there is
+            // no camera.
+            if tap(app.buttons.matching(identifier: "missing-delivery-check").firstMatch, "Check a delivery", app) {
+                pause(0.5)
+                capture("delivery-scan", app)
+                // A box of the sample's junction boxes, which are needed but
+                // not ordered: it came anyway.
+                let field = app.textFields["scanner-code-field"]
+                if field.waitForExistence(timeout: 5) {
+                    field.tap()
+                    field.typeText("4015081677891\n")
+                    pause(0.5)
+                    capture("delivery-scan-scanned", app)
+                }
+                if tap(app.buttons.matching(identifier: "delivery-done").firstMatch, "Done scanning", app) {
+                    pause(0.5)
+                    capture("delivery-result", app)
+                    if tap(app.buttons.matching(identifier: "delivery-save").firstMatch, "Save the delivery", app) {
+                        pause(0.5)
+                        capture("delivery-saved", app)
+                        close(app, "delivery-finish")
+                    }
+                } else {
+                    close(app, "delivery-close")
+                }
+            }
+            states.buttons.element(boundBy: 2).tap()
+            capture("site-missing-arrived", app)
+            if tap(app.buttons.matching(identifier: "missing-delivery-row-0").firstMatch, "a saved delivery", app) {
+                pause(0.5)
+                capture("delivery-detail", app)
+                close(app, "delivery-detail-done")
+            }
             states.buttons.element(boundBy: 0).tap()
         } else {
             miss("site-missing-ordered (no Needed · Ordered · Arrived)")
@@ -673,6 +747,49 @@ final class ScreenAtlasTests: XCTestCase {
         if tap(app.buttons.matching(identifier: "missing-send").firstMatch, "Send the list", app) {
             capture("site-missing-send", app)
             close(app, "missing-send-close")
+        }
+        back(app)
+    }
+
+    /// A site's defects (1.3): the list, the viewer of a defect, a new one
+    /// where there is no camera with its details, and Send the list.
+    private func defectScreens(_ app: XCUIApplication) {
+        let row = app.buttons.matching(identifier: "site-defects").firstMatch
+        guard bringIntoView(row, app), tap(row, "the Defects row", app) else { return }
+        guard app.screen("screen-defects").waitForExistence(timeout: 8) else {
+            miss("site-defects (Defects did not open)")
+            return
+        }
+        pause(0.5)
+        capture("site-defects", app)
+        if tap(app.buttons.matching(identifier: "defects-row-0").firstMatch, "a defect", app) {
+            pause(1)
+            capture("defect-viewer", app)
+            close(app, "defect-viewer-done")
+        }
+        if tap(app.buttons.matching(identifier: "defects-add").firstMatch, "+ on Defects", app) {
+            pause(0.5)
+            capture("defect-camera", app)
+            if tap(app.buttons.matching(identifier: "defect-camera-skip").firstMatch, "Without a photo", app) {
+                pause(0.5)
+                capture("defect-details", app)
+                close(app, "defect-cancel")
+            } else {
+                close(app, "defect-camera-cancel")
+            }
+        }
+        let states = app.segmentedControls["defects-state"]
+        if states.waitForExistence(timeout: 5) {
+            states.buttons.element(boundBy: 1).tap()
+            capture("site-defects-fixed", app)
+            states.buttons.element(boundBy: 0).tap()
+        } else {
+            miss("site-defects-fixed (no Open · Fixed)")
+        }
+        if tap(app.buttons.matching(identifier: "defects-send").firstMatch, "Send the list", app) {
+            pause(1)
+            capture("site-defects-send", app)
+            close(app, "defects-send-close")
         }
         back(app)
     }
@@ -735,6 +852,7 @@ final class ScreenAtlasTests: XCTestCase {
         }
 
         missingScreens(app)
+        defectScreens(app)
 
         if tap(app.buttons.matching(identifier: "site-diary-list").firstMatch, "the site diary", app) {
             pause(1)
@@ -753,7 +871,7 @@ final class ScreenAtlasTests: XCTestCase {
             exportScreens(app, prefix: "site-export")
             // One sheet per person, in This sheet: the switch, and the first
             // person's page back on the export screen.
-            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app) {
+            if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app) {
                 let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
                 if perPerson.waitForExistence(timeout: 5) {
                     flip(perPerson)
@@ -762,7 +880,7 @@ final class ScreenAtlasTests: XCTestCase {
                     back(app)
                     pause(1.5)
                     capture("site-export-per-person-preview", app)
-                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "This sheet", app),
+                    if tap(app.buttons.matching(identifier: "export-this-sheet").firstMatch, "Sheet options", app),
                        perPerson.waitForExistence(timeout: 5) {
                         flip(perPerson)
                     }
@@ -792,6 +910,18 @@ final class ScreenAtlasTests: XCTestCase {
                 capture("site-edit-work-days", app)
                 back(app)
             }
+            // 1.3: the Defects section and the floors.
+            let floors = app.buttons.matching(identifier: "site-floors-row").firstMatch
+            if bringIntoView(floors, app) {
+                capture("site-edit-defects", app)
+                if tap(floors, "Floors", app) {
+                    pause(0.5)
+                    capture("site-floors", app)
+                    back(app)
+                }
+            } else {
+                miss("site-edit-defects (no Floors row)")
+            }
             swipeDown(app, times: 3)
             arrivalReminderScreens(app)
             close(app, "site-editor-cancel")
@@ -811,17 +941,24 @@ final class ScreenAtlasTests: XCTestCase {
                 if tap(person, "a person to sign", app) {
                     pause(0.5)
                     capture("site-signing", app)
-                    let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
-                    if canvas.waitForExistence(timeout: 5) {
-                        let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
-                        let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-                        let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
-                        start.press(forDuration: 0.1, thenDragTo: middle)
-                        middle.press(forDuration: 0.1, thenDragTo: end)
-                        pause(0.5)
-                        capture("site-signing-drawn", app)
-                    } else {
-                        miss("site-signing-drawn (no signature area)")
+                    // 1.3: Sign opens the pad full screen, in landscape on a phone.
+                    if tap(app.buttons.matching(identifier: "signature-open").firstMatch, "Sign (the pad)", app) {
+                        let canvas = app.descendants(matching: .any)["signature-canvas"].firstMatch
+                        if canvas.waitForExistence(timeout: 5) {
+                            pause(1)
+                            capture("site-signing-pad", app)
+                            let start = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.6))
+                            let middle = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+                            let end = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.65))
+                            start.press(forDuration: 0.1, thenDragTo: middle)
+                            middle.press(forDuration: 0.1, thenDragTo: end)
+                            pause(0.5)
+                            capture("site-signing-drawn", app)
+                        } else {
+                            miss("site-signing-drawn (no signature area)")
+                        }
+                        close(app, "signature-pad-cancel")
+                        pause(1)
                     }
                     close(app, "signature-cancel")
                 }
@@ -838,7 +975,7 @@ final class ScreenAtlasTests: XCTestCase {
     private func newSiteWizardScreens(_ app: XCUIApplication) {
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site", app) else { return }
         capture("wizard-1-start", app)
-        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy from a site", app) {
+        if tap(app.buttons.matching(identifier: "wizard-start-copy").firstMatch, "Copy a site", app) {
             capture("wizard-1-copy", app)
         }
         if tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the place", app) {
@@ -857,7 +994,7 @@ final class ScreenAtlasTests: XCTestCase {
         close(app, "wizard-cancel")
 
         guard tap(app.buttons.matching(identifier: "sites-add").firstMatch, "New site again", app) else { return }
-        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several sites at once", app),
+        if tap(app.buttons.matching(identifier: "wizard-start-several").firstMatch, "Several at once", app),
            tap(app.buttons.matching(identifier: "wizard-next").firstMatch, "Next to the names", app) {
             let names = app.descendants(matching: .any).matching(identifier: "wizard-several-names").firstMatch
             if names.waitForExistence(timeout: 5) {
@@ -891,8 +1028,9 @@ final class ScreenAtlasTests: XCTestCase {
             miss("site-arrival-explanation (no arrival switch)")
             return
         }
-        flip(arrival)
-        guard app.staticTexts["site-arrival-explanation"].firstMatch.waitForExistence(timeout: 5) else {
+        let explanation = app.staticTexts["site-arrival-explanation"].firstMatch
+        flip(arrival, shows: explanation)
+        guard explanation.waitForExistence(timeout: 5) else {
             miss("site-arrival-explanation (the explanation did not open)")
             return
         }
@@ -938,6 +1076,15 @@ final class ScreenAtlasTests: XCTestCase {
         }
         pause(1)
         capture("insights-month", app)
+        // A bar tapped: its callout, "Thu 29  10h 30m" (polish, 2026-11).
+        let chart = app.descendants(matching: .any)["insights-chart"].firstMatch
+        if chart.waitForExistence(timeout: 3) {
+            chart.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.6)).tap()
+            pause(0.8)
+            capture("insights-month-callout", app)
+        } else {
+            miss("insights-month-callout (no chart)")
+        }
         swipeUp(app)
         capture("insights-month-lower", app)
         swipeUp(app)
@@ -1245,8 +1392,13 @@ final class ScreenAtlasTests: XCTestCase {
     /// the export's Sites picker for the month. Undone at the end, so nothing
     /// after this sees the move.
     private func siteMoveScreens(_ app: XCUIApplication) {
+        // In the day's ⋯ menu.
         let move = app.buttons.matching(identifier: "site-day-move").firstMatch
-        guard bringIntoView(move, app), tap(move, "Moved to another site", app) else { return }
+        guard tap(app.buttons.matching(identifier: "site-day-menu").firstMatch, "the day's menu", app) else { return }
+        guard tap(move, "Moved to another site", app) else {
+            dismissMenu(app)
+            return
+        }
         pause(0.8)
         capture("site-move-sheet", app)
         guard tap(app.buttons.matching(identifier: "site-move-to-0").firstMatch, "the other site", app) else {
@@ -1653,18 +1805,6 @@ final class ScreenAtlasTests: XCTestCase {
             element.tap()
         } else {
             element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        }
-    }
-
-    /// A switch, by its switch rather than the middle of its row, which on
-    /// a full-width toggle is the label.
-    private func flip(_ toggle: XCUIElement) {
-        guard toggle.exists else { return }
-        let inner = toggle.switches.firstMatch
-        if inner.exists, inner.isHittable {
-            inner.tap()
-        } else {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         }
     }
 

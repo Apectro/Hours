@@ -45,6 +45,16 @@ struct ClosedMonthsScreen: View {
                             .accessibilityIdentifier("closed-months-reopen-\(index)")
                     }
                     .padding(.vertical, Metrics.tiny)
+                    // 1.3: the row's Reopen on a swipe too, with the same question.
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            monthToReopen = month
+                        } label: {
+                            Label("Reopen", systemImage: "lock.open")
+                        }
+                        .tint(.orange)
+                        .accessibilityIdentifier("closed-months-reopen-\(index)-swipe")
+                    }
                 }
             } footer: {
                 Text("A closed month can't be changed by accident.")

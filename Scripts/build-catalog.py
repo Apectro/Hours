@@ -71,8 +71,10 @@ COWORKERS = lambda n=1: plural("coworkers", n, "%lld coworker", "%lld coworkers"
 PEOPLE = lambda n=1: plural("people", n, "%lld person", "%lld people")
 EXTRA_JOBS = lambda n=1: plural("extraJobs", n, "%lld extra job", "%lld extra jobs")
 ITEMS = lambda n=1: plural("items", n, "%lld item", "%lld items")
+MISSING_ITEMS = lambda n=1: plural("missingItems", n, "%lld item", "%lld items")
 DIFFERENCES = lambda n=1: plural("differences", n, "%lld difference", "%lld differences")
 SITES = lambda n=1: plural("sites", n, "%lld site", "%lld sites")
+DEFECTS = lambda n=1: plural("defects", n, "%lld defect", "%lld defects")
 
 APP_STRINGS = {
     "^[%lld day](inflect: true)": entry("%#@days@", DAYS()),
@@ -133,6 +135,10 @@ APP_STRINGS = {
     ),
     # The barcode scanner's Done (1.3): how many it added to the job.
     "Done · ^[%lld item](inflect: true)": entry("Done · %#@items@", ITEMS()),
+    # The sign-off's note on a site's open defects (1.3).
+    "^[%lld defect](inflect: true) still open.": entry("%#@defects@ still open.", DEFECTS()),
+    # Something's missing (1.3): how many different items its button adds.
+    "Add ^[%lld item](inflect: true) to missing": entry("Add %#@missingItems@ to missing", MISSING_ITEMS()),
     "^[%lld extra job](inflect: true) not sent to your boss yet": entry(
         "%#@extraJobs@ not sent to your boss yet", EXTRA_JOBS()
     ),

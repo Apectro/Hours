@@ -20,14 +20,14 @@ final class AllowanceUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 5), "the day editor did not open")
         // On the editor's extras page (1.2): "Allowance, km, note…".
         let extras = app.buttons["day-editor-more"].firstMatch
-        scroll(to: extras, in: app)
+        scrollTo(extras, in: app)
         extras.tap()
         let allowance = app.switches["day-editor-allowance"].firstMatch
-        scroll(to: allowance, in: app)
+        scrollTo(allowance, in: app)
         flip(allowance)
         XCTAssertEqual(allowance.value as? String, "1", "the day's allowance should be on")
         let kilometres = app.textFields["day-editor-kilometres"].firstMatch
-        scroll(to: kilometres, in: app)
+        scrollTo(kilometres, in: app)
         kilometres.tap()
         kilometres.typeText("84")
         app.buttons["day-extras-done"].firstMatch.tap()
@@ -40,14 +40,14 @@ final class AllowanceUITests: XCTestCase {
 
         // The month's summary under the calendar has its line.
         let line = app.descendants(matching: .any)["calendar-summary-allowance"].firstMatch
-        scroll(to: line, in: app)
+        scrollTo(line, in: app)
         XCTAssertTrue(line.exists, "the month summary should show the allowance")
         XCTAssertTrue(line.label.contains("84"), "the line should carry the kilometres: \(line.label)")
 
         // And Insights' month has it too.
         app.tab(.insights).tap()
         let insights = app.descendants(matching: .any)["insights-allowance"].firstMatch
-        scroll(to: insights, in: app)
+        scrollTo(insights, in: app)
         XCTAssertTrue(insights.exists, "Insights should show the allowance")
     }
 
@@ -73,7 +73,7 @@ final class AllowanceUITests: XCTestCase {
         // The day's Field allowance row gives it to one person, and takes
         // it back.
         let row = app.buttons["site-day-allowance"].firstMatch
-        scroll(to: row, in: app)
+        scrollTo(row, in: app)
         XCTAssertTrue(row.exists, "a written day should offer the field allowance")
         row.tap()
         let ivan = app.switches["site-allowance-Ivan"].firstMatch
@@ -87,7 +87,7 @@ final class AllowanceUITests: XCTestCase {
 
         // The vehicle's kilometres for the day.
         let kilometres = app.textFields["site-day-kilometres"].firstMatch
-        scroll(to: kilometres, in: app)
+        scrollTo(kilometres, in: app)
         XCTAssertTrue(kilometres.exists, "the site day should offer kilometres")
     }
 
@@ -101,10 +101,10 @@ final class AllowanceUITests: XCTestCase {
         // pop-up button rather than a button, and then a query for buttons
         // finds nothing and swipes past it.
         let pay = app.descendants(matching: .any)["settings-pay"].firstMatch
-        scroll(to: pay, in: app)
+        scrollTo(pay, in: app)
         pay.tap()
         let row = app.descendants(matching: .any)["settings-allowance"].firstMatch
-        scroll(to: row, in: app)
+        scrollTo(row, in: app)
         row.tap()
         let enabled = app.switches["allowance-enabled"].firstMatch
         XCTAssertTrue(enabled.waitForExistence(timeout: 5), "the allowance settings did not open")
@@ -121,29 +121,5 @@ final class AllowanceUITests: XCTestCase {
         let predicate = NSPredicate(format: "value == %@", expected ? "1" : "0")
         let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: toggle)], timeout: 5)
         XCTAssertEqual(result, .completed, "Ivan should \(expected ? "have" : "not have") the allowance: \(String(describing: toggle.value))")
-    }
-
-    /// A Form switch: its own knob when it can be hit, else the trailing
-    /// edge of the row where the knob is drawn.
-    private func flip(_ toggle: XCUIElement) {
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "\(toggle) is missing")
-        let before = toggle.value as? String
-        let inner = toggle.switches.firstMatch
-        if inner.exists, inner.isHittable {
-            inner.tap()
-        } else {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-        }
-        // A tap in the middle of a switch row sometimes doesn't take: try
-        // the knob's side once more if the value did not change.
-        if (toggle.value as? String) == before {
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-        }
-    }
-
-    private func scroll(to element: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<6 where !(element.exists && element.isHittable) {
-            app.swipeUp()
-        }
     }
 }

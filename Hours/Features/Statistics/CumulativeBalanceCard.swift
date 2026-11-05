@@ -45,7 +45,7 @@ struct CumulativeBalanceCard: View {
 
             let points = trendPoints(endingAt: balance)
             if points.count > 1 {
-                BalanceTrendChart(points: points, calendar: calendar)
+                BalanceTrendChart(points: points, calendar: calendar, duration: settings.displayFormatting)
                     .padding(.vertical, Metrics.small)
             }
 
@@ -151,6 +151,7 @@ struct CumulativeBalanceCard: View {
 private struct BalanceTrendChart: View {
     let points: [BalanceTrend.Point]
     let calendar: Calendar
+    let duration: DurationFormatting
 
     var body: some View {
         Chart {
@@ -171,7 +172,7 @@ private struct BalanceTrendChart: View {
                 AxisGridLine()
                 AxisValueLabel {
                     if let hours = value.as(Double.self) {
-                        Text(verbatim: "\(Int(hours))h")
+                        Text(verbatim: duration.axisString(hours: hours))
                     }
                 }
             }

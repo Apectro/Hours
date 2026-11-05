@@ -262,6 +262,8 @@ final class SiteDayTests: XCTestCase {
         work.tap()
         work.typeText("Formwork")
         app.buttons["site-diary-save"].tap()
+        // The diary's sheet has to be gone, or the back tap lands on its toolbar.
+        waitUntilGone(app.screen("screen-site-diary-day"), timeout: 10)
 
         // Back to the site's page (1.2), then to the list.
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -287,10 +289,9 @@ final class SiteDayTests: XCTestCase {
         openSite(app)
         select(app, daysFromToday: -1)
 
-        let link = app.buttons["site-weather-menu"]
-        for _ in 0..<3 where !link.isHittable { app.swipeUp() }
-        XCTAssertTrue(link.waitForExistence(timeout: 5), "a written day should offer Bad weather")
-        link.tap()
+        // Bad weather is in the day's ⋯ menu.
+        XCTAssertTrue(openDayMenu(app, showing: "site-weather-menu"), "a written day should offer Bad weather")
+        app.buttons["site-weather-menu"].firstMatch.tap()
         let all = app.buttons["site-weather-stop-all"]
         XCTAssertTrue(all.waitForExistence(timeout: 5))
         all.tap()
@@ -301,10 +302,20 @@ final class SiteDayTests: XCTestCase {
         let lift = app.buttons["site-weather-lift"]
         XCTAssertTrue(lift.waitForExistence(timeout: 5))
         lift.tap()
-        XCTAssertTrue(app.buttons["site-weather-menu"].waitForExistence(timeout: 5), "undo should bring Bad weather back")
+        XCTAssertTrue(lift.waitUntilGone(timeout: 5), "undo should take the stop away")
+        XCTAssertTrue(openDayMenu(app, showing: "site-weather-menu"), "undo should bring Bad weather back")
     }
 
     // MARK: - Helpers
+
+    /// Opens the day's ⋯ menu until `identifier` shows in it. Bad weather,
+    /// the move, the crew and Choose a day are there (Polish phone 2).
+    @discardableResult
+    private func openDayMenu(_ app: XCUIApplication, showing identifier: String) -> Bool {
+        let menu = app.buttons["site-day-menu"].firstMatch
+        guard menu.waitForExistence(timeout: 5) else { return false }
+        return menu.tapUntil(shows: app.buttons[identifier].firstMatch)
+    }
 
     /// Goes to a day with the day screen's ‹ ›, from the day shown, and
     /// waits until the title says it is that day (its value is the date
@@ -341,8 +352,7 @@ final class SiteDayTests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["site-crew-total"].waitForExistence(timeout: 5))
 
         let move = app.buttons["site-day-move"].firstMatch
-        for _ in 0..<3 where !move.isHittable { app.swipeUp() }
-        XCTAssertTrue(move.waitForExistence(timeout: 5), "a written day with another site offers the move")
+        XCTAssertTrue(openDayMenu(app, showing: "site-day-move"), "a written day with another site offers the move")
         move.tap()
 
         XCTAssertTrue(app.screen("site-move-sheet").waitForExistence(timeout: 5), "the move sheet did not open")
@@ -369,11 +379,7 @@ final class SiteDayTests: XCTestCase {
         let undo = app.buttons["site-move-undo"].firstMatch
         XCTAssertTrue(undo.waitForExistence(timeout: 5))
         undo.tap()
-        XCTAssertTrue(
-            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: banner)], timeout: 5)
-                == .completed,
-            "Undo should take the move back"
-        )
+        XCTAssertTrue(banner.waitUntilGone(timeout: 5), "Undo should take the move back")
         XCTAssertFalse((ivan.value as? String ?? "").contains("Trg Pravde"), "Ivan is back on this site's times")
     }
 

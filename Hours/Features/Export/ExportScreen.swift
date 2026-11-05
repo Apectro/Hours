@@ -143,7 +143,7 @@ struct ExportScreen: View {
                     }
                     ToolbarItem(placement: .primaryAction) {
                         Button { path.append(.thisSheet) } label: {
-                            Label("Columns, language and more", systemImage: "slider.horizontal.3")
+                            Label("Sheet options", systemImage: "slider.horizontal.3")
                         }
                         .labelStyle(.iconOnly)
                         .accessibilityIdentifier("export-this-sheet")
@@ -367,11 +367,21 @@ struct ExportScreen: View {
                     .frame(maxWidth: .infinity, minHeight: 120)
                     .listRowBackground(Color.clear)
             } else if mode == .myHours {
-                ContentUnavailableView(
-                    "Nothing in this range",
-                    systemImage: "tray",
-                    description: Text("Pick a different range, or switch on “Include days with no entry” under Columns, language and more.")
-                )
+                // One thing to do about it, right here (polish, 2026-11):
+                // the button turns Show empty days on, for this export and
+                // as the default in Settings › Sheets.
+                ContentUnavailableView {
+                    Label("Nothing in this range", systemImage: "tray")
+                } description: {
+                    Text("The sheet only lists days with hours.")
+                } actions: {
+                    if !exportPreferences.includeEmptyDays {
+                        Button("Show empty days too", action: showEmptyDays)
+                            .buttonStyle(.bordered)
+                            .buttonBorderShape(.capsule)
+                            .accessibilityIdentifier("export-show-empty-days")
+                    }
+                }
                 .listRowBackground(Color.clear)
             } else {
                 ContentUnavailableView(
@@ -467,6 +477,13 @@ struct ExportScreen: View {
         var copy = settings
         copy.export = exportPreferences
         return copy
+    }
+
+    /// The empty state's button: empty days on for this export, and kept
+    /// as the default.
+    private func showEmptyDays() {
+        settingsStore.update { $0.export.includeEmptyDays = true }
+        if sheetPreferences != nil { sheetPreferences?.includeEmptyDays = true }
     }
 
     private var preferencesBinding: Binding<ExportPreferences> {

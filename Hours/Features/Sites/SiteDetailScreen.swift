@@ -1,11 +1,13 @@
 import SwiftUI
 import SwiftData
 
-/// One site (design v2, mockup Sites phone 2): its name as the large title,
-/// "address · 5 people · 7:00 – 15:00" under it, the month with how many
-/// days are not written and a dot under each day, then the rows Crew, A
-/// usual day, Diary, Sign-off and Extra work, the month's figures, and the
-/// two buttons at the bottom: Write today and the Sheet. The `ellipsis`
+/// One site (design v2, mockup Sites phone 2; Polish phone 5): its name as
+/// the large title, "address · 7:00 – 15:00, Mon–Fri" under it, the month
+/// with how many days are not written and a dot under each day, then two
+/// short groups — Crew and Sign-off; Missing, Defects, Extra work and Diary,
+/// an empty one reading "None" — the month's figures, and the two buttons
+/// at the bottom: Write today and the Sheet. The usual day is in Site
+/// settings. The `ellipsis`
 /// menu holds the site's settings and every other site action. A day in the
 /// month opens that day on the site.
 ///
@@ -111,7 +113,7 @@ struct SiteDetailScreen: View {
             openSiteDay(SiteRoute(siteID: siteID, date: date))
         }
         .sheet(item: $readingDiary) { site in
-            SiteDiaryListSheet(site: site) { requestedDate = $0 }
+            SiteDiaryListSheet(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites)) { requestedDate = $0 }
         }
         .sheet(item: $reporting) { site in
             ExtraWorkReportScreen(site: site, canEdit: !subscriptions.isReadOnly(site, among: sites))
@@ -267,7 +269,11 @@ struct SiteDetailScreen: View {
             .listRowSeparator(.hidden)
 
             Section {
-                rows(for: site)
+                peopleRows(for: site)
+            }
+
+            Section {
+                recordRows(for: site)
             }
 
             if counts.figures != nil {
@@ -294,15 +300,15 @@ struct SiteDetailScreen: View {
         }
     }
 
-    /// "Ilica 207C · 5 people · 7:00 – 15:00".
+    /// "Ilica 207C · 7:00 – 15:00, Mon–Fri": at most two parts, the address
+    /// and the usual day. The crew's size is on the Crew row.
     private func subtitle(for site: Site) -> String {
         var parts: [String] = []
         if !site.address.isEmpty {
             parts.append(SiteAddress.singleLine(site.address))
         }
-        parts.append(String(inflected: "^[\(counts.crew + 1) person](inflect: true)"))
-        if let times = usualTimes(for: site) {
-            parts.append(times)
+        if let usualDay = usualDayText(for: site) {
+            parts.append(usualDay)
         }
         return parts.joined(separator: " · ")
     }
@@ -356,28 +362,30 @@ struct SiteDetailScreen: View {
         .buttonStyle(.borderless)
     }
 
-    /// Crew ›, A usual day ›, Diary ›, Sign-off ›, Extra work ›, each with
-    /// its value in grey on the right.
+    /// The people: Crew "5 people" ›, Sign-off "3 of 5" ›.
     @ViewBuilder
-    private func rows(for site: Site) -> some View {
-        let setup = settingsStore.settings.siteSetup(for: site.id)
-        linkRow("Crew", value: "\(counts.crew + 1)", identifier: "site-crew") {
+    private func peopleRows(for site: Site) -> some View {
+        linkRow("Crew", value: String(inflected: "^[\(counts.crew + 1) person](inflect: true)"), identifier: "site-crew") {
             openSiteCrew(SiteCrewRoute(siteID: site.id))
         }
+        linkRow("Sign-off", value: signOffText, identifier: "site-overview-sign-off") {
+            signingOff = site
+        }
+    }
+
+    /// What is kept on the site: Missing ›, Defects ›, Extra work ›, Diary ›,
+    /// each with its value on the right, "None" when there is nothing.
+    @ViewBuilder
+    private func recordRows(for site: Site) -> some View {
         missingRow(for: site)
-        linkRow("A usual day", value: usualDayText(setup), identifier: "site-usual-day") {
-            editing = site
+        defectsRow(for: site)
+        linkRow("Extra work", value: extraWorkText, identifier: "site-extra-work-report") {
+            reporting = site
         }
         if showsDiary(for: site) {
             linkRow("Diary", value: diaryText, identifier: "site-diary-list") {
                 readingDiary = site
             }
-        }
-        linkRow("Sign-off", value: signOffText, identifier: "site-overview-sign-off") {
-            signingOff = site
-        }
-        linkRow("Extra work", value: extraWorkText, identifier: "site-extra-work-report") {
-            reporting = site
         }
     }
 
@@ -402,6 +410,29 @@ struct SiteDetailScreen: View {
         }
         .frame(minHeight: 44)
         .accessibilityIdentifier("site-missing")
+    }
+
+    /// Defects (1.3): "4 open" in red, or "None" in grey. Pushed by value,
+    /// as Missing is.
+    private func defectsRow(for site: Site) -> some View {
+        NavigationLink(value: SiteDefectsRoute(siteID: site.id)) {
+            HStack(spacing: Metrics.small) {
+                Text("Defects")
+                    .foregroundStyle(.primary)
+                Spacer(minLength: Metrics.small)
+                if counts.openDefects > 0 {
+                    Text(String(localized: "\(counts.openDefects) open", comment: "A site's Defects row: how many defects are still open"))
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.hoursMissing)
+                } else {
+                    Text("None")
+                        .foregroundStyle(.hoursSecondaryText)
+                }
+            }
+        }
+        .frame(minHeight: 44)
+        .accessibilityIdentifier("site-defects")
     }
 
     private func showsDiary(for site: Site) -> Bool {
@@ -464,37 +495,44 @@ struct SiteDetailScreen: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// "7:00 – 15:00 · Mon–Fri".
-    private func usualDayText(_ setup: SiteSetup) -> String {
+    /// "7:00 – 15:00, Mon–Fri": the site's usual day, one part of the
+    /// subtitle. Nil without usual times.
+    private func usualDayText(for site: Site) -> String? {
+        guard let times = usualTimes(for: site) else { return nil }
         let text = SiteSetupText(
             formatting: settingsStore.dateFormatting,
             durations: settingsStore.settings.displayFormatting,
             calendar: settingsStore.workCalendar
         )
-        guard let times = site.flatMap(usualTimes(for:)) else { return String(localized: "Not set") }
-        return dynamicTypeSize.isAccessibilitySize ? times : "\(times) · \(text.workDays(setup.workDays))"
+        // No days chosen is "as worked lately", which says nothing here.
+        let workDays = settingsStore.settings.siteSetup(for: site.id).workDays
+        guard !workDays.isEmpty, !dynamicTypeSize.isAccessibilitySize else { return times }
+        return "\(times), \(text.workDays(workDays))"
     }
 
+    /// Days this month with a diary, or "None".
     private var diaryText: String {
         counts.diary == 0
-            ? String(localized: "None this month")
+            ? String(localized: "None")
             : String(inflected: "^[\(counts.diary) day](inflect: true)")
     }
 
+    /// "Not signed", "3 of 5" or "All signed": the month the Sheet opens on.
     private var signOffText: String {
         switch counts.signOff {
         case .notYet:
             return String(localized: "Not signed")
         case let .partial(signed, total):
-            return String(localized: "\(signed) of \(total) signed", comment: "A site's Sign-off row: how many of the crew signed the month")
+            return String(localized: "\(signed) of \(total)", comment: "A site's Sign-off row: how many of the crew signed the month, e.g. 3 of 5")
         case .all:
             return String(localized: "All signed")
         }
     }
 
+    /// Jobs in progress or not sent yet, or "None".
     private var extraWorkText: String {
         counts.openExtraWork == 0
-            ? String(localized: "None open")
+            ? String(localized: "None")
             : String(localized: "\(counts.openExtraWork) open", comment: "Site button: how many extra-work jobs are not finished or not sent yet")
     }
 
@@ -547,7 +585,8 @@ struct SiteDetailScreen: View {
                 .jobs(siteID: siteID)
                 .filter { !$0.isDone || $0.awaitsReport }
                 .count,
-            missingNeeded: MissingRepository(context: modelContext).neededCount(siteID: siteID)
+            missingNeeded: MissingRepository(context: modelContext).neededCount(siteID: siteID),
+            openDefects: DefectRepository(context: modelContext).openCount(siteID: siteID)
         )
         guard !showsDay else {
             counts = loaded
@@ -609,6 +648,8 @@ private struct SiteCounts {
     var openExtraWork = 0
     /// Items on the site's Missing list still needed.
     var missingNeeded = 0
+    /// Defects on the site still open.
+    var openDefects = 0
     /// Every day the month's grid draws, by status.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
     /// People present on each of the site's days the grid draws.

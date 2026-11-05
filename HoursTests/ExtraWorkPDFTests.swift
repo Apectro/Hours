@@ -74,7 +74,7 @@ final class ExtraWorkPDFTests: XCTestCase {
 
     func testTheGermanPageSaysItInGerman() throws {
         let text = try pages(document(.german, inProgress: true)).joined(separator: "\n")
-        XCTAssertTrue(text.contains("ERLEDIGTE ZUSATZARBEITEN"), text)
+        XCTAssertTrue(text.contains("Erledigte Zusatzarbeiten"), text)
         XCTAssertFalse(text.contains("REGIE"), "not a bill: \(text)")
         XCTAssertTrue(text.contains("Trg Pravde Zagreb"), "the site name was cut short: \(text)")
         XCTAssertTrue(text.contains("Erfasst von Marijo Mikša"), text)
@@ -99,12 +99,11 @@ final class ExtraWorkPDFTests: XCTestCase {
 
     func testTheCroatianPageSaysItInCroatian() throws {
         let text = try pages(document(.croatian)).joined(separator: "\n")
-        // The heading is drawn letter-spaced, and PDFKit can read a space
-        // into it after a letter with a háček ("IZVRŠ ENI"); compare it
-        // without the spaces. The page itself is the problem only if the
-        // words are missing.
+        // PDFKit can read a space into a word after a letter with a háček
+        // ("Izvrš eni"); compare it without the spaces. The page itself is
+        // the problem only if the words are missing.
         let squeezed = text.replacingOccurrences(of: " ", with: "")
-        XCTAssertTrue(squeezed.contains("IZVRŠENIDODATNIRADOVI"), text)
+        XCTAssertTrue(squeezed.contains("Izvršenidodatniradovi"), text)
         XCTAssertFalse(text.contains(".."), "a doubled full stop in the period: \(text)")
         XCTAssertTrue(text.contains("UTROŠENI MATERIJAL"), text)
         XCTAssertTrue(text.contains("kom"))

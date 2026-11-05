@@ -67,6 +67,20 @@ struct DurationFormatting: Hashable, Sendable {
     /// The signed form used for balances and overtime.
     func signedString(_ minutes: Int) -> String { string(minutes, showsSign: true) }
 
+    /// A chart axis value in hours, written as everything else on screen:
+    /// "8h", "8:00", or "8" when he reads decimal hours (an axis of "8.00,
+    /// 4.00, 0.00" is noise, so decimal drops its trailing zeros).
+    func axisString(hours: Double) -> String {
+        let minutes = Int((hours * 60).rounded())
+        guard style == .decimal else { return string(minutes) }
+        var body = string(abs(minutes))
+        if body.contains(decimalSeparator) {
+            while body.hasSuffix("0") { body.removeLast() }
+            if body.hasSuffix(decimalSeparator) { body.removeLast(decimalSeparator.count) }
+        }
+        return minutes < 0 ? minusSign + body : body
+    }
+
     /// The units are h and m in every export language; see the note at the
     /// foot of `ExportLanguage` for why they are not translated.
     private static func hoursAndMinutesString(_ magnitude: Int) -> String {

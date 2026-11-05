@@ -45,6 +45,7 @@ struct CalendarMonthGrid: View {
                     detail: detail,
                     durationFormatting: durationFormatting,
                     isOutsideMonth: !layout.isInMonth(date),
+                    spokenDay: formatting.spokenDay(date, in: layout),
                     height: height
                 )
             }
@@ -293,6 +294,10 @@ struct DayTile: View {
     /// A neighbouring month's day in a month's first or last row: the
     /// same tile, faded, and the date not bold.
     var isOutsideMonth = false
+    /// What VoiceOver calls the day: its number, or for a neighbouring
+    /// month's day its number and month ("31 October",
+    /// `CalendarFormatting.spokenDay`). The number when not given.
+    var spokenDay: String? = nil
     /// Before the user's text size; `CalendarTileFace` scales it.
     var height: CGFloat = Metrics.dayCellHeight
 
@@ -351,7 +356,12 @@ struct DayTile: View {
         switch look {
         case .written, .missing: return .primary
         case .away, .holiday: return typeTextColor
-        case .dayOff, .plain: return Color(uiColor: .tertiaryLabel)
+        // A day of the shown month reads clearly without a tile: a workday
+        // (gone by or to come) in the primary colour, a weekend or day off
+        // in the secondary one. Only a neighbouring month's day is faded,
+        // here and by the tile's own 40%.
+        case .plain: return isOutsideMonth ? Color(uiColor: .tertiaryLabel) : .primary
+        case .dayOff: return isOutsideMonth ? Color(uiColor: .tertiaryLabel) : .secondary
         }
     }
 
@@ -422,7 +432,7 @@ struct DayTile: View {
 
     private func accessibilityLabel(_ look: Look) -> String {
         let duration = DurationFormatting(style: .hoursAndMinutes)
-        var parts: [String] = ["\(date.day)"]
+        var parts: [String] = [spokenDay ?? "\(date.day)"]
         if let computation {
             parts.append(computation.dayType.displayName())
             if computation.workedMinutes > 0 {

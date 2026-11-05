@@ -2,15 +2,18 @@ import SwiftUI
 import SwiftData
 
 /// The selected day's extra work on a site, as a section of the day's list
-/// (design v2): a row per job with its checkmark, what was done and its
-/// material, time and photos, then "Add extra work". The header has "Send to
-/// boss" when finished jobs wait for the report; the footer says what is in
-/// progress, or what happens to finished jobs.
+/// (Polish phone 2): a quiet row per job — a 44-point photo, or a symbol
+/// when it has none, what was done on the first line and "Finished · 2h
+/// 30m" or "In progress · 45m" under it, in green or orange — with its
+/// checkmark on the right. Material and who signed are in the job itself.
+/// "Send to boss (3)" is the section's last row when finished jobs wait for
+/// the report; the footer says what is in progress. Adding a job is the
+/// day's Extra work button at the top.
 ///
 /// Not under the month lock — extra work is not anyone's hours (see
 /// `ExtraWorkRepository`) — so only a read-only site stops it from being
-/// added to or ticked done. Draws and reports only: the site day reads the
-/// jobs (`ExtraWorkDayModel.load`), presents the editor and writes the
+/// ticked done. Draws and reports only: the site day reads the jobs
+/// (`ExtraWorkDayModel.load`), presents the editor and writes the
 /// checkmark, so the editor's sheet hangs off the day screen and not off a
 /// row a List may not have drawn.
 struct ExtraWorkDaySection: View {
@@ -21,79 +24,77 @@ struct ExtraWorkDaySection: View {
     /// The checkmark: finished, or back in progress.
     let onToggleDone: (ExtraWorkJob) -> Void
     /// Opens the Extra-work report, which the site screen presents. With it,
-    /// finished jobs the boss has not had become "Send to boss (3)" in the
-    /// header rather than a count in the footer.
+    /// finished jobs the boss has not had become a "Send to boss (3)" row
+    /// rather than a count in the footer.
     var onOpenReport: (() -> Void)? = nil
 
     @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
-        Section {
-            ForEach(Array(model.jobs.enumerated()), id: \.element.id) { index, job in
-                HStack(alignment: .top, spacing: 0) {
-                    ExtraWorkDoneButton(job: job, canEdit: canEdit) { onToggleDone(job) }
-                        .accessibilityIdentifier("extra-work-tick-\(index)")
-                        .padding(.leading, -Metrics.small)
-                    Button {
-                        onEdit(job)
-                    } label: {
-                        ExtraWorkJobCard(
-                            job: job,
-                            photoCount: model.photoCounts[job.id] ?? 0,
-                            durations: settingsStore.settings.displayFormatting
-                        )
+        if showsSection {
+            Section {
+                ForEach(Array(model.jobs.enumerated()), id: \.element.id) { index, job in
+                    HStack(alignment: .center, spacing: Metrics.small) {
+                        Button {
+                            onEdit(job)
+                        } label: {
+                            ExtraWorkJobCard(
+                                job: job,
+                                thumbnail: model.thumbnails[job.id],
+                                durations: settingsStore.settings.displayFormatting
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("extra-work-job-\(index)")
+                        ExtraWorkDoneButton(job: job, canEdit: canEdit) { onToggleDone(job) }
+                            .accessibilityIdentifier("extra-work-tick-\(index)")
+                            .padding(.trailing, -Metrics.small)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("extra-work-job-\(index)")
+                    .contextMenu {
+                        if canEdit { ExtraWorkDoneMenuItem(job: job) { onToggleDone(job) } }
+                    }
                 }
-                .contextMenu {
-                    if canEdit { ExtraWorkDoneMenuItem(job: job) { onToggleDone(job) } }
-                }
-            }
 
-            if canEdit {
-                Button {
-                    onEdit(nil)
-                } label: {
-                    Label("Add extra work", systemImage: "plus")
+                if !canEdit, model.jobs.isEmpty {
+                    Text("No extra work on this day.")
+                        .foregroundStyle(.hoursSecondaryText)
                 }
-                .accessibilityIdentifier("extra-work-add")
-            } else if model.jobs.isEmpty {
-                Text("No extra work on this day.")
-                    .foregroundStyle(.hoursSecondaryText)
-            }
-        } header: {
-            HStack(alignment: .center, spacing: Metrics.small) {
-                Text("Extra work")
-                    // The listing's screenshot scrolls this to the top.
-                    .accessibilityIdentifier("extra-work-heading")
-                Spacer(minLength: Metrics.small)
+
                 if model.notSent > 0, let onOpenReport {
                     Button(action: onOpenReport) {
                         Text(String(
                             localized: "Send to boss (\(model.notSent))",
                             comment: "Extra work on a site day: opens the Extra-work report; the value is how many finished jobs the boss has not had yet"
                         ))
-                        .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 44)
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(.borderless)
                     .accessibilityIdentifier("extra-work-send-report")
                 }
-            }
-            .textCase(nil)
-        } footer: {
-            if let counts = countsLine {
-                Text(verbatim: counts)
-                    .accessibilityIdentifier("extra-work-counts")
-            } else {
-                Text("Finished jobs go in the extra-work report for your boss.")
+            } header: {
+                Text("Extra work")
+                    // The listing's screenshot scrolls this to the top.
+                    .accessibilityIdentifier("extra-work-heading")
+                    .textCase(nil)
+            } footer: {
+                if let counts = countsLine {
+                    Text(verbatim: counts)
+                        .accessibilityIdentifier("extra-work-counts")
+                } else if !model.jobs.isEmpty {
+                    Text("Finished jobs go in the extra-work report for your boss.")
+                }
             }
         }
     }
 
-    /// The site's jobs in progress, whatever their day, and where the header
-    /// has no button for it, "Not sent: 5" — labels rather than sentences,
+    /// A day with no jobs and nothing waiting has no section: the day's
+    /// Extra work button adds one.
+    private var showsSection: Bool {
+        !model.jobs.isEmpty || !canEdit || countsLine != nil || (model.notSent > 0 && onOpenReport != nil)
+    }
+
+    /// The site's jobs in progress, whatever their day, and where there is
+    /// no Send to boss row, "Not sent: 5" — labels rather than sentences,
     /// so no plural to agree. Nil when there is neither.
     private var countsLine: String? {
         var parts: [String] = []
@@ -113,20 +114,32 @@ struct ExtraWorkDayModel {
     var jobs: [ExtraWorkJob] = []
     var notSent = 0
     var inProgress = 0
-    var photoCounts: [UUID: Int] = [:]
+    /// Each of the day's jobs' first photo, small, for its row.
+    var thumbnails: [UUID: UIImage] = [:]
+
+    /// The thumbnail's longest side in pixels: 44 points at 3×.
+    static let thumbnailPixels: CGFloat = 132
 
     /// Read outside `body`: the repository's reads collapse duplicates,
-    /// which writes.
+    /// which writes. Only the day's jobs' first photos are decoded, small.
     @MainActor
     static func load(siteID: UUID, date: CalendarDate, context: ModelContext) -> ExtraWorkDayModel {
         let repository = ExtraWorkRepository(context: context)
         let all = repository.jobs(siteID: siteID)
         let counts = ExtraWorkReport.counts(all, on: date)
+        let jobs = all.filter { $0.date == date }
+        var thumbnails: [UUID: UIImage] = [:]
+        for job in jobs {
+            guard let first = repository.photos(jobID: job.id).first,
+                  let image = DiaryPhotoProcessor.thumbnail(from: first.jpegData, maxPixel: thumbnailPixels)
+            else { continue }
+            thumbnails[job.id] = image
+        }
         return ExtraWorkDayModel(
-            jobs: all.filter { $0.date == date },
+            jobs: jobs,
             notSent: counts.notSent,
             inProgress: counts.inProgress,
-            photoCounts: repository.photoCounts(siteID: siteID)
+            thumbnails: thumbnails
         )
     }
 
@@ -146,53 +159,65 @@ struct ExtraWorkEditorRequest: Identifiable {
     let job: ExtraWorkJob?
 }
 
-/// One job's card: what was done with its Finished or In progress tag, and
-/// under it one line of the material, the time and the photos ("6 × LED
-/// fitting · 20 m Cable · 2h 30m · Photos: 2").
+/// One job's row on the day: its first photo (or a symbol), what was done,
+/// and under it "Finished · 2h 30m" or "In progress · 45m", the state in
+/// green or orange and the time in grey.
 struct ExtraWorkJobCard: View {
     let job: ExtraWorkJob
-    let photoCount: Int
+    let thumbnail: UIImage?
     let durations: DurationFormatting
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Metrics.tiny + 2) {
-            HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+        HStack(alignment: .center, spacing: Metrics.medium) {
+            ExtraWorkThumbnail(image: thumbnail)
+            VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: job.description.isEmpty ? String(localized: "Extra work") : job.description)
-                    .font(.body.weight(.semibold))
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.leading)
-                Spacer(minLength: Metrics.small)
-                ExtraWorkChips(job: job)
-            }
-            if let detail = detailLine {
-                Text(verbatim: detail)
+                    .lineLimit(2)
+                statusLine
                     .font(.subheadline)
-                    .foregroundStyle(.hoursSecondaryText)
-                    .multilineTextAlignment(.leading)
             }
+            Spacer(minLength: 0)
         }
-        .padding(.leading, Metrics.tiny)
-        .padding(.vertical, Metrics.small)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, Metrics.tiny)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
 
-    /// The material, then how long and who, the photos, and who signed.
-    private var detailLine: String? {
-        var parts = job.items.map { $0.line(in: .device, decimalSeparator: ExtraWorkFormatting.decimalSeparator) }
-        let time = job.timeLine(durations)
-        if !time.isEmpty { parts.append(time) }
-        if photoCount > 0 {
-            parts.append(String(localized: "Photos: \(photoCount)", comment: "Extra work job: how many photos it has"))
+    /// "Finished · 2h 30m": the state coloured, the time in grey.
+    private var statusLine: Text {
+        let state = job.isDone
+            ? Text("Finished").foregroundStyle(Color.hoursDone)
+            : Text("In progress").foregroundStyle(Color.hoursAttention)
+        guard job.hasHours else { return state }
+        return state + Text(verbatim: " · \(durations.string(job.duration))").foregroundStyle(.hoursSecondaryText)
+    }
+}
+
+/// A job's first photo at 44 points, rounded, or a quiet symbol when it has
+/// none.
+struct ExtraWorkThumbnail: View {
+    let image: UIImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: "hammer")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.tertiarySystemFill))
+            }
         }
-        if let signature = job.clientSignature, !job.hasHours {
-            let name = signature.signerName.trimmingCharacters(in: .whitespacesAndNewlines)
-            parts.append(name.isEmpty
-                ? String(localized: "Signed by the client")
-                : String(localized: "Signed by \(name)", comment: "Extra work job: who signed it for the client; the value is their name"))
-        }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+        .frame(width: 44, height: 44)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        .accessibilityHidden(true)
     }
 }
 

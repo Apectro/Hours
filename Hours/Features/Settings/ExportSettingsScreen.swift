@@ -51,7 +51,7 @@ struct ExportSettingsScreen: View {
                     }
                 }
                 .accessibilityIdentifier("export-columns")
-                Toggle("Days with nothing written", isOn: settingsStore.binding(\.export.includeEmptyDays))
+                Toggle("Show empty days", isOn: settingsStore.binding(\.export.includeEmptyDays))
                 Toggle("Summary at the bottom", isOn: settingsStore.binding(\.export.includeSummaryRows))
                 // Only once there is a rate: without one there is nothing to add.
                 if settingsStore.settings.earningsAreSetUp {

@@ -45,17 +45,6 @@ final class ScreenshotTests: XCTestCase {
         taken.append(name)
     }
 
-    /// Settings is taller than a screen, so a row near the bottom has to be
-    /// brought up before it can be tapped.
-    @discardableResult
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 6) -> Bool {
-        for _ in 0..<swipes {
-            if element.exists, element.isHittable { return true }
-            app.swipeUp()
-        }
-        return element.exists && element.isHittable
-    }
-
     /// Waits for an element to become enabled — the export's page preview is
     /// a disabled button until the PDF has been drawn, and a shot taken
     /// before then is a grey well.
@@ -111,8 +100,8 @@ final class ScreenshotTests: XCTestCase {
         capture("02-site", app)
 
         // 3 — today's extra work under the site day: the "Extra work"
-        // heading with "Send to boss", one job done, one in progress, with
-        // their material and who was on them. The heading is scrolled up to
+        // heading, one job done, one in progress, each with its photo and
+        // time, and "Send to boss" under them. The heading is scrolled up to
         // just under the navigation bar, so it is not cut off and the jobs
         // fit below it.
         let heading = app.descendants(matching: .any)["extra-work-heading"].firstMatch
@@ -142,6 +131,9 @@ final class ScreenshotTests: XCTestCase {
         capture("04-extra-work-report", app)
         app.buttons["extra-work-report-done"].tap()
         XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10))
+        // The site's page is under the report all along: the report's sheet
+        // has to be gone before Sheet is tapped.
+        waitUntilGone(app.screen("screen-extra-work-report"), timeout: 10)
 
         // 5 — the site sheet: last month, one column group per person,
         // previewed as the PDF's first page.
@@ -155,6 +147,7 @@ final class ScreenshotTests: XCTestCase {
         capture("05-site-sheet", app)
         app.buttons["export-done"].tap()
         XCTAssertTrue(app.screen("screen-site").waitForExistence(timeout: 10))
+        waitUntilGone(app.screen("screen-site-export"), timeout: 10)
 
         // 6 — a day open, showing what one holds. Today, because the sample
         // month always writes it, and it is the day already selected.
@@ -180,7 +173,7 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(app.screen("screen-settings").waitForExistence(timeout: 10))
         let privacy = app.buttons["settings-privacy"]
         XCTAssertTrue(app.openSettingsMore(), "Settings has no More row")
-        XCTAssertTrue(reveal(privacy, in: app), "could not scroll Settings down to Privacy")
+        XCTAssertTrue(scrollTo(privacy, in: app), "could not scroll Settings down to Privacy")
         privacy.tap()
         XCTAssertTrue(app.screen("screen-privacy").waitForExistence(timeout: 10))
         capture("08-privacy", app)

@@ -41,8 +41,16 @@ enum PDFReportStyle {
     static let bylineFont = UIFont.systemFont(ofSize: 9.5)
     /// A site's address under the byline: the byline's look, a size down.
     static let addressFont = UIFont.systemFont(ofSize: 8.5)
-    static let tileLabelFont = UIFont.systemFont(ofSize: 7.5)
-    static let tileValueFont = UIFont.monospacedDigitSystemFont(ofSize: 17, weight: .bold)
+    /// "Site hours · October 2026" under the title, and the grey
+    /// "address · made 3 Nov 2026" under that.
+    static let headerKindFont = UIFont.systemFont(ofSize: 11)
+    static let headerDetailFont = UIFont.systemFont(ofSize: 9)
+    /// The header's two figures, plain text: the label in grey, the value
+    /// in bold.
+    static let figureLabelFont = UIFont.systemFont(ofSize: 9)
+    static let figureValueFont = UIFont.monospacedDigitSystemFont(ofSize: 11, weight: .bold)
+    /// "Sign-off" or "Open defects" over a page after the table.
+    static let appendixTitleFont = UIFont.systemFont(ofSize: 12, weight: .bold)
     static let smallFont = UIFont.systemFont(ofSize: 7.5)
     static let footerFont = UIFont.systemFont(ofSize: 7)
 
@@ -53,10 +61,10 @@ enum PDFReportStyle {
     static let faint = rgb(0xAEAEB2)
     static let rule = rgb(0xECECF0)
     static let signatureRule = rgb(0x8E8E93)
-    /// The eyebrow, and someone who came late or left early.
+    /// Someone who came late or left early: the one colour in the table.
+    /// (The defects list still heads its page with it.)
     static let accent = rgb(0xE07B12)
     static let tile = rgb(0xF2F2F7)
-    static let negativeTile = rgb(0xFDECEA)
     static let negative = rgb(0xC62828)
     static let positive = rgb(0x2E7D32)
     /// A day nobody expected anything of.

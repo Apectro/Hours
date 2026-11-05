@@ -177,6 +177,19 @@ final class CrewMemberSheetTests: XCTestCase {
         XCTAssertEqual(t.tiles.map(\.label), ["Worked", "Days on site", "Sick days", "Leave days"])
     }
 
+    /// The person as the title, the kind and the month under it, and the
+    /// hours and days on site as the two figures.
+    func testThePrintedHeaderIsThePersonThenTheKindAndTheMonth() {
+        let ana = CrewMember(siteID: south.id, name: "Ana")
+        let t = table(for: .matching(ana, in: [ana]), days: [
+            day(south, 3, present: [Attendance(memberID: ana.id)])
+        ])
+        let header = t.pageHeader(madeOn: Fixture.date(2026, 11, 3), calendar: calendar)
+        XCTAssertEqual(header.title, "Ana")
+        XCTAssertEqual(header.kindLine, "Timesheet · August 2026")
+        XCTAssertEqual(header.figures.map(\.label), ["Worked", "Days on site"])
+    }
+
     func testNoSickOrLeaveLinesWhenThereWereNone() {
         let ana = CrewMember(siteID: south.id, name: "Ana")
         let t = table(for: .matching(ana, in: [ana]), days: [

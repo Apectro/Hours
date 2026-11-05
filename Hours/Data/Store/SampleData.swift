@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import UIKit
 
 /// A plausible month, for the screenshots that go on the App Store listing.
 ///
@@ -35,6 +36,20 @@ enum SampleData {
         ProcessInfo.processInfo.arguments.contains(secondSiteLaunchArgument)
     }
 
+    /// Two things ordered on the seeded site, each with its code named, and
+    /// a third code named but not ordered, for the delivery check's test
+    /// (1.3). The codes are typed in the test, as the simulator has no
+    /// camera.
+    static let orderLaunchArgument = "-hours-sample-order"
+
+    static var isOrderRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(orderLaunchArgument)
+    }
+
+    /// The codes `-hours-sample-order` names: two boxes ordered, 50 m of
+    /// cable ordered, an emergency light nobody ordered.
+    static let orderCodes = (box: "4006381333931", cable: "4006381333948", light: "4006381333955")
+
     /// Closes the current month, for the test that a closed month refuses
     /// site edits. Settings in a UI test run are an ephemeral copy, so this
     /// never reaches anyone's real lock.
@@ -59,6 +74,9 @@ enum SampleData {
         let marko = CrewMember(siteID: site.id, name: "Marko", sortOrder: 1)
         repository.upsert(ivan)
         repository.upsert(marko)
+        if isOrderRequested {
+            seedOrder(on: site, context: repository.context)
+        }
         if isSecondSiteRequested {
             let other = Site(name: "Trg Pravde", sortOrder: 1)
             repository.upsert(other)
@@ -92,6 +110,23 @@ enum SampleData {
                     Attendance(memberID: marko.id),
                 ]
             ))
+        }
+    }
+
+    private static func seedOrder(on site: Site, context: ModelContext) {
+        let extraWork = ExtraWorkRepository(context: context)
+        let box = extraWork.nameCode(orderCodes.box, name: "Junction box IP65", unit: .pieces)
+        let cable = extraWork.nameCode(orderCodes.cable, name: "Cable NYM 3×1.5", unit: .metres)
+        _ = extraWork.nameCode(orderCodes.light, name: "Emergency light 3h", unit: .pieces)
+        let missing = MissingRepository(context: context)
+        let earlier = Date().addingTimeInterval(-2 * 86_400)
+        for draft in [
+            MissingDraft(name: box.name, quantity: 2, unit: .pieces, catalogItemID: box.id),
+            MissingDraft(name: cable.name, quantity: 50, unit: .metres, catalogItemID: cable.id),
+        ] {
+            if let item = missing.add(draft, siteID: site.id, at: earlier) {
+                missing.mark(item.id, .ordered, siteID: site.id, at: earlier)
+            }
         }
     }
 
@@ -320,6 +355,48 @@ enum SampleData {
         if let ordered = missing.add(MissingDraft(name: "Wall bracket", quantity: 20, unit: .pieces), siteID: site.id, at: now.addingTimeInterval(-8 * 86_400)) {
             missing.mark(ordered.id, .ordered, siteID: site.id, at: now.addingTimeInterval(-7 * 86_400))
         }
+        seedDefects(site: site, crew: crew, now: now, context: repository.context)
+    }
+
+    /// Four defects (1.3) on the showcase site, three open and one fixed,
+    /// over two floors, each with a drawn stand-in for a photo and a mark.
+    private static func seedDefects(site: Site, crew: [CrewMember], now: Date, context: ModelContext) {
+        let repository = DefectRepository(context: context)
+        let someone = crew.first?.name ?? ""
+        let entries: [(DefectDraft, Double, DefectMark.Kind)] = [
+            (DefectDraft(what: "Socket loose", floor: "2nd floor", room: "Room 4", notedBy: someone), 2, .circle),
+            (DefectDraft(what: "Cover plate missing", floor: "2nd floor", room: "Corridor"), 0.2, .arrow),
+            (DefectDraft(what: "Emergency light not lit", floor: "Ground", room: "Stairs"), 3, .circle),
+            (DefectDraft(what: "Cable not labelled", floor: "Ground", room: "Panel room", notedBy: someone), 4, .draw),
+        ]
+        for (index, entry) in entries.enumerated() {
+            let (draft, daysAgo, kind) = entry
+            let mark = DefectMark(kind: kind, points: kind == .draw
+                ? [DefectPoint(x: 0.3, y: 0.62), DefectPoint(x: 0.45, y: 0.55), DefectPoint(x: 0.6, y: 0.62), DefectPoint(x: 0.7, y: 0.5)]
+                : [DefectPoint(x: 0.35, y: 0.3), DefectPoint(x: 0.65, y: 0.7)])
+            let photos: [(jpegData: Data, marks: [DefectMark])] = samplePhoto(shade: CGFloat(index) * 0.05).map { [(jpegData: $0, marks: [mark])] } ?? []
+            let added = repository.add(draft, siteID: site.id, photos: photos, at: now.addingTimeInterval(-daysAgo * 86_400))
+            if index == 3, let added { repository.markFixed(added.id, at: now.addingTimeInterval(-3600)) }
+        }
+    }
+
+    /// A wall with a socket on it, drawn: a stand-in photo for the
+    /// screenshots, so no real picture is ever shipped in the app.
+    private static func samplePhoto(shade: CGFloat) -> Data? {
+        let size = CGSize(width: 1200, height: 900)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            UIColor(white: 0.78 - shade, alpha: 1).setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            UIColor(white: 0.66 - shade, alpha: 1).setFill()
+            context.fill(CGRect(x: 0, y: 720, width: size.width, height: 180))
+            UIColor(white: 0.96, alpha: 1).setFill()
+            UIBezierPath(roundedRect: CGRect(x: 480, y: 330, width: 240, height: 240), cornerRadius: 24).fill()
+            UIColor(white: 0.55, alpha: 1).setFill()
+            UIBezierPath(ovalIn: CGRect(x: 540, y: 390, width: 120, height: 120)).fill()
+        }
+        return DiaryPhotoProcessor.storedJPEG(from: image)
     }
 
     /// An ordinary day on the showcase site: 07:00 to 16:00 with half an

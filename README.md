@@ -182,6 +182,29 @@ once the share goes through. An optional weekly reminder (off by default,
 Friday 15:00) says when finished jobs have not been sent yet. It is a progress report, not a bill:
 quantities only, never a price, and no lines to fill in.
 
+**Delivery check (1.3)** — in a site's Missing › Ordered, **Check a delivery**
+scans the boxes as they come off the van: each box counts one, a roll of cable
+is set to what was ordered and corrected with −/+, and what nobody ordered is
+listed as having come anyway. The result says what arrived, what is short and
+stays ordered (the part that came moves to Arrived), and what was not on the
+list, with an optional photo of the delivery note; saved, it offers the
+message for the warehouse — "Still missing:" and "Not ordered, came anyway:" in
+the export language — and stays under Missing › Arrived, photo and all.
+
+**Defects (1.3)** — a site's Defects row ("4 open" in red) and "Found a
+defect" on the crew's day open the camera first; a circle, an arrow or a
+line drawn by finger marks the problem over the photo (never burned in, and
+changeable later), then what's wrong (the site's earlier defects as chips),
+the floor (the site's own list, edited in its settings with "Add floors 1 to
+N") and the room (remembered per site). Who fixes it is asked only when the
+site's "Assign defects to people" is on; who noted it is you or someone on
+the crew. The list groups by floor, swipes to fixed or reopen; a defect opens
+full screen with its photos before and after, Photo after and Mark fixed —
+by you, with the day. **Send the list** shares a PDF (each row with its marked
+photo) or the same lines as a message, open ones only if you like; the
+sign-off sheet's "Open defects on the sign-off" puts them on the site's
+signed sheet.
+
 **Earnings** — set an hourly rate in Settings › Pay and the app leads with what
 you earned rather than the hours balance: overtime at the same rate or with a
 surcharge after your normal day or your week, Saturday, Sunday and holiday and
@@ -451,7 +474,10 @@ fields) and V9 (the site's address) do, so they must be initialised and
 deployed to Production before 1.2 ships, or a syncing 1.2 device cannot upload
 what it records. Schema V10 (barcodes and sites on the remembered extra-work items,
 and the new `MissingItemEntry` record type for a site's Missing list) needs
-steps 3 and 4 again before a build with scanning and Missing syncs.
+steps 3 and 4 again before a build with scanning and Missing syncs. Schema V11
+(three new record types: `DefectEntry`, `DefectPhotoEntry` and `DeliveryEntry`,
+for a site's defects with their photos and the deliveries checked) needs steps
+3 and 4 again before a build with defects and the delivery check syncs.
 
 Until step 4, sync in a TestFlight build opens but uploads nothing, and
 Settings › iCloud shows CloudKit's error; repeat steps 3–4 whenever a new

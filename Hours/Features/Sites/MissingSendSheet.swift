@@ -177,7 +177,7 @@ struct MissingSendSheet: View {
 }
 
 /// The Missing list on one A4 page, in the look of the app's other exports:
-/// the orange eyebrow, the site and the date, who it is from, then
+/// the site, what it is and the date, who it is from, then
 /// Quantity · Item · Code · Note over thin rules. A list too long for one
 /// page carries on over the next.
 enum MissingPDFRenderer {
@@ -234,16 +234,11 @@ enum MissingPDFRenderer {
         }
     }
 
+    /// The site as the title, "Missing material · 3 Nov 2026" under it and
+    /// who it is from in grey: the report header's look, without orange
+    /// capitals (polish, 2026-11).
     private static func drawHeader(_ message: MissingMessage, at top: CGFloat, width: CGFloat) -> CGFloat {
         var y = top
-        PDFReportStyle.draw(
-            message.title.uppercased(with: message.language.locale),
-            in: CGRect(x: margin, y: y, width: width, height: 12),
-            font: PDFReportStyle.eyebrowFont,
-            color: PDFReportStyle.accent,
-            kern: 0.6
-        )
-        y += 16
         PDFReportStyle.draw(
             message.siteName,
             in: CGRect(x: margin, y: y, width: width, height: 30),
@@ -252,10 +247,10 @@ enum MissingPDFRenderer {
         )
         y += 32
         PDFReportStyle.draw(
-            message.subtitle,
+            "\(message.title) · \(message.dateText)",
             in: CGRect(x: margin, y: y, width: width, height: 14),
-            font: PDFReportStyle.bylineFont,
-            color: PDFReportStyle.secondary
+            font: PDFReportStyle.headerKindFont,
+            color: PDFReportStyle.ink
         )
         y += 16
         if !message.byline.isEmpty {

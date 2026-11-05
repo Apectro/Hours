@@ -422,8 +422,10 @@ site reminders skip it (`SiteUnwrittenDay`, `SiteReminderPlan`).
   `CrewSignatureEntry` (one per site, person and month), and extra work:
   `ExtraWorkJobEntry`, `ExtraWorkPhotoEntry`, `ExtraWorkReportEntry` (a report
   that was sent) and `ExtraWorkItemEntry` (the remembered items), and since 1.3
-  `MissingItemEntry` (a site's Missing list). These are records the user
-  creates, queries and exports.
+  `MissingItemEntry` (a site's Missing list), `DefectEntry` and
+  `DefectPhotoEntry` (a site's defects) and `DeliveryEntry` (a delivery
+  checked against Missing). These are records the user creates, queries and
+  exports.
 - **UserDefaults (Codable JSON)** for `AppSettings`. Preferences are a
   singleton read on nearly every view update and passed into every pure
   calculation; a value type is the right shape for that, and it keeps the
@@ -455,7 +457,7 @@ a stored blob. `AppSettings.schemaVersion` exists for the day a real
 transformation is needed.
 
 **Schema versions.** `HoursMigrationPlan` walks V1 → V2 → V3 → V4 → V5 → V6 → V7
-→ V8 → V9 → V10, every stage lightweight. The live classes are always the newest version; the moment
+→ V8 → V9 → V10 → V11, every stage lightweight. The live classes are always the newest version; the moment
 a new version is added, the previous one gets frozen copies of the classes
 column for column (V2 and V3 hold theirs), because a version must keep
 describing exactly what stores written by it hold. V4 (1.1) adds
@@ -491,7 +493,16 @@ to the remembered extra-work item its barcodes (`barcodesData`, optional
 JSON `[String]`) and the sites it was used on (`siteIDsData`, optional JSON
 `[UUID]`), and a thirteenth entity, `MissingItemEntry`, with a default on
 every property — the quantity as text, the state as its raw value, the site
-and the remembered item as id strings. Every
+and the remembered item as id strings. V11 (1.3) freezes V10's thirteen
+classes and adds three entities, a default or optional on every property:
+`DefectEntry` (what, floor, room, who fixes it as a kind and a name, who
+noted it, open or fixed with `fixedAt`), `DefectPhotoEntry` (the JPEG
+`@Attribute(.externalStorage)` as the diary's, whether it was taken after
+the fix, and the marks as JSON `[DefectMark]`, normalised to the photo and
+never burned in) and `DeliveryEntry` (when, its lines as JSON
+`[DeliveryLine]`, and the delivery note's photo, external too, with
+`hasPhoto` so a list never reads it). A site's floors, remembered rooms and
+its two defect switches are configuration and live in its `SiteSetup`. Every
 new entity keeps the rules a CloudKit-mirrored store sets: every attribute has a
 default or is optional, nothing is `.unique`, and there are no relationships —
 rows refer to each other by id strings, as the diary's do. `MigrationTests`
@@ -545,7 +556,9 @@ other change to a site day.
 in the backup JSON (`diaries`, `diaryPhotos`, `signatures`), extra work four
 more (`extraWorkJobs`, `extraWorkPhotos`, `extraWorkReports`, `extraWorkItems`,
 whose items carry `barcodes` and `siteIDs` since 1.3, written only when set)
-and the Missing lists one more (`missingItems`, 1.3),
+and the Missing lists one more (`missingItems`, 1.3), defects two
+(`defects`, `defectPhotos`, photos as base64 with their marks) and the
+deliveries one (`deliveries`, the delivery note's photo as `photo`),
 set after `init` so the initialiser stays as it was. Quantities are written as
 text ("12.5"), exact on every platform. A job's `isDone` and `doneAt` are
 optional keys: missing, the job is done (it was written before a job could be
@@ -581,7 +594,7 @@ version to what CloudKit accepts — every attribute optional or defaulted, no
 unique constraint, relationships optional with an inverse and no `.deny` — on
 every push; V4 passed as it stood, so no V5 was needed. `CloudKitSchema`
 initialises the live version's models; each version that adds a column (V6,
-V7, V8, V9 and V10 do) has to be initialised and deployed to Production again.
+V7, V8, V9, V10 and V11 do) has to be initialised and deployed to Production again.
 
 *No build may crash at launch because of sync.* 1.0 in TestFlight did, at every
 launch: it opened a syncing store without being signed for iCloud, CloudKit
@@ -1359,6 +1372,55 @@ not under the month lock (`MissingRepository` avoids the lock's method names);
 a read-only site shows it and changes nothing. Backups carry it as
 `missingItems`, restored by the diary's rule.
 
+**Checking a delivery (1.3).** Missing › Ordered has **Check a delivery**
+(`DeliveryCheckFlow`): the scanner of extra work (`BarcodeScanArea`, the
+typed code where there is no camera) over a card listing every ordered item
+with ✓, a half circle or an empty circle. `DeliveryCheck` (engine) keeps the
+check: a box of a known code counts one of its ordered item (by the
+remembered item's id, else by name); an item measured in m, m², m³ or kg is
+set to what was ordered by its first scan and corrected with −/+; a known
+code not ordered, and a new code once named in **New item**, come anyway.
+The result lists Arrived, "Short · stays ordered" (with none come, all of
+it) and Not on the list, with an optional photo of the delivery note (the
+diary's processing, no metadata). Saving stores a `Delivery` and moves the
+list by `DeliveryCheck.applying`: what all came is arrived; what partly came
+is split, the part that came arrived on a row of its own and the rest still
+ordered on the item's own row, ordered when it was; extras never touch the
+list. `DeliveryMessage` is the warehouse's text in the export language.
+Saved deliveries head Missing › Arrived ("4 Nov delivery · photo") and open
+read-only, the photo in the photo viewer.
+
+**Defects (1.3).** A `Defect` (what, floor, room, who fixes it, who noted
+it, open → fixed) with up to three `DefectPhoto`s of the problem — the first
+the marked one — and three after the fix. Marks (`DefectMark`: circle,
+arrow, drawing; red, yellow, white) are normalised points over the photo
+(`DefectGeometry` maps a touch to them and back for any size the photo is
+drawn at), stored beside it and drawn over it everywhere by
+`DefectMarkPainter` — the marking screen, thumbnails, the viewer and both
+PDFs — so the photo is never changed and "Edit marking" can change them.
+The site's page has a Defects row ("4 open" in red), the crew's day "Found
+a defect"; `SiteDefectsScreen` (pushed by value) groups by the site's floor
+order (`DefectList.groupedByFloor`: the site's floors, then floors no longer
+listed, then none) with Open · Fixed. A new defect is camera first
+(`DefectCaptureFlow`: `UIImagePickerController` with the site's name over
+it and "From photos"; where there is no camera, the photo picker or none),
+then marking, then the details: what's wrong with this site's earlier texts
+as chips (most used first), the floor from `SiteSetup.floors` (Ground, 1st
+floor, 2nd floor, Roof in the app's language until edited; "Add floors 1 to
+N" in site settings), the room from those remembered (`SiteSetup.rooms`),
+who fixes it only while the site's "Assign defects to people" is on (off by
+default: the field is then nowhere, the PDF included), and who noted it.
+Only you mark a defect fixed, with the day. `DefectsDocument` is the list
+sent, in the export language — "<site> · Defects", "address · date · N
+open", numbered rows "since 3 Nov" or "fixed 4 Nov" — as a PDF with each
+marked photo (`DefectsPDFRenderer`) or as a message without them. The
+sign-off sheet's "Open defects on the sign-off" (`SiteSetup.defectsOnSignOff`,
+off) lists the open ones, photo and marks included, on pages after the
+signatures of the site's sheet (`ReportTable.openDefects`, `PDFAppendix`);
+"N defects still open" there is a note, never a reason not to sign.
+`DefectRepository` and `DeliveryRepository` write without the month lock,
+avoid the lock's method names, and a read-only site changes nothing.
+
 **Not under the month lock.** `ExtraWorkRepository` writes without
 `MonthLock`, for the diary's reason: none of it is anyone's hours, and the
 30th's extra work is finished and sent after the month is closed. The
@@ -1551,7 +1613,8 @@ data.
 runs out of process and needs no photo-library permission: the app only ever
 sees the pictures chosen. The camera is `UIImagePickerController` and asks for
 camera access with a purpose string, the first and only permission the diary
-adds. Scanning a barcode (1.3) uses the same permission, through VisionKit on
+adds. A defect's photos and a delivery note's (1.3) are taken and processed the
+same way. Scanning a barcode (1.3) uses the same permission, through VisionKit on
 the device; a code is matched against the user's own list and never sent or
 looked up anywhere. Reading the text on a box (a new code's name "From the box",
 and Scan text beside name fields) is VisionKit on the device too; the lines are
@@ -1643,9 +1706,9 @@ dark #0A84FF). The daily actions use `BigActionButtonStyle`
 accent for the one primary action, the tertiary system fill for secondary and
 destructive (red text), green for Clock in only. And Appearance › On site sets two environment
 values at the root, `biggerButtons` (taller big buttons) and `highContrast`
-(read through `.hoursSecondaryText` and `.hoursHairlineStyle`). A scrolling screen that is not a `Form` is `SectionHeading`
-over `SurfaceCard`-style surfaces, `Metrics.large` apart; one heading style for
-every in-scroll section. Sheets that write something have Cancel on the left
+(read through `.hoursSecondaryText` and `.hoursHairlineStyle`). Screens are native `List`s and `Form`s with
+sentence-case section headers; the hand-made cards and upper-case headings of
+before design v2 (`SurfaceCard`, `SectionHeading`, `SiteGroup`) are gone. Sheets that write something have Cancel on the left
 and Save (or a more precise verb, such as Sign) on the right; sheets that only
 show or share have Done on the right.
 

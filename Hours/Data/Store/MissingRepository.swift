@@ -44,6 +44,13 @@ struct MissingRepository {
         return result.item
     }
 
+    /// Adds several in one go ("Add 3 to missing"), each by
+    /// `MissingList.adding`: one written once, as one change.
+    func add(_ drafts: [MissingDraft], siteID: UUID, at moment: Date = Date()) {
+        let before = items(siteID: siteID)
+        storeChanges(from: before, to: MissingList.adding(drafts, siteID: siteID, at: moment, to: before))
+    }
+
     /// Moves one row to a state: swiped, or a delivery scanned.
     func mark(_ id: UUID, _ state: MissingState, siteID: UUID, at moment: Date = Date()) {
         let before = items(siteID: siteID)
@@ -54,6 +61,14 @@ struct MissingRepository {
     func markOrdered(_ sent: [MissingItem], siteID: UUID, at moment: Date = Date()) {
         let before = items(siteID: siteID)
         storeChanges(from: before, to: MissingList.markingOrdered(sent, at: moment, in: before))
+    }
+
+    /// A checked delivery saved (`DeliveryRepository.record`): what all
+    /// came arrived, what partly came split off as arrived, the rest still
+    /// ordered (`DeliveryCheck.applying`).
+    func applyDelivery(_ lines: [DeliveryLine], siteID: UUID, at moment: Date = Date()) {
+        let before = items(siteID: siteID)
+        storeChanges(from: before, to: DeliveryCheck.applying(lines, to: before, at: moment))
     }
 
     func remove(id: UUID) {

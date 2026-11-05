@@ -50,19 +50,6 @@ final class WalkthroughTests: XCTestCase {
         return true
     }
 
-    /// Settings is taller than a screen; a row near the bottom has to be
-    /// brought up before it can be tapped. Swipes rather than a scroll-to,
-    /// because the swipes are the part worth filming.
-    @discardableResult
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 6) -> Bool {
-        for _ in 0..<swipes {
-            if element.exists, element.isHittable { return true }
-            app.swipeUp()
-            pause(0.4)
-        }
-        return element.exists && element.isHittable
-    }
-
     func testWalkthrough() {
         // Sample data and Pro, so the video shows the app doing its job rather
         // than an empty month and a column of padlocks.
@@ -131,7 +118,7 @@ final class WalkthroughTests: XCTestCase {
             // 5 — the privacy screen, which is the reason to choose this one.
             let privacy = app.buttons["settings-privacy"]
             app.openSettingsMore()
-            if reveal(privacy, in: app) {
+            if scrollTo(privacy, in: app, settle: Self.beat * 0.4) {
                 privacy.tap()
                 if reached("privacy", app.screen("screen-privacy")) { pause(2.5) }
             } else {

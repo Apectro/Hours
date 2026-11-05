@@ -17,6 +17,8 @@ struct PDFAppendix {
         case signOff(Range<Int>, isFirst: Bool)
         /// A run of diary days; the first page of them carries the heading.
         case diary(Range<Int>, isFirst: Bool)
+        /// A run of the site's open defects (1.3), after the sign-off.
+        case defects(Range<Int>, isFirst: Bool)
     }
 
     // MARK: - Measurements
@@ -29,6 +31,8 @@ struct PDFAppendix {
     private static let photoColumns = 3
     private static let photoGap: CGFloat = 8
     private static let photoHeight: CGFloat = 120
+    private static let defectRowHeight: CGFloat = 64
+    private static let defectPhotoSide: CGFloat = 54
 
     private static let dayFont = UIFont.systemFont(ofSize: 10, weight: .semibold)
     private static let labelFont = UIFont.systemFont(ofSize: 7, weight: .bold)
@@ -56,6 +60,20 @@ struct PDFAppendix {
                 let rows = max(1, Int(available / rowHeight))
                 let end = min(signOff.count, next + rows * PDFAppendix.boxColumns)
                 pages.append(.signOff(next..<end, isFirst: isFirst))
+                next = end
+                isFirst = false
+            }
+        }
+
+        let defects = table.openDefects
+        if !defects.isEmpty {
+            var next = 0
+            var isFirst = true
+            while next < defects.count {
+                let available = bottom - top - (isFirst ? PDFAppendix.headingHeight : 0)
+                let rows = max(1, Int(available / PDFAppendix.defectRowHeight))
+                let end = min(defects.count, next + rows)
+                pages.append(.defects(next..<end, isFirst: isFirst))
                 next = end
                 isFirst = false
             }
@@ -91,6 +109,15 @@ struct PDFAppendix {
                 y = drawHeading(table.language(.signOff), at: y)
             }
             drawSignOff(range, from: y)
+        case let .defects(range, isFirst):
+            var y = top
+            if isFirst {
+                y = drawHeading(table.language(.openDefects), at: y)
+            }
+            for index in range {
+                drawDefect(table.openDefects[index], at: y)
+                y += PDFAppendix.defectRowHeight
+            }
         case let .diary(range, isFirst):
             var y = top
             if isFirst, let title = table.diary?.title {
@@ -109,20 +136,20 @@ struct PDFAppendix {
 
     // MARK: - Heading
 
-    /// "SIGN-OFF" over "Bau Süd · August 2026", ruled off.
+    /// "Sign-off" in bold over "Bau Süd · August 2026" in grey, ruled off:
+    /// the report header's look, without orange capitals (polish, 2026-11).
     private func drawHeading(_ title: String, at y: CGFloat) -> CGFloat {
         PDFReportStyle.draw(
-            title.uppercased(with: table.language.locale),
-            in: CGRect(x: left, y: y, width: width, height: 11),
-            font: PDFReportStyle.eyebrowFont,
-            color: PDFReportStyle.accent,
-            kern: 0.8
+            title,
+            in: CGRect(x: left, y: y, width: width, height: 14),
+            font: PDFReportStyle.appendixTitleFont,
+            color: PDFReportStyle.ink
         )
         PDFReportStyle.draw(
             [table.title, table.subtitle].filter { !$0.isEmpty }.joined(separator: " · "),
-            in: CGRect(x: left, y: y + 12, width: width, height: 14),
-            font: PDFAppendix.dayFont,
-            color: PDFReportStyle.ink
+            in: CGRect(x: left, y: y + 14, width: width, height: 13),
+            font: PDFReportStyle.headerDetailFont,
+            color: PDFReportStyle.secondary
         )
         PDFReportStyle.line(
             from: CGPoint(x: left, y: y + 29),
@@ -196,6 +223,30 @@ struct PDFAppendix {
         path.lineJoinStyle = .round
         PDFReportStyle.ink.setStroke()
         path.stroke()
+    }
+
+    // MARK: - Open defects
+
+    /// The marked photo, "1. Socket loose", where, and since when.
+    private func drawDefect(_ defect: ReportDefect, at y: CGFloat) {
+        let side = PDFAppendix.defectPhotoSide
+        let frame = CGRect(x: left, y: y + 4, width: side, height: side)
+        if let id = defect.photoID, let image = photos[id], let context = UIGraphicsGetCurrentContext() {
+            DefectsPDFRenderer.drawPhoto(image, marks: defect.marks, in: frame, context: context)
+        } else {
+            PDFReportStyle.tile.setFill()
+            UIBezierPath(roundedRect: frame, cornerRadius: 6).fill()
+        }
+        let x = left + side + 10
+        let textWidth = width - side - 10
+        PDFReportStyle.draw("\(defect.number). \(defect.what)", in: CGRect(x: x, y: y + 6, width: textWidth, height: 14),
+                            font: PDFAppendix.dayFont, color: PDFReportStyle.ink)
+        let detail = [defect.whereLine, defect.since].filter { !$0.isEmpty }.joined(separator: " · ")
+        PDFReportStyle.draw(detail, in: CGRect(x: x, y: y + 22, width: textWidth, height: 12),
+                            font: PDFAppendix.textFont, color: PDFReportStyle.secondary)
+        PDFReportStyle.line(from: CGPoint(x: left, y: y + PDFAppendix.defectRowHeight - 2),
+                            to: CGPoint(x: left + width, y: y + PDFAppendix.defectRowHeight - 2),
+                            width: 0.5, color: PDFReportStyle.rule)
     }
 
     // MARK: - Diary

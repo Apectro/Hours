@@ -43,7 +43,7 @@ struct ExportShareBar: View {
         .padding(.horizontal, Metrics.large)
         .padding(.top, Metrics.small)
         .padding(.bottom, Metrics.small)
-        .background(.bar)
+        .background(Color.hoursCanvas)
     }
 
     @ViewBuilder

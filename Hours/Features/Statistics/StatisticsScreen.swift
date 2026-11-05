@@ -117,7 +117,7 @@ struct StatisticsScreen: View {
                     InsightsOpenCard(
                         title: String(localized: "Your \(String(anchor.year))", comment: "Opens the year in review; the value is a year"),
                         detail: String(localized: "Your year in numbers"),
-                        systemImage: "sparkles",
+                        systemImage: "calendar",
                         identifier: "insights-year-review"
                     ) {
                         if offeredReviewYear == anchor.year { dismissedReviewYear = anchor.year }
@@ -156,14 +156,17 @@ struct StatisticsScreen: View {
         )
     }
 
-    /// "October" in grey, as the board has it over the figure, with the
-    /// two chevrons in small circles that page it.
+    /// "October 2026" large and bold with ‹ › on the same line, as Today
+    /// heads its month (polish, 2026-11).
     private var periodStepper: some View {
-        HStack(spacing: Metrics.small) {
+        HStack(alignment: .center, spacing: Metrics.small) {
             Text(periodTitle)
-                .font(.subheadline)
-                .foregroundStyle(.hoursSecondaryText)
+                .font(.title2.bold())
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .contentTransition(.identity)
+                .accessibilityAddTraits(.isHeader)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             stepButton(
@@ -192,7 +195,7 @@ struct StatisticsScreen: View {
         .buttonStyle(.borderless)
     }
 
-    /// A chevron in a small grey circle, the export's stepper's, inside a
+    /// A chevron in the accent in a small round fill, Today's, inside a
     /// 44-point target.
     private func stepButton(
         systemImage: String,
@@ -203,7 +206,7 @@ struct StatisticsScreen: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(isEnabled ? Color.primary : Color(uiColor: .tertiaryLabel))
+                .foregroundStyle(isEnabled ? Color.accentColor : Color(uiColor: .tertiaryLabel))
                 .frame(width: 32, height: 32)
                 .background(Color(uiColor: .tertiarySystemFill), in: Circle())
                 .frame(width: 44, height: 44)

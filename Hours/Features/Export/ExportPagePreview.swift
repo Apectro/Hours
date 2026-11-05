@@ -224,7 +224,7 @@ struct ExportReadySheet: View {
         }
         .padding(.horizontal, Metrics.large)
         .padding(.vertical, Metrics.small)
-        .background(.bar)
+        .background(Color.hoursCanvas)
     }
 
     /// The month still to close: offered after the file went out, while it

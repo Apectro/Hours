@@ -139,17 +139,14 @@ struct PDFReportLayout {
 
     // MARK: - Heights
 
-    /// Eyebrow, headline and byline beside the tiles, then the rule under
-    /// them; on a part of a split sheet, the "People 1–5 of 9" line too;
-    /// with a site's address, its line under the byline.
+    /// The title, the kind and the period, the address and the day it was
+    /// made beside the two figures, then the rule under them; on a part of a
+    /// split sheet, the "People 1–5 of 9" line too. The address shares the
+    /// grey line, so it adds no height of its own.
     var titleBlockHeight: CGFloat { Self.headerBlockHeight(for: table) }
 
-    /// The address line's share of the header block: small, so a 31-day
-    /// month with its closing rows still fits the first page.
-    static let addressLineHeight: CGFloat = 11
-
     static func headerBlockHeight(for table: ReportTable) -> CGFloat {
-        (table.partLabel.isEmpty ? 70 : 84) + (table.address.isEmpty ? 0 : addressLineHeight)
+        table.partLabel.isEmpty ? 70 : 84
     }
 
     var headingBlockHeight: CGFloat { PDFReportStyle.headingHeight + 2 }

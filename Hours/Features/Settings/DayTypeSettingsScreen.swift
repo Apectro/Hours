@@ -44,6 +44,19 @@ struct DayTypeSettingsScreen: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("day-types-row")
+                    // 1.3: your own types only; the built-in ones stay. A
+                    // type days still use asks first, as Edit › Delete does.
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if !DayTypeCatalog.isBuiltIn(definition.id) {
+                            Button {
+                                deleteCustomTypes([definition])
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .tint(.red)
+                            .accessibilityIdentifier("day-types-row-swipe-delete")
+                        }
+                    }
                 }
                 .onDelete(perform: deleteCustom)
 
@@ -131,11 +144,11 @@ struct DayTypeSettingsScreen: View {
 
     private func deleteCustom(at offsets: IndexSet) {
         let all = settingsStore.settings.dayTypeCatalog.all
-        let removable = offsets.compactMap { index -> DayTypeDefinition? in
-            guard index < all.count else { return nil }
-            let definition = all[index]
-            return DayTypeCatalog.isBuiltIn(definition.id) ? nil : definition
-        }
+        deleteCustomTypes(offsets.compactMap { index in index < all.count ? all[index] : nil })
+    }
+
+    private func deleteCustomTypes(_ definitions: [DayTypeDefinition]) {
+        let removable = definitions.filter { !DayTypeCatalog.isBuiltIn($0.id) }
         guard !removable.isEmpty else { return }
 
         // A day whose type no longer exists resolves to "Unknown", which

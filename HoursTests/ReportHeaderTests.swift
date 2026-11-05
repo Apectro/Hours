@@ -95,6 +95,44 @@ final class ReportHeaderTests: XCTestCase {
         XCTAssertEqual(table(language: .german).eyebrow, "Stundenzettel")
     }
 
+    // MARK: - The printed header (polish, 2026-11)
+
+    private let madeOn = Fixture.date(2026, 11, 3)
+
+    /// The name as the title, the kind and the month under it, the day it
+    /// was made in grey, and two figures: no eyebrow, no tiles.
+    func testThePrintedHeaderIsTheNameThenTheKindAndTheMonth() {
+        let header = table().pageHeader(madeOn: madeOn, calendar: calendar)
+        XCTAssertEqual(header.title, "Ada Lovelace")
+        XCTAssertEqual(header.kindLine, "Timesheet · August 2026")
+        XCTAssertEqual(header.detailLine, "made 3 Nov 2026")
+        XCTAssertEqual(header.figures.map(\.label), ["Worked", "Balance"])
+        XCTAssertEqual(header.figures.map(\.value), ["17h 30m", "-14h 30m"])
+    }
+
+    /// Without a name the title already says the month, so the line under
+    /// it is the kind alone.
+    func testWithoutANameThePrintedHeaderDoesNotSayTheMonthTwice() {
+        let header = table(owner: "").pageHeader(madeOn: madeOn, calendar: calendar)
+        XCTAssertEqual(header.title, "Hours — August 2026")
+        XCTAssertEqual(header.kindLine, "Timesheet")
+    }
+
+    /// Without the balance the second figure is the days worked.
+    func testWithoutTheBalanceTheSecondFigureIsTheDaysWorked() {
+        var features = FeatureToggles()
+        features.trackOvertime = false
+        let header = table(features: features).pageHeader(madeOn: madeOn, calendar: calendar)
+        XCTAssertEqual(header.figures.map(\.label), ["Worked", "Days worked"])
+    }
+
+    func testThePrintedHeaderSpeaksTheExportLanguage() {
+        let header = table(language: .german).pageHeader(madeOn: madeOn, calendar: calendar)
+        XCTAssertEqual(header.kindLine, "Stundenzettel · August 2026")
+        XCTAssertEqual(header.detailLine, "erstellt am 3. Nov. 2026")
+        XCTAssertEqual(header.figures.map(\.label), ["Gearbeitet", "Saldo"])
+    }
+
     // MARK: - The rows
 
     /// Paid absence reads differently from a weekend: one is a day the person

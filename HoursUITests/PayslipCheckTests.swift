@@ -10,14 +10,6 @@ final class PayslipCheckTests: XCTestCase {
         continueAfterFailure = false
     }
 
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication, swipes: Int = 6) -> Bool {
-        for _ in 0..<swipes {
-            if element.exists, element.isHittable { return true }
-            app.swipeUp()
-        }
-        return element.exists && element.isHittable
-    }
-
     /// The sample month has nowhere near 250 hours of overtime, so the
     /// payslip shows more, and the line says so.
     func testOvertimeTypedInShowsADifference() {
@@ -29,7 +21,7 @@ final class PayslipCheckTests: XCTestCase {
         XCTAssertTrue(app.screen("screen-insights").waitForExistence(timeout: 10))
 
         let row = app.buttons.matching(identifier: "insights-payslip-check").firstMatch
-        XCTAssertTrue(reveal(row, in: app), "the month has no payslip check")
+        XCTAssertTrue(scrollTo(row, in: app), "the month has no payslip check")
         row.tap()
 
         let overtime = app.textFields.matching(identifier: "payslip-field-overtime").firstMatch

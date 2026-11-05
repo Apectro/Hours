@@ -204,7 +204,8 @@ private struct SitesContent: View {
                             site: site,
                             summary: loaded.summaries[site.id] ?? SiteCardSummary(),
                             isReadOnly: isReadOnly,
-                            offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id)
+                            offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id),
+                            onArchive: { SiteArchiving.setArchived(site, true, context: modelContext, settingsStore: settingsStore) }
                         )
                         .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
                     }
@@ -262,8 +263,11 @@ private struct SitesContent: View {
         .navigationDestination(for: SiteMissingRoute.self) { route in
             SiteMissingScreen(siteID: route.siteID)
         }
+        .navigationDestination(for: SiteDefectsRoute.self) { route in
+            SiteDefectsScreen(siteID: route.siteID)
+        }
         .navigationDestination(for: ArchivedSitesRoute.self) { _ in
-            ArchivedSitesScreen(sites: archivedSites)
+            ArchivedSitesScreen(sites: archivedSites, canUnarchive: !needsProForAnotherSite)
         }
         .fullScreenCover(isPresented: $isCreating) {
             NewSiteWizard()
@@ -283,8 +287,7 @@ private struct SitesContent: View {
             Text("Add the site you work on, then its crew. Each day the times are entered once, for everyone who was there.")
         } actions: {
             Button("New site", action: addSite)
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.capsule)
+                .buttonStyle(.bigAction(.primary))
                 .accessibilityIdentifier("sites-empty-add")
         }
         .tourTarget(.sites)
@@ -589,6 +592,10 @@ private struct SiteRow: View {
     let summary: SiteCardSummary
     let isReadOnly: Bool
     let offersSameAsLastDay: Bool
+    /// Archive on a swipe (1.3): the site's settings have the same switch.
+    /// Allowed on a read-only site too, since archiving is the way out of
+    /// read-only.
+    let onArchive: () -> Void
 
     @Environment(SettingsStore.self) private var settingsStore
     @Environment(\.openSiteDay) private var openSiteDay
@@ -621,6 +628,15 @@ private struct SiteRow: View {
                 .tint(.accentColor)
                 .accessibilityIdentifier("site-card-same-as-last")
             }
+        }
+        // Nothing is lost: an archived site keeps its days and crew, and
+        // comes back from Archived, so no question first.
+        .swipeActions(edge: .trailing) {
+            Button(action: onArchive) {
+                Label("Archive", systemImage: "archivebox")
+            }
+            .tint(.indigo)
+            .accessibilityIdentifier("site-card-swipe-archive")
         }
         .contextMenu {
             if offersSameAsLastDay {
@@ -683,6 +699,12 @@ private struct SiteRow: View {
 /// on them is still there.
 private struct ArchivedSitesScreen: View {
     let sites: [Site]
+    /// Whether one more active site is allowed (the free site, or Pro):
+    /// bringing a site back is adding one, as in the site's settings.
+    let canUnarchive: Bool
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(SettingsStore.self) private var settingsStore
 
     var body: some View {
         List {
@@ -692,6 +714,17 @@ private struct ArchivedSitesScreen: View {
                         Text(verbatim: site.name)
                     }
                     .accessibilityIdentifier("sites-archived-site")
+                    .swipeActions(edge: .trailing) {
+                        if canUnarchive {
+                            Button {
+                                SiteArchiving.setArchived(site, false, context: modelContext, settingsStore: settingsStore)
+                            } label: {
+                                Label("Unarchive", systemImage: "arrow.uturn.backward")
+                            }
+                            .tint(.indigo)
+                            .accessibilityIdentifier("sites-archived-site-swipe-unarchive")
+                        }
+                    }
                 }
             } footer: {
                 Text("An archived site keeps every recorded day and its whole crew, and stops appearing among your active sites.")
@@ -700,5 +733,30 @@ private struct ArchivedSitesScreen: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Archived sites")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Archiving a site, or bringing it back, from a swipe: what the site's
+/// settings do when their Archived switch is saved, and nothing more.
+@MainActor
+enum SiteArchiving {
+    static func setArchived(_ site: Site, _ archived: Bool, context: ModelContext, settingsStore: SettingsStore) {
+        var changed = site
+        changed.isArchived = archived
+        SiteRepository(context: context).upsert(changed)
+        // Which card the widget shows, which sites are watched for the
+        // arrival reminder, the note on the 1st, the evening reminder and
+        // the count of extra work waiting all follow the active sites.
+        HoursStack.refreshWidget()
+        HoursStack.arrivals.refresh()
+        Task { await MonthlySheetRefresher.refresh(context: context, settingsStore: settingsStore) }
+        Task {
+            await SiteReminderRefresher.refresh(
+                context: context,
+                preferences: settingsStore.settings.reminders,
+                calendar: settingsStore.workCalendar
+            )
+        }
+        Task { await ExtraWorkReminderRefresher.refresh(context: context, settingsStore: settingsStore) }
     }
 }

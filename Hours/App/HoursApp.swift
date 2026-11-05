@@ -5,6 +5,10 @@ import UserNotifications
 
 @main
 struct HoursApp: App {
+    /// Answers which way the interface may turn: as the build settings say,
+    /// except landscape only while a phone signs (`InterfaceOrientationLock`).
+    @UIApplicationDelegateAdaptor(HoursAppDelegate.self) private var appDelegate
+
     init() {
         // UI tests only: every sheet and push appears at once instead of
         // animating in, which takes minutes off the suite. The walkthrough

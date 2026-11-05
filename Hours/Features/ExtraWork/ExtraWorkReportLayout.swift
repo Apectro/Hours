@@ -30,7 +30,6 @@ struct ExtraWorkReportLayout {
         var dayWidth: CGFloat
         var thumbnail: CGFloat
         var thumbnailsPerRow: Int
-        var tileWidth: CGFloat
         /// The material columns beside the name.
         var quantityWidth: CGFloat
         var unitWidth: CGFloat
@@ -51,7 +50,6 @@ struct ExtraWorkReportLayout {
             dayWidth: 56,
             thumbnail: 32,
             thumbnailsPerRow: 3,
-            tileWidth: 76,
             quantityWidth: 80,
             unitWidth: 60,
             codeWidth: 96,
@@ -61,8 +59,8 @@ struct ExtraWorkReportLayout {
 
         /// 1080 pixels wide, drawn one point to a pixel, with the table's
         /// text at about 30 pixels: what a chat shows full width on a phone
-        /// and can be read without zooming. Four tiles share a row under the
-        /// title; two thumbnails to a photo row leave the work its width.
+        /// and can be read without zooming. Two thumbnails to a photo row
+        /// leave the work its width.
         static let picture = Metrics(
             scale: 3.6,
             pageWidth: 1080,
@@ -72,7 +70,6 @@ struct ExtraWorkReportLayout {
             dayWidth: 150,
             thumbnail: 100,
             thumbnailsPerRow: 2,
-            tileWidth: 228,
             quantityWidth: 200,
             unitWidth: 150,
             codeWidth: 290,
@@ -121,8 +118,6 @@ struct ExtraWorkReportLayout {
     private var rowPadding: CGFloat { 6 * k }
     private var thumbnailGap: CGFloat { 4 * k }
     private var jobSignatureHeight: CGFloat { 26 * k }
-    private var tileHeight: CGFloat { 40 * k }
-    private var tileGap: CGFloat { 6 * k }
     private var cellPadding: CGFloat { PDFReportStyle.cellPadding * k }
 
     private var photosWidth: CGFloat {
@@ -143,12 +138,12 @@ struct ExtraWorkReportLayout {
     private var cellFont: UIFont { scaled(PDFReportStyle.cellFont) }
     private var cellBoldFont: UIFont { scaled(PDFReportStyle.cellBoldFont) }
     private var headingFont: UIFont { scaled(PDFReportStyle.headingFont) }
-    private var eyebrowFont: UIFont { scaled(PDFReportStyle.eyebrowFont) }
+    private var kindFont: UIFont { scaled(PDFReportStyle.headerKindFont) }
     private var titleFont: UIFont { scaled(PDFReportStyle.titleFont) }
     private var bylineFont: UIFont { scaled(PDFReportStyle.bylineFont) }
     private var addressFont: UIFont { scaled(PDFReportStyle.addressFont) }
-    private var tileLabelFont: UIFont { scaled(PDFReportStyle.tileLabelFont) }
-    private var tileValueFont: UIFont { scaled(PDFReportStyle.tileValueFont) }
+    private var figureLabelFont: UIFont { scaled(PDFReportStyle.figureLabelFont) }
+    private var figureValueFont: UIFont { scaled(PDFReportStyle.figureValueFont) }
     private var smallFont: UIFont { scaled(PDFReportStyle.smallFont) }
     private var footerFont: UIFont { scaled(PDFReportStyle.footerFont) }
 
@@ -225,24 +220,28 @@ struct ExtraWorkReportLayout {
         return max(text, photos, cellFont.lineHeight) + rowPadding * 2
     }
 
-    private var tileRowWidth: CGFloat {
-        let count = CGFloat(document.tiles.count)
-        return count == 0 ? 0 : count * metrics.tileWidth + (count - 1) * tileGap
+    /// The two figures at the top right, as plain text (polish, 2026-11):
+    /// "Jobs done  4" over "In progress  1".
+    private var figures: [ReportTile] { Array(document.tiles.prefix(2)) }
+
+    private var figureGap: CGFloat { 6 * k }
+    private var figureLineHeight: CGFloat { 14 * k }
+
+    private var figuresWidth: CGFloat {
+        figures.map { figure in
+            ceil(PDFReportStyle.width(of: figure.label, font: figureLabelFont)
+                + figureGap
+                + PDFReportStyle.width(of: figure.value, font: figureValueFont))
+        }.max() ?? 0
     }
 
-    /// Whether the site's name fits beside the tiles. Four tiles leave under
-    /// 200 points on the page, which cut "Trg Pravde Zagreb" short at the
-    /// title's size; a name that does not fit gets the full width and the
-    /// tiles a row of their own under the byline, rather than an ellipsis in
-    /// the one word the boss files the sheet by.
-    private var titleFitsBesideTiles: Bool {
-        let room = width - tileRowWidth - (document.tiles.isEmpty ? 0 : 12 * k)
-        let needed = (document.title as NSString).size(withAttributes: [.font: titleFont]).width
-        return needed <= room
+    /// What is left beside the figures for the lines under the title.
+    private var titleWidth: CGFloat {
+        width - figuresWidth - (figures.isEmpty ? 0 : 16 * k)
     }
 
     private var headerHeight: CGFloat {
-        (titleFitsBesideTiles ? headerBase : headerBase + tileHeight + 8 * k) + addressExtra
+        headerBase + addressExtra
     }
 
     /// The site's address goes under the byline, one smaller line, as on the
@@ -250,7 +249,7 @@ struct ExtraWorkReportLayout {
     /// and pushes the rest of the header down only by what it needs.
     private var addressTop: CGFloat {
         guard !document.byline.isEmpty else { return 43 * k }
-        let byline = min(24 * k, textHeight(document.byline, font: bylineFont, width: width))
+        let byline = min(24 * k, textHeight(document.byline, font: bylineFont, width: titleWidth))
         return 43 * k + byline + 1 * k
     }
 
@@ -289,29 +288,26 @@ struct ExtraWorkReportLayout {
         return y + height(of: block)
     }
 
+    /// The site's name in bold, "Extra work done · 19 – 22 October 2026"
+    /// under it, who recorded it and the address in grey, and the figures
+    /// as plain text on the right (polish, 2026-11: the report header's
+    /// look, without orange capitals or tiles).
     private func drawHeader(at y: CGFloat) {
-        let tiles = document.tiles
-        let besides = titleFitsBesideTiles
-        let textWidth = besides ? width - tileRowWidth - (tiles.isEmpty ? 0 : 12 * k) : width
-
-        PDFReportStyle.draw(
-            document.eyebrow.uppercased(with: document.language.locale),
-            in: CGRect(x: margin, y: y, width: textWidth, height: 11 * k),
-            font: eyebrowFont,
-            color: PDFReportStyle.accent,
-            kern: 0.8 * k
-        )
         PDFReportStyle.draw(
             document.title,
-            in: CGRect(x: margin, y: y + 12 * k, width: textWidth, height: 30 * k),
+            in: CGRect(x: margin, y: y, width: width, height: 30 * k),
             font: titleFont,
+            color: PDFReportStyle.ink
+        )
+        PDFReportStyle.draw(
+            document.eyebrow,
+            in: CGRect(x: margin, y: y + 30 * k, width: titleWidth, height: 13 * k),
+            font: kindFont,
             color: PDFReportStyle.ink
         )
         PDFReportStyle.drawWrapping(
             document.byline,
-            // Under the tiles, which end above it, so it has the full width:
-            // squeezed beside four tiles it broke in the middle of a name.
-            in: CGRect(x: margin, y: y + 43 * k, width: width, height: 24 * k),
+            in: CGRect(x: margin, y: y + 43 * k, width: titleWidth, height: 24 * k),
             font: bylineFont,
             color: PDFReportStyle.secondary
         )
@@ -325,23 +321,22 @@ struct ExtraWorkReportLayout {
             )
         }
 
-        var x = besides ? margin + width - tileRowWidth : margin
-        let tilesTop = besides ? y : y + 66 * k + addressExtra
-        let tileWidth = metrics.tileWidth
-        for tile in tiles {
-            let rect = CGRect(x: x, y: tilesTop, width: tileWidth, height: tileHeight)
-            PDFReportStyle.tile.setFill()
-            UIBezierPath(roundedRect: rect, cornerRadius: 6 * k).fill()
-            PDFReportStyle.draw(tile.label, in: CGRect(x: x + 8 * k, y: tilesTop + 5 * k, width: tileWidth - 16 * k, height: 10 * k),
-                                font: tileLabelFont, color: PDFReportStyle.secondary)
-            PDFReportStyle.draw(tile.value, in: CGRect(x: x + 8 * k, y: tilesTop + 16 * k, width: tileWidth - 16 * k, height: 21 * k),
-                                font: tileValueFont, color: PDFReportStyle.ink)
-            x += tileWidth + tileGap
+        // Right-aligned beside the two lines under the title, which has the
+        // full width: a long site name is the one word the boss files the
+        // sheet by.
+        let figuresX = margin + width - figuresWidth
+        for (index, figure) in figures.enumerated() {
+            let top = y + 30 * k + CGFloat(index) * figureLineHeight
+            let valueWidth = ceil(PDFReportStyle.width(of: figure.value, font: figureValueFont)) + 1
+            PDFReportStyle.draw(figure.value, in: CGRect(x: margin + width - valueWidth, y: top, width: valueWidth, height: figureLineHeight),
+                                font: figureValueFont, color: PDFReportStyle.ink, alignment: .right)
+            PDFReportStyle.draw(figure.label, in: CGRect(x: figuresX, y: top, width: max(0, figuresWidth - valueWidth - figureGap), height: figureLineHeight),
+                                font: figureLabelFont, color: PDFReportStyle.secondary, alignment: .right)
         }
 
         let ruleY = y + headerHeight - 6 * k
         PDFReportStyle.line(from: CGPoint(x: margin, y: ruleY), to: CGPoint(x: margin + width, y: ruleY),
-                            width: 2 * k, color: PDFReportStyle.ink)
+                            width: 1 * k, color: PDFReportStyle.ink)
     }
 
     /// "WORK DONE, DAY BY DAY", then the column heads over a thin dark rule.

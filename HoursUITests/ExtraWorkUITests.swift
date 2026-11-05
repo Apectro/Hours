@@ -73,6 +73,8 @@ final class ExtraWorkUITests: XCTestCase {
         let tick = app.buttons["extra-work-tick-0"]
         XCTAssertTrue(tick.waitForExistence(timeout: 5), "the job should have its checkmark")
         XCTAssertFalse(tick.isSelected, "a new job starts in progress")
+        // The editor's sheet has to be gone, or the back tap lands on its toolbar.
+        app.screen("screen-extra-work-editor").waitUntilGone(timeout: 10)
 
         // In progress, it is not in the report, and the empty report says
         // why: Include them, or Mark finished… to list it with its checkmark.
@@ -99,17 +101,31 @@ final class ExtraWorkUITests: XCTestCase {
                       "Include them puts the job in the report, as still in progress")
         XCTAssertTrue(share.isEnabled, "a report with a job in it can be sent")
         app.buttons["extra-work-report-done"].tap()
+        // The report's sheet has to be gone, or Write today's tap lands on it.
+        app.screen("screen-extra-work-report").waitUntilGone(timeout: 10)
         app.openTodayOnSite()
 
         // Ticked, it is finished. The day is a list: scroll down to the job.
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
         for _ in 0..<8 where !tick.exists { app.swipeUp() }
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
-        for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
-        tick.tap()
+        // Tapped again only if the first tap was not taken (a slow runner):
+        // the tick is checked before every tap, so a taken one is never undone.
         let ticked = NSPredicate(format: "isSelected == true")
-        expectation(for: ticked, evaluatedWith: app.buttons["extra-work-tick-0"])
-        waitForExpectations(timeout: 5)
+        var isTicked = false
+        for _ in 0..<2 where !isTicked {
+            // The job sits at the end of the day, behind the Save / Someone
+            // was different bar: scrolled clear of it first, or the tap opens
+            // "Someone was different" instead.
+            guard app.tapAboveBottomBar(tick, bar: app.buttons["site-day-something-different"].firstMatch) else { break }
+            let wait = XCTNSPredicateExpectation(predicate: ticked, object: app.buttons["extra-work-tick-0"])
+            isTicked = XCTWaiter().wait(for: [wait], timeout: 5) == .completed
+        }
+        if !isTicked {
+            // What lies over the tick, should a tap still not take.
+            print("TICK-COVERED\n" + app.debugDescription)
+        }
+        XCTAssertTrue(isTicked, "the tick should mark the job finished")
 
         // And now it is in the report, its material summed.
         app.navigationBars.buttons.element(boundBy: 0).tap()
