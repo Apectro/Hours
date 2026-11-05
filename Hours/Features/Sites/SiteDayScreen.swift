@@ -507,6 +507,17 @@ struct SiteDayScreen: View {
             captureRow
         }
 
+        // Nobody worked, for a reason (the "N not written" sheet), with
+        // Undo, as the bad-weather row has.
+        if day.isNoWorkDay, let reason = day.noWork {
+            Section {
+                SiteNoWorkRow(reason: reason, canEdit: canEdit) {
+                    ticks += 1
+                    commit(day.clearingNoWork())
+                }
+            }
+        }
+
         Section {
             ForEach(lines) { line in
                 SiteDayLineRow(line: line, canEdit: canEdit) {
@@ -533,7 +544,7 @@ struct SiteDayScreen: View {
             }
         }
 
-        if day.isBadWeatherStop {
+        if day.isBadWeatherStop && !day.isNoWorkDay {
             Section {
                 SiteWeatherStopRow(
                     day: day,
@@ -585,7 +596,8 @@ struct SiteDayScreen: View {
                         isQuiet: true
                     )
                 }
-                if expectedCrew.contains(person.id) {
+                // A day nobody worked asks for no reasons.
+                if expectedCrew.contains(person.id) && !day.isNoWorkDay {
                     return SiteDayLine(
                         person: person,
                         value: "",
@@ -744,7 +756,7 @@ struct SiteDayScreen: View {
                 Label("Choose a day", systemImage: "calendar")
             }
             .accessibilityIdentifier("site-day-pick-date")
-            if canEdit && !day.isBadWeatherStop {
+            if canEdit && !day.isBadWeatherStop && !day.isNoWorkDay {
                 Button {
                     activeSheet = .weatherStop(stored == nil ? draftDay : day)
                 } label: {

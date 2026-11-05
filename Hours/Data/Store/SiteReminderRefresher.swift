@@ -35,10 +35,25 @@ enum SiteReminderRefresher {
         let settings = HoursStack.settings.settings
         var workDays: [UUID: Set<Int>] = [:]
         var silenced = Set<UUID>()
-        for site in repository.sites(includeArchived: false) {
+        var pauses: [UUID: SitePause] = [:]
+        var crewElsewhere: [UUID: Set<CalendarDate>] = [:]
+        // Every crew, hidden people and archived sites too: the same person
+        // on two sites is matched by name (`SiteMonthOverview.crew`).
+        let everySite = repository.sites(includeArchived: true)
+        let members = everySite.flatMap { repository.crew(for: $0.id, includeHidden: true) }
+        for site in everySite where !site.isArchived {
             let setup = settings.siteSetup(for: site.id)
             if !setup.workDays.isEmpty { workDays[site.id] = setup.workDays }
             if !setup.eveningReminder { silenced.insert(site.id) }
+            // Paused: no day expected, so no nudge.
+            if let pause = setup.pause { pauses[site.id] = pause }
+            // Today, with the whole crew on another of your sites: nothing
+            // to write here.
+            if SiteMonthOverview.isCrewElsewhere(
+                siteID: site.id, on: today, members: members, siteDays: siteDays, calendar: calendar
+            ) {
+                crewElsewhere[site.id] = [today]
+            }
         }
         // No evening nudge on a public holiday off.
         let ahead = CalendarDateRange(start: today, end: today.adding(days: 7, in: calendar))
@@ -54,7 +69,9 @@ enum SiteReminderRefresher {
             // Asked "write today's hours?" on leaving: one question a day.
             askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today),
             workDays: workDays,
-            silenced: silenced
+            silenced: silenced,
+            pauses: pauses,
+            crewElsewhere: crewElsewhere
         )
         await scheduler.scheduleSiteReminders(
             dates: dates,

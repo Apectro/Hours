@@ -107,11 +107,14 @@ struct RootView: View {
                 )
             }
             if SampleData.isSiteRequested {
-                SampleData.seedSite(
+                let site = SampleData.seedSite(
                     into: SiteRepository(context: HoursStack.container.mainContext),
                     calendar: HoursStack.calendar,
                     today: CalendarDate.today(in: HoursStack.calendar)
                 )
+                if SampleData.isMissingDaysRequested {
+                    settingsStore.update { $0.setSiteSetup(SiteSetup(workDays: Set(1...7)), for: site.id) }
+                }
             }
             if SampleData.isClosedMonthRequested {
                 let month = CalendarDate.today(in: HoursStack.calendar).yearMonth

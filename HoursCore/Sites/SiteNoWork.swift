@@ -161,7 +161,7 @@ extension SiteSetup {
 }
 
 /// The days the "N not written" sheet lists, and what it offers on each.
-enum SiteNoWorkSheet {
+enum SiteNoWorkList {
     struct Day: Hashable, Sendable {
         var date: CalendarDate
         /// Some, not all, of the people expected were on another of your

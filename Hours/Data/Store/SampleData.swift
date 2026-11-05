@@ -50,6 +50,16 @@ enum SampleData {
     /// cable ordered, an emergency light nobody ordered.
     static let orderCodes = (box: "4006381333931", cable: "4006381333948", light: "4006381333955")
 
+    /// The seeded site expects a day on every day of the week, so each day
+    /// of this month before yesterday reads "not written": for the tests of
+    /// the "N not written" sheet and of pausing a site (2026-11-05). Settings
+    /// in a UI test run are an ephemeral copy.
+    static let missingDaysLaunchArgument = "-hours-site-missing-days"
+
+    static var isMissingDaysRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(missingDaysLaunchArgument)
+    }
+
     /// Closes the current month, for the test that a closed month refuses
     /// site edits. Settings in a UI test run are an ephemeral copy, so this
     /// never reaches anyone's real lock.
@@ -67,7 +77,8 @@ enum SampleData {
     /// Also the 3rd and 4th of last month, everyone there, so the export —
     /// which opens on last month — has a sheet to show. Early in a month
     /// rather than late, so neither can be the day before today.
-    static func seedSite(into repository: SiteRepository, calendar: Calendar, today: CalendarDate) {
+    @discardableResult
+    static func seedSite(into repository: SiteRepository, calendar: Calendar, today: CalendarDate) -> Site {
         let site = Site(name: "Kaiserstrasse 12")
         repository.upsert(site)
         let ivan = CrewMember(siteID: site.id, name: "Ivan", sortOrder: 0)
@@ -111,6 +122,7 @@ enum SampleData {
                 ]
             ))
         }
+        return site
     }
 
     private static func seedOrder(on site: Site, context: ModelContext) {

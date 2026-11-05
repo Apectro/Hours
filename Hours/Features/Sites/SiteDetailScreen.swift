@@ -60,6 +60,8 @@ struct SiteDetailScreen: View {
     @State private var openedLinkedReport = false
     /// The month the page shows; `nil` is this month.
     @State private var shownMonth: YearMonth?
+    /// "N days not written", tapped: the days and why nobody worked.
+    @State private var choosingNoWork: SiteNoWorkRequest?
 
     /// A day rather than the site's page.
     private var showsDay: Bool { initialDate != nil || appliesSameAsLastDay }
@@ -96,6 +98,10 @@ struct SiteDetailScreen: View {
         .onChange(of: readingDiary) { _, now in if now == nil { load() } }
         .onChange(of: signingOff) { _, now in if now == nil { load() } }
         .onChange(of: shownMonth) { _, _ in load() }
+        .onChange(of: choosingNoWork) { _, now in if now == nil { load() } }
+        .sheet(item: $choosingNoWork) { request in
+            SiteNoWorkSheet(request: request)
+        }
         .sheet(item: $exporting) { site in
             // The Sheet button's month, or the one a link asked for.
             SiteExportScreen(site: site, month: exportingMonth ?? sheetMonth)
@@ -261,6 +267,7 @@ struct SiteDetailScreen: View {
                     today: today,
                     formatting: settingsStore.dateFormatting,
                     durationFormatting: settingsStore.settings.displayFormatting,
+                    noWork: counts.noWork,
                     onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
                 )
                 .listRowInsets(EdgeInsets(top: 0, leading: Metrics.medium, bottom: 0, trailing: Metrics.medium))
@@ -352,14 +359,33 @@ struct SiteDetailScreen: View {
             Spacer(minLength: Metrics.small)
 
             if counts.missing > 0 {
-                Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hoursMissing)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityIdentifier("site-overview-missing")
+                missingButton
             }
         }
         .buttonStyle(.borderless)
+    }
+
+    /// "2 days not written" in red: on a site that can be changed, a tap
+    /// lists the days and asks why nobody worked (`SiteNoWorkSheet`).
+    @ViewBuilder
+    private var missingButton: some View {
+        let label = Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color.hoursMissing)
+            .multilineTextAlignment(.trailing)
+        if let site, !subscriptions.isReadOnly(site, among: sites) {
+            Button {
+                choosingNoWork = SiteNoWorkRequest(site: site, month: month)
+            } label: {
+                label
+                    .frame(minHeight: 44)
+            }
+            .accessibilityHint(String(localized: "Choose why nobody worked on these days"))
+            .accessibilityIdentifier("site-overview-missing")
+        } else {
+            label
+                .accessibilityIdentifier("site-overview-missing")
+        }
     }
 
     /// The people: Crew "5 people" ›, Sign-off "3 of 5" ›.
@@ -612,6 +638,9 @@ struct SiteDetailScreen: View {
             holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
         )
         loaded.people = SiteCalendarGrid.people(siteID: siteID, siteDays: allDays)
+        for day in allDays where day.siteID == siteID && day.isNoWorkDay {
+            loaded.noWork[day.date] = day.noWork
+        }
         // "N days not written" stays the shown month's own.
         loaded.missing = SiteDayStatus.missingCount(in: loaded.statuses.filter { month.contains($0.key) })
         loaded.writtenToday = repository.siteDay(siteID: siteID, on: today) != nil
@@ -654,6 +683,8 @@ private struct SiteCounts {
     var statuses: [CalendarDate: SiteDayStatus] = [:]
     /// People present on each of the site's days the grid draws.
     var people: [CalendarDate: Int] = [:]
+    /// Why nobody worked, on each day the grid draws recorded as "no work".
+    var noWork: [CalendarDate: SiteNoWorkReason] = [:]
     /// The crew's minutes on the site in each row's week.
     var weekMinutes: [Int] = []
     var missing = 0

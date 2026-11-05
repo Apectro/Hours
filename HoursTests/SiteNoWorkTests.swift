@@ -173,7 +173,7 @@ final class SiteNoWorkTests: XCTestCase {
     func testTheSheetListsTheMonthsMissingDays() {
         let days = [worked(jarunski, 19, [CrewMember.youID, ana, ivo]), worked(trg, 20, [CrewMember.youID, anaThere])]
         let check = SiteMonthOverview.crew(siteID: jarunski, members: members, siteDays: days, month: october, calendar: calendar)
-        let listed = SiteNoWorkSheet.days(statuses: statuses(days), month: october, check: check)
+        let listed = SiteNoWorkList.days(statuses: statuses(days), month: october, check: check)
         XCTAssertEqual(listed.map(\.date), SiteDayStatus.missingDays(in: statuses(days)))
         XCTAssertEqual(listed.first { $0.date == d(20) }?.someoneElsewhere, true)
         XCTAssertEqual(listed.first { $0.date == d(21) }?.someoneElsewhere, false)

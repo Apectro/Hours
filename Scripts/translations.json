@@ -20248,6 +20248,182 @@
       "Defeito",
       "Gebrek",
       "Usterka"
+    ],
+    "Crew on another site": [
+      "Kolonne auf anderer Baustelle",
+      "Ekipa na drugom gradilištu",
+      "Ekipa na drugem gradbišču",
+      "Squadra in un altro cantiere",
+      "Équipe sur un autre chantier",
+      "Cuadrilla en otra obra",
+      "Equipa noutra obra",
+      "Ploeg op andere bouwplaats",
+      "Ekipa na innej budowie"
+    ],
+    "No work": [
+      "Keine Arbeit",
+      "Nije se radilo",
+      "Ni bilo dela",
+      "Nessun lavoro",
+      "Pas de travail",
+      "Sin trabajo",
+      "Sem trabalho",
+      "Geen werk",
+      "Brak pracy"
+    ],
+    "Holiday / day off": [
+      "Feiertag / frei",
+      "Praznik / slobodan dan",
+      "Praznik / prost dan",
+      "Festivo / giorno libero",
+      "Férié / jour de repos",
+      "Festivo / día libre",
+      "Feriado / folga",
+      "Feestdag / vrije dag",
+      "Święto / dzień wolny"
+    ],
+    "Waiting for other trades, no material": [
+      "Warten auf andere Gewerke, kein Material",
+      "Čeka se druge obrtnike, nema materijala",
+      "Čakanje na druge obrtnike, ni materiala",
+      "In attesa di altre imprese, niente materiale",
+      "En attente d’autres corps de métier, pas de matériel",
+      "Esperando a otros gremios, sin material",
+      "À espera de outras especialidades, sem material",
+      "Wachten op andere vakmensen, geen materiaal",
+      "Czekanie na inne branże, brak materiału"
+    ],
+    "No work · %@": [
+      "Keine Arbeit · %@",
+      "Nije se radilo · %@",
+      "Ni bilo dela · %@",
+      "Nessun lavoro · %@",
+      "Pas de travail · %@",
+      "Sin trabajo · %@",
+      "Sem trabalho · %@",
+      "Geen werk · %@",
+      "Brak pracy · %@"
+    ],
+    "Nobody gets hours for this day.": [
+      "Für diesen Tag bekommt niemand Stunden.",
+      "Za ovaj dan nitko ne dobiva sate.",
+      "Za ta dan nihče ne dobi ur.",
+      "Per questo giorno nessuno riceve ore.",
+      "Personne n’a d’heures pour ce jour.",
+      "Nadie recibe horas por este día.",
+      "Ninguém recebe horas por este dia.",
+      "Niemand krijgt uren voor deze dag.",
+      "Nikt nie dostaje godzin za ten dzień."
+    ],
+    "Undo no work": [
+      "Keine Arbeit rückgängig machen",
+      "Poništi „nije se radilo”",
+      "Razveljavi »ni bilo dela«",
+      "Annulla nessun lavoro",
+      "Annuler pas de travail",
+      "Deshacer sin trabajo",
+      "Anular sem trabalho",
+      "Geen werk ongedaan maken",
+      "Cofnij brak pracy"
+    ],
+    "All %lld": [
+      "Alle %lld",
+      "Svih %lld",
+      "Vseh %lld",
+      "Tutti i %lld",
+      "Les %lld",
+      "Los %lld",
+      "Os %lld",
+      "Alle %lld",
+      "Wszystkie %lld"
+    ],
+    "Nobody worked here on these days? Choose why. Nobody gets hours, and nobody's own day changes, except with Bad weather.": [
+      "Hier hat an diesen Tagen niemand gearbeitet? Wähle den Grund. Niemand bekommt Stunden, und niemandes eigener Tag ändert sich, außer bei Schlechtwetter.",
+      "Ovdje nitko nije radio tih dana? Odaberi zašto. Nitko ne dobiva sate i ničiji se vlastiti dan ne mijenja, osim kod lošeg vremena.",
+      "Tu ob teh dneh ni nihče delal? Izberi, zakaj. Nihče ne dobi ur in nikomur se lastni dan ne spremeni, razen pri slabem vremenu.",
+      "Nessuno ha lavorato qui in questi giorni? Scegli il motivo. Nessuno riceve ore e il giorno di nessuno cambia, tranne con il maltempo.",
+      "Personne n’a travaillé ici ces jours-là ? Choisissez pourquoi. Personne n’a d’heures et la journée de chacun ne change pas, sauf avec Intempéries.",
+      "¿Nadie trabajó aquí esos días? Elige por qué. Nadie recibe horas y el día propio de nadie cambia, salvo con Mal tiempo.",
+      "Ninguém trabalhou aqui nestes dias? Escolhe porquê. Ninguém recebe horas e o dia de ninguém muda, exceto com Mau tempo.",
+      "Niemand heeft hier op deze dagen gewerkt? Kies waarom. Niemand krijgt uren en niemands eigen dag verandert, behalve bij Slecht weer.",
+      "Nikt tu nie pracował w te dni? Wybierz powód. Nikt nie dostaje godzin, a niczyj własny dzień się nie zmienia, poza niepogodą."
+    ],
+    "Month closed": [
+      "Monat abgeschlossen",
+      "Mjesec zatvoren",
+      "Mesec zaprt",
+      "Mese chiuso",
+      "Mois clôturé",
+      "Mes cerrado",
+      "Mês fechado",
+      "Maand afgesloten",
+      "Miesiąc zamknięty"
+    ],
+    "Choose why nobody worked on these days": [
+      "Wähle, warum an diesen Tagen niemand gearbeitet hat",
+      "Odaberi zašto tih dana nitko nije radio",
+      "Izberi, zakaj ob teh dneh nihče ni delal",
+      "Scegli perché nessuno ha lavorato in questi giorni",
+      "Choisissez pourquoi personne n’a travaillé ces jours-là",
+      "Elige por qué nadie trabajó esos días",
+      "Escolhe porque ninguém trabalhou nestes dias",
+      "Kies waarom niemand op deze dagen heeft gewerkt",
+      "Wybierz, dlaczego nikt nie pracował w te dni"
+    ],
+    "Paused": [
+      "Pausiert",
+      "Pauzirano",
+      "Začasno ustavljeno",
+      "In pausa",
+      "En pause",
+      "En pausa",
+      "Em pausa",
+      "Gepauzeerd",
+      "Wstrzymana"
+    ],
+    "Paused until %@": [
+      "Pausiert bis %@",
+      "Pauzirano do %@",
+      "Ustavljeno do %@",
+      "In pausa fino al %@",
+      "En pause jusqu’au %@",
+      "En pausa hasta el %@",
+      "Em pausa até %@",
+      "Gepauzeerd tot %@",
+      "Wstrzymana do %@"
+    ],
+    "Until a date": [
+      "Bis zu einem Datum",
+      "Do datuma",
+      "Do datuma",
+      "Fino a una data",
+      "Jusqu’à une date",
+      "Hasta una fecha",
+      "Até uma data",
+      "Tot een datum",
+      "Do daty"
+    ],
+    "Until I turn it back on": [
+      "Bis ich sie wieder einschalte",
+      "Dok je ponovno ne uključim",
+      "Dokler je spet ne vklopim",
+      "Finché non la riattivo",
+      "Jusqu’à ce que je la réactive",
+      "Hasta que la vuelva a activar",
+      "Até a voltar a ativar",
+      "Tot ik hem weer aanzet",
+      "Dopóki jej nie wznowię"
+    ],
+    "No days are expected while a site is paused, so nothing shows as not written and no reminders come.": [
+      "Solange eine Baustelle pausiert ist, werden keine Tage erwartet: Nichts erscheint als nicht eingetragen, und es kommen keine Erinnerungen.",
+      "Dok je gradilište pauzirano, ne očekuju se dani, pa se ništa ne prikazuje kao neupisano i ne dolaze podsjetnici.",
+      "Dokler je gradbišče ustavljeno, se ne pričakuje noben dan, zato nič ni prikazano kot nevpisano in ni opomnikov.",
+      "Mentre un cantiere è in pausa non si attende nessun giorno, quindi nulla risulta non registrato e non arrivano promemoria.",
+      "Aucun jour n’est attendu tant qu’un chantier est en pause : rien n’apparaît comme non saisi et aucun rappel n’arrive.",
+      "Mientras una obra está en pausa no se espera ningún día, así que nada aparece sin anotar y no llegan recordatorios.",
+      "Enquanto uma obra está em pausa não se espera nenhum dia, por isso nada aparece por registar e não chegam lembretes.",
+      "Zolang een bouwplaats gepauzeerd is, worden er geen dagen verwacht: niets staat als niet ingevuld en er komen geen herinneringen.",
+      "Gdy budowa jest wstrzymana, nie oczekuje się żadnych dni, więc nic nie jest niewpisane i nie przychodzą przypomnienia."
     ]
   },
   "sameAsEnglishOnPurpose": [

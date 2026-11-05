@@ -11,7 +11,7 @@ extension SiteDayStatus {
         case .written: return .hoursDone
         case .partly: return .hoursAttentionFill
         case .missing: return .hoursMissingFill
-        case .dayOff, .future: return nil
+        case .dayOff, .future, .noWork, .elsewhere: return nil
         }
     }
 
@@ -23,6 +23,8 @@ extension SiteDayStatus {
         case .missing: return String(localized: "Not written")
         case .dayOff: return String(localized: "Day off")
         case .future: return String(localized: "Still to come")
+        case .noWork: return String(localized: "No work")
+        case .elsewhere: return String(localized: "Crew on another site")
         }
     }
 }
@@ -44,6 +46,8 @@ struct SiteMonthCalendar: View {
     let people: [CalendarDate: Int]
     /// One per row, in minutes (`SiteCalendarGrid.weekMinutes`).
     let weekTotals: [Int]
+    /// Why nobody worked, on each day recorded as "no work".
+    var noWork: [CalendarDate: SiteNoWorkReason] = [:]
     let today: CalendarDate
     let formatting: CalendarFormatting
     let durationFormatting: DurationFormatting
@@ -67,6 +71,7 @@ struct SiteMonthCalendar: View {
                     date: date,
                     status: statuses[date] ?? .dayOff,
                     people: people[date] ?? 0,
+                    noWork: noWork[date],
                     isToday: date == today,
                     isOutsideMonth: !layout.isInMonth(date),
                     spokenDay: formatting.spokenDay(date, in: layout),
@@ -85,6 +90,7 @@ private struct SiteDayTile: View {
     let date: CalendarDate
     let status: SiteDayStatus
     let people: Int
+    let noWork: SiteNoWorkReason?
     let isToday: Bool
     let isOutsideMonth: Bool
     /// "1", or "31 October" for a neighbouring month's day
@@ -124,7 +130,13 @@ private struct SiteDayTile: View {
         // Only a neighbouring month's day is faded, here and by the tile's
         // own 40%.
         if isOutsideMonth { return Color(uiColor: .tertiaryLabel) }
-        return status == .dayOff ? .secondary : .primary
+        return isNeutral ? .secondary : .primary
+    }
+
+    /// Drawn like a day off: not expected, nobody worked, or the crew was
+    /// on another site.
+    private var isNeutral: Bool {
+        status == .dayOff || status == .noWork || status == .elsewhere
     }
 
     /// "• 5" on a written day, orange while partly written; a red dot on a
@@ -148,6 +160,14 @@ private struct SiteDayTile: View {
                 .fill(Color.hoursMissingFill)
                 .frame(width: dotSize, height: dotSize)
                 .accessibilityHidden(true)
+        case .noWork:
+            // A small grey word, no colour: nobody worked, for a reason.
+            Text("No work")
+                .font(.caption2)
+                .foregroundStyle(isToday ? Color.white : Color.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .accessibilityHidden(true)
         default:
             Color.clear
         }
@@ -159,7 +179,7 @@ private struct SiteDayTile: View {
     }
 
     private var accessibilityLabel: String {
-        var parts = [spokenDay, status.title]
+        var parts = [spokenDay, noWork.map(\.summary) ?? status.title]
         if people > 0, status == .written || status == .partly {
             parts.append(String(inflected: "^[\(people) person](inflect: true)"))
         }
