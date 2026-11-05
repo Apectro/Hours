@@ -116,6 +116,12 @@ struct RootView: View {
                     settingsStore.update { $0.setSiteSetup(SiteSetup(workDays: Set(1...7)), for: site.id) }
                 }
             }
+            if SampleData.isSiteHolidayRequested {
+                SampleData.seedSiteHoliday(
+                    into: HoursStack.repository,
+                    today: CalendarDate.today(in: HoursStack.calendar)
+                )
+            }
             if SampleData.isClosedMonthRequested {
                 let month = CalendarDate.today(in: HoursStack.calendar).yearMonth
                 settingsStore.update { $0.monthLock.lock(month) }

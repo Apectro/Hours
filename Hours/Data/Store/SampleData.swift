@@ -60,6 +60,24 @@ enum SampleData {
         ProcessInfo.processInfo.arguments.contains(missingDaysLaunchArgument)
     }
 
+    /// A public holiday of your own, "Site Holiday", on the 1st of this
+    /// month, for the test that a site's month draws holidays as the
+    /// calendar does (2026-11-05). In the in-memory store the UI tests use.
+    static let siteHolidayLaunchArgument = "-hours-site-holiday"
+
+    /// The holiday's name, which the day's spoken label carries.
+    static let siteHolidayName = "Site Holiday"
+
+    static var isSiteHolidayRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains(siteHolidayLaunchArgument)
+    }
+
+    /// The holiday `-hours-site-holiday` asks for.
+    static func seedSiteHoliday(into repository: WorkdayRepository, today: CalendarDate) {
+        let first = CalendarDate(year: today.year, month: today.month, day: 1)
+        repository.upsert(HolidayRule(name: siteHolidayName, recurrence: .once(on: first)))
+    }
+
     /// Closes the current month, for the test that a closed month refuses
     /// site edits. Settings in a UI test run are an ephemeral copy, so this
     /// never reaches anyone's real lock.

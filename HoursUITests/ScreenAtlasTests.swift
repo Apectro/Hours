@@ -329,6 +329,16 @@ final class ScreenAtlasTests: XCTestCase {
         }
         pause(1)
         capture("site", app)
+        // The month with the sample's public holiday (the 15th, or the 16th
+        // when today is the 15th), drawn as the calendar draws it.
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        let holidayDay = parts.day == 15 ? 16 : 15
+        let holidayKey = (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + holidayDay
+        if app.buttons.matching(identifier: "site-overview-day-\(holidayKey)").firstMatch.waitForExistence(timeout: 3) {
+            capture("site-month-holiday", app)
+        } else {
+            miss("site-month-holiday (the holiday is not in the site's month)")
+        }
         swipeUp(app)
         capture("site-lower", app)
         swipeDown(app, times: 3)
