@@ -101,6 +101,10 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// Appearance › On site (1.2): secondary text and hairlines drawn
     /// darker, for sunlight. Written only when on; absent reads as off.
     var highContrast: Bool
+    /// Settings › More › Tips (2026-11-05): whether tips show at the top of
+    /// a screen, and the ones hidden with ✕. Written only once changed;
+    /// absent reads as on with nothing hidden.
+    var tips: TipPreferences
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -133,7 +137,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         siteSetups: [String: SiteSetup] = [:],
         newSites: NewSiteDefaults = NewSiteDefaults(),
         biggerButtons: Bool = false,
-        highContrast: Bool = false
+        highContrast: Bool = false,
+        tips: TipPreferences = TipPreferences()
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -165,6 +170,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.newSites = newSites
         self.biggerButtons = biggerButtons
         self.highContrast = highContrast
+        self.tips = tips
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -237,6 +243,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case payslipChecks
         case siteSetups, newSites
         case biggerButtons, highContrast
+        case tips
     }
 
     init(from decoder: Decoder) throws {
@@ -285,7 +292,8 @@ struct AppSettings: Hashable, Codable, Sendable {
                 .compactMapValues(\.setup),
             newSites: container.lenient(.newSites, defaults.newSites),
             biggerButtons: container.lenient(.biggerButtons, defaults.biggerButtons),
-            highContrast: container.lenient(.highContrast, defaults.highContrast)
+            highContrast: container.lenient(.highContrast, defaults.highContrast),
+            tips: container.lenient(.tips, defaults.tips)
         )
     }
 
@@ -326,6 +334,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         if newSites != NewSiteDefaults() { try container.encode(newSites, forKey: .newSites) }
         if biggerButtons { try container.encode(biggerButtons, forKey: .biggerButtons) }
         if highContrast { try container.encode(highContrast, forKey: .highContrast) }
+        if !tips.isStandard { try container.encode(tips, forKey: .tips) }
     }
 }
 
