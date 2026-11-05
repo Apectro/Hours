@@ -177,9 +177,9 @@ struct MissingSendSheet: View {
 }
 
 /// The Missing list on one A4 page, in the look of the app's other exports:
-/// the site, what it is and the date, who it is from, then
-/// Quantity · Item · Code · Note over thin rules. A list too long for one
-/// page carries on over the next.
+/// the orange eyebrow, the site, who it is from, then Quantity · Item ·
+/// Code · Note over thin rules. A list too long for one page carries on
+/// over the next.
 enum MissingPDFRenderer {
     static let pageSize = CGSize(width: 595, height: 842)
 
@@ -234,25 +234,25 @@ enum MissingPDFRenderer {
         }
     }
 
-    /// The site as the title, "Missing material · 3 Nov 2026" under it and
-    /// who it is from in grey: the report header's look, without orange
-    /// capitals (polish, 2026-11).
+    /// "MISSING MATERIAL · 3 NOV 2026" in the reports' orange eyebrow, the
+    /// site as the title under it and who it is from in grey.
     private static func drawHeader(_ message: MissingMessage, at top: CGFloat, width: CGFloat) -> CGFloat {
         var y = top
+        PDFReportStyle.draw(
+            "\(message.title) · \(message.dateText)".uppercased(with: message.language.locale),
+            in: CGRect(x: margin, y: y, width: width, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
+        )
+        y += 12
         PDFReportStyle.draw(
             message.siteName,
             in: CGRect(x: margin, y: y, width: width, height: 30),
             font: PDFReportStyle.titleFont,
             color: PDFReportStyle.ink
         )
-        y += 32
-        PDFReportStyle.draw(
-            "\(message.title) · \(message.dateText)",
-            in: CGRect(x: margin, y: y, width: width, height: 14),
-            font: PDFReportStyle.headerKindFont,
-            color: PDFReportStyle.ink
-        )
-        y += 16
+        y += 34
         if !message.byline.isEmpty {
             PDFReportStyle.draw(
                 message.byline,

@@ -4,9 +4,10 @@ import Foundation
 /// language. The message (`DefectsDocument.text`) is not changed by any of
 /// this.
 ///
-/// Page 1 is the whole list: "<site> · Defects", the address, "as of" the
-/// day and your name, four figures — open, fixed, the oldest open and the
-/// floor with the most open — then a table grouped by the site's floors.
+/// Page 1 is the whole list: "DEFECTS · AS OF <day>" in orange over the
+/// site's name, the address and your name, four figures — open, fixed, the
+/// oldest open and the floor with the most open — then a table grouped by
+/// the site's floors.
 /// Fixed defects are lines in the table only. From the page after the
 /// table, each open defect has half a page: its number, what and where, its
 /// marked photo, who noted it and how long it has been open (long when more
@@ -127,10 +128,16 @@ extension DefectsDocument {
         dateFormatting.dateWithYear(date)
     }
 
-    /// "Ilica 207C · as of Wednesday 4 Nov 2026 · Marijo Mikša".
+    /// "Defects · as of Wednesday 4 Nov 2026", over the site's name in the
+    /// reports' small orange capitals.
+    var eyebrow: String {
+        "\(language(.defects)) · \(language(.asOf, dateFormatting.weekdayDateWithYear(date)))"
+    }
+
+    /// "Ilica 207C · Marijo Mikša", in grey under the site's name; empty
+    /// with neither.
     var byline: String {
-        let asOf = language(.asOf, dateFormatting.weekdayDateWithYear(date))
-        return [address.trimmingCharacters(in: .whitespacesAndNewlines), asOf, ownerName.trimmingCharacters(in: .whitespacesAndNewlines)]
+        [address.trimmingCharacters(in: .whitespacesAndNewlines), ownerName.trimmingCharacters(in: .whitespacesAndNewlines)]
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
     }

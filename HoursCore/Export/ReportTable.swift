@@ -89,7 +89,8 @@ struct ReportTile: Identifiable, Hashable, Sendable {
 struct ReportPageHeader: Hashable, Sendable {
     /// The site, or the person: "Trg Pravde Zagreb".
     var title: String
-    /// "Site hours · October 2026".
+    /// "Site hours · October 2026", printed over the title in small orange
+    /// capitals (the eyebrow).
     var kindLine: String
     /// "Ilica 207C, Zagreb · made 3 Nov 2026", in grey.
     var detailLine: String
@@ -231,9 +232,9 @@ struct ReportTable: Hashable, Sendable {
     /// The grey line under the headline.
     var byline: String { detail.isEmpty ? subtitle : detail }
 
-    /// The top of a printed page (polish, 2026-11): the site or the person
-    /// as the title, the kind and the period under it, the place and the
-    /// day it was made in grey, and at most two figures as plain text.
+    /// The top of a printed page: the kind and the period as the eyebrow,
+    /// the site or the person as the title, the place and the day it was
+    /// made in grey, and at most two figures as plain text.
     func pageHeader(madeOn: CalendarDate, calendar: Calendar) -> ReportPageHeader {
         let title = headline
         let when = period.isEmpty ? subtitle : period

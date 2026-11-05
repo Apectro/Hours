@@ -11,11 +11,22 @@ struct PDFPageDecorations {
 
     // MARK: - Header block
 
-    /// The site or the person as the title, "Site hours · October 2026"
-    /// under it, the address and the day it was made in grey, and up to two
-    /// figures as plain right-aligned text, over a thin rule (polish,
-    /// 2026-11: no orange capitals over the title, no tiles). The words come
-    /// from `ReportTable.pageHeader`.
+    /// The eyebrow as it fits beside the figures. "Timesheet · Site A · Site B"
+    /// that is too long loses "Timesheet" first, so the sites — the part that
+    /// says something — are what is left whole; only then is it cut short.
+    static func fittedEyebrow(_ text: String, width: CGFloat) -> String {
+        func fits(_ candidate: String) -> Bool {
+            let attributes: [NSAttributedString.Key: Any] = [.font: PDFReportStyle.eyebrowFont, .kern: 0.8]
+            return (candidate as NSString).size(withAttributes: attributes).width <= width
+        }
+        guard !fits(text), let range = text.range(of: " · ") else { return text }
+        return String(text[range.upperBound...])
+    }
+
+    /// "SITE HOURS · OCTOBER 2026" in small orange capitals, the site or the
+    /// person as the title under it, the address and the day it was made in
+    /// grey, and up to two figures as plain right-aligned text, over a thin
+    /// rule (no tiles). The words come from `ReportTable.pageHeader`.
     func drawHeader(at y: CGFloat) -> CGFloat {
         let margin = PDFReportStyle.margin
         let header = table.pageHeader(
@@ -26,15 +37,16 @@ struct PDFPageDecorations {
         let textWidth = PDFReportStyle.contentWidth - figuresWidth - (header.figures.isEmpty ? 0 : 24)
 
         PDFReportStyle.draw(
-            header.title,
-            in: CGRect(x: margin, y: y, width: textWidth, height: 30),
-            font: PDFReportStyle.titleFont,
-            color: PDFReportStyle.ink
+            Self.fittedEyebrow(header.kindLine.uppercased(with: table.language.locale), width: textWidth),
+            in: CGRect(x: margin, y: y, width: textWidth, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
         )
         PDFReportStyle.draw(
-            header.kindLine,
-            in: CGRect(x: margin, y: y + 31, width: textWidth, height: 14),
-            font: PDFReportStyle.headerKindFont,
+            header.title,
+            in: CGRect(x: margin, y: y + 12, width: textWidth, height: 30),
+            font: PDFReportStyle.titleFont,
             color: PDFReportStyle.ink
         )
         PDFReportStyle.draw(
@@ -44,7 +56,7 @@ struct PDFPageDecorations {
             color: PDFReportStyle.secondary
         )
 
-        // The figures, bottom-aligned with the two lines under the title.
+        // The figures, bottom-aligned with the grey line under the title.
         let figuresX = margin + PDFReportStyle.contentWidth - figuresWidth
         let firstFigureY = y + 45 - CGFloat(max(header.figures.count - 1, 0)) * 14
         for (index, figure) in header.figures.enumerated() {
