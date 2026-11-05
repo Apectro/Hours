@@ -720,6 +720,24 @@ crew sign-off switch is not offered: whether a sheet is signed is the
 export's Signatures switch, for every site at once, and a per-site switch
 would need ExportScreen to read it.
 
+**Tips (2026-11-05).** A tip is a quiet row first in a screen's list (on the
+site's page, under the line beside its title): a lightbulb in the accent, a
+bold title, one sentence, an action when there is something to do, and ✕,
+which hides it for good. VoiceOver reads "Tip: title. sentence"; the action
+and ✕ are separate. `TipAdvisor.tip(for:facts:dismissed:enabled:)` (engine)
+picks at most one per screen, the most relevant first, and only while its
+condition holds, so a tip goes by itself once acted on: the site's work days
+not set (Set work days opens Site settings on them, with Save there), days
+not written (Show days), your name not on the sheets (Export; Add name),
+Scan the box (the extra-work editor, until material was ever added), Swipe a
+day (the week list; leaving the week view hides it), and Photo first (empty
+Defects). Settings › More › Tips has Show tips and Show all tips again;
+both live in `AppSettings.tips` (`TipPreferences`), synced and backed up,
+written only once changed, and a tip dismissed by a newer version is kept as
+text. UI test runs keep tips off unless `-hours-tips` is passed, so the other
+tests' screens are as they were; `-hours-keep-settings` keeps a run's
+settings across a relaunch (`-hours-reset-settings` empties them first).
+
 **Settings by meaning, with search.** The index is a list of `SettingsEntry`
 values — title, the current value in grey, localized keywords, symbol,
 destination — grouped as Your work (Working hours, Overtime & balance, Pay,

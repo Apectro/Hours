@@ -57,6 +57,7 @@ final class ScreenAtlasTests: XCTestCase {
         guidedTour()
         emptyStates()
         noWorkScreens()
+        tipScreens()
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
@@ -1896,6 +1897,37 @@ final class ScreenAtlasTests: XCTestCase {
                 miss("site-edit-paused (no Paused switch)")
                 close(app, "site-editor-cancel")
             }
+        }
+        app.terminate()
+    }
+
+    /// Tips (2026-11-05): the seeded site has no work days set, so its page
+    /// leads with "Set this site's work days"; then its empty Defects with
+    /// "Photo first". Tips are off in a UI test run unless asked for.
+    private func tipScreens() {
+        let app = launch(["-hours-sample-site", "-hours-tips"])
+        guard app.tab(.sites).waitForExistence(timeout: 20) else {
+            miss("tips (the app did not start)")
+            return
+        }
+        app.tab(.sites).tap()
+        pause(1)
+        guard tap(app.buttons.matching(identifier: "site-card").firstMatch, "the sample site", app) else {
+            app.terminate()
+            return
+        }
+        if app.screen("tip-site-work-days").firstMatch.waitForExistence(timeout: 8) {
+            capture("site-tip-work-days", app)
+        } else {
+            miss("site-tip-work-days (no tip on the site)")
+        }
+        let defects = app.buttons.matching(identifier: "site-defects").firstMatch
+        if defects.waitForExistence(timeout: 5),
+           app.tapAboveBottomBar(defects, bar: app.buttons.matching(identifier: "site-write-today").firstMatch),
+           app.screen("tip-defect-photos").firstMatch.waitForExistence(timeout: 8) {
+            capture("defects-tip-photo-first", app)
+        } else {
+            miss("defects-tip-photo-first (no tip on empty Defects)")
         }
         app.terminate()
     }

@@ -35,6 +35,8 @@ struct SiteEditorSheet: View {
     /// The pages pushed inside the sheet; the work days already, from the
     /// site's tip (2026-11-05).
     @State private var path: [SiteEditorRoute]
+    /// Opened on the work days: they have Save of their own.
+    private let opensWorkDays: Bool
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -51,6 +53,7 @@ struct SiteEditorSheet: View {
     init(site: Site, isNew: Bool, isReadOnly: Bool = false, otherActiveSites: Int = 0, opensWorkDays: Bool = false) {
         _draft = State(initialValue: site)
         _path = State(initialValue: opensWorkDays ? [.workDays] : [])
+        self.opensWorkDays = opensWorkDays
         self.isNew = isNew
         self.isReadOnly = isReadOnly
         self.otherActiveSites = otherActiveSites
@@ -193,7 +196,13 @@ struct SiteEditorSheet: View {
                 case .arrival:
                     SiteArrivalScreen(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
                 case .workDays:
-                    SiteWorkDaysScreen(days: $setup.workDays, isReadOnly: isReadOnly)
+                    SiteWorkDaysScreen(
+                        days: $setup.workDays,
+                        isReadOnly: isReadOnly,
+                        // From the tip, the days are what was asked for:
+                        // saved from here, without going back first.
+                        onSave: opensWorkDays && !isReadOnly ? save : nil
+                    )
                 case .floors:
                     SiteFloorsScreen(floors: $setup.floors, isReadOnly: isReadOnly)
                 }
@@ -525,6 +534,8 @@ enum SiteEditorRoute: Hashable {
 private struct SiteWorkDaysScreen: View {
     @Binding var days: Set<Int>
     let isReadOnly: Bool
+    /// Save from this page, when the settings opened on it.
+    var onSave: (() -> Void)?
 
     @Environment(SettingsStore.self) private var settingsStore
 
@@ -540,5 +551,14 @@ private struct SiteWorkDaysScreen: View {
         .accessibilityIdentifier("screen-site-work-days")
         .navigationTitle("Work days here")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let onSave {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: onSave)
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("site-work-days-save")
+                }
+            }
+        }
     }
 }
