@@ -96,9 +96,38 @@ enum HoursStack {
     static let settings: SettingsStore = {
         // Defaults, and a suite nothing else reads: a UI test asserting on
         // "8h 30m" must not fail because the person running it prefers 8.50.
-        if isRunningUITests { return SettingsStore.ephemeral() }
+        if isRunningUITests { return uiTestSettings() }
         return SettingsStore(shared: isSyncing ? NSUbiquitousKeyValueStore.default : nil)
     }()
+
+    /// Tips show in a UI test run only with this, so the screens every
+    /// other test walks through look as they did before tips (2026-11-05).
+    static let tipsLaunchArgument = "-hours-tips"
+    /// Keeps a UI test run's settings in a suite of their own, across a
+    /// relaunch (a tip dismissed stays dismissed). Never the real settings.
+    static let keepSettingsLaunchArgument = "-hours-keep-settings"
+    /// With `-hours-keep-settings`: starts that suite empty.
+    static let resetSettingsLaunchArgument = "-hours-reset-settings"
+    private static let keptSettingsSuite = "hours.ui-tests.kept-settings"
+
+    /// A UI test run's settings: the defaults, tips off unless asked for,
+    /// in a throwaway suite or the kept one.
+    private static func uiTestSettings() -> SettingsStore {
+        let arguments = ProcessInfo.processInfo.arguments
+        var initial = AppSettings()
+        initial.tips.isEnabled = arguments.contains(tipsLaunchArgument)
+        guard arguments.contains(keepSettingsLaunchArgument),
+              let defaults = UserDefaults(suiteName: keptSettingsSuite) else {
+            return SettingsStore.ephemeral(initial)
+        }
+        if arguments.contains(resetSettingsLaunchArgument) {
+            defaults.removePersistentDomain(forName: keptSettingsSuite)
+        }
+        let isFirstLaunch = defaults.data(forKey: "hours.settings") == nil
+        let store = SettingsStore(defaults: defaults, storageKey: "hours.settings", shared: nil)
+        if isFirstLaunch { store.replace(with: initial) }
+        return store
+    }
 
     /// What the syncing store has been doing. Started in the app's `init`.
     static let syncMonitor = SyncMonitor()
