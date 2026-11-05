@@ -150,6 +150,8 @@ closed month's days are listed without a choice. A site can also be **paused**
 in its settings, from a day until a day or until turned back on: no day is
 expected meanwhile, its card says "Paused" (or "Paused until 18 Nov"), and the
 arrival and evening reminders leave it alone; a day can still be written.
+A site's month shows public holidays as the calendar does, and nothing before
+the site's first day written is "not written".
 
 **One sheet for several sites (1.2)** — in a site's export, "Sites on this
 sheet" adds other sites (each listed with the month's crew hours) to make one

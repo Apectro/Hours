@@ -1254,6 +1254,16 @@ out, none of which writes anyone's hours:
   `.paused(until:)`; the evening reminder (`pauses:`) and the arrival
   reminder (`ArrivalReminderPolicy.decide(isPaused:)`, `.quiet(.paused)`)
   stay silent. A day written during a pause counts as any other.
+- *The month as drawn:* `SiteCalendarGrid.looks` gives each drawn day a
+  `SiteCalendarDayLook` beside its status. A public holiday off
+  (`HolidayResolver.daysOff`, the same rules the personal calendar reads,
+  over the whole grid and the look-back) is on a tile in the holiday type's
+  colour with "Holiday" under the date, as `DayTile` draws it; a written
+  holiday keeps a small flag; a paused site's work day says "Paused" to
+  VoiceOver. `SiteActiveDays` bounds what is expected: nothing before the
+  site's first day written (today for a site with none), nothing after an
+  archived site's last (`SiteRepository.writtenSpan`), on the month, the
+  card, the "N not written" sheet, the day and the export's missing days.
 
 The reason is stored without a schema version, as the moves are: an entry
 `{"memberID": <site id>, "kind": "noWork", "reason": "<raw value>"}` in

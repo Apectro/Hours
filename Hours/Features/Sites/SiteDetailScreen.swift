@@ -255,10 +255,12 @@ struct SiteDetailScreen: View {
             // A tip (2026-11-05) goes under the title's line, before the
             // month: the line belongs to the title.
             if let tip = tip(for: site) {
-                Section {
-                    subtitleRow(for: site)
+                if !subtitle(for: site).isEmpty {
+                    Section {
+                        subtitleRow(for: site)
+                    }
+                    .listRowSeparator(.hidden)
                 }
-                .listRowSeparator(.hidden)
 
                 Section {
                     TipCard(tip: tip, action: tipAction(tip, site: site))
@@ -270,7 +272,11 @@ struct SiteDetailScreen: View {
                 .listRowSeparator(.hidden)
             } else {
                 Section {
-                    subtitleRow(for: site)
+                    // No empty line under the title for a site with no
+                    // address and no usual times.
+                    if !subtitle(for: site).isEmpty {
+                        subtitleRow(for: site)
+                    }
                     monthRows(for: site)
                 }
                 .listRowSeparator(.hidden)
@@ -330,14 +336,26 @@ struct SiteDetailScreen: View {
         // Today tab's tiles.
         SiteMonthCalendar(
             layout: monthLayout,
-            statuses: counts.statuses,
+            looks: counts.looks,
             people: counts.people,
             weekTotals: counts.weekMinutes,
             today: today,
             formatting: settingsStore.dateFormatting,
             durationFormatting: settingsStore.settings.displayFormatting,
             noWork: counts.noWork,
+            holidayTint: settingsStore.settings.dayTypeCatalog.definition(for: .holiday).tint.color,
             onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
+        )
+        // A sideways swipe pages the month, as ‹ › do and as on the Today
+        // tab. Simultaneous, so the list still scrolls and a day still
+        // takes its tap; only a clearly horizontal drag counts.
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { value in
+                    let width = value.translation.width
+                    guard abs(width) > 50, abs(width) > abs(value.translation.height) * 1.5 else { return }
+                    step(width < 0 ? 1 : -1)
+                }
         )
         .listRowInsets(EdgeInsets(top: 0, leading: Metrics.medium, bottom: 0, trailing: Metrics.medium))
         .listRowBackground(Color.clear)
@@ -375,16 +393,29 @@ struct SiteDetailScreen: View {
     }
 
     /// "Ilica 207C · 7:00 – 15:00, Mon–Fri": at most two parts, the address
-    /// and the usual day. The crew's size is on the Crew row.
+    /// and the usual day; while the site is paused today, "Paused until
+    /// 12 Nov" instead of the usual day, as on its row in Sites. The crew's
+    /// size is on the Crew row.
     private func subtitle(for site: Site) -> String {
         var parts: [String] = []
         if !site.address.isEmpty {
             parts.append(SiteAddress.singleLine(site.address))
         }
-        if let usualDay = usualDayText(for: site) {
+        if let paused = pausedText(for: site) {
+            parts.append(paused)
+        } else if let usualDay = usualDayText(for: site) {
             parts.append(usualDay)
         }
         return parts.joined(separator: " · ")
+    }
+
+    /// "Paused" or "Paused until 12 Nov" while the site is paused today,
+    /// in the Sites list's words; nil otherwise.
+    private func pausedText(for site: Site) -> String? {
+        guard let pause = settingsStore.settings.siteSetup(for: site.id).pause, pause.contains(today) else { return nil }
+        guard let until = pause.end else { return String(localized: "Paused") }
+        let date = settingsStore.dateFormatting.shortDate(until)
+        return String(localized: "Paused until \(date)", comment: "Sites list: a paused site; the value is the last day paused")
     }
 
     /// "7:00 – 15:00", or nil without usual times.
@@ -397,13 +428,13 @@ struct SiteDetailScreen: View {
     /// "October ‹ ›" on the left, "2 days not written" in red on the right.
     private var monthHeader: some View {
         HStack(spacing: Metrics.tiny) {
-            Text(verbatim: settingsStore.dateFormatting.monthName(month))
+            Text(verbatim: settingsStore.dateFormatting.monthHeading(month, today: today))
                 .font(.title3.weight(.semibold))
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityLabel(settingsStore.dateFormatting.monthTitle(month))
 
             Button {
-                shownMonth = month.adding(months: -1)
+                step(-1)
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.body.weight(.semibold))
@@ -413,13 +444,13 @@ struct SiteDetailScreen: View {
             .accessibilityIdentifier("site-overview-month-previous")
 
             Button {
-                shownMonth = month.adding(months: 1)
+                step(1)
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.body.weight(.semibold))
                     .frame(minWidth: 44, minHeight: 44)
             }
-            .disabled(month >= today.yearMonth)
+            .disabled(!canStep(1))
             .accessibilityLabel(String(localized: "Next month"))
             .accessibilityIdentifier("site-overview-month-next")
 
@@ -430,6 +461,18 @@ struct SiteDetailScreen: View {
             }
         }
         .buttonStyle(.borderless)
+    }
+
+    /// Whether ‹ or › can go that way: back always, forward up to this
+    /// month, as the arrow is.
+    private func canStep(_ direction: Int) -> Bool {
+        direction < 0 || month < today.yearMonth
+    }
+
+    /// The month before or after the shown one: ‹ ›, and a sideways swipe.
+    private func step(_ direction: Int) {
+        guard canStep(direction) else { return }
+        shownMonth = month.adding(months: direction)
     }
 
     /// "2 days not written" in red: on a site that can be changed, a tap
@@ -693,16 +736,36 @@ struct SiteDetailScreen: View {
         let layout = monthLayout
         let lookBack = SiteCalendarGrid.fetchRange(of: layout, calendar: calendar)
         let allDays = repository.siteDays(siteID: nil, in: lookBack)
-        let members = repository.sites(includeArchived: true).flatMap { repository.crew(for: $0.id, includeHidden: true) }
+        let allSites = repository.sites(includeArchived: true)
+        let members = allSites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
+        // The personal calendar's holidays, over the whole grid and the
+        // look-back before it, each with its name.
+        let holidays = SiteMonthStatuses.holidayNames(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
+        let setup = settings.siteSetup(for: siteID)
+        let active = allSites.first { $0.id == siteID }.map {
+            SiteMonthStatuses.activeDays(of: $0, repository: repository, today: today, calendar: calendar)
+        } ?? .always
         loaded.statuses = SiteCalendarGrid.statuses(
             layout: layout,
             siteID: siteID,
             siteDays: allDays,
             members: members,
-            setup: settings.siteSetup(for: siteID),
+            setup: setup,
             today: today,
             calendar: calendar,
-            holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
+            holidays: Set(holidays.keys.map(\.key)),
+            active: active
+        )
+        loaded.looks = SiteCalendarGrid.looks(
+            layout: layout,
+            statuses: loaded.statuses,
+            holidays: holidays,
+            siteID: siteID,
+            siteDays: allDays,
+            setup: setup,
+            today: today,
+            calendar: calendar,
+            active: active
         )
         loaded.people = SiteCalendarGrid.people(siteID: siteID, siteDays: allDays)
         for day in allDays where day.siteID == siteID && day.isNoWorkDay {
@@ -751,6 +814,8 @@ private struct SiteCounts {
     var openDefects = 0
     /// Every day the month's grid draws, by status.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
+    /// Every day the month's grid draws, as drawn: holidays, paused days.
+    var looks: [CalendarDate: SiteCalendarDayLook] = [:]
     /// People present on each of the site's days the grid draws.
     var people: [CalendarDate: Int] = [:]
     /// Why nobody worked, on each day the grid draws recorded as "no work".

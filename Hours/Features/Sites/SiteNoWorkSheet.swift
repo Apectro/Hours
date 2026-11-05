@@ -299,6 +299,11 @@ struct SiteNoWorkSheet: View {
         settings.monthLock.isLocked(date)
     }
 
+    /// The days the site was there to be worked, as its page reads them.
+    private func active(store: SiteRepository, today: CalendarDate) -> SiteActiveDays {
+        SiteMonthStatuses.activeDays(of: store.site(id: siteID) ?? request.site, repository: store, today: today, calendar: calendar)
+    }
+
     /// The month's statuses as the site's page reads them; the listed days
     /// only the first time.
     private func load(initial: Bool) {
@@ -320,7 +325,8 @@ struct SiteNoWorkSheet: View {
             settings: settings,
             calendar: calendar,
             today: today,
-            holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
+            holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack),
+            active: active(store: store, today: today)
         )
         if initial {
             let check = SiteMonthOverview.crew(

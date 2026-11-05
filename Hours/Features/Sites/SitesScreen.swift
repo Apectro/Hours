@@ -382,7 +382,8 @@ private struct SitesContent: View {
                 settings: settings,
                 calendar: calendar,
                 today: today,
-                holidays: holidays
+                holidays: holidays,
+                active: SiteMonthStatuses.activeDays(of: site, repository: repository, today: today, calendar: calendar)
             )
             let inMonth = siteDays.filter { range.contains($0.date) }
             let writtenToday = siteDays.contains { $0.date == today }
@@ -547,9 +548,39 @@ enum SiteMonthStatuses {
         calendar: Calendar,
         range: CalendarDateRange
     ) -> Set<Int> {
-        guard settings.features.trackHolidays else { return [] }
+        Set(holidayNames(context: context, settings: settings, calendar: calendar, range: range).keys.map(\.key))
+    }
+
+    /// The public holidays off in `range`, by date, each with its name, or
+    /// none when holidays are not tracked: the same rules, the region's and
+    /// your own, that the personal calendar draws (`PeriodEngine.days`).
+    static func holidayNames(
+        context: ModelContext,
+        settings: AppSettings,
+        calendar: Calendar,
+        range: CalendarDateRange
+    ) -> [CalendarDate: String] {
+        guard settings.features.trackHolidays else { return [:] }
         let rules = (try? context.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
-        return HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOffKeys(in: range, calendar: calendar)
+        return HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOff(in: range, calendar: calendar)
+    }
+
+    /// The days the site was there to be worked (`SiteActiveDays`): from
+    /// its first day written, and up to its last once archived.
+    static func activeDays(
+        of site: Site,
+        repository: SiteRepository,
+        today: CalendarDate,
+        calendar: Calendar
+    ) -> SiteActiveDays {
+        let span = repository.writtenSpan(siteID: site.id)
+        return SiteActiveDays.of(
+            firstWritten: span?.first,
+            lastWritten: span?.last,
+            isArchived: site.isArchived,
+            today: today,
+            calendar: calendar
+        )
     }
 
     /// Every day of `month` with its status.
@@ -559,6 +590,7 @@ enum SiteMonthStatuses {
     ///   someone another site had that day.
     /// - `members`: every site's crew, hidden people too, to match the same
     ///   person across sites by name (`SiteMonthOverview.crew`).
+    /// - `active`: the days the site was there to be worked (`activeDays`).
     static func statuses(
         siteID: UUID,
         month: YearMonth,
@@ -567,7 +599,8 @@ enum SiteMonthStatuses {
         settings: AppSettings,
         calendar: Calendar,
         today: CalendarDate,
-        holidays: Set<Int>
+        holidays: Set<Int>,
+        active: SiteActiveDays
     ) -> [CalendarDate: SiteDayStatus] {
         let check = SiteMonthOverview.crew(
             siteID: siteID,
@@ -584,7 +617,8 @@ enum SiteMonthStatuses {
             check: check,
             today: today,
             calendar: calendar,
-            holidays: holidays
+            holidays: holidays,
+            active: active
         )
     }
 }

@@ -123,6 +123,24 @@ struct SiteRepository {
         return firstOfEach(deduplicatedDays(fetch(descriptor)), by: \.identity).map(\.siteDay)
     }
 
+    /// The site's first and last days written, of any kind ("no work"
+    /// too), or nil with none: the days its month expects work on
+    /// (`SiteActiveDays`). Only dates are read, so a duplicate row left by
+    /// sync changes nothing.
+    func writtenSpan(siteID: UUID) -> (first: CalendarDate, last: CalendarDate)? {
+        let id = siteID.uuidString
+        func edge(_ order: SortOrder) -> CalendarDate? {
+            var descriptor = FetchDescriptor<SiteDayEntry>(
+                predicate: #Predicate<SiteDayEntry> { $0.siteID == id },
+                sortBy: [SortDescriptor(\SiteDayEntry.dateKey, order: order)]
+            )
+            descriptor.fetchLimit = 1
+            return fetch(descriptor).first.flatMap { CalendarDate(key: $0.dateKey) }
+        }
+        guard let first = edge(.forward), let last = edge(.reverse) else { return nil }
+        return (first, last)
+    }
+
     /// The most recent day recorded on the site before `date`. A day
     /// recorded as "no work" is passed over (`SiteDay.isNoWorkDay`): the
     /// last day is the last one worked, which "Same as last day" copies.

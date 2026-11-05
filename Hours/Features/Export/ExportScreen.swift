@@ -828,7 +828,9 @@ struct ExportScreen: View {
         let statuses = sheetSites.map { site in
             SiteDayStatus.month(
                 month, siteID: site.id, siteDays: siteDays, setup: settings.siteSetup(for: site.id),
-                crew: [], today: today, calendar: calendar, holidays: holidays
+                crew: [], today: today, calendar: calendar, holidays: holidays,
+                // As the site's month reads it: nothing before its first day.
+                active: SiteMonthStatuses.activeDays(of: site, repository: repository, today: today, calendar: calendar)
             )
         }
         missingDates = SiteDayStatus.missingDays(merging: statuses)
