@@ -215,6 +215,8 @@ struct ReportBuilder: Sendable {
             hasEntry: day.hasEntry,
             isAbsence: isAbsence(day)
         )
+        // Sick, a holiday, a day off: the row stands out in its type's colour.
+        row.dayTint = ReportDayHighlight.tint(for: day.dayType, workedMinutes: day.workedMinutes)
         // Kilometres are a plain number, not minutes, so a workbook writes a
         // figure it can add up.
         if let index = columns.firstIndex(of: .kilometres), day.kilometres > 0 {

@@ -66,6 +66,13 @@ struct ReportRow: Identifiable, Hashable, Sendable {
     /// Set on the rows of a day worked on more than one site, which the page
     /// shades lightly as one group; nil for every other row.
     var splitDay: SplitDayRow? = nil
+    /// A day that shows its type rather than times — sick, a holiday, no
+    /// work — for the whole row, in that type's colour
+    /// (`ReportDayHighlight`); nil for every other row.
+    var dayTint: TypeTint? = nil
+    /// The same for one column group only: on a director's sheet, a person
+    /// away for a day type while the others worked. Keyed by group index.
+    var groupTints: [Int: TypeTint] = [:]
 }
 
 /// A run of neighbouring columns under one heading: on the director's sheet,

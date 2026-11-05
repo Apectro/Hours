@@ -201,12 +201,14 @@ struct CrewMemberSheetBuilder: Sendable {
             var values: [String] = []
             var minutes: [Int?] = []
             var isAbsence = false
+            var dayTint: TypeTint?
             var reasonText = emptyPlaceholder
             if let reason = line.reason {
                 switch reason {
                 case let .dayType(id):
                     reasonText = catalog.definition(for: id).exportName(in: language)
                     isAbsence = true
+                    dayTint = ReportDayHighlight.tint(for: catalog.definition(for: id))
                     switch SiteSheetBuilder.absenceKind(id) {
                     case .sick: sickDays += 1
                     case .leave: leaveDays += 1
@@ -263,7 +265,7 @@ struct CrewMemberSheetBuilder: Sendable {
                 id = -(line.date.key * 10 + extra)
                 extra += 1
             }
-            rows.append(ReportRow(
+            var row = ReportRow(
                 id: id,
                 values: values,
                 minutes: minutes,
@@ -271,7 +273,9 @@ struct CrewMemberSheetBuilder: Sendable {
                 balanceMinutes: 0,
                 hasEntry: true,
                 isAbsence: isAbsence
-            ))
+            )
+            row.dayTint = dayTint
+            rows.append(row)
         }
         let daysOnSite = workedDates.count
 

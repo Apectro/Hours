@@ -409,6 +409,12 @@ enum XLSXWriter {
                 if let count = Int(value) { return .number(Double(count), style: .mutedCount) }
                 return .text(value, style: .summaryLabel)
             case .day:
+                // A day that shows its type instead of times, in the type's
+                // colour as on the PDF: the person's cells, or the date and
+                // the word for a whole day.
+                if let tint = highlight(of: reportRow, column: column, index: index, in: table) {
+                    return .text(value, style: .tinted(tint))
+                }
                 if index < reportRow.numbers.count, let number = reportRow.numbers[index] {
                     return .number(number, style: .normal)
                 }
@@ -423,6 +429,24 @@ enum XLSXWriter {
                 if !rest, value.contains("\n") { return .text(value, style: .wrapped) }
                 return .text(value, style: .text(rest: rest))
             }
+        }
+    }
+
+    /// The tint a day cell is filled with, or nil: every cell of a person
+    /// away for a day type; on a whole day, the date and the cell that names
+    /// it (the day type, or a site sheet's note). Figures keep their own
+    /// style, so they still add up.
+    private static func highlight(of row: ReportRow, column: ReportColumn, index: Int, in table: ReportTable) -> TypeTint? {
+        if !row.groupTints.isEmpty {
+            for (group, range) in table.groupRanges.enumerated() where range.contains(index) {
+                if let tint = row.groupTints[group] { return tint }
+            }
+        }
+        guard let tint = row.dayTint, (index < row.minutes.count ? row.minutes[index] == nil : true) else { return nil }
+        switch column {
+        case .date, .dayType: return tint
+        case .note: return table.kind == .siteSheet ? tint : nil
+        default: return nil
         }
     }
 
@@ -506,8 +530,17 @@ enum XLSXWriter {
         /// A figure kept as text so the column's sum skips it — the "Total"
         /// row under a day split between sites — set right like the figures.
         case textRight = 26
+        /// A day shown as its type — sick, a holiday, no work — on a light
+        /// wash of the type's colour with the word a darker shade of it
+        /// (`ReportDayHighlight`), one per `TypeTint` in its declared order.
+        case tintBlue = 27, tintTeal, tintGreen, tintYellow, tintOrange, tintRed, tintPink, tintPurple, tintIndigo
+        case tintBrown, tintGray
 
         static func text(rest: Bool) -> Style { rest ? .restText : .normal }
+        static func tinted(_ tint: TypeTint) -> Style {
+            let offset = TypeTint.allCases.firstIndex(of: tint) ?? 0
+            return Style(rawValue: Style.tintBlue.rawValue + offset) ?? .normal
+        }
         static func duration(rest: Bool) -> Style { rest ? .restDuration : .duration }
     }
 
@@ -704,7 +737,8 @@ enum XLSXWriter {
         """
     }
 
-    /// Twenty-seven cell formats, in the order `Style` indexes them.
+    /// Twenty-seven fixed cell formats, in the order `Style` indexes them
+    /// (the day-type tints follow them; see `styles`).
     ///
     /// Durations are stored as a fraction of a day and shown through a mask,
     /// which is the only way a cell can read "9h 45m" and still be added up:
@@ -732,7 +766,30 @@ enum XLSXWriter {
     /// pair of numbers waiting to disagree.
     static let durationMaskWidth = 3
 
-    private static let styles = """
+    /// The fixed formats, then a font, a fill and a format per `TypeTint`
+    /// for the highlighted days, appended in `TypeTint.allCases` order so
+    /// `Style.tinted` finds them.
+    private static let styles: String = {
+        func hex(_ value: UInt32) -> String { "FF" + String(format: "%06X", value) }
+        let tints = TypeTint.allCases
+        let fonts = tints.map { "<font><sz val=\"11\"/><color rgb=\"\(hex($0.printInk))\"/><name val=\"Calibri\"/></font>" }.joined()
+        let fills = tints.map {
+            "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"\(hex($0.printWash))\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+        }.joined()
+        let formats = tints.indices.map {
+            "<xf numFmtId=\"0\" fontId=\"\(9 + $0)\" fillId=\"\(6 + $0)\" borderId=\"2\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\" "
+                + "applyBorder=\"1\" applyAlignment=\"1\"><alignment indent=\"1\"/></xf>"
+        }.joined()
+        return baseStyles
+            .replacingOccurrences(of: "<fonts count=\"9\">", with: "<fonts count=\"\(9 + tints.count)\">")
+            .replacingOccurrences(of: "</fonts>", with: fonts + "</fonts>")
+            .replacingOccurrences(of: "<fills count=\"6\">", with: "<fills count=\"\(6 + tints.count)\">")
+            .replacingOccurrences(of: "</fills>", with: fills + "</fills>")
+            .replacingOccurrences(of: "<cellXfs count=\"27\">", with: "<cellXfs count=\"\(27 + tints.count)\">")
+            .replacingOccurrences(of: "</cellXfs>", with: formats + "</cellXfs>")
+    }()
+
+    private static let baseStyles = """
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="[h]:mm;-[h]:mm"/><numFmt numFmtId="165" formatCode="0"/></numFmts><fonts count="9"><font><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF5A5A64"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF8E8E96"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF9A9AA2"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF7A7A84"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FF1A1A1C"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FFC55A00"/><name val="Calibri"/></font></fonts><fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFAFAFB"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF4E5"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEEF6F0"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="5"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFD8D8DE"/></bottom><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFEDEDF1"/></bottom><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF9A9AA2"/></top><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="medium"><color rgb="FF1C1C1E"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="27"><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="5" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="7" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="0" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="4" fillId="4" borderId="4" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="0" fontId="8" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment indent="1"/></xf><xf numFmtId="164" fontId="8" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="164" fontId="1" fillId="5" borderId="3" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" indent="1"/></xf><xf numFmtId="165" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1" indent="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="right" indent="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
     """

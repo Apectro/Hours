@@ -33,7 +33,8 @@ struct PDFPageDecorations {
             madeOn: CalendarDate(generatedOn, calendar: .current),
             calendar: .current
         )
-        let figuresWidth = PDFPageDecorations.figuresWidth(header.figures)
+        let figures = PDFPageDecorations.figureMetrics(header.figures)
+        let figuresWidth = figures.width
         let textWidth = PDFReportStyle.contentWidth - figuresWidth - (header.figures.isEmpty ? 0 : 24)
 
         PDFReportStyle.draw(
@@ -60,7 +61,7 @@ struct PDFPageDecorations {
         let figuresX = margin + PDFReportStyle.contentWidth - figuresWidth
         let firstFigureY = y + 45 - CGFloat(max(header.figures.count - 1, 0)) * 14
         for (index, figure) in header.figures.enumerated() {
-            drawFigure(figure, in: CGRect(x: figuresX, y: firstFigureY + CGFloat(index) * 14, width: figuresWidth, height: 13))
+            drawFigure(figure, fonts: figures, in: CGRect(x: figuresX, y: firstFigureY + CGFloat(index) * 14, width: figuresWidth, height: 13))
         }
 
         let ruleY = y + 60
@@ -83,37 +84,120 @@ struct PDFPageDecorations {
     }
 
     /// The gap between a figure's label and its value.
-    private static let figureGap: CGFloat = 6
+    static let figureGap: CGFloat = 6
+    /// What a measured width is rounded up by before it is drawn in: text
+    /// laid out in a box exactly as wide as it measured can still lose its
+    /// last letter to rounding ("Sati eki…").
+    static let figureSlack: CGFloat = 2
+    /// The most of the header's width the figures may take before their type
+    /// steps down, so the title beside them keeps its room.
+    static var figuresMaximumWidth: CGFloat { PDFReportStyle.contentWidth * 0.4 }
 
-    /// As wide as the widest "Crew hours  489h 30m", so the values line up
-    /// on the right.
-    private static func figuresWidth(_ figures: [ReportTile]) -> CGFloat {
-        figures.map { figure in
-            ceil(PDFReportStyle.width(of: figure.label, font: PDFReportStyle.figureLabelFont)
-                + figureGap
-                + PDFReportStyle.width(of: figure.value, font: PDFReportStyle.figureValueFont))
-        }.max() ?? 0
+    /// The header's figures as they are drawn: their fonts, and the width
+    /// of the widest "Crew hours  489h 30m" so the values line up on the
+    /// right. A label is never cut short: when the figures would take more
+    /// than their share of the header the type steps down a point at a
+    /// time, to 7 and 9 points, rather than cutting a word.
+    struct FigureMetrics {
+        var labelFont: UIFont
+        var valueFont: UIFont
+        var width: CGFloat
+
+        func labelWidth(_ label: String) -> CGFloat {
+            ceil(PDFReportStyle.width(of: label, font: labelFont)) + PDFPageDecorations.figureSlack
+        }
+
+        func valueWidth(_ value: String) -> CGFloat {
+            ceil(PDFReportStyle.width(of: value, font: valueFont)) + 1
+        }
+    }
+
+    static func figureMetrics(_ figures: [ReportTile], maximumWidth: CGFloat = PDFPageDecorations.figuresMaximumWidth) -> FigureMetrics {
+        func measured(step: CGFloat) -> FigureMetrics {
+            let fonts = FigureMetrics(
+                labelFont: PDFReportStyle.figureLabelFont.withSize(PDFReportStyle.figureLabelFont.pointSize - step),
+                valueFont: PDFReportStyle.figureValueFont.withSize(PDFReportStyle.figureValueFont.pointSize - step),
+                width: 0
+            )
+            let widest = figures.map { fonts.labelWidth($0.label) + figureGap + fonts.valueWidth($0.value) }.max() ?? 0
+            return FigureMetrics(labelFont: fonts.labelFont, valueFont: fonts.valueFont, width: widest)
+        }
+        for step in [CGFloat(0), 1, 2] {
+            let metrics = measured(step: step)
+            if metrics.width <= maximumWidth { return metrics }
+        }
+        return measured(step: 2)
     }
 
     /// "Crew hours" in grey, then "489h 30m" in bold, right-aligned. Plain
     /// ink even below zero: the table's late and early are the one colour.
-    private func drawFigure(_ figure: ReportTile, in rect: CGRect) {
-        let valueWidth = ceil(PDFReportStyle.width(of: figure.value, font: PDFReportStyle.figureValueFont)) + 1
+    private func drawFigure(_ figure: ReportTile, fonts: FigureMetrics, in rect: CGRect) {
+        let valueWidth = fonts.valueWidth(figure.value)
         PDFReportStyle.draw(
             figure.value,
             in: CGRect(x: rect.maxX - valueWidth, y: rect.minY, width: valueWidth, height: rect.height),
-            font: PDFReportStyle.figureValueFont,
+            font: fonts.valueFont,
             color: PDFReportStyle.ink,
             alignment: .right
         )
-        let labelWidth = max(0, rect.width - valueWidth - PDFPageDecorations.figureGap)
+        // At least as wide as the label measured, so it is never cut short.
+        let labelWidth = max(fonts.labelWidth(figure.label), rect.width - valueWidth - PDFPageDecorations.figureGap)
         PDFReportStyle.draw(
             figure.label,
-            in: CGRect(x: rect.minX, y: rect.minY, width: labelWidth, height: rect.height),
-            font: PDFReportStyle.figureLabelFont,
+            in: CGRect(x: rect.maxX - valueWidth - PDFPageDecorations.figureGap - labelWidth, y: rect.minY,
+                       width: labelWidth, height: rect.height),
+            font: fonts.labelFont,
             color: PDFReportStyle.secondary,
             alignment: .right
         )
+    }
+
+    // MARK: - Running header
+
+    /// A page after the report's first says what it belongs to: the orange
+    /// eyebrow, then the title on one smaller line — "Jarunski Dvori · Trg
+    /// Pravde Zagreb" — over a rule, as the defects list's later pages do;
+    /// a part of a split sheet adds whose hours it holds on the right.
+    func drawRunningHeader(at y: CGFloat) -> CGFloat {
+        let margin = PDFReportStyle.margin
+        let width = PDFReportStyle.contentWidth
+        let header = table.pageHeader(
+            madeOn: CalendarDate(generatedOn, calendar: .current),
+            calendar: .current
+        )
+        let part = table.partLabel
+        let partWidth = part.isEmpty ? 0 : min(PDFReportStyle.width(of: part, font: PDFReportStyle.cellBoldFont) + 2, width / 3)
+        let textWidth = width - (part.isEmpty ? 0 : partWidth + 12)
+        PDFReportStyle.draw(
+            Self.fittedEyebrow(header.kindLine.uppercased(with: table.language.locale), width: textWidth),
+            in: CGRect(x: margin, y: y, width: textWidth, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
+        )
+        PDFReportStyle.draw(
+            header.title,
+            in: CGRect(x: margin, y: y + 12, width: textWidth, height: 15),
+            font: PDFReportStyle.runningTitleFont,
+            color: PDFReportStyle.ink
+        )
+        if !part.isEmpty {
+            PDFReportStyle.draw(
+                part,
+                in: CGRect(x: margin + width - partWidth, y: y + 12, width: partWidth, height: 15),
+                font: PDFReportStyle.cellBoldFont,
+                color: PDFReportStyle.secondary,
+                alignment: .right
+            )
+        }
+        let ruleY = y + 30
+        PDFReportStyle.line(
+            from: CGPoint(x: margin, y: ruleY),
+            to: CGPoint(x: margin + width, y: ruleY),
+            width: 0.8,
+            color: PDFReportStyle.ink
+        )
+        return y + layout.runningHeaderHeight
     }
 
     // MARK: - Summary

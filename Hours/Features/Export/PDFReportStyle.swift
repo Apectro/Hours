@@ -51,6 +51,9 @@ enum PDFReportStyle {
     static let figureValueFont = UIFont.monospacedDigitSystemFont(ofSize: 11, weight: .bold)
     static let smallFont = UIFont.systemFont(ofSize: 7.5)
     static let footerFont = UIFont.systemFont(ofSize: 7)
+    /// The line at the top of every page after a report's first: its title,
+    /// smaller, under the orange eyebrow.
+    static let runningTitleFont = UIFont.systemFont(ofSize: 11, weight: .semibold)
 
     // MARK: - Colours
 
@@ -71,6 +74,12 @@ enum PDFReportStyle {
     static let absenceWash = rgb(0xFFF7EC)
     /// A day worked on more than one site: its rows, one shade as one group.
     static let splitDayWash = rgb(0xF6F8FC)
+
+    /// A day shown as its type — sick, a holiday, no work — on a light wash
+    /// of the type's colour (`ReportDayHighlight`), and the word on it in a
+    /// darker shade, so it reads in black and white too.
+    static func dayWash(_ tint: TypeTint) -> UIColor { rgb(tint.printWash) }
+    static func dayInk(_ tint: TypeTint) -> UIColor { rgb(tint.printInk) }
 
     private static func rgb(_ hex: UInt32) -> UIColor {
         UIColor(

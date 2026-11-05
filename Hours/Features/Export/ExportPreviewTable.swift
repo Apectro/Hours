@@ -195,19 +195,22 @@ private struct ExportPreviewRow: View {
     private struct Segment {
         var columns: Range<Int>
         var isMerged: Bool
+        /// A person away for a day type, washed in its colour as on the page.
+        var tint: TypeTint? = nil
     }
 
     private var segments: [Segment] {
         let ranges = table.groupRanges
-        var merged: [Int: Range<Int>] = [:]
+        var merged: [Int: (range: Range<Int>, tint: TypeTint?)] = [:]
         for group in row.mergedGroups where group < ranges.count {
-            merged[ranges[group].lowerBound] = ranges[group]
+            merged[ranges[group].lowerBound] = (ranges[group], row.groupTints[group])
         }
         var result: [Segment] = []
         var index = 0
         while index < table.columns.count {
-            if let range = merged[index] {
-                result.append(Segment(columns: range, isMerged: true))
+            if let entry = merged[index] {
+                let range = entry.range
+                result.append(Segment(columns: range, isMerged: true, tint: entry.tint))
                 index = range.upperBound
             } else {
                 result.append(Segment(columns: index..<(index + 1), isMerged: false))
@@ -230,6 +233,7 @@ private struct ExportPreviewRow: View {
                 .font(.caption)
                 .foregroundStyle(isReason ? HierarchicalShapeStyle.secondary : HierarchicalShapeStyle.tertiary)
                 .frame(width: width, alignment: .center)
+                .background(segment.tint.map { $0.color.opacity(0.14) } ?? Color.clear)
         } else {
             let column = table.columns[index]
             Text(value)
@@ -258,6 +262,7 @@ private struct ExportPreviewRow: View {
 
     private var rowBackground: Color {
         // A day on more than one site reads as one group, as on the page.
+        if let tint = row.dayTint { return tint.color.opacity(0.12) }
         if row.splitDay != nil { return Color.accentColor.opacity(0.06) }
         if row.isAbsence { return ExportPreviewWidths.accent.opacity(0.08) }
         return row.isWorkingDay ? Color.clear : Color.hoursSubdued.opacity(0.08)
