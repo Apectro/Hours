@@ -299,16 +299,24 @@ enum SiteWorkDays {
 
     /// Whether a day on the site is expected on `date`: one of its weekdays,
     /// not a public holiday (`holidays`, date keys), and the site not paused.
+    ///
+    /// `today`, when given: a day still to come uses the weekdays as worked
+    /// lately as of today (the days up to and including today). Inferred
+    /// from its own date, a day more than `lookBackDays` ahead has no days
+    /// before it to look at and would read as a day off.
     static func expects(
         _ siteID: UUID,
         on date: CalendarDate,
         setup: SiteSetup,
         siteDays: [SiteDay],
         calendar: Calendar,
-        holidays: Set<Int> = []
+        holidays: Set<Int> = [],
+        today: CalendarDate? = nil
     ) -> Bool {
         guard !holidays.contains(date.key), !setup.isPaused(on: date) else { return false }
-        return weekdays(of: siteID, setup: setup, siteDays: siteDays, before: date, calendar: calendar)
+        var inferredFrom = date
+        if let today, date > today { inferredFrom = today.adding(days: 1, in: calendar) }
+        return weekdays(of: siteID, setup: setup, siteDays: siteDays, before: inferredFrom, calendar: calendar)
             .contains(date.weekday(in: calendar))
     }
 }

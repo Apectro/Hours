@@ -54,7 +54,7 @@ enum SiteDayStatus: Hashable, Sendable {
             return unaccounted ? .partly : .written
         }
         let expected = SiteWorkDays.expects(
-            siteID, on: date, setup: setup, siteDays: siteDays, calendar: calendar, holidays: holidays
+            siteID, on: date, setup: setup, siteDays: siteDays, calendar: calendar, holidays: holidays, today: today
         )
         guard expected else { return .dayOff }
         if crewElsewhere { return .elsewhere }

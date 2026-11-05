@@ -101,6 +101,23 @@ final class SiteDayStatusTests: XCTestCase {
         XCTAssertEqual(status(Fixture.date(2026, 10, 16), siteDays: [worked], setup: open), .dayOff)
     }
 
+    func testADayStillToComeGoesByTheWeekdaysWorkedLatelyAsOfToday() {
+        // Worked Monday 12th and Tuesday 13th. Monday 9 November is more than
+        // two weeks ahead, so the days before it hold nothing of the site's
+        // own; it still reads as a work day still to come, as the 26th does.
+        let worked = [
+            SiteDay(siteID: site, date: Fixture.date(2026, 10, 12), present: [Attendance(memberID: ana)]),
+            SiteDay(siteID: site, date: Fixture.date(2026, 10, 13), present: [Attendance(memberID: ana)]),
+        ]
+        let open = SiteSetup()
+        let soon = status(Fixture.date(2026, 10, 26), siteDays: worked, setup: open)
+        let later = status(Fixture.date(2026, 11, 9), siteDays: worked, setup: open)
+        XCTAssertNotEqual(soon, .dayOff)
+        XCTAssertEqual(later, soon, "a work day weeks ahead reads as one a week ahead")
+        // A weekday the site is not worked stays a day off, however far ahead.
+        XCTAssertEqual(status(Fixture.date(2026, 11, 11), siteDays: worked, setup: open), .dayOff)
+    }
+
     func testTheMonthAndItsMissingCount() {
         let monday = Fixture.date(2026, 10, 19)
         let days = [
