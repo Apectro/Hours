@@ -99,6 +99,7 @@ struct SiteSheetBuilder: Sendable {
             var minutes: [Int?] = [nil, nil]
             var flagged: Set<Int> = []
             var merged: Set<Int> = []
+            var tints: [Int: TypeTint] = [:]
             for (index, person) in people.enumerated() {
                 guard let entry = result.people.first(where: { $0.memberID == person.id }) else {
                     // Groups 0 and 1 are the date and the day, so a person's
@@ -112,6 +113,7 @@ struct SiteSheetBuilder: Sendable {
                     switch result.day.absenceReason(for: person.id) {
                     case let .dayType(id)?:
                         text = catalog.definition(for: id).exportName(in: language)
+                        tints[index + Self.leadingColumns] = ReportDayHighlight.tint(for: catalog.definition(for: id))
                         switch Self.absenceKind(id) {
                         case .sick: sickDays[index] += 1
                         case .leave: leaveDays[index] += 1
@@ -138,7 +140,7 @@ struct SiteSheetBuilder: Sendable {
             }
             values.append(noteText(for: result.day, language: language))
             minutes.append(nil)
-            rows.append(ReportRow(
+            var row = ReportRow(
                 id: date.key,
                 values: values,
                 minutes: minutes,
@@ -147,7 +149,12 @@ struct SiteSheetBuilder: Sendable {
                 hasEntry: true,
                 flagged: flagged,
                 mergedGroups: merged
-            ))
+            )
+            // A day nobody worked stands out as a whole; one person away
+            // for a day type, in their own cell only.
+            row.dayTint = ReportDayHighlight.rowTint(for: result.day, catalog: catalog)
+            row.groupTints = tints
+            rows.append(row)
         }
 
         // Each closing figure sits under the hours, with the times column
@@ -267,6 +274,7 @@ struct SiteSheetBuilder: Sendable {
         case [true, false]: table.legend = language(.siteLegendMixedBreaks)
         default: table.legend = language(.siteLegend)
         }
+        if table.hasDayHighlights { table.legend += " " + language(.dayHighlightLegend) }
         // Signing is optional: switched off, the sheet has no line to sign
         // on and no sign-off boxes, whoever has signed.
         guard includesSignatures else { return table }

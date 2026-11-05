@@ -238,10 +238,16 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(package.contains("s=\"1\""), "no cell uses the duration format")
         XCTAssertTrue(package.contains("numFmtId=\"164\""), "no duration format is declared")
         XCTAssertTrue(package.contains("numFmtId=\"165\" formatCode=\"0\""), "no whole-number format")
-        // Twenty-seven formats are declared and Style indexes them 0...26; a
-        // cell asking for another renders with nobody's formatting.
-        XCTAssertTrue(package.contains("<cellXfs count=\"27\">"))
-        XCTAssertFalse(package.contains("s=\"27\""), "a cell points past the end of cellXfs")
+        // Twenty-seven fixed formats and one per day-type tint are declared,
+        // and Style indexes them 0...37; a cell asking for another renders
+        // with nobody's formatting.
+        let count = 27 + TypeTint.allCases.count
+        XCTAssertTrue(package.contains("<cellXfs count=\"\(count)\">"))
+        XCTAssertFalse(package.contains("s=\"\(count)\""), "a cell points past the end of cellXfs")
+        // As many fonts and fills as the formats point at.
+        XCTAssertTrue(package.contains("<fonts count=\"\(9 + TypeTint.allCases.count)\">"))
+        XCTAssertTrue(package.contains("<fills count=\"\(6 + TypeTint.allCases.count)\">"))
+        XCTAssertEqual(package.components(separatedBy: "<xf numFmtId=").count - 1, 1 + count, "cellStyleXfs and cellXfs")
     }
 
     /// The summary block is where someone looks first, so its figures are

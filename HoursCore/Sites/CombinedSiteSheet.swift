@@ -148,6 +148,7 @@ extension SiteSheetBuilder {
             // The day's figures, counted once however many sites gave them.
             var dayWorked = Array(repeating: 0, count: people.count)
             var awayText: [String?] = Array(repeating: nil, count: people.count)
+            var awayTint: [TypeTint?] = Array(repeating: nil, count: people.count)
             var sitesToday = Array(repeating: 0, count: people.count)
             for (index, person) in people.enumerated() {
                 let entries = dayResults.flatMap { result in
@@ -161,6 +162,7 @@ extension SiteSheetBuilder {
                     switch awayReason(of: person, on: dayResults, chosen: chosenIDs) {
                     case let .dayType(id)?:
                         awayText[index] = catalog.definition(for: id).exportName(in: language)
+                        awayTint[index] = ReportDayHighlight.tint(for: catalog.definition(for: id))
                         switch Self.absenceKind(id) {
                         case .sick: sickDays[index] += 1
                         case .leave: leaveDays[index] += 1
@@ -209,12 +211,14 @@ extension SiteSheetBuilder {
                 var minutes: [Int?] = [nil, nil, nil]
                 var flagged: Set<Int> = []
                 var merged: Set<Int> = []
+                var tints: [Int: TypeTint] = [:]
                 for (index, person) in people.enumerated() {
                     let here = result.people.filter { person.memberIDs.contains($0.memberID) }
                     guard !here.isEmpty else {
                         merged.insert(index + lead)
                         // Why they were away all day, once, on the first row.
                         let text = isFirst ? awayText[index] ?? emptyPlaceholder : emptyPlaceholder
+                        if let tint = awayTint[index] { tints[index + lead] = tint }
                         values += [text, ""]
                         minutes += [nil, nil]
                         continue
@@ -242,6 +246,8 @@ extension SiteSheetBuilder {
                     mergedGroups: merged
                 )
                 if isSplit { row.splitDay = .site }
+                row.dayTint = ReportDayHighlight.rowTint(for: result.day, catalog: catalog)
+                row.groupTints = tints
                 rows.append(row)
             }
 
@@ -366,6 +372,7 @@ extension SiteSheetBuilder {
         case [true, false]: table.legend = language(.siteLegendMixedBreaks)
         default: table.legend = language(.siteLegend)
         }
+        if table.hasDayHighlights { table.legend += " " + language(.dayHighlightLegend) }
         table.bySite = sites.enumerated().map { index, site in
             ReportSiteTotal(
                 name: site.name,

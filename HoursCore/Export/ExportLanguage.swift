@@ -389,6 +389,21 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                 + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
         )
 
+        // After the legend, when some day on the sheet is shaded in its day
+        // type's colour (`ReportDayHighlight`).
+        case .dayHighlightLegend: return pick(
+            en: "Shaded = sick, on leave, a holiday or no work, in the day type's colour.",
+            de: "Farbig hinterlegt = krank, Urlaub, Feiertag oder keine Arbeit, in der Farbe der Tagesart.",
+            hr: "Osjenčano = bolovanje, godišnji odmor, praznik ili se nije radilo, u boji vrste dana.",
+            sl: "Osenčeno = bolniška, dopust, praznik ali ni bilo dela, v barvi vrste dneva.",
+            it: "Evidenziato = malattia, ferie, festività o nessun lavoro, nel colore del tipo di giorno.",
+            fr: "Surligné = maladie, congés, jour férié ou pas de travail, dans la couleur du type de jour.",
+            es: "Sombreado = baja, vacaciones, festivo o sin trabajo, en el color del tipo de día.",
+            pt: "Sombreado = baixa, férias, feriado ou sem trabalho, na cor do tipo de dia.",
+            nl: "Gekleurd = ziek, verlof, feestdag of geen werk, in de kleur van het soort dag.",
+            pl: "Zacieniowane = zwolnienie, urlop, święto lub brak pracy, w kolorze rodzaju dnia."
+        )
+
         case .badWeatherDays: return pick(en: "Bad-weather days", de: "Schlechtwettertage",
                                           hr: "Dani lošeg vremena", sl: "Dnevi slabega vremena",
                                           it: "Giorni di maltempo", fr: "Jours d’intempéries",
@@ -623,6 +638,8 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// pattern filled in by `ExportLanguage.peopleOnPage(_:of:)`.
     case peopleOnPage
     case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
+    /// After the legend: what a shaded day means (2026-11).
+    case dayHighlightLegend
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
     /// An absent person's cell: working on another site.

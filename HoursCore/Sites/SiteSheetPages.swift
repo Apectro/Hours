@@ -88,6 +88,9 @@ extension SiteSheetBuilder {
             row.numbers = pick(row.numbers)
             row.flagged = Set(row.flagged.compactMap { newColumn[$0] })
             row.mergedGroups = Set(row.mergedGroups.compactMap { newGroup[$0] })
+            row.groupTints = Dictionary(uniqueKeysWithValues: row.groupTints.compactMap { group, tint in
+                newGroup[group].map { ($0, tint) }
+            })
             return row
         }
 
