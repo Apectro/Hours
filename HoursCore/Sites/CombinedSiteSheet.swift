@@ -434,11 +434,7 @@ extension SiteSheetBuilder {
     /// One site's day as its row's note: "Bad weather" when it was rained
     /// off, then what was written.
     private func note(of day: SiteDay, language: ExportLanguage) -> String {
-        var parts: [String] = []
-        if day.isBadWeatherStop { parts.append(language(.badWeather)) }
-        let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !note.isEmpty { parts.append(note) }
-        return parts.joined(separator: " · ")
+        day.sheetNote(in: language)
     }
 }
 

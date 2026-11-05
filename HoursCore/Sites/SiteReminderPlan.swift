@@ -19,7 +19,10 @@ enum SiteReminderPlan {
     /// A site with work days set (`workDays`, from `SiteSetup`, 1.2) is
     /// expected on exactly those weekdays, a new site with no days yet
     /// included; its history no longer decides. A site with the evening
-    /// reminder switched off (`silenced`) is never missing.
+    /// reminder switched off (`silenced`) is never missing, nor is a site
+    /// on a day it is paused (`pauses`, from `SiteSetup`), nor on a day its
+    /// whole crew was on another of your sites (`crewElsewhere`, dates by
+    /// site: `SiteMonthOverview.isCrewElsewhere`).
     static func dates(
         siteDays: [SiteDay],
         today: CalendarDate,
@@ -29,7 +32,9 @@ enum SiteReminderPlan {
         holidays: Set<Int> = [],
         askedWhenLeavingToday: Set<UUID> = [],
         workDays: [UUID: Set<Int>] = [:],
-        silenced: Set<UUID> = []
+        silenced: Set<UUID> = [],
+        pauses: [UUID: SitePause] = [:],
+        crewElsewhere: [UUID: Set<CalendarDate>] = [:]
     ) -> [CalendarDate] {
         guard lookBackDays > 0, daysAhead > 0 else { return [] }
         let windowStart = today.adding(days: -lookBackDays, in: calendar)
@@ -57,6 +62,8 @@ enum SiteReminderPlan {
             let weekday = date.weekday(in: calendar)
             let missing = weekdaysBySite.contains { siteID, weekdays in
                 if offset == 0 && askedWhenLeavingToday.contains(siteID) { return false }
+                if pauses[siteID]?.contains(date) == true { return false }
+                if crewElsewhere[siteID]?.contains(date) == true { return false }
                 return weekdays.contains(weekday) && !(recorded[siteID]?.contains(date) ?? false)
             }
             if missing { result.append(date) }

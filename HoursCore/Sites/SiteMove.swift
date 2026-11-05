@@ -434,9 +434,27 @@ enum SiteDayStorage {
         var move: SiteMove
     }
 
-    /// The column's value: the reasons, then the moves; nil for neither.
-    static func absenceData(absences: [CrewAbsence], moves: [SiteMove]) -> Data? {
-        guard !absences.isEmpty || !moves.isEmpty else { return nil }
+    private static let noWorkKind = "noWork"
+
+    /// A day's "no work" (`SiteDay.noWork`), as one more entry of the list.
+    /// Its `memberID` is the site's id, never a crew member's; a reader of
+    /// the reasons fails on the unknown kind (or on the missing `dayTypeID`)
+    /// and leaves the entry out.
+    private struct NoWorkEntry: Codable {
+        var memberID: UUID
+        var kind: String
+        var reason: String
+    }
+
+    /// The column's value: the reasons, then the moves, then the day's "no
+    /// work"; nil for none of them.
+    static func absenceData(
+        absences: [CrewAbsence],
+        moves: [SiteMove],
+        noWork: SiteNoWorkReason? = nil,
+        siteID: UUID? = nil
+    ) -> Data? {
+        guard !absences.isEmpty || !moves.isEmpty || noWork != nil else { return nil }
         let encoder = JSONEncoder()
         var items: [Data] = []
         for absence in absences {
@@ -444,6 +462,10 @@ enum SiteDayStorage {
         }
         for move in moves {
             if let data = try? encoder.encode(MoveEntry(memberID: move.id, kind: moveKind, move: move)) { items.append(data) }
+        }
+        if let noWork {
+            let entry = NoWorkEntry(memberID: siteID ?? UUID(), kind: noWorkKind, reason: noWork.rawValue)
+            if let data = try? encoder.encode(entry) { items.append(data) }
         }
         var joined = Data("[".utf8)
         for (index, item) in items.enumerated() {
@@ -460,6 +482,15 @@ enum SiteDayStorage {
               let list = try? JSONDecoder().decode([SiteMove.Lossy<MoveEntry>].self, from: data)
         else { return [] }
         return list.compactMap(\.value).filter { $0.kind == moveKind }.map(\.move)
+    }
+
+    /// The day's "no work" in the column, nil for none, junk or a reason
+    /// this version does not know.
+    static func noWork(fromAbsenceData data: Data?) -> SiteNoWorkReason? {
+        guard let data, !data.isEmpty,
+              let list = try? JSONDecoder().decode([SiteMove.Lossy<NoWorkEntry>].self, from: data)
+        else { return nil }
+        return list.compactMap(\.value).last { $0.kind == noWorkKind }.flatMap { SiteNoWorkReason(rawValue: $0.reason) }
     }
 }
 

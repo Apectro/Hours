@@ -157,6 +157,9 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// what Undo needs: see `SiteMove` and `SiteMoving`. Never copied to the
     /// next day.
     var moves: [SiteMove]
+    /// Nobody worked here this day, and why (the "N not written" sheet):
+    /// no hours for anyone. See `SiteNoWorkReason` and `isNoWorkDay`.
+    var noWork: SiteNoWorkReason?
 
     init(
         siteID: UUID,
@@ -171,7 +174,8 @@ struct SiteDay: Hashable, Codable, Sendable {
         absences: [CrewAbsence] = [],
         allowanceMemberIDs: [UUID] = [],
         kilometres: Int = 0,
-        moves: [SiteMove] = []
+        moves: [SiteMove] = [],
+        noWork: SiteNoWorkReason? = nil
     ) {
         self.siteID = siteID
         self.date = date
@@ -186,6 +190,7 @@ struct SiteDay: Hashable, Codable, Sendable {
         self.allowanceMemberIDs = allowanceMemberIDs
         self.kilometres = max(0, kilometres)
         self.moves = moves
+        self.noWork = noWork
     }
 
     func attendance(for memberID: UUID) -> Attendance? {
@@ -269,6 +274,8 @@ struct SiteDay: Hashable, Codable, Sendable {
             day.present.append(Attendance(memberID: memberID))
             day.absences.removeAll { $0.memberID == memberID }
             if allowanceByDefault { day.allowanceMemberIDs.append(memberID) }
+            // Someone worked after all: no longer a day nobody did.
+            if day.noWork != .badWeather { day.noWork = nil }
         }
         return day
     }
@@ -306,6 +313,7 @@ struct SiteDay: Hashable, Codable, Sendable {
     /// typed text would be a save that silently did nothing.
     var isBlank: Bool {
         !isBadWeatherStop
+            && noWork == nil
             && kilometres == 0
             && present.isEmpty
             && absences.isEmpty
@@ -357,6 +365,8 @@ struct SiteDay: Hashable, Codable, Sendable {
 
     /// The stop taken back. The times stay as they are, to be corrected by hand.
     func liftingBadWeatherStop() -> SiteDay {
+        // A bad-weather "no work" goes back to nothing, as its Undo does.
+        if noWork == .badWeather { return clearingNoWork() }
         var day = self
         day.isBadWeatherStop = false
         return day
@@ -371,7 +381,7 @@ struct SiteDay: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case siteID, date, start, end, breakMinutes, present, note, jobID, isBadWeatherStop, absences
-        case allowanceMemberIDs, kilometres, moves
+        case allowanceMemberIDs, kilometres, moves, noWork
     }
 
     init(from decoder: Decoder) throws {
@@ -390,7 +400,9 @@ struct SiteDay: Hashable, Codable, Sendable {
             absences: container.lenient(.absences, [CrewAbsence.Lossy]()).compactMap(\.value),
             allowanceMemberIDs: container.lenient(.allowanceMemberIDs, []),
             kilometres: container.lenient(.kilometres, 0),
-            moves: container.lenient(.moves, [SiteMove.Lossy<SiteMove>]()).compactMap(\.value)
+            moves: container.lenient(.moves, [SiteMove.Lossy<SiteMove>]()).compactMap(\.value),
+            // A reason this version does not know reads as none.
+            noWork: container.lenientOptional(.noWork, SiteNoWorkReason.self)
         )
     }
 
@@ -412,5 +424,6 @@ struct SiteDay: Hashable, Codable, Sendable {
         if kilometres != 0 { try container.encode(kilometres, forKey: .kilometres) }
         // 1.0 and 1.1 decode a site day by its keys and skip this one.
         if !moves.isEmpty { try container.encode(moves, forKey: .moves) }
+        try container.encodeIfPresent(noWork, forKey: .noWork)
     }
 }

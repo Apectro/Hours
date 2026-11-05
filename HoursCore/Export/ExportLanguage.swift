@@ -404,6 +404,15 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           sl: "Drugo gradbišče", it: "Altro cantiere", fr: "Autre chantier",
                                           es: "Otra obra", pt: "Outra obra", nl: "Andere bouwplaats",
                                           pl: "Inna budowa")
+        case .noWork:         return pick(en: "No work", de: "Keine Arbeit", hr: "Nije se radilo",
+                                          sl: "Ni bilo dela", it: "Nessun lavoro", fr: "Pas de travail",
+                                          es: "Sin trabajo", pt: "Sem trabalho", nl: "Geen werk",
+                                          pl: "Brak pracy")
+        case .crewOnOtherSite: return pick(en: "Crew on another site", de: "Kolonne auf anderer Baustelle",
+                                          hr: "Ekipa na drugom gradilištu", sl: "Ekipa na drugem gradbišču",
+                                          it: "Squadra in un altro cantiere", fr: "Équipe sur un autre chantier",
+                                          es: "Cuadrilla en otra obra", pt: "Equipa noutra obra",
+                                          nl: "Ploeg op andere bouwplaats", pl: "Ekipa na innej budowie")
         case .leaveDays:      return pick(en: "Leave days", de: "Urlaubstage", hr: "Dani dopusta",
                                           sl: "Dnevi dopusta", it: "Giorni di ferie", fr: "Jours de congé",
                                           es: "Días de permiso", pt: "Dias de licença", nl: "Verlofdagen",
@@ -618,6 +627,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case sickDays, leaveDays
     /// An absent person's cell: working on another site.
     case otherSite
+    /// A site day nobody worked (the "N not written" sheet): "No work",
+    /// then why — "Crew on another site", or a day type's word.
+    case noWork, crewOnOtherSite
     /// A crew member's own sheet: which site a day was on, and why they were
     /// not there.
     case site, reason

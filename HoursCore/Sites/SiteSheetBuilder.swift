@@ -326,11 +326,12 @@ struct SiteSheetBuilder: Sendable {
     }
 
     /// The day's note, led by "Bad weather" on a day the crew was rained
-    /// off, so a director scanning the notes sees why the hours stop short.
+    /// off, so a director scanning the notes sees why the hours stop short,
+    /// and by "No work · Day off" on a day nobody worked
+    /// (`SiteDay.sheetLead(in:)`).
     func noteText(for day: SiteDay, language: ExportLanguage) -> String {
-        guard day.isBadWeatherStop else { return day.note }
-        let note = day.note.trimmingCharacters(in: .whitespacesAndNewlines)
-        return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
+        guard day.sheetLead(in: language) != nil else { return day.note }
+        return day.sheetNote(in: language)
     }
 
     enum AbsenceKind { case sick, leave, other }

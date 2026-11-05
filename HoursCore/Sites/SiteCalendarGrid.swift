@@ -93,7 +93,7 @@ enum SiteCalendarGrid {
     static func hasTile(_ status: SiteDayStatus) -> Bool {
         switch status {
         case .written, .partly, .missing: return true
-        case .dayOff, .future: return false
+        case .dayOff, .future, .noWork, .elsewhere: return false
         }
     }
 

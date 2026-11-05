@@ -22,13 +22,21 @@ enum SiteDayStatus: Hashable, Sendable {
     case dayOff
     /// A work day from today on with nothing written yet: today is not over.
     case future
+    /// Recorded as "no work" (`SiteDay.isNoWorkDay`): nobody worked here,
+    /// for a reason. Drawn like a day off, with the reason's word.
+    case noWork
+    /// A work day with nothing written, on which everyone expected here was
+    /// on another of your sites (`SiteCrewCheck.isAllElsewhere`): not
+    /// missing, drawn like a day off, and no reminder asks about it.
+    case elsewhere
 
     /// One day's status.
     ///
     /// `crew` is the people expected on that day
     /// (`SiteCrewCheck.expected(on:)`): anyone in it with no entry and no
     /// reason makes a written day `.partly`.
-    /// `holidays` are date keys of public holidays.
+    /// `holidays` are date keys of public holidays. `crewElsewhere`: every
+    /// person expected that day was on another of your sites.
     static func of(
         siteID: UUID,
         on date: CalendarDate,
@@ -37,9 +45,11 @@ enum SiteDayStatus: Hashable, Sendable {
         crew: Set<UUID>,
         today: CalendarDate,
         calendar: Calendar,
-        holidays: Set<Int> = []
+        holidays: Set<Int> = [],
+        crewElsewhere: Bool = false
     ) -> SiteDayStatus {
         if let day = siteDays.first(where: { $0.siteID == siteID && $0.date == date }) {
+            if day.isNoWorkDay { return .noWork }
             let unaccounted = crew.contains { day.attendance(for: $0) == nil && day.absenceReason(for: $0) == nil }
             return unaccounted ? .partly : .written
         }
@@ -47,6 +57,7 @@ enum SiteDayStatus: Hashable, Sendable {
             siteID, on: date, setup: setup, siteDays: siteDays, calendar: calendar, holidays: holidays
         )
         guard expected else { return .dayOff }
+        if crewElsewhere { return .elsewhere }
         return date < today ? .missing : .future
     }
 
@@ -87,7 +98,8 @@ enum SiteDayStatus: Hashable, Sendable {
         for date in month.range(in: calendar).days(in: calendar) {
             result[date] = of(
                 siteID: siteID, on: date, siteDays: ours, setup: setup, crew: check.expected(on: date),
-                today: today, calendar: calendar, holidays: holidays
+                today: today, calendar: calendar, holidays: holidays,
+                crewElsewhere: check.isAllElsewhere(on: date)
             )
         }
         return result
