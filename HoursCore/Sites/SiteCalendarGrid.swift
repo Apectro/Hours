@@ -26,6 +26,7 @@ enum SiteCalendarGrid {
     /// - `siteDays`: every site's days over `fetchRange(of:calendar:)`.
     /// - `members`: every site's crew, hidden people too
     ///   (`SiteMonthOverview.crew`).
+    /// - `active`: the days the site was there to be worked.
     static func statuses(
         layout: MonthLayout,
         siteID: UUID,
@@ -34,7 +35,8 @@ enum SiteCalendarGrid {
         setup: SiteSetup,
         today: CalendarDate,
         calendar: Calendar,
-        holidays: Set<Int>
+        holidays: Set<Int>,
+        active: SiteActiveDays = .always
     ) -> [CalendarDate: SiteDayStatus] {
         var months: [YearMonth] = []
         for date in layout.days where !months.contains(date.yearMonth) {
@@ -52,7 +54,7 @@ enum SiteCalendarGrid {
             )
             let statuses = SiteDayStatus.month(
                 month, siteID: siteID, siteDays: days, setup: setup, check: check,
-                today: today, calendar: calendar, holidays: holidays
+                today: today, calendar: calendar, holidays: holidays, active: active
             )
             for (date, status) in statuses where drawn.contains(date) {
                 result[date] = status
@@ -73,7 +75,8 @@ enum SiteCalendarGrid {
 
     /// The crew's minutes on this site in each row's whole week, in row
     /// order (`CalendarWeekTotals.weeks`): hidden weekends and the
-    /// neighbouring months' days count.
+    /// neighbouring months' days count; a day recorded as "no work" does
+    /// not, whatever is ticked on it.
     static func weekMinutes(
         of layout: MonthLayout,
         siteID: UUID,
@@ -81,32 +84,56 @@ enum SiteCalendarGrid {
         calculator: SiteDayCalculator,
         calendar: Calendar
     ) -> [Int] {
-        let ours = siteDays.filter { $0.siteID == siteID }
+        let ours = siteDays.filter { $0.siteID == siteID && !$0.isNoWorkDay }
         let minutes = ours.map { (date: $0.date, minutes: calculator.compute($0).crewTotalMinutes) }
         return CalendarWeekTotals.weeks(of: layout, calendar: calendar).map { week in
             minutes.reduce(0) { total, day in week.contains(day.date) ? total + day.minutes : total }
         }
     }
 
-    /// Whether a day of the site sits on a tile: written, partly written,
-    /// or a work day nobody wrote. Today always does; that is the view's.
-    static func hasTile(_ status: SiteDayStatus) -> Bool {
-        switch status {
-        case .written, .partly, .missing: return true
-        case .dayOff, .future, .noWork, .elsewhere: return false
+    /// How each drawn day looks (`SiteCalendarDayLook`): its status, the
+    /// public holiday off on it (`holidays`, by date, over the whole grid:
+    /// `HolidayResolver.daysOff`), and whether a day off is one the site is
+    /// paused on.
+    static func looks(
+        layout: MonthLayout,
+        statuses: [CalendarDate: SiteDayStatus],
+        holidays: [CalendarDate: String],
+        siteID: UUID,
+        siteDays: [SiteDay],
+        setup: SiteSetup,
+        today: CalendarDate,
+        calendar: Calendar,
+        active: SiteActiveDays = .always
+    ) -> [CalendarDate: SiteCalendarDayLook] {
+        var unpaused = setup
+        unpaused.pause = nil
+        let ours = siteDays.filter { $0.siteID == siteID }
+        var result: [CalendarDate: SiteCalendarDayLook] = [:]
+        for date in layout.days {
+            result[date] = SiteCalendarDayLook.of(
+                statuses[date] ?? .dayOff,
+                holidayName: holidays[date],
+                isPaused: setup.isPaused(on: date) && active.contains(date)
+            ) {
+                SiteWorkDays.expects(
+                    siteID, on: date, setup: unpaused, siteDays: ours, calendar: calendar, today: today
+                )
+            }
         }
+        return result
     }
 
     /// Which rows have no tile at all, today's included: drawn shorter, as
-    /// on Today (`CalendarWeekTotals.shortRows`).
+    /// on Today (`CalendarWeekTotals.shortRows`). A holiday is on a tile.
     static func shortRows(
         of layout: MonthLayout,
-        statuses: [CalendarDate: SiteDayStatus],
+        looks: [CalendarDate: SiteCalendarDayLook],
         today: CalendarDate
     ) -> [Bool] {
         CalendarWeekTotals.rows(of: layout).map { row in
             !row.contains { date in
-                date == today || statuses[date].map(hasTile) == true
+                date == today || looks[date]?.hasTile == true
             }
         }
     }

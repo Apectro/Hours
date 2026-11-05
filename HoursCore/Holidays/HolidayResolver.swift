@@ -56,6 +56,19 @@ struct HolidayResolver: Sendable {
         }.map(\.key))
     }
 
+    /// The holidays off in `range`, each by the name of the one that
+    /// decides the day (`primaryHoliday(on:)`): the days `daysOffKeys`
+    /// gives, named, for a site's month to draw as the personal calendar
+    /// draws them.
+    func daysOff(in range: CalendarDateRange, calendar: Calendar) -> [CalendarDate: String] {
+        var result: [CalendarDate: String] = [:]
+        for date in range.days(in: calendar) {
+            guard let holiday = primaryHoliday(on: date), !holiday.countsAsWorkingDay else { continue }
+            result[date] = holiday.name
+        }
+        return result
+    }
+
     static func empty(calendar: Calendar) -> HolidayResolver {
         HolidayResolver(rules: [], calendar: calendar, years: [])
     }
