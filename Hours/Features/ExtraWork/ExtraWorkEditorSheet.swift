@@ -103,6 +103,13 @@ struct ExtraWorkEditorSheet: View {
     var body: some View {
         NavigationStack(path: $path) {
             Form {
+                // The tip (2026-11-05): scan the box, until material was
+                // added once.
+                if let tip {
+                    Section {
+                        TipCard(tip: tip)
+                    }
+                }
                 // A read-only site's job can still be looked through;
                 // nothing in it changes.
                 descriptionSection
@@ -230,6 +237,18 @@ struct ExtraWorkEditorSheet: View {
         } message: {
             Text("Its material, hours, photos and signature are deleted with it.")
         }
+    }
+
+    /// "Scan the box": no material on the job, the camera scanner can run,
+    /// and nothing was ever added (the remembered items are empty). Only
+    /// once they are read, so it does not flash for someone who has them.
+    private var tip: TipID? {
+        guard loaded, canEdit else { return nil }
+        return settingsStore.settings.tip(for: .extraWorkEditor, facts: TipFacts(
+            materialIsEmpty: draft.items.isEmpty,
+            scannerIsAvailable: BarcodeScanning.cameraIsAvailable,
+            materialUsedBefore: !catalog.isEmpty
+        ))
     }
 
     // MARK: - What was done

@@ -32,6 +32,9 @@ struct SiteEditorSheet: View {
     /// (`AppSettings.siteSetups`); read once when the sheet opens.
     @State private var setup = SiteSetup()
     @State private var loadedSetup = false
+    /// The pages pushed inside the sheet; the work days already, from the
+    /// site's tip (2026-11-05).
+    @State private var path: [SiteEditorRoute]
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -43,8 +46,11 @@ struct SiteEditorSheet: View {
     private let otherActiveSites: Int
     private let wasArchived: Bool
 
-    init(site: Site, isNew: Bool, isReadOnly: Bool = false, otherActiveSites: Int = 0) {
+    /// - Parameter opensWorkDays: opens on the work days, as the site's
+    ///   "Set work days" tip asks. Back is the rest of the settings and Save.
+    init(site: Site, isNew: Bool, isReadOnly: Bool = false, otherActiveSites: Int = 0, opensWorkDays: Bool = false) {
         _draft = State(initialValue: site)
+        _path = State(initialValue: opensWorkDays ? [.workDays] : [])
         self.isNew = isNew
         self.isReadOnly = isReadOnly
         self.otherActiveSites = otherActiveSites
@@ -52,7 +58,7 @@ struct SiteEditorSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Form {
                 Section {
                     LabeledContent("Name") {
@@ -210,6 +216,9 @@ struct SiteEditorSheet: View {
                 loadCandidates()
             }
         }
+        // On the stack too: opened on the work days, the form under them
+        // has not appeared yet, and the days must be the stored ones.
+        .onAppear(perform: loadSetup)
     }
 
     /// "Ground – Roof · 4", or the first floor alone.
@@ -527,6 +536,8 @@ private struct SiteWorkDaysScreen: View {
                 Text("Reminders only nag on these days. With none ticked, they go by the days the site was worked lately.")
             }
         }
+        // A screen the UI tests wait for, on the form.
+        .accessibilityIdentifier("screen-site-work-days")
         .navigationTitle("Work days here")
         .navigationBarTitleDisplayMode(.inline)
     }
