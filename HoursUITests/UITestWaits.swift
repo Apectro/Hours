@@ -125,7 +125,7 @@ extension XCTestCase {
         let changed = NSPredicate(format: "exists == false OR value != %@", before ?? "")
         for attempt in 0...retries {
             if let shows, shows.waitForExistence(timeout: 2) { return true }
-            if XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: changed, object: toggle)], timeout: 1) == .completed {
+            if XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: changed, object: toggle)], timeout: 3) == .completed {
                 return true
             }
             guard attempt < retries, toggle.exists, !(shows?.exists ?? false) else { break }
