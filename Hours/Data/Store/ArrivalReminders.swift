@@ -124,9 +124,21 @@ enum ArrivalReminders {
         // asks about it.
         var siteToday = ArrivalReminderPolicy.SiteToday.written
         if event == .left && !isClockRunning {
-            let onDate = sites.siteDays(siteID: site.id, in: CalendarDateRange(single: date))
+            // Every site's days over the look-back: today's crew may all be
+            // on another of your sites, and then there is nothing to write.
+            let recent = sites.siteDays(
+                siteID: nil,
+                in: CalendarDateRange(start: date.adding(days: -SiteWorkDays.lookBackDays, in: calendar), end: date)
+            )
+            var isWritten = SiteReminderPlan.isWritten(siteID: site.id, on: date, siteDays: recent)
+            if !isWritten {
+                let members = sites.sites(includeArchived: true).flatMap { sites.crew(for: $0.id, includeHidden: true) }
+                isWritten = SiteMonthOverview.isCrewElsewhere(
+                    siteID: site.id, on: date, members: members, siteDays: recent, calendar: calendar
+                )
+            }
             siteToday = ArrivalReminderPolicy.SiteToday(
-                isWritten: SiteReminderPlan.isWritten(siteID: site.id, on: date, siteDays: onDate),
+                isWritten: isWritten,
                 sameAsLastDay: sites.sameAsLastDay(siteID: site.id, on: date)
             )
         }
@@ -137,6 +149,8 @@ enum ArrivalReminders {
             today: today,
             isClockRunning: isClockRunning,
             siteToday: siteToday,
+            // Paused (Site settings): no question either way.
+            isPaused: HoursStack.settings.settings.siteSetup(for: site.id).isPaused(on: date),
             log: log,
             now: instant
         )

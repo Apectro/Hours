@@ -127,18 +127,25 @@ final class SiteCalendarGridTests: XCTestCase {
     // MARK: - Tiles and short rows
 
     func testWrittenPartlyAndMissingDaysHaveATile() {
-        XCTAssertTrue(SiteCalendarGrid.hasTile(.written))
-        XCTAssertTrue(SiteCalendarGrid.hasTile(.partly))
-        XCTAssertTrue(SiteCalendarGrid.hasTile(.missing))
-        XCTAssertFalse(SiteCalendarGrid.hasTile(.dayOff))
-        XCTAssertFalse(SiteCalendarGrid.hasTile(.future))
+        func tile(_ status: SiteDayStatus) -> Bool {
+            SiteCalendarDayLook.of(status, holidayName: nil, isPaused: false) { false }.hasTile
+        }
+        XCTAssertTrue(tile(.written))
+        XCTAssertTrue(tile(.partly))
+        XCTAssertTrue(tile(.missing))
+        XCTAssertFalse(tile(.dayOff))
+        XCTAssertFalse(tile(.future))
     }
 
     func testRowsWithNoTileAndNotTodayAreShort() {
         let today = Fixture.date(2026, 11, 18)
         let result = statuses([], today: today)
+        let looks = SiteCalendarGrid.looks(
+            layout: november(), statuses: result, holidays: [:], siteID: site, siteDays: [],
+            setup: setup, today: today, calendar: calendar
+        )
 
-        let short = SiteCalendarGrid.shortRows(of: november(), statuses: result, today: today)
+        let short = SiteCalendarGrid.shortRows(of: november(), looks: looks, today: today)
 
         // Rows 0–2 are missed work days, row 3 has today; the rest is to come.
         XCTAssertEqual(short, [false, false, false, false, true, true])

@@ -90,6 +90,9 @@ struct ExportScreen: View {
     @State private var asksForName = false
     @State private var typedName = ""
     @State private var nameAnswered = false
+    /// Some day is written, yours or a site's: with a site, what makes the
+    /// name's tip worth showing. Read once when the screen opens.
+    @State private var hasRecords = false
 
     /// A site's diary follows its hours unless switched off.
     @State private var includesDiary = true
@@ -172,6 +175,7 @@ struct ExportScreen: View {
                         rangeKind = preferred
                     }
                     if primarySiteID == nil { primarySiteID = pickableSites.first?.id }
+                    hasRecords = WorkdayRepository(context: modelContext).firstRecordedDate() != nil
                     loadPeople()
                     regenerate()
                 }
@@ -208,6 +212,15 @@ struct ExportScreen: View {
     /// with one line under it. PDF and Excel are pinned under the list.
     private var list: some View {
         List {
+            // The tip (2026-11-05): your name is not on the sheets yet.
+            if let tip {
+                Section {
+                    TipCard(tip: tip) {
+                        typedName = ""
+                        asksForName = true
+                    }
+                }
+            }
             if !pickableSites.isEmpty {
                 Section {
                     ExportTargetPicker(mode: $mode)
@@ -557,6 +570,17 @@ struct ExportScreen: View {
         return people.first { CrewCandidates.key(for: $0.name) == key }
     }
 
+    /// "Put your name on the sheets", while it is not set and there is a
+    /// site or a day to send; not for one person's sheet, which carries
+    /// theirs.
+    private var tip: TipID? {
+        guard mode != .onePerson else { return nil }
+        return settings.tip(for: .export, facts: .export(
+            ownerName: settings.export.ownerName,
+            hasSitesOrDays: !allSites.isEmpty || hasRecords
+        ))
+    }
+
     private var needsName: Bool { mode != .onePerson && !nameAnswered && ownerName.isEmpty }
 
     /// One sheet per person is a crew sheet's option.
@@ -804,7 +828,9 @@ struct ExportScreen: View {
         let statuses = sheetSites.map { site in
             SiteDayStatus.month(
                 month, siteID: site.id, siteDays: siteDays, setup: settings.siteSetup(for: site.id),
-                crew: [], today: today, calendar: calendar, holidays: holidays
+                crew: [], today: today, calendar: calendar, holidays: holidays,
+                // As the site's month reads it: nothing before its first day.
+                active: SiteMonthStatuses.activeDays(of: site, repository: repository, today: today, calendar: calendar)
             )
         }
         missingDates = SiteDayStatus.missingDays(merging: statuses)

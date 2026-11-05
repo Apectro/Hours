@@ -280,7 +280,7 @@ struct SettingsIndex {
     static let moreSections: [[String]] = [
         ["settings-jobs", "settings-materials", "settings-fields", "settings-calendar", "settings-theme"],
         ["settings-icloud-backup", "settings-privacy"],
-        ["settings-help", "settings-rate", "settings-feedback"],
+        ["settings-help", "settings-tips", "settings-rate", "settings-feedback"],
     ]
 
     /// Every entry whose title, value or keywords hold what was typed,
@@ -466,6 +466,15 @@ struct SettingsIndex {
                 systemImage: "questionmark.circle",
                 tint: .green,
                 kind: .page(AnyView(HelpScreen(sendFeedback: sendFeedback, rate: rate)))
+            ),
+            SettingsEntry(
+                id: "settings-tips",
+                title: String(localized: "Tips"),
+                detail: settings.tips.isEnabled ? String(localized: "On") : String(localized: "Off"),
+                keywords: String(localized: "tips, hints, banner, help", comment: "Settings search words for Tips"),
+                systemImage: "lightbulb",
+                tint: .yellow,
+                kind: .page(AnyView(TipsSettingsScreen()))
             ),
             SettingsEntry(
                 id: "settings-rate",

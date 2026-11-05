@@ -52,6 +52,8 @@ enum ArrivalReminderPolicy {
         /// Leaving with no clock running, and the site's day for today is
         /// already written: nothing to ask.
         case alreadyWritten
+        /// The site is paused today (`SitePause`): it asks nothing at all.
+        case paused
     }
 
     enum Decision: Hashable, Sendable {
@@ -66,7 +68,9 @@ enum ArrivalReminderPolicy {
 
     /// What the site holds for today, for leaving with no clock running.
     struct SiteToday: Hashable, Sendable {
-        /// Whether the site has a day for today (`SiteReminderPlan.isWritten`).
+        /// Whether the site has a day for today (`SiteReminderPlan.isWritten`),
+        /// or needs none: everyone expected was on another of your sites
+        /// (`SiteMonthOverview.isCrewElsewhere`).
         var isWritten: Bool
         /// What "Same as last day" would write today
         /// (`SiteRepository.sameAsLastDay`), nil when there is no last day.
@@ -87,10 +91,13 @@ enum ArrivalReminderPolicy {
         today: DayComputation,
         isClockRunning: Bool,
         siteToday: SiteToday = .written,
+        isPaused: Bool = false,
         log: ArrivalReminderLog,
         now: Date
     ) -> Decision {
         guard site.monitorsArrival else { return .quiet(.notWatched) }
+        // A paused site expects nobody: no question either way.
+        if isPaused { return .quiet(.paused) }
         let ask: Decision
         switch event {
         case .arrived:

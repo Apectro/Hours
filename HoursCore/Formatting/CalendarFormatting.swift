@@ -58,6 +58,12 @@ struct CalendarFormatting: Sendable {
         formatter("LLLL").string(from: month.firstDay.date(in: calendar))
     }
 
+    /// A month grid's heading: "August" in the year of `today`, "August
+    /// 2025" in any other, so a month paged across New Year says which.
+    func monthHeading(_ month: YearMonth, today: CalendarDate) -> String {
+        month.year == today.year ? monthName(month) : monthTitle(month)
+    }
+
     /// "Aug"
     func monthAbbreviation(_ month: YearMonth) -> String {
         formatter("MMM").string(from: month.firstDay.date(in: calendar))

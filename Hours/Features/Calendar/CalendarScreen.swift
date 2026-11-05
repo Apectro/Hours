@@ -65,6 +65,13 @@ struct CalendarScreen: View {
             ScrollViewReader { scroller in
                 List {
                     header
+                    // The tip (2026-11-05), under the title: the week's
+                    // days can be swiped.
+                    if let tip {
+                        Section {
+                            TipCard(tip: tip)
+                        }
+                    }
                     PeriodDataProvider(range: fetchedRange) { data in
                         CalendarPeriodView(
                             layout: layout,
@@ -425,8 +432,21 @@ struct CalendarScreen: View {
     /// View did before the segmented control replaced it.
     private func setScope(_ newScope: CalendarScope) {
         withAnimation(.snappy(duration: 0.25)) {
-            settingsStore.update { $0.calendar.preferredScope = newScope }
+            settingsStore.update {
+                // "Swipe a day" is for the first time the week's list is
+                // shown: leaving it while the tip is up hides it for good.
+                if $0.calendar.preferredScope == .week, newScope != .week,
+                   $0.tip(for: .calendarWeek, facts: TipFacts(weekListIsShown: true)) == .swipeDays {
+                    $0.tips.dismiss(.swipeDays)
+                }
+                $0.calendar.preferredScope = newScope
+            }
         }
+    }
+
+    /// "Swipe a day", while the week's list is on screen.
+    private var tip: TipID? {
+        settings.tip(for: .calendarWeek, facts: TipFacts(weekListIsShown: scope == .week))
     }
 
     /// "I worked the usual day": today with the week's times, saved in one

@@ -43,6 +43,10 @@ struct SiteSetup: Hashable, Codable, Sendable {
     /// "Open defects on the sign-off": the site's sheet lists its open
     /// defects after the crew's signatures.
     var defectsOnSignOff: Bool
+    /// Paused (Site settings › Paused): no day is expected while it is
+    /// (`SiteWorkDays.expects`), so nothing reads as not written and no
+    /// reminder comes. Nil when not paused; written only when set.
+    var pause: SitePause?
 
     init(
         start: TimeOfDay? = nil,
@@ -56,7 +60,8 @@ struct SiteSetup: Hashable, Codable, Sendable {
         floors: [String]? = nil,
         rooms: [String] = [],
         assignsDefects: Bool = false,
-        defectsOnSignOff: Bool = false
+        defectsOnSignOff: Bool = false,
+        pause: SitePause? = nil
     ) {
         self.start = start
         self.end = end
@@ -70,6 +75,7 @@ struct SiteSetup: Hashable, Codable, Sendable {
         self.rooms = SiteFloors.normalised(rooms)
         self.assignsDefects = assignsDefects
         self.defectsOnSignOff = defectsOnSignOff
+        self.pause = pause
     }
 
     /// Both times are set, so a new day can start with them.
@@ -80,7 +86,7 @@ struct SiteSetup: Hashable, Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case start, end, breakMinutes, workDays, asksKilometres, eveningReminder, monthlySheet, keepsDiary
-        case floors, rooms, assignsDefects, defectsOnSignOff
+        case floors, rooms, assignsDefects, defectsOnSignOff, pause
     }
 
     init(from decoder: Decoder) throws {
@@ -97,7 +103,8 @@ struct SiteSetup: Hashable, Codable, Sendable {
             floors: container.lenientOptional(.floors, [String].self),
             rooms: container.lenient(.rooms, [String]()),
             assignsDefects: container.lenient(.assignsDefects, false),
-            defectsOnSignOff: container.lenient(.defectsOnSignOff, false)
+            defectsOnSignOff: container.lenient(.defectsOnSignOff, false),
+            pause: container.lenientOptional(.pause, SitePause.self)
         )
     }
 
@@ -116,6 +123,7 @@ struct SiteSetup: Hashable, Codable, Sendable {
         if !rooms.isEmpty { try container.encode(rooms, forKey: .rooms) }
         if assignsDefects { try container.encode(true, forKey: .assignsDefects) }
         if defectsOnSignOff { try container.encode(true, forKey: .defectsOnSignOff) }
+        try container.encodeIfPresent(pause, forKey: .pause)
     }
 
     /// Monday to Friday: what a week with no working day falls back to.
@@ -290,17 +298,25 @@ enum SiteWorkDays {
     }
 
     /// Whether a day on the site is expected on `date`: one of its weekdays,
-    /// and not a public holiday (`holidays`, date keys).
+    /// not a public holiday (`holidays`, date keys), and the site not paused.
+    ///
+    /// `today`, when given: a day still to come uses the weekdays as worked
+    /// lately as of today (the days up to and including today). Inferred
+    /// from its own date, a day more than `lookBackDays` ahead has no days
+    /// before it to look at and would read as a day off.
     static func expects(
         _ siteID: UUID,
         on date: CalendarDate,
         setup: SiteSetup,
         siteDays: [SiteDay],
         calendar: Calendar,
-        holidays: Set<Int> = []
+        holidays: Set<Int> = [],
+        today: CalendarDate? = nil
     ) -> Bool {
-        guard !holidays.contains(date.key) else { return false }
-        return weekdays(of: siteID, setup: setup, siteDays: siteDays, before: date, calendar: calendar)
+        guard !holidays.contains(date.key), !setup.isPaused(on: date) else { return false }
+        var inferredFrom = date
+        if let today, date > today { inferredFrom = today.adding(days: 1, in: calendar) }
+        return weekdays(of: siteID, setup: setup, siteDays: siteDays, before: inferredFrom, calendar: calendar)
             .contains(date.weekday(in: calendar))
     }
 }

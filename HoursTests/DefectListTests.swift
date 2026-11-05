@@ -540,15 +540,17 @@ final class DefectListTests: XCTestCase {
         XCTAssertFalse(document.cards[0].noted.contains(" by "), "no name, no by")
     }
 
-    func testTheBylineAndTheFooter() {
+    func testTheEyebrowTheBylineAndTheFooter() {
         let document = document()
-        XCTAssertTrue(document.byline.hasPrefix("Ilica 207C · as of "), document.byline)
-        XCTAssertTrue(document.byline.contains("4 Nov 2026"), document.byline)
-        XCTAssertTrue(document.byline.hasSuffix(" · Marijo Mikša"), document.byline)
+        // Over the site's name in small orange capitals; the day is said
+        // there, so the byline is only where and who.
+        XCTAssertTrue(document.eyebrow.hasPrefix("Defects · as of "), document.eyebrow)
+        XCTAssertTrue(document.eyebrow.hasSuffix("4 Nov 2026"), document.eyebrow)
+        XCTAssertEqual(document.byline, "Ilica 207C · Marijo Mikša")
         XCTAssertEqual(document.footer, "Trg Pravde Zagreb · Defects · as of 4 Nov 2026")
         XCTAssertEqual(document.pageText(2, of: 4), "Page 2 of 4")
         let anonymous = self.document(owner: "")
-        XCTAssertEqual(anonymous.byline.components(separatedBy: " · ").count, 2, anonymous.byline)
+        XCTAssertEqual(anonymous.byline, "Ilica 207C")
     }
 
     func testThePDFWordsInGermanAndTheirPlurals() {
@@ -559,6 +561,7 @@ final class DefectListTests: XCTestCase {
         )
         XCTAssertEqual(german.statusText(.longOpen(days: 9)), "Offen · 9 Tage")
         XCTAssertEqual(german.footer, "Trg Pravde Zagreb · Mängel · Stand \(german.formattedDate)")
+        XCTAssertTrue(german.eyebrow.hasPrefix("Mängel · Stand "), german.eyebrow)
         XCTAssertEqual(ExportLanguage.german.days(1), "1 Tag")
         XCTAssertEqual(ExportLanguage.croatian.days(1), "1 dan")
         XCTAssertEqual(ExportLanguage.croatian.days(3), "3 dana")

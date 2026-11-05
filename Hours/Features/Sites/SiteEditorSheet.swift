@@ -32,6 +32,11 @@ struct SiteEditorSheet: View {
     /// (`AppSettings.siteSetups`); read once when the sheet opens.
     @State private var setup = SiteSetup()
     @State private var loadedSetup = false
+    /// The pages pushed inside the sheet; the work days already, from the
+    /// site's tip (2026-11-05).
+    @State private var path: [SiteEditorRoute]
+    /// Opened on the work days: they have Save of their own.
+    private let opensWorkDays: Bool
 
     private let isNew: Bool
     /// One of the extra sites after Pro lapsed. Its name and job stay as they
@@ -43,8 +48,12 @@ struct SiteEditorSheet: View {
     private let otherActiveSites: Int
     private let wasArchived: Bool
 
-    init(site: Site, isNew: Bool, isReadOnly: Bool = false, otherActiveSites: Int = 0) {
+    /// - Parameter opensWorkDays: opens on the work days, as the site's
+    ///   "Set work days" tip asks. Back is the rest of the settings and Save.
+    init(site: Site, isNew: Bool, isReadOnly: Bool = false, otherActiveSites: Int = 0, opensWorkDays: Bool = false) {
         _draft = State(initialValue: site)
+        _path = State(initialValue: opensWorkDays ? [.workDays] : [])
+        self.opensWorkDays = opensWorkDays
         self.isNew = isNew
         self.isReadOnly = isReadOnly
         self.otherActiveSites = otherActiveSites
@@ -52,7 +61,7 @@ struct SiteEditorSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Form {
                 Section {
                     LabeledContent("Name") {
@@ -112,6 +121,10 @@ struct SiteEditorSheet: View {
                 }
 
                 usualDaySection
+
+                if !isNew {
+                    pausedSection
+                }
 
                 Section {
                     // Only while the allowance is tracked (Settings › Allowance
@@ -183,7 +196,13 @@ struct SiteEditorSheet: View {
                 case .arrival:
                     SiteArrivalScreen(site: $draft, isReadOnly: isReadOnly, otherSites: otherSites)
                 case .workDays:
-                    SiteWorkDaysScreen(days: $setup.workDays, isReadOnly: isReadOnly)
+                    SiteWorkDaysScreen(
+                        days: $setup.workDays,
+                        isReadOnly: isReadOnly,
+                        // From the tip, the days are what was asked for:
+                        // saved from here, without going back first.
+                        onSave: opensWorkDays && !isReadOnly ? save : nil
+                    )
                 case .floors:
                     SiteFloorsScreen(floors: $setup.floors, isReadOnly: isReadOnly)
                 }
@@ -206,6 +225,9 @@ struct SiteEditorSheet: View {
                 loadCandidates()
             }
         }
+        // On the stack too: opened on the work days, the form under them
+        // has not appeared yet, and the days must be the stored ones.
+        .onAppear(perform: loadSetup)
     }
 
     /// "Ground – Roof · 4", or the first floor alone.
@@ -247,6 +269,99 @@ struct SiteEditorSheet: View {
         } footer: {
             Text("A new day on this site starts with these times for everyone ticked. Change any day or person as usual.")
         }
+    }
+
+    // MARK: - Paused
+
+    /// Paused: from a day, until a day or until turned back on. Nothing is
+    /// expected meanwhile (`SitePause`); a day can still be written.
+    @ViewBuilder
+    private var pausedSection: some View {
+        Section {
+            Toggle("Paused", isOn: isPaused)
+                .accessibilityIdentifier("site-editor-paused")
+                .disabled(isReadOnly)
+            if let pause = setup.pause {
+                DatePicker(
+                    "From",
+                    selection: pauseStart(pause),
+                    displayedComponents: .date
+                )
+                .environment(\.calendar, settingsStore.workCalendar)
+                .accessibilityIdentifier("site-editor-paused-from")
+                .disabled(isReadOnly)
+                Toggle("Until a date", isOn: hasPauseEnd)
+                    .accessibilityIdentifier("site-editor-paused-has-until")
+                    .disabled(isReadOnly)
+                if let end = pause.end {
+                    DatePicker(
+                        "Until",
+                        selection: pauseEnd(pause, end),
+                        in: pause.start.date(in: settingsStore.workCalendar)...,
+                        displayedComponents: .date
+                    )
+                    .environment(\.calendar, settingsStore.workCalendar)
+                    .accessibilityIdentifier("site-editor-paused-until")
+                    .disabled(isReadOnly)
+                } else {
+                    LabeledContent("Until") {
+                        Text("Until I turn it back on")
+                    }
+                }
+            }
+        } header: {
+            Text("Paused")
+        } footer: {
+            Text("No days are expected while a site is paused, so nothing shows as not written and no reminders come.")
+        }
+    }
+
+    private var isPaused: Binding<Bool> {
+        Binding(
+            get: { setup.pause != nil },
+            set: { on in
+                setup.pause = on ? SitePause(start: CalendarDate.today(in: settingsStore.workCalendar)) : nil
+            }
+        )
+    }
+
+    private var hasPauseEnd: Binding<Bool> {
+        Binding(
+            get: { setup.pause?.end != nil },
+            set: { on in
+                guard let pause = setup.pause else { return }
+                let calendar = settingsStore.workCalendar
+                let today = CalendarDate.today(in: calendar)
+                // A week on, or a week after the start when that is later.
+                let suggested = max(today, pause.start).adding(days: 7, in: calendar)
+                setup.pause = SitePause(start: pause.start, end: on ? suggested : nil)
+            }
+        )
+    }
+
+    /// The pause's first day for a picker. A later start carries the end
+    /// along when it would fall before (`SitePause`).
+    private func pauseStart(_ pause: SitePause) -> Binding<Date> {
+        let calendar = settingsStore.workCalendar
+        return Binding(
+            get: { (setup.pause?.start ?? pause.start).date(in: calendar) },
+            set: { picked in
+                let end = setup.pause?.end
+                setup.pause = SitePause(start: CalendarDate(picked, calendar: calendar), end: end)
+            }
+        )
+    }
+
+    /// The pause's last day for a picker.
+    private func pauseEnd(_ pause: SitePause, _ end: CalendarDate) -> Binding<Date> {
+        let calendar = settingsStore.workCalendar
+        return Binding(
+            get: { (setup.pause?.end ?? end).date(in: calendar) },
+            set: { picked in
+                let start = setup.pause?.start ?? pause.start
+                setup.pause = SitePause(start: start, end: CalendarDate(picked, calendar: calendar))
+            }
+        )
     }
 
     /// "Mon–Fri", or "As worked lately" with none ticked.
@@ -419,6 +534,8 @@ enum SiteEditorRoute: Hashable {
 private struct SiteWorkDaysScreen: View {
     @Binding var days: Set<Int>
     let isReadOnly: Bool
+    /// Save from this page, when the settings opened on it.
+    var onSave: (() -> Void)?
 
     @Environment(SettingsStore.self) private var settingsStore
 
@@ -430,7 +547,18 @@ private struct SiteWorkDaysScreen: View {
                 Text("Reminders only nag on these days. With none ticked, they go by the days the site was worked lately.")
             }
         }
+        // A screen the UI tests wait for, on the form.
+        .accessibilityIdentifier("screen-site-work-days")
         .navigationTitle("Work days here")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let onSave {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: onSave)
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("site-work-days-save")
+                }
+            }
+        }
     }
 }

@@ -60,6 +60,10 @@ struct SiteDetailScreen: View {
     @State private var openedLinkedReport = false
     /// The month the page shows; `nil` is this month.
     @State private var shownMonth: YearMonth?
+    /// "N days not written", tapped: the days and why nobody worked.
+    @State private var choosingNoWork: SiteNoWorkRequest?
+    /// The site's settings open on its work days: the tip's "Set work days".
+    @State private var editorOpensWorkDays = false
 
     /// A day rather than the site's page.
     private var showsDay: Bool { initialDate != nil || appliesSameAsLastDay }
@@ -91,11 +95,20 @@ struct SiteDetailScreen: View {
             }
         }
         .onAppear(perform: load)
-        .onChange(of: editing) { _, now in if now == nil { load() } }
+        .onChange(of: editing) { _, now in
+            if now == nil {
+                editorOpensWorkDays = false
+                load()
+            }
+        }
         .onChange(of: reporting) { _, now in if now == nil { load() } }
         .onChange(of: readingDiary) { _, now in if now == nil { load() } }
         .onChange(of: signingOff) { _, now in if now == nil { load() } }
         .onChange(of: shownMonth) { _, _ in load() }
+        .onChange(of: choosingNoWork) { _, now in if now == nil { load() } }
+        .sheet(item: $choosingNoWork) { request in
+            SiteNoWorkSheet(request: request)
+        }
         .sheet(item: $exporting) { site in
             // The Sheet button's month, or the one a link asked for.
             SiteExportScreen(site: site, month: exportingMonth ?? sheetMonth)
@@ -126,7 +139,8 @@ struct SiteDetailScreen: View {
                 site: site,
                 isNew: false,
                 isReadOnly: subscriptions.isReadOnly(site, among: sites),
-                otherActiveSites: sites.filter { !$0.isArchived && $0.id != site.id }.count
+                otherActiveSites: sites.filter { !$0.isArchived && $0.id != site.id }.count,
+                opensWorkDays: editorOpensWorkDays
             )
         }
     }
@@ -238,35 +252,35 @@ struct SiteDetailScreen: View {
 
     private func overview(_ site: Site) -> some View {
         List {
-            Section {
-                Text(verbatim: subtitle(for: site))
-                    .font(.subheadline)
-                    .foregroundStyle(.hoursSecondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
-                    .listRowBackground(Color.clear)
+            // A tip (2026-11-05) goes under the title's line, before the
+            // month: the line belongs to the title.
+            if let tip = tip(for: site) {
+                if !subtitle(for: site).isEmpty {
+                    Section {
+                        subtitleRow(for: site)
+                    }
+                    .listRowSeparator(.hidden)
+                }
 
-                // The same margins as the Today tab's header and month.
-                monthHeader
-                    .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.medium, bottom: Metrics.small, trailing: Metrics.medium))
-                    .listRowBackground(Color.clear)
+                Section {
+                    TipCard(tip: tip, action: tipAction(tip, site: site))
+                }
 
-                // The month sits on the background, not in a card, in the
-                // Today tab's tiles.
-                SiteMonthCalendar(
-                    layout: monthLayout,
-                    statuses: counts.statuses,
-                    people: counts.people,
-                    weekTotals: counts.weekMinutes,
-                    today: today,
-                    formatting: settingsStore.dateFormatting,
-                    durationFormatting: settingsStore.settings.displayFormatting,
-                    onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
-                )
-                .listRowInsets(EdgeInsets(top: 0, leading: Metrics.medium, bottom: 0, trailing: Metrics.medium))
-                .listRowBackground(Color.clear)
+                Section {
+                    monthRows(for: site)
+                }
+                .listRowSeparator(.hidden)
+            } else {
+                Section {
+                    // No empty line under the title for a site with no
+                    // address and no usual times.
+                    if !subtitle(for: site).isEmpty {
+                        subtitleRow(for: site)
+                    }
+                    monthRows(for: site)
+                }
+                .listRowSeparator(.hidden)
             }
-            .listRowSeparator(.hidden)
 
             Section {
                 peopleRows(for: site)
@@ -300,17 +314,108 @@ struct SiteDetailScreen: View {
         }
     }
 
+    /// "Ilica 207C · 7:00 – 15:00, Mon–Fri" under the title.
+    private func subtitleRow(for site: Site) -> some View {
+        Text(verbatim: subtitle(for: site))
+            .font(.subheadline)
+            .foregroundStyle(.hoursSecondaryText)
+            .fixedSize(horizontal: false, vertical: true)
+            .listRowInsets(EdgeInsets(top: 0, leading: Metrics.large + 4, bottom: Metrics.small, trailing: Metrics.large))
+            .listRowBackground(Color.clear)
+    }
+
+    /// The month's header and the month itself, on the background.
+    @ViewBuilder
+    private func monthRows(for site: Site) -> some View {
+        // The same margins as the Today tab's header and month.
+        monthHeader
+            .listRowInsets(EdgeInsets(top: Metrics.medium, leading: Metrics.medium, bottom: Metrics.small, trailing: Metrics.medium))
+            .listRowBackground(Color.clear)
+
+        // The month sits on the background, not in a card, in the
+        // Today tab's tiles.
+        SiteMonthCalendar(
+            layout: monthLayout,
+            looks: counts.looks,
+            people: counts.people,
+            weekTotals: counts.weekMinutes,
+            today: today,
+            formatting: settingsStore.dateFormatting,
+            durationFormatting: settingsStore.settings.displayFormatting,
+            noWork: counts.noWork,
+            holidayTint: settingsStore.settings.dayTypeCatalog.definition(for: .holiday).tint.color,
+            onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
+        )
+        // A sideways swipe pages the month, as ‹ › do and as on the Today
+        // tab. Simultaneous, so the list still scrolls and a day still
+        // takes its tap; only a clearly horizontal drag counts.
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { value in
+                    let width = value.translation.width
+                    guard abs(width) > 50, abs(width) > abs(value.translation.height) * 1.5 else { return }
+                    step(width < 0 ? 1 : -1)
+                }
+        )
+        .listRowInsets(EdgeInsets(top: 0, leading: Metrics.medium, bottom: 0, trailing: Metrics.medium))
+        .listRowBackground(Color.clear)
+    }
+
+    // MARK: - The tip
+
+    /// The site's tip, if any (`TipAdvisor`): its work days not set, or
+    /// days not written in the shown month.
+    private func tip(for site: Site) -> TipID? {
+        let settings = settingsStore.settings
+        return settings.tip(for: .site, facts: .site(
+            setup: settings.siteSetup(for: site.id),
+            siteDays: counts.hasDays ? 1 : 0,
+            crew: counts.crew,
+            daysNotWritten: counts.missing,
+            isReadOnly: subscriptions.isReadOnly(site, among: sites)
+        ))
+    }
+
+    /// "Set work days" opens the site's settings on its work days; "Show
+    /// days" the days not written, as the red count does.
+    private func tipAction(_ tip: TipID, site: Site) -> (() -> Void)? {
+        switch tip {
+        case .siteWorkDays:
+            return {
+                editorOpensWorkDays = true
+                editing = site
+            }
+        case .siteDaysNotWritten:
+            return { choosingNoWork = SiteNoWorkRequest(site: site, month: month) }
+        default:
+            return nil
+        }
+    }
+
     /// "Ilica 207C · 7:00 – 15:00, Mon–Fri": at most two parts, the address
-    /// and the usual day. The crew's size is on the Crew row.
+    /// and the usual day; while the site is paused today, "Paused until
+    /// 12 Nov" instead of the usual day, as on its row in Sites. The crew's
+    /// size is on the Crew row.
     private func subtitle(for site: Site) -> String {
         var parts: [String] = []
         if !site.address.isEmpty {
             parts.append(SiteAddress.singleLine(site.address))
         }
-        if let usualDay = usualDayText(for: site) {
+        if let paused = pausedText(for: site) {
+            parts.append(paused)
+        } else if let usualDay = usualDayText(for: site) {
             parts.append(usualDay)
         }
         return parts.joined(separator: " · ")
+    }
+
+    /// "Paused" or "Paused until 12 Nov" while the site is paused today,
+    /// in the Sites list's words; nil otherwise.
+    private func pausedText(for site: Site) -> String? {
+        guard let pause = settingsStore.settings.siteSetup(for: site.id).pause, pause.contains(today) else { return nil }
+        guard let until = pause.end else { return String(localized: "Paused") }
+        let date = settingsStore.dateFormatting.shortDate(until)
+        return String(localized: "Paused until \(date)", comment: "Sites list: a paused site; the value is the last day paused")
     }
 
     /// "7:00 – 15:00", or nil without usual times.
@@ -323,13 +428,13 @@ struct SiteDetailScreen: View {
     /// "October ‹ ›" on the left, "2 days not written" in red on the right.
     private var monthHeader: some View {
         HStack(spacing: Metrics.tiny) {
-            Text(verbatim: settingsStore.dateFormatting.monthName(month))
+            Text(verbatim: settingsStore.dateFormatting.monthHeading(month, today: today))
                 .font(.title3.weight(.semibold))
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityLabel(settingsStore.dateFormatting.monthTitle(month))
 
             Button {
-                shownMonth = month.adding(months: -1)
+                step(-1)
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.body.weight(.semibold))
@@ -339,27 +444,58 @@ struct SiteDetailScreen: View {
             .accessibilityIdentifier("site-overview-month-previous")
 
             Button {
-                shownMonth = month.adding(months: 1)
+                step(1)
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.body.weight(.semibold))
                     .frame(minWidth: 44, minHeight: 44)
             }
-            .disabled(month >= today.yearMonth)
+            .disabled(!canStep(1))
             .accessibilityLabel(String(localized: "Next month"))
             .accessibilityIdentifier("site-overview-month-next")
 
             Spacer(minLength: Metrics.small)
 
             if counts.missing > 0 {
-                Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hoursMissing)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityIdentifier("site-overview-missing")
+                missingButton
             }
         }
         .buttonStyle(.borderless)
+    }
+
+    /// Whether ‹ or › can go that way: back always, forward up to this
+    /// month, as the arrow is.
+    private func canStep(_ direction: Int) -> Bool {
+        direction < 0 || month < today.yearMonth
+    }
+
+    /// The month before or after the shown one: ‹ ›, and a sideways swipe.
+    private func step(_ direction: Int) {
+        guard canStep(direction) else { return }
+        shownMonth = month.adding(months: direction)
+    }
+
+    /// "2 days not written" in red: on a site that can be changed, a tap
+    /// lists the days and asks why nobody worked (`SiteNoWorkSheet`).
+    @ViewBuilder
+    private var missingButton: some View {
+        let label = Text(String(inflected: "^[\(counts.missing) day](inflect: true) not written"))
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color.hoursMissing)
+            .multilineTextAlignment(.trailing)
+        if let site, !subscriptions.isReadOnly(site, among: sites) {
+            Button {
+                choosingNoWork = SiteNoWorkRequest(site: site, month: month)
+            } label: {
+                label
+                    .frame(minHeight: 44)
+            }
+            .accessibilityHint(String(localized: "Choose why nobody worked on these days"))
+            .accessibilityIdentifier("site-overview-missing")
+        } else {
+            label
+                .accessibilityIdentifier("site-overview-missing")
+        }
     }
 
     /// The people: Crew "5 people" ›, Sign-off "3 of 5" ›.
@@ -600,21 +736,47 @@ struct SiteDetailScreen: View {
         let layout = monthLayout
         let lookBack = SiteCalendarGrid.fetchRange(of: layout, calendar: calendar)
         let allDays = repository.siteDays(siteID: nil, in: lookBack)
-        let members = repository.sites(includeArchived: true).flatMap { repository.crew(for: $0.id, includeHidden: true) }
+        let allSites = repository.sites(includeArchived: true)
+        let members = allSites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
+        // The personal calendar's holidays, over the whole grid and the
+        // look-back before it, each with its name.
+        let holidays = SiteMonthStatuses.holidayNames(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
+        let setup = settings.siteSetup(for: siteID)
+        let active = allSites.first { $0.id == siteID }.map {
+            SiteMonthStatuses.activeDays(of: $0, repository: repository, today: today, calendar: calendar)
+        } ?? .always
         loaded.statuses = SiteCalendarGrid.statuses(
             layout: layout,
             siteID: siteID,
             siteDays: allDays,
             members: members,
-            setup: settings.siteSetup(for: siteID),
+            setup: setup,
             today: today,
             calendar: calendar,
-            holidays: SiteMonthStatuses.holidays(context: modelContext, settings: settings, calendar: calendar, range: lookBack)
+            holidays: Set(holidays.keys.map(\.key)),
+            active: active
+        )
+        loaded.looks = SiteCalendarGrid.looks(
+            layout: layout,
+            statuses: loaded.statuses,
+            holidays: holidays,
+            siteID: siteID,
+            siteDays: allDays,
+            setup: setup,
+            today: today,
+            calendar: calendar,
+            active: active
         )
         loaded.people = SiteCalendarGrid.people(siteID: siteID, siteDays: allDays)
+        for day in allDays where day.siteID == siteID && day.isNoWorkDay {
+            loaded.noWork[day.date] = day.noWork
+        }
         // "N days not written" stays the shown month's own.
         loaded.missing = SiteDayStatus.missingCount(in: loaded.statuses.filter { month.contains($0.key) })
         loaded.writtenToday = repository.siteDay(siteID: siteID, on: today) != nil
+        // Any day on the site at all, for the work days' tip.
+        loaded.hasDays = allDays.contains { $0.siteID == siteID }
+            || repository.lastSiteDay(siteID: siteID, before: today.adding(days: 1, in: calendar)) != nil
 
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
         loaded.weekMinutes = SiteCalendarGrid.weekMinutes(
@@ -652,12 +814,18 @@ private struct SiteCounts {
     var openDefects = 0
     /// Every day the month's grid draws, by status.
     var statuses: [CalendarDate: SiteDayStatus] = [:]
+    /// Every day the month's grid draws, as drawn: holidays, paused days.
+    var looks: [CalendarDate: SiteCalendarDayLook] = [:]
     /// People present on each of the site's days the grid draws.
     var people: [CalendarDate: Int] = [:]
+    /// Why nobody worked, on each day the grid draws recorded as "no work".
+    var noWork: [CalendarDate: SiteNoWorkReason] = [:]
     /// The crew's minutes on the site in each row's week.
     var weekMinutes: [Int] = []
     var missing = 0
     var writtenToday = false
+    /// The site has a day written, ever (as far as one is found).
+    var hasDays = false
     var signOff = SiteMonthOverview.SignOffProgress.notYet
     /// The shown month's days written, hours and bad-weather days.
     var figures: SiteMonthFigures?

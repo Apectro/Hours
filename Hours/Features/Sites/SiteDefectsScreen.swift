@@ -31,6 +31,8 @@ struct SiteDefectsScreen: View {
     @State private var sending = false
     /// The defect a swipe asked to delete, while the question is asked.
     @State private var deleting: Defect?
+    /// The defects were read once, so an empty list is really empty.
+    @State private var loaded = false
 
     private enum Cover: Identifiable {
         case capture
@@ -68,6 +70,13 @@ struct SiteDefectsScreen: View {
                 .accessibilityIdentifier("defects-state")
             }
             .listRowSeparator(.hidden)
+
+            // The tip (2026-11-05), first under Open · Fixed: photo first.
+            if let tip {
+                Section {
+                    TipCard(tip: tip)
+                }
+            }
 
             ForEach(groups, id: \.floor) { group in
                 Section {
@@ -110,6 +119,8 @@ struct SiteDefectsScreen: View {
                     }
                 }
                 .accessibilityIdentifier("defects-empty")
+                // Nothing in it to tap, and the tip's buttons may be under it.
+                .allowsHitTesting(false)
             }
         }
         .accessibilityIdentifier("screen-defects")
@@ -235,6 +246,13 @@ struct SiteDefectsScreen: View {
         CalendarDate.today(in: settingsStore.workCalendar)
     }
 
+    /// "Photo first", while the site has no defects at all and can have
+    /// one added.
+    private var tip: TipID? {
+        guard loaded, canEdit else { return nil }
+        return settingsStore.settings.tip(for: .defects, facts: TipFacts(defectsAreEmpty: defects.isEmpty))
+    }
+
     private var shown: [Defect] {
         DefectList.items(shownState, in: defects)
     }
@@ -252,6 +270,7 @@ struct SiteDefectsScreen: View {
         let repository = DefectRepository(context: modelContext)
         defects = repository.defects(siteID: siteID)
         thumbnails = repository.firstPhotos(siteID: siteID)
+        loaded = true
     }
 }
 

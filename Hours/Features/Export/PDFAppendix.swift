@@ -136,20 +136,21 @@ struct PDFAppendix {
 
     // MARK: - Heading
 
-    /// "Sign-off" in bold over "Bau Süd · August 2026" in grey, ruled off:
-    /// the report header's look, without orange capitals (polish, 2026-11).
+    /// "SIGN-OFF" in the report's orange eyebrow over "Bau Süd · August
+    /// 2026", ruled off.
     private func drawHeading(_ title: String, at y: CGFloat) -> CGFloat {
         PDFReportStyle.draw(
-            title,
-            in: CGRect(x: left, y: y, width: width, height: 14),
-            font: PDFReportStyle.appendixTitleFont,
-            color: PDFReportStyle.ink
+            title.uppercased(with: table.language.locale),
+            in: CGRect(x: left, y: y, width: width, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
         )
         PDFReportStyle.draw(
             [table.title, table.subtitle].filter { !$0.isEmpty }.joined(separator: " · "),
-            in: CGRect(x: left, y: y + 14, width: width, height: 13),
-            font: PDFReportStyle.headerDetailFont,
-            color: PDFReportStyle.secondary
+            in: CGRect(x: left, y: y + 12, width: width, height: 14),
+            font: PDFAppendix.dayFont,
+            color: PDFReportStyle.ink
         )
         PDFReportStyle.line(
             from: CGPoint(x: left, y: y + 29),

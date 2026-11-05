@@ -167,6 +167,8 @@ private struct SitesContent: View {
     @State private var loaded = LoadedSites()
     @State private var isCreating = false
     @State private var paywallReason: ProFeature?
+    /// A row's red "N not written", tapped: the days and why nobody worked.
+    @State private var choosingNoWork: SiteNoWorkRequest?
 
     /// How many months back the list offers a sheet for, this one included.
     private static let sheetMonths = 3
@@ -205,6 +207,7 @@ private struct SitesContent: View {
                             summary: loaded.summaries[site.id] ?? SiteCardSummary(),
                             isReadOnly: isReadOnly,
                             offersSameAsLastDay: !isReadOnly && loaded.canCopyLastDay.contains(site.id),
+                            onNotWritten: { choosingNoWork = SiteNoWorkRequest(site: site, month: month) },
                             onArchive: { SiteArchiving.setArchived(site, true, context: modelContext, settingsStore: settingsStore) }
                         )
                         .tourTarget(site.id == activeSites.first?.id ? .sites : nil)
@@ -273,6 +276,9 @@ private struct SitesContent: View {
             NewSiteWizard()
         }
         .paywall(for: $paywallReason)
+        .sheet(item: $choosingNoWork) { request in
+            SiteNoWorkSheet(request: request)
+        }
         .onChange(of: changeToken, initial: true) { _, _ in
             reload()
         }
@@ -376,7 +382,8 @@ private struct SitesContent: View {
                 settings: settings,
                 calendar: calendar,
                 today: today,
-                holidays: holidays
+                holidays: holidays,
+                active: SiteMonthStatuses.activeDays(of: site, repository: repository, today: today, calendar: calendar)
             )
             let inMonth = siteDays.filter { range.contains($0.date) }
             let writtenToday = siteDays.contains { $0.date == today }
@@ -385,10 +392,14 @@ private struct SitesContent: View {
                 siteDays: siteDays, calendar: calendar, holidays: holidays
             )
             let lastDay = inMonth.isEmpty ? repository.lastSiteDay(siteID: site.id, before: today)?.date : nil
+            // Nobody is expected today when the whole crew is on another site.
+            let openToday = expectedToday && statuses[today] != .elsewhere
             summaries[site.id] = SiteCardSummary(
                 people: visible.count + 1,
-                headline: SiteMonthOverview.headline(statuses),
-                today: writtenToday ? .written : (expectedToday ? .notWritten : .noWork),
+                headline: SiteMonthOverview.headline(
+                    statuses, pause: settings.siteSetup(for: site.id).pause, today: today
+                ),
+                today: writtenToday ? .written : (openToday ? .notWritten : .noWork),
                 monthMinutes: inMonth.reduce(0) { $0 + calculator.compute($1).crewTotalMinutes },
                 lastDay: lastDay
             )
@@ -537,9 +548,39 @@ enum SiteMonthStatuses {
         calendar: Calendar,
         range: CalendarDateRange
     ) -> Set<Int> {
-        guard settings.features.trackHolidays else { return [] }
+        Set(holidayNames(context: context, settings: settings, calendar: calendar, range: range).keys.map(\.key))
+    }
+
+    /// The public holidays off in `range`, by date, each with its name, or
+    /// none when holidays are not tracked: the same rules, the region's and
+    /// your own, that the personal calendar draws (`PeriodEngine.days`).
+    static func holidayNames(
+        context: ModelContext,
+        settings: AppSettings,
+        calendar: Calendar,
+        range: CalendarDateRange
+    ) -> [CalendarDate: String] {
+        guard settings.features.trackHolidays else { return [:] }
         let rules = (try? context.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
-        return HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOffKeys(in: range, calendar: calendar)
+        return HolidayResolver(rules: rules, calendar: calendar, covering: range).daysOff(in: range, calendar: calendar)
+    }
+
+    /// The days the site was there to be worked (`SiteActiveDays`): from
+    /// its first day written, and up to its last once archived.
+    static func activeDays(
+        of site: Site,
+        repository: SiteRepository,
+        today: CalendarDate,
+        calendar: Calendar
+    ) -> SiteActiveDays {
+        let span = repository.writtenSpan(siteID: site.id)
+        return SiteActiveDays.of(
+            firstWritten: span?.first,
+            lastWritten: span?.last,
+            isArchived: site.isArchived,
+            today: today,
+            calendar: calendar
+        )
     }
 
     /// Every day of `month` with its status.
@@ -549,6 +590,7 @@ enum SiteMonthStatuses {
     ///   someone another site had that day.
     /// - `members`: every site's crew, hidden people too, to match the same
     ///   person across sites by name (`SiteMonthOverview.crew`).
+    /// - `active`: the days the site was there to be worked (`activeDays`).
     static func statuses(
         siteID: UUID,
         month: YearMonth,
@@ -557,7 +599,8 @@ enum SiteMonthStatuses {
         settings: AppSettings,
         calendar: Calendar,
         today: CalendarDate,
-        holidays: Set<Int>
+        holidays: Set<Int>,
+        active: SiteActiveDays
     ) -> [CalendarDate: SiteDayStatus] {
         let check = SiteMonthOverview.crew(
             siteID: siteID,
@@ -574,7 +617,8 @@ enum SiteMonthStatuses {
             check: check,
             today: today,
             calendar: calendar,
-            holidays: holidays
+            holidays: holidays,
+            active: active
         )
     }
 }
@@ -592,6 +636,8 @@ private struct SiteRow: View {
     let summary: SiteCardSummary
     let isReadOnly: Bool
     let offersSameAsLastDay: Bool
+    /// The red "N not written", tapped: the days and why nobody worked.
+    let onNotWritten: () -> Void
     /// Archive on a swipe (1.3): the site's settings have the same switch.
     /// Allowed on a read-only site too, since archiving is the way out of
     /// read-only.
@@ -655,23 +701,47 @@ private struct SiteRow: View {
                 Image(systemName: "lock.fill")
                     .foregroundStyle(.hoursSecondaryText)
                     .accessibilityLabel(String(localized: "Read-only"))
+                    .accessibilityIdentifier("site-card-status")
+            } else if case let .paused(until) = summary.headline {
+                Text(verbatim: pausedText(until: until))
+                    .font(.subheadline)
+                    .foregroundStyle(.hoursSecondaryText)
+                    .accessibilityIdentifier("site-card-paused")
             } else if case let .notWritten(count) = summary.headline {
-                Text(String(localized: "\(count) not written", comment: "Site card: how many of this month's work days are not written"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hoursMissing)
+                // Its own button inside the row, which opens the site: the
+                // days, and why nobody worked on them.
+                Button(action: onNotWritten) {
+                    Text(String(localized: "\(count) not written", comment: "Site card: how many of this month's work days are not written"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.hoursMissing)
+                        .frame(minHeight: 44)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityHint(String(localized: "Choose why nobody worked on these days"))
+                .accessibilityIdentifier("site-card-not-written")
             } else if summary.today == .notWritten {
                 Text("Today open")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.hoursAttention)
+                    .accessibilityIdentifier("site-card-status")
             } else if summary.headline == .allWritten {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)
                     .foregroundStyle(Color.hoursDone)
                     .accessibilityLabel(String(localized: "All written"))
+                    .accessibilityIdentifier("site-card-status")
             }
         }
+        // Each leaf has its identifier: "site-card-status", or the not-written
+        // button's and the paused word's own.
         .multilineTextAlignment(.trailing)
-        .accessibilityIdentifier("site-card-status")
+    }
+
+    /// "Paused", or "Paused until 18 Nov".
+    private func pausedText(until: CalendarDate?) -> String {
+        guard let until else { return String(localized: "Paused") }
+        let date = settingsStore.dateFormatting.shortDate(until)
+        return String(localized: "Paused until \(date)", comment: "Sites list: a paused site; the value is the last day paused")
     }
 
     /// "5 people · 462h this month", or "Last day 14 Sep" for a site with

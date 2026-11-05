@@ -48,6 +48,9 @@ struct SiteDayScreen: View {
     /// This site's days from the look-back before the month to its end:
     /// whether an unwritten day was expected reads the weekdays worked lately.
     @State private var monthDays: [SiteDay] = []
+    /// The days the site was there to be worked (`SiteActiveDays`): a day
+    /// before its first is no missed day, as on its month.
+    @State private var activeDays = SiteActiveDays.always
     /// Who the day is checked against for "not here, no reason given"
     /// (`SiteMonthOverview.crew`): joined by then, not on another site.
     @State private var expectedCrew: Set<UUID> = []
@@ -507,6 +510,17 @@ struct SiteDayScreen: View {
             captureRow
         }
 
+        // Nobody worked, for a reason (the "N not written" sheet), with
+        // Undo, as the bad-weather row has.
+        if day.isNoWorkDay, let reason = day.noWork {
+            Section {
+                SiteNoWorkRow(reason: reason, canEdit: canEdit) {
+                    ticks += 1
+                    commit(day.clearingNoWork())
+                }
+            }
+        }
+
         Section {
             ForEach(lines) { line in
                 SiteDayLineRow(line: line, canEdit: canEdit) {
@@ -533,7 +547,7 @@ struct SiteDayScreen: View {
             }
         }
 
-        if day.isBadWeatherStop {
+        if day.isBadWeatherStop && !day.isNoWorkDay {
             Section {
                 SiteWeatherStopRow(
                     day: day,
@@ -585,7 +599,8 @@ struct SiteDayScreen: View {
                         isQuiet: true
                     )
                 }
-                if expectedCrew.contains(person.id) {
+                // A day nobody worked asks for no reasons.
+                if expectedCrew.contains(person.id) && !day.isNoWorkDay {
                     return SiteDayLine(
                         person: person,
                         value: "",
@@ -744,7 +759,7 @@ struct SiteDayScreen: View {
                 Label("Choose a day", systemImage: "calendar")
             }
             .accessibilityIdentifier("site-day-pick-date")
-            if canEdit && !day.isBadWeatherStop {
+            if canEdit && !day.isBadWeatherStop && !day.isNoWorkDay {
                 Button {
                     activeSheet = .weatherStop(stored == nil ? draftDay : day)
                 } label: {
@@ -993,7 +1008,7 @@ struct SiteDayScreen: View {
         guard date < today else { return .upcoming }
         let status = SiteDayStatus.of(
             siteID: site.id, on: date, siteDays: monthDays, setup: setup, crew: [],
-            today: today, calendar: calendar, holidays: holidayDateKeys
+            today: today, calendar: calendar, holidays: holidayDateKeys, active: activeDays
         )
         return status == .missing ? .missed : .pastDayOff
     }
@@ -1224,6 +1239,7 @@ struct SiteDayScreen: View {
         )
         let allDays = store.siteDays(siteID: nil, in: lookBack)
         monthDays = allDays.filter { $0.siteID == site.id }
+        activeDays = SiteMonthStatuses.activeDays(of: site, repository: store, today: today, calendar: calendar)
         let members = store.sites(includeArchived: true).flatMap { store.crew(for: $0.id, includeHidden: true) }
         expectedCrew = SiteMonthOverview.crew(
             siteID: site.id, members: members, siteDays: allDays, month: month, calendar: calendar

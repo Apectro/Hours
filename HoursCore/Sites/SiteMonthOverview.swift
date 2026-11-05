@@ -12,6 +12,9 @@ enum SiteMonthOverview {
         case allWritten
         /// Nothing written and nothing missing: grey.
         case nothingThisMonth
+        /// The site is paused today (`SitePause`), until a day or until
+        /// turned back on: grey, instead of any count.
+        case paused(until: CalendarDate?)
     }
 
     /// One cell of the card's strip.
@@ -20,18 +23,25 @@ enum SiteMonthOverview {
         var status: SiteDayStatus
     }
 
-    static func headline(_ statuses: [CalendarDate: SiteDayStatus]) -> Headline {
+    /// The headline, "Paused" first while `pause` covers `today`.
+    static func headline(
+        _ statuses: [CalendarDate: SiteDayStatus],
+        pause: SitePause? = nil,
+        today: CalendarDate? = nil
+    ) -> Headline {
+        if let pause, let today, pause.contains(today) { return .paused(until: pause.end) }
         let missing = SiteDayStatus.missingCount(in: statuses)
         if missing > 0 { return .notWritten(missing) }
         let written = statuses.values.contains { $0 == .written || $0 == .partly }
         return written ? .allWritten : .nothingThisMonth
     }
 
-    /// The month's work days, in order: every day but the days off, which
-    /// are not expected and were not written.
+    /// The month's work days, in order: every day but the days off and
+    /// the days the crew was elsewhere, which are not expected here and were
+    /// not written.
     static func strip(_ statuses: [CalendarDate: SiteDayStatus]) -> [StripDay] {
         statuses
-            .filter { $0.value != .dayOff }
+            .filter { $0.value != .dayOff && $0.value != .elsewhere }
             .map { StripDay(date: $0.key, status: $0.value) }
             .sorted { $0.date < $1.date }
     }

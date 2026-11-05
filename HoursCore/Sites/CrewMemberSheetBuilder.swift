@@ -354,10 +354,7 @@ struct CrewMemberSheetBuilder: Sendable {
     /// a day the crew was rained off, as the site sheet writes it.
     private func noteText(for line: Line) -> String {
         guard line.entry != nil else { return "" }
-        let note = line.day.note.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard line.day.isBadWeatherStop else { return note }
-        let language = settings.export.language
-        return note.isEmpty ? language(.badWeather) : "\(language(.badWeather)) · \(note)"
+        return line.day.sheetNote(in: settings.export.language)
     }
 
     /// The same test the timesheet's end column uses for "(+1)".

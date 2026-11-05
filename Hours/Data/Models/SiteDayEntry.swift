@@ -36,7 +36,9 @@ final class SiteDayEntry {
     /// row written before it reads as a day with no absences; `nil` also
     /// means none. Since 1.2 it also carries the day's moves to another
     /// site (`SiteDay.moves`) as entries of their own kind, which every
-    /// reader of the reasons leaves out (`SiteDayStorage`).
+    /// reader of the reasons leaves out (`SiteDayStorage`), and since 1.3 the
+    /// day's "no work" and its reason (`SiteDay.noWork`) the same way: no
+    /// new column, so no new schema version or CloudKit deploy.
     var absenceData: Data?
     /// JSON-encoded `[UUID]`: who on the crew gets the field allowance
     /// (`SiteDay.allowanceMemberIDs`). Added in schema V8, optional, so a row
@@ -83,7 +85,8 @@ extension SiteDayEntry {
             absences: SiteDayEntry.decodeAbsences(absenceData),
             allowanceMemberIDs: SiteDayEntry.decodeAllowance(allowanceData),
             kilometres: kilometres,
-            moves: SiteDayStorage.moves(fromAbsenceData: absenceData)
+            moves: SiteDayStorage.moves(fromAbsenceData: absenceData),
+            noWork: SiteDayStorage.noWork(fromAbsenceData: absenceData)
         )
     }
 
@@ -98,7 +101,9 @@ extension SiteDayEntry {
         note = day.note
         jobID = day.jobID?.uuidString
         isBadWeatherStop = day.isBadWeatherStop
-        absenceData = SiteDayStorage.absenceData(absences: day.absences, moves: day.moves)
+        absenceData = SiteDayStorage.absenceData(
+            absences: day.absences, moves: day.moves, noWork: day.noWork, siteID: day.siteID
+        )
         allowanceData = SiteDayEntry.encodeAllowance(day.allowanceMemberIDs)
         kilometres = day.kilometres
         updatedAt = Date()

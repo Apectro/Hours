@@ -138,7 +138,7 @@ struct ExtraWorkReportLayout {
     private var cellFont: UIFont { scaled(PDFReportStyle.cellFont) }
     private var cellBoldFont: UIFont { scaled(PDFReportStyle.cellBoldFont) }
     private var headingFont: UIFont { scaled(PDFReportStyle.headingFont) }
-    private var kindFont: UIFont { scaled(PDFReportStyle.headerKindFont) }
+    private var eyebrowFont: UIFont { scaled(PDFReportStyle.eyebrowFont) }
     private var titleFont: UIFont { scaled(PDFReportStyle.titleFont) }
     private var bylineFont: UIFont { scaled(PDFReportStyle.bylineFont) }
     private var addressFont: UIFont { scaled(PDFReportStyle.addressFont) }
@@ -226,6 +226,9 @@ struct ExtraWorkReportLayout {
 
     private var figureGap: CGFloat { 6 * k }
     private var figureLineHeight: CGFloat { 14 * k }
+    /// Where the first figure is, from the header's top: level with the
+    /// byline, under the title's line.
+    private var figuresTop: CGFloat { 40 * k }
 
     private var figuresWidth: CGFloat {
         figures.map { figure in
@@ -288,21 +291,23 @@ struct ExtraWorkReportLayout {
         return y + height(of: block)
     }
 
-    /// The site's name in bold, "Extra work done · 19 – 22 October 2026"
-    /// under it, who recorded it and the address in grey, and the figures
-    /// as plain text on the right (polish, 2026-11: the report header's
-    /// look, without orange capitals or tiles).
+    /// "EXTRA WORK DONE · 19 – 22 OCTOBER 2026" in small orange capitals,
+    /// the site's name in bold under it, who recorded it and the address in
+    /// grey, and the figures as plain text on the right (no tiles).
     private func drawHeader(at y: CGFloat) {
         PDFReportStyle.draw(
-            document.title,
-            in: CGRect(x: margin, y: y, width: width, height: 30 * k),
-            font: titleFont,
-            color: PDFReportStyle.ink
+            document.eyebrow.uppercased(with: document.language.locale),
+            in: CGRect(x: margin, y: y, width: width, height: 11 * k),
+            font: eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8 * k
         )
+        // The full width: a long site name is the one word the boss files
+        // the sheet by.
         PDFReportStyle.draw(
-            document.eyebrow,
-            in: CGRect(x: margin, y: y + 30 * k, width: titleWidth, height: 13 * k),
-            font: kindFont,
+            document.title,
+            in: CGRect(x: margin, y: y + 12 * k, width: width, height: 30 * k),
+            font: titleFont,
             color: PDFReportStyle.ink
         )
         PDFReportStyle.drawWrapping(
@@ -313,20 +318,21 @@ struct ExtraWorkReportLayout {
         )
 
         if !document.address.isEmpty {
+            // Beside the figures it keeps clear of them; below them it has
+            // the width.
+            let besideFigures = addressTop < figuresTop + CGFloat(figures.count) * figureLineHeight
             PDFReportStyle.draw(
                 document.address,
-                in: CGRect(x: margin, y: y + addressTop, width: width, height: addressLineHeight),
+                in: CGRect(x: margin, y: y + addressTop, width: besideFigures ? titleWidth : width, height: addressLineHeight),
                 font: addressFont,
                 color: PDFReportStyle.secondary
             )
         }
 
-        // Right-aligned beside the two lines under the title, which has the
-        // full width: a long site name is the one word the boss files the
-        // sheet by.
+        // Right-aligned beside the grey lines under the title.
         let figuresX = margin + width - figuresWidth
         for (index, figure) in figures.enumerated() {
-            let top = y + 30 * k + CGFloat(index) * figureLineHeight
+            let top = y + figuresTop + CGFloat(index) * figureLineHeight
             let valueWidth = ceil(PDFReportStyle.width(of: figure.value, font: figureValueFont)) + 1
             PDFReportStyle.draw(figure.value, in: CGRect(x: margin + width - valueWidth, y: top, width: valueWidth, height: figureLineHeight),
                                 font: figureValueFont, color: PDFReportStyle.ink, alignment: .right)

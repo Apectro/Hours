@@ -34,7 +34,7 @@ extension SiteDayStatus {
                 switch status {
                 case .missing: missing.insert(date)
                 case .written, .partly: written.insert(date)
-                case .dayOff, .future: break
+                case .dayOff, .future, .noWork, .elsewhere: break
                 }
             }
         }

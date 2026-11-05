@@ -56,6 +56,8 @@ final class ScreenAtlasTests: XCTestCase {
         firstRun()
         guidedTour()
         emptyStates()
+        noWorkScreens()
+        tipScreens()
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
@@ -327,6 +329,16 @@ final class ScreenAtlasTests: XCTestCase {
         }
         pause(1)
         capture("site", app)
+        // The month with the sample's public holiday (the 15th, or the 16th
+        // when today is the 15th), drawn as the calendar draws it.
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        let holidayDay = parts.day == 15 ? 16 : 15
+        let holidayKey = (parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + holidayDay
+        if app.buttons.matching(identifier: "site-overview-day-\(holidayKey)").firstMatch.waitForExistence(timeout: 3) {
+            capture("site-month-holiday", app)
+        } else {
+            miss("site-month-holiday (the holiday is not in the site's month)")
+        }
         swipeUp(app)
         capture("site-lower", app)
         swipeDown(app, times: 3)
@@ -1842,6 +1854,92 @@ final class ScreenAtlasTests: XCTestCase {
     private func swipeDown(_ app: XCUIApplication, times: Int) {
         for _ in 0..<times { app.swipeDown() }
         pause(0.4)
+    }
+
+    /// Days nobody worked (2026-11-05): the sample site expecting every day,
+    /// its red "N not written" opening the days with a reason's menu, then
+    /// the site paused in its settings and its card saying so. On the 1st
+    /// and 2nd of a month there is no day to list, so the sheet is optional.
+    private func noWorkScreens() {
+        let app = launch(["-hours-sample-site", "-hours-site-missing-days"])
+        guard app.tab(.sites).waitForExistence(timeout: 20) else {
+            miss("no work (the app did not start)")
+            return
+        }
+        app.tab(.sites).tap()
+        pause(1)
+        let count = app.buttons.matching(identifier: "site-card-not-written").firstMatch
+        if count.waitForExistence(timeout: 5) {
+            capture("sites-not-written", app)
+            tapAnyway(count)
+            if app.screen("site-no-work-sheet").waitForExistence(timeout: 8) {
+                pause(0.8)
+                capture("site-no-work-sheet", app)
+                if tap(app.buttons.matching(identifier: "site-no-work-all").firstMatch, "All", app) {
+                    capture("site-no-work-reasons", app)
+                    dismissMenu(app)
+                }
+                close(app, "site-no-work-done")
+            } else {
+                miss("site-no-work-sheet (did not open)")
+            }
+        } else {
+            optional.append("site-no-work-sheet (no day before yesterday this month)")
+        }
+
+        if tap(app.buttons.matching(identifier: "site-card").firstMatch, "the sample site", app),
+           tap(app.buttons.matching(identifier: "site-menu").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
+            let paused = app.switches["site-editor-paused"].firstMatch
+            if bringIntoView(paused, app) {
+                flip(paused)
+                pause(0.5)
+                capture("site-edit-paused", app)
+                tap(app.buttons.matching(identifier: "site-editor-save").firstMatch, "Save the site", app)
+                pause(1)
+                back(app)
+                if app.staticTexts.matching(identifier: "site-card-paused").firstMatch.waitForExistence(timeout: 5) {
+                    capture("sites-paused-card", app)
+                } else {
+                    miss("sites-paused-card (the card does not say Paused)")
+                }
+            } else {
+                miss("site-edit-paused (no Paused switch)")
+                close(app, "site-editor-cancel")
+            }
+        }
+        app.terminate()
+    }
+
+    /// Tips (2026-11-05): the seeded site has no work days set, so its page
+    /// leads with "Set this site's work days"; then its empty Defects with
+    /// "Photo first". Tips are off in a UI test run unless asked for.
+    private func tipScreens() {
+        let app = launch(["-hours-sample-site", "-hours-tips"])
+        guard app.tab(.sites).waitForExistence(timeout: 20) else {
+            miss("tips (the app did not start)")
+            return
+        }
+        app.tab(.sites).tap()
+        pause(1)
+        guard tap(app.buttons.matching(identifier: "site-card").firstMatch, "the sample site", app) else {
+            app.terminate()
+            return
+        }
+        if app.screen("tip-site-work-days").firstMatch.waitForExistence(timeout: 8) {
+            capture("site-tip-work-days", app)
+        } else {
+            miss("site-tip-work-days (no tip on the site)")
+        }
+        let defects = app.buttons.matching(identifier: "site-defects").firstMatch
+        if defects.waitForExistence(timeout: 5),
+           app.tapAboveBottomBar(defects, bar: app.buttons.matching(identifier: "site-write-today").firstMatch),
+           app.screen("tip-defect-photos").firstMatch.waitForExistence(timeout: 8) {
+            capture("defects-tip-photo-first", app)
+        } else {
+            miss("defects-tip-photo-first (no tip on empty Defects)")
+        }
+        app.terminate()
     }
 
     /// Closes a sheet by its button; if the button is not there, by a swipe

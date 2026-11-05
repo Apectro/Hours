@@ -2,8 +2,8 @@ import SwiftUI
 import UIKit
 
 /// Send the list (Camera board, phone 21): the PDF's first page as it will
-/// be sent — "<site> · Defects", the figures and the table by floor, with
-/// half a page per open defect after it (`DefectsPDFRenderer`) — and "Only
+/// be sent — the site under "DEFECTS · AS OF <day>", the figures and the
+/// table by floor, with half a page per open defect after it (`DefectsPDFRenderer`) — and "Only
 /// open" (on), which leaves the fixed lines out.
 /// Send shares the PDF; Send as message the same lines as text, without
 /// the photos. In the export language.
@@ -157,8 +157,8 @@ struct DefectsSendSheet: View {
 }
 
 /// The defects list on A4 pages (Polish pages 22–24). Page 1 is the whole
-/// list: "<site> · Defects", the address, the day and your name, four
-/// figures, and a table grouped by the site's floors in which a fixed
+/// list: "DEFECTS · AS OF <day>" in orange over the site's name, the
+/// address and your name, four figures, and a table grouped by the site's floors in which a fixed
 /// defect is one line. From the page after the table each open defect has
 /// half a page: its number and an Open pill, what and where, its marked
 /// photo across the page, who noted it, how long it has been open (red past
@@ -175,8 +175,9 @@ enum DefectsPDFRenderer {
     private static var footerTop: CGFloat { pageSize.height - margin - 12 }
     private static var contentBottom: CGFloat { footerTop - 8 }
 
-    // The page's own type and colours, in the look of the mockup: plain
-    // black titles, grey detail, red open, green fixed.
+    // The page's own type and colours, in the look of the mockup: the
+    // reports' orange eyebrow, plain black titles, grey detail, red open,
+    // green fixed.
     private static let titleFont = UIFont.systemFont(ofSize: 20, weight: .bold)
     private static let bylineFont = UIFont.systemFont(ofSize: 9)
     private static let figureFont = UIFont.monospacedDigitSystemFont(ofSize: 18, weight: .semibold)
@@ -364,14 +365,24 @@ enum DefectsPDFRenderer {
 
     // MARK: - Drawing the table
 
-    /// "<site> · Defects", the byline, the four figures. Returns where the
-    /// table starts.
+    /// "DEFECTS · AS OF <day>" in the reports' orange eyebrow, the site's
+    /// name, the byline, the four figures. Returns where the table starts.
     private static func drawFirstHeader(_ document: DefectsDocument) -> CGFloat {
         var y = margin
-        PDFReportStyle.draw(document.title, in: CGRect(x: margin, y: y, width: width, height: 26), font: titleFont, color: ink)
+        PDFReportStyle.draw(
+            document.eyebrow.uppercased(with: document.language.locale),
+            in: CGRect(x: margin, y: y, width: width, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
+        )
+        y += 12
+        PDFReportStyle.draw(document.siteName, in: CGRect(x: margin, y: y, width: width, height: 26), font: titleFont, color: ink)
         y += 28
-        PDFReportStyle.draw(document.byline, in: CGRect(x: margin, y: y, width: width, height: 13), font: bylineFont, color: secondary)
-        y += 24
+        if !document.byline.isEmpty {
+            PDFReportStyle.draw(document.byline, in: CGRect(x: margin, y: y, width: width, height: 13), font: bylineFont, color: secondary)
+        }
+        y += 16
         var x = margin
         for figure in document.figureTexts {
             let color: UIColor
