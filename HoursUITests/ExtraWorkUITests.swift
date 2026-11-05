@@ -109,23 +109,20 @@ final class ExtraWorkUITests: XCTestCase {
         XCTAssertTrue(app.screen("screen-site-day").waitForExistence(timeout: 5), "the site day did not open")
         for _ in 0..<8 where !tick.exists { app.swipeUp() }
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
-        for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
-        // Something can still lie over it for a moment on a slow runner (the
-        // report's sheet sliding off): wait until it can be hit.
-        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: tick)
-        XCTAssertEqual(XCTWaiter().wait(for: [hittable], timeout: 10), .completed, "the tick stayed covered")
         // Tapped again only if the first tap was not taken (a slow runner):
         // the tick is checked before every tap, so a taken one is never undone.
         let ticked = NSPredicate(format: "isSelected == true")
         var isTicked = false
         for _ in 0..<2 where !isTicked {
-            guard tick.isHittable else { break }
-            tick.tap()
+            // The job sits at the end of the day, behind the Save / Someone
+            // was different bar: scrolled clear of it first, or the tap opens
+            // "Someone was different" instead.
+            guard app.tapAboveBottomBar(tick, bar: app.buttons["site-day-something-different"].firstMatch) else { break }
             let wait = XCTNSPredicateExpectation(predicate: ticked, object: app.buttons["extra-work-tick-0"])
             isTicked = XCTWaiter().wait(for: [wait], timeout: 5) == .completed
         }
         if !isTicked {
-            // Until the cause is known: what lies over the tick after a tap.
+            // What lies over the tick, should a tap still not take.
             print("TICK-COVERED\n" + app.debugDescription)
         }
         XCTAssertTrue(isTicked, "the tick should mark the job finished")
