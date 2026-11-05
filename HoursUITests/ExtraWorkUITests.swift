@@ -110,10 +110,16 @@ final class ExtraWorkUITests: XCTestCase {
         for _ in 0..<8 where !tick.exists { app.swipeUp() }
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
         for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
-        tick.tap()
+        // Tapped again only if the first tap was not taken (a slow runner):
+        // the tick is checked before every tap, so a taken one is never undone.
         let ticked = NSPredicate(format: "isSelected == true")
-        expectation(for: ticked, evaluatedWith: app.buttons["extra-work-tick-0"])
-        waitForExpectations(timeout: 5)
+        var isTicked = false
+        for _ in 0..<2 where !isTicked {
+            tick.tap()
+            let wait = XCTNSPredicateExpectation(predicate: ticked, object: app.buttons["extra-work-tick-0"])
+            isTicked = XCTWaiter().wait(for: [wait], timeout: 5) == .completed
+        }
+        XCTAssertTrue(isTicked, "the tick should mark the job finished")
 
         // And now it is in the report, its material summed.
         app.navigationBars.buttons.element(boundBy: 0).tap()

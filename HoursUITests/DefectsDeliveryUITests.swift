@@ -263,6 +263,9 @@ final class DefectsDeliveryUITests: XCTestCase {
         XCTAssertTrue(row.exists, "nothing is deleted before the answer")
         confirm.tap()
         XCTAssertTrue(waitUntilGone(row, timeout: 5), "confirmed, the defect is gone")
-        XCTAssertTrue(app.descendants(matching: .any)["defects-empty"].waitForExistence(timeout: 5), "and the list is empty")
+        // The empty state, by its words: an identifier on ContentUnavailableView
+        // does not reach an element a test can find.
+        let empty = app.staticTexts.matching(NSPredicate(format: "label == %@", "No open defects")).firstMatch
+        XCTAssertTrue(empty.waitForExistence(timeout: 5), "and the list is empty")
     }
 }

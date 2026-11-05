@@ -190,16 +190,31 @@ enum InterfaceOrientationLock {
         )
         guard plan.whileSigning == .landscape else { return plan }
         lock = .landscape
+        // Asked once the full-screen cover has finished sliding in: a turn
+        // requested during the presentation can be refused. A refusal is
+        // tried once more, then the lock comes off and the pad is used the
+        // way the phone is held.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+            MainActor.assumeIsolated { requestLandscape(retries: 1) }
+        }
+        return plan
+    }
+
+    private static func requestLandscape(retries: Int) {
+        guard lock == .landscape, let scene = activeScene else { return }
         refresh(scene)
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape)) { _ in
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 MainActor.assumeIsolated {
-                    lock = nil
-                    if let scene = activeScene { refresh(scene) }
+                    if retries > 0 {
+                        requestLandscape(retries: retries - 1)
+                    } else {
+                        lock = nil
+                        if let scene = activeScene { refresh(scene) }
+                    }
                 }
             }
         }
-        return plan
     }
 
     /// Takes the lock off, and turns back to portrait if that is how the
