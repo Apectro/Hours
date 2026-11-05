@@ -16,7 +16,13 @@ struct TipCard: View {
     var action: (() -> Void)?
 
     @Environment(SettingsStore.self) private var settingsStore
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    /// Written out: the private environment would make the memberwise
+    /// initializer private.
+    init(tip: TipID, action: (() -> Void)? = nil) {
+        self.tip = tip
+        self.action = action
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: Metrics.medium) {
