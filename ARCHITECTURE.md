@@ -1199,6 +1199,52 @@ button to each site's day, pushed by value on the calendar's own stack. The
 day's Worked and balance are the day's, counted once; the month cell is
 unchanged.
 
+**Days nobody worked (1.3).** A site expects a day on each of its work
+days (`SiteWorkDays.expects`), and the owner's crews move between sites: three
+days on Trg Pravde read as three days "not written" on Jarunski. Three ways
+out, none of which writes anyone's hours:
+
+- *Detected:* a day with no site day on which every person expected here —
+  each member from the day they joined, and you (`SiteMonthOverview.crew`) —
+  is accounted for on another of your sites (ticked present there, or a
+  day-type reason there) is `SiteDayStatus.elsewhere`
+  (`SiteCrewCheck.isAllElsewhere`): drawn like a day off, not counted, and the
+  evening reminder (`SiteReminderPlan.dates(crewElsewhere:)`) and the
+  "write today's hours?" on leaving the site do not ask. With nobody expected
+  (no crew yet) the day stays missing; with only some of them elsewhere, too.
+- *Chosen:* the red "N not written" on the card and on the site's month opens
+  `SiteNoWorkSheet` with those days (`SiteNoWorkList`) and "All N". A reason
+  (`SiteNoWorkReason`: crew on another site, no work, bad weather, day off;
+  "Crew on another site" first when some of that day's crew were elsewhere)
+  writes the site day as `SiteDay.noWork(_:…)`: nobody ticked, no times, the
+  reason in `SiteDay.noWork`. Bad weather is the full stop of the usual crew's
+  day, exactly what "Bad weather… › No work today" writes, so your own day
+  gets the type by the stop's rule. Such a day is `SiteDayStatus.noWork`
+  (`isNoWorkDay`; ticking someone in makes it an ordinary day again), grey
+  with "No work" in the month, "No work · <reason>" with Undo on its day and
+  in the sheet's notes column (`SiteDay.sheetLead(in:)`, the export language).
+  Undo (`clearingNoWork`) takes away what the choice wrote, so a day that held
+  nothing else is blank and deleted. Writes go through `SiteRepository` and
+  the month lock; a closed month's days are listed without a choice and a
+  read-only site does not open the sheet. "Same as last day" passes over a
+  no-work day (`SiteRepository.lastSiteDay`).
+- *Paused:* `SiteSetup.pause` (`SitePause`, a first day and an optional last
+  day, inclusive), written only when set, so in settings, iCloud's key-value
+  store and every backup like the rest of the setup. `SiteWorkDays.expects`
+  says no while it covers the date, so the month draws those days neutral and
+  nothing is missing; `SiteMonthOverview.headline(_:pause:today:)` reads
+  `.paused(until:)`; the evening reminder (`pauses:`) and the arrival
+  reminder (`ArrivalReminderPolicy.decide(isPaused:)`, `.quiet(.paused)`)
+  stay silent. A day written during a pause counts as any other.
+
+The reason is stored without a schema version, as the moves are: an entry
+`{"memberID": <site id>, "kind": "noWork", "reason": "<raw value>"}` in
+`absenceData` (`SiteDayStorage`), which every reader of the reasons since 1.1
+leaves out (a kind it does not know, or no `dayTypeID`). An older build reads
+the day as written with nobody on it; the worst it can do is write the day
+again without the reason. In a backup it is the site day's `noWork` key,
+written only when set; an unknown reason reads as none. No CloudKit deploy.
+
 **Crew sign-off.** Each person reads their month on your phone and signs with a
 finger. A `CrewSignature` stores the strokes as points (sharp at any size, and a
 few hundred numbers in a backup) and a fingerprint of that person's hours at the

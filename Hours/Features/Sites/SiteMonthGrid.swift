@@ -46,11 +46,11 @@ struct SiteMonthCalendar: View {
     let people: [CalendarDate: Int]
     /// One per row, in minutes (`SiteCalendarGrid.weekMinutes`).
     let weekTotals: [Int]
-    /// Why nobody worked, on each day recorded as "no work".
-    var noWork: [CalendarDate: SiteNoWorkReason] = [:]
     let today: CalendarDate
     let formatting: CalendarFormatting
     let durationFormatting: DurationFormatting
+    /// Why nobody worked, on each day recorded as "no work".
+    var noWork: [CalendarDate: SiteNoWorkReason] = [:]
     /// Opens a day on the site. Buttons rather than links: the month is one
     /// row of a List, where links would make the whole row one.
     let onSelect: (CalendarDate) -> Void

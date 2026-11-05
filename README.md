@@ -136,6 +136,21 @@ timesheet then has a Site column, a day on two sites as a row per site with a
 "Day" row under them, the sites in its title and "By site" beside the
 summary; Export can also make it for one site's hours alone.
 
+**Days nobody worked on a site (1.3)** — a site day nobody wrote is not
+"not written" when everyone expected there was on another of your sites that
+day (ticked there, or given a reason there): it is drawn like a day off and no
+reminder asks about it. Tapping the red "N not written" on a site's card or
+its month lists those days, each with a reason — Crew on another site, No work
+(waiting for other trades, no material), Bad weather, Holiday / day off — and
+"All N" at the top. The day is then recorded as no work: no hours for anyone,
+nobody's own day changed except with Bad weather, which is the bad-weather
+stop with no work. It shows grey in the month, "No work · Day off" with Undo on
+the day, and the same words on the month's sheets in the export language. A
+closed month's days are listed without a choice. A site can also be **paused**
+in its settings, from a day until a day or until turned back on: no day is
+expected meanwhile, its card says "Paused" (or "Paused until 18 Nov"), and the
+arrival and evening reminders leave it alone; a day can still be written.
+
 **One sheet for several sites (1.2)** — in a site's export, "Sites on this
 sheet" adds other sites (each listed with the month's crew hours) to make one
 director's sheet for the month: the crews joined by name, each person's hours a
