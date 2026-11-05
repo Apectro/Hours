@@ -110,6 +110,10 @@ final class ExtraWorkUITests: XCTestCase {
         for _ in 0..<8 where !tick.exists { app.swipeUp() }
         XCTAssertTrue(tick.waitForExistence(timeout: 5))
         for _ in 0..<4 where !tick.isHittable { app.swipeUp() }
+        // Something can still lie over it for a moment on a slow runner (the
+        // report's sheet sliding off): wait until it can be hit.
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: tick)
+        XCTAssertEqual(XCTWaiter().wait(for: [hittable], timeout: 10), .completed, "the tick stayed covered")
         // Tapped again only if the first tap was not taken (a slow runner):
         // the tick is checked before every tap, so a taken one is never undone.
         let ticked = NSPredicate(format: "isSelected == true")
