@@ -102,6 +102,8 @@ enum PDFReportRenderer {
         var y = PDFReportStyle.topMargin
         if plan.showsTitle {
             y = decorations.drawHeader(at: y)
+        } else {
+            y = decorations.drawRunningHeader(at: y)
         }
         if plan.showsHeadings {
             y = painter.drawHeadings(at: y)
@@ -113,7 +115,7 @@ enum PDFReportRenderer {
             y = painter.drawRow(totalRow, at: y)
         }
         if plan.closes, !table.totals.isEmpty || !table.bySite.isEmpty {
-            y = decorations.drawSummary(at: y + 10)
+            y = decorations.drawSummary(at: y + PDFReportLayout.summaryGap)
         }
         decorations.drawFooter(page: plan.number, isLast: plan.closes)
     }
@@ -185,6 +187,14 @@ struct PDFTablePainter {
             wash.setFill()
             UIBezierPath(rect: full).fill()
         }
+        // One person away for a day type while the others worked: their
+        // cells alone, in the type's colour.
+        let ranges = table.groupRanges
+        for (group, tint) in row.groupTints where group < ranges.count {
+            let frame = span(ranges[group])
+            PDFReportStyle.dayWash(tint).setFill()
+            UIBezierPath(rect: CGRect(x: frame.minX, y: y, width: frame.width, height: height)).fill()
+        }
         if row.role == .total {
             PDFReportStyle.line(
                 from: CGPoint(x: full.minX, y: y),
@@ -214,7 +224,10 @@ struct PDFTablePainter {
             )
         }
 
-        drawGroupSeparators(from: y, to: y + height)
+        // Not through a closing label: "Month total" and a site's name run on
+        // over the empty date, day and site cells, and a rule across them
+        // cut the words in two ("m|jesec", "Dvo|ri").
+        drawGroupSeparators(from: y, to: y + height, skipping: label.dropFirst())
         // A day split across sites is one group: ruled under its Total row only.
         if row.role == .day && row.splitDay != .site {
             PDFReportStyle.line(
@@ -237,11 +250,12 @@ struct PDFTablePainter {
             let range = ranges[group]
             let value = range.lowerBound < row.values.count ? row.values[range.lowerBound] : ""
             let isReason = !value.isEmpty && value != "—"
+            let reasonColor = row.groupTints[group].map(PDFReportStyle.dayInk) ?? PDFReportStyle.secondary
             draw(
                 isReason ? value : "—",
                 in: CGRect(x: span(range).minX, y: y, width: span(range).width, height: height),
                 font: PDFReportStyle.cellFont,
-                color: isReason ? PDFReportStyle.secondary : PDFReportStyle.faint,
+                color: isReason ? reasonColor : PDFReportStyle.faint,
                 alignment: .center
             )
             covered.formUnion(range)
@@ -251,6 +265,7 @@ struct PDFTablePainter {
 
     private func wash(for row: ReportRow) -> UIColor? {
         guard row.role == .day else { return nil }
+        if let tint = row.dayTint { return PDFReportStyle.dayWash(tint) }
         if row.splitDay != nil { return PDFReportStyle.splitDayWash }
         if row.isAbsence { return PDFReportStyle.absenceWash }
         if !row.isWorkingDay { return PDFReportStyle.restWash }
@@ -261,6 +276,10 @@ struct PDFTablePainter {
     private func color(of row: ReportRow, column: ReportColumn, index: Int) -> UIColor {
         if row.flagged.contains(index) { return PDFReportStyle.accent }
         if row.role == .count { return PDFReportStyle.secondary }
+        // The word that says what kind of day it was, in its type's colour.
+        if let tint = row.dayTint, column == .dayType || (column == .note && table.kind == .siteSheet) {
+            return PDFReportStyle.dayInk(tint)
+        }
         // A weekend is there to be counted, not read.
         if row.role == .day && !row.isWorkingDay && !row.isAbsence { return PDFReportStyle.faint }
 
@@ -292,10 +311,16 @@ struct PDFTablePainter {
     /// A rule before every column group but the first, which starts at the
     /// margin: before each person's pair and before a group of one too, so
     /// a site sheet's Date and Day are ruled apart like everyone else.
-    private func drawGroupSeparators(from top: CGFloat, to bottom: CGFloat) {
-        for range in table.groupRanges where (range.first ?? 0) > 0 {
+    private func drawGroupSeparators<Skipped: Sequence>(from top: CGFloat, to bottom: CGFloat, skipping skipped: Skipped) where Skipped.Element == Int {
+        let skip = Set(skipped)
+        for range in table.groupRanges {
+            guard let first = range.first, first > 0, !skip.contains(first) else { continue }
             separator(at: span(range).minX, from: top, to: bottom)
         }
+    }
+
+    private func drawGroupSeparators(from top: CGFloat, to bottom: CGFloat) {
+        drawGroupSeparators(from: top, to: bottom, skipping: [Int]())
     }
 
     private func separator(at x: CGFloat, from top: CGFloat, to bottom: CGFloat) {

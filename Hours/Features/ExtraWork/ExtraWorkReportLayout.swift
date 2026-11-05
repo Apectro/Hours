@@ -230,11 +230,14 @@ struct ExtraWorkReportLayout {
     /// byline, under the title's line.
     private var figuresTop: CGFloat { 40 * k }
 
+    /// Each part rounded up as it is drawn, with the label's slack, so the
+    /// label is never cut short by the rounding (as the timesheet's
+    /// "Sati eki…" was).
     private var figuresWidth: CGFloat {
         figures.map { figure in
-            ceil(PDFReportStyle.width(of: figure.label, font: figureLabelFont)
+            ceil(PDFReportStyle.width(of: figure.label, font: figureLabelFont)) + PDFPageDecorations.figureSlack
                 + figureGap
-                + PDFReportStyle.width(of: figure.value, font: figureValueFont))
+                + ceil(PDFReportStyle.width(of: figure.value, font: figureValueFont)) + 1
         }.max() ?? 0
     }
 

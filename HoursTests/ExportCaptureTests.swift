@@ -713,6 +713,136 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertEqual(layout.labelSpan(of: monthTotal), 0..<3)
     }
 
+    /// A combined sheet like the one an owner sent back (2026-11): two
+    /// sites' October, 22 days on site, five people, a sick week, and one
+    /// day on both sites with its Total row. Everything — the days, the
+    /// closing rows, By site and the legend — fits one landscape page.
+    private func twoSiteMonth(language: ExportLanguage = .english) -> ReportTable {
+        let jarun = Site(name: "Jarunski Dvori", address: "Aleja 8\n10000 Zagreb")
+        let trg = Site(name: "Trg Pravde Zagreb")
+        var export = ExportPreferences()
+        export.ownerName = "Marijo Mikša"
+        export.language = language
+        let settings = Fixture.settings(export: export)
+        let names = Array(Self.bigCrew.prefix(4))
+        let crewJarun = names.enumerated().map { CrewMember(siteID: jarun.id, name: $1, sortOrder: $0) }
+        let crewTrg = names.enumerated().map { CrewMember(siteID: trg.id, name: $1, sortOrder: $0) }
+        var days: [SiteDay] = []
+        for day in 1...31 {
+            let date = Fixture.date(2026, 10, day)
+            let weekday = calendar.component(.weekday, from: date.date(in: calendar))
+            guard weekday != 1, weekday != 7 else { continue }
+            let onTrg = day < 14
+            let site = onTrg ? trg : jarun
+            let crew = onTrg ? crewTrg : crewJarun
+            let sick = (8...13).contains(day)
+            var present = sick ? [] : [Attendance(memberID: CrewMember.youID)]
+            present += crew.enumerated().compactMap { index, member in
+                index >= 2 && day % 3 == 0 ? nil : Attendance(memberID: member.id)
+            }
+            if day == 29 {
+                // You and the first of the crew move to the other site at 12:40.
+                present[0] = Attendance(memberID: CrewMember.youID, start: Fixture.time(12, 40), end: Fixture.time(16, 20))
+                present[1] = Attendance(memberID: crew[0].id, start: Fixture.time(12, 40), end: Fixture.time(16, 20))
+                days.append(SiteDay(siteID: trg.id, date: date, start: Fixture.time(7), end: Fixture.time(12, 40),
+                                    breakMinutes: 0, present: [Attendance(memberID: CrewMember.youID),
+                                                               Attendance(memberID: crewTrg[0].id)]))
+            }
+            days.append(SiteDay(
+                siteID: site.id, date: date, start: Fixture.time(7), end: Fixture.time(16), breakMinutes: 0,
+                present: present,
+                absences: sick ? [CrewAbsence(memberID: CrewMember.youID, dayTypeID: .sick)] : []
+            ))
+        }
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        return SiteSheetBuilder(settings: settings, calendar: calendar, emptyPlaceholder: "—")
+            .makeTable(
+                sites: [jarun, trg],
+                crew: crewJarun + crewTrg,
+                results: days.map(calculator.compute),
+                range: CalendarDateRange(start: Fixture.date(2026, 10, 1), end: Fixture.date(2026, 10, 31))
+            )
+    }
+
+    func testATwoSiteMonthForFivePeopleFitsOnePage() throws {
+        let table = twoSiteMonth()
+        XCTAssertEqual(SiteSheetBuilder.peopleCount(in: table), 5)
+        XCTAssertEqual(table.rows.filter { $0.role == .day }.count, 24, "22 days and a day on two sites")
+        XCTAssertEqual(table.bySite.count, 3)
+        XCTAssertEqual(PDFReportRenderer.parts(of: table).count, 1)
+
+        let layout = PDFReportLayout(table: table)
+        let plans = layout.pages()
+        XCTAssertEqual(plans.count, 1, "By site and the legend went over to a page of their own")
+        XCTAssertTrue(plans[0].closes)
+
+        let data = PDFReportRenderer.data(for: table)
+        for (index, image) in try pages(of: data).enumerated() {
+            attach(image, named: "17c-site-pdf-two-sites-month-\(index + 1)")
+        }
+        let document = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertEqual(document.pageCount, 1)
+        let text = document.page(at: 0)?.string ?? ""
+        XCTAssertTrue(text.contains("By site"))
+        XCTAssertTrue(text.contains("Month total"))
+        XCTAssertTrue(text.contains("Each person"), "the legend is not on the page")
+        XCTAssertTrue(text.contains("Crew hours"), "the header figure is cut short")
+    }
+
+    /// When the By site block cannot stay, it does not go over alone: the
+    /// closing rows and the last days go with it, under a running header.
+    func testWhenBySiteMustMoveItTakesTheClosingRowsAndADayOrTwo() throws {
+        let table = twoSiteMonth()
+        let layout = PDFReportLayout(table: table)
+        // The same sheet with a header block twice as tall leaves no room.
+        var plans = layout.pages()
+        if plans.count == 1 {
+            var crowded = table
+            crowded.partLabel = "People 1–5 of 5"
+            plans = PDFReportLayout(table: crowded).pages()
+        }
+        guard plans.count > 1, let last = plans.last else { return }
+        let closing = table.rows.firstIndex { $0.role != .day } ?? table.rows.count
+        XCTAssertLessThan(last.rows.lowerBound, closing, "the last page has no days above its totals")
+        XCTAssertGreaterThan(last.rows.count, 0, "By site went over without the closing rows")
+        XCTAssertTrue(last.showsHeadings)
+    }
+
+    /// The figures at the top right are never cut short, in any language:
+    /// "Sati eki…" was the Croatian sheet's "Sati ekipe".
+    func testTheHeaderFiguresAreWholeInEveryLanguage() throws {
+        for language in ExportLanguage.allCases where language != .device {
+            let table = twoSiteMonth(language: language)
+            let header = table.pageHeader(madeOn: CalendarDate(Date(), calendar: .current), calendar: .current)
+            let metrics = PDFPageDecorations.figureMetrics(header.figures)
+            XCTAssertLessThanOrEqual(metrics.width, PDFPageDecorations.figuresMaximumWidth + 0.5, language.rawValue)
+            for figure in header.figures {
+                let needed = PDFReportStyle.width(of: figure.label, font: metrics.labelFont)
+                XCTAssertGreaterThan(metrics.labelWidth(figure.label), needed + 1, "\(language.rawValue): \(figure.label)")
+                XCTAssertGreaterThanOrEqual(
+                    metrics.width,
+                    metrics.labelWidth(figure.label) + PDFPageDecorations.figureGap + metrics.valueWidth(figure.value)
+                )
+            }
+            let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+            let text = document.page(at: 0)?.string ?? ""
+            for figure in header.figures {
+                XCTAssertTrue(text.contains(figure.label), "\(language.rawValue): \(figure.label) is cut short")
+            }
+        }
+    }
+
+    /// A page after the first says what it is: the title again, smaller.
+    func testALaterPageHasARunningHeader() throws {
+        let table = monthTable(days: 31)
+        let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+        guard document.pageCount > 1 else { return }
+        for index in 1..<document.pageCount {
+            let text = document.page(at: index)?.string ?? ""
+            XCTAssertTrue(text.contains("Ada Lovelace"), "page \(index + 1) does not say whose it is")
+        }
+    }
+
     /// Whatever the crew, no time and no hours are cut short: the sheet is
     /// split as far as it has to be and no further. A crew that fits prints
     /// exactly as it always did — one table, no "People 1–5 of 5".
