@@ -56,6 +56,7 @@ final class ScreenAtlasTests: XCTestCase {
         firstRun()
         guidedTour()
         emptyStates()
+        noWorkScreens()
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
@@ -1842,6 +1843,61 @@ final class ScreenAtlasTests: XCTestCase {
     private func swipeDown(_ app: XCUIApplication, times: Int) {
         for _ in 0..<times { app.swipeDown() }
         pause(0.4)
+    }
+
+    /// Days nobody worked (2026-11-05): the sample site expecting every day,
+    /// its red "N not written" opening the days with a reason's menu, then
+    /// the site paused in its settings and its card saying so. On the 1st
+    /// and 2nd of a month there is no day to list, so the sheet is optional.
+    private func noWorkScreens() {
+        let app = launch(["-hours-sample-site", "-hours-site-missing-days"])
+        guard app.tab(.sites).waitForExistence(timeout: 20) else {
+            miss("no work (the app did not start)")
+            return
+        }
+        app.tab(.sites).tap()
+        pause(1)
+        let count = app.buttons.matching(identifier: "site-card-not-written").firstMatch
+        if count.waitForExistence(timeout: 5) {
+            capture("sites-not-written", app)
+            tapAnyway(count)
+            if app.screen("site-no-work-sheet").waitForExistence(timeout: 8) {
+                pause(0.8)
+                capture("site-no-work-sheet", app)
+                if tap(app.buttons.matching(identifier: "site-no-work-all").firstMatch, "All", app) {
+                    capture("site-no-work-reasons", app)
+                    dismissMenu(app)
+                }
+                close(app, "site-no-work-done")
+            } else {
+                miss("site-no-work-sheet (did not open)")
+            }
+        } else {
+            optional.append("site-no-work-sheet (no day before yesterday this month)")
+        }
+
+        if tap(app.buttons.matching(identifier: "site-card").firstMatch, "the sample site", app),
+           tap(app.buttons.matching(identifier: "site-menu").firstMatch, "the site's menu", app),
+           tap(app.buttons.matching(identifier: "site-edit").firstMatch, "the site's settings", app) {
+            let paused = app.switches["site-editor-paused"].firstMatch
+            if bringIntoView(paused, app) {
+                flip(paused)
+                pause(0.5)
+                capture("site-edit-paused", app)
+                tap(app.buttons.matching(identifier: "site-editor-save").firstMatch, "Save the site", app)
+                pause(1)
+                back(app)
+                if app.staticTexts.matching(identifier: "site-card-paused").firstMatch.waitForExistence(timeout: 5) {
+                    capture("sites-paused-card", app)
+                } else {
+                    miss("sites-paused-card (the card does not say Paused)")
+                }
+            } else {
+                miss("site-edit-paused (no Paused switch)")
+                close(app, "site-editor-cancel")
+            }
+        }
+        app.terminate()
     }
 
     /// Closes a sheet by its button; if the button is not there, by a swipe
