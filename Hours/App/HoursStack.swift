@@ -129,6 +129,22 @@ enum HoursStack {
         return store
     }
 
+    /// Connect to company (free, off until paired). A UI test run keeps the
+    /// connection in memory, and with `-hours-connect-stub` talks to an
+    /// in-memory company instead of the network, sending only on Sync now.
+    static let connect: ConnectService = {
+        let usesStub = isRunningUITests && ProcessInfo.processInfo.arguments.contains(ConnectService.stubLaunchArgument)
+        let storage: ConnectStorage = isRunningUITests ? MemoryConnectStorage() : DeviceConnectStorage()
+        let transport: ConnectTransport = usesStub ? ConnectStubTransport.sample() : URLSessionConnectTransport()
+        return ConnectService(
+            storage: storage,
+            transport: transport,
+            sendsByItself: !isRunningUITests,
+            container: { container },
+            settingsStore: { settings }
+        )
+    }()
+
     /// What the syncing store has been doing. Started in the app's `init`.
     static let syncMonitor = SyncMonitor()
 

@@ -252,6 +252,10 @@ struct SiteDetailScreen: View {
 
     private func overview(_ site: Site) -> some View {
         List {
+            // Connect to company: from the company, and what the office
+            // sent back (nothing for a phone that is not connected).
+            ConnectSiteSection(siteID: site.id)
+
             // A tip (2026-11-05) goes under the title's line, before the
             // month: the line belongs to the title.
             if let tip = tip(for: site) {

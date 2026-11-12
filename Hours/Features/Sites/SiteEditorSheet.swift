@@ -109,6 +109,11 @@ struct SiteEditorSheet: View {
                 } footer: {
                     if isReadOnly {
                         Text("Read-only until Zeitkonto Pro is active again or your other sites are archived. Nothing on it is lost.")
+                    } else if let company = HoursStack.connect.companyName(forSite: draft.id) {
+                        Text(verbatim: String(
+                            localized: "From \(company). A name or address changed here is the office's again at the next sync.",
+                            comment: "Site settings, a site from the company's website; the value is the company's name"
+                        ))
                     } else if foundNoAddress {
                         Text("Apple Maps has no address for the saved place. Type it instead.")
                     } else if draft.place != nil {

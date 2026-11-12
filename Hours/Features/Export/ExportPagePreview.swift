@@ -109,6 +109,10 @@ struct ExportReadyItem: Identifiable {
     /// Pro is needed for the file: nothing was written, the sheet is only
     /// shown, and Send… and Save to Files open the paywall.
     var isLocked = false
+    /// A crew sheet of sites the company sees, while connected: Send to
+    /// company is offered beside Send…, and the sheet is queued for the
+    /// company when it goes out either way.
+    var connectOrder: ConnectSheetOrder?
 }
 
 /// Ready to send (Export board, phone 4): the file as it will arrive, with
@@ -128,6 +132,8 @@ struct ExportReadySheet: View {
     @State private var sent = false
     @State private var closed = false
     @State private var paywallReason: ProFeature?
+    @State private var sendingToCompany = false
+    @State private var sentToCompany = false
 
     var body: some View {
         NavigationStack {
@@ -218,6 +224,9 @@ struct ExportReadySheet: View {
                 .accessibilityIdentifier("export-save-files")
             }
             .disabled(item.files.isEmpty && !item.isLocked)
+            if let order = item.connectOrder, !item.isLocked {
+                sendToCompany(order)
+            }
             if let month = closeOffer {
                 closeLine(month)
             }
@@ -278,6 +287,46 @@ struct ExportReadySheet: View {
     private func didSend() {
         withAnimation(.snappy(duration: 0.25)) { sent = true }
         onSent()
+        // Exported: the company gets the same sheet, once.
+        if let order = item.connectOrder, !item.isLocked, !sentToCompany {
+            queueForCompany(order)
+        }
+    }
+
+    /// Send to company, beside Send… and Save to Files; then the sheet's
+    /// state line: waiting, sent, approved or returned.
+    @ViewBuilder
+    private func sendToCompany(_ order: ConnectSheetOrder) -> some View {
+        let connect = HoursStack.connect
+        if let company = connect.companyName, connect.canSend(siteIDs: order.siteIDs) {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                Button {
+                    queueForCompany(order)
+                } label: {
+                    Label(
+                        String(localized: "Send to \(company)", comment: "Export: sends the sheet to the company's website; the value is the company's name"),
+                        systemImage: "building.columns"
+                    )
+                }
+                .buttonStyle(.bigAction(.secondary))
+                .disabled(sendingToCompany)
+                .accessibilityIdentifier("export-send-company")
+                if let status = connect.status(ofSheet: order.siteIDs, month: order.month), sentToCompany || status != .notSent {
+                    ConnectStatusLine(status: status)
+                }
+            }
+        }
+    }
+
+    private func queueForCompany(_ order: ConnectSheetOrder) {
+        guard !sendingToCompany else { return }
+        sendingToCompany = true
+        let attachments = item.pdfData == nil ? item.files : []
+        Task {
+            _ = await HoursStack.connect.sendSheet(order, pdf: item.pdfData, attachments: attachments)
+            sendingToCompany = false
+            sentToCompany = true
+        }
     }
 }
 

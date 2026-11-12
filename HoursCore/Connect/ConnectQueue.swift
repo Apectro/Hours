@@ -287,16 +287,17 @@ extension ConnectState {
             .sorted { $0.createdAt < $1.createdAt }
     }
 
-    /// What the office sent back on a site: returned sheets that cover it
-    /// and returned or conflicting records on it, newest first.
-    func returns(onSite siteID: UUID) -> [ConnectReturn] {
+    /// What the office sent back on a site (on every site, for nil):
+    /// returned sheets that cover it and returned records on it, newest
+    /// first.
+    func returns(onSite siteID: UUID?) -> [ConnectReturn] {
         var found: [String: ConnectReturn] = [:]
         for (key, review) in reviews where review.state == "returned" {
-            guard marks[key]?.siteIDs.contains(siteID) == true else { continue }
+            guard siteID.map({ marks[key]?.siteIDs.contains($0) == true }) ?? true else { continue }
             found[key] = ConnectReturn(kind: review.kind, id: review.id, comment: commentBodies(review.commentIDs).last ?? returnComment(on: review.kind, id: review.id), at: review.changedAt)
         }
         for (key, conflict) in conflicts where conflict.reason == "returned" {
-            guard marks[key]?.siteIDs.contains(siteID) == true else { continue }
+            guard siteID.map({ marks[key]?.siteIDs.contains($0) == true }) ?? true else { continue }
             found[key] = ConnectReturn(kind: conflict.kind, id: conflict.id, comment: commentBodies(conflict.commentIDs).last ?? returnComment(on: conflict.kind, id: conflict.id), at: "")
         }
         // Corrected and sent again: no longer a return to act on.

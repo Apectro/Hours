@@ -5587,6 +5587,65 @@
         }
       }
     },
+    "%lld waiting": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld warten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld en espera"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld en attente"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld čeka"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld in attesa"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld wachten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld czeka"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld em espera"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld čaka"
+          }
+        }
+      }
+    },
     "%lld with hours recorded": {
       "extractionState": "manual",
       "localizations": {
@@ -7943,6 +8002,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drugo delo je del Zeitkonto Pro. Obstoječe delo deluje tako ali tako."
+          }
+        }
+      }
+    },
+    "A site made on this phone goes to the company only when switched on here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine auf diesem Handy angelegte Baustelle geht nur an die Firma, wenn sie hier eingeschaltet ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una obra creada en este móvil solo va a la empresa si se activa aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un chantier créé sur ce téléphone n'est envoyé à l'entreprise que s'il est activé ici."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilište napravljeno na ovom mobitelu ide tvrtki samo ako je ovdje uključeno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un cantiere creato su questo telefono va all'azienda solo se è attivato qui."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Een bouwplaats die op deze telefoon is gemaakt, gaat alleen naar het bedrijf als hij hier aanstaat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowa utworzona na tym telefonie trafia do firmy tylko wtedy, gdy jest tu włączona."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma obra criada neste telemóvel só vai para a empresa se for ativada aqui."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišče, ustvarjeno na tem telefonu, gre podjetju le, če je tu vklopljeno."
+          }
+        }
+      }
+    },
+    "A site with days in %@, which is closed, was removed by the office. It is archived here, with its days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Baustelle mit Tagen im abgeschlossenen %@ wurde vom Büro entfernt. Sie ist hier archiviert, mit ihren Tagen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La oficina ha quitado una obra con días en %@, que está cerrado. Aquí queda archivada, con sus días."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bureau a supprimé un chantier avec des jours en %@, qui est clôturé. Il est archivé ici, avec ses jours."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je uklonio gradilište s danima u %@, koji je zatvoren. Ovdje je arhivirano, s danima."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'ufficio ha tolto un cantiere con giorni in %@, che è chiuso. Qui è archiviato, con i suoi giorni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het kantoor heeft een bouwplaats met dagen in %@, die is afgesloten, verwijderd. Hier is hij gearchiveerd, met zijn dagen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biuro usunęło budowę z dniami w %@, który jest zamknięty. Tutaj jest zarchiwizowana, razem z dniami."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O escritório removeu uma obra com dias em %@, que está fechado. Fica aqui arquivada, com os seus dias."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je odstranila gradbišče z dnevi v %@, ki je zaprt. Tu je arhivirano, z dnevi."
           }
         }
       }
@@ -14001,6 +14178,65 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "Approved": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freigegeben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approuvé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odobreno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approvato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goedgekeurd"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatwierdzone"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprovado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odobreno"
           }
         }
       }
@@ -23800,6 +24036,65 @@
         }
       }
     },
+    "Company": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firma"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empresa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entreprise"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvrtka"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azienda"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrijf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firma"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empresa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podjetje"
+          }
+        }
+      }
+    },
     "Compare %@'s pay with your hours": {
       "extractionState": "manual",
       "localizations": {
@@ -23914,6 +24209,360 @@
           "stringUnit": {
             "state": "translated",
             "value": "Primerjaj jo s svojimi urami"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poveži"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connetti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połącz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poveži"
+          }
+        }
+      }
+    },
+    "Connect to %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit %@ verbinden?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Conectar con %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à %@ ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezati se s %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collegarsi a %@?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden met %@?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączyć z %@?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar a %@?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezati z %@?"
+          }
+        }
+      }
+    },
+    "Connect to company": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Firma verbinden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar con la empresa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter à l'entreprise"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poveži s tvrtkom"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collega all'azienda"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koppelen met bedrijf"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połącz z firmą"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar à empresa"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poveži s podjetjem"
+          }
+        }
+      }
+    },
+    "Connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collegato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekoppeld"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączono"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano"
+          }
+        }
+      }
+    },
+    "Connected as %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden als %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado como %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté en tant que %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano kao %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collegato come %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekoppeld als %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączono jako %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligado como %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano kot %@"
+          }
+        }
+      }
+    },
+    "Connected to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden mit %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado con %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté à %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano s %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collegato a %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekoppeld met %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączono z %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligado a %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano z %@"
           }
         }
       }
@@ -31093,6 +31742,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zavrzi to izmeno"
+          }
+        }
+      }
+    },
+    "Disconnect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trennen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconectar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déconnecter"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odspoji"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnetti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontkoppelen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozłącz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desligar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prekini povezavo"
+          }
+        }
+      }
+    },
+    "Disconnect from %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von %@ trennen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Desconectar de %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de %@ ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odspojiti od %@?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnettere da %@?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ontkoppelen van %@?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozłączyć z %@?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desligar de %@?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prekiniti povezavo z %@?"
           }
         }
       }
@@ -38335,6 +39102,65 @@
         }
       }
     },
+    "Free. Nothing leaves your phone unless you connect it. Once connected, the site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of your company's sites go to your company's own website, and nowhere else.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kostenlos. Nichts verlässt dein Handy, solange du es nicht verbindest. Verbunden gehen Baustellentage, Monatslisten, Unterschriften, Zusatzarbeiten, Mängel, Fehlendes und Lieferungen der Baustellen deiner Firma an die eigene Website deiner Firma und nirgendwohin sonst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratis. Nada sale de tu móvil mientras no lo conectes. Una vez conectado, los días de obra, las hojas del mes, las firmas, los trabajos adicionales, los defectos, Lo que falta y las entregas de las obras de tu empresa van a la web de tu empresa, y a ningún otro sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratuit. Rien ne quitte votre téléphone tant que vous ne le connectez pas. Une fois connecté, les journées de chantier, les feuilles du mois, les signatures, les travaux supplémentaires, les défauts, les Manquants et les livraisons des chantiers de votre entreprise vont sur le site de votre entreprise, et nulle part ailleurs."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besplatno. Ništa ne napušta tvoj mobitel dok ga ne povežeš. Kad je povezan, dani na gradilištu, mjesečne liste, potpisi, dodatni radovi, nedostaci, popis Nedostaje i isporuke za gradilišta tvoje tvrtke idu na vlastitu web-stranicu tvoje tvrtke i nikamo drugamo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratis. Nulla lascia il tuo telefono finché non lo colleghi. Una volta collegato, le giornate di cantiere, i fogli mensili, le firme, i lavori extra, i difetti, i Mancanti e le consegne dei cantieri della tua azienda vanno al sito della tua azienda, e da nessun'altra parte."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratis. Niets verlaat je telefoon zolang je hem niet koppelt. Gekoppeld gaan de bouwplaatsdagen, maandbladen, handtekeningen, meerwerk, gebreken, Ontbrekend en leveringen van de bouwplaatsen van je bedrijf naar de eigen website van je bedrijf, en nergens anders heen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Za darmo. Nic nie opuszcza twojego telefonu, dopóki go nie połączysz. Po połączeniu dni na budowie, arkusze miesięczne, podpisy, prace dodatkowe, usterki, Braki i dostawy z budów twojej firmy trafiają na własną stronę twojej firmy i nigdzie indziej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grátis. Nada sai do teu telemóvel enquanto não o ligares. Depois de ligado, os dias de obra, as folhas do mês, as assinaturas, os trabalhos adicionais, os defeitos, o Em falta e as entregas das obras da tua empresa vão para o site da tua empresa, e para mais nenhum lado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brezplačno. Nič ne zapusti tvojega telefona, dokler ga ne povežeš. Ko je povezan, gredo dnevi na gradbišču, mesečni listi, podpisi, dodatna dela, pomanjkljivosti, seznam Manjkajoče in dobave za gradbišča tvojega podjetja na lastno spletno stran podjetja in nikamor drugam."
+          }
+        }
+      }
+    },
     "From": {
       "extractionState": "manual",
       "localizations": {
@@ -38449,6 +39275,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Od %@"
+          }
+        }
+      }
+    },
+    "From %@. A name or address changed here is the office's again at the next sync.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von %@. Ein hier geänderter Name oder eine Adresse ist beim nächsten Abgleich wieder die des Büros."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De %@. Un nombre o una dirección cambiados aquí vuelven a ser los de la oficina en la próxima sincronización."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De %@. Un nom ou une adresse modifiés ici redeviennent ceux du bureau à la prochaine synchronisation."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od %@. Naziv ili adresa promijenjeni ovdje pri sljedećoj sinkronizaciji opet su uredovi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da %@. Un nome o un indirizzo cambiati qui tornano quelli dell'ufficio alla prossima sincronizzazione."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Van %@. Een hier gewijzigde naam of adres is bij de volgende synchronisatie weer die van het kantoor."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od %@. Nazwa lub adres zmienione tutaj przy następnej synchronizacji znów będą takie jak w biurze."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De %@. Um nome ou endereço alterado aqui volta a ser o do escritório na próxima sincronização."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od %@. Ime ali naslov, spremenjen tukaj, je ob naslednji uskladitvi spet od pisarne."
           }
         }
       }
@@ -38744,6 +39629,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "S škatle"
+          }
+        }
+      }
+    },
+    "From the office": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Büro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De la oficina"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du bureau"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iz ureda"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dall'ufficio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Van het kantoor"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Od biura"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do escritório"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iz pisarne"
           }
         }
       }
@@ -44939,6 +45883,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zadnji dan %@"
+          }
+        }
+      }
+    },
+    "Last synced": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt abgeglichen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Última sincronización"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière synchronisation"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadnja sinkronizacija"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultima sincronizzazione"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laatst gesynchroniseerd"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostatnia synchronizacja"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Última sincronização"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadnja usklajitev"
           }
         }
       }
@@ -55209,6 +56212,65 @@
         }
       }
     },
+    "Nothing goes to your company unless you connect the app in Settings › Connect to company. Then the site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of your company's sites go to your company's own website, and nowhere else.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts geht an deine Firma, solange du die App nicht unter Einstellungen › Mit Firma verbinden verbindest. Dann gehen Baustellentage, Monatslisten, Unterschriften, Zusatzarbeiten, Mängel, Fehlendes und Lieferungen der Baustellen deiner Firma an die eigene Website deiner Firma und nirgendwohin sonst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada va a tu empresa mientras no conectes la app en Ajustes › Conectar con la empresa. Entonces los días de obra, las hojas del mes, las firmas, los trabajos adicionales, los defectos, Lo que falta y las entregas de las obras de tu empresa van a la web de tu empresa, y a ningún otro sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien ne va à votre entreprise tant que vous ne connectez pas l'app dans Réglages › Connecter à l'entreprise. Ensuite, les journées de chantier, les feuilles du mois, les signatures, les travaux supplémentaires, les défauts, les Manquants et les livraisons des chantiers de votre entreprise vont sur le site de votre entreprise, et nulle part ailleurs."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ništa ne ide tvojoj tvrtki dok ne povežeš aplikaciju u Postavke › Poveži s tvrtkom. Tada dani na gradilištu, mjesečne liste, potpisi, dodatni radovi, nedostaci, popis Nedostaje i isporuke za gradilišta tvoje tvrtke idu na vlastitu web-stranicu tvoje tvrtke i nikamo drugamo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nulla va alla tua azienda finché non colleghi l'app in Impostazioni › Collega all'azienda. Allora le giornate di cantiere, i fogli mensili, le firme, i lavori extra, i difetti, i Mancanti e le consegne dei cantieri della tua azienda vanno al sito della tua azienda, e da nessun'altra parte."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niets gaat naar je bedrijf zolang je de app niet koppelt in Instellingen › Koppelen met bedrijf. Dan gaan de bouwplaatsdagen, maandbladen, handtekeningen, meerwerk, gebreken, Ontbrekend en leveringen van de bouwplaatsen van je bedrijf naar de eigen website van je bedrijf, en nergens anders heen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nic nie trafia do twojej firmy, dopóki nie połączysz aplikacji w Ustawienia › Połącz z firmą. Wtedy dni na budowie, arkusze miesięczne, podpisy, prace dodatkowe, usterki, Braki i dostawy z budów twojej firmy trafiają na własną stronę twojej firmy i nigdzie indziej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada vai para a tua empresa enquanto não ligares a app em Definições › Ligar à empresa. Depois, os dias de obra, as folhas do mês, as assinaturas, os trabalhos adicionais, os defeitos, o Em falta e as entregas das obras da tua empresa vão para o site da tua empresa, e para mais nenhum lado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nič ne gre tvojemu podjetju, dokler aplikacije ne povežeš v Nastavitve › Poveži s podjetjem. Takrat gredo dnevi na gradbišču, mesečni listi, podpisi, dodatna dela, pomanjkljivosti, seznam Manjkajoče in dobave za gradbišča tvojega podjetja na lastno spletno stran podjetja in nikamor drugam."
+          }
+        }
+      }
+    },
     "Nothing in this range": {
       "extractionState": "manual",
       "localizations": {
@@ -58140,6 +59202,65 @@
         }
       }
     },
+    "On your company's website, the office opens Connect a phone and shows a QR code.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf der Website deiner Firma öffnet das Büro „Handy verbinden“ und zeigt einen QR-Code."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En la web de tu empresa, la oficina abre «Conectar un móvil» y muestra un código QR."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur le site de votre entreprise, le bureau ouvre « Connecter un téléphone » et affiche un code QR."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na web-stranici tvoje tvrtke ured otvara „Poveži mobitel” i prikazuje QR kod."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sul sito della tua azienda, l'ufficio apre «Collega un telefono» e mostra un codice QR."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op de website van je bedrijf opent het kantoor ‘Telefoon koppelen’ en toont een QR-code."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na stronie twojej firmy biuro otwiera „Połącz telefon” i pokazuje kod QR."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No site da tua empresa, o escritório abre «Ligar um telemóvel» e mostra um código QR."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na spletni strani tvojega podjetja pisarna odpre »Poveži telefon« in pokaže kodo QR."
+          }
+        }
+      }
+    },
     "Once a week, a note when finished extra work hasn't been sent to your boss. Tap it to open the extra-work report.": {
       "extractionState": "manual",
       "localizations": {
@@ -60732,6 +61853,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neobvezno. Vidiš samo ti in nikoli ne gre na list, razen če želiš."
+          }
+        }
+      }
+    },
+    "Or type them": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oder eintippen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O escríbelos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou saisissez-les"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ili ih upiši"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oppure scrivili"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Of typ ze in"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Albo je wpisz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou escreve-os"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ali ju vpiši"
           }
         }
       }
@@ -70505,6 +71685,183 @@
         }
       }
     },
+    "Returned by the office. Correct it and send it again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Büro zurückgegeben. Korrigieren und neu senden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devuelto por la oficina. Corrígelo y vuelve a enviarlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renvoyé par le bureau. Corrigez et renvoyez."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je vratio. Ispravi i pošalji ponovno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restituito dall'ufficio. Correggi e invia di nuovo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teruggestuurd door het kantoor. Verbeter het en stuur het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwrócone przez biuro. Popraw i wyślij ponownie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devolvido pelo escritório. Corrige e envia de novo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je vrnila. Popravi in pošlji znova."
+          }
+        }
+      }
+    },
+    "Returned by the office: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Büro zurückgegeben: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devuelto por la oficina: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renvoyé par le bureau : %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je vratio: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restituito dall'ufficio: %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teruggestuurd door het kantoor: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwrócone przez biuro: %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devolvido pelo escritório: %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je vrnila: %@"
+          }
+        }
+      }
+    },
+    "Returned for %@, which is closed. Reopen the month to correct it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für %@ zurückgegeben, der abgeschlossen ist. Öffne den Monat wieder, um zu korrigieren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devuelto para %@, que está cerrado. Reabre el mes para corregirlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renvoyé pour %@, qui est clôturé. Rouvrez le mois pour corriger."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vraćeno za %@, koji je zatvoren. Ponovno otvori mjesec da ispraviš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restituito per %@, che è chiuso. Riapri il mese per correggere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teruggestuurd voor %@, die is afgesloten. Heropen de maand om te verbeteren."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwrócone za %@, który jest zamknięty. Otwórz miesiąc ponownie, aby poprawić."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devolvido para %@, que está fechado. Reabre o mês para corrigir."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrnjeno za %@, ki je zaprt. Znova odpri mesec, da popraviš."
+          }
+        }
+      }
+    },
     "Right now": {
       "extractionState": "manual",
       "localizations": {
@@ -72216,6 +73573,65 @@
         }
       }
     },
+    "Scan the QR code": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR-Code scannen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanear el código QR"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanner le code QR"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skeniraj QR kod"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scansiona il codice QR"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan de QR-code"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeskanuj kod QR"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ler o código QR"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skeniraj kodo QR"
+          }
+        }
+      }
+    },
     "Scan the barcodes on the boxes; each one adds one to the job.": {
       "extractionState": "manual",
       "localizations": {
@@ -73160,6 +74576,65 @@
         }
       }
     },
+    "Send to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An %@ senden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar a %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer à %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošalji u %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia a %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naar %@ sturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij do %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar para %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlji v %@"
+          }
+        }
+      }
+    },
     "Send to boss (%lld)": {
       "extractionState": "manual",
       "localizations": {
@@ -73510,6 +74985,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Poslano"
+          }
+        }
+      }
+    },
+    "Sent to %@ only: the site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of the company's sites and of the sites switched on above. Your own hours, your pay and your other sites stay on this phone. The phone's key is kept in its Keychain, never in a backup.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesendet nur an %@: Baustellentage, Monatslisten, Unterschriften, Zusatzarbeiten, Mängel, Fehlendes und Lieferungen der Baustellen der Firma und der oben eingeschalteten. Deine eigenen Stunden, dein Lohn und deine anderen Baustellen bleiben auf diesem Handy. Der Schlüssel des Handys liegt in seinem Schlüsselbund, nie in einer Sicherung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se envía solo a %@: los días de obra, las hojas del mes, las firmas, los trabajos adicionales, los defectos, Lo que falta y las entregas de las obras de la empresa y de las obras activadas arriba. Tus horas, tu sueldo y tus otras obras se quedan en este móvil. La clave del móvil se guarda en su llavero, nunca en una copia de seguridad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyé à %@ uniquement : les journées de chantier, les feuilles du mois, les signatures, les travaux supplémentaires, les défauts, les Manquants et les livraisons des chantiers de l'entreprise et des chantiers activés ci-dessus. Vos propres heures, votre paie et vos autres chantiers restent sur ce téléphone. La clé du téléphone est conservée dans son trousseau, jamais dans une sauvegarde."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Šalje se samo na %@: dani na gradilištu, mjesečne liste, potpisi, dodatni radovi, nedostaci, popis Nedostaje i isporuke za gradilišta tvrtke i za gore uključena gradilišta. Tvoji sati, tvoja plaća i tvoja ostala gradilišta ostaju na ovom mobitelu. Ključ mobitela čuva se u njegovom privjesku ključeva, nikad u sigurnosnoj kopiji."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inviati solo a %@: le giornate di cantiere, i fogli mensili, le firme, i lavori extra, i difetti, i Mancanti e le consegne dei cantieri dell'azienda e di quelli attivati sopra. Le tue ore, la tua paga e gli altri tuoi cantieri restano su questo telefono. La chiave del telefono è nel suo portachiavi, mai in un backup."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen naar %@ verstuurd: de bouwplaatsdagen, maandbladen, handtekeningen, meerwerk, gebreken, Ontbrekend en leveringen van de bouwplaatsen van het bedrijf en van de hierboven aangezette bouwplaatsen. Je eigen uren, je loon en je andere bouwplaatsen blijven op deze telefoon. De sleutel van de telefoon staat in zijn sleutelhanger, nooit in een back-up."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysyłane tylko do %@: dni na budowie, arkusze miesięczne, podpisy, prace dodatkowe, usterki, Braki i dostawy z budów firmy i z budów włączonych powyżej. Twoje godziny, twoja wypłata i twoje inne budowy zostają na tym telefonie. Klucz telefonu jest w jego pęku kluczy, nigdy w kopii zapasowej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviado só para %@: os dias de obra, as folhas do mês, as assinaturas, os trabalhos adicionais, os defeitos, o Em falta e as entregas das obras da empresa e das obras ativadas acima. As tuas horas, o teu salário e as tuas outras obras ficam neste telemóvel. A chave do telemóvel fica no seu porta-chaves, nunca numa cópia de segurança."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pošlje se samo na %@: dnevi na gradbišču, mesečni listi, podpisi, dodatna dela, pomanjkljivosti, seznam Manjkajoče in dobave za gradbišča podjetja in za zgoraj vklopljena gradbišča. Tvoje ure, tvoja plača in tvoja druga gradbišča ostanejo na tem telefonu. Ključ telefona je v njegovi verigi ključev, nikoli v varnostni kopiji."
           }
         }
       }
@@ -78116,6 +79650,65 @@
         }
       }
     },
+    "Site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of the company's sites will be sent to this website.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellentage, Monatslisten, Unterschriften, Zusatzarbeiten, Mängel, Fehlendes und Lieferungen der Baustellen der Firma gehen an diese Website."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días de obra, las hojas del mes, las firmas, los trabajos adicionales, los defectos, Lo que falta y las entregas de las obras de la empresa se enviarán a esta web."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les journées de chantier, les feuilles du mois, les signatures, les travaux supplémentaires, les défauts, les Manquants et les livraisons des chantiers de l'entreprise seront envoyés à ce site."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani na gradilištu, mjesečne liste, potpisi, dodatni radovi, nedostaci, popis Nedostaje i isporuke za gradilišta tvrtke šalju se na ovu web-stranicu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le giornate di cantiere, i fogli mensili, le firme, i lavori extra, i difetti, i Mancanti e le consegne dei cantieri dell'azienda vanno a questo sito."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bouwplaatsdagen, maandbladen, handtekeningen, meerwerk, gebreken, Ontbrekend en leveringen van de bouwplaatsen van het bedrijf gaan naar deze website."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni na budowie, arkusze miesięczne, podpisy, prace dodatkowe, usterki, Braki i dostawy z budów firmy trafią na tę stronę."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias de obra, as folhas do mês, as assinaturas, os trabalhos adicionais, os defeitos, o Em falta e as entregas das obras da empresa vão para este site."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi na gradbišču, mesečni listi, podpisi, dodatna dela, pomanjkljivosti, seznam Manjkajoče in dobave za gradbišča podjetja gredo na to spletno stran."
+          }
+        }
+      }
+    },
     "Site diary": {
       "extractionState": "manual",
       "localizations": {
@@ -79587,6 +81180,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Premeščeno osebo najprej vrni z Razveljavi na dnevu, nato jo spremeni tukaj."
+          }
+        }
+      }
+    },
+    "Someone with days in %@, which is closed, was removed by the office. Their days stay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jemand mit Tagen im abgeschlossenen %@ wurde vom Büro entfernt. Die Tage bleiben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La oficina ha quitado a alguien con días en %@, que está cerrado. Sus días se quedan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bureau a supprimé quelqu'un avec des jours en %@, qui est clôturé. Ses jours restent."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je uklonio nekoga s danima u %@, koji je zatvoren. Dani ostaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'ufficio ha tolto qualcuno con giorni in %@, che è chiuso. I suoi giorni restano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het kantoor heeft iemand met dagen in %@, die is afgesloten, verwijderd. Die dagen blijven."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biuro usunęło kogoś z dniami w %@, który jest zamknięty. Jego dni zostają."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O escritório removeu alguém com dias em %@, que está fechado. Os seus dias ficam."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je odstranila nekoga z dnevi v %@, ki je zaprt. Dnevi ostanejo."
           }
         }
       }
@@ -83072,6 +84724,65 @@
         }
       }
     },
+    "Sync now": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt abgleichen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar ahora"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchroniser maintenant"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinkroniziraj sada"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizza ora"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu synchroniseren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronizuj teraz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar agora"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uskladi zdaj"
+          }
+        }
+      }
+    },
     "Sync starts the next time you open Zeitkonto.": {
       "extractionState": "manual",
       "localizations": {
@@ -84547,6 +86258,183 @@
         }
       }
     },
+    "That code has run out. Ask the office for a new one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code ist abgelaufen. Bitte das Büro um einen neuen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código ha caducado. Pide uno nuevo a la oficina."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code a expiré. Demandez-en un nouveau au bureau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taj kod je istekao. Zatraži novi od ureda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice è scaduto. Chiedine uno nuovo all'ufficio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die code is verlopen. Vraag het kantoor om een nieuwe."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod wygasł. Poproś biuro o nowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código expirou. Pede um novo ao escritório."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta koda je potekla. Prosi pisarno za novo."
+          }
+        }
+      }
+    },
+    "That code is not right. Ask the office for a new one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code stimmt nicht. Bitte das Büro um einen neuen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código no es correcto. Pide uno nuevo a la oficina."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code n'est pas bon. Demandez-en un nouveau au bureau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taj kod nije ispravan. Zatraži novi od ureda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice non è giusto. Chiedine uno nuovo all'ufficio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die code klopt niet. Vraag het kantoor om een nieuwe."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod jest nieprawidłowy. Poproś biuro o nowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código não está certo. Pede um novo ao escritório."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta koda ni prava. Prosi pisarno za novo."
+          }
+        }
+      }
+    },
+    "That code was already used. Ask the office for a new one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code wurde schon benutzt. Bitte das Büro um einen neuen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código ya se ha usado. Pide uno nuevo a la oficina."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code a déjà été utilisé. Demandez-en un nouveau au bureau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taj kod je već iskorišten. Zatraži novi od ureda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice è già stato usato. Chiedine uno nuovo all'ufficio."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die code is al gebruikt. Vraag het kantoor om een nieuwe."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod został już użyty. Poproś biuro o nowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código já foi usado. Pede um novo ao escritório."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta koda je že bila uporabljena. Prosi pisarno za novo."
+          }
+        }
+      }
+    },
     "That comes to %@ a day.": {
       "extractionState": "manual",
       "localizations": {
@@ -84665,6 +86553,65 @@
         }
       }
     },
+    "That is not a website address.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ist keine Website-Adresse."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eso no es una dirección web."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n'est pas une adresse de site."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To nije adresa web-stranice."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo non è un indirizzo di sito."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dat is geen websiteadres."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To nie jest adres strony."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso não é um endereço de site."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To ni naslov spletne strani."
+          }
+        }
+      }
+    },
     "That's %@ a week. Overtime counts from here.": {
       "extractionState": "manual",
       "localizations": {
@@ -84779,6 +86726,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zavihek Gradbišča ostane v vsakem primeru."
+          }
+        }
+      }
+    },
+    "The address and the eight-character code are under the QR code.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Adresse und der achtstellige Code stehen unter dem QR-Code."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La dirección y el código de ocho caracteres están debajo del código QR."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'adresse et le code à huit caractères figurent sous le code QR."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresa i kod od osam znakova nalaze se ispod QR koda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'indirizzo e il codice di otto caratteri sono sotto il codice QR."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het adres en de code van acht tekens staan onder de QR-code."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres i ośmioznakowy kod są pod kodem QR."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O endereço e o código de oito caracteres estão por baixo do código QR."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslov in osemmestna koda sta pod kodo QR."
           }
         }
       }
@@ -85446,6 +87452,65 @@
         }
       }
     },
+    "The camera is not available": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kamera ist nicht verfügbar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cámara no está disponible"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'appareil photo n'est pas disponible"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera nije dostupna"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fotocamera non è disponibile"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De camera is niet beschikbaar"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparat nie jest dostępny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A câmara não está disponível"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera ni na voljo"
+          }
+        }
+      }
+    },
     "The camera isn't available here, so type the numbers under the barcode.": {
       "extractionState": "manual",
       "localizations": {
@@ -85678,6 +87743,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ure ni bilo mogoče zagnati."
+          }
+        }
+      }
+    },
+    "The company's website can't be reached. Nothing is lost; it tries again by itself.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Website der Firma ist nicht erreichbar. Nichts geht verloren; es wird von selbst neu versucht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se puede llegar a la web de la empresa. No se pierde nada; vuelve a intentarlo solo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le site de l'entreprise est injoignable. Rien n'est perdu ; il réessaie tout seul."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-stranica tvrtke nije dostupna. Ništa se ne gubi; pokušava se ponovno samo od sebe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il sito dell'azienda non è raggiungibile. Non si perde nulla; riprova da solo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De website van het bedrijf is niet bereikbaar. Er gaat niets verloren; het wordt vanzelf opnieuw geprobeerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strona firmy jest nieosiągalna. Nic nie ginie; ponowi próbę sama."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não é possível chegar ao site da empresa. Nada se perde; volta a tentar sozinho."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spletna stran podjetja ni dosegljiva. Nič se ne izgubi; poskusi znova sama od sebe."
+          }
+        }
+      }
+    },
+    "The company's website is busy. It tries again by itself.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Website der Firma ist ausgelastet. Es wird von selbst neu versucht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La web de la empresa está ocupada. Vuelve a intentarlo sola."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le site de l'entreprise est occupé. Il réessaie tout seul."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-stranica tvrtke je zauzeta. Pokušava se ponovno samo od sebe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il sito dell'azienda è occupato. Riprova da solo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De website van het bedrijf is bezet. Het wordt vanzelf opnieuw geprobeerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strona firmy jest zajęta. Ponowi próbę sama."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O site da empresa está ocupado. Volta a tentar sozinho."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spletna stran podjetja je zasedena. Poskusi znova sama od sebe."
+          }
+        }
+      }
+    },
+    "The company's website refused something. The rest was sent.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Website der Firma hat etwas abgelehnt. Der Rest wurde gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La web de la empresa ha rechazado algo. El resto se ha enviado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le site de l'entreprise a refusé quelque chose. Le reste a été envoyé."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-stranica tvrtke nešto je odbila. Ostalo je poslano."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il sito dell'azienda ha rifiutato qualcosa. Il resto è stato inviato."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De website van het bedrijf heeft iets geweigerd. De rest is verstuurd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strona firmy coś odrzuciła. Reszta została wysłana."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O site da empresa recusou algo. O resto foi enviado."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spletna stran podjetja je nekaj zavrnila. Ostalo je poslano."
           }
         }
       }
@@ -87275,6 +89517,65 @@
         }
       }
     },
+    "The site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of the company's sites go to %@, your company's own website, and nowhere else. Your own hours, your pay and your other sites stay on this phone. Disconnect in Settings › Connect to company.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellentage, Monatslisten, Unterschriften, Zusatzarbeiten, Mängel, Fehlendes und Lieferungen der Baustellen der Firma gehen an %@, die eigene Website deiner Firma, und nirgendwohin sonst. Deine eigenen Stunden, dein Lohn und deine anderen Baustellen bleiben auf diesem Handy. Trennen unter Einstellungen › Mit Firma verbinden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días de obra, las hojas del mes, las firmas, los trabajos adicionales, los defectos, Lo que falta y las entregas de las obras de la empresa van a %@, la web de tu empresa, y a ningún otro sitio. Tus horas, tu sueldo y tus otras obras se quedan en este móvil. Desconecta en Ajustes › Conectar con la empresa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les journées de chantier, les feuilles du mois, les signatures, les travaux supplémentaires, les défauts, les Manquants et les livraisons des chantiers de l'entreprise vont à %@, le site de votre entreprise, et nulle part ailleurs. Vos propres heures, votre paie et vos autres chantiers restent sur ce téléphone. Déconnexion dans Réglages › Connecter à l'entreprise."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani na gradilištu, mjesečne liste, potpisi, dodatni radovi, nedostaci, popis Nedostaje i isporuke za gradilišta tvrtke idu na %@, vlastitu web-stranicu tvoje tvrtke, i nikamo drugamo. Tvoji sati, tvoja plaća i tvoja ostala gradilišta ostaju na ovom mobitelu. Odspoji u Postavke › Poveži s tvrtkom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le giornate di cantiere, i fogli mensili, le firme, i lavori extra, i difetti, i Mancanti e le consegne dei cantieri dell'azienda vanno a %@, il sito della tua azienda, e da nessun'altra parte. Le tue ore, la tua paga e gli altri tuoi cantieri restano su questo telefono. Disconnetti in Impostazioni › Collega all'azienda."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bouwplaatsdagen, maandbladen, handtekeningen, meerwerk, gebreken, Ontbrekend en leveringen van de bouwplaatsen van het bedrijf gaan naar %@, de eigen website van je bedrijf, en nergens anders heen. Je eigen uren, je loon en je andere bouwplaatsen blijven op deze telefoon. Ontkoppelen in Instellingen › Koppelen met bedrijf."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni na budowie, arkusze miesięczne, podpisy, prace dodatkowe, usterki, Braki i dostawy z budów firmy trafiają na %@, własną stronę twojej firmy, i nigdzie indziej. Twoje godziny, twoja wypłata i twoje inne budowy zostają na tym telefonie. Rozłącz w Ustawienia › Połącz z firmą."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias de obra, as folhas do mês, as assinaturas, os trabalhos adicionais, os defeitos, o Em falta e as entregas das obras da empresa vão para %@, o site da tua empresa, e para mais nenhum lado. As tuas horas, o teu salário e as tuas outras obras ficam neste telemóvel. Desliga em Definições › Ligar à empresa."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi na gradbišču, mesečni listi, podpisi, dodatna dela, pomanjkljivosti, seznam Manjkajoče in dobave za gradbišča podjetja gredo na %@, lastno spletno stran tvojega podjetja, in nikamor drugam. Tvoje ure, tvoja plača in tvoja druga gradbišča ostanejo na tem telefonu. Povezavo prekineš v Nastavitve › Poveži s podjetjem."
+          }
+        }
+      }
+    },
     "The site sheet is part of Zeitkonto Pro. The preview is free, and every site day stays in your backup.": {
       "extractionState": "manual",
       "localizations": {
@@ -87448,6 +89749,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Običajni dan: **%@**, **%@**, %@"
+          }
+        }
+      }
+    },
+    "The website did not accept this phone. Connect it again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Website hat dieses Handy nicht angenommen. Verbinde es neu."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La web no ha aceptado este móvil. Vuelve a conectarlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le site n'a pas accepté ce téléphone. Connectez-le à nouveau."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-stranica nije prihvatila ovaj mobitel. Poveži ga ponovno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il sito non ha accettato questo telefono. Collegalo di nuovo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De website heeft deze telefoon niet geaccepteerd. Koppel hem opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strona nie przyjęła tego telefonu. Połącz go ponownie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O site não aceitou este telemóvel. Liga-o de novo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spletna stran tega telefona ni sprejela. Znova ga poveži."
           }
         }
       }
@@ -88691,6 +91051,65 @@
         }
       }
     },
+    "This code needs a newer Zeitkonto. Update the app first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code braucht ein neueres Zeitkonto. Aktualisiere zuerst die App."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código necesita un Zeitkonto más reciente. Actualiza antes la app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code demande un Zeitkonto plus récent. Mettez d'abord l'app à jour."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj kod treba noviji Zeitkonto. Najprije ažuriraj aplikaciju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice richiede uno Zeitkonto più recente. Aggiorna prima l'app."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze code vraagt een nieuwere Zeitkonto. Werk eerst de app bij."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod wymaga nowszego Zeitkonto. Najpierw zaktualizuj aplikację."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código precisa de um Zeitkonto mais recente. Atualiza primeiro a app."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta koda potrebuje novejši Zeitkonto. Najprej posodobi aplikacijo."
+          }
+        }
+      }
+    },
     "This day type is still in use": {
       "extractionState": "manual",
       "localizations": {
@@ -89218,6 +91637,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta mesec ste opravili %@."
+          }
+        }
+      }
+    },
+    "This phone stops sending. Everything on it stays.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Handy sendet nichts mehr. Alles darauf bleibt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este móvil deja de enviar. Todo lo que tiene se queda."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce téléphone n'envoie plus rien. Tout ce qu'il contient reste."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj mobitel prestaje slati. Sve na njemu ostaje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo telefono smette di inviare. Tutto quello che c'è resta."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze telefoon stuurt niets meer. Alles erop blijft."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten telefon przestaje wysyłać. Wszystko na nim zostaje."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este telemóvel deixa de enviar. Tudo o que tem fica."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta telefon ne pošilja več. Vse na njem ostane."
+          }
+        }
+      }
+    },
+    "This phone was disconnected by the office.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Handy wurde vom Büro getrennt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La oficina ha desconectado este móvil."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bureau a déconnecté ce téléphone."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je odspojio ovaj mobitel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'ufficio ha disconnesso questo telefono."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het kantoor heeft deze telefoon ontkoppeld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biuro rozłączyło ten telefon."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O escritório desligou este telemóvel."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je ta telefon odklopila."
           }
         }
       }
@@ -90634,6 +93171,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Za tisk ali pošiljanje"
+          }
+        }
+      }
+    },
+    "To send": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu senden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por enviar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À envoyer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Za slanje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da inviare"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te versturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do wysłania"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por enviar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Za pošiljanje"
           }
         }
       }
@@ -92585,6 +95181,65 @@
         }
       }
     },
+    "Type the website address and the code instead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe stattdessen die Website-Adresse und den Code ein."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe en su lugar la dirección de la web y el código."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez plutôt l'adresse du site et le code."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umjesto toga upiši adresu web-stranice i kod."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi invece l'indirizzo del sito e il codice."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typ in plaats daarvan het websiteadres en de code."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zamiast tego wpisz adres strony i kod."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em vez disso, escreve o endereço do site e o código."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Namesto tega vpiši naslov spletne strani in kodo."
+          }
+        }
+      }
+    },
     "Unarchive": {
       "extractionState": "manual",
       "localizations": {
@@ -93407,6 +96062,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Brez imena"
+          }
+        }
+      }
+    },
+    "Up to date": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles gesendet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo enviado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est envoyé"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve poslano"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto inviato"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles verstuurd"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystko wysłane"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo enviado"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse poslano"
           }
         }
       }
@@ -94709,6 +97423,65 @@
         }
       }
     },
+    "Waiting to send": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wartet aufs Senden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esperando envío"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente d'envoi"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čeka slanje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In attesa di invio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wacht op versturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Czeka na wysłanie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À espera de envio"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čaka na pošiljanje"
+          }
+        }
+      }
+    },
     "Weather": {
       "extractionState": "manual",
       "localizations": {
@@ -94882,6 +97655,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vreme, dela, fotografije. Natisne se na svojih straneh z listom gradbišča."
+          }
+        }
+      }
+    },
+    "Website address": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website-Adresse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección de la web"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse du site"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresa web-stranice"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indirizzo del sito"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websiteadres"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres strony"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endereço do site"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Naslov spletne strani"
           }
         }
       }
@@ -102045,6 +104877,183 @@
         }
       }
     },
+    "Your company's sites go to its own website. Everything else stays with you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Baustellen deiner Firma gehen an ihre eigene Website. Alles andere bleibt bei dir."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las obras de tu empresa van a su propia web. Todo lo demás se queda contigo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les chantiers de votre entreprise vont sur son site. Tout le reste reste chez vous."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilišta tvoje tvrtke idu na njezinu web-stranicu. Sve ostalo ostaje kod tebe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I cantieri della tua azienda vanno al suo sito. Tutto il resto resta con te."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bouwplaatsen van je bedrijf gaan naar zijn eigen website. Al het andere blijft bij jou."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowy twojej firmy trafiają na jej stronę. Wszystko inne zostaje u ciebie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As obras da tua empresa vão para o site dela. Tudo o resto fica contigo."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišča tvojega podjetja gredo na njegovo spletno stran. Vse drugo ostane pri tebi."
+          }
+        }
+      }
+    },
+    "Your company's sites to its website": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellen der Firma an ihre Website"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las obras de la empresa a su web"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chantiers de l'entreprise vers son site"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilišta tvrtke na njezinu stranicu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I cantieri dell'azienda al suo sito"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaatsen van het bedrijf naar zijn website"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowy firmy na jej stronę"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As obras da empresa para o seu site"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišča podjetja na njegovo stran"
+          }
+        }
+      }
+    },
+    "Your company, only if you connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Firma, nur wenn du verbindest"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu empresa, solo si te conectas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre entreprise, seulement si vous connectez"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja tvrtka, samo ako povežeš"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua azienda, solo se ti colleghi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je bedrijf, alleen als je koppelt"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja firma, tylko jeśli połączysz"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua empresa, só se ligares"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje podjetje, le če povežeš"
+          }
+        }
+      }
+    },
     "Your contract": {
       "extractionState": "manual",
       "localizations": {
@@ -103402,6 +106411,65 @@
         }
       }
     },
+    "Your own hours are kept on this device and nowhere else. %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine eigenen Stunden bleiben auf diesem Gerät und nirgendwo sonst. %@ %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus horas se guardan en este dispositivo y en ningún otro sitio. %@ %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos propres heures restent sur cet appareil et nulle part ailleurs. %@ %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoji sati čuvaju se na ovom uređaju i nigdje drugdje. %@ %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tue ore restano su questo dispositivo e da nessun'altra parte. %@ %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je eigen uren blijven op dit apparaat en nergens anders. %@ %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje godziny są przechowywane na tym urządzeniu i nigdzie indziej. %@ %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As tuas horas ficam neste dispositivo e em mais nenhum lado. %@ %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoje ure so shranjene na tej napravi in nikjer drugje. %@ %@"
+          }
+        }
+      }
+    },
     "Your own hours live on Today. Write today in one tap, or tap a day to change it.": {
       "extractionState": "manual",
       "localizations": {
@@ -103634,6 +106702,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Samo tvoj iCloud"
+          }
+        }
+      }
+    },
+    "Your own sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine eigenen Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus propias obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos propres chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja gradilišta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je eigen bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoje własne budowy"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As tuas obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja gradbišča"
           }
         }
       }
@@ -111973,6 +115100,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "vseeno prispelo"
+          }
+        }
+      }
+    },
+    "company, office, website, connect, director, sync, QR code, send": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firma, Büro, Website, verbinden, Bauleiter, abgleichen, QR-Code, senden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empresa, oficina, web, conectar, director, sincronizar, código QR, enviar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "entreprise, bureau, site, connecter, directeur, synchroniser, code QR, envoyer"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tvrtka, ured, web-stranica, poveži, direktor, sinkronizacija, QR kod, pošalji"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "azienda, ufficio, sito, collega, direttore, sincronizza, codice QR, invia"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bedrijf, kantoor, website, koppelen, directeur, synchroniseren, QR-code, versturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "firma, biuro, strona, połącz, kierownik, synchronizuj, kod QR, wyślij"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empresa, escritório, site, ligar, diretor, sincronizar, código QR, enviar"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "podjetje, pisarna, spletna stran, poveži, direktor, uskladi, koda QR, pošlji"
           }
         }
       }

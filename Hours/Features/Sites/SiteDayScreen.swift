@@ -189,6 +189,10 @@ struct SiteDayScreen: View {
                 }
             }
 
+            // Connect to company: sent or waiting, and what the office
+            // said about the day.
+            ConnectDaySection(siteID: site.id, date: date)
+
             if stored == nil {
                 unwrittenSections
             } else {

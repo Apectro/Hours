@@ -135,6 +135,8 @@ struct RootView: View {
             HoursStack.refreshWidget()
             // The sites watched for the arrival reminder; nothing without one.
             HoursStack.arrivals.refresh()
+            // Connect to company: watches saves and syncs if connected.
+            HoursStack.connect.start()
         }
         .onChange(of: scenePhase) { _, phase in
             // Rewritten on every return to the app, so the body names the days
@@ -156,6 +158,9 @@ struct RootView: View {
                 // A site's reminder switched on another device, or Location
                 // access changed in Settings while the app was away.
                 HoursStack.arrivals.refresh()
+                // Connected to a company: what the office changed, then
+                // what is waiting to go.
+                HoursStack.connect.foreground()
             }
             // And again on the way out, which is the moment the widget is about
             // to be looked at. Individual edits refresh as they happen; this
