@@ -1640,8 +1640,9 @@ as a real table with a header block and a totals footer.
 
 ## Privacy
 
-Everything is on the device unless the user says otherwise. There is no
-URLSession in the app, no analytics SDK, no crash reporter, no remote
+Everything is on the device unless the user says otherwise. The one
+URLSession in the app is Connect to company's (below), used only once the user
+has paired the phone with their company's own website. No analytics SDK, no crash reporter, no remote
 configuration and no third-party code of any kind. Two Apple frameworks make
 network calls on its behalf and nothing else does: StoreKit, to ask whether Pro
 has been paid for, and — only when the user turns it on — CloudKit. Neither
@@ -1698,6 +1699,28 @@ coordinates out: the app keeps no location but a site's saved place, and only
 for an arrival reminder the user turned on, and a GPS position in a picture
 handed to a director would break that by the back door. The weather is picked by
 hand; there is no weather service.
+
+**Connect to company (free, off until paired).** The app talks to the
+company's own website (the Zeitkonto Connect module: `docs/app.md` and
+`docs/protocol.md` there are the contract) and to nothing else. Engine:
+`HoursCore/Connect` — the wire types (`ConnectV1`, decoding every fixture of
+the protocol, copied into `HoursTests/Fixtures/ConnectV1`), the v5 ids
+(`ConnectUUID`, SHA-1 written out for Linux), the client over an injectable
+transport, the queue (`ConnectState`: dedupe by content, versions, sites and
+crew first, batches under the limits, backoff 5 s – 15 min), who is who
+(`ConnectPeople`: per-site crew rows linked to the company's people by id,
+else by `CrewCandidates.key`; "You" becomes the paired person), what is sent
+(`ConnectOutbox`, `ConnectSheet`) and what a sync changes (`ConnectMerge`:
+upserts, tombstones archive and hide, never delete, days are never touched and
+a closed month's conflicts are listed). App: `Hours/Data/Connect` — the token in
+the Keychain (`AfterFirstUnlockThisDeviceOnly`, not synchronizable), the
+company and person in this device's own `UserDefaults` (not `AppSettings`, so
+neither iCloud nor a backup file carries a connection), the queue in a file
+in Application Support excluded from backups; `ConnectService` scans the
+company's sites for changes after a save (debounced), syncs on foreground and
+on Sync now, retries on network change and backoff. No new SwiftData
+attribute: a crew row's person and a site's "from the company" live in that
+state file. UI tests use `-hours-connect-stub` (`ConnectStubTransport`).
 
 The privacy screen is written from `HoursStack.isSyncing` rather than from what
 the app intends in general — it reports the store that actually opened. A
