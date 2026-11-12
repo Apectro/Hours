@@ -8,6 +8,12 @@ call the app makes is to the App Store, to ask whether Zeitkonto Pro has been pa
 for — and to your own iCloud, if you switch sync on. Location only if you turn on
 an arrival reminder for a site, and it never leaves your phone; a site's address
 is looked up from Apple Maps only when you tap "Fill in from the saved place".
+Nothing goes to an employer unless you choose **Connect to company** (free, off by
+default): then the site days, month sheets, sign-offs, extra work, defects,
+Missing and deliveries of the company's sites go to the company's own website
+(the Zeitkonto Connect module it runs) and nowhere else; your own hours, pay and
+other sites stay on the phone, and the device token is in the Keychain, never in
+a backup.
 
 - **Requirements:** Xcode 16 or later, iOS 18 or later.
 > **On the two names.** The product is Zeitkonto: that is the display name, the
@@ -599,6 +605,10 @@ Manager role to create products.
    the developer. The 1.2 arrival reminder uses location on the device only
    and keeps nothing but the site's saved place; a site's address is looked up
    from Apple Maps only on the user's tap (`notes/listing-1.2/privacy.md`).
+   Connect to company (free, off by default) sends the company's sites' records
+   to the company's own website, which the user pairs with by its QR code; the
+   developer receives nothing and runs no server, so the answer stays the same
+   (`notes/listing-1.2/privacy.md`, *Connect to company*).
 5. **App Review contact** — name, phone and email under App Review
    Information. Deliberately not in this repository.
 6. **A review screenshot for each product** — a picture of the paywall, on each

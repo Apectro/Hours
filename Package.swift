@@ -30,6 +30,9 @@ let package = Package(
             exclude: [
                 // Not a source file; the scheme and the StoreKit tests read it.
                 "Hours.storekit",
+                // The Connect protocol's example payloads; the tests read
+                // them from disk (see ConnectFixtures).
+                "Fixtures",
                 "DefectRepositoryTests.swift",
                 "DuplicateReconciliationTests.swift",
                 "ExtraWorkPDFTests.swift",

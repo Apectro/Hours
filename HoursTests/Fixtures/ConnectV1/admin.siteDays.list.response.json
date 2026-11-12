@@ -1,0 +1,154 @@
+{
+  "items": [
+    {
+      "id": "77593f12-e0f2-556b-af9a-7fadea4eb5df",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "77593f12-e0f2-556b-af9a-7fadea4eb5df",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "date": "2026-10-01",
+        "start": "07:00",
+        "end": "15:30",
+        "breakMinutes": 30,
+        "attendance": [
+          {
+            "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11"
+          },
+          {
+            "memberId": "eabdee49-f0eb-575b-9032-773c56337457"
+          },
+          {
+            "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+          }
+        ],
+        "absences": [],
+        "noWork": null,
+        "badWeatherStop": false,
+        "note": "",
+        "allowanceMemberIds": [
+          "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+          "eabdee49-f0eb-575b-9032-773c56337457",
+          "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+        ],
+        "kilometres": 42,
+        "moves": [],
+        "diary": null,
+        "writtenBy": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+        "updatedAt": "2026-10-01T15:45:00Z"
+      }
+    },
+    {
+      "id": "1218a9e6-5e59-5ddd-96bd-2b526dc16ae9",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "1218a9e6-5e59-5ddd-96bd-2b526dc16ae9",
+        "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+        "date": "2026-10-01",
+        "start": "07:00",
+        "end": "16:00",
+        "breakMinutes": 30,
+        "attendance": [
+          {
+            "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+          },
+          {
+            "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+          }
+        ],
+        "absences": [],
+        "noWork": null,
+        "badWeatherStop": false,
+        "note": "",
+        "allowanceMemberIds": [],
+        "kilometres": 0,
+        "moves": [],
+        "diary": null,
+        "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+        "updatedAt": "2026-10-01T16:10:00Z"
+      }
+    },
+    {
+      "id": "8e19a234-319a-5a89-8e6c-5762150d8750",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "8e19a234-319a-5a89-8e6c-5762150d8750",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "date": "2026-10-02",
+        "start": "07:00",
+        "end": "15:30",
+        "breakMinutes": 30,
+        "attendance": [
+          {
+            "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11"
+          },
+          {
+            "memberId": "eabdee49-f0eb-575b-9032-773c56337457"
+          },
+          {
+            "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+          }
+        ],
+        "absences": [],
+        "noWork": null,
+        "badWeatherStop": false,
+        "note": "",
+        "allowanceMemberIds": [
+          "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+          "eabdee49-f0eb-575b-9032-773c56337457",
+          "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+        ],
+        "kilometres": 42,
+        "moves": [],
+        "diary": null,
+        "writtenBy": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+        "updatedAt": "2026-10-02T15:45:00Z"
+      }
+    },
+    {
+      "id": "03d3d36a-b24a-51aa-bcc4-2d9f4417cb13",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "03d3d36a-b24a-51aa-bcc4-2d9f4417cb13",
+        "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+        "date": "2026-10-02",
+        "start": "07:00",
+        "end": "16:00",
+        "breakMinutes": 30,
+        "attendance": [
+          {
+            "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+          },
+          {
+            "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+          }
+        ],
+        "absences": [],
+        "noWork": null,
+        "badWeatherStop": false,
+        "note": "",
+        "allowanceMemberIds": [],
+        "kilometres": 0,
+        "moves": [],
+        "diary": null,
+        "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+        "updatedAt": "2026-10-02T16:10:00Z"
+      }
+    }
+  ]
+}

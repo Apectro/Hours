@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "Hauptstraße 12",
+      "address": "Hauptstraße 12\n1040 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "15:30",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": true,
+      "jobNumber": "P-2026-114",
+      "version": 3,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:02:00Z"
+    },
+    {
+      "id": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "name": "Schulzentrum Nord",
+      "address": "Schulweg 3\n1210 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "16:00",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": false,
+      "jobNumber": "P-2026-131",
+      "version": 2,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:05:00Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "8f98bc41-c304-5f61-b8b2-d6640c282a6b",
+      "label": "Marko – Hauptstraße",
+      "crewMemberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "createdAt": "2026-10-01T06:40:00Z",
+      "expiresAt": "2026-10-01T06:55:00Z",
+      "usedAt": "2026-10-01T06:41:10Z",
+      "revokedAt": null,
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a"
+    }
+  ]
+}

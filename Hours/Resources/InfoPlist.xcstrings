@@ -2,67 +2,67 @@
   "sourceLanguage": "en",
   "strings": {
     "NSCameraUsageDescription": {
-      "comment": "Why the app asks for the camera: Take photo in the site diary and on extra work, and scanning the barcode or the name on material.",
+      "comment": "Why the app asks for the camera: Take photo in the site diary and on extra work, and scanning the barcode or the name on material, and reading the company's QR code to connect.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online."
+            "value": "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online. It also reads the QR code that connects the app to your company."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Kamera wird nur verwendet, wenn du ein Foto für ein Bautagebuch oder eine Regiearbeit aufnimmst oder den Barcode oder den Namen auf einem Materialkarton scannst. Nichts wird online nachgeschlagen."
+            "value": "Die Kamera wird nur verwendet, wenn du ein Foto für ein Bautagebuch oder eine Regiearbeit aufnimmst oder den Barcode oder den Namen auf einem Materialkarton scannst. Nichts wird online nachgeschlagen. Sie liest auch den QR-Code, der die App mit deiner Firma verbindet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La cámara solo se usa cuando haces una foto para un diario de obra o para un trabajo adicional, o escaneas el código de barras o el nombre de una caja de material. No se busca nada en internet."
+            "value": "La cámara solo se usa cuando haces una foto para un diario de obra o para un trabajo adicional, o escaneas el código de barras o el nombre de una caja de material. No se busca nada en internet. También lee el código QR que conecta la app con tu empresa."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’appareil photo n’est utilisé que lorsque vous prenez une photo pour un journal de chantier ou pour des travaux supplémentaires, ou scannez le code-barres ou le nom d’un carton de matériel. Rien n’est recherché en ligne."
+            "value": "L’appareil photo n’est utilisé que lorsque vous prenez une photo pour un journal de chantier ou pour des travaux supplémentaires, ou scannez le code-barres ou le nom d’un carton de matériel. Rien n’est recherché en ligne. Il lit aussi le code QR qui connecte l’app à votre entreprise."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kamera se koristi samo kad snimaš fotografiju za građevinski dnevnik ili za izvanugovorni rad, ili skeniraš barkod ili naziv na kutiji materijala. Ništa se ne traži na internetu."
+            "value": "Kamera se koristi samo kad snimaš fotografiju za građevinski dnevnik ili za izvanugovorni rad, ili skeniraš barkod ili naziv na kutiji materijala. Ništa se ne traži na internetu. Čita i QR kod koji povezuje aplikaciju s tvojom tvrtkom."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La fotocamera viene usata solo quando scatti una foto per un giornale dei lavori o per un lavoro extra, o scansioni il codice a barre o il nome su una scatola di materiale. Niente viene cercato online."
+            "value": "La fotocamera viene usata solo quando scatti una foto per un giornale dei lavori o per un lavoro extra, o scansioni il codice a barre o il nome su una scatola di materiale. Niente viene cercato online. Legge anche il codice QR che collega l'app alla tua azienda."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "De camera wordt alleen gebruikt als je een foto maakt voor een bouwdagboek of voor meerwerk, of de barcode of de naam op een doos materiaal scant. Er wordt niets online opgezocht."
+            "value": "De camera wordt alleen gebruikt als je een foto maakt voor een bouwdagboek of voor meerwerk, of de barcode of de naam op een doos materiaal scant. Er wordt niets online opgezocht. Hij leest ook de QR-code die de app met je bedrijf koppelt."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparat jest używany tylko wtedy, gdy robisz zdjęcie do dziennika budowy lub do pracy dodatkowej albo skanujesz kod kreskowy lub nazwę na kartonie materiału. Nic nie jest wyszukiwane w internecie."
+            "value": "Aparat jest używany tylko wtedy, gdy robisz zdjęcie do dziennika budowy lub do pracy dodatkowej albo skanujesz kod kreskowy lub nazwę na kartonie materiału. Nic nie jest wyszukiwane w internecie. Odczytuje też kod QR, który łączy aplikację z twoją firmą."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "A câmara só é usada quando tiras uma foto para um diário de obra ou para um trabalho adicional, ou lês o código de barras ou o nome de uma caixa de material. Nada é procurado na internet."
+            "value": "A câmara só é usada quando tiras uma foto para um diário de obra ou para um trabalho adicional, ou lês o código de barras ou o nome de uma caixa de material. Nada é procurado na internet. Também lê o código QR que liga a app à tua empresa."
           }
         },
         "sl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kamera se uporablja samo, ko posnameš fotografijo za gradbeni dnevnik ali za dodatno delo ali skeniraš črtno kodo ali ime na škatli materiala. Nič se ne išče na spletu."
+            "value": "Kamera se uporablja samo, ko posnameš fotografijo za gradbeni dnevnik ali za dodatno delo ali skeniraš črtno kodo ali ime na škatli materiala. Nič se ne išče na spletu. Prebere tudi kodo QR, ki aplikacijo poveže s tvojim podjetjem."
           }
         }
       }

@@ -79,3 +79,23 @@ asks for location permission and links no location framework" to:
 
 Each also says, since the site's address, that "Fill in from the saved place"
 asks Apple Maps for that one place's address, only when tapped.
+
+## Connect to company (after 1.3)
+
+Off by default and free. The user pairs the phone with their employer's own
+website (the Zeitkonto Connect module, which the employer runs on its own
+hosting) by scanning a QR code the office shows, or typing its address and an
+eight-character code. From then on the site days, month sheets with their PDF,
+sign-offs, extra work, defects, Missing and deliveries of the company's sites
+(and of sites the user switches on) go to that website, and nowhere else. The
+user's own hours, pay and other sites never go. Disconnect stops it.
+
+- **Not collection by the developer.** Nothing reaches us or a partner of ours;
+  there is no server of ours in between. The destination is the user's
+  employer, chosen by the user, like sending a sheet by mail. The App Privacy
+  answer stays **Data Not Collected**.
+- **The token** is in the Keychain, this device only, never synced and never in
+  a backup file; the company's name and address are in this device's own
+  preferences, not in iCloud or the backup.
+- **The camera** purpose string now also names reading the company's QR code.
+- The Privacy screen, the Connect screen's footer and the README say so.

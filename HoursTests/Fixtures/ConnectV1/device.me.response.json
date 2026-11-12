@@ -1,0 +1,37 @@
+{
+  "apiVersion": 1,
+  "device": {
+    "id": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+    "name": "Marko’s iPhone",
+    "model": "iPhone15,3",
+    "platform": "ios",
+    "appVersion": "1.3",
+    "crewMemberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+    "label": "Marko – Hauptstraße",
+    "pairedAt": "2026-10-01T06:40:00Z",
+    "lastSeenAt": "2026-11-01T07:12:00Z",
+    "revokedAt": null
+  },
+  "company": {
+    "id": "8eccf663-ecf2-554d-85cd-63dc76483fe0",
+    "name": "Elektro Beispiel GmbH",
+    "timeZone": "Europe/Vienna",
+    "breaksPaid": false,
+    "rounding": "exact"
+  },
+  "member": {
+    "id": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+    "name": "Marko Kovač",
+    "role": "teamLeader",
+    "hidden": false,
+    "personnelNumber": "101",
+    "version": 1,
+    "origin": "director",
+    "updatedAt": "2026-09-28T14:10:00Z"
+  },
+  "limits": {
+    "maxBatch": 200,
+    "maxFileBytes": 25000000,
+    "maxRequestBytes": 4000000
+  }
+}

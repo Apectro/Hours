@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": "09efe404-da31-5109-a5e3-c920fd01e574",
+      "version": 1,
+      "state": "open",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "09efe404-da31-5109-a5e3-c920fd01e574",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "what": "Socket cover broken, room 2.14",
+        "floor": "2nd floor",
+        "room": "2.14",
+        "assignee": {
+          "kind": "person",
+          "name": "Luka Babić"
+        },
+        "notedBy": "Marko Kovač",
+        "notedAt": "2026-10-22T10:05:00Z",
+        "state": "open",
+        "fixedAt": null,
+        "photos": [
+          {
+            "file": {
+              "fileId": "9c059729-51e7-5821-b39e-b271b39196b5",
+              "contentType": "image/jpeg",
+              "byteSize": 388120
+            },
+            "marks": [
+              {
+                "kind": "circle",
+                "colour": "red",
+                "points": [
+                  {
+                    "x": 0.41,
+                    "y": 0.33
+                  },
+                  {
+                    "x": 0.58,
+                    "y": 0.49
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "updatedAt": "2026-10-22T10:05:00Z"
+      }
+    }
+  ]
+}

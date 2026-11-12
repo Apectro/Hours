@@ -8,7 +8,7 @@ struct AboutScreen: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: Metrics.medium) {
-                    Text(isSyncing ? "Your data goes to your iCloud and nowhere else." : "Everything stays on this device.")
+                    Text(headline)
                         .font(.headline)
                     Text(headlineDetail)
                         .font(.subheadline)
@@ -39,6 +39,24 @@ struct AboutScreen: View {
                         detail: SyncPreference.isAvailable
                             ? String(localized: "iCloud syncing is off. Your data lives in this app's own storage and is included in an encrypted device backup if you make one. You can turn sync on in Settings › iCloud & backup.")
                             : String(localized: "Your data lives in this app's own storage and is included in an encrypted device backup if you make one.")
+                    )
+                }
+                // Connect to company: off until paired, and then only the
+                // company's sites, to the company's own website.
+                if let company = connect.companyName, let host = connect.account?.host {
+                    PrivacyPoint(
+                        symbol: "building.columns",
+                        title: String(localized: "Connected to \(company)", comment: "Privacy; the value is the company's name"),
+                        detail: String(
+                            localized: "The site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of the company's sites go to \(host), your company's own website, and nowhere else. Your own hours, your pay and your other sites stay on this phone. Disconnect in Settings › Connect to company.",
+                            comment: "Privacy, while connected; the value is the company's website"
+                        )
+                    )
+                } else {
+                    PrivacyPoint(
+                        symbol: "building.columns",
+                        title: String(localized: "Your company, only if you connect"),
+                        detail: String(localized: "Nothing goes to your company unless you connect the app in Settings › Connect to company. Then the site days, month sheets, sign-offs, extra work, defects, Missing and deliveries of your company's sites go to your company's own website, and nowhere else.")
                     )
                 }
                 // 1.2: the opt-in arrival reminder is the one use of
@@ -90,6 +108,16 @@ struct AboutScreen: View {
     }
 
     private var isSyncing: Bool { HoursStack.isSyncing }
+    private var connect: ConnectService { HoursStack.connect }
+
+    private var headline: String {
+        if connect.isConnected {
+            return String(localized: "Your company's sites go to its own website. Everything else stays with you.")
+        }
+        return isSyncing
+            ? String(localized: "Your data goes to your iCloud and nowhere else.")
+            : String(localized: "Everything stays on this device.")
+    }
 
     /// The policy on the website, in German on a German phone (the site
     /// has an English and a German one).
@@ -117,6 +145,12 @@ struct AboutScreen: View {
             localized: "The one thing it asks the network is whether anything was bought, which it asks the App Store; no part of your hours goes with the question.",
             comment: "Privacy summary, the one network call the app makes"
         )
+        if connect.isConnected {
+            return String(
+                localized: "Your own hours are kept on this device and nowhere else. \(common) \(purchases)",
+                comment: "Privacy summary while connected to a company; the values are the two sentences above"
+            )
+        }
         return isSyncing
             ? String(
                 localized: "Your hours are kept on this device and in your own private iCloud storage, which only your devices can read. \(common) \(purchases)",

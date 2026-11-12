@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "device_revoked",
+    "message": "This device was revoked. Pair it again."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "company": {
+    "id": "8eccf663-ecf2-554d-85cd-63dc76483fe0",
+    "name": "Elektro Beispiel GmbH",
+    "timeZone": "Europe/Vienna",
+    "breaksPaid": false,
+    "rounding": "exact",
+    "createdAt": "2026-09-01T08:00:00Z",
+    "updatedAt": "2026-09-01T08:00:00Z"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "name": "Marko Kovač",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "101",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "eabdee49-f0eb-575b-9032-773c56337457",
+      "name": "Ivan Horvat",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "102",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "name": "Luka Babić",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "103",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "name": "Josip Marić",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "104",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "name": "Ante Novak",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "105",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "comment": {
+    "id": "59d760de-aed9-5bc2-8bdd-48161c99449a",
+    "target": {
+      "kind": "site",
+      "id": "d65be387-0478-5071-8e5c-052d65e0fb8b"
+    },
+    "body": "From 2 November the gate code is 4711.",
+    "purpose": "note",
+    "author": {
+      "kind": "director",
+      "name": "Office",
+      "memberId": null
+    },
+    "createdAt": "2026-10-30T15:00:00Z"
+  }
+}

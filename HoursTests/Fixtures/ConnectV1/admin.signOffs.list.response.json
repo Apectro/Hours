@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "d8c3924a-f379-57d9-b438-0ff9e8c4580b",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "d8c3924a-f379-57d9-b438-0ff9e8c4580b",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+        "month": "2026-10",
+        "signedOn": "2026-10-30",
+        "fingerprint": "v1:3f9a0c1b2d4e5f60",
+        "strokes": [
+          [
+            {
+              "x": 0.2,
+              "y": 0.6
+            },
+            {
+              "x": 0.5,
+              "y": 0.3
+            },
+            {
+              "x": 0.9,
+              "y": 0.55
+            },
+            {
+              "x": 1.4,
+              "y": 0.4
+            }
+          ]
+        ],
+        "aspectRatio": 3,
+        "image": {
+          "fileId": "01ea4f84-9902-5c76-ac70-9d35e413dddf",
+          "contentType": "image/png",
+          "byteSize": 5120
+        },
+        "revoked": false
+      }
+    }
+  ]
+}

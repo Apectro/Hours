@@ -593,6 +593,15 @@ struct ExportScreen: View {
         }
     }
 
+    /// A crew sheet of sites the company sees, while connected: what Send
+    /// to company sends.
+    private var connectOrder: ConnectSheetOrder? {
+        guard mode == .crewSheet else { return nil }
+        let ids = sheetSites.map(\.id)
+        guard HoursStack.connect.canSend(siteIDs: ids) else { return nil }
+        return ConnectSheetOrder(siteIDs: ids, month: month, title: previewTitle)
+    }
+
     /// The previewed sheet's title, which the UI tests read.
     private var previewTitle: String {
         if mode == .onePerson { return personSheet?.tables.file.title ?? "" }
@@ -903,7 +912,8 @@ struct ExportScreen: View {
                     format: format, files: [url],
                     pdfData: format == .pdf ? pdfData : nil,
                     table: tables.preview,
-                    closeMonth: closeMonth
+                    closeMonth: closeMonth,
+                    connectOrder: connectOrder
                 )
             }
             failureMessage = nil

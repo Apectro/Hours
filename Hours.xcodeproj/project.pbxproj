@@ -648,7 +648,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online. It also reads the QR code that connects the app to your company.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location “Always” lets Zeitkonto notice when you reach or leave a site with an arrival reminder, even with the app closed, and ask about the clock. It never leaves your phone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used only to save where a site is, when you turn on its arrival reminder. It never leaves your phone.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -688,7 +688,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Zeitkonto;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used only when you take a photo for a site diary or for extra work, or scan the barcode or the name on a box of material. Nothing is looked up online. It also reads the QR code that connects the app to your company.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location “Always” lets Zeitkonto notice when you reach or leave a site with an arrival reminder, even with the app closed, and ask about the clock. It never leaves your phone.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used only to save where a site is, when you turn on its arrival reminder. It never leaves your phone.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;

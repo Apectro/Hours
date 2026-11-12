@@ -357,6 +357,15 @@ struct SettingsIndex {
                     showsDetail: false
                 ),
                 SettingsEntry(
+                    id: "settings-connect",
+                    title: String(localized: "Connect to company"),
+                    detail: HoursStack.connect.companyName ?? String(localized: "Off"),
+                    keywords: String(localized: "company, office, website, connect, director, sync, QR code, send", comment: "Settings search words for Connect to company"),
+                    systemImage: "building.columns",
+                    tint: .indigo,
+                    kind: .page(AnyView(ConnectScreen()))
+                ),
+                SettingsEntry(
                     id: "settings-reminders",
                     title: String(localized: "Reminders"),
                     detail: remindersSummary,
@@ -450,7 +459,9 @@ struct SettingsIndex {
             SettingsEntry(
                 id: "settings-privacy",
                 title: String(localized: "Privacy"),
-                detail: HoursStack.isSyncing
+                detail: HoursStack.connect.isConnected
+                    ? String(localized: "Your company's sites to its website")
+                    : HoursStack.isSyncing
                     ? String(localized: "Your own iCloud only")
                     : String(localized: "Nothing leaves your phone"),
                 keywords: String(localized: "privacy, location, data", comment: "Settings search words for Privacy"),

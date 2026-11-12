@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": "5aedadae-1c8a-56f2-9738-cdb7849f3949",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "28e27f54-4818-53f1-9643-412a4d57a2f0",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "a30a5be7-4762-5eac-b20f-de1d3ff07476",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "f0572359-627a-5a55-9be7-760b025e35be",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "b0e6b932-013a-5fce-91db-d24fd8558e13",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "4f782403-c586-5fbf-9c1e-d62e4fc33994",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-10-19",
+      "to": "2026-10-31",
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    }
+  ]
+}

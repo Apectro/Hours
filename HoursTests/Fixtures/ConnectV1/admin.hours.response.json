@@ -1,0 +1,1016 @@
+{
+  "month": "2026-10",
+  "rules": {
+    "breaksPaid": false,
+    "rounding": "exact"
+  },
+  "workedMinutes": 47490,
+  "people": [
+    {
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "name": "Ante Novak",
+      "workedMinutes": 8670,
+      "daysWorked": 17,
+      "dayTypes": {
+        "sick": 3
+      },
+      "allowanceDays": 0,
+      "bySite": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "workedMinutes": 8670,
+          "days": 17
+        }
+      ]
+    },
+    {
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "name": "Ivan Horvat",
+      "workedMinutes": 10080,
+      "daysWorked": 21,
+      "dayTypes": {},
+      "allowanceDays": 21,
+      "bySite": [
+        {
+          "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+          "workedMinutes": 9870,
+          "days": 21
+        },
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "workedMinutes": 210,
+          "days": 1
+        }
+      ]
+    },
+    {
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "name": "Josip Marić",
+      "workedMinutes": 9690,
+      "daysWorked": 19,
+      "dayTypes": {
+        "vacation": 1
+      },
+      "allowanceDays": 0,
+      "bySite": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "workedMinutes": 9690,
+          "days": 19
+        }
+      ]
+    },
+    {
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "name": "Luka Babić",
+      "workedMinutes": 9120,
+      "daysWorked": 19,
+      "dayTypes": {
+        "sick": 2
+      },
+      "allowanceDays": 19,
+      "bySite": [
+        {
+          "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+          "workedMinutes": 9120,
+          "days": 19
+        }
+      ]
+    },
+    {
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "name": "Marko Kovač",
+      "workedMinutes": 9930,
+      "daysWorked": 21,
+      "dayTypes": {},
+      "allowanceDays": 21,
+      "bySite": [
+        {
+          "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+          "workedMinutes": 9930,
+          "days": 21
+        }
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "Hauptstraße 12",
+      "workedMinutes": 28920,
+      "daysWritten": 21,
+      "noWorkDays": 0,
+      "kilometres": 882
+    },
+    {
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "name": "Schulzentrum Nord",
+      "workedMinutes": 18570,
+      "daysWritten": 20,
+      "noWorkDays": 1,
+      "kilometres": 0
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-10-01",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-01",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-01",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-01",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-01",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-02",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-02",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-02",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-02",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-02",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-05",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-05",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-05",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-05",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-05",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-06",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-06",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-06",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-06",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-06",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-07",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-07",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-07",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-07",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-07",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-08",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-08",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-08",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-08",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-08",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-09",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-09",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-09",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-09",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 0,
+      "start": null,
+      "end": null,
+      "breakMinutes": 0
+    },
+    {
+      "date": "2026-10-09",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 0,
+      "start": null,
+      "end": null,
+      "breakMinutes": 0
+    },
+    {
+      "date": "2026-10-12",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-12",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-12",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-12",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-12",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-13",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-13",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-13",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-13",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-14",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-14",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-14",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-14",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-15",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-15",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-15",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-15",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-15",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-16",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 330,
+      "start": "07:00",
+      "end": "13:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-16",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-16",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-16",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-16",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-19",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-19",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-19",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-19",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-19",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-20",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-20",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-20",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-20",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-21",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-21",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-21",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-21",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-22",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-22",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-22",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-22",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-23",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-23",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-23",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-23",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-23",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-27",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-27",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-27",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-27",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-27",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 270,
+      "start": "07:00",
+      "end": "11:30",
+      "breakMinutes": 0
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-28",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 210,
+      "start": "12:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-29",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-29",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-29",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-29",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-29",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-30",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-30",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-30",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "workedMinutes": 480,
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30
+    },
+    {
+      "date": "2026-10-30",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "workedMinutes": 510,
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30
+    }
+  ]
+}

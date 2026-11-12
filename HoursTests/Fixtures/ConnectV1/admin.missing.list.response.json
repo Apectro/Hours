@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+      "version": 1,
+      "state": "needed",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "name": "NYM-J 5x2.5",
+        "quantity": "100",
+        "unit": "m",
+        "codes": [],
+        "note": "For UV2 to the 3rd floor",
+        "notedBy": "Marko Kovač",
+        "notedAt": "2026-10-23T08:30:00Z",
+        "state": "needed",
+        "orderedAt": null,
+        "arrivedAt": null,
+        "updatedAt": "2026-10-23T08:30:00Z"
+      }
+    },
+    {
+      "id": "be90d012-2dc2-521e-8072-f7957350c87e",
+      "version": 1,
+      "state": "arrived",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "be90d012-2dc2-521e-8072-f7957350c87e",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "name": "Flush boxes 68 mm",
+        "quantity": "50",
+        "unit": "pcs",
+        "codes": [
+          "4011234567890"
+        ],
+        "note": "",
+        "notedBy": "Marko Kovač",
+        "notedAt": "2026-10-23T08:30:00Z",
+        "state": "arrived",
+        "orderedAt": "2026-10-23T12:00:00Z",
+        "arrivedAt": "2026-10-27T07:40:00Z",
+        "updatedAt": "2026-10-27T07:40:00Z"
+      }
+    }
+  ]
+}
