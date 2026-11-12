@@ -58,6 +58,7 @@ final class ScreenAtlasTests: XCTestCase {
         emptyStates()
         noWorkScreens()
         tipScreens()
+        connectScreens()
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
@@ -1938,6 +1939,76 @@ final class ScreenAtlasTests: XCTestCase {
             capture("defects-tip-photo-first", app)
         } else {
             miss("defects-tip-photo-first (no tip on empty Defects)")
+        }
+        app.terminate()
+    }
+
+    /// Connect to company, against the in-memory company of
+    /// `-hours-connect-stub`: the screen before pairing, the firm asked
+    /// about, connected, the company's site, a day waiting, and Disconnect
+    /// asked about.
+    private func connectScreens() {
+        let app = launch(["-hours-connect-stub"])
+        guard app.tab(.settings).waitForExistence(timeout: 20) else {
+            miss("connect (the app did not start)")
+            return
+        }
+        app.tab(.settings).tap()
+        pause(1)
+        let row = app.buttons.matching(identifier: "settings-connect").firstMatch
+        guard bringIntoView(row, app), tap(row, "Connect to company", app),
+              app.screen("screen-connect").waitForExistence(timeout: 8) else {
+            miss("connect-off (did not open)")
+            app.terminate()
+            return
+        }
+        capture("connect-off", app)
+        let address = app.textFields.matching(identifier: "connect-address").firstMatch
+        let code = app.textFields.matching(identifier: "connect-code").firstMatch
+        guard address.waitForExistence(timeout: 5), code.exists else {
+            miss("connect-confirm (no fields)")
+            app.terminate()
+            return
+        }
+        address.tap()
+        address.typeText("firm.example/api/zeitkonto")
+        code.tap()
+        code.typeText("K7QF3MZP\n")
+        if tap(app.buttons.matching(identifier: "connect-pair").firstMatch, "Connect", app) {
+            capture("connect-confirm", app)
+            tap(app.buttons.matching(identifier: "connect-confirm").firstMatch, "Connect in the dialog", app)
+        }
+        if app.screen("connect-state-connected").waitForExistence(timeout: 10) {
+            pause(0.8)
+            capture("connect-on", app)
+        } else {
+            miss("connect-on (did not connect)")
+            app.terminate()
+            return
+        }
+
+        app.tab(.sites).tap()
+        pause(1)
+        capture("connect-sites", app)
+        if tap(app.buttons.matching(identifier: "site-card").firstMatch, "the company's site", app) {
+            capture("connect-site", app)
+            if tap(app.buttons.matching(identifier: "site-write-today").firstMatch, "Write today", app),
+               tap(app.buttons.matching(identifier: "site-day-same-as-usual").firstMatch, "Same as usual", app) {
+                pause(3)
+                capture("connect-site-day", app)
+            }
+        }
+        app.tab(.settings).tap()
+        pause(1)
+        if app.screen("connect-waiting").waitForExistence(timeout: 10) {
+            capture("connect-waiting", app)
+        } else {
+            miss("connect-waiting (the day is not waiting)")
+        }
+        let disconnect = app.buttons.matching(identifier: "connect-disconnect").firstMatch
+        if bringIntoView(disconnect, app), tap(disconnect, "Disconnect", app) {
+            capture("connect-disconnect", app)
+            tap(app.buttons.matching(identifier: "connect-disconnect-confirm").firstMatch, "Disconnect in the dialog", app)
         }
         app.terminate()
     }
