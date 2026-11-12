@@ -1,0 +1,1864 @@
+{
+  "exportedAt": "2026-11-02T10:00:00Z",
+  "company": {
+    "id": "8eccf663-ecf2-554d-85cd-63dc76483fe0",
+    "name": "Elektro Beispiel GmbH",
+    "timeZone": "Europe/Vienna",
+    "breaksPaid": false,
+    "rounding": "exact",
+    "createdAt": "2026-09-01T08:00:00Z",
+    "updatedAt": "2026-09-01T08:00:00Z"
+  },
+  "sites": [
+    {
+      "id": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "Hauptstraße 12",
+      "address": "Hauptstraße 12\n1040 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "15:30",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": true,
+      "jobNumber": "P-2026-114",
+      "version": 3,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:02:00Z"
+    },
+    {
+      "id": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "name": "Schulzentrum Nord",
+      "address": "Schulweg 3\n1210 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "16:00",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": false,
+      "jobNumber": "P-2026-131",
+      "version": 2,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:05:00Z"
+    }
+  ],
+  "crew": [
+    {
+      "id": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "name": "Marko Kovač",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "101",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "eabdee49-f0eb-575b-9032-773c56337457",
+      "name": "Ivan Horvat",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "102",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "name": "Luka Babić",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "103",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "name": "Josip Marić",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "104",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "name": "Ante Novak",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "105",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "5aedadae-1c8a-56f2-9738-cdb7849f3949",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "28e27f54-4818-53f1-9643-412a4d57a2f0",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "a30a5be7-4762-5eac-b20f-de1d3ff07476",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "f0572359-627a-5a55-9be7-760b025e35be",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "b0e6b932-013a-5fce-91db-d24fd8558e13",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "4f782403-c586-5fbf-9c1e-d62e4fc33994",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-10-19",
+      "to": "2026-10-31",
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    }
+  ],
+  "devices": [
+    {
+      "id": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "name": "Marko’s iPhone",
+      "model": "iPhone15,3",
+      "platform": "ios",
+      "appVersion": "1.3",
+      "crewMemberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "label": "Marko – Hauptstraße",
+      "pairedAt": "2026-10-01T06:40:00Z",
+      "lastSeenAt": "2026-11-01T07:12:00Z",
+      "revokedAt": null
+    }
+  ],
+  "siteDays": [
+    {
+      "id": "77593f12-e0f2-556b-af9a-7fadea4eb5df",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "date": "2026-10-01",
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30,
+      "attendance": [
+        {
+          "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11"
+        },
+        {
+          "memberId": "eabdee49-f0eb-575b-9032-773c56337457"
+        },
+        {
+          "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+        }
+      ],
+      "absences": [],
+      "noWork": null,
+      "badWeatherStop": false,
+      "note": "",
+      "allowanceMemberIds": [
+        "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+        "eabdee49-f0eb-575b-9032-773c56337457",
+        "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+      ],
+      "kilometres": 42,
+      "moves": [],
+      "diary": null,
+      "writtenBy": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "updatedAt": "2026-10-01T15:45:00Z"
+    },
+    {
+      "id": "1218a9e6-5e59-5ddd-96bd-2b526dc16ae9",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "date": "2026-10-01",
+      "start": "07:00",
+      "end": "16:00",
+      "breakMinutes": 30,
+      "attendance": [
+        {
+          "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+        },
+        {
+          "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+        }
+      ],
+      "absences": [],
+      "noWork": null,
+      "badWeatherStop": false,
+      "note": "",
+      "allowanceMemberIds": [],
+      "kilometres": 0,
+      "moves": [],
+      "diary": null,
+      "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "updatedAt": "2026-10-01T16:10:00Z"
+    }
+  ],
+  "sheets": [
+    {
+      "id": "490ac112-e922-5f2a-98da-81144aa5d13e",
+      "version": 1,
+      "status": "submitted",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "490ac112-e922-5f2a-98da-81144aa5d13e",
+        "month": "2026-10",
+        "title": "Hauptstraße 12 · Schulzentrum Nord, October 2026",
+        "siteIds": [
+          "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+          "d65be387-0478-5071-8e5c-052d65e0fb8b"
+        ],
+        "sites": [
+          {
+            "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+            "name": "Hauptstraße 12",
+            "address": "Hauptstraße 12\n1040 Wien",
+            "workedMinutes": 28920,
+            "kilometres": 882
+          },
+          {
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "name": "Schulzentrum Nord",
+            "address": "Schulweg 3\n1210 Wien",
+            "workedMinutes": 18570,
+            "kilometres": 0
+          }
+        ],
+        "people": [
+          {
+            "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+            "name": "Marko Kovač",
+            "workedMinutes": 9930,
+            "daysWorked": 21,
+            "dayTypes": {
+              "holiday": 1
+            },
+            "allowanceDays": 21,
+            "days": [
+              {
+                "date": "2026-10-01",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-02",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-05",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-06",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-07",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-08",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-09",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-12",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-13",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-14",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-15",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-16",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "13:00",
+                "breakMinutes": 30,
+                "workedMinutes": 330,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-19",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-20",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-21",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-22",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-23",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-26",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "holiday",
+                "note": "Nationalfeiertag",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-27",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-29",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-30",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              }
+            ]
+          },
+          {
+            "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+            "name": "Ivan Horvat",
+            "workedMinutes": 10080,
+            "daysWorked": 21,
+            "dayTypes": {
+              "holiday": 1
+            },
+            "allowanceDays": 21,
+            "days": [
+              {
+                "date": "2026-10-01",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-02",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-05",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-06",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-07",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-08",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-09",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-12",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-13",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-14",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-15",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-16",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-19",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-20",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-21",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-22",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-23",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-26",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "holiday",
+                "note": "Nationalfeiertag",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-27",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "11:30",
+                "breakMinutes": 0,
+                "workedMinutes": 270,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "12:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 210,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-29",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-30",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              }
+            ]
+          },
+          {
+            "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+            "name": "Luka Babić",
+            "workedMinutes": 9120,
+            "daysWorked": 19,
+            "dayTypes": {
+              "holiday": 1,
+              "sick": 2
+            },
+            "allowanceDays": 19,
+            "days": [
+              {
+                "date": "2026-10-01",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-02",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-05",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-06",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-07",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-08",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-09",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-12",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-13",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "sick",
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-14",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "sick",
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-15",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-16",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-19",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-20",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-21",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-22",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-23",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-26",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "holiday",
+                "note": "Nationalfeiertag",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-27",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-29",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              },
+              {
+                "date": "2026-10-30",
+                "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+                "start": "07:00",
+                "end": "15:30",
+                "breakMinutes": 30,
+                "workedMinutes": 480,
+                "dayType": null,
+                "note": "",
+                "allowance": true
+              }
+            ]
+          },
+          {
+            "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "name": "Josip Marić",
+            "workedMinutes": 9690,
+            "daysWorked": 19,
+            "dayTypes": {
+              "holiday": 1,
+              "vacation": 1
+            },
+            "allowanceDays": 0,
+            "days": [
+              {
+                "date": "2026-10-01",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-02",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-05",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-06",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-07",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-08",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-09",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": null,
+                "end": null,
+                "breakMinutes": 0,
+                "workedMinutes": 0,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-12",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-13",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-14",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-15",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-16",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-19",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-20",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-21",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-22",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-23",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-26",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "holiday",
+                "note": "Nationalfeiertag",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-27",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-29",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-30",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "vacation",
+                "note": "",
+                "allowance": false
+              }
+            ]
+          },
+          {
+            "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+            "name": "Ante Novak",
+            "workedMinutes": 8670,
+            "daysWorked": 17,
+            "dayTypes": {
+              "holiday": 1,
+              "sick": 3
+            },
+            "allowanceDays": 0,
+            "days": [
+              {
+                "date": "2026-10-01",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-02",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-05",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-06",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-07",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-08",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-09",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": null,
+                "end": null,
+                "breakMinutes": 0,
+                "workedMinutes": 0,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-12",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-13",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-14",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-15",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-16",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-19",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-20",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "sick",
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-21",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "sick",
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-22",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "sick",
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-23",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-26",
+                "siteId": null,
+                "start": null,
+                "end": null,
+                "breakMinutes": null,
+                "workedMinutes": 0,
+                "dayType": "holiday",
+                "note": "Nationalfeiertag",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-27",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-28",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-29",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              },
+              {
+                "date": "2026-10-30",
+                "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+                "start": "07:00",
+                "end": "16:00",
+                "breakMinutes": 30,
+                "workedMinutes": 510,
+                "dayType": null,
+                "note": "",
+                "allowance": false
+              }
+            ]
+          }
+        ],
+        "holidays": [
+          {
+            "date": "2026-10-26",
+            "name": "Nationalfeiertag"
+          }
+        ],
+        "totals": {
+          "workedMinutes": 47490,
+          "people": 5,
+          "dayTypes": {
+            "holiday": 5,
+            "sick": 5,
+            "vacation": 1
+          },
+          "allowanceDays": 61,
+          "kilometres": 882
+        },
+        "rules": {
+          "breaksPaid": false,
+          "rounding": "exact"
+        },
+        "pdf": {
+          "fileId": "6949219a-d46e-5306-ba54-9e3cc349ec18",
+          "contentType": "application/pdf",
+          "byteSize": 184233,
+          "sha256": "a3f1c2d4e5b60718293a4b5c6d7e8f90112233445566778899aabbccddeeff00",
+          "name": "Hauptstrasse-12-Schulzentrum-Nord-2026-10.pdf"
+        },
+        "attachments": [
+          {
+            "fileId": "46cd3244-2d1f-54b7-b1f8-29fde4af7fab",
+            "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "byteSize": 23410,
+            "name": "Hauptstrasse-12-Schulzentrum-Nord-2026-10.xlsx"
+          }
+        ],
+        "sentBy": {
+          "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+          "name": "Marko Kovač"
+        },
+        "sentAt": "2026-11-01T07:12:00Z",
+        "replacesSheetId": null
+      }
+    }
+  ],
+  "signOffs": [
+    {
+      "id": "d8c3924a-f379-57d9-b438-0ff9e8c4580b",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "month": "2026-10",
+      "signedOn": "2026-10-30",
+      "fingerprint": "v1:3f9a0c1b2d4e5f60",
+      "strokes": [
+        [
+          {
+            "x": 0.2,
+            "y": 0.6
+          },
+          {
+            "x": 0.5,
+            "y": 0.3
+          },
+          {
+            "x": 0.9,
+            "y": 0.55
+          },
+          {
+            "x": 1.4,
+            "y": 0.4
+          }
+        ]
+      ],
+      "aspectRatio": 3,
+      "image": {
+        "fileId": "01ea4f84-9902-5c76-ac70-9d35e413dddf",
+        "contentType": "image/png",
+        "byteSize": 5120
+      },
+      "revoked": false
+    }
+  ],
+  "extraWork": [
+    {
+      "id": "7c7750d3-ee02-5f38-aed6-32bf11d64ebd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "date": "2026-10-21",
+      "description": "Emergency lighting in the stairwell, on request of the client.",
+      "materials": [
+        {
+          "name": "Emergency light LED 3h",
+          "quantity": "8",
+          "unit": "pcs",
+          "codes": [
+            "4012345678901"
+          ]
+        },
+        {
+          "name": "NYM-J 3x1.5",
+          "quantity": "45.5",
+          "unit": "m",
+          "codes": []
+        }
+      ],
+      "hours": [
+        {
+          "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+          "name": "Marko Kovač",
+          "minutes": 180
+        },
+        {
+          "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+          "name": "Ivan Horvat",
+          "minutes": 180
+        }
+      ],
+      "photos": [
+        {
+          "fileId": "e1d75f52-4fa5-5f5e-98b3-4b1d2882b846",
+          "contentType": "image/jpeg",
+          "byteSize": 412880
+        }
+      ],
+      "clientSignature": {
+        "signerName": "H. Gruber",
+        "signedAt": "2026-10-21T14:20:00Z",
+        "image": {
+          "fileId": "05cf9f18-1030-514f-ac8a-2d27fb155285",
+          "contentType": "image/png",
+          "byteSize": 6210
+        }
+      },
+      "done": true,
+      "doneAt": "2026-10-21T14:10:00Z",
+      "createdAt": "2026-10-21T09:00:00Z",
+      "updatedAt": "2026-10-21T14:20:00Z"
+    }
+  ],
+  "defects": [
+    {
+      "id": "09efe404-da31-5109-a5e3-c920fd01e574",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "what": "Socket cover broken, room 2.14",
+      "floor": "2nd floor",
+      "room": "2.14",
+      "assignee": {
+        "kind": "person",
+        "name": "Luka Babić"
+      },
+      "notedBy": "Marko Kovač",
+      "notedAt": "2026-10-22T10:05:00Z",
+      "state": "open",
+      "fixedAt": null,
+      "photos": [
+        {
+          "file": {
+            "fileId": "9c059729-51e7-5821-b39e-b271b39196b5",
+            "contentType": "image/jpeg",
+            "byteSize": 388120
+          },
+          "marks": [
+            {
+              "kind": "circle",
+              "colour": "red",
+              "points": [
+                {
+                  "x": 0.41,
+                  "y": 0.33
+                },
+                {
+                  "x": 0.58,
+                  "y": 0.49
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-10-22T10:05:00Z"
+    }
+  ],
+  "missingItems": [
+    {
+      "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "NYM-J 5x2.5",
+      "quantity": "100",
+      "unit": "m",
+      "codes": [],
+      "note": "For UV2 to the 3rd floor",
+      "notedBy": "Marko Kovač",
+      "notedAt": "2026-10-23T08:30:00Z",
+      "state": "needed",
+      "orderedAt": null,
+      "arrivedAt": null,
+      "updatedAt": "2026-10-23T08:30:00Z"
+    },
+    {
+      "id": "be90d012-2dc2-521e-8072-f7957350c87e",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "Flush boxes 68 mm",
+      "quantity": "50",
+      "unit": "pcs",
+      "codes": [
+        "4011234567890"
+      ],
+      "note": "",
+      "notedBy": "Marko Kovač",
+      "notedAt": "2026-10-23T08:30:00Z",
+      "state": "arrived",
+      "orderedAt": "2026-10-23T12:00:00Z",
+      "arrivedAt": "2026-10-27T07:40:00Z",
+      "updatedAt": "2026-10-27T07:40:00Z"
+    }
+  ],
+  "deliveries": [
+    {
+      "id": "e6cd05bf-87e2-5433-b4cd-97f984ac98c8",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "receivedAt": "2026-10-27T07:40:00Z",
+      "lines": [
+        {
+          "kind": "arrived",
+          "name": "Flush boxes 68 mm",
+          "unit": "pcs",
+          "came": "50",
+          "ordered": "50",
+          "missingItemId": "be90d012-2dc2-521e-8072-f7957350c87e"
+        },
+        {
+          "kind": "short",
+          "name": "NYM-J 5x2.5",
+          "unit": "m",
+          "came": "50",
+          "ordered": "100",
+          "missingItemId": "a4df4d37-8c45-5968-a771-a3b3039602ae"
+        },
+        {
+          "kind": "extra",
+          "name": "Cable ties 200 mm",
+          "unit": "set",
+          "came": "2",
+          "ordered": "2",
+          "missingItemId": null
+        }
+      ],
+      "photo": {
+        "fileId": "80c88b93-8be1-5b89-a71d-a030bc6d6043",
+        "contentType": "image/jpeg",
+        "byteSize": 290004
+      },
+      "updatedAt": "2026-10-27T07:41:00Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": "e5bfd75b-19e7-5013-af37-2a7659cda9a8",
+      "target": {
+        "kind": "sheet",
+        "id": "490ac112-e922-5f2a-98da-81144aa5d13e"
+      },
+      "body": "Ivan on 28 October: please split the break correctly, 30 min at Schulzentrum.",
+      "purpose": "return",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-11-02T09:30:00Z"
+    },
+    {
+      "id": "59d760de-aed9-5bc2-8bdd-48161c99449a",
+      "target": {
+        "kind": "site",
+        "id": "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      },
+      "body": "From 2 November the gate code is 4711.",
+      "purpose": "note",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-10-30T15:00:00Z"
+    }
+  ]
+}

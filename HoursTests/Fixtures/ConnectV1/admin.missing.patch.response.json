@@ -1,0 +1,23 @@
+{
+  "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+  "version": 2,
+  "state": "ordered",
+  "receivedAt": "2026-11-01T07:12:05Z",
+  "updatedAt": "2026-11-01T07:12:05Z",
+  "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+  "data": {
+    "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+    "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+    "name": "NYM-J 5x2.5",
+    "quantity": "100",
+    "unit": "m",
+    "codes": [],
+    "note": "For UV2 to the 3rd floor",
+    "notedBy": "Marko Kovač",
+    "notedAt": "2026-10-23T08:30:00Z",
+    "state": "ordered",
+    "orderedAt": "2026-10-23T12:00:00Z",
+    "arrivedAt": null,
+    "updatedAt": "2026-10-23T08:30:00Z"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "items": [
+    {
+      "id": "7c7750d3-ee02-5f38-aed6-32bf11d64ebd",
+      "version": 2,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "7c7750d3-ee02-5f38-aed6-32bf11d64ebd",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "date": "2026-10-21",
+        "description": "Emergency lighting in the stairwell, on request of the client.",
+        "materials": [
+          {
+            "name": "Emergency light LED 3h",
+            "quantity": "8",
+            "unit": "pcs",
+            "codes": [
+              "4012345678901"
+            ]
+          },
+          {
+            "name": "NYM-J 3x1.5",
+            "quantity": "45.5",
+            "unit": "m",
+            "codes": []
+          }
+        ],
+        "hours": [
+          {
+            "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+            "name": "Marko Kovač",
+            "minutes": 180
+          },
+          {
+            "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+            "name": "Ivan Horvat",
+            "minutes": 180
+          }
+        ],
+        "photos": [
+          {
+            "fileId": "e1d75f52-4fa5-5f5e-98b3-4b1d2882b846",
+            "contentType": "image/jpeg",
+            "byteSize": 412880
+          }
+        ],
+        "clientSignature": {
+          "signerName": "H. Gruber",
+          "signedAt": "2026-10-21T14:20:00Z",
+          "image": {
+            "fileId": "05cf9f18-1030-514f-ac8a-2d27fb155285",
+            "contentType": "image/png",
+            "byteSize": 6210
+          }
+        },
+        "done": true,
+        "doneAt": "2026-10-21T14:10:00Z",
+        "createdAt": "2026-10-21T09:00:00Z",
+        "updatedAt": "2026-10-21T14:20:00Z"
+      }
+    }
+  ]
+}

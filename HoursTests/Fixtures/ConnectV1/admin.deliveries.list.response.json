@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "e6cd05bf-87e2-5433-b4cd-97f984ac98c8",
+      "version": 1,
+      "state": "new",
+      "receivedAt": "2026-11-01T07:12:05Z",
+      "updatedAt": "2026-11-01T07:12:05Z",
+      "deviceId": "4cbf616d-adf0-5d1b-a6dd-27a0c244559a",
+      "data": {
+        "id": "e6cd05bf-87e2-5433-b4cd-97f984ac98c8",
+        "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+        "receivedAt": "2026-10-27T07:40:00Z",
+        "lines": [
+          {
+            "kind": "arrived",
+            "name": "Flush boxes 68 mm",
+            "unit": "pcs",
+            "came": "50",
+            "ordered": "50",
+            "missingItemId": "be90d012-2dc2-521e-8072-f7957350c87e"
+          },
+          {
+            "kind": "short",
+            "name": "NYM-J 5x2.5",
+            "unit": "m",
+            "came": "50",
+            "ordered": "100",
+            "missingItemId": "a4df4d37-8c45-5968-a771-a3b3039602ae"
+          },
+          {
+            "kind": "extra",
+            "name": "Cable ties 200 mm",
+            "unit": "set",
+            "came": "2",
+            "ordered": "2",
+            "missingItemId": null
+          }
+        ],
+        "photo": {
+          "fileId": "80c88b93-8be1-5b89-a71d-a030bc6d6043",
+          "contentType": "image/jpeg",
+          "byteSize": 290004
+        },
+        "updatedAt": "2026-10-27T07:41:00Z"
+      }
+    }
+  ]
+}

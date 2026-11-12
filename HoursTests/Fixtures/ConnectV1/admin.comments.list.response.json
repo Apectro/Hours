@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "e5bfd75b-19e7-5013-af37-2a7659cda9a8",
+      "target": {
+        "kind": "sheet",
+        "id": "490ac112-e922-5f2a-98da-81144aa5d13e"
+      },
+      "body": "Ivan on 28 October: please split the break correctly, 30 min at Schulzentrum.",
+      "purpose": "return",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-11-02T09:30:00Z"
+    },
+    {
+      "id": "59d760de-aed9-5bc2-8bdd-48161c99449a",
+      "target": {
+        "kind": "site",
+        "id": "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      },
+      "body": "From 2 November the gate code is 4711.",
+      "purpose": "note",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-10-30T15:00:00Z"
+    }
+  ]
+}

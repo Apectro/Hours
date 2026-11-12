@@ -1,0 +1,11 @@
+{
+  "id": "8f98bc41-c304-5f61-b8b2-d6640c282a6b",
+  "code": "K7QF3MZP",
+  "expiresAt": "2026-10-01T06:55:00Z",
+  "qr": {
+    "v": 1,
+    "url": "https://firm.example/api/zeitkonto",
+    "code": "K7QF3MZP"
+  },
+  "qrText": "{\"v\":1,\"url\":\"https://firm.example/api/zeitkonto\",\"code\":\"K7QF3MZP\"}"
+}

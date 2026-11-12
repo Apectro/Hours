@@ -1,0 +1,244 @@
+{
+  "cursor": "c1.1042",
+  "hasMore": false,
+  "full": true,
+  "serverTime": "2026-11-02T10:00:00Z",
+  "company": {
+    "id": "8eccf663-ecf2-554d-85cd-63dc76483fe0",
+    "name": "Elektro Beispiel GmbH",
+    "timeZone": "Europe/Vienna",
+    "breaksPaid": false,
+    "rounding": "exact"
+  },
+  "sites": [
+    {
+      "id": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "name": "Hauptstraße 12",
+      "address": "Hauptstraße 12\n1040 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "15:30",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": true,
+      "jobNumber": "P-2026-114",
+      "version": 3,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:02:00Z"
+    },
+    {
+      "id": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "name": "Schulzentrum Nord",
+      "address": "Schulweg 3\n1210 Wien",
+      "timeZone": null,
+      "workDays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "usualDay": {
+        "start": "07:00",
+        "end": "16:00",
+        "breakMinutes": 30
+      },
+      "pause": null,
+      "archived": false,
+      "allowanceByDefault": false,
+      "jobNumber": "P-2026-131",
+      "version": 2,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:05:00Z"
+    }
+  ],
+  "crew": [
+    {
+      "id": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "name": "Marko Kovač",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "101",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "eabdee49-f0eb-575b-9032-773c56337457",
+      "name": "Ivan Horvat",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "102",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "name": "Luka Babić",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "103",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "name": "Josip Marić",
+      "role": "teamLeader",
+      "hidden": false,
+      "personnelNumber": "104",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    },
+    {
+      "id": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "name": "Ante Novak",
+      "role": "worker",
+      "hidden": false,
+      "personnelNumber": "105",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:10:00Z"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "5aedadae-1c8a-56f2-9738-cdb7849f3949",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "28e27f54-4818-53f1-9643-412a4d57a2f0",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "a30a5be7-4762-5eac-b20f-de1d3ff07476",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "from": "2026-09-01",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "f0572359-627a-5a55-9be7-760b025e35be",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "teamLeader",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "b0e6b932-013a-5fce-91db-d24fd8558e13",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "from": "2026-09-15",
+      "to": null,
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    },
+    {
+      "id": "4f782403-c586-5fbf-9c1e-d62e4fc33994",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "from": "2026-10-19",
+      "to": "2026-10-31",
+      "role": "worker",
+      "version": 1,
+      "origin": "director",
+      "updatedAt": "2026-09-28T14:12:00Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": "e5bfd75b-19e7-5013-af37-2a7659cda9a8",
+      "target": {
+        "kind": "sheet",
+        "id": "490ac112-e922-5f2a-98da-81144aa5d13e"
+      },
+      "body": "Ivan on 28 October: please split the break correctly, 30 min at Schulzentrum.",
+      "purpose": "return",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-11-02T09:30:00Z"
+    },
+    {
+      "id": "59d760de-aed9-5bc2-8bdd-48161c99449a",
+      "target": {
+        "kind": "site",
+        "id": "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      },
+      "body": "From 2 November the gate code is 4711.",
+      "purpose": "note",
+      "author": {
+        "kind": "director",
+        "name": "Office",
+        "memberId": null
+      },
+      "createdAt": "2026-10-30T15:00:00Z"
+    }
+  ],
+  "reviews": [
+    {
+      "kind": "sheet",
+      "id": "490ac112-e922-5f2a-98da-81144aa5d13e",
+      "version": 2,
+      "state": "returned",
+      "changedAt": "2026-11-02T09:30:00Z",
+      "commentIds": [
+        "e5bfd75b-19e7-5013-af37-2a7659cda9a8"
+      ]
+    },
+    {
+      "kind": "missingItem",
+      "id": "a4df4d37-8c45-5968-a771-a3b3039602ae",
+      "version": 2,
+      "state": "ordered",
+      "changedAt": "2026-10-23T12:00:00Z",
+      "commentIds": []
+    }
+  ],
+  "tombstones": [
+    {
+      "kind": "assignment",
+      "id": "52d82a9b-525d-5b04-9c82-cb6085aff3f3",
+      "deletedAt": "2026-10-18T16:00:00Z"
+    }
+  ]
+}
