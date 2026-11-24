@@ -1780,16 +1780,30 @@ crew first, batches under the limits, backoff 5 s – 15 min), who is who
 (`ConnectPeople`: per-site crew rows linked to the company's people by id,
 else by `CrewCandidates.key`; "You" becomes the paired person), what is sent
 (`ConnectOutbox`, `ConnectSheet`) and what a sync changes (`ConnectMerge`:
-upserts, tombstones archive and hide, never delete, days are never touched and
-a closed month's conflicts are listed). App: `Hours/Data/Connect` — the token in
+upserts, tombstones archive and hide, never delete, the phone's own days are
+never touched and a closed month's conflicts are listed). The one exception to
+"days are never touched" is the days the office wrote or edited on the web
+(`ConnectOfficeDays`, the module's `docs/app.md`, *Office days*): each replaces
+the local site day of its site and date, its version becomes the record's base
+version, and what the next scan builds from it is adopted as sent, not queued.
+A closed month is left alone: the day is held in the state and taken when the
+month is reopened. A day with an unsent local edit shows the office's and keeps
+the phone's aside until the user picks "Use the office's" or "Keep mine" (which
+sends it again on top of the office's version); an upload the server answers
+`conflict, editedOnWeb` ends in the same place. A `siteDay` tombstone deletes a
+day the office wrote that the phone left alone. The diary is not part of this:
+it stays the phone's. App: `Hours/Data/Connect` — the token in
 the Keychain (`AfterFirstUnlockThisDeviceOnly`, not synchronizable), the
 company and person in this device's own `UserDefaults` (not `AppSettings`, so
 neither iCloud nor a backup file carries a connection), the queue in a file
 in Application Support excluded from backups; `ConnectService` scans the
 company's sites for changes after a save (debounced), syncs on foreground and
 on Sync now, retries on network change and backoff. No new SwiftData
-attribute: a crew row's person and a site's "from the company" live in that
-state file. UI tests use `-hours-connect-stub` (`ConnectStubTransport`).
+attribute: a crew row's person, a site's "from the company" and which days
+the office wrote or changed ("Written by the office", "Changed by the office"
+on the day and in the site's month) live in that state file. UI tests use
+`-hours-connect-stub` (`ConnectStubTransport`), with `-hours-connect-office-day`
+for a day the office wrote.
 
 The privacy screen is written from `HoursStack.isSyncing` rather than from what
 the app intends in general — it reports the store that actually opened. A

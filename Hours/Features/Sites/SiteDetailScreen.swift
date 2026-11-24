@@ -106,6 +106,9 @@ struct SiteDetailScreen: View {
         .onChange(of: signingOff) { _, now in if now == nil { load() } }
         .onChange(of: shownMonth) { _, _ in load() }
         .onChange(of: choosingNoWork) { _, now in if now == nil { load() } }
+        // Connect to company: a day the office wrote, changed or deleted
+        // was just written into the store.
+        .onChange(of: HoursStack.connect.officeDayWrites) { _, _ in load() }
         .sheet(item: $choosingNoWork) { request in
             SiteNoWorkSheet(request: request)
         }
@@ -347,6 +350,7 @@ struct SiteDetailScreen: View {
             formatting: settingsStore.dateFormatting,
             durationFormatting: settingsStore.settings.displayFormatting,
             noWork: counts.noWork,
+            office: HoursStack.connect.officeMarks(onSite: site.id),
             holidayTint: settingsStore.settings.dayTypeCatalog.definition(for: .holiday).tint.color,
             onSelect: { openSiteDay(SiteRoute(siteID: site.id, date: $0)) }
         )

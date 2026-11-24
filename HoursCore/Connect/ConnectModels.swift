@@ -65,6 +65,8 @@ enum ConnectV1 {
         static let rateLimited: Self = "rate_limited"
         static let payloadTooLarge: Self = "payload_too_large"
         static let unsupportedMediaType: Self = "unsupported_media_type"
+        /// 423: a day in a month whose sheet is approved.
+        static let monthLocked: Self = "month_locked"
         static let `internal`: Self = "internal"
     }
 
@@ -338,6 +340,10 @@ enum ConnectV1 {
         @Defaulted<ConnectDefaults.None<Comment>> var comments: [Comment] = []
         @Defaulted<ConnectDefaults.None<Review>> var reviews: [Review] = []
         @Defaulted<ConnectDefaults.None<Tombstone>> var tombstones: [Tombstone] = []
+        /// Site days the office wrote or edited, on the sites the phone's
+        /// person is assigned to, each with `origin`, `editedBy` and
+        /// `version` filled in. Left out by a server that does not know them.
+        @Defaulted<ConnectDefaults.None<SiteDay>> var siteDays: [SiteDay] = []
     }
 
     // MARK: - Upload
@@ -484,6 +490,23 @@ enum ConnectV1 {
         var diary: SiteDiary?
         var writtenBy: String?
         var updatedAt: String
+        /// Filled in by the server, ignored by it on upload. Who wrote the
+        /// day first: "director" (in the office) or "device". Absent or a
+        /// word this version does not know: a phone.
+        var origin: String?
+        /// Who changed it last: "director" when the office edited it.
+        /// Absent or unknown: a phone.
+        var editedBy: String?
+        /// The version the server holds: the record's base version when the
+        /// phone edits the day.
+        var version: Int?
+
+        static let director = "director"
+
+        /// The office wrote the day.
+        var isOfficeWritten: Bool { origin == Self.director }
+        /// The office changed it last.
+        var isOfficeEdited: Bool { editedBy == Self.director }
     }
 
     // MARK: - Records: the month sheet
@@ -826,6 +849,172 @@ enum ConnectV1 {
         var people: [PersonHours]
         var sites: [SiteHours]
         var days: [DayHours]?
+    }
+
+    // MARK: The office calendar
+
+    /// A site day as the office writes it (`PUT /v1/admin/site-days/:id`):
+    /// a `SiteDay` without what the server sets, and the version the editor
+    /// loaded.
+    struct SiteDayWrite: Codable, Hashable, Sendable {
+        var siteId: String
+        var date: String
+        var start: String?
+        var end: String?
+        @Defaulted<ConnectDefaults.Zero> var breakMinutes: Int = 0
+        @Defaulted<ConnectDefaults.None<Attendance>> var attendance: [Attendance] = []
+        @Defaulted<ConnectDefaults.None<Absence>> var absences: [Absence] = []
+        var noWork: String?
+        @Defaulted<ConnectDefaults.False> var badWeatherStop: Bool = false
+        @Defaulted<ConnectDefaults.Empty> var note: String = ""
+        @Defaulted<ConnectDefaults.NoStrings> var allowanceMemberIds: [String] = []
+        @Defaulted<ConnectDefaults.Zero> var kilometres: Int = 0
+        @Defaulted<ConnectDefaults.None<SiteMove>> var moves: [SiteMove] = []
+        var diary: SiteDiary?
+        var writtenBy: String?
+        var baseVersion: Int?
+    }
+
+    struct SiteDayFillRequest: Codable, Hashable, Sendable {
+        var siteId: String
+        var dates: [String]
+        var start: String
+        var end: String
+        @Defaulted<ConnectDefaults.Zero> var breakMinutes: Int = 0
+        var memberIds: [String]
+        @Defaulted<ConnectDefaults.False> var overwrite: Bool = false
+        var note: String?
+    }
+
+    struct SiteDayFillSkip: Codable, Hashable, Sendable {
+        var date: String
+        /// phoneDay, locked; unknown: not written.
+        var reason: String
+    }
+
+    struct SiteDayFillResponse: Codable, Hashable, Sendable {
+        var written: [OfficeView<SiteDay>]
+        var skipped: [SiteDayFillSkip]
+    }
+
+    struct CalendarPerson: Codable, Hashable, Sendable {
+        var memberId: String
+        var name: String
+        var start: String?
+        var end: String?
+        var breakMinutes: Int
+        var workedMinutes: Int
+        var allowance: Bool
+    }
+
+    struct CalendarEntry: Codable, Hashable, Sendable {
+        var siteId: String
+        var siteName: String
+        var siteDayId: String
+        var version: Int
+        var origin: String
+        var editedBy: String
+        /// written, office, noWork, away, missing, paused, future, holiday,
+        /// free; unknown: free.
+        var status: String
+        var locked: Bool
+        var workedMinutes: Int
+        var people: [CalendarPerson]
+        var absences: [Absence]
+        var noWork: String?
+        var note: String
+        var day: SiteDay
+    }
+
+    struct CalendarDay: Codable, Hashable, Sendable {
+        var date: String
+        var weekday: Int
+        var status: String
+        var expected: Bool
+        var holiday: String?
+        var workedMinutes: Int
+        var entries: [CalendarEntry]
+        var assignedMemberIds: [String]?
+        var assignedSiteIds: [String]?
+    }
+
+    struct MonthCalendar: Codable, Hashable, Sendable {
+        var month: String
+        /// site or member.
+        var view: String
+        var siteId: String?
+        var memberId: String?
+        var name: String
+        var today: String
+        var rules: SheetRules
+        var workedMinutes: Int
+        var holidays: [SheetHoliday]
+        var lockedSiteIds: [String]
+        var days: [CalendarDay]
+    }
+
+    struct PlanRow: Codable, Hashable, Sendable {
+        var memberId: String
+        var siteId: String
+        var from: String?
+        var to: String?
+        var role: CrewRole?
+    }
+
+    struct PlanRequest: Codable, Hashable, Sendable {
+        var month: String
+        var rows: [PlanRow]
+    }
+
+    struct PlanCopyRequest: Codable, Hashable, Sendable {
+        var from: String
+        var to: String
+    }
+
+    struct PlanAssignment: Codable, Hashable, Sendable {
+        var assignmentId: String
+        var siteId: String
+        var from: String
+        var to: String
+        var role: CrewRole
+        var startsBefore: Bool
+        var endsAfter: Bool
+    }
+
+    struct PlanDay: Codable, Hashable, Sendable {
+        var date: String
+        var siteId: String
+        var workedMinutes: Int
+        var origin: String
+    }
+
+    struct PlanOverlap: Codable, Hashable, Sendable {
+        var date: String
+        var siteIds: [String]
+    }
+
+    struct PlanMember: Codable, Hashable, Sendable {
+        var memberId: String
+        var name: String
+        var role: CrewRole
+        var hidden: Bool
+        var assignments: [PlanAssignment]
+        var days: [PlanDay]
+        var workedMinutes: Int
+        var overlaps: [PlanOverlap]
+    }
+
+    struct PlanSite: Codable, Hashable, Sendable {
+        var siteId: String
+        var name: String
+        var archived: Bool
+        var memberIds: [String]
+    }
+
+    struct MonthPlan: Codable, Hashable, Sendable {
+        var month: String
+        var members: [PlanMember]
+        var sites: [PlanSite]
     }
 
     struct CompanyExport: Codable, Hashable, Sendable {

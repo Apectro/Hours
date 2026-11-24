@@ -44,6 +44,14 @@ struct ConnectState: Codable, Hashable, Sendable {
     var rejections: [ConnectRejection] = []
     /// What the last sync could not apply because a month is closed.
     var lockedConflicts: [ConnectMergeConflict] = []
+    /// The days the office wrote or changed, by site day id (lower case):
+    /// who wrote each, the version taken, and the phone's own unsent edit
+    /// of it while the user has not chosen (`ConnectOfficeDays`). Here
+    /// rather than on the site day, so the store's schema stays as it is.
+    var officeDays: [String: ConnectOfficeDay] = [:]
+    /// Office days not taken yet because their month is closed on the
+    /// phone (or their site has not arrived), kept until it is reopened.
+    var heldOfficeDays: [String: ConnectHeldOfficeDay] = [:]
     var backoff = ConnectBackoff()
     var lastSyncedAt: Date?
     var lastSentAt: Date?
@@ -63,6 +71,7 @@ struct ConnectState: Codable, Hashable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case cursor, people, marks, queue, uploadedFiles, companySites, sharedSites, siteCopies, assignments, snapshot
         case comments, readComments, reviews, conflicts, rejections, lockedConflicts, backoff
+        case officeDays, heldOfficeDays
         case lastSyncedAt, lastSentAt, limits
     }
 
@@ -84,6 +93,8 @@ struct ConnectState: Codable, Hashable, Sendable {
         conflicts = container.lenient(.conflicts, [:])
         rejections = container.lenient(.rejections, [])
         lockedConflicts = container.lenient(.lockedConflicts, [])
+        officeDays = container.lenient(.officeDays, [:])
+        heldOfficeDays = container.lenient(.heldOfficeDays, [:])
         backoff = container.lenient(.backoff, ConnectBackoff())
         lastSyncedAt = container.lenientOptional(.lastSyncedAt)
         lastSentAt = container.lenientOptional(.lastSentAt)
@@ -127,6 +138,11 @@ struct ConnectRecordMark: Codable, Hashable, Sendable {
     var siteIDs: [UUID] = []
     /// The month it is part of, for a dated record.
     var month: YearMonth?
+    /// The record was just taken from the office: whatever the next scan
+    /// builds from it is what the server already has, so that content
+    /// becomes `hash` instead of being queued. Optional so a state file
+    /// written before office days still reads.
+    var adopts: Bool?
 }
 
 /// One record waiting to go.

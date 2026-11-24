@@ -1,0 +1,1673 @@
+{
+  "month": "2026-10",
+  "view": "member",
+  "siteId": null,
+  "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+  "name": "Ante Novak",
+  "today": "2026-11-02",
+  "rules": {
+    "breaksPaid": false,
+    "rounding": "exact"
+  },
+  "workedMinutes": 9270,
+  "holidays": [
+    {
+      "date": "2026-10-26",
+      "name": "Nationalfeiertag"
+    }
+  ],
+  "lockedSiteIds": [],
+  "days": [
+    {
+      "date": "2026-10-01",
+      "weekday": 5,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "1218a9e6-5e59-5ddd-96bd-2b526dc16ae9",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "1218a9e6-5e59-5ddd-96bd-2b526dc16ae9",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-01",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-01T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-02",
+      "weekday": 6,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "03d3d36a-b24a-51aa-bcc4-2d9f4417cb13",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "03d3d36a-b24a-51aa-bcc4-2d9f4417cb13",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-02",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-02T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-03",
+      "weekday": 7,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "weekday": 1,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "weekday": 2,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "a7eb62ed-f78d-55d3-a1f5-79f8b88ef5d2",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "a7eb62ed-f78d-55d3-a1f5-79f8b88ef5d2",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-05",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-05T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "weekday": 3,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "4a15d447-3f4f-5b0c-bb97-0154e44a81b2",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "4a15d447-3f4f-5b0c-bb97-0154e44a81b2",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-06",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-06T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-07",
+      "weekday": 4,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "6e3b04d5-5599-5b1a-8528-379941e0c18b",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "6e3b04d5-5599-5b1a-8528-379941e0c18b",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-07",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-07T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-08",
+      "weekday": 5,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "7a7db446-16a3-528a-add1-8badca4b0db4",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "7a7db446-16a3-528a-add1-8badca4b0db4",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-08",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-08T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-09",
+      "weekday": 6,
+      "status": "noWork",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "8619c555-574d-5ae5-bd0a-ee027792b784",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "noWork",
+          "locked": false,
+          "workedMinutes": 0,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": null,
+              "end": null,
+              "breakMinutes": 0,
+              "workedMinutes": 0,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": "badWeather",
+          "note": "Storm, roof work impossible. Sent home at 07:30.",
+          "day": {
+            "id": "8619c555-574d-5ae5-bd0a-ee027792b784",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-09",
+            "start": null,
+            "end": null,
+            "breakMinutes": 0,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": "badWeather",
+            "badWeatherStop": true,
+            "note": "Storm, roof work impossible. Sent home at 07:30.",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-09T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-10",
+      "weekday": 7,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-11",
+      "weekday": 1,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-12",
+      "weekday": 2,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "e60d832c-79be-5936-b3fe-c61507d03a30",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "e60d832c-79be-5936-b3fe-c61507d03a30",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-12",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-12T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-13",
+      "weekday": 3,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "9acd8e33-ab4e-5385-bb59-dd5df7b9d605",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "9acd8e33-ab4e-5385-bb59-dd5df7b9d605",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-13",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-13T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-14",
+      "weekday": 4,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "9c6ced9c-ca17-5ed9-b72a-ef8c285bab7b",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "9c6ced9c-ca17-5ed9-b72a-ef8c285bab7b",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-14",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-14T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-15",
+      "weekday": 5,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "e68907e3-609c-59ee-8525-d738b53f3e27",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "e68907e3-609c-59ee-8525-d738b53f3e27",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-15",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-15T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "weekday": 6,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "7e637165-6354-53f9-9bed-9265fd922d22",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "7e637165-6354-53f9-9bed-9265fd922d22",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-16",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-16T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "weekday": 7,
+      "status": "office",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 300,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "7575921c-285b-5267-86e2-1380e7a334fc",
+          "version": 1,
+          "origin": "director",
+          "editedBy": "director",
+          "status": "office",
+          "locked": false,
+          "workedMinutes": 300,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "12:00",
+              "breakMinutes": 0,
+              "workedMinutes": 300,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+          "day": {
+            "id": "7575921c-285b-5267-86e2-1380e7a334fc",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-17",
+            "start": "07:00",
+            "end": "12:00",
+            "breakMinutes": 0,
+            "attendance": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": null,
+            "updatedAt": "2026-11-02T08:15:00Z",
+            "origin": "director",
+            "editedBy": "director",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "weekday": 1,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "weekday": 2,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "9e93ae39-8b91-56a2-b23c-646f7e749453",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "9e93ae39-8b91-56a2-b23c-646f7e749453",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-19",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-19T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "weekday": 3,
+      "status": "away",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "516d3f62-9a42-5a9e-b120-ef73f513b459",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "away",
+          "locked": false,
+          "workedMinutes": 0,
+          "people": [],
+          "absences": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "reason": {
+                "type": "dayType",
+                "dayType": "sick"
+              }
+            }
+          ],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "516d3f62-9a42-5a9e-b120-ef73f513b459",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-20",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              }
+            ],
+            "absences": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+                "reason": {
+                  "type": "dayType",
+                  "dayType": "sick"
+                }
+              }
+            ],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-20T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "weekday": 4,
+      "status": "away",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "a4a9fcb8-8098-5d65-acc4-503be82bb481",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "away",
+          "locked": false,
+          "workedMinutes": 0,
+          "people": [],
+          "absences": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "reason": {
+                "type": "dayType",
+                "dayType": "sick"
+              }
+            }
+          ],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "a4a9fcb8-8098-5d65-acc4-503be82bb481",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-21",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              }
+            ],
+            "absences": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+                "reason": {
+                  "type": "dayType",
+                  "dayType": "sick"
+                }
+              }
+            ],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-21T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "weekday": 5,
+      "status": "away",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "502dd12a-05c7-5b51-8e16-52b7d94d65d3",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "away",
+          "locked": false,
+          "workedMinutes": 0,
+          "people": [],
+          "absences": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "reason": {
+                "type": "dayType",
+                "dayType": "sick"
+              }
+            }
+          ],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "502dd12a-05c7-5b51-8e16-52b7d94d65d3",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-22",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              }
+            ],
+            "absences": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+                "reason": {
+                  "type": "dayType",
+                  "dayType": "sick"
+                }
+              }
+            ],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-22T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "weekday": 6,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "60669f3f-133c-5262-a321-4a368c0447de",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "60669f3f-133c-5262-a321-4a368c0447de",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-23",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-23T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-24",
+      "weekday": 7,
+      "status": "office",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 300,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "50a4351f-1473-5d9e-973f-61e077f2dad3",
+          "version": 1,
+          "origin": "director",
+          "editedBy": "director",
+          "status": "office",
+          "locked": false,
+          "workedMinutes": 300,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "12:00",
+              "breakMinutes": 0,
+              "workedMinutes": 300,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+          "day": {
+            "id": "50a4351f-1473-5d9e-973f-61e077f2dad3",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-24",
+            "start": "07:00",
+            "end": "12:00",
+            "breakMinutes": 0,
+            "attendance": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": null,
+            "updatedAt": "2026-11-02T08:15:00Z",
+            "origin": "director",
+            "editedBy": "director",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-25",
+      "weekday": 1,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "weekday": 2,
+      "status": "holiday",
+      "expected": false,
+      "holiday": "Nationalfeiertag",
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "weekday": 3,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "5c8ec1a4-fb20-528f-a233-5a6f842e08a6",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "5c8ec1a4-fb20-528f-a233-5a6f842e08a6",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-27",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-27T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "weekday": 4,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "119694df-812a-57c0-9aa4-3a416bdd6329",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "Ivan from Hauptstraße 12 from 12:00.",
+          "day": {
+            "id": "119694df-812a-57c0-9aa4-3a416bdd6329",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-28",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              },
+              {
+                "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+                "start": "12:00",
+                "end": "16:00",
+                "breakMinutes": 30
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "Ivan from Hauptstraße 12 from 12:00.",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-28T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "weekday": 5,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "47d67e73-e591-59f6-b355-006537467bce",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "47d67e73-e591-59f6-b355-006537467bce",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-29",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c"
+              },
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-29T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "weekday": 6,
+      "status": "written",
+      "expected": true,
+      "holiday": null,
+      "workedMinutes": 510,
+      "entries": [
+        {
+          "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+          "siteName": "Schulzentrum Nord",
+          "siteDayId": "47ec87a2-f95a-57c4-a9bd-17a544384959",
+          "version": 1,
+          "origin": "device",
+          "editedBy": "device",
+          "status": "written",
+          "locked": false,
+          "workedMinutes": 510,
+          "people": [
+            {
+              "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+              "name": "Ante Novak",
+              "start": "07:00",
+              "end": "16:00",
+              "breakMinutes": 30,
+              "workedMinutes": 510,
+              "allowance": false
+            }
+          ],
+          "absences": [],
+          "noWork": null,
+          "note": "",
+          "day": {
+            "id": "47ec87a2-f95a-57c4-a9bd-17a544384959",
+            "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+            "date": "2026-10-30",
+            "start": "07:00",
+            "end": "16:00",
+            "breakMinutes": 30,
+            "attendance": [
+              {
+                "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+              }
+            ],
+            "absences": [
+              {
+                "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+                "reason": {
+                  "type": "dayType",
+                  "dayType": "vacation"
+                }
+              }
+            ],
+            "noWork": null,
+            "badWeatherStop": false,
+            "note": "",
+            "allowanceMemberIds": [],
+            "kilometres": 0,
+            "moves": [],
+            "diary": null,
+            "writtenBy": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+            "updatedAt": "2026-10-30T16:10:00Z",
+            "origin": "device",
+            "editedBy": "device",
+            "version": 1
+          }
+        }
+      ],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "weekday": 7,
+      "status": "free",
+      "expected": false,
+      "holiday": null,
+      "workedMinutes": 0,
+      "entries": [],
+      "assignedSiteIds": [
+        "d65be387-0478-5071-8e5c-052d65e0fb8b"
+      ]
+    }
+  ]
+}

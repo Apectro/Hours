@@ -19394,6 +19394,65 @@
         }
       }
     },
+    "Changed by the office": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Büro geändert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiado por la oficina"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifié par le bureau"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijenio ured"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modificato dall'ufficio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gewijzigd door het kantoor"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmienione przez biuro"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterado pelo escritório"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spremenila pisarna"
+          }
+        }
+      }
+    },
     "Changed jobs or hours? Save the change “from a date” so older months keep their old hours.": {
       "extractionState": "manual",
       "localizations": {
@@ -45293,6 +45352,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nadaljuj z urejanjem"
+          }
+        }
+      }
+    },
+    "Keep mine": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meine behalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar la mía"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder la mienne"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zadrži moju"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni la mia"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De mijne houden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zachowaj moją"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter a minha"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obdrži mojo"
           }
         }
       }
@@ -89399,6 +89517,65 @@
         }
       }
     },
+    "The office changed a day in %@, which is closed. Reopen the month to take it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Büro hat einen Tag im %@ geändert, der abgeschlossen ist. Öffne den Monat wieder, um ihn zu übernehmen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La oficina cambió un día de %@, que está cerrado. Reabre el mes para recibirlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bureau a modifié un jour de %@, qui est clôturé. Rouvrez le mois pour le reprendre."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ured je promijenio dan za %@, koji je zatvoren. Ponovno otvori mjesec da ga preuzmeš."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'ufficio ha modificato un giorno di %@, che è chiuso. Riapri il mese per riceverlo."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het kantoor heeft een dag in %@ gewijzigd, die is afgesloten. Heropen de maand om die over te nemen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biuro zmieniło dzień za %@, który jest zamknięty. Otwórz miesiąc ponownie, aby go przyjąć."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O escritório alterou um dia de %@, que está fechado. Reabre o mês para o receber."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pisarna je spremenila dan za %@, ki je zaprt. Znova odpri mesec, da ga prevzameš."
+          }
+        }
+      }
+    },
     "The one thing it asks the network is whether anything was bought, which it asks the App Store; no part of your hours goes with the question.": {
       "extractionState": "manual",
       "localizations": {
@@ -91224,6 +91401,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta koda potrebuje novejši Zeitkonto. Najprej posodobi aplikacijo."
+          }
+        }
+      }
+    },
+    "This day shows the office's version. Your own changes to it have not been sent.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Tag zeigt die Version des Büros. Deine eigenen Änderungen wurden nicht gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este día muestra la versión de la oficina. Tus propios cambios no se han enviado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce jour affiche la version du bureau. Vos propres modifications n'ont pas été envoyées."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj dan prikazuje verziju ureda. Tvoje vlastite izmjene nisu poslane."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo giorno mostra la versione dell'ufficio. Le tue modifiche non sono state inviate."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze dag toont de versie van het kantoor. Je eigen wijzigingen zijn niet verstuurd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dzień pokazuje wersję biura. Twoje własne zmiany nie zostały wysłane."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este dia mostra a versão do escritório. As tuas próprias alterações não foram enviadas."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta dan prikazuje različico pisarne. Tvoje lastne spremembe niso bile poslane."
           }
         }
       }
@@ -96475,6 +96711,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uporabi čas gradbišča"
+          }
+        }
+      }
+    },
+    "Use the office's": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version des Büros nehmen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar la de la oficina"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utiliser celle du bureau"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uzmi verziju ureda"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa quella dell'ufficio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die van het kantoor gebruiken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Użyj wersji biura"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar a do escritório"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uporabi različico pisarne"
           }
         }
       }
@@ -102851,6 +103146,65 @@
         }
       }
     },
+    "Written by the office": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Büro eingetragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotado por la oficina"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisi par le bureau"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upisao ured"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrato dall'ufficio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingevuld door het kantoor"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisane przez biuro"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registado pelo escritório"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpisala pisarna"
+          }
+        }
+      }
+    },
     "Written on the site's day, so it is changed there.": {
       "extractionState": "manual",
       "localizations": {
@@ -104460,6 +104814,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ime in kraj spremeniš v naslednjem koraku."
+          }
+        }
+      }
+    },
+    "You had deleted this day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hattest diesen Tag gelöscht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habías eliminado este día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous aviez supprimé ce jour."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj dan je kod tebe bio izbrisan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avevi eliminato questo giorno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je had deze dag verwijderd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dzień był u ciebie usunięty."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tinhas eliminado este dia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta dan je bil pri tebi izbrisan."
           }
         }
       }
@@ -107174,6 +107587,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tvoj običajni dan"
+          }
+        }
+      }
+    },
+    "Your version: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Version: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu versión: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre version : %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja verzija: %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua versione: %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jouw versie: %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja wersja: %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A tua versão: %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tvoja različica: %@"
           }
         }
       }

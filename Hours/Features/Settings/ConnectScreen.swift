@@ -447,17 +447,36 @@ struct ConnectSiteSection: View {
     }
 }
 
-/// On a site day: what the office said about it, and whether it went.
+/// On a site day: that the office wrote or changed it, what the office
+/// said about it, and whether it went. While the phone's own unsent edit
+/// of a day the office changed waits, the choice between the two.
 struct ConnectDaySection: View {
     let siteID: UUID
     let date: CalendarDate
+    /// Whether the day can be changed: not in a closed month, not on a
+    /// read-only site. "Keep mine" writes the day.
+    var canEdit = true
 
     var body: some View {
         let connect = HoursStack.connect
-        if let status = connect.status(ofDayOn: siteID, date: date), status != .notSent {
+        let status = connect.status(ofDayOn: siteID, date: date) ?? .notSent
+        let office = connect.officeDay(on: siteID, date: date)
+        let mark = office?.mark
+        let mine = office?.mine
+        if status != .notSent || mark != nil || mine != nil {
             let comments = connect.state.comments(on: .siteDay, id: ConnectID.string(ConnectUUID.siteDayID(siteID: siteID, date: date)))
             Section {
-                ConnectStatusLine(status: status)
+                if let mine {
+                    ConnectOfficeChoice(siteID: siteID, date: date, mine: mine, canEdit: canEdit)
+                } else {
+                    if let mark {
+                        ConnectOfficeLine(mark: mark)
+                    }
+                    // "Sent" says nothing about a day the office wrote.
+                    if !(mark != nil && status == .sent) {
+                        ConnectStatusLine(status: status)
+                    }
+                }
                 ForEach(comments.filter { $0.purpose != "return" }, id: \.id) { comment in
                     Label {
                         Text(verbatim: comment.body)
@@ -469,6 +488,87 @@ struct ConnectDaySection: View {
                 }
             }
         }
+    }
+}
+
+/// "Written by the office" or "Changed by the office", small, on a day the
+/// office wrote or edited.
+struct ConnectOfficeLine: View {
+    let mark: ConnectOfficeMark
+
+    var body: some View {
+        Label {
+            Text(verbatim: mark.title)
+        } icon: {
+            Image(systemName: "building.columns")
+        }
+        .font(.footnote)
+        .foregroundStyle(.hoursSecondaryText)
+        .accessibilityIdentifier("connect-line-office")
+    }
+}
+
+extension ConnectOfficeMark {
+    var title: String {
+        switch self {
+        case .written: return String(localized: "Written by the office")
+        case .changed: return String(localized: "Changed by the office")
+        }
+    }
+}
+
+/// The office changed a day the phone had an unsent edit of. The day shows
+/// the office's; the phone's own is kept until one of the two is chosen:
+/// "Use the office's" drops it, "Keep mine" makes it the day again and
+/// sends it on top of the office's version.
+struct ConnectOfficeChoice: View {
+    let siteID: UUID
+    let date: CalendarDate
+    let mine: ConnectMine
+    let canEdit: Bool
+
+    @Environment(SettingsStore.self) private var settingsStore
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Metrics.small) {
+            Label {
+                Text("Changed by the office")
+            } icon: {
+                Image(systemName: "building.columns.fill")
+                    .foregroundStyle(Color.hoursAttention)
+            }
+            .font(.subheadline.weight(.semibold))
+            .accessibilityIdentifier("connect-line-changed")
+            Text("This day shows the office's version. Your own changes to it have not been sent.")
+                .font(.footnote)
+                .foregroundStyle(.hoursSecondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(verbatim: mineText)
+                .font(.footnote)
+                .foregroundStyle(.hoursSecondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("connect-office-mine")
+        }
+        Button("Use the office's") {
+            HoursStack.connect.useOfficeDay(on: siteID, date: date)
+        }
+        .accessibilityIdentifier("connect-office-use-theirs")
+        Button("Keep mine") {
+            _ = HoursStack.connect.keepMine(on: siteID, date: date)
+        }
+        .disabled(!canEdit)
+        .accessibilityIdentifier("connect-office-keep-mine")
+    }
+
+    /// "Your version: 5 people, 7:00 – 15:30", or that the day was deleted.
+    private var mineText: String {
+        guard let day = mine.day else { return String(localized: "You had deleted this day.") }
+        var parts = [String(inflected: "^[\(day.present.count) person](inflect: true)")]
+        if day.start != nil || day.end != nil {
+            parts.append(SiteDayStyle.range(day.start, day.end, on: date, formatting: settingsStore.dateFormatting))
+        }
+        let summary = parts.joined(separator: ", ")
+        return String(localized: "Your version: \(summary)", comment: "A site day the office changed: what the phone's own unsent version says; the value is e.g. 5 people, 7:00 – 15:30")
     }
 }
 
@@ -508,6 +608,15 @@ struct ConnectStatusLine: View {
             }
             .font(.subheadline)
             .accessibilityIdentifier("connect-line-returned")
+        case .changedByOffice:
+            Label {
+                Text("Changed by the office")
+            } icon: {
+                Image(systemName: "building.columns.fill")
+                    .foregroundStyle(Color.hoursAttention)
+            }
+            .font(.subheadline)
+            .accessibilityIdentifier("connect-line-changed")
         }
     }
 }
@@ -555,6 +664,8 @@ enum ConnectText {
             return String(localized: "A site with days in \(month), which is closed, was removed by the office. It is archived here, with its days.", comment: "Connect to company; the value is a month and year")
         case .personRemovedWithClosedMonth:
             return String(localized: "Someone with days in \(month), which is closed, was removed by the office. Their days stay.", comment: "Connect to company; the value is a month and year")
+        case .officeDayInClosedMonth:
+            return String(localized: "The office changed a day in \(month), which is closed. Reopen the month to take it.", comment: "Connect to company; the value is a month and year")
         }
     }
 }
