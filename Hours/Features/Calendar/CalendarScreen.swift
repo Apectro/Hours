@@ -31,6 +31,9 @@ struct CalendarScreen: View {
     @State private var path = NavigationPath()
     /// Every site, archived too, for the names on the week's rows.
     @Query(sort: \SiteEntry.sortOrder) private var siteEntries: [SiteEntry]
+    /// The chip chosen above the month: All, a site, or Own. The screen's
+    /// own, so every launch starts on All.
+    @State private var sourceFilter: SourceFilter = .all
 
     /// One sheet at a time, chosen by value. Stacking several `.sheet`
     /// modifiers on a single view has undefined behaviour.
@@ -47,6 +50,8 @@ struct CalendarScreen: View {
         /// "I worked" on a public holiday or a day off: the editor, times
         /// filled in.
         case workedHoliday(CalendarDate)
+        /// "Write today's hours": where did you work today?
+        case writeToday
 
         var id: String {
             switch self {
@@ -56,6 +61,7 @@ struct CalendarScreen: View {
             case let .bulkEdit(range): return "bulk-\(range.start.key)-\(range.end.key)"
             case .publicHolidays: return "public-holidays"
             case let .workedHoliday(date): return "worked-holiday-\(date.key)"
+            case .writeToday: return "write-today"
             }
         }
     }
@@ -86,6 +92,11 @@ struct CalendarScreen: View {
                             closedMonth: closedMonthOnScreen,
                             exportTitle: exportTitle,
                             siteNames: siteNames,
+                            sites: siteEntries.map(\.site),
+                            filter: sourceFilter,
+                            onFilter: { chosen in
+                                withAnimation(.snappy(duration: 0.2)) { sourceFilter = chosen }
+                            },
                             onSelect: { activeSheet = .day($0) },
                             onStep: step,
                             onFix: { activeSheet = .editor($0) },
@@ -114,7 +125,8 @@ struct CalendarScreen: View {
                                 onEdit: { activeSheet = .editor(today) },
                                 onOpenDay: { activeSheet = .day(today) },
                                 onWorked: { activeSheet = .workedHoliday(today) },
-                                onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: today)) }
+                                onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: today)) },
+                                onWriteToday: { activeSheet = .writeToday }
                             )
 
                             if showsPublicHolidayOffer {
@@ -186,6 +198,21 @@ struct CalendarScreen: View {
                         PublicHolidayPicker {}
                     case let .workedHoliday(date):
                         DayEditorSheet(date: date, startsWorking: true)
+                    case .writeToday:
+                        WriteTodaySheet(
+                            today: today,
+                            onOpenSite: { siteID in
+                                // The site's day for today, on this tab's
+                                // stack, as from a day's sheet.
+                                activeSheet = nil
+                                path.append(CalendarSiteRoute(siteID: siteID, date: today))
+                            },
+                            onOwnHours: {
+                                // One sheet goes and the next comes: the
+                                // item changes, so SwiftUI swaps them.
+                                activeSheet = .editor(today)
+                            }
+                        )
                     }
                 }
             }
@@ -627,6 +654,7 @@ private struct CalendarPeriodView<Middle: View>: View {
     let closedMonth: YearMonth?
     let exportTitle: String
     let siteNames: [UUID: String]
+    let onFilter: (SourceFilter) -> Void
     let onSelect: (CalendarDate) -> Void
     let onStep: (Int) -> Void
     let onFix: (CalendarDate) -> Void
@@ -638,6 +666,17 @@ private struct CalendarPeriodView<Middle: View>: View {
 
     private let computationsByKey: [Int: DayComputation]
     private let summary: PeriodSummary
+    /// The period's worked hours by site and own, counted as `summary`
+    /// counts them.
+    private let sources: PeriodSources
+    /// The chips above the month; empty with no site at all.
+    private let filters: [SourceFilter]
+    /// The chip in force: the one chosen while it is offered, else All.
+    private let filter: SourceFilter
+    /// What the tiles draw beyond the day: bars, the filter, amounts.
+    private let marks: DayTileMarks
+    /// Whether there is any site, which is when hours are told apart.
+    private let hasSites: Bool
     /// What the period earned through today, while earnings are the main
     /// figure.
     private let earnings: EarningsSummary?
@@ -666,6 +705,9 @@ private struct CalendarPeriodView<Middle: View>: View {
         closedMonth: YearMonth?,
         exportTitle: String,
         siteNames: [UUID: String],
+        sites: [Site],
+        filter chosenFilter: SourceFilter,
+        onFilter: @escaping (SourceFilter) -> Void,
         onSelect: @escaping (CalendarDate) -> Void,
         onStep: @escaping (Int) -> Void,
         onFix: @escaping (CalendarDate) -> Void,
@@ -684,6 +726,7 @@ private struct CalendarPeriodView<Middle: View>: View {
         self.closedMonth = closedMonth
         self.exportTitle = exportTitle
         self.siteNames = siteNames
+        self.onFilter = onFilter
         self.onSelect = onSelect
         self.onStep = onStep
         self.onFix = onFix
@@ -708,12 +751,46 @@ private struct CalendarPeriodView<Middle: View>: View {
 
         let inPeriod = resolved.filter { summaryRange.contains($0.date) }
         self.summary = PeriodAggregator.summarize(inPeriod, range: summaryRange, countingThrough: today)
-        self.earnings = settings.showsEarnings
+        // Worked out whenever pay is set up, for the days' amounts; the
+        // totals show it only while earnings are the main figure.
+        let earned = settings.earningsAreSetUp
             ? engine.earnings(in: summaryRange, records: data.records, holidays: data.holidays, countingThrough: today)
             : nil
+        self.earnings = settings.showsEarnings ? earned : nil
         self.allowance = AllowanceSummary(days: inPeriod, settings: settings, countingThrough: today)
-        self.weekTotals = CalendarWeekTotals.minutes(
-            of: layout, days: resolved, calendar: calendar, countingThrough: today
+
+        // Where the hours came from: the period's for the chips and the
+        // totals, every drawn day's for the bars.
+        let periodSources = PeriodSources(days: inPeriod, countingThrough: today)
+        let filter = periodSources.effective(chosenFilter, sites: sites)
+        self.sources = periodSources
+        self.filters = periodSources.filters(sites: sites)
+        self.filter = filter
+        self.hasSites = !sites.isEmpty
+
+        var marks = DayTileMarks()
+        if !sites.isEmpty {
+            marks.sources = PeriodSources(days: resolved, countingThrough: today).days
+            marks.colors = SiteColors(sites: sites)
+            marks.siteNames = siteNames
+            marks.filter = filter
+        }
+        // The day's money under its hours: the days of the period that
+        // earned, not under a chip (money is the day's, not a site's).
+        if settings.showsDayEarningsInCalendar, filter == .all, let earned {
+            marks.showsAmounts = true
+            let money = settings.money
+            for day in earned.days where day.totalCents > 0 {
+                marks.amounts[day.date.key] = money.string(day.totalCents, showsCents: false, hidden: settings.hideAmounts)
+                if !settings.hideAmounts {
+                    marks.spokenAmounts[day.date.key] = money.string(day.totalCents)
+                }
+            }
+        }
+        self.marks = marks
+
+        self.weekTotals = PeriodSources.weekMinutes(
+            of: layout, days: resolved, calendar: calendar, countingThrough: today, filter: filter
         )
         self.isThisPeriod = summaryRange.contains(today)
         self.weekRows = scope == .week ? CalendarWeekList.rows(inPeriod, today: today) : []
@@ -721,6 +798,15 @@ private struct CalendarPeriodView<Middle: View>: View {
     }
 
     private var duration: DurationFormatting { settings.displayFormatting }
+
+    /// The chosen chip's source by name, for the totals; nil for All.
+    private var filterName: String? {
+        switch filter {
+        case .all: return nil
+        case let .site(id): return siteNames[id] ?? String(localized: "Site")
+        case .own: return String(localized: "Own hours")
+        }
+    }
 
     /// The month with its week totals, or the week: "This week 33h" over
     /// its seven tiles.
@@ -736,6 +822,7 @@ private struct CalendarPeriodView<Middle: View>: View {
                 detail: settings.calendar.dayCellDetail,
                 formatting: formatting,
                 durationFormatting: duration,
+                marks: marks,
                 onSelect: onSelect
             )
         case .week:
@@ -749,6 +836,7 @@ private struct CalendarPeriodView<Middle: View>: View {
                     detail: settings.calendar.dayCellDetail,
                     formatting: formatting,
                     durationFormatting: duration,
+                    marks: marks,
                     onSelect: onSelect
                 )
             }
@@ -773,6 +861,23 @@ private struct CalendarPeriodView<Middle: View>: View {
     }
 
     var body: some View {
+        // The chips over the month, on the background too: All, a chip per
+        // site with hours in the period, Own. Only with a site.
+        if !filters.isEmpty {
+            Section {
+                SourceFilterChips(
+                    filters: filters,
+                    selected: filter,
+                    siteNames: siteNames,
+                    colors: marks.colors,
+                    onSelect: onFilter
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            }
+        }
+
         // The calendar sits on the background, not in a card.
         Section {
             calendarView
@@ -830,7 +935,10 @@ private struct CalendarPeriodView<Middle: View>: View {
                 catalog: settings.dayTypeCatalog,
                 title: summaryTitle,
                 earnings: earnings,
-                allowance: allowance
+                allowance: allowance,
+                sources: hasSites ? sources : nil,
+                filter: filter,
+                filterName: filterName
             )
         }
 

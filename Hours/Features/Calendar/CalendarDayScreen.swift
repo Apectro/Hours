@@ -82,7 +82,10 @@ struct CalendarDayScreen: View {
             settings: settings,
             formatting: settingsStore.dateFormatting,
             siteNames: siteNames,
-            onOpenSite: openSite
+            onOpenSite: openSite,
+            siteColors: SiteColors(sites: siteEntries.map(\.site)),
+            earnings: figures.earnings,
+            onToggleHideAmounts: { settingsStore.update { $0.hideAmounts.toggle() } }
         )
         List {
             content
@@ -171,9 +174,10 @@ struct CalendarDayScreen: View {
         Dictionary(siteEntries.map { ($0.site.id, $0.site.name) }, uniquingKeysWith: { first, _ in first })
     }
 
-    /// The day as the engine resolves it, and the running balance at its
-    /// end — the rule Insights and the export use.
-    private var figures: (day: DayComputation, balance: Int) {
+    /// The day as the engine resolves it, the running balance at its end —
+    /// the rule Insights and the export use — and what the day earned, once
+    /// pay is set up: the day's own entry of the earnings Insights adds up.
+    private var figures: (day: DayComputation, balance: Int, earnings: DayEarnings?) {
         var records: [Int: DayRecord] = [:]
         for entry in entries { records[entry.dateKey] = entry.record }
         let calendar = settingsStore.workCalendar
@@ -192,7 +196,15 @@ struct CalendarDayScreen: View {
                 records: { _ in records }
             )
             : 0
-        return (day, balance)
+        let earnings = settings.earningsAreSetUp
+            ? engine.earnings(
+                in: CalendarDateRange(single: date),
+                records: records,
+                holidays: holidays,
+                countingThrough: CalendarDate.today(in: calendar)
+            )?.days.first
+            : nil
+        return (day, balance, earnings)
     }
 }
 
@@ -205,6 +217,14 @@ struct DayDetailContent: View {
     var siteNames: [UUID: String] = [:]
     /// Opens a site's day; nil where there is no stack to push it onto.
     var onOpenSite: ((UUID) -> Void)? = nil
+    /// Each site's colour, for the dot beside its name.
+    var siteColors = SiteColors()
+    /// What the day earned (2026-11-24); nil while pay is not set up, and
+    /// for a day that has not happened yet.
+    var earnings: DayEarnings? = nil
+    /// The eye on "Earned this day": hides or shows every amount
+    /// (`AppSettings.hideAmounts`). Nil leaves the eye out.
+    var onToggleHideAmounts: (() -> Void)? = nil
 
     private var duration: DurationFormatting { settings.displayFormatting }
 
@@ -230,6 +250,12 @@ struct DayDetailContent: View {
                 .textCase(nil)
         } footer: {
             hoursFooter
+        }
+
+        if let earnings, !earnings.lines.isEmpty {
+            Section {
+                earnedRows(earnings)
+            }
         }
 
         if showsFigures {
@@ -301,10 +327,10 @@ struct DayDetailContent: View {
                 valueRow(String(localized: "Paid absence"), duration.string(computation.creditedMinutes))
             }
         } else if isWritten {
-            if let split {
-                ForEach(split.parts.indices, id: \.self) { index in
-                    splitRow(split, index: index)
-                }
+            if hasSiteHours {
+                // Two parts, told apart: what a site's day wrote, and what
+                // was written here.
+                groupedRows
             } else if computation.isSplitShift {
                 // Each block on its own line: the time between them is
                 // neither worked nor a break.
@@ -338,11 +364,45 @@ struct DayDetailContent: View {
         }
     }
 
-    /// One site's part of a split day: the site and its times, the hours on
-    /// the right. A tap opens the site's day.
+    /// A day with hours from a site (2026-11-24): "On sites", a row per
+    /// site, then "Own hours", a row per block written here, when there are
+    /// any. Each row keeps its place in the day as its identifier
+    /// ("day-card-site-1" is the day's second block), as the two-site day
+    /// always numbered them.
     @ViewBuilder
-    private func splitRow(_ split: DaySiteSplit, index: Int) -> some View {
-        let part = split.parts[index]
+    private var groupedRows: some View {
+        let parts = DaySiteSplit.parts(of: computation)
+        let onSites = parts.indices.filter { parts[$0].siteID != nil }
+        let own = parts.indices.filter { parts[$0].siteID == nil }
+        groupHeading(String(localized: "On sites"), identifier: "day-card-on-sites")
+        ForEach(onSites, id: \.self) { index in
+            partRow(parts[index], index: index)
+        }
+        if !own.isEmpty {
+            groupHeading(
+                String(localized: "Own hours", comment: "Heading: hours that are on no site"),
+                identifier: "day-card-own-hours"
+            )
+            ForEach(own, id: \.self) { index in
+                partRow(parts[index], index: index)
+            }
+        }
+    }
+
+    /// A small heading inside the hours card.
+    private func groupHeading(_ title: String, identifier: String) -> some View {
+        Text(verbatim: title)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.hoursSecondaryText)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityIdentifier(identifier)
+    }
+
+    /// One block of the day: the site, or "Your own hours", and its times,
+    /// the hours on the right, a dot in the site's colour. A site's row
+    /// opens the site's day.
+    @ViewBuilder
+    private func partRow(_ part: DaySiteSplit.Part, index: Int) -> some View {
         let name = part.siteID.flatMap { siteNames[$0] }
             ?? (part.siteID == nil ? String(localized: "Your own hours") : String(localized: "Site"))
         let times: String = {
@@ -350,12 +410,14 @@ struct DayDetailContent: View {
             return "\(formatting.time(start, on: computation.date)) – \(formatting.time(end, on: computation.date))"
                 + (part.crossesMidnight ? " (+1)" : "")
         }()
-        let label = siteLabel(name: name, times: times, hours: duration.string(part.workedMinutes))
         if let siteID = part.siteID, let onOpenSite {
             Button {
                 onOpenSite(siteID)
             } label: {
-                label
+                siteLabel(
+                    name: name, times: times, hours: duration.string(part.workedMinutes),
+                    dot: siteColors.color(for: siteID), showsDot: true, opens: true
+                )
             }
             .accessibilityHint(Text(String(
                 localized: "Open \(name)",
@@ -363,9 +425,12 @@ struct DayDetailContent: View {
             )))
             .accessibilityIdentifier("day-card-site-\(index)")
         } else {
-            label
-                .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("day-card-site-\(index)")
+            siteLabel(
+                name: name, times: times, hours: duration.string(part.workedMinutes),
+                dot: part.siteID.map { siteColors.color(for: $0) }, showsDot: true, opens: false
+            )
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("day-card-site-\(index)")
         }
     }
 
@@ -393,8 +458,23 @@ struct DayDetailContent: View {
         }
     }
 
-    private func siteLabel(name: String, times: String, hours: String) -> some View {
+    /// - Parameters:
+    ///   - dot: the source's colour; nil is your own hours.
+    ///   - showsDot: the grouped day's rows have one; the old single row
+    ///     does not.
+    ///   - opens: a small chevron, on a row that opens the site's day.
+    private func siteLabel(
+        name: String,
+        times: String,
+        hours: String,
+        dot: Color? = nil,
+        showsDot: Bool = false,
+        opens: Bool = false
+    ) -> some View {
         HStack(alignment: .center, spacing: Metrics.small) {
+            if showsDot {
+                SourceDot(color: dot)
+            }
             VStack(alignment: .leading, spacing: 1) {
                 Text(verbatim: name)
                     .foregroundStyle(.primary)
@@ -407,6 +487,12 @@ struct DayDetailContent: View {
             Text(verbatim: hours)
                 .monospacedDigit()
                 .foregroundStyle(.hoursSecondaryText)
+            if opens {
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
         }
         .contentShape(Rectangle())
     }
@@ -467,6 +553,8 @@ struct DayDetailContent: View {
         }
         if split != nil {
             lines.append(String(localized: "Written on the sites' days. Open a site to change the crew."))
+        } else if hasSiteHours {
+            lines.append(String(localized: "Written on the site's day, so it is changed there."))
         }
         return lines
     }
@@ -525,9 +613,97 @@ struct DayDetailContent: View {
         return list
     }
 
+    // MARK: - Earned this day (2026-11-24)
+
+    /// The day's pay in plain lines and a total; the eye hides every
+    /// amount, here and in the calendar.
+    @ViewBuilder
+    private func earnedRows(_ earnings: DayEarnings) -> some View {
+        HStack(alignment: .center, spacing: Metrics.small) {
+            Text("Earned this day")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.hoursSecondaryText)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("day-card-earned")
+            Spacer(minLength: Metrics.small)
+            if let onToggleHideAmounts {
+                Button(action: onToggleHideAmounts) {
+                    Image(systemName: settings.hideAmounts ? "eye.slash" : "eye")
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
+                }
+                // Borderless, so the row's one button takes only its own tap.
+                .buttonStyle(.borderless)
+                .accessibilityLabel(settings.hideAmounts ? Text("Show amounts") : Text("Hide amounts"))
+                .accessibilityIdentifier("day-card-hide-amounts")
+            }
+        }
+        ForEach(earnings.lines) { line in
+            valueRow(earnedTitle(line), amount(line.cents))
+        }
+        HStack(alignment: .firstTextBaseline) {
+            Text("Total")
+                .fontWeight(.semibold)
+            Spacer(minLength: Metrics.small)
+            Text(verbatim: amount(earnings.totalCents))
+                .fontWeight(.semibold)
+                .monospacedDigit()
+                .accessibilityIdentifier("day-card-earned-total")
+        }
+    }
+
+    /// An amount, or the dots while amounts are hidden.
+    private func amount(_ cents: Int) -> String {
+        settings.money.string(cents, hidden: settings.hideAmounts)
+    }
+
+    /// "8h × €12.50", "1h 30m overtime × €15.63", "Saturday · 4h", "Field
+    /// allowance": what the line is for, in the words Insights uses.
+    private func earnedTitle(_ line: DayEarningsLine) -> String {
+        let hours = line.minutes.map { duration.string($0) }
+        func named(_ name: String) -> String {
+            guard let hours else { return name }
+            return "\(name) · \(hours)"
+        }
+        switch line.kind {
+        case .regular:
+            if let rate = line.rateCents, let hours { return "\(hours) × \(amount(rate))" }
+            return named(String(localized: "Hours worked"))
+        case .overtime:
+            if let rate = line.rateCents, let hours {
+                return String(
+                    localized: "\(hours) overtime × \(amount(rate))",
+                    comment: "A day's pay: overtime hours and the hourly rate they were paid, e.g. 1h 30m overtime × €15.63"
+                )
+            }
+            return named(String(localized: "Overtime surcharge"))
+        case .saturday:
+            return named(String(localized: "Saturday"))
+        case .sundayAndHoliday:
+            return named(String(localized: "Sunday and public holidays"))
+        case .night:
+            return named(String(localized: "Night"))
+        case .paidAbsence:
+            let title = named(String(localized: "Paid days off"))
+            guard let percent = line.percent else { return title }
+            return "\(title) · \(percent)%"
+        case .allowance:
+            return String(localized: "Field allowance")
+        case .mileage:
+            let kilometres = line.kilometres ?? 0
+            return String(
+                localized: "Kilometres · \(kilometres) km",
+                comment: "Insights, the month's kilometres; the value is a number"
+            )
+        }
+    }
+
     // MARK: - Two sites (1.2)
 
     private var split: DaySiteSplit? { DaySiteSplit.make(computation) }
+
+    /// Any of the day's hours came from a site's day.
+    private var hasSiteHours: Bool { computation.shifts.contains { $0.siteID != nil } }
 
     /// "30m at Trg Pravde" when the break was taken on one of the sites.
     private var breakText: String {

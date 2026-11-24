@@ -44,14 +44,16 @@ struct DayEditorForm: View {
     var body: some View {
         Form {
             kindSection
+            // First, what is not written here: the hours a site's day gave
+            // this day, with the way to that day. Your own hours are below.
+            if !siteShifts.isEmpty {
+                siteSection
+            }
             switch kind {
             case .worked:
                 workSections
             case .away, .dayOff:
                 absenceSections
-            }
-            if !siteShifts.isEmpty {
-                siteSection
             }
             if settings.features.trackNotes {
                 Section {
@@ -179,6 +181,12 @@ struct DayEditorForm: View {
                     Label("Add times", systemImage: "clock")
                 }
                 .accessibilityIdentifier("day-editor-add-hours")
+            } header: {
+                // Beside a site's hours: what is added here is your own.
+                if !siteShifts.isEmpty {
+                    Text(verbatim: ownHoursHeading)
+                        .textCase(nil)
+                }
             }
         } else {
             shiftSections
@@ -256,6 +264,12 @@ struct DayEditorForm: View {
                         if computation.crossesMidnight {
                             Text("An end before the start counts as a night shift.")
                         }
+                        // Before saving: your own times run into a site's.
+                        ForEach(overlapWarnings, id: \.self) { warning in
+                            Label(warning, systemImage: "exclamationmark.triangle")
+                                .foregroundStyle(Color.hoursAttention)
+                                .accessibilityIdentifier("day-editor-overlap")
+                        }
                     }
                 }
             }
@@ -306,12 +320,16 @@ struct DayEditorForm: View {
     }
 
     /// "Block 2 · Overtime job" once there is more than one block; nothing
-    /// over a single block, as the mockup's working day.
+    /// over a single block, as the mockup's working day. On a day with
+    /// site hours the first block says whose these are: "Own hours, not on
+    /// a site".
     private func sectionTitle(at index: Int) -> String? {
-        guard manualShifts.count > 1, index < draft.shifts.count else { return nil }
+        guard index < draft.shifts.count else { return nil }
         // Counted among the typed-in blocks only, so a site shift ahead of
         // them does not make the first one "Block 2".
         let number = draft.shifts.prefix(index).filter { $0.siteID == nil }.count + 1
+        if !siteShifts.isEmpty, number == 1 { return ownHoursHeading }
+        guard manualShifts.count > 1 else { return nil }
         let block = String(
             localized: "Block \(number)",
             comment: "Heading for the second and later blocks of a split shift"
@@ -566,60 +584,122 @@ struct DayEditorForm: View {
 
     private var siteShifts: [Shift] { draft.shifts.filter { $0.siteID != nil } }
 
-    /// Your hours from site days, read-only, one row each: the site and its
-    /// times. The site day is the one place they are written, so the two can
-    /// never disagree; a tap opens it there.
+    /// The heading over your own times on a day that also has site hours.
+    private var ownHoursHeading: String {
+        String(localized: "Own hours, not on a site", comment: "Day editor: heading over the times typed in here, on a day that also has hours from a site")
+    }
+
+    /// Your own blocks that run into a site's times, each as a sentence:
+    /// "11:30 – 12:30 overlaps Jarunski Dvori (7:00 – 12:00). …". The engine
+    /// counts the shared time once (`WorkdayCalculator`), so saving is
+    /// allowed; this says so before it happens, and which time to change.
+    private var overlapWarnings: [String] {
+        OwnSiteOverlap.find(in: draft.shifts).map { overlap in
+            let own = "\(formatting.time(overlap.ownStart, on: draft.date)) – \(formatting.time(overlap.ownEnd, on: draft.date))"
+            let site = "\(formatting.time(overlap.siteStart, on: draft.date)) – \(formatting.time(overlap.siteEnd, on: draft.date))"
+            let name = siteNames[overlap.siteID] ?? String(localized: "Site")
+            return String(
+                localized: "\(own) overlaps \(name) (\(site)). That time counts once. Change the time if it is not right.",
+                comment: "Day editor warning: your own times, a site's name, the site's times, e.g. 11:30 – 12:30 overlaps Jarunski Dvori (7:00 – 12:00)."
+            )
+        }
+    }
+
+    /// Your hours from site days (2026-11-24): never typed in here, so
+    /// never editable here. For each site a note, "5h come from Jarunski
+    /// Dvori. They are written on the site's day, for the whole crew.",
+    /// and a button that opens that site's day. The site day is the one
+    /// place they are written, so the two can never disagree.
     private var siteSection: some View {
         Section {
             ForEach(siteShifts) { shift in
-                siteRow(shift)
+                siteNote(shift)
+                if let onOpenSite, let siteID = shift.siteID {
+                    Button {
+                        onOpenSite(siteID)
+                    } label: {
+                        HStack(spacing: Metrics.small) {
+                            Text(verbatim: openSiteTitle(shift))
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                                .accessibilityHidden(true)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .accessibilityHint(Text("Open on site"))
+                    .accessibilityIdentifier("day-editor-open-site")
+                }
             }
-        } header: {
-            Text("Site")
-                .textCase(nil)
         } footer: {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
-                Text("Written on the site's day, so it is changed there.")
-                if computation.warnings.contains(.siteHoursNotCounted) {
-                    Label(DayWarning.siteHoursNotCounted.message, systemImage: "exclamationmark.triangle")
-                }
-                if computation.warnings.contains(.ownHoursOverlapSite) {
-                    Label(DayWarning.ownHoursOverlapSite.message, systemImage: "info.circle")
-                }
+            if computation.warnings.contains(.siteHoursNotCounted) {
+                Label(DayWarning.siteHoursNotCounted.message, systemImage: "exclamationmark.triangle")
             }
         }
     }
 
-    @ViewBuilder
-    private func siteRow(_ shift: Shift) -> some View {
-        let label = HStack(spacing: Metrics.small) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: shift.siteID.flatMap { siteNames[$0] } ?? String(localized: "Site"))
-                    .foregroundStyle(.primary)
-                if let detail = siteDetail(shift) {
-                    Text(verbatim: detail)
-                        .font(.subheadline)
-                        .foregroundStyle(.hoursSecondaryText)
+    private func siteName(_ shift: Shift) -> String {
+        shift.siteID.flatMap { siteNames[$0] } ?? String(localized: "Site")
+    }
+
+    /// The hours the day counts for a site shift; nil when it has no times.
+    private func siteWorkedMinutes(_ shift: Shift) -> Int? {
+        guard let minutes = computation.shifts.first(where: { $0.id == shift.id })?.workedMinutes, minutes > 0 else {
+            return nil
+        }
+        return minutes
+    }
+
+    /// The note: what came from the site, its times, and where it is
+    /// changed.
+    private func siteNote(_ shift: Shift) -> some View {
+        let name = siteName(shift)
+        let lead: String = {
+            guard let minutes = siteWorkedMinutes(shift) else {
+                return String(
+                    localized: "This day is on \(name).",
+                    comment: "Day editor: a site day with no hours for you that still marks your day; the value is the site"
+                )
+            }
+            return String(
+                localized: "\(formatter.string(minutes)) come from \(name).",
+                comment: "Day editor: hours that a site's day gave this day, e.g. 5h come from Jarunski Dvori."
+            )
+        }()
+        var detail = [siteTimes(shift)]
+        if let extra = siteDetail(shift) { detail.append(extra) }
+        return VStack(alignment: .leading, spacing: 2) {
+            Text(verbatim: lead)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+            if shift.hasTimes {
+                Text(verbatim: detail.joined(separator: " · "))
+                    .font(.subheadline)
+                    .monospacedDigit()
+                    .foregroundStyle(.hoursSecondaryText)
+            }
+            Group {
+                if siteWorkedMinutes(shift) != nil {
+                    Text("They are written on the site's day, for the whole crew.")
+                } else {
+                    Text("Written on the site's day, so it is changed there.")
                 }
             }
-            Spacer(minLength: Metrics.small)
-            Text(verbatim: siteTimes(shift))
-                .monospacedDigit()
-                .foregroundStyle(.hoursSecondaryText)
+            .font(.subheadline)
+            .foregroundStyle(.hoursSecondaryText)
         }
-        .contentShape(Rectangle())
-        if let onOpenSite, let siteID = shift.siteID {
-            Button {
-                onOpenSite(siteID)
-            } label: {
-                label
-            }
-            .accessibilityHint(Text("Open on site"))
-            .accessibilityIdentifier("day-editor-open-site")
-        } else {
-            label
-                .accessibilityElement(children: .combine)
-        }
+        .padding(.vertical, Metrics.tiny)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("day-editor-site-note")
+    }
+
+    /// "Open Jarunski Dvori, 24 Nov".
+    private func openSiteTitle(_ shift: Shift) -> String {
+        String(
+            localized: "Open \(siteName(shift)), \(formatting.shortDate(draft.date))",
+            comment: "Day editor button: opens a site's day; the site, then a short date, e.g. Open Jarunski Dvori, 24 Nov"
+        )
     }
 
     /// "7:00 – 12:40".

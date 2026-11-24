@@ -591,6 +591,65 @@
         }
       }
     },
+    "%@ come from %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kommen von %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vienen de %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ viennent de %@."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ dolazi s %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vengono da %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ komen van %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pochodzi z %@."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vêm de %@."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ prihaja z %@."
+          }
+        }
+      }
+    },
     "%@ credited as paid %@": {
       "extractionState": "manual",
       "localizations": {
@@ -2849,6 +2908,183 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%@ overlaps %@ (%@). That time counts once. Change the time if it is not right.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ überschneidet sich mit %@ (%@). Diese Zeit zählt nur einmal. Ändere die Zeit, wenn sie nicht stimmt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se solapa con %@ (%@). Ese tiempo cuenta una sola vez. Cambia la hora si no es correcta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ chevauche %@ (%@). Ce temps ne compte qu’une fois. Modifiez l’horaire s’il n’est pas juste."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se preklapa s %@ (%@). To vrijeme broji se samo jednom. Promijeni vrijeme ako nije točno."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ si sovrappone a %@ (%@). Quel tempo conta una volta sola. Cambia l’orario se non è giusto."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ overlapt met %@ (%@). Die tijd telt één keer. Wijzig de tijd als die niet klopt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nakłada się na %@ (%@). Ten czas liczy się tylko raz. Zmień godzinę, jeśli się nie zgadza."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sobrepõe-se a %@ (%@). Esse tempo conta só uma vez. Altera a hora se não estiver certa."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ se prekriva z %@ (%@). Ta čas se šteje le enkrat. Spremeni čas, če ni pravilen."
+          }
+        }
+      }
+    },
+    "%@ overtime × %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Überstunden × %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de horas extra × %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ d’heures supp. × %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ prekovremeno × %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ di straordinario × %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ overuren × %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nadgodzin × %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de horas extra × %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nadur × %@"
+          }
+        }
+      }
+    },
+    "%@ own hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ eigene Stunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de horas propias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ d’heures propres"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vlastitih sati"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ di ore proprie"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ eigen uren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ własnych godzin"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de horas próprias"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ lastnih ur"
           }
         }
       }
@@ -5701,6 +5937,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld z zabeleženimi urami"
+          }
+        }
+      }
+    },
+    "%lld with site hours skipped": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld mit Baustellenstunden übersprungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld con horas de obra omitidos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld avec des heures de chantier ignorés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sa satima s gradilišta preskočeno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld con ore di cantiere saltati"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld met uren van een bouwplaats overgeslagen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld z godzinami z budowy pominięto"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld com horas de obra ignorados"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld z urami z gradbišča preskočenih"
           }
         }
       }
@@ -11979,6 +12274,65 @@
         }
       }
     },
+    "All": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sve"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutte"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystkie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vse"
+          }
+        }
+      }
+    },
     "All %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -15004,6 +15358,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vprašaj za kilometre kombija na dan"
+          }
+        }
+      }
+    },
+    "Asks where you worked today: on a site, or not on a site.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fragt, wo du heute gearbeitet hast: auf einer Baustelle oder nicht auf einer Baustelle."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pregunta dónde trabajaste hoy: en una obra o fuera de obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demande où vous avez travaillé aujourd’hui : sur un chantier ou hors chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pita gdje si danas radio: na gradilištu ili ne na gradilištu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiede dove hai lavorato oggi: in un cantiere o non in cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vraagt waar je vandaag hebt gewerkt: op een bouwplaats of niet op een bouwplaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pyta, gdzie dziś pracowałeś: na budowie czy nie na budowie."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pergunta onde trabalhaste hoje: numa obra ou fora de obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpraša, kje si danes delal: na gradbišču ali ne na gradbišču."
           }
         }
       }
@@ -28501,6 +28914,65 @@
         }
       }
     },
+    "Day's money in the calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tagesverdienst im Kalender"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganancia del día en el calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gain du jour dans le calendrier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevna zarada u kalendaru"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guadagno del giorno nel calendario"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dagverdienste in de agenda"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarobek dnia w kalendarzu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganho do dia no calendário"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevni zaslužek v koledarju"
+          }
+        }
+      }
+    },
     "Daylight saving": {
       "extractionState": "manual",
       "localizations": {
@@ -29205,6 +29677,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dnevi ta mesec"
+          }
+        }
+      }
+    },
+    "Days with hours from a site are always left alone: they are changed on the site's day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tage mit Stunden von einer Baustelle bleiben immer unverändert: Sie werden am Tag der Baustelle geändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los días con horas de una obra nunca se tocan: se cambian en el día de la obra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les journées avec des heures d’un chantier ne sont jamais modifiées : elles se changent sur la journée du chantier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dani sa satima s gradilišta uvijek ostaju kakvi jesu: mijenjaju se na danu gradilišta."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I giorni con ore di un cantiere restano sempre come sono: si cambiano nel giorno del cantiere."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dagen met uren van een bouwplaats blijven altijd ongewijzigd: je wijzigt ze op de dag van de bouwplaats."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dni z godzinami z budowy zawsze zostają bez zmian: zmienia się je w dniu budowy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dias com horas de uma obra nunca são alterados: mudam-se no dia da obra."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dnevi z urami z gradbišča vedno ostanejo, kot so: spremenijo se na dnevu gradbišča."
           }
         }
       }
@@ -33414,6 +33945,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zasluženo"
+          }
+        }
+      }
+    },
+    "Earned this day": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An diesem Tag verdient"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganado este día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gagné ce jour-là"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarađeno ovaj dan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guadagnato in questo giorno"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze dag verdiend"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zarobione tego dnia"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganho neste dia"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zasluženo ta dan"
           }
         }
       }
@@ -40990,6 +41580,124 @@
         }
       }
     },
+    "Hide amounts": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beträge ausblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar importes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les montants"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sakrij iznose"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascondi gli importi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedragen verbergen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukryj kwoty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar valores"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrij zneske"
+          }
+        }
+      }
+    },
+    "Hide amounts writes ••• in place of every amount in the calendar, on a day and in the month's totals, for when someone else is looking. Insights and exports are not changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Beträge ausblenden“ schreibt ••• statt jedes Betrags im Kalender, an einem Tag und in den Summen des Monats – für den Fall, dass jemand mitschaut. Auswertung und Exporte bleiben unverändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Ocultar importes» escribe ••• en lugar de cada importe en el calendario, en un día y en los totales del mes, para cuando alguien más está mirando. Resumen y exportaciones no cambian."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Masquer les montants » écrit ••• à la place de chaque montant dans le calendrier, sur une journée et dans les totaux du mois, quand quelqu’un d’autre regarde. Analyse et exports ne changent pas."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Sakrij iznose“ piše ••• umjesto svakog iznosa u kalendaru, na danu i u zbrojevima mjeseca, kad netko drugi gleda. Pregled i izvozi se ne mijenjaju."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Nascondi gli importi” scrive ••• al posto di ogni importo nel calendario, in un giorno e nei totali del mese, per quando qualcun altro sta guardando. Statistiche ed esportazioni non cambiano."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘Bedragen verbergen’ schrijft ••• in plaats van elk bedrag in de agenda, op een dag en in de totalen van de maand, voor als iemand meekijkt. Inzicht en exports veranderen niet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Ukryj kwoty” wpisuje ••• zamiast każdej kwoty w kalendarzu, w dniu i w sumach miesiąca – gdy ktoś jeszcze patrzy. Podsumowanie i eksporty się nie zmieniają."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Ocultar valores» escreve ••• em vez de cada valor no calendário, num dia e nos totais do mês, para quando mais alguém está a ver. Análise e exportações não mudam."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "»Skrij zneske« zapiše ••• namesto vsakega zneska v koledarju, na dnevu in v seštevkih meseca, ko gleda še kdo drug. Pregled in izvozi se ne spremenijo."
+          }
+        }
+      }
+    },
     "Hide this tip": {
       "extractionState": "manual",
       "localizations": {
@@ -42052,6 +42760,65 @@
         }
       }
     },
+    "Hours from a site are written on the site's day, for the whole crew. Change those days there.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden von einer Baustelle werden am Tag der Baustelle eingetragen, für die ganze Mannschaft. Ändere diese Tage dort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas de una obra se anotan en el día de la obra, para toda la cuadrilla. Cambia esos días allí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures d’un chantier sont saisies sur la journée du chantier, pour toute l’équipe. Modifiez ces journées là-bas."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati s gradilišta upisuju se na danu gradilišta, za cijelu ekipu. Te dane promijeni tamo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ore di un cantiere si scrivono nel giorno del cantiere, per tutta la squadra. Cambia quei giorni lì."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren van een bouwplaats worden ingevuld op de dag van de bouwplaats, voor de hele ploeg. Wijzig die dagen daar."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny z budowy wpisuje się w dniu budowy, dla całej ekipy. Zmień te dni tam."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas de uma obra são registadas no dia da obra, para toda a equipa. Altera esses dias lá."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure z gradbišča se vpišejo na dnevu gradbišča, za vso ekipo. Te dneve spremeni tam."
+          }
+        }
+      }
+    },
     "Hours kept until the stop. Your own day counts them as worked.": {
       "extractionState": "manual",
       "localizations": {
@@ -42107,6 +42874,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ure do prekinitve ostanejo. Tvoj dan jih šteje kot opravljene."
+          }
+        }
+      }
+    },
+    "Hours on a site go to everyone in the crew and into your own calendar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stunden auf einer Baustelle gehen an alle in der Mannschaft und in deinen eigenen Kalender."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las horas en una obra van a toda la cuadrilla y a tu propio calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les heures sur un chantier vont à toute l’équipe et dans votre propre calendrier."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sati na gradilištu idu svima u ekipi i u tvoj vlastiti kalendar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ore in un cantiere vanno a tutta la squadra e nel tuo calendario."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren op een bouwplaats gaan naar iedereen in de ploeg en naar je eigen agenda."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godziny na budowie trafiają do wszystkich w ekipie i do twojego kalendarza."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As horas numa obra vão para toda a equipa e para o teu próprio calendário."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ure na gradbišču gredo vsem v ekipi in v tvoj lastni koledar."
           }
         }
       }
@@ -48837,6 +49663,65 @@
         }
       }
     },
+    "Money in the calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geld im Kalender"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinero en el calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Argent dans le calendrier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novac u kalendaru"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denaro nel calendario"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geld in de agenda"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieniądze w kalendarzu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinheiro no calendário"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denar v koledarju"
+          }
+        }
+      }
+    },
     "Month": {
       "extractionState": "manual",
       "localizations": {
@@ -54973,6 +55858,65 @@
         }
       }
     },
+    "Not on a site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht auf einer Baustelle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuera de obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hors chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne na gradilištu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non in cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niet op een bouwplaats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie na budowie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fora de obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne na gradbišču"
+          }
+        }
+      }
+    },
     "Not on the list": {
       "extractionState": "manual",
       "localizations": {
@@ -59025,6 +59969,65 @@
         }
       }
     },
+    "On sites": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Baustellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En obras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur les chantiers"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na gradilištima"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nei cantieri"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op bouwplaatsen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na budowach"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em obras"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na gradbiščih"
+          }
+        }
+      }
+    },
     "On the 1st, a note for each site from last month that its site sheet is ready. Tap it to open the sheet.": {
       "extractionState": "manual",
       "localizations": {
@@ -60087,6 +61090,65 @@
         }
       }
     },
+    "Only my own hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur meine eigenen Stunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo mis propias horas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seulement mes propres heures"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo moji vlastiti sati"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo le mie ore"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen mijn eigen uren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko moje własne godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só as minhas próprias horas"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo moje lastne ure"
+          }
+        }
+      }
+    },
     "Only on this phone and in your backups. Never on site sheets.": {
       "extractionState": "manual",
       "localizations": {
@@ -60378,6 +61440,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Samo ure, opravljene na tem gradbišču. Predvideno, saldo in zaslužek pripadajo celemu dnevu, zato so izpuščeni."
+          }
+        }
+      }
+    },
+    "Only these hours. Choose All above the month for the month's totals.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur diese Stunden. Wähle über dem Monat „Alle“ für die Summen des Monats."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo estas horas. Elige «Todas» encima del mes para los totales del mes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seulement ces heures. Choisissez « Toutes » au-dessus du mois pour les totaux du mois."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo ovi sati. Odaberi „Sve“ iznad mjeseca za zbrojeve mjeseca."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo queste ore. Scegli “Tutte” sopra il mese per i totali del mese."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alleen deze uren. Kies ‘Alles’ boven de maand voor de totalen van de maand."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko te godziny. Wybierz „Wszystkie” nad miesiącem, aby zobaczyć sumy miesiąca."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só estas horas. Escolhe «Todas» por cima do mês para os totais do mês."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samo te ure. Izberi »Vse« nad mesecem za seštevke meseca."
           }
         }
       }
@@ -60732,6 +61853,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Odpri %@"
+          }
+        }
+      }
+    },
+    "Open %@, %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öffnen, %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir %@, %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir %@, %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvori %@, %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri %@, %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ openen, %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz %@, %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir %@, %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odpri %@, %@"
           }
         }
       }
@@ -63151,6 +64331,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nadure, dodatke in plačane proste dni lahko dodaš pozneje v Nastavitve › Plačilo."
+          }
+        }
+      }
+    },
+    "Own": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propres"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vlastiti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proprie"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Własne"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próprias"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lastne"
+          }
+        }
+      }
+    },
+    "Own hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Stunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas propias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heures propres"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vlastiti sati"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ore proprie"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigen uren"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Własne godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas próprias"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lastne ure"
+          }
+        }
+      }
+    },
+    "Own hours, not on a site": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Stunden, nicht auf einer Baustelle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas propias, fuera de obra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heures propres, hors chantier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vlastiti sati, ne na gradilištu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ore proprie, non in cantiere"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigen uren, niet op een bouwplaats"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Własne godziny, nie na budowie"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horas próprias, fora de obra"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lastne ure, ne na gradbišču"
           }
         }
       }
@@ -75166,6 +76523,65 @@
         }
       }
     },
+    "Set an hourly rate to see what a day earned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lege einen Stundenlohn fest, um zu sehen, was ein Tag gebracht hat."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Define una tarifa por hora para ver lo que ganaste en un día."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Définissez un taux horaire pour voir ce qu’une journée a rapporté."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postavi satnicu da vidiš koliko je dan donio."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imposta una tariffa oraria per vedere quanto ha reso un giorno."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stel een uurloon in om te zien wat een dag heeft opgeleverd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustaw stawkę godzinową, aby zobaczyć, ile przyniósł dzień."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Define um valor por hora para veres quanto rendeu um dia."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nastavi urno postavko, da vidiš, koliko je dan prinesel."
+          }
+        }
+      }
+    },
     "Set balance by hand": {
       "extractionState": "manual",
       "localizations": {
@@ -77467,6 +78883,65 @@
         }
       }
     },
+    "Show amounts": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beträge anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar importes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les montants"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži iznose"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra gli importi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedragen tonen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokaż kwoty"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar valores"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaži zneske"
+          }
+        }
+      }
+    },
     "Show days": {
       "extractionState": "manual",
       "localizations": {
@@ -78407,6 +79882,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Na listu je namesto ur."
+          }
+        }
+      }
+    },
+    "Shows only these hours in the calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeigt nur diese Stunden im Kalender"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muestra solo estas horas en el calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche seulement ces heures dans le calendrier"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikazuje samo ove sate u kalendaru"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra solo queste ore nel calendario"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toont alleen deze uren in de agenda"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokazuje tylko te godziny w kalendarzu"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra só estas horas no calendário"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prikaže samo te ure v koledarju"
           }
         }
       }
@@ -80118,6 +81652,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gradbišča"
+          }
+        }
+      }
+    },
+    "Sites %@ · Own %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baustellen %@ · Eigene %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras %@ · Propias %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chantiers %@ · Propres %@"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradilišta %@ · Vlastiti %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cantieri %@ · Proprie %@"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouwplaatsen %@ · Eigen %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Budowy %@ · Własne %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obras %@ · Próprias %@"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradbišča %@ · Lastne %@"
           }
         }
       }
@@ -90461,6 +92054,65 @@
         }
       }
     },
+    "They are written on the site's day, for the whole crew.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sie werden am Tag der Baustelle eingetragen, für die ganze Mannschaft."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se anotan en el día de la obra, para toda la cuadrilla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elles sont saisies sur la journée du chantier, pour toute l’équipe."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upisuju se na danu gradilišta, za cijelu ekipu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si scrivono nel giorno del cantiere, per tutta la squadra."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ze worden ingevuld op de dag van de bouwplaats, voor de hele ploeg."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisuje się je w dniu budowy, dla całej ekipy."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "São registadas no dia da obra, para toda a equipa."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpišejo se na dnevu gradbišča, za vso ekipo."
+          }
+        }
+      }
+    },
     "They left outside the hours they worked here. Choose a time between their start and their end.": {
       "extractionState": "manual",
       "localizations": {
@@ -91106,6 +92758,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ta koda potrebuje novejši Zeitkonto. Najprej posodobi aplikacijo."
+          }
+        }
+      }
+    },
+    "This day is on %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Tag steht auf %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este día está en %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette journée est sur %@."
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ovaj dan je na %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo giorno è su %@."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze dag staat bij %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten dzień jest na %@."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este dia está em %@."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta dan je na %@."
           }
         }
       }
@@ -99547,6 +101258,65 @@
         }
       }
     },
+    "Where did you work today?": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wo hast du heute gearbeitet?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Dónde trabajaste hoy?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Où avez-vous travaillé aujourd’hui ?"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gdje si danas radio?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dove hai lavorato oggi?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waar heb je vandaag gewerkt?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gdzie dziś pracowałeś?"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onde trabalhaste hoje?"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kje si danes delal?"
+          }
+        }
+      }
+    },
     "Where do you work?": {
       "extractionState": "manual",
       "localizations": {
@@ -100959,6 +102729,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ko je vklopljenih več odmorov, je lahko vsak trajanje ali par časov."
+          }
+        }
+      }
+    },
+    "With site hours, skipped": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Baustellenstunden, übersprungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con horas de obra, omitidos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec des heures de chantier, ignorés"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sa satima s gradilišta, preskočeno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con ore di cantiere, saltati"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Met uren van een bouwplaats, overgeslagen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Z godzinami z budowy, pominięte"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com horas de obra, ignorados"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Z urami z gradbišča, preskočeno"
           }
         }
       }
@@ -102552,6 +104381,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vpiši danes v ${applicationName}"
+          }
+        }
+      }
+    },
+    "Write today's hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heutige Stunden eintragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anotar las horas de hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir les heures d’aujourd’hui"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upiši današnje sate"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi le ore di oggi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uren van vandaag invullen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpisz dzisiejsze godziny"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registar as horas de hoje"
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vpiši današnje ure"
           }
         }
       }

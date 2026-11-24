@@ -45,6 +45,7 @@ struct PaySettingsScreen: View {
 
             if showsGeneralSettings {
                 generalSection
+                calendarSection
             }
 
             if job.pay != nil {
@@ -291,6 +292,28 @@ struct PaySettingsScreen: View {
             Text("Showing earnings")
         } footer: {
             Text("With a rate set, the calendar, Insights and widgets lead with earnings.")
+        }
+    }
+
+    /// Money in the calendar (2026-11-24): each day's amount under its
+    /// hours, on unless turned off and only once a rate is set; and Hide
+    /// amounts, the same switch as the eye on a day's "Earned this day".
+    private var calendarSection: some View {
+        Section {
+            Toggle("Day's money in the calendar", isOn: settingsStore.binding(\.showDayEarningsInCalendar))
+                .disabled(!settings.earningsAreSetUp)
+                .accessibilityIdentifier("pay-day-money")
+            Toggle("Hide amounts", isOn: settingsStore.binding(\.hideAmounts))
+                .accessibilityIdentifier("pay-hide-amounts")
+        } header: {
+            Text("Money in the calendar")
+        } footer: {
+            VStack(alignment: .leading, spacing: Metrics.tiny) {
+                if !settings.earningsAreSetUp {
+                    Text("Set an hourly rate to see what a day earned.")
+                }
+                Text("Hide amounts writes ••• in place of every amount in the calendar, on a day and in the month's totals, for when someone else is looking. Insights and exports are not changed.")
+            }
         }
     }
 

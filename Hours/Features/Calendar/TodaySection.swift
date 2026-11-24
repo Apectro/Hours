@@ -8,8 +8,10 @@ import SwiftData
 ///    hours and the site on the right; "Not written" when nothing is. Or
 ///    the running clock (`ClockCard`). Then This week and the balance.
 /// 2. A row for each site whose crew day is due today and not written yet.
-/// 3. The day's big buttons: Clock in, or Break and Clock out; "I worked the
-///    usual day" while today is not written.
+/// 3. The day's big buttons: "Write today's hours" while there is a site
+///    to write on (2026-11-24: it asks where you worked, `WriteTodaySheet`);
+///    Clock in, or Break and Clock out; "I worked the usual day" while
+///    today is not written.
 ///
 /// The month grid is above it and the month's totals under it
 /// (`CalendarScreen`). Its body is sections, for the list it sits in.
@@ -34,6 +36,8 @@ struct TodaySection: View {
     var onWorked: () -> Void
     /// Opens a site's day for today.
     var onOpenSite: (UUID) -> Void
+    /// "Write today's hours": asks where you worked today.
+    var onWriteToday: () -> Void
 
     @Environment(\.modelContext) private var modelContext
 
@@ -63,7 +67,8 @@ struct TodaySection: View {
         onEdit: @escaping () -> Void,
         onOpenDay: @escaping () -> Void,
         onWorked: @escaping () -> Void,
-        onOpenSite: @escaping (UUID) -> Void
+        onOpenSite: @escaping (UUID) -> Void,
+        onWriteToday: @escaping () -> Void
     ) {
         self.today = today
         self.settings = settings
@@ -79,6 +84,7 @@ struct TodaySection: View {
         self.onOpenDay = onOpenDay
         self.onWorked = onWorked
         self.onOpenSite = onOpenSite
+        self.onWriteToday = onWriteToday
         let upper = today.key
         _entries = Query(filter: #Predicate<DayEntry> { $0.dateKey <= upper }, sort: \DayEntry.dateKey)
         _holidayRecords = Query(sort: \HolidayRecord.name)
@@ -167,7 +173,24 @@ struct TodaySection: View {
     // MARK: - The big buttons
 
     private func hasActions(_ day: DayComputation) -> Bool {
-        settings.features.useTimeClock || !isWritten(day)
+        settings.features.useTimeClock || !isWritten(day) || offersWriteToday
+    }
+
+    /// At least one active site that is not paused today: only then is
+    /// there a question to ask, and the button. With none the screen is as
+    /// it always was.
+    private var offersWriteToday: Bool {
+        WriteToday.isOffered(sites: siteEntries.map(\.site), settings: settings, today: today)
+    }
+
+    /// "Write today's hours": where did you work today?
+    private func writeTodayButton(_ kind: BigActionKind) -> some View {
+        Button(action: onWriteToday) {
+            Text("Write today's hours")
+        }
+        .buttonStyle(.bigAction(kind))
+        .accessibilityHint(Text("Asks where you worked today: on a site, or not on a site."))
+        .accessibilityIdentifier("today-write-hours")
     }
 
     private func isWritten(_ day: DayComputation) -> Bool {
@@ -177,25 +200,25 @@ struct TodaySection: View {
     /// The big buttons, one primary: Clock in, or Break and Clock out; and
     /// while today is not written, "I worked the usual day" (or "I worked"
     /// on a holiday or a day off).
+    ///
+    /// With a site to write on, "Write today's hours" is the primary: first
+    /// while no clock runs, and under Break and Clock out while one does,
+    /// where Clock out is the main action. The others keep their place and
+    /// stand beside it as secondary.
     @ViewBuilder
     private func actions(_ day: DayComputation) -> some View {
         if let running, settings.features.useTimeClock {
-            HStack(spacing: Metrics.small) {
-                if settings.features.trackBreaks {
-                    Button(action: onToggleBreak) {
-                        Text(running.isOnBreak ? "Back to work" : "Break")
-                    }
-                    .buttonStyle(.bigAction(.secondary))
-                    .accessibilityIdentifier("today-break")
+            VStack(spacing: Metrics.small) {
+                clockActions(running)
+                if offersWriteToday {
+                    writeTodayButton(.secondary)
                 }
-                Button(action: onClockOut) {
-                    Text("Clock out")
-                }
-                .buttonStyle(.bigAction(.primary))
-                .accessibilityIdentifier("today-clock-out")
             }
         } else {
             VStack(spacing: Metrics.small) {
+                if offersWriteToday {
+                    writeTodayButton(.primary)
+                }
                 if settings.features.useTimeClock {
                     Button(action: onClockIn) {
                         Text("Clock in")
@@ -204,9 +227,30 @@ struct TodaySection: View {
                     .accessibilityIdentifier("today-clock-in")
                 }
                 if !isWritten(day) {
-                    writeAction(day, kind: settings.features.useTimeClock ? .secondary : .primary)
+                    writeAction(
+                        day,
+                        kind: settings.features.useTimeClock || offersWriteToday ? .secondary : .primary
+                    )
                 }
             }
+        }
+    }
+
+    /// Break and Clock out, side by side, while a clock runs.
+    private func clockActions(_ running: RunningShift) -> some View {
+        HStack(spacing: Metrics.small) {
+            if settings.features.trackBreaks {
+                Button(action: onToggleBreak) {
+                    Text(running.isOnBreak ? "Back to work" : "Break")
+                }
+                .buttonStyle(.bigAction(.secondary))
+                .accessibilityIdentifier("today-break")
+            }
+            Button(action: onClockOut) {
+                Text("Clock out")
+            }
+            .buttonStyle(.bigAction(.primary))
+            .accessibilityIdentifier("today-clock-out")
         }
     }
 

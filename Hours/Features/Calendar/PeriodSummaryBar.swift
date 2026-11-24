@@ -15,41 +15,26 @@ struct PeriodSummaryBar: View {
     /// Field allowance, kilometres and travel: a quiet line of their own,
     /// only when there is any.
     var allowance: AllowanceSummary? = nil
+    /// The period's worked hours by site and own (2026-11-24): "Sites 112h
+    /// · Own 16h 30m" under Worked. Nil while there is no site, when all
+    /// hours are your own and there is nothing to tell apart.
+    var sources: PeriodSources? = nil
+    /// The chip chosen above the month. Anything but All makes this the
+    /// totals of that source alone: its worked hours, named, and none of
+    /// the figures that belong to the whole period.
+    var filter: SourceFilter = .all
+    /// The chosen source by name; nil for All.
+    var filterName: String? = nil
 
     private var formatting: DurationFormatting { settings.displayFormatting }
 
     var body: some View {
         Section {
-            row("Worked", formatting.string(summary.workedMinutes))
+            workedRow
                 .tourTarget(.calendarSummary)
                 .id(CalendarScreen.summaryAnchor)
-            if settings.features.trackExpectedHours {
-                row("Expected", formatting.string(summary.expectedMinutes))
-            }
-            if let earnings {
-                row("Earned", settings.money.string(earnings.totalCents, showsCents: false))
-            }
-            if settings.features.showsBalance {
-                LabeledContent {
-                    Text(verbatim: formatting.signedString(summary.balanceMinutes))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.hoursBalance(summary.balanceMinutes))
-                } label: {
-                    Text("Balance")
-                    if let balanceCaption {
-                        Text(verbatim: balanceCaption)
-                            .monospacedDigit()
-                    }
-                }
-            }
-            if summary.daysWorked > 0 {
-                LabeledContent {
-                    Text(verbatim: formatting.string(summary.averageWorkedMinutesPerWorkedDay))
-                        .monospacedDigit()
-                } label: {
-                    Text("Average")
-                    Text("per day worked")
-                }
+            if !isFiltered {
+                wholePeriodRows
             }
         } header: {
             if !title.isEmpty {
@@ -57,14 +42,107 @@ struct PeriodSummaryBar: View {
                     .textCase(nil)
             }
         } footer: {
-            VStack(alignment: .leading, spacing: Metrics.tiny) {
-                if !countsLine.isEmpty {
-                    Text(countsLine)
+            if isFiltered {
+                Text("Only these hours. Choose All above the month for the month's totals.")
+                    .accessibilityIdentifier("calendar-summary-filtered")
+            } else {
+                VStack(alignment: .leading, spacing: Metrics.tiny) {
+                    if !countsLine.isEmpty {
+                        Text(countsLine)
+                    }
+                    if !allowanceLine.isEmpty {
+                        Text(allowanceLine)
+                            .accessibilityIdentifier("calendar-summary-allowance")
+                    }
                 }
-                if !allowanceLine.isEmpty {
-                    Text(allowanceLine)
-                        .accessibilityIdentifier("calendar-summary-allowance")
+            }
+        }
+    }
+
+    /// A chip other than All is chosen, and the hours are told apart.
+    private var isFiltered: Bool { sources != nil && filter != .all }
+
+    /// Worked, and under it where the hours came from: "Sites 112h · Own
+    /// 16h 30m", or the chosen source's name. A plain stack rather than
+    /// `LabeledContent`, so the line and the figure are each found by
+    /// their identifier.
+    @ViewBuilder
+    private var workedRow: some View {
+        if sources == nil {
+            // No site: the row as it always was.
+            row("Worked", formatting.string(summary.workedMinutes))
+        } else {
+            sourcedWorkedRow
+        }
+    }
+
+    private var sourcedWorkedRow: some View {
+        HStack(alignment: .firstTextBaseline, spacing: Metrics.small) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Worked")
+                if let sourcesLine {
+                    Text(verbatim: sourcesLine)
+                        .font(.subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(.hoursSecondaryText)
+                        .accessibilityIdentifier("calendar-summary-sources")
                 }
+            }
+            Spacer(minLength: Metrics.small)
+            Text(verbatim: formatting.string(workedMinutes))
+                .monospacedDigit()
+                .foregroundStyle(.hoursSecondaryText)
+                .accessibilityIdentifier("calendar-summary-worked")
+        }
+    }
+
+    /// The period's worked hours, or the chosen source's.
+    private var workedMinutes: Int {
+        guard let sources, filter != .all else { return summary.workedMinutes }
+        return sources.minutes(for: filter)
+    }
+
+    /// "Sites 112h · Own 16h 30m" for All; the source's name under a chip;
+    /// nothing without sites.
+    private var sourcesLine: String? {
+        guard let sources else { return nil }
+        if filter != .all { return filterName }
+        return String(
+            localized: "Sites \(formatting.string(sources.siteMinutes)) · Own \(formatting.string(sources.ownMinutes))",
+            comment: "Calendar totals, under Worked: hours on sites and hours of your own, e.g. Sites 112h · Own 16h 30m"
+        )
+    }
+
+    /// Everything that is the whole period's, and so not shown under a chip.
+    @ViewBuilder
+    private var wholePeriodRows: some View {
+        if settings.features.trackExpectedHours {
+            row("Expected", formatting.string(summary.expectedMinutes))
+        }
+        if let earnings {
+            row("Earned", settings.money.string(earnings.totalCents, showsCents: false, hidden: settings.hideAmounts))
+                .accessibilityIdentifier("calendar-summary-earned")
+        }
+        if settings.features.showsBalance {
+            LabeledContent {
+                Text(verbatim: formatting.signedString(summary.balanceMinutes))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.hoursBalance(summary.balanceMinutes))
+            } label: {
+                Text("Balance")
+                if let balanceCaption {
+                    Text(verbatim: balanceCaption)
+                        .monospacedDigit()
+                }
+            }
+        }
+        if summary.daysWorked > 0 {
+            LabeledContent {
+                Text(verbatim: formatting.string(summary.averageWorkedMinutesPerWorkedDay))
+                    .monospacedDigit()
+            } label: {
+                Text("Average")
+                Text("per day worked")
             }
         }
     }
