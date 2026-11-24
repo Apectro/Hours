@@ -91,6 +91,8 @@ final class ScreenAtlasTests: XCTestCase {
     private func calendarScreens(_ app: XCUIApplication) {
         app.tab(.calendar).tap()
         pause(1)
+        // The month with a bar under each worked day, a colour per site,
+        // and the day's money under its hours (2026-11-24).
         capture("calendar-today", app)
 
         // The month first (design v2): Today and the month's totals under it.
@@ -98,6 +100,62 @@ final class ScreenAtlasTests: XCTestCase {
         capture("calendar-month", app)
         swipeUp(app)
         capture("calendar-month-summary", app)
+        swipeDown(app, times: 4)
+
+        // The chips above the month (2026-11-24): one site's hours alone,
+        // then your own, the other days dimmed; and the totals under a chip.
+        let siteChip = app.buttons.matching(identifier: "calendar-filter-site-0").firstMatch
+        let ownChip = app.buttons.matching(identifier: "calendar-filter-own").firstMatch
+        let allChip = app.buttons.matching(identifier: "calendar-filter-all").firstMatch
+        if siteChip.waitForExistence(timeout: 5), ownChip.exists, allChip.exists {
+            tapAnyway(siteChip)
+            pause(0.6)
+            capture("calendar-filter-site", app)
+            tapAnyway(ownChip)
+            pause(0.6)
+            capture("calendar-filter-own", app)
+            if bringIntoView(app.descendants(matching: .any)["calendar-summary-filtered"].firstMatch, app) {
+                capture("calendar-filter-summary", app)
+            } else {
+                miss("calendar-filter-summary (the totals do not say they are filtered)")
+            }
+            swipeDown(app, times: 4)
+            if allChip.waitForExistence(timeout: 3) {
+                tapAnyway(allChip)
+                pause(0.6)
+            }
+        } else {
+            miss("calendar-filter-site (no chips above the month)")
+        }
+
+        // "Write today's hours": where did you work today?
+        if tap(calendarButton("today-write-hours", app), "Write today's hours", app) {
+            capture("write-today-sheet", app)
+            close(app, "write-today-cancel")
+        }
+        swipeDown(app, times: 4)
+
+        // Today's day card, written on the sample site: "On sites", and
+        // what the day earned in plain lines; then every amount hidden.
+        if tap(calendarButton("day-\(Self.todayKey)", app), "today in the calendar", app) {
+            capture("calendar-day-on-sites", app)
+            if bringIntoView(app.descendants(matching: .any)["day-card-earned-total"].firstMatch, app) {
+                capture("calendar-day-earned", app)
+                let eye = app.buttons.matching(identifier: "day-card-hide-amounts").firstMatch
+                if eye.exists {
+                    tapAnyway(eye)
+                    pause(0.4)
+                    capture("calendar-day-amounts-hidden", app)
+                    tapAnyway(eye)
+                    pause(0.4)
+                } else {
+                    miss("calendar-day-amounts-hidden (the earned card has no eye)")
+                }
+            } else {
+                miss("calendar-day-earned (no Earned this day)")
+            }
+            back(app)
+        }
         swipeDown(app, times: 4)
 
         if tap(app.buttons.matching(identifier: "calendar-more").firstMatch, "the calendar's menu", app) {
@@ -141,7 +199,26 @@ final class ScreenAtlasTests: XCTestCase {
                 capture("day-editor-day-types", app)
                 dismissMenu(app)
             }
+            // The site's note on top, read-only, with the way to the site's
+            // day; and own hours added under their own heading (2026-11-24).
+            swipeDown(app, times: 2)
+            if app.descendants(matching: .any)["day-editor-site-note"].firstMatch.waitForExistence(timeout: 3) {
+                capture("day-editor-site-note", app)
+                let add = app.buttons.matching(identifier: "day-editor-add-hours").firstMatch
+                if add.exists {
+                    tapAnyway(add)
+                    pause(0.6)
+                    capture("day-editor-site-note-own-hours", app)
+                }
+            } else {
+                miss("day-editor-site-note (the editor does not say the hours come from the site)")
+            }
             close(app, "day-editor-cancel")
+            // Own hours were added for the picture: not kept.
+            if app.buttons.matching(identifier: "day-editor-discard").firstMatch.waitForExistence(timeout: 2) {
+                tapAnyway(app.buttons.matching(identifier: "day-editor-discard").firstMatch)
+                pause(1)
+            }
         } else {
             miss("day-editor-existing (today's editor did not open)")
         }
