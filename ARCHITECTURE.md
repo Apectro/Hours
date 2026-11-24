@@ -1547,6 +1547,49 @@ language — each a column group of one, so the two-row heading of the workbook
 and the PDF names both. People's groups start at group 2 (`mergedGroups`);
 the closing rows keep their label in the date column with the day empty.
 
+**The whole month (2026-11).** The director's sheet used to list only the
+days written; it now has a row for every day of the month, as the personal
+timesheet does. The builders take a `SiteSheetMonth`: the public holidays off
+by date and name (`HolidayResolver.daysOff`, the rules the site's calendar
+draws, none while holidays are not tracked) and `listsEveryDay`. A day nobody
+wrote is one of `SiteSheetEmptyDay`, a holiday first as on the personal
+calendar: a public holiday, named in the notes on the holiday type's wash
+(`ReportRow.dayTint`); not a work day of the site (`SiteSetup.workDays`, Monday
+to Friday when none are set — not the weekdays worked lately, which would make
+a printed month depend on the day it is printed), drawn quiet like a
+timesheet's weekend (`isWorkingDay` false); a work day while the site is
+paused, "Paused" on grey; or simply empty — a dash under each person, no
+colour, since a printed sheet accuses nobody. On a sheet for several sites a
+day is quiet only when none of them works it and paused only when every site
+that does is paused, and has one row with the site empty. A holiday the crew
+worked keeps its mark: the name leads the note and the date and the day are
+shaded (`groupTints` 0 and 1, which every renderer already washes). The
+closing rows gain "Public holidays", each person's holidays off (the month's
+less any they worked), beside sick and leave days. "Days on site", the detail
+line and the export screen's "21 days" still count days written
+(`ReportTable.writtenDayCount`), and a sheet has content once one is
+(`ExportTables.hasContent`). The switch is the timesheet's own "Show empty
+days" (`ExportPreferences.includeEmptyDays`, on by default), now offered for
+the crew sheet too; off, `SiteSheetMonth.listsEveryDay` is false and the sheet
+is the one it was, which every earlier test still holds it to by passing no
+month at all.
+
+On the page a holiday or a pause is said once across the people's columns and
+the notes (`ReportTable.dayBanner`, drawn by `PDFTablePainter`), not in a
+notes column that five people leave too narrow for "Assumption of Mary"; the
+workbook, the CSV and the on-screen preview keep the word in the notes. A
+31-day month with its closing rows stays on one page by tightening in steps
+(`PDFReportLayout.fittedRowHeights`): closing rows from 18 to 14 points, then
+day rows from 12 down to 10.5 (a site sheet only; a timesheet stops at 12),
+then closing rows to 12 — the roomiest that fits, so 31 days with five closing
+rows print at 11 and 14, and seven closing rows at 10.5 and 12. A sheet for
+several sites' whole month, with its row per site and its By site block, is
+more than one page holds at any readable height: it keeps full height and runs
+on, and the second page carries the last week of days under the headings, the
+closing rows and By site together (a sheet whose days run out a row or two
+before the closing rows takes about a week over with them,
+`daysCarriedWithTheClosingRows`).
+
 A big crew does not fit across A4 landscape: every person is two columns
 that may never be cut short ("07:00–16:00" and their hours), and the page
 holds five or six. The PDF then prints the month once per group of people

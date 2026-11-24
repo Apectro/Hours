@@ -22,9 +22,11 @@ struct ExportTables {
 
     /// Whether there is anything to share. A site's sheet always ends with
     /// its two summary rows, so a month with no site days has those and
-    /// nothing else.
+    /// nothing else — or, now that it lists every day of the month, those
+    /// and a month of empty rows: it has content once a day is written.
     var hasContent: Bool {
-        file.rows.count > min(max(file.trailingSummaryRows, 0), file.rows.count)
+        if file.kind == .siteSheet { return file.writtenDayCount > 0 }
+        return file.rows.count > min(max(file.trailingSummaryRows, 0), file.rows.count)
     }
 }
 
@@ -136,6 +138,12 @@ struct ExportTableMaker {
     /// crews joined and each person's hours a day added up across them
     /// (`SiteSheetBuilder.makeTable(sites:)`), each site's diary under its
     /// name.
+    ///
+    /// The sheet lists every day of the month, as your own timesheet does
+    /// (2026-11): weekends, public holidays by name, a pause, and days
+    /// nobody wrote left empty. "Show empty days" off in the sheet's options
+    /// (`ExportPreferences.includeEmptyDays`, the same switch your own
+    /// hours have) lists only the days written, as the sheet used to.
     func sites(_ chosen: [Site], month: YearMonth, includeDiary: Bool = true, includeSignatures: Bool = true) -> ExportTables {
         let repository = SiteRepository(context: context)
         // As stored now: the address may have been edited since the screen
@@ -171,6 +179,19 @@ struct ExportTableMaker {
             uniquingKeysWith: { first, _ in first }
         )
 
+        // The public holidays off in the month, each with its name: the same
+        // rules, the region's and your own, that the site's calendar draws
+        // (`SiteMonthStatuses.holidayNames`), and none while holidays are
+        // not tracked.
+        let holidays: [CalendarDate: String] = settings.features.trackHolidays
+            ? HolidayResolver(
+                rules: WorkdayRepository(context: context).holidayRules(),
+                calendar: calendar,
+                covering: range
+            ).daysOff(in: range, calendar: calendar)
+            : [:]
+        let sheetMonth = SiteSheetMonth(holidays: holidays, listsEveryDay: settings.export.includeEmptyDays)
+
         // 1.3: the open defects of each site whose sign-off sheet asks for
         // them, after the signatures; with several sites, each under its name.
         let openDefects = includeSignatures ? signOffDefects(of: sites) : []
@@ -184,7 +205,8 @@ struct ExportTableMaker {
                     range: range,
                     signatures: signatures,
                     includesSignatures: includeSignatures,
-                    siteNames: siteNames
+                    siteNames: siteNames,
+                    month: sheetMonth
                 )
             if printsDiary { table.diary = diary }
             if includeSignatures { table.openDefects = openDefects }

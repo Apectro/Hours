@@ -46,16 +46,35 @@ struct PDFReportLayout {
 
     /// The tightest closing rows a sheet for several sites may have.
     static let compactClosingRowHeight: CGFloat = 14
+    /// The tightest closing rows of all: a site sheet that lists every day
+    /// of a 31-day month and closes with seven rows.
+    static let tightClosingRowHeight: CGFloat = 12
+    /// The tightest day rows: 12 points on a timesheet.
+    static let minimumDayRowHeight: CGFloat = 12
+    /// A site sheet lists every day of the month (2026-11), so a month is
+    /// 31 rows and more where a day was on two sites, with up to seven
+    /// closing rows under them: its day rows may go down to 10.5 points,
+    /// which the 8.5-point type (a line of just over 10 points) still fits.
+    static let minimumSiteDayRowHeight: CGFloat = 10.5
 
     /// 14 points, or as little as 12 when that is what keeps every day of the
     /// table and its closing rows on the first page. A month is up to 31 days
     /// and 14 points fit 30, so the 31st used to go over to a page of its own
     /// with the total; a longer range keeps the full height and simply runs on.
     ///
+    /// A site sheet has a row for every day of the month and its closing
+    /// rows are part of the table, so it tightens further rather than send
+    /// three lines over to a second page: first the closing rows to 14
+    /// points, then the days down to 10.5, then the closing rows to 12. The
+    /// roomiest that fits is taken, so a month with two closing rows prints
+    /// as it always did.
+    ///
     /// A sheet for several sites tries to keep its By site block — three or
-    /// four short lines — on that page too, first with the day rows tighter,
-    /// then with its closing rows tighter as well. It went over to a second
-    /// page alone, with the legend, and left the first with room to spare.
+    /// four short lines — on that page too, by the same steps. It went over
+    /// to a second page alone, with the legend, and left the first with room
+    /// to spare. When nothing keeps it there the rows are not squeezed for
+    /// its sake: the block goes over with the closing rows and the last few
+    /// days (`pages`).
     private static func fittedRowHeights(
         for table: ReportTable,
         titleHeight: CGFloat,
@@ -69,16 +88,31 @@ struct PDFReportLayout {
             PDFReportStyle.contentBottom - PDFReportStyle.topMargin - titleHeight - headingHeight
                 - CGFloat(closingRows) * closing
         }
-        let heights = Array(stride(from: PDFReportStyle.rowHeight, through: 12, by: -0.5))
-        if table.kind == .siteSheet && !table.bySite.isEmpty {
-            let block = summaryGap + bySiteOnlyHeight(lines: table.bySite.count)
-            for closing in [standard, compactClosingRowHeight] {
-                if let height = heights.first(where: { CGFloat(days) * $0 <= room(closing) - block }) {
-                    return (height, closing)
+        // The tallest day row, no shorter than `floor`, at which the days
+        // fit in `space`.
+        let dayHeight = { (space: CGFloat, floor: CGFloat) -> CGFloat? in
+            stride(from: PDFReportStyle.rowHeight, through: floor, by: -0.5)
+                .first { CGFloat(days) * $0 <= space }
+        }
+        if table.kind == .siteSheet {
+            let steps: [(closing: CGFloat, floor: CGFloat)] = [
+                (standard, minimumDayRowHeight),
+                (compactClosingRowHeight, minimumDayRowHeight),
+                (compactClosingRowHeight, minimumSiteDayRowHeight),
+                (tightClosingRowHeight, minimumSiteDayRowHeight)
+            ]
+            let block = table.bySite.isEmpty ? 0 : summaryGap + bySiteOnlyHeight(lines: table.bySite.count)
+            for step in steps {
+                if let height = dayHeight(room(step.closing) - block, step.floor) {
+                    return (height, step.closing)
                 }
             }
+            // Nothing keeps the sheet on one page: full height, and it runs
+            // on to a second, which `pages` gives the closing rows, the By
+            // site block and the last few days together.
+            return (PDFReportStyle.rowHeight, standard)
         }
-        if let height = heights.first(where: { CGFloat(days) * $0 <= room(standard) }) {
+        if let height = dayHeight(room(standard), minimumDayRowHeight) {
             return (height, standard)
         }
         return (PDFReportStyle.rowHeight, standard)
@@ -131,6 +165,19 @@ struct PDFReportLayout {
                 tops.append(y)
                 y += height
                 next += 1
+            }
+
+            // A site sheet whose days ran out of page a row or two before
+            // its closing rows does not leave those few days alone above
+            // "Month total" on the next page: about a week goes over with
+            // them, as it does when it is the closing rows that do not fit.
+            if next < table.rows.count, next > first, table.trailingSummaryRows > 0 {
+                let closingStart = table.rows.count - min(table.trailingSummaryRows, table.rows.count)
+                let carried = splitGroupStart(of: closingStart - Self.daysCarriedWithTheClosingRows)
+                if next < closingStart, carried > first, carried < next {
+                    y = tops[carried - first]
+                    next = carried
+                }
             }
 
             // A sheet whose closing rows reached this page but whose By site

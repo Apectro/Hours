@@ -204,9 +204,27 @@ struct PDFTablePainter {
             )
         }
 
-        var covered = drawMergedGroups(of: row, at: y, height: height)
         let xs = origins
         let padding = PDFReportStyle.cellPadding
+        // A day nobody wrote that says what it was — a public holiday,
+        // "Paused" — says it once across the people's columns and the
+        // notes (`ReportTable.dayBanner`), in the day's colour; any other
+        // row has a dash, or a reason, under each person not there.
+        let banner = table.dayBanner(of: row)
+        var covered: Set<Int>
+        if let banner {
+            covered = Set(banner.columns)
+            let frame = span(banner.columns)
+            draw(
+                banner.text,
+                in: CGRect(x: frame.minX + padding, y: y, width: frame.width - padding * 2, height: height),
+                font: PDFReportStyle.cellFont,
+                color: row.dayTint.map(PDFReportStyle.dayInk) ?? PDFReportStyle.secondary,
+                alignment: .left
+            )
+        } else {
+            covered = drawMergedGroups(of: row, at: y, height: height)
+        }
         // A closing label across the empty date, day and site cells.
         let label = layout.labelSpan(of: row)
         covered.formUnion(label.dropFirst())
@@ -227,7 +245,9 @@ struct PDFTablePainter {
         // Not through a closing label: "Month total" and a site's name run on
         // over the empty date, day and site cells, and a rule across them
         // cut the words in two ("m|jesec", "Dvo|ri").
-        drawGroupSeparators(from: y, to: y + height, skipping: label.dropFirst())
+        // Nor through a day's banner, which runs on across the people.
+        let unruled = Array(label.dropFirst()) + Array((banner?.columns ?? (0..<0)).dropFirst())
+        drawGroupSeparators(from: y, to: y + height, skipping: unruled)
         // A day split across sites is one group: ruled under its Total row only.
         if row.role == .day && row.splitDay != .site {
             PDFReportStyle.line(

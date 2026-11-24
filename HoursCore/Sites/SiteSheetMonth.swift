@@ -139,7 +139,40 @@ extension SiteSheetBuilder {
     }
 }
 
+/// What a day nobody wrote says across the people's columns of a printed
+/// site sheet (`ReportTable.dayBanner`).
+struct ReportDayBanner: Hashable, Sendable {
+    /// "Victory Day", "Paused".
+    var text: String
+    /// From the first person's column to the notes, inclusive.
+    var columns: Range<Int>
+}
+
 extension ReportTable {
+    /// On a site sheet, a day nobody wrote that says what it was — a public
+    /// holiday by its name, "Paused" — says it once across the people's
+    /// columns and the notes, where the page would otherwise draw a dash
+    /// under every person and squeeze the name into a notes column that
+    /// five people leave too narrow for it. Nil for every other row: a day
+    /// written, a weekend or an empty day (nothing to say), a closing row.
+    ///
+    /// Only the printed page draws it this way; a workbook and a CSV keep
+    /// the word in the notes column, which is where a filter looks for it.
+    func dayBanner(of row: ReportRow) -> ReportDayBanner? {
+        guard kind == .siteSheet, row.role == .day, !row.hasEntry, row.splitDay == nil,
+              columns.last == .note, row.values.count == columns.count,
+              let text = row.values.last, !text.isEmpty
+        else { return nil }
+        let ranges = groupRanges
+        let people = row.mergedGroups.filter { $0 < ranges.count }.map { ranges[$0].lowerBound }
+        guard let first = people.min(), first < columns.count - 1 else { return nil }
+        // Every person's cells are the one dash: nothing is written over.
+        guard (first..<(columns.count - 1)).allSatisfy({ index in
+            row.values[index].isEmpty || row.values[index] == "—"
+        }) else { return nil }
+        return ReportDayBanner(text: text, columns: first..<columns.count)
+    }
+
     /// The days of a site sheet with something written on them, a day on
     /// several sites once: what "21 days" means now that the sheet has a
     /// row for every day of the month.

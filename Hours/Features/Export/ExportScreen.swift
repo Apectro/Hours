@@ -807,7 +807,9 @@ struct ExportScreen: View {
     private func readSites(sheet: ExportTables) {
         let table = sheet.preview
         if table.kind == .siteSheet, sheet.hasContent {
-            let days = table.rows.count - table.trailingSummaryRows
+            // The days written: the sheet has a row for every day of the
+            // month, and a day on two sites has several.
+            let days = table.writtenDayCount
             // A person is the one group of two columns; the date, the day
             // and the notes are a column each.
             let peopleCount = table.validGroups.filter { $0.span > 1 }.count

@@ -411,6 +411,37 @@ final class SiteSheetMonthTests: XCTestCase {
         XCTAssertEqual(row(parts[1], 6).mergedGroups, [2])
     }
 
+    /// On the page a holiday or a pause is said once across the people's
+    /// columns; everything else is drawn cell by cell.
+    func testADayThatSaysWhatItWasSpansThePeopleOnThePage() {
+        let paused = settings(setups: [site.id: SiteSetup(pause: SitePause(start: d(17), end: d(21)))])
+        for placeholder in ["", "—"] {
+            let t = sheet([worked(3, present: everyone), worked(12, present: everyone)], settings: paused, placeholder: placeholder)
+            XCTAssertEqual(t.dayBanner(of: row(t, 5)), ReportDayBanner(text: "Victory Day", columns: 2..<9))
+            XCTAssertEqual(t.dayBanner(of: row(t, 17)), ReportDayBanner(text: "Paused", columns: 2..<9))
+            XCTAssertNil(t.dayBanner(of: row(t, 3)), "a day written")
+            XCTAssertNil(t.dayBanner(of: row(t, 8)), "a weekend says nothing")
+            XCTAssertNil(t.dayBanner(of: row(t, 6)), "an empty day says nothing")
+            XCTAssertNil(t.dayBanner(of: t.rows[31]), "a closing row")
+        }
+        // A holiday the crew worked is a day written: its name is in the note.
+        let workedHoliday = sheet([worked(5, present: everyone)])
+        XCTAssertNil(workedHoliday.dayBanner(of: row(workedHoliday, 5)))
+        // A no-work day is written too, and keeps its row as it was.
+        let noWork = sheet([SiteDay.noWork(.dayOff, siteID: site.id, date: d(6), jobID: nil)])
+        XCTAssertNil(noWork.dayBanner(of: row(noWork, 6)))
+        // Several sites: after the site column.
+        let both = combined([worked(3, present: everyone)])
+        XCTAssertEqual(both.dayBanner(of: row(both, 5)), ReportDayBanner(text: "Victory Day", columns: 3..<10))
+        // A part of a split sheet: its own people.
+        let part = SiteSheetBuilder.split(sheet([worked(3, present: everyone)]), peoplePerPage: 2)[1]
+        XCTAssertEqual(part.dayBanner(of: row(part, 5)), ReportDayBanner(text: "Victory Day", columns: 2..<5))
+        // A timesheet has none.
+        var timesheet = sheet([worked(3, present: everyone)])
+        timesheet.kind = .timesheet
+        XCTAssertNil(timesheet.dayBanner(of: row(timesheet, 5)))
+    }
+
     func testTheWorkbookAndTheCSVHoldEveryDay() {
         let t = sheet([worked(3, present: everyone)], placeholder: "")
         let csv = CSVExporter.string(for: t, preferences: ExportPreferences())

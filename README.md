@@ -166,6 +166,17 @@ arrival and evening reminders leave it alone; a day can still be written.
 A site's month shows public holidays as the calendar does, and nothing before
 the site's first day written is "not written".
 
+**The whole month on the site sheet** — the director's sheet has a row for
+every day of the month, as your own timesheet does: weekends quiet (by the
+site's work days), public holidays by name in the holiday's colour, "Paused"
+on the days a site was paused, a day recorded as no work with its reason, and a
+work day nobody wrote left empty. Someone away shows why in their own cell
+(Sick leave, Vacation), and a holiday the crew worked keeps its name in the
+notes and a shaded date. Under the month total and the days worked: sick days,
+leave days and each person's public holidays off. A month still prints on one
+page, the rows a little tighter. "Show empty days" off in Sheet options lists
+only the days written, as before.
+
 **One sheet for several sites (1.2)** — in a site's export, "Sites on this
 sheet" adds other sites (each listed with the month's crew hours) to make one
 director's sheet for the month: the crews joined by name, each person's hours a
