@@ -240,5 +240,44 @@
       "id": "52d82a9b-525d-5b04-9c82-cb6085aff3f3",
       "deletedAt": "2026-10-18T16:00:00Z"
     }
+  ],
+  "siteDays": [
+    {
+      "id": "ef2fd726-8a57-50af-869f-f4daf4341c21",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "date": "2026-10-29",
+      "start": "07:00",
+      "end": "15:30",
+      "breakMinutes": 30,
+      "attendance": [
+        {
+          "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11"
+        },
+        {
+          "memberId": "eabdee49-f0eb-575b-9032-773c56337457"
+        },
+        {
+          "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+          "end": "12:00"
+        }
+      ],
+      "absences": [],
+      "noWork": null,
+      "badWeatherStop": false,
+      "note": "Luka to the doctor at 12:00 (corrected by the office).",
+      "allowanceMemberIds": [
+        "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+        "eabdee49-f0eb-575b-9032-773c56337457",
+        "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+      ],
+      "kilometres": 42,
+      "moves": [],
+      "diary": null,
+      "writtenBy": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "updatedAt": "2026-11-02T08:20:00Z",
+      "origin": "device",
+      "editedBy": "director",
+      "version": 2
+    }
   ]
 }

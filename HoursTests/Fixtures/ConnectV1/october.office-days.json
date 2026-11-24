@@ -1,0 +1,91 @@
+[
+  {
+    "id": "7575921c-285b-5267-86e2-1380e7a334fc",
+    "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+    "date": "2026-10-17",
+    "start": "07:00",
+    "end": "12:00",
+    "breakMinutes": 0,
+    "attendance": [
+      {
+        "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+      }
+    ],
+    "absences": [],
+    "noWork": null,
+    "badWeatherStop": false,
+    "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+    "allowanceMemberIds": [],
+    "kilometres": 0,
+    "moves": [],
+    "diary": null,
+    "writtenBy": null,
+    "updatedAt": "2026-11-02T08:15:00Z",
+    "origin": "director",
+    "editedBy": "director",
+    "version": 1
+  },
+  {
+    "id": "50a4351f-1473-5d9e-973f-61e077f2dad3",
+    "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+    "date": "2026-10-24",
+    "start": "07:00",
+    "end": "12:00",
+    "breakMinutes": 0,
+    "attendance": [
+      {
+        "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5"
+      }
+    ],
+    "absences": [],
+    "noWork": null,
+    "badWeatherStop": false,
+    "note": "Saturday: cable pulling in the gym. Written by the office from the time list.",
+    "allowanceMemberIds": [],
+    "kilometres": 0,
+    "moves": [],
+    "diary": null,
+    "writtenBy": null,
+    "updatedAt": "2026-11-02T08:15:00Z",
+    "origin": "director",
+    "editedBy": "director",
+    "version": 1
+  },
+  {
+    "id": "ef2fd726-8a57-50af-869f-f4daf4341c21",
+    "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+    "date": "2026-10-29",
+    "start": "07:00",
+    "end": "15:30",
+    "breakMinutes": 30,
+    "attendance": [
+      {
+        "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11"
+      },
+      {
+        "memberId": "eabdee49-f0eb-575b-9032-773c56337457"
+      },
+      {
+        "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+        "end": "12:00"
+      }
+    ],
+    "absences": [],
+    "noWork": null,
+    "badWeatherStop": false,
+    "note": "Luka to the doctor at 12:00 (corrected by the office).",
+    "allowanceMemberIds": [
+      "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "eabdee49-f0eb-575b-9032-773c56337457",
+      "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"
+    ],
+    "kilometres": 42,
+    "moves": [],
+    "diary": null,
+    "writtenBy": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+    "updatedAt": "2026-11-02T08:20:00Z",
+    "origin": "device",
+    "editedBy": "director",
+    "version": 2
+  }
+]

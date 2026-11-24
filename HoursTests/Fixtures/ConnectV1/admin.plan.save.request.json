@@ -1,0 +1,38 @@
+{
+  "month": "2026-11",
+  "rows": [
+    {
+      "memberId": "0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "role": "teamLeader"
+    },
+    {
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f"
+    },
+    {
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "a2364fc3-f9d6-51dc-9eb9-41868669e10f",
+      "to": "2026-11-15"
+    },
+    {
+      "memberId": "f8c70eaf-9606-5773-a6b7-c99593ec5ffd",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "from": "2026-11-16"
+    },
+    {
+      "memberId": "c18ceea2-6a8e-587a-8ccc-c6e3ce2f2d3c",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "role": "teamLeader"
+    },
+    {
+      "memberId": "f50c64bf-b5e8-53af-9c7b-e2a5960c76c5",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b"
+    },
+    {
+      "memberId": "eabdee49-f0eb-575b-9032-773c56337457",
+      "siteId": "d65be387-0478-5071-8e5c-052d65e0fb8b",
+      "from": "2026-11-19"
+    }
+  ]
+}

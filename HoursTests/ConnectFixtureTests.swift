@@ -25,6 +25,7 @@ final class ConnectFixtureTests: XCTestCase {
         "error.validation": check(V1.ErrorResponse.self),
         "october.month-sheet": check(V1.MonthSheet.self),
         "october.site-days": check([V1.SiteDay].self),
+        "october.office-days": check([V1.SiteDay].self),
         "pairing-qr": check(V1.PairingQr.self),
         "admin.assignments.create.request": check(V1.AssignmentInput.self),
         "admin.assignments.create.response": check(V1.Assignment.self),
@@ -72,6 +73,18 @@ final class ConnectFixtureTests: XCTestCase {
         "admin.sheets.return.response": check(V1.Sheet.self),
         "admin.signOffs.list.response": check(V1.ListOf<V1.OfficeView<V1.SignOff>>.self),
         "admin.siteDays.list.response": check(V1.ListOf<V1.OfficeView<V1.SiteDay>>.self),
+        "admin.siteDays.write.request": check(V1.SiteDayWrite.self),
+        "admin.siteDays.write.response": check(V1.OfficeView<V1.SiteDay>.self),
+        "admin.siteDays.delete.response": check(V1.OkResponse.self),
+        "admin.siteDays.fill.request": check(V1.SiteDayFillRequest.self),
+        "admin.siteDays.fill.response": check(V1.SiteDayFillResponse.self),
+        "admin.calendar.response": check(V1.MonthCalendar.self),
+        "admin.calendar.member.response": check(V1.MonthCalendar.self),
+        "admin.plan.get.response": check(V1.MonthPlan.self),
+        "admin.plan.save.request": check(V1.PlanRequest.self),
+        "admin.plan.save.response": check(V1.MonthPlan.self),
+        "admin.plan.copy.request": check(V1.PlanCopyRequest.self),
+        "admin.plan.copy.response": check(V1.MonthPlan.self),
         "admin.sites.create.request": check(V1.SiteInput.self),
         "admin.sites.create.response": check(V1.Site.self),
         "admin.sites.delete.response": check(V1.OkResponse.self),
@@ -149,6 +162,47 @@ final class ConnectFixtureTests: XCTestCase {
         XCTAssertEqual(day.breakMinutes, 0, "a missing or null default takes the default")
         XCTAssertEqual(day.attendance, [])
         XCTAssertFalse(day.badWeatherStop)
+    }
+
+    /// Office days: `siteDays` in a sync, each with who wrote it, who changed
+    /// it last and the server's version; absent or unknown reads as a phone.
+    func testOfficeDaysDecode() throws {
+        let sync = try ConnectFixtures.decode(V1.SyncResponse.self, "device.sync.response")
+        XCTAssertEqual(sync.siteDays.count, 1)
+        let corrected = try XCTUnwrap(sync.siteDays.first)
+        XCTAssertEqual(corrected.origin, "device")
+        XCTAssertFalse(corrected.isOfficeWritten)
+        XCTAssertTrue(corrected.isOfficeEdited)
+        XCTAssertEqual(corrected.version, 2)
+
+        let office = try ConnectFixtures.decode([V1.SiteDay].self, "october.office-days")
+        XCTAssertEqual(office.count, 3)
+        XCTAssertEqual(office.filter(\.isOfficeWritten).count, 2)
+        XCTAssertEqual(office.first?.version, 1)
+
+        // A server that does not know them, and words this version does not.
+        let old = try ConnectJSON.decode(V1.SyncResponse.self, from: Data("""
+        {"cursor":"c1.1","hasMore":false,"full":false,"serverTime":"2026-11-02T10:00:00Z",
+         "company":{"id":"8eccf663-ecf2-554d-85cd-63dc76483fe0","name":"Firm","timeZone":"Europe/Vienna","breaksPaid":false,"rounding":"exact"}}
+        """.utf8))
+        XCTAssertEqual(old.siteDays, [])
+        let plain = try ConnectJSON.decode(V1.SiteDay.self, from: Data("""
+        {"id":"x","siteId":"y","date":"2026-10-01","updatedAt":"2026-10-01T15:45:00Z","origin":"robot","editedBy":"robot"}
+        """.utf8))
+        XCTAssertFalse(plain.isOfficeWritten, "an unknown origin is a phone")
+        XCTAssertFalse(plain.isOfficeEdited)
+        XCTAssertNil(plain.version)
+        let phone = try ConnectFixtures.decode([V1.SiteDay].self, "october.site-days")
+        XCTAssertFalse(phone.contains { $0.isOfficeWritten || $0.isOfficeEdited })
+
+        // What the phone sends does not grow: the three fields are left out.
+        var sent = try XCTUnwrap(phone.first)
+        sent.origin = nil
+        sent.editedBy = nil
+        sent.version = nil
+        let json = try ConnectJSON.decode(JSONValue.self, from: ConnectJSON.encode(sent))
+        XCTAssertNil(json["origin"])
+        XCTAssertNil(json["version"])
     }
 
     func testTheQRCodeReads() throws {
