@@ -35,6 +35,40 @@ final class GapReminderTests: XCTestCase {
         XCTAssertEqual(gaps.count, 8)
     }
 
+    /// Hours that came from a site day are hours: the weekly reminder does
+    /// not count that day as unrecorded.
+    func testADayWrittenOnASiteIsNotAGap() throws {
+        let site = UUID()
+        let siteDay = SiteDay(
+            siteID: site, date: Fixture.workingMonday, start: Fixture.time(7), end: Fixture.time(15),
+            present: [Attendance(memberID: CrewMember.youID)]
+        )
+        let record = try XCTUnwrap(SiteCalendarSync.merged(personal: nil, siteDays: [siteDay], on: siteDay.date))
+        let gaps = GapFinder.unrecordedWorkingDays(in: days(records: [record.date.key: record]), asOf: today)
+        XCTAssertFalse(gaps.contains(Fixture.workingMonday))
+        XCTAssertEqual(gaps.count, 8)
+    }
+
+    /// Away from the site for a reason is written too; a site day you were
+    /// simply not on leaves your own day as it was.
+    func testAwayFromTheSiteForAReasonIsNotAGapButNotBeingOnItIs() throws {
+        let site = UUID()
+        let sick = SiteDay(
+            siteID: site, date: Fixture.workingMonday, start: Fixture.time(7), end: Fixture.time(15),
+            present: [], absences: [CrewAbsence(memberID: CrewMember.youID, dayTypeID: .sick)]
+        )
+        let record = try XCTUnwrap(SiteCalendarSync.merged(personal: nil, siteDays: [sick], on: sick.date))
+        XCTAssertFalse(
+            GapFinder.unrecordedWorkingDays(in: days(records: [record.date.key: record]), asOf: today)
+                .contains(Fixture.workingMonday)
+        )
+        let withoutYou = SiteDay(
+            siteID: site, date: Fixture.workingTuesday, start: Fixture.time(7), end: Fixture.time(15),
+            present: [Attendance(memberID: UUID())]
+        )
+        XCTAssertNil(SiteCalendarSync.merged(personal: nil, siteDays: [withoutYou], on: withoutYou.date))
+    }
+
     func testADayOfLeaveIsNotAGap() {
         let leave = DayRecord(date: Fixture.workingMonday, dayTypeID: .vacation)
         let gaps = GapFinder.unrecordedWorkingDays(in: days(records: [leave.date.key: leave]), asOf: today)
