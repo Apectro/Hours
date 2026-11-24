@@ -254,6 +254,12 @@ final class DaySourcesTests: XCTestCase {
         XCTAssertNotEqual(SitePalette.indexes(of: [one, two])[one.id], SitePalette.indexes(of: [one, two])[two.id])
     }
 
+    func testASiteStoredTwiceIsOneSite() {
+        let first = Site(id: here, name: "A", sortOrder: 0)
+        let second = Site(id: there, name: "B", sortOrder: 1)
+        XCTAssertEqual(SitePalette.indexes(of: [first, first, second]), [here: 0, there: 1])
+    }
+
     func testASiteNoLongerStoredStillHasOneColour() {
         let index = SitePalette.fallbackIndex(for: here)
         XCTAssertEqual(index, SitePalette.fallbackIndex(for: here))

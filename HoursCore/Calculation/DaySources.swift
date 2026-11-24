@@ -187,8 +187,9 @@ enum SitePalette {
     /// Each site's palette index, `0..<count`.
     static func indexes(of sites: [Site]) -> [UUID: Int] {
         var result: [UUID: Int] = [:]
-        for (position, site) in ordered(sites).enumerated() where result[site.id] == nil {
-            result[site.id] = position % count
+        // A site stored twice (sync can do that for a moment) is one site.
+        for site in ordered(sites) where result[site.id] == nil {
+            result[site.id] = result.count % count
         }
         return result
     }
