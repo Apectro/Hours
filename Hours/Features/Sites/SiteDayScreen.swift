@@ -191,7 +191,7 @@ struct SiteDayScreen: View {
 
             // Connect to company: sent or waiting, and what the office
             // said about the day.
-            ConnectDaySection(siteID: site.id, date: date)
+            ConnectDaySection(siteID: site.id, date: date, canEdit: canEdit)
 
             if stored == nil {
                 unwrittenSections
@@ -257,6 +257,13 @@ struct SiteDayScreen: View {
             guard let requested else { return }
             requestedDate.wrappedValue = nil
             select(requested)
+        }
+        // Connect to company: a day the office wrote, changed or deleted
+        // was just written into the store (or "Keep mine" put yours back).
+        // The screen goes to what is stored, so it never saves an older
+        // copy over it.
+        .onChange(of: HoursStack.connect.officeDayWrites) { _, _ in
+            load()
         }
         // A tick is felt as well as seen: gloves, sun, a phone held low.
         .sensoryFeedback(.selection, trigger: ticks)

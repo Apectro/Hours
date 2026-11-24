@@ -54,7 +54,9 @@ extension SiteCalendarDayLook {
 /// before today nobody wrote on a tile with a red dot; a public holiday on a
 /// tile in the holiday type's colour with "Holiday" under the date, as the
 /// Today tab draws it, and a written holiday with a small flag beside its
-/// people; days off, paused days and days still to come without a tile, the
+/// people; a day the office wrote or changed (Connect to company) with a
+/// small office mark beside what is under the date; days off, paused days
+/// and days still to come without a tile, the
 /// date in the tertiary colour; today's tile filled. The first and last
 /// rows show the neighbouring months' days, faded. The eighth column is the
 /// crew's hours on the site in each row's whole week. A day opens that day
@@ -72,6 +74,8 @@ struct SiteMonthCalendar: View {
     let durationFormatting: DurationFormatting
     /// Why nobody worked, on each day recorded as "no work".
     var noWork: [CalendarDate: SiteNoWorkReason] = [:]
+    /// The days the office wrote or changed (Connect to company).
+    var office: [CalendarDate: ConnectOfficeMark] = [:]
     /// The public holiday type's own colour, as the Today tab draws a
     /// holiday (`DayTile`).
     var holidayTint: Color = .purple
@@ -96,6 +100,7 @@ struct SiteMonthCalendar: View {
                     look: looks[date] ?? SiteCalendarDayLook(kind: .dayOff),
                     people: people[date] ?? 0,
                     noWork: noWork[date],
+                    office: office[date],
                     isToday: date == today,
                     isOutsideMonth: !layout.isInMonth(date),
                     spokenDay: formatting.spokenDay(date, in: layout),
@@ -116,6 +121,8 @@ private struct SiteDayTile: View {
     let look: SiteCalendarDayLook
     let people: Int
     let noWork: SiteNoWorkReason?
+    /// "Written by the office" or "Changed by the office", on a written day.
+    let office: ConnectOfficeMark?
     let isToday: Bool
     let isOutsideMonth: Bool
     /// "1", or "31 October" for a neighbouring month's day
@@ -179,6 +186,7 @@ private struct SiteDayTile: View {
         case .written, .partly:
             HStack(spacing: 2) {
                 if look.hasHolidayMark { holidayFlag }
+                if office != nil { officeMark }
                 if people > 0 {
                     Text(verbatim: "• \(people)")
                         .font(.caption2.weight(.semibold))
@@ -205,6 +213,7 @@ private struct SiteDayTile: View {
             // A small grey word, no colour: nobody worked, for a reason.
             HStack(spacing: 2) {
                 if look.hasHolidayMark { holidayFlag }
+                if office != nil { officeMark }
                 Text("No work")
                     .font(.caption2)
                     .foregroundStyle(isToday ? Color.white : Color.secondary)
@@ -229,13 +238,23 @@ private struct SiteDayTile: View {
             .accessibilityHidden(true)
     }
 
+    /// The small mark on a day the office wrote or changed; the words are
+    /// in the spoken label and on the day itself.
+    private var officeMark: some View {
+        Image(systemName: "building.columns.fill")
+            .font(.system(size: flagSize, weight: .semibold))
+            .foregroundStyle(isToday ? Color.white : Color.secondary)
+            .accessibilityHidden(true)
+    }
+
     private var peopleColor: Color {
         if isToday { return .white }
         return look.kind == .partly ? .hoursAttention : .accentColor
     }
 
     /// "1 November, All Saints' Day, Holiday"; "18, Written, 5 people,
-    /// Remembrance Day, Holiday"; "3, No work · Day off"; ", Today" last.
+    /// Remembrance Day, Holiday"; "3, No work · Day off"; "17, Written,
+    /// 1 person, Written by the office"; ", Today" last.
     private var accessibilityLabel: String {
         var parts = [spokenDay]
         if look.kind != .holiday {
@@ -243,6 +262,9 @@ private struct SiteDayTile: View {
         }
         if people > 0, look.kind == .written || look.kind == .partly {
             parts.append(String(inflected: "^[\(people) person](inflect: true)"))
+        }
+        if let office, look.kind == .written || look.kind == .partly || look.kind == .noWork {
+            parts.append(office.title)
         }
         if let name = look.holidayName {
             let name = name.trimmingCharacters(in: .whitespacesAndNewlines)

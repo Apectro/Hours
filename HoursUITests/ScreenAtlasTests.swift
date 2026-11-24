@@ -59,6 +59,7 @@ final class ScreenAtlasTests: XCTestCase {
         noWorkScreens()
         tipScreens()
         connectScreens()
+        connectOfficeDay()
 
         print("ATLAS_TAKEN \(taken.count): \(taken.joined(separator: ", "))")
         print("ATLAS_MISSED \(missed.count): \(missed.joined(separator: ", "))")
@@ -2009,6 +2010,52 @@ final class ScreenAtlasTests: XCTestCase {
         if bringIntoView(disconnect, app), tap(disconnect, "Disconnect", app) {
             capture("connect-disconnect", app)
             tap(app.buttons.matching(identifier: "connect-disconnect-confirm").firstMatch, "Disconnect in the dialog", app)
+        }
+        app.terminate()
+    }
+
+    /// Connect to company, a day the office wrote (`-hours-connect-stub`
+    /// with `-hours-connect-office-day`): the company's site with the day
+    /// in its month, and the day itself saying who wrote it.
+    private func connectOfficeDay() {
+        let app = launch(["-hours-connect-stub", "-hours-connect-office-day"])
+        guard app.tab(.settings).waitForExistence(timeout: 20) else {
+            miss("connect-office-day (the app did not start)")
+            return
+        }
+        app.tab(.settings).tap()
+        pause(1)
+        let row = app.buttons.matching(identifier: "settings-connect").firstMatch
+        let address = app.textFields.matching(identifier: "connect-address").firstMatch
+        let code = app.textFields.matching(identifier: "connect-code").firstMatch
+        guard bringIntoView(row, app), tap(row, "Connect to company", app),
+              address.waitForExistence(timeout: 8), code.exists else {
+            miss("connect-office-day (Connect did not open)")
+            app.terminate()
+            return
+        }
+        address.tap()
+        address.typeText("firm.example/api/zeitkonto")
+        code.tap()
+        code.typeText("K7QF3MZP\n")
+        if tap(app.buttons.matching(identifier: "connect-pair").firstMatch, "Connect", app) {
+            tap(app.buttons.matching(identifier: "connect-confirm").firstMatch, "Connect in the dialog", app)
+        }
+        guard app.screen("connect-state-connected").waitForExistence(timeout: 10) else {
+            miss("connect-office-day (did not connect)")
+            app.terminate()
+            return
+        }
+        app.tab(.sites).tap()
+        pause(1)
+        if tap(app.buttons.matching(identifier: "site-card").firstMatch, "the company's site", app) {
+            capture("connect-office-site", app)
+            if tap(app.buttons.matching(identifier: "site-write-today").firstMatch, "Today", app),
+               app.screen("connect-line-office").waitForExistence(timeout: 8) {
+                capture("connect-office-day", app)
+            } else {
+                miss("connect-office-day (the day does not say the office wrote it)")
+            }
         }
         app.terminate()
     }

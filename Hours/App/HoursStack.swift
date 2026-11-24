@@ -131,11 +131,17 @@ enum HoursStack {
 
     /// Connect to company (free, off until paired). A UI test run keeps the
     /// connection in memory, and with `-hours-connect-stub` talks to an
-    /// in-memory company instead of the network, sending only on Sync now.
+    /// in-memory company instead of the network, sending only on Sync now;
+    /// with `-hours-connect-office-day` as well, that company's office has
+    /// written today's day on its site.
     static let connect: ConnectService = {
-        let usesStub = isRunningUITests && ProcessInfo.processInfo.arguments.contains(ConnectService.stubLaunchArgument)
+        let arguments = ProcessInfo.processInfo.arguments
+        let usesStub = isRunningUITests && arguments.contains(ConnectService.stubLaunchArgument)
         let storage: ConnectStorage = isRunningUITests ? MemoryConnectStorage() : DeviceConnectStorage()
-        let transport: ConnectTransport = usesStub ? ConnectStubTransport.sample() : URLSessionConnectTransport()
+        let officeDay: CalendarDate? = arguments.contains(ConnectService.stubOfficeDayLaunchArgument)
+            ? CalendarDate.today(in: Calendar.current)
+            : nil
+        let transport: ConnectTransport = usesStub ? ConnectStubTransport.sample(officeDayOn: officeDay) : URLSessionConnectTransport()
         return ConnectService(
             storage: storage,
             transport: transport,

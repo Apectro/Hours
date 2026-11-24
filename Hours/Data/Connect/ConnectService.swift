@@ -30,6 +30,9 @@ final class ConnectService {
     /// UI tests: talk to an in-memory company (`ConnectStubTransport`)
     /// instead of the network, and send only on Sync now.
     static let stubLaunchArgument = "-hours-connect-stub"
+    /// UI tests, with the stub: its office has written today's day on the
+    /// company's site, as the director's calendar would.
+    static let stubOfficeDayLaunchArgument = "-hours-connect-office-day"
 
     private(set) var account: ConnectAccount?
     private(set) var state: ConnectState
@@ -39,6 +42,10 @@ final class ConnectService {
     /// The office revoked this phone: said once on the Connect screen.
     private(set) var wasDisconnectedByOffice = false
     private(set) var hasToken: Bool
+    /// Counts the times a day the office wrote, changed or deleted was
+    /// written into the store, or "Keep mine" put the phone's own back: a
+    /// site screen that is open reads its days again.
+    private(set) var officeDayWrites = 0
 
     private let storage: ConnectStorage
     private let transport: ConnectTransport
@@ -219,6 +226,10 @@ final class ConnectService {
         guard isConnected, !isWorking else { return }
         isWorking = true
         defer { isWorking = false }
+        // An edit saved a moment ago is in the queue before the office's
+        // days are looked at, so it is seen as the phone's own. Not before
+        // the first sync, when nobody is known yet.
+        if state.cursor != nil { scan() }
         do {
             try await receive()
             problem = nil
@@ -260,7 +271,7 @@ final class ConnectService {
             today: today,
             now: Date(),
             local: { [unowned self] in self.localForMerge() },
-            apply: { [unowned self] plan in self.apply(plan) }
+            apply: { [unowned self] plan in self.apply(plan, lock: lock) }
         )
         persist()
     }
@@ -275,20 +286,26 @@ final class ConnectService {
         let sites = repository.sites(includeArchived: true)
         let crew = sites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
         var dates: [UUID: Set<CalendarDate>] = [:]
-        for day in repository.siteDays(siteID: nil, in: Self.allTime) {
+        let days = repository.siteDays(siteID: nil, in: Self.allTime)
+        for day in days {
             dates[day.siteID, default: []].insert(day.date)
         }
         var setups: [UUID: SiteSetup] = [:]
         for site in sites { setups[site.id] = settings.siteSetup(for: site.id) }
-        return ConnectLocal(sites: sites, crew: crew, setups: setups, writtenDates: dates)
+        return ConnectLocal(sites: sites, crew: crew, setups: setups, writtenDates: dates, siteDays: days)
     }
 
     /// Writes what a sync page changes. Sites and crew rows are not dated,
-    /// so the month lock is not theirs to ask; no day is ever written here.
-    private func apply(_ plan: ConnectMergePlan) {
+    /// so the month lock is not theirs to ask. The only days written here
+    /// are the ones the office wrote, changed or deleted
+    /// (`ConnectMerge.takeOfficeDays`), through the repository with the
+    /// month lock the merge itself was given: a closed month's days never
+    /// reach this, and your calendar day is carried along as for any site
+    /// day.
+    private func apply(_ plan: ConnectMergePlan, lock: MonthLock) {
         isMerging = true
         defer { isMerging = false }
-        let repository = SiteRepository(context: context)
+        let repository = SiteRepository(context: context, lock: lock)
         for site in plan.sites { repository.upsert(site) }
         for member in plan.crew { repository.upsert(member) }
         if !plan.setups.isEmpty {
@@ -296,16 +313,35 @@ final class ConnectService {
                 for (id, setup) in plan.setups { settings.setSiteSetup(setup, for: id) }
             }
         }
+        for day in plan.siteDays {
+            try? repository.save(day)
+        }
+        for removed in plan.removedSiteDays {
+            try? repository.delete(siteID: removed.siteID, on: removed.date)
+        }
         state = plan.state
         persist()
+        if !plan.siteDays.isEmpty || !plan.removedSiteDays.isEmpty { officeDayWrites += 1 }
     }
 
     // MARK: - Sending
 
     /// Looks through the sites the company sees for records that changed
-    /// since they were last queued, and queues them.
+    /// since they were last queued, and queues them. Then takes what the
+    /// office changed and the phone has not taken yet: its copy of a day
+    /// from an upload it refused (`conflict, editedOnWeb`), and days held
+    /// for a month that has been reopened since.
     func scan() {
         guard isConnected else { return }
+        queueChanges()
+        let lock = settings.monthLock
+        guard state.hasOfficeDaysToTake(lock: lock) else { return }
+        apply(ConnectMerge.planPending(state: state, local: localForMerge(), lock: lock), lock: lock)
+        // The days just written are the office's own: taken as sent.
+        queueChanges()
+    }
+
+    private func queueChanges() {
         let input = outboxInput()
         let records = ConnectOutbox.records(input, state: state)
         let scope = ConnectOutbox.scope(state, sites: input.sites)
@@ -326,6 +362,8 @@ final class ConnectService {
         )
         state = working
         persist()
+        // A day the office changed first: its copy is taken right away.
+        if report.conflicts.contains(where: { $0.kind == .siteDay }) { scan() }
         if let error = report.stoppedBy {
             handle(error)
             scheduleRetry()
@@ -491,7 +529,7 @@ final class ConnectService {
             )
         }
         guard !inputs.isEmpty else { return false }
-        let rules = WorkdayRepository(context: context).holidayRules()
+        let rules = WorkdayRepository(context: context, lock: settings.monthLock).holidayRules()
         let holidays = HolidayResolver(rules: rules, calendar: calendar, covering: range)
             .daysOff(in: range, calendar: calendar)
             .map { (date: $0.key, name: $0.value) }
@@ -600,6 +638,55 @@ final class ConnectService {
     func status(ofDayOn siteID: UUID, date: CalendarDate) -> ConnectRecordStatus? {
         guard isConnected, state.companySites.union(state.sharedSites).contains(siteID) else { return nil }
         return state.status(of: .siteDay, id: ConnectID.string(ConnectUUID.siteDayID(siteID: siteID, date: date)))
+    }
+
+    /// What the office did with a site day: wrote it, changed it, and
+    /// whether the phone's own unsent edit of it waits for a choice.
+    func officeDay(on siteID: UUID, date: CalendarDate) -> ConnectOfficeDay? {
+        guard isConnected else { return nil }
+        return state.officeDay(siteID: siteID, date: date)
+    }
+
+    /// The days of a site the office wrote or changed, for its month.
+    func officeMarks(onSite siteID: UUID) -> [CalendarDate: ConnectOfficeMark] {
+        guard isConnected, !state.officeDays.isEmpty else { return [:] }
+        return state.officeMarks(siteID: siteID)
+    }
+
+    /// "Use the office's": the day already shows it.
+    func useOfficeDay(on siteID: UUID, date: CalendarDate) {
+        guard isConnected else { return }
+        state.useOfficeDay(siteID: siteID, date: date)
+        persist()
+    }
+
+    /// "Keep mine": the phone's own edit is the day again, and is sent as
+    /// a new version on top of the office's. False when the month is
+    /// closed, which leaves the choice open.
+    @discardableResult
+    func keepMine(on siteID: UUID, date: CalendarDate) -> Bool {
+        guard isConnected, let mine = state.officeDay(siteID: siteID, date: date)?.mine else { return false }
+        let lock = settings.monthLock
+        guard !lock.isLocked(date) else { return false }
+        let repository = SiteRepository(context: context, lock: lock)
+        isMerging = true
+        do {
+            if let day = mine.day {
+                try repository.save(day)
+            } else {
+                try repository.delete(siteID: siteID, on: date)
+            }
+        } catch {
+            isMerging = false
+            return false
+        }
+        isMerging = false
+        _ = state.keepMine(siteID: siteID, date: date)
+        persist()
+        officeDayWrites += 1
+        scan()
+        if sendsByItself { Task { await send() } }
+        return true
     }
 
     /// The state line of a month sheet.

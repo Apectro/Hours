@@ -21249,6 +21249,94 @@
       "As tuas horas ficam neste dispositivo e em mais nenhum lado. %@ %@",
       "Je eigen uren blijven op dit apparaat en nergens anders. %@ %@",
       "Twoje godziny są przechowywane na tym urządzeniu i nigdzie indziej. %@ %@"
+    ],
+    "Written by the office": [
+      "Vom Büro eingetragen",
+      "Upisao ured",
+      "Vpisala pisarna",
+      "Registrato dall'ufficio",
+      "Saisi par le bureau",
+      "Anotado por la oficina",
+      "Registado pelo escritório",
+      "Ingevuld door het kantoor",
+      "Wpisane przez biuro"
+    ],
+    "Changed by the office": [
+      "Vom Büro geändert",
+      "Promijenio ured",
+      "Spremenila pisarna",
+      "Modificato dall'ufficio",
+      "Modifié par le bureau",
+      "Cambiado por la oficina",
+      "Alterado pelo escritório",
+      "Gewijzigd door het kantoor",
+      "Zmienione przez biuro"
+    ],
+    "Use the office's": [
+      "Version des Büros nehmen",
+      "Uzmi verziju ureda",
+      "Uporabi različico pisarne",
+      "Usa quella dell'ufficio",
+      "Utiliser celle du bureau",
+      "Usar la de la oficina",
+      "Usar a do escritório",
+      "Die van het kantoor gebruiken",
+      "Użyj wersji biura"
+    ],
+    "Keep mine": [
+      "Meine behalten",
+      "Zadrži moju",
+      "Obdrži mojo",
+      "Mantieni la mia",
+      "Garder la mienne",
+      "Conservar la mía",
+      "Manter a minha",
+      "De mijne houden",
+      "Zachowaj moją"
+    ],
+    "This day shows the office's version. Your own changes to it have not been sent.": [
+      "Dieser Tag zeigt die Version des Büros. Deine eigenen Änderungen wurden nicht gesendet.",
+      "Ovaj dan prikazuje verziju ureda. Tvoje vlastite izmjene nisu poslane.",
+      "Ta dan prikazuje različico pisarne. Tvoje lastne spremembe niso bile poslane.",
+      "Questo giorno mostra la versione dell'ufficio. Le tue modifiche non sono state inviate.",
+      "Ce jour affiche la version du bureau. Vos propres modifications n'ont pas été envoyées.",
+      "Este día muestra la versión de la oficina. Tus propios cambios no se han enviado.",
+      "Este dia mostra a versão do escritório. As tuas próprias alterações não foram enviadas.",
+      "Deze dag toont de versie van het kantoor. Je eigen wijzigingen zijn niet verstuurd.",
+      "Ten dzień pokazuje wersję biura. Twoje własne zmiany nie zostały wysłane."
+    ],
+    "Your version: %@": [
+      "Deine Version: %@",
+      "Tvoja verzija: %@",
+      "Tvoja različica: %@",
+      "La tua versione: %@",
+      "Votre version : %@",
+      "Tu versión: %@",
+      "A tua versão: %@",
+      "Jouw versie: %@",
+      "Twoja wersja: %@"
+    ],
+    "You had deleted this day.": [
+      "Du hattest diesen Tag gelöscht.",
+      "Ovaj dan je kod tebe bio izbrisan.",
+      "Ta dan je bil pri tebi izbrisan.",
+      "Avevi eliminato questo giorno.",
+      "Vous aviez supprimé ce jour.",
+      "Habías eliminado este día.",
+      "Tinhas eliminado este dia.",
+      "Je had deze dag verwijderd.",
+      "Ten dzień był u ciebie usunięty."
+    ],
+    "The office changed a day in %@, which is closed. Reopen the month to take it.": [
+      "Das Büro hat einen Tag im %@ geändert, der abgeschlossen ist. Öffne den Monat wieder, um ihn zu übernehmen.",
+      "Ured je promijenio dan za %@, koji je zatvoren. Ponovno otvori mjesec da ga preuzmeš.",
+      "Pisarna je spremenila dan za %@, ki je zaprt. Znova odpri mesec, da ga prevzameš.",
+      "L'ufficio ha modificato un giorno di %@, che è chiuso. Riapri il mese per riceverlo.",
+      "Le bureau a modifié un jour de %@, qui est clôturé. Rouvrez le mois pour le reprendre.",
+      "La oficina cambió un día de %@, que está cerrado. Reabre el mes para recibirlo.",
+      "O escritório alterou um dia de %@, que está fechado. Reabre o mês para o receber.",
+      "Het kantoor heeft een dag in %@ gewijzigd, die is afgesloten. Heropen de maand om die over te nemen.",
+      "Biuro zmieniło dzień za %@, który jest zamknięty. Otwórz miesiąc ponownie, aby go przyjąć."
     ]
   },
   "sameAsEnglishOnPurpose": [
