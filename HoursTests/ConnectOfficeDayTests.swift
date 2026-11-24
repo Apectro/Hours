@@ -301,6 +301,52 @@ final class ConnectOfficeDayTests: XCTestCase {
         XCTAssertFalse(state.hasOfficeDaysToTake(lock: .unlocked))
     }
 
+    func testAnUploadRefusedForAClosedMonthsDayWaitsToo() throws {
+        let (phone, start) = try paired()
+        var state = start
+        let mine = try withASentDay(phone, &state)
+        let closed = MonthLock(months: [october])
+        let id = ConnectSiteDayRef(siteID: hauptstrasse, date: the29th).id
+        // The server's answer to an edit sent before the month was closed.
+        let theirs = try XCTUnwrap(try fixture().siteDays.first)
+        let view = JSONValue.object(["id": .string(id), "version": .number(2), "data": try ConnectJSON.decode(JSONValue.self, from: ConnectJSON.encode(theirs))])
+        state.conflicts[key(hauptstrasse, the29th)] = ConnectConflict(kind: .siteDay, id: id, reason: "editedOnWeb", serverVersion: 2, server: view, commentIDs: [])
+        XCTAssertTrue(state.hasOfficeDaysToTake(lock: closed), "not looked at yet")
+
+        var plan = ConnectMerge.planPending(state: state, local: phone.local, lock: closed)
+        phone.apply(plan)
+        state = plan.state
+        XCTAssertEqual(phone.day(hauptstrasse, the29th), mine)
+        XCTAssertEqual(plan.conflicts.map(\.kind), [.officeDayInClosedMonth])
+        XCTAssertEqual(state.status(of: .siteDay, id: id), .changedByOffice)
+        XCTAssertFalse(state.hasOfficeDaysToTake(lock: closed), "nothing to do until the month is reopened")
+        XCTAssertTrue(ConnectMerge.planPending(state: state, local: phone.local, lock: closed).conflicts.isEmpty, "listed once")
+
+        plan = ConnectMerge.planPending(state: state, local: phone.local, lock: .unlocked)
+        phone.apply(plan)
+        state = plan.state
+        XCTAssertEqual(phone.day(hauptstrasse, the29th)?.note, "Luka to the doctor at 12:00 (corrected by the office).")
+        XCTAssertEqual(state.officeDay(siteID: hauptstrasse, date: the29th)?.mine?.day, mine, "what the phone had sent is the choice's other side")
+    }
+
+    func testADayWhoseSiteHasNotArrivedWaitsForIt() throws {
+        var state = ConnectState()
+        state.people.you = marko
+        let phone = Phone()
+        let day = try XCTUnwrap(try officeDays().first)
+        let early = merge(try page("c1.1", days: [day]), phone, &state)
+        XCTAssertFalse(early.changesStore)
+        XCTAssertTrue(early.conflicts.isEmpty)
+        XCTAssertEqual(state.heldOfficeDays.count, 1)
+        XCTAssertFalse(state.hasOfficeDaysToTake(lock: .unlocked))
+
+        var sites = try fixture()
+        sites.siteDays = []
+        _ = merge(sites, phone, &state)
+        XCTAssertNotNil(phone.day(schule, the17th))
+        XCTAssertTrue(state.heldOfficeDays.isEmpty)
+    }
+
     // MARK: - An unsent local edit
 
     func testAnUnsentLocalEditIsSetAsideAndTheOfficesShown() throws {
