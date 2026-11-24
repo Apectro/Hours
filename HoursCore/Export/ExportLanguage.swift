@@ -433,6 +433,18 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           es: "Días de permiso", pt: "Dias de licença", nl: "Verlofdagen",
                                           pl: "Dni urlopu")
 
+        // A site sheet that lists every day of the month (2026-11): each
+        // person's public holidays off under the totals, and the word in
+        // the notes of a day the site was paused.
+        case .publicHolidays: return pick(en: "Public holidays", de: "Feiertage", hr: "Praznici",
+                                          sl: "Prazniki", it: "Festività", fr: "Jours fériés",
+                                          es: "Festivos", pt: "Feriados", nl: "Feestdagen",
+                                          pl: "Święta")
+        case .sitePaused:     return pick(en: "Paused", de: "Pausiert", hr: "Pauzirano",
+                                          sl: "Začasno ustavljeno", it: "In pausa", fr: "En pause",
+                                          es: "En pausa", pt: "Em pausa", nl: "Gepauzeerd",
+                                          pl: "Wstrzymana")
+
         // Field allowance, kilometres and travel (1.2): columns and summary
         // lines on a timesheet, closing lines on a site sheet.
         case .allowance:      return pick(en: "Allowance", de: "Auslöse", hr: "Terenski dodatak",
@@ -642,6 +654,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case dayHighlightLegend
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
+    /// A site sheet listing every day: holidays off per person, and a
+    /// paused day's word.
+    case publicHolidays, sitePaused
     /// An absent person's cell: working on another site.
     case otherSite
     /// A site day nobody worked (the "N not written" sheet): "No work",

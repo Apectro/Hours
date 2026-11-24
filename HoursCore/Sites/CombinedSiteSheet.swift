@@ -28,7 +28,8 @@ extension SiteSheetBuilder {
         range: CalendarDateRange,
         signatures: [CrewSignature] = [],
         includesSignatures: Bool = true,
-        siteNames: [UUID: String] = [:]
+        siteNames: [UUID: String] = [:],
+        month sheetMonth: SiteSheetMonth = .writtenDaysOnly
     ) -> ReportTable {
         var seenSites = Set<UUID>()
         let chosen = sites.filter { seenSites.insert($0.id).inserted }
@@ -40,7 +41,8 @@ extension SiteSheetBuilder {
                 range: range,
                 signatures: signatures,
                 includesSignatures: includesSignatures,
-                siteNames: siteNames
+                siteNames: siteNames,
+                month: sheetMonth
             )
         }
         return combinedTable(
@@ -50,7 +52,8 @@ extension SiteSheetBuilder {
             range: range,
             signatures: signatures,
             includesSignatures: includesSignatures,
-            siteNames: siteNames
+            siteNames: siteNames,
+            sheetMonth: sheetMonth
         )
     }
 
@@ -67,7 +70,8 @@ extension SiteSheetBuilder {
         range: CalendarDateRange,
         signatures: [CrewSignature],
         includesSignatures: Bool,
-        siteNames: [UUID: String]
+        siteNames: [UUID: String],
+        sheetMonth: SiteSheetMonth
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -142,9 +146,25 @@ extension SiteSheetBuilder {
         let leadingKinds = Self.leadingColumnKinds + [ReportColumn.site]
         let lead = leadingKinds.count
         let siteName = Dictionary(sites.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+        // The month's public holidays and how many each person worked, and
+        // each site's work days and pause, for the days nobody wrote.
+        let holidayDates = holidayDates(in: range, month: sheetMonth)
+        var holidaysWorked = Array(repeating: 0, count: people.count)
+        let setups = sites.map { settings.siteSetup(for: $0.id) }
 
-        for date in dates {
+        for date in listedDates(written: dates, range: range, month: sheetMonth) {
             let dayResults = byDate[date] ?? []
+            guard !dayResults.isEmpty else {
+                // None of the sites has the day: one row, the site empty.
+                rows.append(emptyDayRow(
+                    date,
+                    kind: SiteSheetEmptyDay.of(date, setups: setups, holidays: sheetMonth.holidays, calendar: calendar),
+                    leading: lead,
+                    people: people.count,
+                    formatter: formatter
+                ))
+                continue
+            }
             // The day's figures, counted once however many sites gave them.
             var dayWorked = Array(repeating: 0, count: people.count)
             var awayText: [String?] = Array(repeating: nil, count: people.count)
@@ -184,6 +204,7 @@ extension SiteSheetBuilder {
                 sitesToday[index] = Set(entries.map(\.siteID)).count
                 totalMinutes[index] += worked
                 if worked > 0 { daysWorked[index] += 1 }
+                if worked > 0 && holidayDates.contains(date) { holidaysWorked[index] += 1 }
                 if tracksAllowance && entries.contains(where: { $0.entry.hasAllowance }) { allowanceDays[index] += 1 }
             }
 
@@ -233,8 +254,12 @@ extension SiteSheetBuilder {
                     values.append(duration.string(worked))
                     minutes += [nil, worked]
                 }
-                values.append(note(of: result.day, language: language))
+                // A public holiday the crew worked keeps its mark, once, on
+                // the day's first row.
+                let dayNote = note(of: result.day, language: language)
+                values.append(isFirst ? holidayNote(dayNote, on: date, month: sheetMonth) : dayNote)
                 minutes.append(nil)
+                if isFirst { tints.merge(holidayMark(on: date, month: sheetMonth)) { own, _ in own } }
                 var row = ReportRow(
                     id: isFirst ? date.key : -(date.key * 10 + position),
                     values: values,
@@ -299,8 +324,13 @@ extension SiteSheetBuilder {
             closingRows.append((values + [""], minutes + [nil]))
         }
         var absenceRows: [[String]] = []
-        for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.allowanceDays, allowanceDays)]
-        where counts.contains(where: { $0 > 0 }) {
+        // The public holidays each person had off: the month's, less any
+        // they worked.
+        let holidaysOff = holidaysWorked.map { holidayDates.count - $0 }
+        for (term, counts) in [
+            (ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.publicHolidays, holidaysOff),
+            (.allowanceDays, allowanceDays)
+        ] where counts.contains(where: { $0 > 0 }) {
             absenceRows.append([language(term), "", ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
         }
         // Each site's vehicle, added up.

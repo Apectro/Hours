@@ -40,7 +40,8 @@ struct SiteSheetBuilder: Sendable {
         range: CalendarDateRange,
         signatures: [CrewSignature] = [],
         includesSignatures: Bool = true,
-        siteNames: [UUID: String] = [:]
+        siteNames: [UUID: String] = [:],
+        month sheetMonth: SiteSheetMonth = .writtenDaysOnly
     ) -> ReportTable {
         let language = settings.export.language
         let formatter = ReportBuilder(settings: settings, calendar: calendar, emptyPlaceholder: emptyPlaceholder)
@@ -89,9 +90,27 @@ struct SiteSheetBuilder: Sendable {
         // it was. Never money: days and kilometres, not what they pay.
         let tracksAllowance = settings.allowance.isEnabled
         let catalog = settings.dayTypeCatalog
+        // The public holidays of the month, and how many of them each
+        // person worked: the rest are their holidays off.
+        let holidayDates = holidayDates(in: range, month: sheetMonth)
+        var holidaysWorked = Array(repeating: 0, count: people.count)
+        let setup = settings.siteSetup(for: site.id)
 
-        for date in dates {
-            guard let result = byDate[date] else { continue }
+        // Every day of the month, or only the days written
+        // (`SiteSheetMonth.listsEveryDay`).
+        for date in listedDates(written: dates, range: range, month: sheetMonth) {
+            guard let result = byDate[date] else {
+                // Nobody wrote the day: a weekend, a public holiday, a
+                // pause, or simply empty.
+                rows.append(emptyDayRow(
+                    date,
+                    kind: SiteSheetEmptyDay.of(date, setups: [setup], holidays: sheetMonth.holidays, calendar: calendar),
+                    leading: Self.leadingColumns,
+                    people: people.count,
+                    formatter: formatter
+                ))
+                continue
+            }
             // The date and the weekday in two columns, written as the
             // personal timesheet writes them: the date in the export's date
             // style, the weekday in the export language.
@@ -130,6 +149,7 @@ struct SiteSheetBuilder: Sendable {
                 }
                 totalMinutes[index] += entry.workedMinutes
                 if entry.workedMinutes > 0 { daysWorked[index] += 1 }
+                if entry.workedMinutes > 0 && holidayDates.contains(date) { holidaysWorked[index] += 1 }
                 if tracksAllowance && entry.hasAllowance { allowanceDays[index] += 1 }
                 if entry.isException {
                     flagged.formUnion([values.count, values.count + 1])
@@ -138,8 +158,11 @@ struct SiteSheetBuilder: Sendable {
                 values.append(duration.string(entry.workedMinutes))
                 minutes += [nil, entry.workedMinutes]
             }
-            values.append(noteText(for: result.day, language: language))
+            // A public holiday the crew worked keeps its mark: its name
+            // leads the note, and the date and the day are shaded.
+            values.append(holidayNote(noteText(for: result.day, language: language), on: date, month: sheetMonth))
             minutes.append(nil)
+            tints.merge(holidayMark(on: date, month: sheetMonth)) { own, _ in own }
             var row = ReportRow(
                 id: date.key,
                 values: values,
@@ -175,9 +198,13 @@ struct SiteSheetBuilder: Sendable {
         // Days away sick and on leave, each a row only when anybody had one,
         // and blank for a person with none.
         var absenceRows: [[String]] = []
-        // Allowance days follow by the same rule.
-        for (term, counts) in [(ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.allowanceDays, allowanceDays)]
-        where counts.contains(where: { $0 > 0 }) {
+        // Allowance days follow by the same rule, and so do the public
+        // holidays each person had off: the month's, less any they worked.
+        let holidaysOff = holidaysWorked.map { holidayDates.count - $0 }
+        for (term, counts) in [
+            (ExportTerm.sickDays, sickDays), (.leaveDays, leaveDays), (.publicHolidays, holidaysOff),
+            (.allowanceDays, allowanceDays)
+        ] where counts.contains(where: { $0 > 0 }) {
             absenceRows.append([language(term), ""] + counts.flatMap { ["", $0 > 0 ? "\($0)" : ""] } + [""])
         }
         // The vehicle's kilometres belong to the day rather than to anyone,
@@ -207,7 +234,7 @@ struct SiteSheetBuilder: Sendable {
             hasEntry: true,
             role: .count
         ))
-        // Ids 2 and 3, as 0 and 1 above.
+        // Ids 2 and up, as 0 and 1 above.
         for (offset, values) in absenceRows.enumerated() {
             rows.append(ReportRow(
                 id: 2 + offset,
