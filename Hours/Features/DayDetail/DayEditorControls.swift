@@ -48,7 +48,7 @@ struct DayResultRows: View {
         if let earnings, earnings.totalCents > 0 {
             Label(
                 String(
-                    localized: "\(settings.money.string(earnings.totalCents)) earned",
+                    localized: "\(settings.money.string(earnings.totalCents, hidden: settings.hideAmounts)) earned",
                     comment: "Day editor, what the day earns; the value is an amount of money"
                 ),
                 systemImage: "banknote"
