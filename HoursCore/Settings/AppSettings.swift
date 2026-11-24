@@ -105,6 +105,17 @@ struct AppSettings: Hashable, Codable, Sendable {
     /// a screen, and the ones hidden with ✕. Written only once changed;
     /// absent reads as on with nothing hidden.
     var tips: TipPreferences
+    /// Settings › Pay (2026-11-24): the day's amount under its hours in the
+    /// calendar's month. On unless turned off, and only shown once pay is
+    /// set up (`showsDayEarningsInCalendar`). Written only when off; absent
+    /// reads as on.
+    var showDayEarningsInCalendar: Bool
+    /// Settings › Pay, and the eye on "Earned this day" (2026-11-24): every
+    /// amount in the calendar, the day card and the month's totals is
+    /// written as "•••", for when someone else is looking at the phone.
+    /// Insights and exports are not changed. Written only when on; absent
+    /// reads as off.
+    var hideAmounts: Bool
 
     init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
@@ -138,7 +149,9 @@ struct AppSettings: Hashable, Codable, Sendable {
         newSites: NewSiteDefaults = NewSiteDefaults(),
         biggerButtons: Bool = false,
         highContrast: Bool = false,
-        tips: TipPreferences = TipPreferences()
+        tips: TipPreferences = TipPreferences(),
+        showDayEarningsInCalendar: Bool = true,
+        hideAmounts: Bool = false
     ) {
         self.schemaVersion = schemaVersion
         self.features = features
@@ -171,6 +184,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         self.biggerButtons = biggerButtons
         self.highContrast = highContrast
         self.tips = tips
+        self.showDayEarningsInCalendar = showDayEarningsInCalendar
+        self.hideAmounts = hideAmounts
     }
 
     /// The newest week of the single-job schedule. For a date, read
@@ -244,6 +259,7 @@ struct AppSettings: Hashable, Codable, Sendable {
         case siteSetups, newSites
         case biggerButtons, highContrast
         case tips
+        case showDayEarningsInCalendar, hideAmounts
     }
 
     init(from decoder: Decoder) throws {
@@ -293,7 +309,9 @@ struct AppSettings: Hashable, Codable, Sendable {
             newSites: container.lenient(.newSites, defaults.newSites),
             biggerButtons: container.lenient(.biggerButtons, defaults.biggerButtons),
             highContrast: container.lenient(.highContrast, defaults.highContrast),
-            tips: container.lenient(.tips, defaults.tips)
+            tips: container.lenient(.tips, defaults.tips),
+            showDayEarningsInCalendar: container.lenient(.showDayEarningsInCalendar, defaults.showDayEarningsInCalendar),
+            hideAmounts: container.lenient(.hideAmounts, defaults.hideAmounts)
         )
     }
 
@@ -335,6 +353,8 @@ struct AppSettings: Hashable, Codable, Sendable {
         if biggerButtons { try container.encode(biggerButtons, forKey: .biggerButtons) }
         if highContrast { try container.encode(highContrast, forKey: .highContrast) }
         if !tips.isStandard { try container.encode(tips, forKey: .tips) }
+        if !showDayEarningsInCalendar { try container.encode(showDayEarningsInCalendar, forKey: .showDayEarningsInCalendar) }
+        if hideAmounts { try container.encode(hideAmounts, forKey: .hideAmounts) }
     }
 }
 

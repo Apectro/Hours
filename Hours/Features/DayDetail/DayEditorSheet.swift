@@ -59,7 +59,9 @@ struct DayEditorSheet: View {
                 formatting: settingsStore.dateFormatting,
                 automaticType: automaticType,
                 siteNames: siteNames,
-                onOpenSite: { path.append(SiteRoute(siteID: $0)) },
+                // The site's day on this date, by the route the calendar's
+                // day sheet uses.
+                onOpenSite: { path.append(CalendarSiteRoute(siteID: $0, date: date)) },
                 earnings: earnings,
                 vacationLeft: vacationLeft,
                 onOpenExtras: { path.append(DayExtrasRoute()) },
@@ -67,6 +69,9 @@ struct DayEditorSheet: View {
             )
             .navigationDestination(for: SiteRoute.self) { route in
                 SiteDetailScreen(siteID: route.siteID, initialDate: date)
+            }
+            .navigationDestination(for: CalendarSiteRoute.self) { route in
+                SiteDetailScreen(siteID: route.siteID, initialDate: route.date)
             }
             // "Allowance, km, note…": the extras and corrections, on the
             // same draft, pushed by value like the site.

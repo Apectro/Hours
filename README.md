@@ -56,6 +56,23 @@ with the totals for the period underneath and the selected day summarised inline
 A working day in the past with nothing recorded gets a quiet dashed outline, so
 gaps are obvious when you scan a month.
 
+With job sites, the calendar says where hours came from: a thin bar on each
+worked day with a colour per site and the ink colour for hours of your own,
+chips above the month (All, each site, Own) that show one source alone, and
+"Sites 112h · Own 16h 30m" under the month's Worked. A day lists its hours
+under "On sites" and "Own hours". Once a rate is set, a day also says what
+it earned, in plain lines ("8h × €12.50", overtime, allowance), and the month
+writes each day's amount under its hours; an eye hides every amount for when
+someone else is looking (also in Settings › Pay). On the Today tab, "Write
+today's hours" asks where you worked and opens the right place: a site's day,
+or your own.
+
+Hours on a site are written on the site's day, for the whole crew; your
+calendar is for hours that are on no site. Editing a day with site hours
+shows them as a note with a button to the site's day, own hours under it,
+and a warning when own times run into a site's (that time counts once).
+Edit a range never changes a day with site hours.
+
 **Day editor** — start and end times (an end before the start is an overnight
 shift), breaks as a length or as clock times, per-day expected hours, a manual
 adjustment that moves the balance without touching the hours, notes, location and

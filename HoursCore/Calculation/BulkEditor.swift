@@ -36,6 +36,11 @@ struct BulkEditPlan: Hashable, Sendable {
     var deletions: [CalendarDate]
     var skippedExisting: Int
     var skippedNonWorking: Int
+    /// Days with hours from a site day, which a range edit never touches
+    /// (2026-11-24): they are written on the site's day, for the whole
+    /// crew, and changed there. Counted apart from `skippedExisting`, so
+    /// the sheet can say why they were left.
+    var skippedSiteDays: Int = 0
 
     var affectedDayCount: Int { changes.count + deletions.count }
     var isEmpty: Bool { affectedDayCount == 0 }
@@ -54,6 +59,7 @@ enum BulkEditor {
         var deletions: [CalendarDate] = []
         var skippedExisting = 0
         var skippedNonWorking = 0
+        var skippedSiteDays = 0
 
         let catalog = settings.dayTypeCatalog
         let resolver = HolidayResolver(rules: holidays, calendar: calendar, covering: request.range)
@@ -67,6 +73,14 @@ enum BulkEditor {
             }
 
             let current = existing[date.key]
+            // Site hours are the site day's: marking the day as leave would
+            // drop them from your calendar while the site still has you
+            // there, filling it would replace them, and clearing would
+            // delete them. Whatever the switches say, such a day is left.
+            if current?.shifts.contains(where: { $0.siteID != nil }) == true {
+                skippedSiteDays += 1
+                continue
+            }
             let hasSomething = current.map { !$0.isBlank } ?? false
             if hasSomething && !request.overwritesExistingEntries {
                 skippedExisting += 1
@@ -117,7 +131,8 @@ enum BulkEditor {
             changes: changes,
             deletions: deletions,
             skippedExisting: skippedExisting,
-            skippedNonWorking: skippedNonWorking
+            skippedNonWorking: skippedNonWorking,
+            skippedSiteDays: skippedSiteDays
         )
     }
 

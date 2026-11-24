@@ -271,6 +271,25 @@ offered among the columns to choose. A personal timesheet carries an earnings
 column, tile and total only when Export options says so, which it does not by
 default.
 
+**What one day earned (2026-11-24).** `DayEarnings` also carries the minutes
+its base pay and paid absence were for and, when every paid minute had the
+same one, the hourly rate and the overtime percentage. `DayEarnings.lines`
+(`DayEarningsLine`) cuts the day's breakdown into plain lines: with one rate,
+the hours that are not overtime at the rate and the overtime hours at the
+rate with its surcharge in ("8h × €12.50", "1h 30m overtime × €15.63"), which
+together are exactly the base and overtime parts; without one rate to name,
+the hours as one line and overtime as its surcharge, as Insights has them;
+then each surcharge, paid absence, the allowance and the kilometres. The
+lines are never a second calculation, so they add up to the day's total to
+the cent, and the days of a month to the month Insights shows
+(`DayEarningsLineTests`). The calendar's day card shows them as "Earned this
+day" once any job has a rate, and the month grid writes the day's amount
+under its hours (`AppSettings.showDayEarningsInCalendar`, on unless turned
+off). `AppSettings.hideAmounts` — the eye on that card, and Settings › Pay —
+writes every amount in the calendar, on a day and in the month's totals as
+"•••" (`MoneyFormatting.hidden`); Insights, the widgets and the exports are
+not changed. Both switches are written only when changed.
+
 ## Leave, time off in lieu, and the year in review
 
 **Time off in lieu** (Zeitausgleich) is a built-in day type, id
@@ -1242,6 +1261,57 @@ per site and a gap where neither was worked, a row per site — "Trg Pravde ·
 button to each site's day, pushed by value on the calendar's own stack. The
 day's Worked and balance are the day's, counted once; the month cell is
 unchanged.
+
+**Own hours and site hours, told apart (2026-11-24).** One calendar holds
+both, and it used to draw them alike. Three things now say which is which,
+all read off the resolved day, none stored:
+
+- `DaySources` cuts a day's worked minutes into so many per site and so many
+  of your own, and always adds up to the day's own `workedMinutes`: a site's
+  part is what its shift worked, and what the day has beyond its shifts
+  (rounding, travel counted as work, a typed-in figure) is your own when
+  there is anything of your own on the day and the last site's otherwise.
+  `PeriodSources` adds days up by the rule the period's Worked is counted by
+  (`counts(through:)`), so the summary's "Sites 112h · Own 16h 30m" is that
+  figure by another cut.
+- The month grid draws a thin bar on each worked day, a segment per source
+  (`SourceBar`): a colour per site, the ink colour for own hours. A site's
+  colour is its place among all your sites, archived too, round a palette of
+  six (`SitePalette`, `SiteColors`), so it is the same on every screen and
+  nothing is stored. VoiceOver says it in words.
+- Chips above the month (`SourceFilterChips`), only with a site: All, each
+  active site with hours in the period, Own. The choice is `CalendarScreen`
+  state, All on every launch; a chip whose site has no hours in the month on
+  screen falls back to All (`PeriodSources.effective`). A chip dims the days
+  without that source and makes the day's figure, the week totals
+  (`PeriodSources.weekMinutes`) and the totals under the month that
+  source's hours. The whole period's figures (Expected, Earned, Balance, the
+  average) are not shown under a chip, and neither is a day's money: they
+  cannot be cut by site.
+
+The day card groups its rows under "On sites" and "Own hours" on a day with
+site hours (`DaySiteSplit.parts`); a day of own hours alone is as before.
+
+**Site hours are changed on the site.** That was already the mechanism: a
+site shift is rebuilt from its site day (`SiteCalendarSync`), the editor
+shows it read-only and puts the stored site shifts back over the draft on
+saving (`withStoredSiteShifts`). The editor now says so first: a note per
+site, "5h come from Jarunski Dvori. They are written on the site's day, for
+the whole crew.", with a button that pushes that site's day
+(`CalendarSiteRoute`, on the editor's own stack); own times are under "Own
+hours, not on a site". Own times that run into a site's are named before
+saving (`OwnSiteOverlap`). `WorkdayCalculator` counts the shared time once,
+so saving is allowed and the warning says that. Edit a range never touches
+a day with site hours (`BulkEditPlan.skippedSiteDays`): marking it as leave
+would drop the shift until the next site sync, and clearing would delete it.
+
+**Write today's hours.** While there is an active site not paused today
+(`WriteToday.isOffered`), the Today tab's big buttons lead with it. It
+presents `WriteTodaySheet`: each such site with what is written on it today
+(`WriteToday.rows`: written, with how many and the times; no work; not
+written yet), then "Not on a site". A site pushes its day for today; "Not on
+a site" swaps the sheet for the day editor. With no site the tab is as it
+was.
 
 **Days nobody worked (1.3).** A site expects a day on each of its work
 days (`SiteWorkDays.expects`), and the owner's crews move between sites: three

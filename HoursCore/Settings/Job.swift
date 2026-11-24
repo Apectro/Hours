@@ -250,6 +250,12 @@ extension AppSettings {
         earningsAreSetUp && mainFigure == .earnings
     }
 
+    /// Whether the calendar's month writes each day's amount under its
+    /// hours: the Settings › Pay switch, and only once a rate is set.
+    var showsDayEarningsInCalendar: Bool {
+        earningsAreSetUp && showDayEarningsInCalendar
+    }
+
     /// The currency amounts are written in: the chosen one, or `fallback` —
     /// the phone's — while none has been chosen.
     func currencyCode(fallback: String) -> String {

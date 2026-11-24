@@ -72,4 +72,14 @@ final class DaySiteSplitTests: XCTestCase {
         XCTAssertEqual(split.segments, [], "past midnight there is no one line to draw")
         XCTAssertEqual(split.parts.count, 2)
     }
+
+    func testThePartsOfADayWithOneSiteAndHoursOfYourOwn() {
+        let parts = DaySiteSplit.parts(of: day([
+            Shift(start: time(16), end: time(17, 30)),
+            siteShift(here, time(7), time(12))
+        ]))
+        XCTAssertEqual(parts.map(\.siteID), [here, nil], "in the order worked, the site's and your own")
+        XCTAssertEqual(parts.map(\.workedMinutes), [300, 90])
+        XCTAssertTrue(DaySiteSplit.parts(of: day([])).isEmpty)
+    }
 }

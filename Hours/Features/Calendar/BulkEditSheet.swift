@@ -141,7 +141,10 @@ struct BulkEditSheet: View {
                 Toggle("Replace days that have hours", isOn: $overwrites)
                     .accessibilityIdentifier("bulk-edit-overwrite")
             } footer: {
-                Text("Days you have already recorded are left alone unless you turn the second one on.")
+                VStack(alignment: .leading, spacing: Metrics.tiny) {
+                    Text("Days you have already recorded are left alone unless you turn the second one on.")
+                    Text("Days with hours from a site are always left alone: they are changed on the site's day.")
+                }
             }
 
             Section {
@@ -256,6 +259,14 @@ struct BulkEditSheet: View {
                 .accessibilityIdentifier("bulk-edit-changed")
                 resultRow(String(localized: "Already had hours, left alone"), plan.skippedExisting)
                 resultRow(String(localized: "Days you don't work"), plan.skippedNonWorking)
+                if plan.skippedSiteDays > 0 {
+                    resultRow(String(localized: "With site hours, skipped"), plan.skippedSiteDays)
+                        .accessibilityIdentifier("bulk-edit-site-days")
+                }
+            } footer: {
+                if plan.skippedSiteDays > 0 {
+                    Text("Hours from a site are written on the site's day, for the whole crew. Change those days there.")
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -369,6 +380,12 @@ struct BulkEditSheet: View {
             parts.append(String(
                 localized: "\(plan.skippedExisting) left alone",
                 comment: "Bulk edit, days that already had hours and were not touched"
+            ))
+        }
+        if plan.skippedSiteDays > 0 {
+            parts.append(String(
+                localized: "\(plan.skippedSiteDays) with site hours skipped",
+                comment: "Bulk edit, days that have hours from a site and are never changed here"
             ))
         }
         if let left = leaveLeft(plan) {

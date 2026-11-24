@@ -38,13 +38,12 @@ struct DaySiteSplit: Hashable, Sendable {
     var start: TimeOfDay? { parts.first?.start }
     var end: TimeOfDay? { parts.last?.end }
 
-    /// Nil unless the day's shifts come from at least two sites.
-    static func make(_ day: DayComputation) -> DaySiteSplit? {
-        let sites = Set(day.shifts.compactMap(\.siteID))
-        guard sites.count >= 2 else { return nil }
-
+    /// Every block of the day in the order worked, whatever it came from:
+    /// what the day card lists under "On sites" and "Own hours"
+    /// (2026-11-24), on a day with one site as well as two.
+    static func parts(of day: DayComputation) -> [Part] {
         // The engine already sorts a day that stays within midnight.
-        let parts = day.shifts.map {
+        day.shifts.map {
             Part(
                 siteID: $0.siteID,
                 start: $0.start,
@@ -54,6 +53,14 @@ struct DaySiteSplit: Hashable, Sendable {
                 crossesMidnight: $0.crossesMidnight
             )
         }
+    }
+
+    /// Nil unless the day's shifts come from at least two sites.
+    static func make(_ day: DayComputation) -> DaySiteSplit? {
+        let sites = Set(day.shifts.compactMap(\.siteID))
+        guard sites.count >= 2 else { return nil }
+
+        let parts = parts(of: day)
 
         var segments: [Segment] = []
         if !day.crossesMidnight {

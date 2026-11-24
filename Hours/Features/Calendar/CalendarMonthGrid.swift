@@ -24,6 +24,10 @@ struct CalendarMonthGrid: View {
     let detail: DayCellDetail
     let formatting: CalendarFormatting
     let durationFormatting: DurationFormatting
+    /// Where each day's hours came from, the sites' colours and names, the
+    /// chip chosen above the month, and each day's amount as written (or
+    /// hidden): see `DayTile`. All empty by default.
+    var marks = DayTileMarks()
     let onSelect: (CalendarDate) -> Void
 
     var body: some View {
@@ -46,7 +50,10 @@ struct CalendarMonthGrid: View {
                     durationFormatting: durationFormatting,
                     isOutsideMonth: !layout.isInMonth(date),
                     spokenDay: formatting.spokenDay(date, in: layout),
-                    height: height
+                    // A row taller by the amount's line when amounts are
+                    // shown, every tile of it alike.
+                    height: height + (marks.showsAmounts ? DayTileMarks.amountLineHeight : 0),
+                    marks: marks
                 )
             }
             .buttonStyle(.plain)
@@ -176,6 +183,8 @@ struct CalendarTileGrid<Cell: View>: View {
 struct CalendarTileFace<Under: View>: View {
     @ScaledMetric(relativeTo: .body) var height: CGFloat = Metrics.dayCellHeight
     @ScaledMetric(relativeTo: .caption2) var underHeight: CGFloat = 13
+    /// A second line under the first (the day's amount), when there is one.
+    @ScaledMetric(relativeTo: .caption2) var extraLineHeight: CGFloat = DayTileMarks.amountLineHeight
 
     let day: Int
     let weekday: String?
@@ -185,6 +194,8 @@ struct CalendarTileFace<Under: View>: View {
     let isBold: Bool
     let isOutsideMonth: Bool
     let accessibilityLabel: String
+    /// Lines under the first one, each `extraLineHeight` high.
+    let extraLines: Int
     let under: Under
 
     init(
@@ -197,6 +208,7 @@ struct CalendarTileFace<Under: View>: View {
         isOutsideMonth: Bool = false,
         height: CGFloat = Metrics.dayCellHeight,
         accessibilityLabel: String,
+        extraLines: Int = 0,
         @ViewBuilder under: () -> Under
     ) {
         self.day = day
@@ -207,6 +219,7 @@ struct CalendarTileFace<Under: View>: View {
         self.isBold = isBold
         self.isOutsideMonth = isOutsideMonth
         self.accessibilityLabel = accessibilityLabel
+        self.extraLines = extraLines
         self.under = under()
         self._height = ScaledMetric(wrappedValue: height, relativeTo: .body)
     }
@@ -225,7 +238,7 @@ struct CalendarTileFace<Under: View>: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             under
-                .frame(height: underHeight)
+                .frame(height: underHeight + CGFloat(extraLines) * extraLineHeight)
         }
         .frame(maxWidth: .infinity, minHeight: height)
         .background {
@@ -253,6 +266,8 @@ struct CalendarWeekTiles: View {
     let detail: DayCellDetail
     let formatting: CalendarFormatting
     let durationFormatting: DurationFormatting
+    /// As the month's: see `DayTile`.
+    var marks = DayTileMarks()
     let onSelect: (CalendarDate) -> Void
 
     var body: some View {
@@ -268,7 +283,8 @@ struct CalendarWeekTiles: View {
                         detail: detail,
                         durationFormatting: durationFormatting,
                         weekday: formatting.veryShortWeekdaySymbol(for: date.weekday(in: formatting.calendar)),
-                        height: 84
+                        height: 84,
+                        marks: marks
                     )
                 }
                 .buttonStyle(.plain)
@@ -300,11 +316,26 @@ struct DayTile: View {
     var spokenDay: String? = nil
     /// Before the user's text size; `CalendarTileFace` scales it.
     var height: CGFloat = Metrics.dayCellHeight
+    /// Where the hours came from, the chip chosen, the day's amount
+    /// (2026-11-24). Empty by default: the tile as it always was.
+    var marks = DayTileMarks()
 
     /// What the day is, which decides its tile and what is under the date.
     typealias Look = CalendarDayLook
 
     private var isToday: Bool { date == today }
+
+    /// The day's hours by site and own, when it has any.
+    private var sources: DaySources? { marks.sources[date.key] }
+
+    /// Under a chip, a day with none of that source's hours is dimmed.
+    private var isDimmed: Bool {
+        marks.filter != .all && (sources?.minutes(for: marks.filter) ?? 0) == 0
+    }
+
+    /// The day's amount, as written or hidden; nil when it earned nothing
+    /// or amounts are not shown.
+    private var amount: String? { marks.amounts[date.key] }
 
     var body: some View {
         let look = self.look
@@ -317,10 +348,22 @@ struct DayTile: View {
             isBold: hasTile(look),
             isOutsideMonth: isOutsideMonth,
             height: height,
-            accessibilityLabel: accessibilityLabel(look)
+            accessibilityLabel: accessibilityLabel(look),
+            extraLines: marks.showsAmounts ? 1 : 0
         ) {
             under(look)
         }
+        // The thin bar along the tile's lower edge: one colour per site,
+        // then your own hours.
+        .overlay(alignment: .bottom) {
+            if let sources, computation?.isIncluded == true {
+                SourceBar(sources: sources, colors: marks.colors, filter: marks.filter, isOnAccent: isToday)
+                    .padding(.horizontal, 7)
+                    .padding(.bottom, 4)
+                    .opacity(isOutsideMonth ? 0.4 : 1)
+            }
+        }
+        .opacity(isDimmed ? 0.3 : 1)
     }
 
     // MARK: - The look
@@ -381,12 +424,32 @@ struct DayTile: View {
                 .minimumScaleFactor(0.5)
         default:
             if let text = figure {
-                Text(verbatim: text)
-                    .font(.caption2.weight(.semibold))
+                VStack(spacing: 0) {
+                    Text(verbatim: text)
+                        .font(.caption2.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(figureColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    // The day's money, small, under the hours.
+                    if let amount {
+                        Text(verbatim: amount)
+                            .font(.caption2)
+                            .monospacedDigit()
+                            .foregroundStyle(isToday ? Color.white.opacity(0.9) : Color.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                }
+            } else if let amount {
+                // A day that earned with no hours to show (a paid day off
+                // has its word instead, and never reaches here).
+                Text(verbatim: amount)
+                    .font(.caption2)
                     .monospacedDigit()
-                    .foregroundStyle(figureColor)
+                    .foregroundStyle(isToday ? Color.white.opacity(0.9) : Color.secondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                    .minimumScaleFactor(0.5)
             } else {
                 Color.clear
             }
@@ -409,6 +472,16 @@ struct DayTile: View {
     /// day's balance, or nothing.
     private var figure: String? {
         guard let computation, computation.isIncluded else { return nil }
+        // Under a chip: that source's hours, whatever figure is chosen,
+        // since a balance cannot be cut by site. Hidden stays hidden.
+        if marks.filter != .all {
+            let minutes = sources?.minutes(for: marks.filter) ?? 0
+            guard detail != .hidden, minutes > 0 else { return nil }
+            return DurationFormatting.compactHours(
+                minutes,
+                decimalSeparator: Locale.current.decimalSeparator ?? "."
+            )
+        }
         switch detail {
         case .hidden:
             return nil
@@ -426,7 +499,7 @@ struct DayTile: View {
 
     private var figureColor: Color {
         if isToday { return .white }
-        guard detail == .balance, let computation else { return .accentColor }
+        guard detail == .balance, marks.filter == .all, let computation else { return .accentColor }
         return Color.hoursBalance(computation.balanceMinutes)
     }
 
@@ -439,6 +512,30 @@ struct DayTile: View {
                 parts.append(String(
                     localized: "\(duration.string(computation.workedMinutes)) worked",
                     comment: "VoiceOver, the hours worked on a calendar day"
+                ))
+            }
+            // Where the hours came from, in words: the bar's colours are
+            // not information to someone using VoiceOver. Only on a day
+            // with site hours; a day of your own already said it all.
+            if let sources, !sources.sites.isEmpty, computation.isIncluded {
+                for part in sources.sites {
+                    let name = marks.siteNames[part.siteID] ?? String(localized: "Site")
+                    parts.append(String(
+                        localized: "\(duration.string(part.minutes)) at \(name)",
+                        comment: "Calendar day card: a break and the site it was taken on"
+                    ))
+                }
+                if sources.ownMinutes > 0 {
+                    parts.append(String(
+                        localized: "\(duration.string(sources.ownMinutes)) own hours",
+                        comment: "VoiceOver, a calendar day: hours that are on no site, e.g. 1h 30m own hours"
+                    ))
+                }
+            }
+            if let amount = marks.spokenAmounts[date.key] {
+                parts.append(String(
+                    localized: "\(amount) earned",
+                    comment: "VoiceOver, a calendar day: what the day earned, e.g. €143 earned"
                 ))
             }
             // Whether the day ran over or short is said out loud: a colour
@@ -462,6 +559,32 @@ struct DayTile: View {
         if isToday { parts.append(String(localized: "today", comment: "VoiceOver, the calendar's today")) }
         return parts.joined(separator: ", ")
     }
+}
+
+/// What the Today calendar draws on its tiles beyond the day itself
+/// (2026-11-24), worked out once for the period (`CalendarPeriodView`) and
+/// handed to every tile: where each day's hours came from, the sites'
+/// colours and names, the chip chosen above the month, and each day's
+/// amount. Empty, a tile is as it always was.
+struct DayTileMarks {
+    /// By date key: a day with worked hours that count.
+    var sources: [Int: DaySources] = [:]
+    var colors = SiteColors()
+    var siteNames: [UUID: String] = [:]
+    var filter: SourceFilter = .all
+    /// By date key: the day's amount as drawn, already hidden ("•••") when
+    /// amounts are. Empty when amounts are not shown in the calendar, or a
+    /// chip is chosen (money is the day's, not a site's).
+    var amounts: [Int: String] = [:]
+    /// By date key: the amount as VoiceOver says it; empty while amounts
+    /// are hidden, so nothing is read out either.
+    var spokenAmounts: [Int: String] = [:]
+    /// Whether the grid has the amount's line at all, so every row is the
+    /// same height whether or not each day earned.
+    var showsAmounts = false
+
+    /// The amount's line, before the user's text size.
+    static let amountLineHeight: CGFloat = 12
 }
 
 // MARK: - Shared with the site's month
