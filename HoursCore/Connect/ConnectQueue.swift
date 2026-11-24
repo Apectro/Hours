@@ -84,6 +84,13 @@ extension ConnectState {
             let key = record.key
             let hash = record.contentHash
             let mark = marks[key]
+            // Just taken from the office: this content is the server's own.
+            if !force, !record.deleted, var taken = mark, taken.adopts == true {
+                taken.hash = hash
+                taken.adopts = nil
+                marks[key] = taken
+                continue
+            }
             if !force, let mark, mark.hash == hash, mark.deleted == record.deleted { continue }
             // A delete of something never sent has nothing to tell.
             if record.deleted, mark == nil { continue }
@@ -97,6 +104,7 @@ extension ConnectState {
                 siteIDs: record.siteIDs.isEmpty ? (mark?.siteIDs ?? []) : record.siteIDs,
                 month: record.month ?? mark?.month
             )
+            if record.kind == .siteDay { noteLocalEdit(ofSiteDay: record.id, deleted: record.deleted) }
             queue.removeAll { $0.key == key }
             queue.append(ConnectQueueEntry(
                 kind: record.kind,
@@ -126,7 +134,9 @@ extension ConnectState {
     ) -> Int {
         let present = Set(records.map(\.key))
         var deletes: [ConnectOutgoing] = []
-        for (key, mark) in marks.sorted(by: { $0.key < $1.key }) where !mark.deleted && !present.contains(key) {
+        // A day just taken from the office and not seen in the store yet
+        // is not a day the phone deleted.
+        for (key, mark) in marks.sorted(by: { $0.key < $1.key }) where !mark.deleted && mark.adopts != true && !present.contains(key) {
             let parts = key.split(separator: ":", maxSplits: 1).map(String.init)
             guard parts.count == 2 else { continue }
             let kind = ConnectV1.RecordKind(rawValue: parts[0])
@@ -257,6 +267,9 @@ extension ConnectState {
     /// it is waiting or sent.
     func status(of kind: ConnectV1.RecordKind, id: String) -> ConnectRecordStatus {
         let key = ConnectRecordKey.make(kind, id)
+        if kind == .siteDay, let conflict = conflicts[key], conflict.reason == ConnectMerge.editedOnWeb {
+            return .changedByOffice
+        }
         if let conflict = conflicts[key] {
             return conflict.reason == "locked" ? .approved : .returned(comment: commentBodies(conflict.commentIDs).last)
         }
@@ -318,6 +331,9 @@ enum ConnectRecordStatus: Hashable, Sendable {
     case sent
     case approved
     case returned(comment: String?)
+    /// A site day the office changed while the phone had an unsent edit of
+    /// it: "Changed by the office", with the choice between the two.
+    case changedByOffice
 }
 
 /// Something the office returned to be corrected.

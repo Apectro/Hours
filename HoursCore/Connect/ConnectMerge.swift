@@ -7,18 +7,27 @@ struct ConnectLocal: Sendable {
     var crew: [CrewMember]
     var setups: [UUID: SiteSetup]
     var writtenDates: [UUID: Set<CalendarDate>]
+    /// The site days themselves, for the days the office wrote or changed.
+    var siteDays: [SiteDay]
 
-    init(sites: [Site], crew: [CrewMember], setups: [UUID: SiteSetup] = [:], writtenDates: [UUID: Set<CalendarDate>] = [:]) {
+    init(
+        sites: [Site],
+        crew: [CrewMember],
+        setups: [UUID: SiteSetup] = [:],
+        writtenDates: [UUID: Set<CalendarDate>] = [:],
+        siteDays: [SiteDay] = []
+    ) {
         self.sites = sites
         self.crew = crew
         self.setups = setups
         self.writtenDates = writtenDates
+        self.siteDays = siteDays
     }
 }
 
 /// Something a sync did not do, or did only in part, because a month on
-/// the phone is closed. Written days are never changed by a sync; these
-/// are what the office should hear about.
+/// the phone is closed. A day in a closed month is never changed by a sync;
+/// these are what the office should hear about.
 struct ConnectMergeConflict: Codable, Hashable, Sendable {
     enum Kind: String, Codable, Sendable {
         /// The office returned a record of a closed month: the month must be
@@ -30,6 +39,10 @@ struct ConnectMergeConflict: Codable, Hashable, Sendable {
         /// The office removed a person with days in a closed month: hidden,
         /// their days kept.
         case personRemovedWithClosedMonth
+        /// The office wrote, changed or deleted a day in a closed month:
+        /// the phone's day stays as it is, and the office's is taken once
+        /// the month is reopened.
+        case officeDayInClosedMonth
     }
 
     var kind: Kind
@@ -39,15 +52,22 @@ struct ConnectMergeConflict: Codable, Hashable, Sendable {
 }
 
 /// What to write after a sync page: the sites, setups and crew rows that
-/// change, and the state to keep once they are written.
+/// change, the days the office wrote, changed or deleted, and the state to
+/// keep once they are written.
 struct ConnectMergePlan: Sendable {
     var sites: [Site] = []
     var setups: [UUID: SiteSetup] = [:]
     var crew: [CrewMember] = []
+    /// Office days to save in place of the local day of their site and date.
+    var siteDays: [SiteDay] = []
+    /// Office-written days the office deleted, to delete here.
+    var removedSiteDays: [ConnectSiteDayRef] = []
     var state: ConnectState
     var conflicts: [ConnectMergeConflict] = []
 
-    var changesStore: Bool { !sites.isEmpty || !setups.isEmpty || !crew.isEmpty }
+    var changesStore: Bool {
+        !sites.isEmpty || !setups.isEmpty || !crew.isEmpty || !siteDays.isEmpty || !removedSiteDays.isEmpty
+    }
 }
 
 /// Receiving (web → phone): one page of `GET /v1/device/sync`, merged into
@@ -67,7 +87,12 @@ struct ConnectMergePlan: Sendable {
 ///   holds, once its last page is in.
 /// - Comments and reviews are kept for the screens; a review's version
 ///   becomes the record's base version.
-/// - Days are never touched. What a closed month stops is listed in
+/// - The phone's own days are never touched. The days the office wrote
+///   or changed (`siteDays`) replace the local day of their site and date,
+///   and a deleted office day is deleted (`takeOfficeDays`). A full
+///   snapshot holds only two months of them, so a day it leaves out is not
+///   taken as deleted.
+/// - A closed month is never changed. What it stops is listed in
 ///   `conflicts`.
 enum ConnectMerge {
     static func plan(
@@ -154,18 +179,7 @@ enum ConnectMerge {
             let hidden = (person?.hidden ?? false) || ended
 
             let onSite = crew.values.filter { $0.siteID == siteID }
-            var row = onSite.first { state.people.rows[$0.id] == personID }
-            if row == nil, !name.isEmpty {
-                let key = CrewCandidates.key(for: name)
-                row = onSite
-                    .filter { CrewCandidates.key(for: $0.name) == key }
-                    .filter { member in
-                        guard let linked = state.people.rows[member.id] else { return true }
-                        return linked == member.id || !state.people.isCompanyPerson(linked)
-                    }
-                    .sorted { $0.id.uuidString < $1.id.uuidString }
-                    .first
-            }
+            let row = Self.row(of: personID, named: name, on: siteID, crew: crew, people: state.people)
             if var existing = row {
                 let before = existing
                 state.people.rows[existing.id] = personID
@@ -212,12 +226,14 @@ enum ConnectMerge {
         var removedSites: [UUID] = []
         var removedPeople: [UUID] = []
         var removedAssignments: [String] = []
+        var removedDays: [String] = []
         for tombstone in page.tombstones {
             switch tombstone.kind {
             case .site: ConnectID.uuid(tombstone.id).map { removedSites.append($0) }
             case .crewMember: ConnectID.uuid(tombstone.id).map { removedPeople.append($0) }
             case .assignment: removedAssignments.append(tombstone.id.lowercased())
             case .comment: state.comments[tombstone.id.lowercased()] = nil
+            case .siteDay: removedDays.append(tombstone.id)
             default: break
             }
         }
@@ -288,6 +304,22 @@ enum ConnectMerge {
             }
         }
 
+        // MARK: Office days
+
+        // After the reviews, so a version the phone has already been told
+        // of is known; after the sites and people, so a day finds its own.
+        let officeDays = takeOfficeDays(
+            page.siteDays,
+            tombstones: removedDays,
+            state: &state,
+            sites: sites,
+            crew: &crew,
+            changedCrew: &changedCrew,
+            localDays: local.siteDays,
+            lock: lock,
+            conflicts: &conflicts
+        )
+
         // MARK: Who is who, and the rest
 
         let allCrew = Array(crew.values)
@@ -300,6 +332,8 @@ enum ConnectMerge {
             sites: changedSites.sorted { $0.uuidString < $1.uuidString }.compactMap { sites[$0] },
             setups: Dictionary(uniqueKeysWithValues: changedSetups.compactMap { id in setups[id].map { (id, $0) } }),
             crew: changedCrew.sorted { $0.uuidString < $1.uuidString }.compactMap { crew[$0] },
+            siteDays: officeDays.save.values.sorted { ($0.date, $0.siteID.uuidString) < ($1.date, $1.siteID.uuidString) },
+            removedSiteDays: officeDays.remove.sorted { ($0.date, $0.siteID.uuidString) < ($1.date, $1.siteID.uuidString) },
             state: state,
             conflicts: conflicts
         )

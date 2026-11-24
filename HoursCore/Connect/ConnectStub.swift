@@ -18,6 +18,9 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
     private var reviews: [(rev: Int, review: ConnectV1.Review)] = []
     private var stored: [String: (version: Int, data: JSONValue?)] = [:]
     private var directorEdited: [String: Int] = [:]
+    /// The days the office wrote or edited, and which of them it wrote.
+    private var officeDays: [(rev: Int, day: ConnectV1.SiteDay)] = []
+    private var officeWritten: Set<String> = []
     private var uploadedFiles: Set<String> = []
     private var paired = false
     private var revoked = false
@@ -34,7 +37,10 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
 
     /// The firm the UI tests pair with: one site with its usual day, the
     /// team leader the phone is paired for and two workers on it.
-    static func sample() -> ConnectStubTransport {
+    ///
+    /// - Parameter officeDayOn: a date the office has written a day on, for
+    ///   the three of them, as the director's calendar would.
+    static func sample(officeDayOn date: CalendarDate? = nil) -> ConnectStubTransport {
         let leader = person("0ac76ab9-cd7d-55fe-8b38-bb4a40fbff11", "Marko", role: .teamLeader)
         let stub = ConnectStubTransport(member: leader)
         let site = "a2364fc3-f9d6-51dc-9eb9-41868669e10f"
@@ -54,6 +60,21 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
         stub.assign("5aedadae-1c8a-56f2-9738-cdb7849f3949", leader.id, to: site)
         stub.assign("28e27f54-4818-53f1-9643-412a4d57a2f0", "eabdee49-f0eb-575b-9032-773c56337457", to: site)
         stub.assign("a30a5be7-4762-5eac-b20f-de1d3ff07476", "f8c70eaf-9606-5773-a6b7-c99593ec5ffd", to: site)
+        if let date, let siteID = ConnectID.uuid(site) {
+            stub.writeOfficeDay(ConnectV1.SiteDay(
+                id: ConnectSiteDayRef(siteID: siteID, date: date).id,
+                siteId: site,
+                date: ConnectFormat.date(date),
+                start: "07:00",
+                end: "15:30",
+                breakMinutes: 30,
+                attendance: [leader.id, "eabdee49-f0eb-575b-9032-773c56337457", "f8c70eaf-9606-5773-a6b7-c99593ec5ffd"].map {
+                    ConnectV1.Attendance(memberId: $0)
+                },
+                note: "Written by the office from the time list.",
+                updatedAt: "2026-11-02T08:15:00Z"
+            ))
+        }
         return stub
     }
 
@@ -104,6 +125,46 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
             comments.append((revision, note))
             reviews.append((revision, ConnectV1.Review(kind: kind, id: id, version: version, state: "returned", changedAt: "2026-11-02T09:30:00Z", commentIds: [note.id])))
         }
+    }
+
+    /// The office writes a day, or edits the one it holds: the version goes
+    /// up, the phones get it in `siteDays`, and an upload that has not seen
+    /// it is a conflict (`editedOnWeb`).
+    @discardableResult
+    func writeOfficeDay(_ day: ConnectV1.SiteDay) -> Int {
+        locked {
+            revision += 1
+            let key = ConnectRecordKey.make(.siteDay, day.id)
+            let existing = stored[key]
+            if existing == nil { officeWritten.insert(key) }
+            let version = (existing?.version ?? 0) + 1
+            var day = day
+            day.origin = officeWritten.contains(key) ? ConnectV1.SiteDay.director : "device"
+            day.editedBy = ConnectV1.SiteDay.director
+            day.version = version
+            stored[key] = (version, Self.json(day))
+            directorEdited[key] = version
+            officeDays.removeAll { ConnectID.same($0.day.id, day.id) }
+            officeDays.append((revision, day))
+            return version
+        }
+    }
+
+    /// The office deletes a day it wrote: a `siteDay` tombstone.
+    func deleteOfficeDay(_ id: String) {
+        locked {
+            revision += 1
+            let key = ConnectRecordKey.make(.siteDay, id)
+            stored[key] = nil
+            directorEdited[key] = nil
+            officeWritten.remove(key)
+            officeDays.removeAll { ConnectID.same($0.day.id, id) }
+            tombstones.append((revision, ConnectV1.Tombstone(kind: .siteDay, id: id, deletedAt: "2026-11-02T10:00:00Z")))
+        }
+    }
+
+    private static func json<T: Encodable>(_ value: T) -> JSONValue? {
+        (try? ConnectJSON.encode(value)).flatMap { try? ConnectJSON.decode(JSONValue.self, from: $0) }
     }
 
     /// The device is revoked from the office.
@@ -170,7 +231,8 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
                 assignments: assignments.filter { $0.rev > after }.map(\.assignment),
                 comments: comments.filter { $0.rev > after }.map(\.comment),
                 reviews: reviews.filter { $0.rev > after }.map(\.review),
-                tombstones: since == nil ? [] : tombstones.filter { $0.rev > after }.map(\.tombstone)
+                tombstones: since == nil ? [] : tombstones.filter { $0.rev > after }.map(\.tombstone),
+                siteDays: officeDays.filter { $0.rev > after }.map(\.day)
             ))
         }
         if path.hasSuffix("/v1/device/files") {
@@ -223,6 +285,11 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
         }
         if let edited = directorEdited[key], base < edited {
             let notes = comments.map(\.comment).filter { ConnectID.same($0.target.id, record.id) }
+            // A day the office edited comes back as its office view.
+            if officeDays.contains(where: { ConnectID.same($0.day.id, record.id) && $0.day.version == edited }) {
+                let view = JSONValue.object(["id": .string(record.id), "version": .number(Double(existing.version)), "data": existing.data ?? .null])
+                return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .conflict, version: existing.version, reason: "editedOnWeb", server: view, comments: notes)
+            }
             return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .conflict, version: existing.version, reason: "returned", server: existing.data, comments: notes)
         }
         if record.version <= existing.version {
