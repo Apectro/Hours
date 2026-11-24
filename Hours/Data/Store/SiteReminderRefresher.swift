@@ -25,7 +25,7 @@ enum SiteReminderRefresher {
     ) async {
         let previous = inFlight
         let task = Task { @MainActor in
-            await previous?.value
+            _ = await previous?.value
             await plan(context: context, preferences: preferences, calendar: calendar)
         }
         inFlight = task

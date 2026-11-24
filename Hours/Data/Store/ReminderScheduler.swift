@@ -81,8 +81,8 @@ struct ReminderScheduler {
 
     // MARK: - Site reminders
 
-    /// `site-reminder-20260804`: one pending request per date, so saving that
-    /// day can remove exactly its own.
+    /// `site-reminder-20260804`: one pending request per date, replaced
+    /// whole whenever the evenings are planned again.
     static func siteReminderIdentifier(for date: CalendarDate) -> String {
         siteIdentifierPrefix + String(format: "%08d", date.key)
     }
@@ -150,14 +150,6 @@ struct ReminderScheduler {
         case .unnamed:
             return String(localized: "Today's site hours aren't written yet.")
         }
-    }
-
-    /// Removes the reminder for one day, because that day has just been
-    /// written.
-    func cancelSiteReminder(on date: CalendarDate) {
-        center.removePendingNotificationRequests(
-            withIdentifiers: [ReminderScheduler.siteReminderIdentifier(for: date)]
-        )
     }
 
     /// Removes every pending site reminder, leaving the weekly one alone.
