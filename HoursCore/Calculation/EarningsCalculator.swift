@@ -70,6 +70,24 @@ struct DayEarnings: Identifiable, Hashable, Sendable {
     /// A day past the employer's first 42 days of a sick-leave run: the
     /// health insurer pays it (HZZO in Croatia), so it earns nothing here.
     var isPaidByHealthInsurance = false
+    /// The worked minutes that were paid: those of jobs with a rate. What
+    /// `breakdown.baseCents` is the pay for.
+    var paidWorkedMinutes: Int = 0
+    /// The credited minutes that were paid, at `absencePaidPercent` or in
+    /// full. What `breakdown.paidAbsenceCents` is the pay for.
+    var paidAbsenceMinutes: Int = 0
+    /// The hourly rate, when every paid worked minute of the day had the
+    /// same one; nil on a day worked for two jobs at different rates, and
+    /// on a day with no paid worked minutes. For "8h × €12.50"
+    /// (`DayEarningsLine`).
+    var hourlyRateCents: Int?
+    /// The overtime percentage, when all of the day's overtime had the same
+    /// one; nil otherwise, and with no overtime.
+    var overtimePercent: Int?
+    /// The day carries the field allowance, and its kilometres: what
+    /// `allowanceCents` and `mileageCents` are for.
+    var hasFieldAllowance = false
+    var kilometres: Int = 0
 
     var id: Int { date.key }
     var totalCents: Int { breakdown.totalCents }
@@ -234,6 +252,9 @@ struct EarningsCalculator: Sendable {
 
         var exact = Exact()
         var result = DayEarnings.nothing(on: day.date)
+        // For the day's plain lines: one rate, or none to name.
+        var rates = Set<Int>()
+        var overtimePercents = Set<Int>()
 
         for id in jobIDs {
             let job = jobsByID[id] ?? primary
@@ -253,6 +274,9 @@ struct EarningsCalculator: Sendable {
 
             exact.base += worked * rate * 100
             if rules.paidAbsenceEarns { exact.paidAbsence += creditedMinutes * rate * absencePercent }
+            result.paidWorkedMinutes += worked
+            if worked > 0 { rates.insert(rate) }
+            if rules.paidAbsenceEarns, absencePercent > 0 { result.paidAbsenceMinutes += creditedMinutes }
 
             // Credited hours fill the normal day or week first, as they do in
             // the balance, but are never themselves overtime.
@@ -269,6 +293,7 @@ struct EarningsCalculator: Sendable {
             }
             exact.overtime += overtime * rate * rules.overtimePercent
             result.overtimeMinutes += overtime
+            if overtime > 0 { overtimePercents.insert(rules.overtimePercent) }
 
             for piece in jobPieces {
                 let covered = coverage(of: piece, on: day, rules: rules, byDate: byDate)
@@ -282,11 +307,15 @@ struct EarningsCalculator: Sendable {
         }
 
         result.breakdown = exact.rounded
+        result.hourlyRateCents = rates.count == 1 ? rates.first : nil
+        result.overtimePercent = overtimePercents.count == 1 ? overtimePercents.first : nil
         // Whole cents already, so nothing to round: the allowance and the
         // kilometres at their rates, on a day with hours or without.
         let extras = AllowanceSummary(days: [day], settings: settings)
         result.breakdown.allowanceCents = extras.allowanceCents
         result.breakdown.mileageCents = extras.mileageCents
+        result.hasFieldAllowance = extras.allowanceDays > 0
+        result.kilometres = extras.kilometres
         result.isPaidByHealthInsurance = pastEmployerDays
         if !pastEmployerDays, absencePercent < 100, day.creditedMinutes > 0 {
             result.absencePaidPercent = absencePercent

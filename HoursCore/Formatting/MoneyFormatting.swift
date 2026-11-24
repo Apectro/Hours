@@ -38,6 +38,18 @@ struct MoneyFormatting: Hashable, Sendable {
         return formatter.string(from: amount) ?? MoneyFormatting.plain(cents, decimalSeparator: ".") + " " + currencyCode
     }
 
+    /// What an amount is written as while amounts are hidden
+    /// (`AppSettings.hideAmounts`): the same three dots for every amount, so
+    /// nothing about its size shows.
+    static let hidden = "•••"
+
+    /// `string(_:showsCents:)`, or the dots while amounts are hidden. The
+    /// calendar, the day card and the month's totals write money through
+    /// this; Insights and the exports do not.
+    func string(_ cents: Int, showsCents: Bool = true, hidden: Bool) -> String {
+        hidden ? MoneyFormatting.hidden : string(cents, showsCents: showsCents)
+    }
+
     /// "2340.50": the amount alone, for a cell a spreadsheet should read as a
     /// number. The currency goes in the column's heading instead.
     static func plain(_ cents: Int, decimalSeparator: String) -> String {

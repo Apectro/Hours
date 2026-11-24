@@ -193,4 +193,68 @@ final class BulkEditTests: XCTestCase {
         XCTAssertEqual(result.changes.first?.shifts.first?.jobID, Job.primaryID)
         XCTAssertEqual(result.changes.first?.start, Fixture.time(8))
     }
+
+    // MARK: - Site hours (2026-11-24)
+
+    private func siteDay(_ date: CalendarDate, own: Bool = false) -> DayRecord {
+        let site = UUID()
+        var shifts = [Shift(id: site, start: Fixture.time(7), end: Fixture.time(15), siteID: site)]
+        if own { shifts.append(Shift(start: Fixture.time(16), end: Fixture.time(17))) }
+        return DayRecord(date: date, shifts: shifts)
+    }
+
+    func testADayWithSiteHoursIsNeverMarkedAsLeave() {
+        let site = siteDay(Fixture.workingTuesday)
+        let result = plan(.setDayType(.vacation), existing: [site.date.key: site], overwrites: true)
+
+        XCTAssertEqual(result.skippedSiteDays, 1)
+        XCTAssertEqual(result.changes.count, 9)
+        XCTAssertFalse(result.changes.contains { $0.date == site.date })
+        XCTAssertEqual(result.skippedExisting, 0, "said as what it is, not as a day left alone")
+    }
+
+    func testFillingTheUsualHoursLeavesSiteDaysAlone() {
+        let site = siteDay(Fixture.workingTuesday, own: true)
+        let result = plan(.applyWorkingPattern, existing: [site.date.key: site], overwrites: true)
+
+        XCTAssertEqual(result.skippedSiteDays, 1)
+        XCTAssertFalse(result.changes.contains { $0.date == site.date })
+    }
+
+    func testClearingLeavesSiteDaysAlone() {
+        let site = siteDay(Fixture.workingTuesday)
+        let own = DayRecord(date: Fixture.workingMonday, start: Fixture.time(8), end: Fixture.time(16))
+        let result = plan(.clear, existing: [site.date.key: site, own.date.key: own], overwrites: true)
+
+        XCTAssertEqual(result.deletions, [own.date])
+        XCTAssertEqual(result.skippedSiteDays, 1)
+    }
+
+    func testSiteDaysAreCountedApartWithoutReplaceToo() {
+        let site = siteDay(Fixture.workingTuesday)
+        let own = DayRecord(date: Fixture.workingMonday, start: Fixture.time(8), end: Fixture.time(16))
+        let result = plan(.setDayType(.vacation), existing: [site.date.key: site, own.date.key: own])
+
+        XCTAssertEqual(result.skippedSiteDays, 1)
+        XCTAssertEqual(result.skippedExisting, 1)
+        XCTAssertEqual(result.changes.count, 8)
+    }
+
+    func testASiteDayOnAWeekendYouSkipIsADayYouDoNotWork() {
+        let site = siteDay(Fixture.saturday)
+        let result = plan(.setDayType(.vacation), existing: [site.date.key: site], overwrites: true)
+
+        XCTAssertEqual(result.skippedSiteDays, 0)
+        XCTAssertEqual(result.skippedNonWorking, 2)
+        XCTAssertFalse(result.changes.contains { $0.date == site.date })
+    }
+
+    func testASiteShiftThatOnlyCarriesTheAllowanceStillProtectsTheDay() {
+        let site = UUID()
+        let record = DayRecord(date: Fixture.workingTuesday, shifts: [Shift(id: site, siteID: site, fieldAllowance: true)])
+        let result = plan(.clear, existing: [record.date.key: record], overwrites: true)
+
+        XCTAssertTrue(result.deletions.isEmpty)
+        XCTAssertEqual(result.skippedSiteDays, 1)
+    }
 }
