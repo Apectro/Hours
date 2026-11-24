@@ -1149,6 +1149,22 @@ struct SiteDayScreen: View {
         flashSaved()
         HoursStack.refreshWidget()
         Task { await MonthlySheetRefresher.refresh(context: modelContext, settingsStore: settingsStore) }
+        // A move writes two sites' days at once.
+        refreshSiteReminders()
+    }
+
+    /// Plans the evening site reminders again (`SiteReminderRefresher`), as
+    /// the app does when it comes forward.
+    private func refreshSiteReminders() {
+        let context = modelContext
+        let settingsStore = settingsStore
+        Task {
+            await SiteReminderRefresher.refresh(
+                context: context,
+                preferences: settingsStore.settings.reminders,
+                calendar: settingsStore.workCalendar
+            )
+        }
     }
 
     // MARK: - Derived
@@ -1376,8 +1392,6 @@ struct SiteDayScreen: View {
             if !next.isBlank {
                 try repository.save(next)
                 stored = next
-                // Written, so tonight's nudge about it would be wrong.
-                ReminderScheduler().cancelSiteReminder(on: next.date)
             } else if stored != nil {
                 try repository.delete(siteID: site.id, on: next.date)
                 stored = nil
@@ -1385,6 +1399,13 @@ struct SiteDayScreen: View {
             day = next
             pendingDraft = nil
             flashSaved()
+            // Written, changed or removed: tonight's nudge is planned again
+            // from what is stored now, for every site. Removing only this
+            // day's request took the evening's one notification away while
+            // another site was still open, and left it standing when this
+            // day was deleted or its crew, now here, had been expected
+            // on another site.
+            refreshSiteReminders()
         } catch {
             // Back to what is stored, so the screen never shows hours that
             // were not recorded.

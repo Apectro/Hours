@@ -122,6 +122,13 @@ evening reminder that day. Never on a day off or a public holiday, never twice
 within two hours each way, at most 20 sites. The location never leaves the
 phone.
 
+**Evening site reminder** — on a site's work days, when its day is not written
+by the evening. It names the site ("Trg Pravde: today's hours aren't written
+yet.", a tap opens it), both when there are two, and counts three or more
+("3 sites aren't written today.", a tap opens Sites). A site is not asked
+about on a day its whole crew is written on another of your sites, nor while
+paused or archived.
+
 **A site's address (1.2)** — typed in the site's settings, or filled in from its
 saved place (Apple Maps is asked about that one place, only on the tap). It is
 printed in one small line under the site's name on the site sheet, on a crew

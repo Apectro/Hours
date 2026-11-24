@@ -953,6 +953,17 @@
       "nl": "%#@sites@ aan te maken",
       "pl": "Do utworzenia: %#@sites@"
     },
+    "^[%lld site](inflect: true) aren't written today.": {
+      "de": "Heute noch nicht eingetragen: %#@sites@",
+      "hr": "Danas još nije upisano: %#@sites@",
+      "sl": "Danes še ni vpisano: %#@sites@",
+      "it": "Oggi non ancora registrati: %#@sites@",
+      "fr": "Pas encore saisis aujourd'hui : %#@sites@",
+      "es": "Hoy aún sin anotar: %#@sites@",
+      "pt": "Hoje ainda por registar: %#@sites@",
+      "nl": "Vandaag nog niet ingevuld: %#@sites@",
+      "pl": "Dziś jeszcze niewpisane: %#@sites@"
+    },
     "Nothing written on ^[%lld day](inflect: true)": {
       "de": "An %#@days@ nichts eingetragen",
       "hr": "Ništa upisano za %#@days@",
@@ -6784,6 +6795,28 @@
       "As horas da obra de hoje ainda não estão registadas.",
       "De uren van de bouwplaats van vandaag zijn nog niet ingevuld.",
       "Godziny z budowy za dziś nie są jeszcze wpisane."
+    ],
+    "%@: today's hours aren't written yet.": [
+      "%@: Die Stunden für heute sind noch nicht eingetragen.",
+      "%@: sati za danas još nisu upisani.",
+      "%@: ure za danes še niso vpisane.",
+      "%@: le ore di oggi non sono ancora registrate.",
+      "%@ : les heures d'aujourd'hui ne sont pas encore saisies.",
+      "%@: las horas de hoy aún no están anotadas.",
+      "%@: as horas de hoje ainda não estão registadas.",
+      "%@: de uren van vandaag zijn nog niet ingevuld.",
+      "%@: godziny za dziś nie są jeszcze wpisane."
+    ],
+    "%@ and %@: today's hours aren't written yet.": [
+      "%@ und %@: Die Stunden für heute sind noch nicht eingetragen.",
+      "%@ i %@: sati za danas još nisu upisani.",
+      "%@ in %@: ure za danes še niso vpisane.",
+      "%@ e %@: le ore di oggi non sono ancora registrate.",
+      "%@ et %@ : les heures d'aujourd'hui ne sont pas encore saisies.",
+      "%@ y %@: las horas de hoy aún no están anotadas.",
+      "%@ e %@: as horas de hoje ainda não estão registadas.",
+      "%@ en %@: de uren van vandaag zijn nog niet ingevuld.",
+      "%@ i %@: godziny za dziś nie są jeszcze wpisane."
     ],
     "Site reminders": [
       "Baustellen-Erinnerung",

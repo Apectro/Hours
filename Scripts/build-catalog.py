@@ -165,6 +165,9 @@ APP_STRINGS = {
     "^[%lld site](inflect: true)": entry("%#@sites@", SITES()),
     "Create ^[%lld site](inflect: true)": entry("Create %#@sites@", SITES()),
     "^[%lld site](inflect: true) to create": entry("%#@sites@ to create", SITES()),
+    # The evening site reminder when three or more sites are still open
+    # (`ReminderScheduler.siteReminderBody`); one and two are named instead.
+    "^[%lld site](inflect: true) aren't written today.": entry("%#@sites@ aren't written today.", SITES()),
     # Warning before deleting a day type that recorded days still point at.
     "^[%lld day](inflect: true) still use “%@”. Those days will show as Unknown "
     "and stop counting towards your balance. The hours recorded on them are kept.": entry(

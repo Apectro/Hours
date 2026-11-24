@@ -11,8 +11,29 @@ enum SiteReminderRefresher {
     /// How much history decides which weekdays a site is normally worked.
     static let lookBackDays = 14
 
+    /// The refresh under way, if any. A site day is saved at every tick on
+    /// its screen, so refreshes can arrive faster than the system answers;
+    /// each waits for the one before it, and the last to run is the last
+    /// that was asked for, planned from what is stored by then.
+    @MainActor private static var inFlight: Task<Void, Never>?
+
     @MainActor
     static func refresh(
+        context: ModelContext,
+        preferences: ReminderPreferences,
+        calendar: Calendar
+    ) async {
+        let previous = inFlight
+        let task = Task { @MainActor in
+            await previous?.value
+            await plan(context: context, preferences: preferences, calendar: calendar)
+        }
+        inFlight = task
+        await task.value
+    }
+
+    @MainActor
+    private static func plan(
         context: ModelContext,
         preferences: ReminderPreferences,
         calendar: Calendar
@@ -30,51 +51,41 @@ enum SiteReminderRefresher {
         )
         let repository = SiteRepository(context: context)
         let siteDays = repository.siteDays(siteID: nil, in: window)
-        // Each active site's own say (1.2): its work days when set, and
-        // whether it wants the evening reminder at all.
         let settings = HoursStack.settings.settings
-        var workDays: [UUID: Set<Int>] = [:]
-        var silenced = Set<UUID>()
-        var pauses: [UUID: SitePause] = [:]
-        var crewElsewhere: [UUID: Set<CalendarDate>] = [:]
         // Every crew, hidden people and archived sites too: the same person
         // on two sites is matched by name (`SiteMonthOverview.crew`).
         let everySite = repository.sites(includeArchived: true)
         let members = everySite.flatMap { repository.crew(for: $0.id, includeHidden: true) }
-        for site in everySite where !site.isArchived {
-            let setup = settings.siteSetup(for: site.id)
-            if !setup.workDays.isEmpty { workDays[site.id] = setup.workDays }
-            if !setup.eveningReminder { silenced.insert(site.id) }
-            // Paused: no day expected, so no nudge.
-            if let pause = setup.pause { pauses[site.id] = pause }
-            // Today, with the whole crew on another of your sites: nothing
-            // to write here.
-            if SiteMonthOverview.isCrewElsewhere(
-                siteID: site.id, on: today, members: members, siteDays: siteDays, calendar: calendar
-            ) {
-                crewElsewhere[site.id] = [today]
-            }
-        }
+        // A site nobody has been to in the window has no day there to say
+        // who its crew is: its last day worked says it.
+        let inWindow = Set(siteDays.map(\.siteID))
+        let lastDays = everySite
+            .filter { !$0.isArchived && !inWindow.contains($0.id) }
+            .compactMap { repository.lastSiteDay(siteID: $0.id, before: today) }
         // No evening nudge on a public holiday off.
         let ahead = CalendarDateRange(start: today, end: today.adding(days: 7, in: calendar))
         let rules = (try? context.fetch(FetchDescriptor<HolidayRecord>()))?.map(\.rule) ?? []
         let holidays = HolidayResolver(rules: rules, calendar: calendar, covering: ahead)
             .daysOffKeys(in: ahead, calendar: calendar)
-        let dates = SiteReminderPlan.dates(
+        // Each active site's own say (1.2): its work days when set, whether
+        // it wants the evening reminder at all, its pause, and today with
+        // its whole crew on another of your sites (`SiteReminderPlan.evenings`).
+        let evenings = SiteReminderPlan.evenings(
+            sites: everySite,
+            setup: { settings.siteSetup(for: $0) },
+            members: members,
             siteDays: siteDays,
+            lastDays: lastDays,
             today: today,
             calendar: calendar,
             lookBackDays: lookBackDays,
             holidays: holidays,
             // Asked "write today's hours?" on leaving: one question a day.
-            askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today),
-            workDays: workDays,
-            silenced: silenced,
-            pauses: pauses,
-            crewElsewhere: crewElsewhere
+            askedWhenLeavingToday: ArrivalReminders.sitesAskedToWrite(on: today)
         )
         await scheduler.scheduleSiteReminders(
-            dates: dates,
+            evenings,
+            names: Dictionary(everySite.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first }),
             time: preferences.siteReminderTime,
             calendar: calendar
         )

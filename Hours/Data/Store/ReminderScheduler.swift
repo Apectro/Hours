@@ -87,11 +87,22 @@ struct ReminderScheduler {
         siteIdentifierPrefix + String(format: "%08d", date.key)
     }
 
-    /// Replaces every pending site reminder with one per date in `dates`, at
-    /// `time` on that day. Instants already past (today, after the time) are
-    /// skipped, since a calendar trigger in the past would never fire.
+    /// Replaces every pending site reminder with one per evening in
+    /// `evenings`, at `time` on that day. Instants already past (today,
+    /// after the time) are skipped, since a calendar trigger in the past
+    /// would never fire.
+    ///
+    /// Each says which sites it is about (`SiteReminderNotice`): one site by
+    /// name, opening that site on a tap; two by name and more by count,
+    /// opening the Sites tab. "Today's site hours aren't written yet" named
+    /// no site, so it read as wrong to someone who had just written one
+    /// site and was being asked about another. A notification cannot look
+    /// at the store when it fires, so its words are fixed here; they stay
+    /// true because every change to a site day redoes this
+    /// (`SiteReminderRefresher`).
     func scheduleSiteReminders(
-        dates: [CalendarDate],
+        _ evenings: [SiteReminderPlan.Evening],
+        names: [UUID: String],
         time: TimeOfDay,
         calendar: Calendar = .current,
         now: Date = Date()
@@ -99,23 +110,45 @@ struct ReminderScheduler {
         await cancelSiteReminders()
         guard await isAuthorized() else { return }
 
-        for date in dates {
-            var components = date.components
+        for evening in evenings {
+            var components = evening.date.components
             components.hour = time.hour
             components.minute = time.minute
             guard let instant = calendar.date(from: components), instant > now else { continue }
 
+            let notice = SiteReminderNotice(evening, names: names)
             let content = UNMutableNotificationContent()
             content.title = AppIdentity.name
-            content.body = String(localized: "Today's site hours aren't written yet.")
+            content.body = ReminderScheduler.siteReminderBody(notice)
             content.sound = .default
+            content.userInfo = [ReminderScheduler.linkKey: notice.link.url.absoluteString]
 
             let request = UNNotificationRequest(
-                identifier: ReminderScheduler.siteReminderIdentifier(for: date),
+                identifier: ReminderScheduler.siteReminderIdentifier(for: evening.date),
                 content: content,
                 trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             )
             try? await center.add(request)
+        }
+    }
+
+    /// The evening reminder's words for what it is about.
+    static func siteReminderBody(_ notice: SiteReminderNotice) -> String {
+        switch notice {
+        case let .one(_, name):
+            return String(
+                localized: "\(name): today's hours aren't written yet.",
+                comment: "Evening site reminder for one site; the value is the site's name"
+            )
+        case let .two(first, second):
+            return String(
+                localized: "\(first) and \(second): today's hours aren't written yet.",
+                comment: "Evening site reminder for two sites; the values are the sites' names"
+            )
+        case let .several(count):
+            return String(inflected: "^[\(count) site](inflect: true) aren't written today.")
+        case .unnamed:
+            return String(localized: "Today's site hours aren't written yet.")
         }
     }
 

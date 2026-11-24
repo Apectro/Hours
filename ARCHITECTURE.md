@@ -924,6 +924,32 @@ written yet included, and a site with the evening reminder or the note on the
 turned on; the two site ones are on by default and simply schedule nothing
 while notifications are not allowed, and the extra-work one is off by default.
 
+**The evening site reminder says which site.** A site is expected per site,
+so writing site A leaves the evening about site B, and "Today's site hours
+aren't written yet" then read as wrong to someone who had just written
+theirs. `SiteReminderPlan.missing` returns, per date, the sites that are
+missing (`Evening`; `dates` is derived from it), in the Sites tab's order;
+`SiteReminderNotice` turns an evening into what it says and opens — one site
+by name ("Trg Pravde: today's hours aren't written yet.", a tap opens that
+site, `AppLink.site`), two by name, three or more by count ("3 sites aren't
+written today."), both opening the Sites tab (`AppLink.sites`) — and
+`ReminderScheduler.siteReminderBody` holds the words. What each site says for
+itself is gathered in the engine too (`SiteReminderPlan.evenings`, which
+`SiteReminderRefresher` calls): its work days, its switch and its pause; an
+archived site is never missing, even with days in the look-back; and today is
+not missing on a site whose whole crew is on another of your sites today
+(`SiteMonthOverview.isCrewElsewhere`) — for a site with nothing written in
+the look-back the crew is read off its last day worked, however old, so a
+site with work days set that nobody has been to for three weeks does not ask
+for a day its people wrote elsewhere. The words are fixed when the request is
+made, so the refresher runs wherever the answer can change: on launch and
+every return to the app, from the settings, when a site is saved, archived or
+paused, and now after every save, delete or move on the site day screen
+(which used to remove only that date's request, taking the one notification
+of the evening away while another site was still open). Refreshes run one
+after another (`SiteReminderRefresher.inFlight`), since a day is saved at
+every tick.
+
 **Arriving at a site (1.2).** The fifth kind is not scheduled at all:
 `ArrivalReminders` posts it the moment iOS reports that the phone crossed
 the edge of a site it watches. Off unless turned on in a site's settings
