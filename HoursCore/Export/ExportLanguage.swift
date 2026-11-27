@@ -404,6 +404,46 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
             pl: "Zacieniowane = zwolnienie, urlop, święto lub brak pracy, w kolorze rodzaju dnia."
         )
 
+        // One person's own sheet from the sites: the site sheet's legend in
+        // the parts one person's columns need. The columns are headed, so
+        // only the hours are explained, and orange only where it occurs.
+        case .hoursAfterBreakLegend: return pick(
+            en: "Hours are after the break.",
+            de: "Stunden nach Abzug der Pause.",
+            hr: "Sati su nakon pauze.",
+            sl: "Ure so po odmoru.",
+            it: "Ore al netto della pausa.",
+            fr: "Heures après la pause.",
+            es: "Horas descontada la pausa.",
+            pt: "Horas descontada a pausa.",
+            nl: "Uren na de pauze.",
+            pl: "Godziny po odjęciu przerwy."
+        )
+        case .hoursWithPaidBreakLegend: return pick(
+            en: "Hours worked, paid break included.",
+            de: "Arbeitsstunden, bezahlte Pause inbegriffen.",
+            hr: "Radni sati, plaćena pauza uključena.",
+            sl: "Delovne ure, plačan odmor vključen.",
+            it: "Ore lavorate, pausa retribuita inclusa.",
+            fr: "Heures travaillées, pause payée comprise.",
+            es: "Horas trabajadas, pausa pagada incluida.",
+            pt: "Horas trabalhadas, pausa paga incluída.",
+            nl: "Gewerkte uren, betaalde pauze inbegrepen.",
+            pl: "Przepracowane godziny, z płatną przerwą."
+        )
+        case .lateOrEarlyLegend: return pick(
+            en: "Orange = came late or left early.",
+            de: "Orange = später gekommen oder früher gegangen.",
+            hr: "Narančasto = došao kasnije ili otišao ranije.",
+            sl: "Oranžno = prišel pozneje ali odšel prej.",
+            it: "Arancione = arrivato tardi o uscito prima.",
+            fr: "Orange = arrivé en retard ou parti plus tôt.",
+            es: "Naranja = llegó tarde o se fue antes.",
+            pt: "Laranja = chegou mais tarde ou saiu mais cedo.",
+            nl: "Oranje = later gekomen of eerder vertrokken.",
+            pl: "Pomarańczowy = przyszedł później lub wyszedł wcześniej."
+        )
+
         case .badWeatherDays: return pick(en: "Bad-weather days", de: "Schlechtwettertage",
                                           hr: "Dani lošeg vremena", sl: "Dnevi slabega vremena",
                                           it: "Giorni di maltempo", fr: "Jours d’intempéries",
@@ -652,6 +692,9 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     case siteLegendPaidBreaks, siteLegendMixedBreaks, badWeatherDays
     /// After the legend: what a shaded day means (2026-11).
     case dayHighlightLegend
+    /// One person's own sheet from the sites: what its hours are, and what
+    /// orange means, each said only where the sheet has it.
+    case hoursAfterBreakLegend, hoursWithPaidBreakLegend, lateOrEarlyLegend
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
     /// A site sheet listing every day: holidays off per person, and a

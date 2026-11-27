@@ -120,8 +120,10 @@ enum XLSXWriter {
             }
         }
 
-        // The diary's sheet is headed the way the director's sheet is.
-        let isSiteSheet = table.kind != .timesheet
+        // The diary's sheet is headed the way the director's sheet is. One
+        // person's own sheet keeps the person's name on a line of its own,
+        // as a timesheet has it: that is whose hours the file holds.
+        let isSiteSheet = table.kind != .timesheet && !table.isOnePersonSheet
 
         // The title block, as the PDF opens. The director's sheet says which
         // month of which site in one line, and who kept it in the next, where
@@ -230,7 +232,9 @@ enum XLSXWriter {
         // their pair, then what each of the pair holds. The rows above the
         // days are all repeated on every printed page and frozen on screen.
         let firstHeaderRow = rowNumber
-        let groups = table.validGroups
+        // Groups of one column each are only the page's rules between
+        // columns: one heading row, as for a table with no groups.
+        let groups = table.hasSpanningGroups ? table.validGroups : []
         if groups.isEmpty {
             emit(table.headerTitles().map { Cell.text($0, style: .header) }, height: 22)
         } else {

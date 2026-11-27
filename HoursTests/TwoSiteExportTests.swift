@@ -280,8 +280,11 @@ final class MovedDaySheetTests: XCTestCase {
             range: date.yearMonth.range(in: calendar)
         )
 
-        XCTAssertEqual(sheet.rows.count, 2)
-        XCTAssertEqual(sheet.totals.first?.minutes, 480)
-        XCTAssertEqual(sheet.eyebrow, "Timesheet · Hauptstraße 12 · Trg Pravde")
+        // A row per site that day, then the crew sheet's closing rows.
+        XCTAssertEqual(sheet.rows.filter { $0.role == .day }.count, 2)
+        let total = try XCTUnwrap(sheet.rows.first { $0.role == .total })
+        XCTAssertEqual(total.minutes.compactMap { $0 }.last, 480)
+        XCTAssertEqual(sheet.sitesText, "Hauptstraße 12 · Trg Pravde")
+        XCTAssertEqual(sheet.eyebrow, "Site hours · August 2026")
     }
 }

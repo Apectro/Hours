@@ -226,6 +226,11 @@ struct ReportTable: Hashable, Sendable {
     /// said under the title where there is no single address. Empty prints
     /// nothing.
     var sitesText: String = ""
+    /// One person's own sheet from the sites (`CrewMemberSheetBuilder`): a
+    /// site sheet in everything it prints — the month, the closing rows, the
+    /// legend — headed by the person, with columns for one person instead of
+    /// a pair per person.
+    var isOnePersonSheet: Bool = false
 
     var isEmpty: Bool { rows.isEmpty }
 
@@ -233,7 +238,7 @@ struct ReportTable: Hashable, Sendable {
     /// hours they are, because that is what the person it is handed to looks
     /// for first; without a name it falls back to the report's own title.
     var headline: String {
-        kind == .timesheet && !ownerName.isEmpty ? ownerName : title
+        (kind == .timesheet || isOnePersonSheet) && !ownerName.isEmpty ? ownerName : title
     }
 
     /// The grey line under the headline.
@@ -255,7 +260,12 @@ struct ReportTable: Hashable, Sendable {
         case .siteDiary: kindWord = language(.siteDiary)
         }
         let kindParts = when.isEmpty || title.contains(when) ? [kindWord] : [kindWord, when]
-        let place = address.isEmpty ? sitesText : address
+        // One person's sheet is headed by the person, so the site is said
+        // here, before its address; any other sheet about one site has the
+        // site as its title.
+        let place = isOnePersonSheet
+            ? [sitesText, address].filter { !$0.isEmpty }.joined(separator: " · ")
+            : (address.isEmpty ? sitesText : address)
         let made = "\(language(.made)) \(CalendarFormatting(locale: language.locale, calendar: calendar).dateWithYear(madeOn))"
         return ReportPageHeader(
             title: title,
@@ -263,6 +273,14 @@ struct ReportTable: Hashable, Sendable {
             detailLine: ([place, made].filter { !$0.isEmpty }).joined(separator: " · "),
             figures: Array((keyFigures.isEmpty ? tiles : keyFigures).prefix(2))
         )
+    }
+
+    /// Whether some heading runs over several columns — a person's name over
+    /// their times and hours. Groups of one column each only rule the columns
+    /// apart on the page; a workbook and the preview then head each column
+    /// once, flat.
+    var hasSpanningGroups: Bool {
+        validGroups.contains { $0.span > 1 }
     }
 
     /// The groups, when they describe these columns exactly.

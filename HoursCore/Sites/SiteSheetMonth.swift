@@ -77,25 +77,14 @@ extension SiteSheetBuilder {
         people: Int,
         formatter: ReportBuilder
     ) -> ReportRow {
-        let language = settings.export.language
         var values = [formatter.dateText(date), formatter.weekdayText(date)]
         values += Array(repeating: "", count: max(0, leading - values.count))
         for _ in 0..<people { values += [emptyPlaceholder, ""] }
 
-        var tint: TypeTint?
-        switch kind {
-        case let .holiday(name):
-            values.append(name)
-            tint = ReportDayHighlight.tint(for: settings.dayTypeCatalog.definition(for: .holiday))
-        case .paused:
-            values.append(language(.sitePaused))
-            tint = .gray
-        case .notAWorkDay, .notWritten:
-            values.append("")
-        }
-
-        var isHoliday = false
-        if case .holiday = kind { isHoliday = true }
+        let mark = emptyDayMark(kind)
+        values.append(mark.note)
+        let tint = mark.tint
+        let isHoliday = mark.isHoliday
         var row = ReportRow(
             id: date.key,
             values: values,
@@ -108,6 +97,21 @@ extension SiteSheetBuilder {
         )
         row.dayTint = tint
         return row
+    }
+
+    /// What a day nobody wrote says in the notes, and the colour it is
+    /// washed in: a holiday's name on the holiday type's colour, "Paused" on
+    /// grey, nothing for a weekend or a day simply left empty. One person's
+    /// sheet says the same of a day they have nothing on.
+    func emptyDayMark(_ kind: SiteSheetEmptyDay) -> (note: String, tint: TypeTint?, isHoliday: Bool) {
+        switch kind {
+        case let .holiday(name):
+            return (name, ReportDayHighlight.tint(for: settings.dayTypeCatalog.definition(for: .holiday)), true)
+        case .paused:
+            return (settings.export.language(.sitePaused), .gray, false)
+        case .notAWorkDay, .notWritten:
+            return ("", nil, false)
+        }
     }
 
     /// The dates the sheet has a row for: every day of the range, or only
@@ -155,17 +159,30 @@ extension ReportTable {
     /// under every person and squeeze the name into a notes column that
     /// five people leave too narrow for it. Nil for every other row: a day
     /// written, a weekend or an empty day (nothing to say), a closing row.
+    /// One person's sheet says a day they were away the same way: "Sick
+    /// leave" once, from their times to the notes.
     ///
     /// Only the printed page draws it this way; a workbook and a CSV keep
     /// the word in the notes column, which is where a filter looks for it.
     func dayBanner(of row: ReportRow) -> ReportDayBanner? {
-        guard kind == .siteSheet, row.role == .day, !row.hasEntry, row.splitDay == nil,
+        guard kind == .siteSheet, row.role == .day, row.splitDay == nil,
               columns.last == .note, row.values.count == columns.count,
               let text = row.values.last, !text.isEmpty
         else { return nil }
-        let ranges = groupRanges
-        let people = row.mergedGroups.filter { $0 < ranges.count }.map { ranges[$0].lowerBound }
-        guard let first = people.min(), first < columns.count - 1 else { return nil }
+        let first: Int
+        if isOnePersonSheet {
+            // One person's sheet: from their times to the notes, on a day
+            // that has no times — a holiday, a pause, a day they were away
+            // and why. A day they worked always has its hours, and so none.
+            first = SiteSheetBuilder.leadingColumns(of: self)
+        } else {
+            guard !row.hasEntry else { return nil }
+            let ranges = groupRanges
+            let people = row.mergedGroups.filter { $0 < ranges.count }.map { ranges[$0].lowerBound }
+            guard let lowest = people.min() else { return nil }
+            first = lowest
+        }
+        guard first > 0, first < columns.count - 1 else { return nil }
         // Every person's cells are the one dash: nothing is written over.
         guard (first..<(columns.count - 1)).allSatisfy({ index in
             row.values[index].isEmpty || row.values[index] == "—"
