@@ -16,6 +16,10 @@ extension ExportTableMaker {
     /// A sheet for everyone on `site`'s sheet for the month, in its order,
     /// each with their days on every site (`CrewMemberSheetBuilder`).
     ///
+    /// Each lists the month as the crew's sheet does (2026-11): every day a
+    /// row while "Show empty days" is on, public holidays by name, a pause,
+    /// their days away (`siteSheetMonth(in:)`).
+    ///
     /// With more sites on the director's sheet (1.2), everyone on any of
     /// them — you first, then each site's people in the order chosen — and
     /// each sheet holds only those sites' days.
@@ -56,6 +60,8 @@ extension ExportTableMaker {
         var sites: [Site]
         var crew: [CrewMember]
         var results: [SiteDayResult]
+        /// The month's public holidays, and whether every day is listed.
+        var sheetMonth: SiteSheetMonth
     }
 
     /// Every site, archived too, every crew with its hidden members, and
@@ -68,7 +74,7 @@ extension ExportTableMaker {
         let crew = sites.flatMap { repository.crew(for: $0.id, includeHidden: true) }
         let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
         let results = repository.siteDays(siteID: nil, in: range).map { calculator.compute($0) }
-        return CrewSheetInput(range: range, sites: sites, crew: crew, results: results)
+        return CrewSheetInput(range: range, sites: sites, crew: crew, results: results, sheetMonth: siteSheetMonth(in: range))
     }
 
     private func crewSheet(for person: CrewSheetPerson, input: CrewSheetInput, includeSignatures: Bool) -> CrewSheetTables {
@@ -79,7 +85,8 @@ extension ExportTableMaker {
                     sites: input.sites,
                     results: input.results,
                     range: input.range,
-                    includesSignatures: includeSignatures
+                    includesSignatures: includeSignatures,
+                    month: input.sheetMonth
                 )
         }
         let file = build("")

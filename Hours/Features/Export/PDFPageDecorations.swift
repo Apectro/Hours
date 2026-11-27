@@ -329,7 +329,10 @@ struct PDFPageDecorations {
             signatureWidth = count > 0 ? (area - (count - 1) * gap) / count : 0
         } else {
             gap = 24
-            signatureWidth = min(200, area * 0.35)
+            // One line to sign on takes about a third of the band; two — a
+            // person's own sheet, signed and checked — share six tenths of
+            // it, so the legend beside them still has room for its lines.
+            signatureWidth = min(200, area * 0.35, count > 0 ? (area * 0.6 - count * gap) / count : 0)
             let legendWidth = max(120, area - count * (signatureWidth + gap))
             PDFReportStyle.drawWrapping(
                 table.legend,

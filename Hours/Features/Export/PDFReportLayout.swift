@@ -25,6 +25,9 @@ struct PDFPagePlan: Hashable {
 /// and the 3 is not known until the last row has found its page. The old
 /// renderer drew as it went and could only ever say "page 2".
 struct PDFReportLayout {
+    /// The table as the page prints it: a sheet for several sites with its
+    /// By site block folded into its closing rows
+    /// (`ReportTable.printedWithBySiteInClosingRows`), any other as given.
     let table: ReportTable
     /// How tall a day row is: see `fittedRowHeights`.
     let dayRowHeight: CGFloat
@@ -33,7 +36,8 @@ struct PDFReportLayout {
     /// on the page with them.
     let closingRowHeight: CGFloat
 
-    init(table: ReportTable) {
+    init(table original: ReportTable) {
+        let table = original.printedWithBySiteInClosingRows
         self.table = table
         let heights = Self.fittedRowHeights(
             for: table,
@@ -51,9 +55,9 @@ struct PDFReportLayout {
     static let tightClosingRowHeight: CGFloat = 12
     /// The tightest day rows: 12 points on a timesheet.
     static let minimumDayRowHeight: CGFloat = 12
-    /// A site sheet lists every day of the month (2026-11), so a month is
-    /// 31 rows and more where a day was on two sites, with up to seven
-    /// closing rows under them: its day rows may go down to 10.5 points,
+    /// A site sheet — the crew's, or one person's own — lists every day of
+    /// the month (2026-11), so a month is 31 rows and more where a day was
+    /// on two sites, with up to seven closing rows under them: its day rows may go down to 10.5 points,
     /// which the 8.5-point type (a line of just over 10 points) still fits.
     static let minimumSiteDayRowHeight: CGFloat = 10.5
 
@@ -69,11 +73,17 @@ struct PDFReportLayout {
     /// roomiest that fits is taken, so a month with two closing rows prints
     /// as it always did.
     ///
-    /// A sheet for several sites tries to keep its By site block — three or
-    /// four short lines — on that page too, by the same steps. It went over
-    /// to a second page alone, with the legend, and left the first with room
-    /// to spare. When nothing keeps it there the rows are not squeezed for
-    /// its sake: the block goes over with the closing rows and the last few
+    /// One person's own sheet is a site sheet and tightens by the same
+    /// steps, so their 31 days and up to six closing rows share the page.
+    ///
+    /// A sheet for several sites has its By site figures in its closing
+    /// rows on the page (`ReportTable.printedWithBySiteInClosingRows`), so
+    /// they cost no height: a whole month for two sites, a row or two over
+    /// 31 with six closing rows, fits at the tightest heights. Only a part
+    /// of a split sheet that could not fold it still has the block — three
+    /// or four short lines — and tries to keep it on the page by the same
+    /// steps. When nothing keeps it there the rows are not squeezed for its
+    /// sake: the block goes over with the closing rows and the last few
     /// days (`pages`).
     private static func fittedRowHeights(
         for table: ReportTable,
@@ -428,6 +438,14 @@ struct PDFReportLayout {
                     let font = PDFReportLayout.font(for: column, role: row.role)
                     needed = max(needed, PDFReportStyle.width(of: row.values[index], font: font))
                 }
+            } else if column == .note, self.table.kind == .siteSheet {
+                // A site sheet's closing rows end with figures in the notes
+                // column — the vehicle's kilometres, a site's hours, the
+                // crew's — and a figure is never cut short, though a note is.
+                for row in everyRow where row.role != .day && index < row.values.count {
+                    let font = PDFReportLayout.font(for: column, role: row.role)
+                    needed = max(needed, PDFReportStyle.width(of: row.values[index], font: font))
+                }
             }
             return needed + padding
         }
@@ -483,18 +501,20 @@ struct PDFReportLayout {
         of table: ReportTable,
         availableWidth: CGFloat = PDFReportStyle.contentWidth
     ) -> [ReportTable] {
+        // Each part as the page prints it: By site in the closing rows of
+        // the part that has it, the last.
         guard let people = SiteSheetBuilder.peopleCount(in: table), people > 1,
               !PDFReportLayout(table: table).fits(availableWidth: availableWidth)
-        else { return [table] }
+        else { return [table.printedWithBySiteInClosingRows] }
         for perPage in stride(from: people - 1, through: 2, by: -1) {
-            let parts = SiteSheetBuilder.split(table, peoplePerPage: perPage)
+            let parts = SiteSheetBuilder.split(table, peoplePerPage: perPage).map(\.printedWithBySiteInClosingRows)
             if parts.allSatisfy({ PDFReportLayout(table: $0).fits(availableWidth: availableWidth) }) {
                 return parts
             }
         }
         // One person to a page is as far as splitting goes; a name too long
         // even for that is squeezed like any other column that has no room.
-        return SiteSheetBuilder.split(table, peoplePerPage: 1)
+        return SiteSheetBuilder.split(table, peoplePerPage: 1).map(\.printedWithBySiteInClosingRows)
     }
 
     private static func weight(for column: ReportColumn) -> CGFloat {

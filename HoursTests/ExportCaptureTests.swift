@@ -694,10 +694,17 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertLessThanOrEqual(document.pageCount, single.pageCount * 3, "a row per site a day, not more")
         let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
         XCTAssertTrue(pageTexts[0].contains("Hauptstraße 12 · Trg Pravde"), "the title does not name both sites")
+        // The hours per site belong to the whole crew: on the last part, in
+        // its closing rows (2026-11), or as the By site block where that
+        // part has no row for one of the sites. Once either way, with the
+        // address and the crew's hours.
         let last = try XCTUnwrap(pageTexts.last)
-        XCTAssertTrue(last.contains("By site"), "By site is not on the last page")
-        XCTAssertTrue(last.contains("Hauptstraße 12, 10115 Berlin"), "the address is not in By site")
-        XCTAssertEqual(pageTexts.joined().components(separatedBy: "By site").count - 1, 1, "By site is printed once")
+        XCTAssertTrue(pageTexts.joined().contains("Hauptstraße 12, 10115 Berlin"), "the address is nowhere on the sheet")
+        let crewHours = try XCTUnwrap(table.bySite.last?.value)
+        XCTAssertTrue(last.contains(crewHours), "the crew's hours are not on the last page")
+        XCTAssertLessThanOrEqual(pageTexts.joined().components(separatedBy: "By site").count - 1, 1, "By site is printed twice")
+        let printedParts = PDFReportRenderer.parts(of: table)
+        XCTAssertTrue(printedParts.dropLast().allSatisfy(\.bySite.isEmpty))
         XCTAssertTrue(pageTexts.joined().contains("2026-08-31"))
 
         // The dates as wide as a date, not as "Month total" or a site's name
@@ -787,10 +794,20 @@ final class ExportCaptureTests: XCTestCase {
         let document = try XCTUnwrap(PDFDocument(data: data))
         XCTAssertEqual(document.pageCount, 1)
         let text = document.page(at: 0)?.string ?? ""
-        XCTAssertTrue(text.contains("By site"))
+        // By site is in the closing rows now: each site's hours end its
+        // row, the crew's end the month total, the address is under the title.
+        XCTAssertFalse(text.contains("By site"), "the block is printed as well as the closing rows")
+        for site in table.bySite {
+            XCTAssertTrue(text.contains(site.value), "\(site.name): \(site.value) is not on the page")
+        }
+        XCTAssertTrue(text.contains("Aleja 8, 10000 Zagreb"), "the address is not on the page")
         XCTAssertTrue(text.contains("Month total"))
         XCTAssertTrue(text.contains("Each person"), "the legend is not on the page")
         XCTAssertTrue(text.contains("Crew hours"), "the header figure is cut short")
+        // With nothing under the closing rows the sheet keeps its full height.
+        XCTAssertTrue(layout.table.bySite.isEmpty)
+        XCTAssertEqual(layout.summaryBlockHeight, 0)
+        XCTAssertEqual(layout.closingRowHeight, PDFReportStyle.closingRowHeight)
     }
 
     // MARK: - The whole month on a site sheet (2026-11)
@@ -966,50 +983,70 @@ final class ExportCaptureTests: XCTestCase {
         XCTAssertEqual(layout.closingRowHeight, PDFReportStyle.closingRowHeight)
     }
 
-    /// Two sites' whole October for five people is more than a page holds
-    /// at any height a person can read: 31 days and a day on both sites, the
-    /// closing rows with a row per site, and By site. It runs on to a second
-    /// page, which carries the last week under its headings, the closing
-    /// rows and By site together, under the running header — never three
-    /// lines on their own, and the rows are not squeezed for nothing.
-    func testAFullTwoSiteMonthRunsOnWithAWeekAndTheTotals() throws {
+    /// Two sites' whole October for five people — 31 days and a day on both
+    /// sites with its Total, six closing rows with a row per site — used to
+    /// run on to a second page for the sake of the By site block under the
+    /// closing rows. With the block's figures in those rows (2026-11) the
+    /// sheet fits one page at the tightest heights a site sheet may have,
+    /// and no lower.
+    func testAFullTwoSiteMonthFitsOnePageWithBySiteInItsClosingRows() throws {
         let table = twoSiteMonth(month: SiteSheetMonth(holidays: Self.sheetHolidays))
         XCTAssertEqual(SiteSheetBuilder.peopleCount(in: table), 5)
         let dayRows = table.rows.filter { $0.role == .day }.count
         XCTAssertEqual(dayRows, 33, "31 days, and the 29th on two sites with its Total")
-        XCTAssertEqual(table.bySite.count, 3)
+        XCTAssertEqual(table.trailingSummaryRows, 6, "month total, days worked, two sites, sick, public holidays")
+        XCTAssertEqual(table.bySite.count, 3, "the files keep the block")
 
         let layout = PDFReportLayout(table: table)
+        XCTAssertTrue(layout.table.bySite.isEmpty, "the page has it in the closing rows")
+        XCTAssertEqual(layout.summaryBlockHeight, 0)
+        XCTAssertGreaterThanOrEqual(layout.dayRowHeight, PDFReportLayout.minimumSiteDayRowHeight)
+        XCTAssertGreaterThanOrEqual(layout.closingRowHeight, PDFReportLayout.tightClosingRowHeight)
+        XCTAssertGreaterThanOrEqual(layout.dayRowHeight, PDFReportStyle.cellFont.lineHeight)
+        let used = PDFReportStyle.topMargin + layout.titleBlockHeight + layout.headingBlockHeight
+            + layout.table.rows.reduce(CGFloat(0)) { $0 + layout.rowHeight($1) }
+        // A language whose words split the five people into parts has a
+        // taller header block and may still need a second page.
+        guard PDFReportRenderer.parts(of: table).count == 1 else { return }
+        XCTAssertLessThanOrEqual(used, PDFReportStyle.contentBottom)
         let plans = layout.pages()
-        XCTAssertEqual(plans.count, 2)
-        XCTAssertEqual(layout.dayRowHeight, PDFReportStyle.rowHeight, "squeezed although it cannot fit one page")
-        let last = try XCTUnwrap(plans.last)
-        XCTAssertTrue(last.closes)
-        XCTAssertTrue(last.showsHeadings)
-        XCTAssertFalse(last.showsTitle)
-        let closing = table.rows.count - table.trailingSummaryRows
-        XCTAssertEqual(last.rows.upperBound, table.rows.count)
-        XCTAssertGreaterThanOrEqual(
-            closing - last.rows.lowerBound, PDFReportLayout.daysCarriedWithTheClosingRows,
-            "the totals went over with fewer than a week of days above them"
-        )
-        XCTAssertFalse(plans[0].closes)
-        XCTAssertGreaterThan(plans[0].rows.count, 20)
+        XCTAssertEqual(plans.count, 1, "a full month for two sites spilled onto a second page")
+        XCTAssertTrue(plans[0].closes)
+        XCTAssertEqual(plans[0].rows, 0..<table.rows.count)
 
         let data = PDFReportRenderer.data(for: table)
         for (index, image) in try pages(of: data).enumerated() {
             attach(image, named: "17e-site-pdf-two-sites-full-month-\(index + 1)")
         }
         let document = try XCTUnwrap(PDFDocument(data: data))
-        XCTAssertEqual(document.pageCount, 2)
-        let second = document.page(at: 1)?.string ?? ""
-        XCTAssertTrue(second.contains("By site"))
-        XCTAssertTrue(second.contains("Month total"))
-        XCTAssertTrue(second.contains("2026-10-31"))
-        let first = document.page(at: 0)?.string ?? ""
-        XCTAssertTrue(first.contains("2026-10-01"))
+        XCTAssertEqual(document.pageCount, 1)
+        let text = document.page(at: 0)?.string ?? ""
+        XCTAssertFalse(text.contains("By site"))
+        for expected in ["2026-10-01", "2026-10-31", "Month total", "Days worked", "Public holidays", "Aleja 8, 10000 Zagreb"]
+            + table.bySite.map(\.value) {
+            XCTAssertTrue(text.contains(expected), "\(expected) is not on the page")
+        }
         // The holiday the crew worked leads its day's note.
         XCTAssertTrue(table.rows.contains { $0.values.last == "Independence Day" })
+    }
+
+    /// A closing figure in the notes column — a site's hours, the crew's,
+    /// the vehicle's kilometres — is never cut short, however little the
+    /// people leave the notes.
+    func testAClosingFigureInTheNotesColumnIsNeverCutShort() {
+        for table in [twoSiteMonth(month: SiteSheetMonth(holidays: Self.sheetHolidays)), fullMonthSiteTable(allowance: true)] {
+            for part in PDFReportRenderer.parts(of: table) {
+                let layout = PDFReportLayout(table: part)
+                let widths = layout.columnWidths(availableWidth: PDFReportStyle.contentWidth)
+                let note = part.columns.count - 1
+                for row in part.rows where row.role != .day && !row.values[note].isEmpty {
+                    let needed = PDFReportStyle.width(
+                        of: row.values[note], font: PDFReportLayout.font(for: .note, role: row.role)
+                    ) + PDFReportStyle.cellPadding * 2
+                    XCTAssertGreaterThanOrEqual(widths[note] + 0.5, needed, "\(row.values[0]): \(row.values[note]) is cut short")
+                }
+            }
+        }
     }
 
     /// With only the days written, that sheet is the one page it was.
@@ -1107,31 +1144,53 @@ final class ExportCaptureTests: XCTestCase {
 
     /// One person's own sheet for a month on two sites, with a sick day and
     /// a day on leave: the page a worker is handed to check against their
-    /// payslip, in the personal timesheet's design.
-    private func crewMemberTable() -> ReportTable {
+    /// payslip, in the crew sheet's design, listing the whole month.
+    private func crewMemberTable(
+        language: ExportLanguage = .english,
+        listsEveryDay: Bool = true,
+        allowance: Bool = false
+    ) -> ReportTable {
         let south = Site(name: "Trg Pravde Zagreb", sortOrder: 0)
         let hall = Site(name: "Halle 3", sortOrder: 1)
         var export = ExportPreferences()
         export.ownerName = "Marijo Mikša"
-        let settings = Fixture.settings(export: export)
+        export.language = language
+        var settings = Fixture.settings(export: export)
+        if allowance {
+            settings.allowance = AllowancePreferences(isEnabled: true, dailyAllowanceCents: 25_00, centsPerKilometre: 30)
+        }
+        // A pause in the last days of the month, on both sites.
+        for site in [south, hall] {
+            settings.setSiteSetup(
+                SiteSetup(
+                    workDays: SiteSetup.mondayToFriday,
+                    pause: SitePause(start: Fixture.date(2026, 8, 27), end: Fixture.date(2026, 8, 31))
+                ),
+                for: site.id
+            )
+        }
         let ivan = CrewMember(siteID: south.id, name: "Ivan Horvat")
         let ivanHall = CrewMember(siteID: hall.id, name: "Ivan Horvat")
         var days: [SiteDay] = []
-        for day in 1...31 {
+        for day in 1...26 {
             let date = Fixture.date(2026, 8, day)
             let weekday = calendar.component(.weekday, from: date.date(in: calendar))
-            guard weekday != 1, weekday != 7 else { continue }
+            // Not the weekends, and not the public holiday on the 5th.
+            guard weekday != 1, weekday != 7, day != 5 else { continue }
             switch day {
             case 11:
                 days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
                                     breakMinutes: 30, absences: [CrewAbsence(memberID: ivan.id, dayTypeID: .sick)]))
+            case 14:
+                days.append(SiteDay.noWork(.dayOff, siteID: south.id, date: date, jobID: nil))
             case 24:
                 days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
                                     breakMinutes: 30, absences: [CrewAbsence(memberID: ivan.id, dayTypeID: .vacation)]))
             case 17...21:
                 days.append(SiteDay(siteID: hall.id, date: date, start: Fixture.time(6, 30), end: Fixture.time(15),
                                     breakMinutes: 30, present: [Attendance(memberID: ivanHall.id)],
-                                    note: day == 17 ? "Crane delivery" : ""))
+                                    note: day == 17 ? "Crane delivery" : "",
+                                    allowanceMemberIDs: allowance ? [ivanHall.id] : []))
             default:
                 days.append(SiteDay(siteID: south.id, date: date, start: Fixture.time(7), end: Fixture.time(16),
                                     breakMinutes: 30,
@@ -1144,7 +1203,8 @@ final class ExportCaptureTests: XCTestCase {
                 person: .matching(ivan, in: [ivan, ivanHall]),
                 sites: [south, hall],
                 results: days.map(calculator.compute),
-                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31))
+                range: CalendarDateRange(start: Fixture.date(2026, 8, 1), end: Fixture.date(2026, 8, 31)),
+                month: SiteSheetMonth(holidays: Self.sheetHolidays, listsEveryDay: listsEveryDay)
             )
     }
 
@@ -1155,12 +1215,118 @@ final class ExportCaptureTests: XCTestCase {
             attach(image, named: "18-crew-member-pdf-\(index + 1)")
         }
         let document = try XCTUnwrap(PDFDocument(data: data))
-        XCTAssertEqual(document.pageCount, 1, "a person's normal month should fit one page")
+        XCTAssertEqual(document.pageCount, 1, "a person's month should fit one page")
         let text = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
         XCTAssertTrue(text.contains("Ivan Horvat"), "the person's name does not head the sheet")
         XCTAssertTrue(text.contains("Halle 3"), "the second site is missing")
-        XCTAssertTrue(text.contains("Sick leave"), "the sick day has no reason")
         XCTAssertTrue(text.contains("Employee"), "the line to sign on is missing")
+        XCTAssertTrue(text.contains("Checked"), "the second line to sign on is missing")
+        // The whole month, as on the crew's sheet, and its closing rows.
+        for expected in [
+            "2026-08-01", "2026-08-31", "Victory Day", "Assumption of Mary", "Paused", "No work", "Sick leave",
+            "Vacation", "Crane delivery", "Month total", "Days worked", "Sick days", "Leave days", "Public holidays",
+            "Hours are after", "Orange", "Shaded", "Worked", "Days on site"
+        ] {
+            XCTAssertTrue(text.contains(expected), "\(expected) is not on the page")
+        }
+        XCTAssertFalse(text.contains("Summary"), "the closing rows say it; there is no summary block")
+        XCTAssertTrue(text.contains("page 1 of 1"))
+    }
+
+    /// One person's 31 days and their closing rows share one page, by the
+    /// crew sheet's own tightening, and nothing is under the footer band.
+    func testAPersonsFullMonthFitsOnePage() throws {
+        for allowance in [false, true] {
+            let table = crewMemberTable(allowance: allowance)
+            XCTAssertEqual(table.kind, .siteSheet)
+            XCTAssertTrue(table.isOnePersonSheet)
+            XCTAssertEqual(table.rows.filter { $0.role == .day }.count, 31)
+            XCTAssertEqual(
+                table.trailingSummaryRows, allowance ? 6 : 5,
+                "month total, days worked, sick, leave, public holidays, and allowance days"
+            )
+            XCTAssertEqual(PDFReportRenderer.parts(of: table), [table], "one person's sheet is never split or changed")
+
+            let layout = PDFReportLayout(table: table)
+            let plans = layout.pages()
+            XCTAssertEqual(plans.count, 1, "a person's full month spilled onto a second page")
+            XCTAssertTrue(plans[0].closes)
+            XCTAssertTrue(plans[0].showsTitle)
+            XCTAssertEqual(plans[0].rows, 0..<table.rows.count)
+            XCTAssertFalse(plans[0].drawsTotal, "the month total is one of the rows")
+            XCTAssertEqual(layout.summaryBlockHeight, 0, "no summary block under the closing rows")
+            XCTAssertGreaterThanOrEqual(layout.dayRowHeight, PDFReportLayout.minimumSiteDayRowHeight)
+            XCTAssertLessThanOrEqual(layout.dayRowHeight, PDFReportStyle.rowHeight)
+            XCTAssertGreaterThanOrEqual(layout.closingRowHeight, PDFReportLayout.tightClosingRowHeight)
+            XCTAssertGreaterThanOrEqual(layout.dayRowHeight, PDFReportStyle.cellFont.lineHeight)
+            XCTAssertGreaterThanOrEqual(layout.closingRowHeight, PDFReportStyle.cellBoldFont.lineHeight)
+            let used = PDFReportStyle.topMargin + layout.titleBlockHeight + layout.headingBlockHeight
+                + table.rows.reduce(CGFloat(0)) { $0 + layout.rowHeight($1) }
+            XCTAssertLessThanOrEqual(used, PDFReportStyle.contentBottom)
+            let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+            XCTAssertEqual(document.pageCount, 1)
+        }
+    }
+
+    /// In every export language: one page, the 31 days, and no date, time,
+    /// break or figure cut short; a closing label runs on over the day and
+    /// the site beside it rather than widening the dates.
+    func testAPersonsFullMonthFitsOnePageInEveryLanguage() throws {
+        for language in ExportLanguage.allCases where language != .device {
+            let table = crewMemberTable(language: language)
+            XCTAssertEqual(table.rows.filter { $0.role == .day }.count, 31, language.rawValue)
+            let layout = PDFReportLayout(table: table)
+            XCTAssertEqual(layout.pages().count, 1, language.rawValue)
+            XCTAssertTrue(layout.fits(availableWidth: PDFReportStyle.contentWidth), language.rawValue)
+            let widths = layout.columnWidths(availableWidth: PDFReportStyle.contentWidth)
+            let minimum = layout.minimumWidths()
+            for (index, column) in table.columns.enumerated() where !column.mayTruncate {
+                XCTAssertGreaterThanOrEqual(widths[index] + 0.5, minimum[index], "\(language.rawValue): \(column.rawValue)")
+            }
+            let monthTotal = try XCTUnwrap(table.rows.first { $0.role == .total })
+            XCTAssertEqual(layout.labelSpan(of: monthTotal), 0..<3, language.rawValue)
+            // The two figures at the top right are whole.
+            let header = table.pageHeader(madeOn: CalendarDate(Date(), calendar: .current), calendar: .current)
+            let metrics = PDFPageDecorations.figureMetrics(header.figures)
+            XCTAssertLessThanOrEqual(metrics.width, PDFPageDecorations.figuresMaximumWidth + 0.5, language.rawValue)
+            let document = try XCTUnwrap(PDFDocument(data: PDFReportRenderer.data(for: table)))
+            XCTAssertEqual(document.pageCount, 1, language.rawValue)
+            let text = document.page(at: 0)?.string ?? ""
+            for figure in header.figures {
+                XCTAssertTrue(text.contains(figure.label), "\(language.rawValue): \(figure.label) is cut short")
+            }
+            for label in table.rows.filter({ $0.role != .day }).compactMap(\.values.first) {
+                XCTAssertTrue(text.contains(label), "\(language.rawValue): \(label) is cut short")
+            }
+        }
+    }
+
+    /// "Show empty days" off: only the days written for them, at full height.
+    func testAPersonsSheetOfWrittenDaysPrintsAtFullHeight() {
+        let table = crewMemberTable(listsEveryDay: false)
+        XCTAssertEqual(table.rows.filter { $0.role == .day }.count, 16, "fourteen days worked and two away")
+        let layout = PDFReportLayout(table: table)
+        XCTAssertEqual(layout.dayRowHeight, PDFReportStyle.rowHeight)
+        XCTAssertEqual(layout.closingRowHeight, PDFReportStyle.closingRowHeight)
+        XCTAssertEqual(layout.pages().count, 1)
+    }
+
+    /// A day that says what it was — a holiday, a pause, a day away — is
+    /// said once from the person's times to the notes; a day worked is not.
+    func testAPersonsDayAwayIsSaidOnceAcrossTheirColumns() throws {
+        let table = crewMemberTable()
+        let key = { (day: Int) in Fixture.date(2026, 8, day).key }
+        let sick = try XCTUnwrap(table.rows.first { $0.id == key(11) })
+        XCTAssertEqual(table.dayBanner(of: sick), ReportDayBanner(text: "Sick leave", columns: 3..<7))
+        let holiday = try XCTUnwrap(table.rows.first { $0.id == key(5) })
+        XCTAssertEqual(table.dayBanner(of: holiday)?.text, "Victory Day")
+        let paused = try XCTUnwrap(table.rows.first { $0.id == key(27) })
+        XCTAssertEqual(table.dayBanner(of: paused)?.text, "Paused")
+        let worked = try XCTUnwrap(table.rows.first { $0.id == key(3) })
+        XCTAssertNil(table.dayBanner(of: worked))
+        let weekend = try XCTUnwrap(table.rows.first { $0.id == key(8) })
+        XCTAssertNil(table.dayBanner(of: weekend))
+        XCTAssertFalse(weekend.isWorkingDay)
     }
 
     /// The CSV and the workbook, written exactly as the app writes them.

@@ -137,12 +137,10 @@ struct ExportThisSheetScreen: View {
                 Toggle("One sheet per person", isOn: $perPerson)
                     .accessibilityIdentifier("export-per-person")
                 // The crew's sheet lists every day of the month, as your
-                // own does; off, only the days written. One person's sheet
-                // lists their days.
-                if !perPerson {
-                    Toggle("Show empty days", isOn: $preferences.includeEmptyDays)
-                        .accessibilityIdentifier("export-include-empty-days")
-                }
+                // own does; off, only the days written. One sheet per
+                // person lists the month the same way, so the switch stays.
+                Toggle("Show empty days", isOn: $preferences.includeEmptyDays)
+                    .accessibilityIdentifier("export-include-empty-days")
                 if offersDiary && !perPerson {
                     Toggle("Include the site diary", isOn: $includesDiary)
                         .accessibilityIdentifier("export-include-diary")
@@ -181,6 +179,9 @@ struct ExportThisSheetScreen: View {
             }
         case .onePerson:
             Section {
+                // One person's sheet lists the month as the crew's does.
+                Toggle("Show empty days", isOn: $preferences.includeEmptyDays)
+                    .accessibilityIdentifier("export-include-empty-days")
                 Toggle("Crew sign-off", isOn: $includesSignatures)
                     .accessibilityIdentifier("export-include-signatures")
             }

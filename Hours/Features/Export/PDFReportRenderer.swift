@@ -238,7 +238,7 @@ struct PDFTablePainter {
                     ? PDFReportStyle.cellBoldFont
                     : PDFReportLayout.font(for: column, role: row.role),
                 color: color(of: row, column: column, index: index),
-                alignment: column.isNumeric ? .right : .left
+                alignment: column.isNumeric || isClosingFigure(row, column: column) ? .right : .left
             )
         }
 
@@ -292,10 +292,20 @@ struct PDFTablePainter {
         return nil
     }
 
+    /// A figure that ends a site sheet's closing row in the notes column —
+    /// the vehicle's kilometres, a site's hours, the crew's — set against
+    /// the right edge like the figures under the people.
+    private func isClosingFigure(_ row: ReportRow, column: ReportColumn) -> Bool {
+        row.role != .day && column == .note && table.kind == .siteSheet
+    }
+
     /// The colour of one cell, from what it means rather than where it is.
     private func color(of row: ReportRow, column: ReportColumn, index: Int) -> UIColor {
         if row.flagged.contains(index) { return PDFReportStyle.accent }
         if row.role == .count { return PDFReportStyle.secondary }
+        // The crew's hours at the end of "Month total", as dark as the
+        // totals beside them.
+        if row.role == .total && column == .note { return PDFReportStyle.ink }
         // The word that says what kind of day it was, in its type's colour.
         if let tint = row.dayTint, column == .dayType || (column == .note && table.kind == .siteSheet) {
             return PDFReportStyle.dayInk(tint)

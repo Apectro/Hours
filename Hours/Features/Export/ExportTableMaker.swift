@@ -24,6 +24,8 @@ struct ExportTables {
     /// its two summary rows, so a month with no site days has those and
     /// nothing else — or, now that it lists every day of the month, those
     /// and a month of empty rows: it has content once a day is written.
+    /// One person's own sheet is a site sheet too: it has content once a
+    /// day was written for them, worked or away.
     var hasContent: Bool {
         if file.kind == .siteSheet { return file.writtenDayCount > 0 }
         return file.rows.count > min(max(file.trailingSummaryRows, 0), file.rows.count)
@@ -179,18 +181,7 @@ struct ExportTableMaker {
             uniquingKeysWith: { first, _ in first }
         )
 
-        // The public holidays off in the month, each with its name: the same
-        // rules, the region's and your own, that the site's calendar draws
-        // (`SiteMonthStatuses.holidayNames`), and none while holidays are
-        // not tracked.
-        let holidays: [CalendarDate: String] = settings.features.trackHolidays
-            ? HolidayResolver(
-                rules: WorkdayRepository(context: context).holidayRules(),
-                calendar: calendar,
-                covering: range
-            ).daysOff(in: range, calendar: calendar)
-            : [:]
-        let sheetMonth = SiteSheetMonth(holidays: holidays, listsEveryDay: settings.export.includeEmptyDays)
+        let sheetMonth = siteSheetMonth(in: range)
 
         // 1.3: the open defects of each site whose sign-off sheet asks for
         // them, after the signatures; with several sites, each under its name.
@@ -217,6 +208,22 @@ struct ExportTableMaker {
         tables.photoIDs = (printsDiary ? Set(diary.blocks.flatMap(\.photoIDs)) : [])
             .union(openDefects.compactMap(\.photoID))
         return tables
+    }
+
+    /// What a site sheet — the crew's, or one person's own — knows about
+    /// its month: the public holidays off, each with its name, by the same
+    /// rules, the region's and your own, that the site's calendar draws
+    /// (`SiteMonthStatuses.holidayNames`), none while holidays are not
+    /// tracked; and whether every day is listed ("Show empty days").
+    func siteSheetMonth(in range: CalendarDateRange) -> SiteSheetMonth {
+        let holidays: [CalendarDate: String] = settings.features.trackHolidays
+            ? HolidayResolver(
+                rules: WorkdayRepository(context: context).holidayRules(),
+                calendar: calendar,
+                covering: range
+            ).daysOff(in: range, calendar: calendar)
+            : [:]
+        return SiteSheetMonth(holidays: holidays, listsEveryDay: settings.export.includeEmptyDays)
     }
 
     /// The open defects the sheet lists, numbered across the sites, for each

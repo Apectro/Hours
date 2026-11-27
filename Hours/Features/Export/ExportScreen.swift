@@ -744,7 +744,9 @@ struct ExportScreen: View {
                 let sheet = maker.crewSheet(for: member, month: month, includeSignatures: includesSignatures)
                 personSheet = sheet
                 first = sheet.tables
-                let days = sheet.tables.file.rows.filter { $0.role == .day }.count
+                // The days written for them: the sheet has a row for every
+                // day of the month, and a day on two sites has two.
+                let days = sheet.tables.file.writtenDayCount
                 summary = sheet.tables.hasContent ? String(inflected: "^[\(days) day](inflect: true)") : ""
             } else {
                 summary = ""

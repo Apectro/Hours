@@ -966,7 +966,8 @@ final class ScreenAtlasTests: XCTestCase {
                 let perPerson = app.switches.matching(identifier: "export-per-person").firstMatch
                 if perPerson.waitForExistence(timeout: 5) {
                     // The crew sheet's switches, Show empty days among them
-                    // (2026-11); it goes while each person has a sheet.
+                    // (2026-11); it stays while each person has a sheet,
+                    // which lists the month the same way.
                     capture("site-export-options", app)
                     flip(perPerson)
                     pause(1)

@@ -16,7 +16,7 @@ struct ExportPreviewTable: View {
         let widths = ExportPreviewWidths.measure(table)
         ScrollView(.horizontal, showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
-                if table.validGroups.isEmpty {
+                if !table.hasSpanningGroups {
                     flatHeadings(widths)
                 } else {
                     groupHeadings(widths)
