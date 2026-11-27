@@ -368,6 +368,108 @@ final class CombinedSiteSheetTests: XCTestCase {
         XCTAssertFalse(off.legend.contains("sign-offs"))
     }
 
+    // MARK: - By site on the printed page
+
+    /// The page folds By site into the closing rows: each site's hours end
+    /// its row, the crew's end "Month total", the addresses go under the
+    /// title, and the block is gone.
+    func testThePageFoldsBySiteIntoTheClosingRows() {
+        let t = table([haupt, trg], days: [
+            day(haupt, 3, present: [CrewMember.youID, ivan.id]),
+            day(trg, 4, present: [ivanThere.id, luka.id], end: Fixture.time(12), breakMinutes: 0)
+        ])
+        let printed = t.printedWithBySiteInClosingRows
+        XCTAssertTrue(printed.bySite.isEmpty)
+        XCTAssertEqual(closing(printed, "Hauptstraße 12")?.last, "17h")
+        XCTAssertEqual(closing(printed, "Trg Pravde")?.last, "10h")
+        XCTAssertEqual(closing(printed, "Month total")?.last, "27h", "the crew's hours, as the header says")
+        XCTAssertEqual(closing(printed, "Days worked")?.last, "")
+        XCTAssertEqual(printed.address, "Hauptstraße 12, 10115 Berlin", "a site named after its street says it once")
+        let header = printed.pageHeader(madeOn: Fixture.date(2026, 9, 1), calendar: calendar)
+        XCTAssertTrue(header.detailLine.hasPrefix("Hauptstraße 12, 10115 Berlin · "), header.detailLine)
+        // Any other site's address follows its name.
+        let yard = Site(name: "Yard", address: "Ilica 1\n10000 Zagreb")
+        let named = table([yard, haupt], days: [day(yard, 3, present: [ivan.id]), day(haupt, 4, present: [ivan.id])])
+        XCTAssertEqual(
+            named.printedWithBySiteInClosingRows.address,
+            "Yard, Ilica 1, 10000 Zagreb · Hauptstraße 12, 10115 Berlin"
+        )
+        // Nothing else moves: the same rows, the same figures under people.
+        XCTAssertEqual(printed.rows.count, t.rows.count)
+        XCTAssertEqual(printed.trailingSummaryRows, t.trailingSummaryRows)
+        XCTAssertEqual(printed.rows.map { Array($0.values.dropLast()) }, t.rows.map { Array($0.values.dropLast()) })
+        XCTAssertEqual(printed.rows.map(\.minutes), t.rows.map(\.minutes), "the figures stay text in the notes")
+        // Folding twice changes nothing more, and the files are untouched.
+        XCTAssertEqual(printed.printedWithBySiteInClosingRows, printed)
+        XCTAssertEqual(t.bySite.count, 3)
+        XCTAssertEqual(t.address, "")
+    }
+
+    func testFoldingKeepsTheKilometresAndEveryOtherClosingRow() {
+        let t = table(
+            [haupt, trg],
+            days: [
+                day(haupt, 3, present: [ivan.id], km: 40),
+                day(trg, 4, present: [luka.id], absences: [CrewAbsence(memberID: ivanThere.id, dayTypeID: .sick)])
+            ],
+            settings: settings(allowance: true)
+        )
+        let printed = t.printedWithBySiteInClosingRows
+        XCTAssertEqual(closing(printed, "Kilometres")?.last, "40 km")
+        XCTAssertEqual(closing(printed, "Sick days"), closing(t, "Sick days"))
+        XCTAssertEqual(closing(printed, "Trg Pravde")?.last, "8h 30m")
+    }
+
+    func testTwoSitesOfOneNameEachGetTheirOwnHours() {
+        let twin = Site(name: "Hauptstraße 12")
+        let there = CrewMember(siteID: twin.id, name: "Luka", sortOrder: 0)
+        let settings = settings()
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        let t = SiteSheetBuilder(settings: settings, calendar: calendar).makeTable(
+            sites: [haupt, twin],
+            crew: [ivan, there],
+            results: [
+                day(haupt, 3, present: [ivan.id]),
+                day(twin, 4, present: [there.id], end: Fixture.time(12), breakMinutes: 0)
+            ].map(calculator.compute),
+            range: august
+        )
+        let printed = t.printedWithBySiteInClosingRows
+        let rows = printed.rows.filter { $0.role == .count && $0.values[0] == "Hauptstraße 12" }
+        XCTAssertEqual(rows.compactMap(\.values.last), ["8h 30m", "5h"])
+    }
+
+    func testOnlyASheetForSeveralSitesIsFolded() {
+        let one = table([haupt], days: [day(haupt, 3, present: [ivan.id])])
+        XCTAssertEqual(one.printedWithBySiteInClosingRows, one)
+        // A part that lost a site's row with its people keeps the block.
+        var broken = table([haupt, trg], days: [day(haupt, 3, present: [ivan.id]), day(trg, 4, present: [luka.id])])
+        broken.rows.removeAll { $0.role == .count && $0.values[0] == "Trg Pravde" }
+        broken.trailingSummaryRows -= 1
+        XCTAssertEqual(broken.printedWithBySiteInClosingRows, broken)
+        XCTAssertEqual(broken.printedWithBySiteInClosingRows.bySite.count, 3)
+    }
+
+    func testTheLastPartOfASplitSheetIsFoldedWhenItHasEverySite() {
+        let many = (0..<8).map { CrewMember(siteID: trg.id, name: "Person \($0)", sortOrder: 10 + $0) }
+        let settings = settings()
+        let calculator = SiteDayCalculator(settings: settings, calendar: calendar)
+        let t = SiteSheetBuilder(settings: settings, calendar: calendar).makeTable(
+            sites: [haupt, trg],
+            crew: crew + many,
+            results: [
+                day(haupt, 3, present: [ivan.id, marko.id] + many.suffix(1).map(\.id)),
+                day(trg, 3, present: many.dropLast().map(\.id))
+            ].map(calculator.compute),
+            range: august
+        )
+        let parts = SiteSheetBuilder.split(t, peoplePerPage: 5).map(\.printedWithBySiteInClosingRows)
+        XCTAssertEqual(parts.count, 2)
+        XCTAssertTrue(parts.allSatisfy(\.bySite.isEmpty), "the first part never had it; the last folds it")
+        XCTAssertEqual(closing(parts[1], "Month total")?.last, t.bySite.last?.value)
+        XCTAssertEqual(closing(parts[0], "Month total")?.last, "")
+    }
+
     // MARK: - Pages and files
 
     func testASplitSheetKeepsBySiteForItsLastPart() {

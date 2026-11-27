@@ -494,3 +494,56 @@ extension SiteDiaryReport {
         )
     }
 }
+
+extension ReportTable {
+    /// A sheet for several sites as the page prints it (2026-11): its "By
+    /// site" block folded into the closing rows it repeats. Each site's row
+    /// already gives every person's hours there; the site's own hours now
+    /// end that row, in the notes column, and the crew's hours end "Month
+    /// total". The addresses, which the block carried, go under the title,
+    /// each after its site's name ("Trg Pravde, Ilica 207C, Zagreb").
+    ///
+    /// The block stood under the closing rows and cost five lines, which is
+    /// what sent a whole month for two sites on to a second page. A workbook
+    /// and a CSV have the room and keep the block: this is for the PDF only.
+    ///
+    /// Any other table comes back as it is, and so does a sheet whose
+    /// closing rows are not the ones `makeTable(sites:)` writes — a part of
+    /// a split sheet that lost a site's row with the people who worked
+    /// there — which then prints the block as before.
+    var printedWithBySiteInClosingRows: ReportTable {
+        guard kind == .siteSheet, !isOnePersonSheet, totals.isEmpty, columns.last == .note,
+              let crew = bySite.last, crew.isTotal, bySite.count > 1,
+              trailingSummaryRows >= 2, trailingSummaryRows <= rows.count
+        else { return self }
+        let sites = bySite.dropLast()
+        guard !sites.contains(where: \.isTotal) else { return self }
+        let closingStart = rows.count - trailingSummaryRows
+        let note = columns.count - 1
+        guard rows[closingStart].role == .total, rows[closingStart].values.count == columns.count,
+              rows[closingStart].values[note].isEmpty
+        else { return self }
+
+        var printed = self
+        var used = Set<Int>()
+        for site in sites {
+            // Month total and days worked come first; the sites follow, in
+            // the sheet's order, so two sites of one name are told apart.
+            guard let index = ((closingStart + 2)..<rows.count).first(where: { index in
+                !used.contains(index) && rows[index].role == .count && rows[index].values.count == columns.count
+                    && rows[index].values[0] == site.name && rows[index].values[note].isEmpty
+            }) else { return self }
+            used.insert(index)
+            printed.rows[index].values[note] = site.value
+        }
+        printed.rows[closingStart].values[note] = crew.value
+        // "Trg Pravde, Ilica 207C, Zagreb"; a site named after its street
+        // says it once.
+        let addresses = sites.filter { !$0.address.isEmpty }.map { site in
+            site.address.lowercased().hasPrefix(site.name.lowercased()) ? site.address : "\(site.name), \(site.address)"
+        }
+        if address.isEmpty { printed.address = addresses.joined(separator: " · ") }
+        printed.bySite = []
+        return printed
+    }
+}
