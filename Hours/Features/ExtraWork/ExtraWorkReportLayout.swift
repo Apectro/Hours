@@ -80,6 +80,10 @@ struct ExtraWorkReportLayout {
 
     enum Block: Hashable {
         case header
+        /// What a page after the first opens with, on the PDF only: the
+        /// eyebrow and the site again, smaller. Never among `blocks`; the
+        /// PDF renderer puts it at the top of each later page.
+        case runningHeader
         case jobsHead
         case job(Int)
         case progressHead
@@ -87,7 +91,11 @@ struct ExtraWorkReportLayout {
         case materialHead
         case material(Int)
 
-        var isHeading: Bool { self == .jobsHead || self == .progressHead || self == .materialHead }
+        /// A heading has nothing of its own to say: a page that holds only
+        /// headings is still empty.
+        var isHeading: Bool {
+            self == .jobsHead || self == .progressHead || self == .materialHead || self == .runningHeader
+        }
     }
 
     let document: ExtraWorkDocument
@@ -171,6 +179,7 @@ struct ExtraWorkReportLayout {
     func height(of block: Block) -> CGFloat {
         switch block {
         case .header: return headerHeight
+        case .runningHeader: return runningHeaderHeight
         case .jobsHead, .progressHead, .materialHead: return sectionGap + sectionTitleHeight + columnHeadHeight
         case .material: return materialRowHeight
         case let .job(index): return jobHeight(document.jobs[index])
@@ -250,6 +259,9 @@ struct ExtraWorkReportLayout {
         headerBase + addressExtra
     }
 
+    /// The eyebrow, the site on one smaller line and the rule under them.
+    private var runningHeaderHeight: CGFloat { 32 * k }
+
     /// The site's address goes under the byline, one smaller line, as on the
     /// site sheet. It sits in the byline's two-line slot when there is room,
     /// and pushes the rest of the header down only by what it needs.
@@ -274,6 +286,8 @@ struct ExtraWorkReportLayout {
         switch block {
         case .header:
             drawHeader(at: y)
+        case .runningHeader:
+            drawRunningHeader(at: y)
         case .jobsHead, .progressHead:
             drawSection(
                 block == .jobsHead ? document.jobsHeading : document.inProgressHeading,
@@ -292,6 +306,31 @@ struct ExtraWorkReportLayout {
             drawMaterial(document.material[index], isLast: index == document.material.count - 1, at: y)
         }
         return y + height(of: block)
+    }
+
+    /// A page after the first says what it belongs to, as a timesheet's
+    /// later pages do: the orange eyebrow, the site on one smaller line,
+    /// and a rule.
+    private func drawRunningHeader(at y: CGFloat) {
+        PDFReportStyle.draw(
+            document.eyebrow.uppercased(with: document.language.locale),
+            in: CGRect(x: margin, y: y, width: width, height: 11 * k),
+            font: eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8 * k
+        )
+        PDFReportStyle.draw(
+            document.title,
+            in: CGRect(x: margin, y: y + 12 * k, width: width, height: 15 * k),
+            font: scaled(PDFReportStyle.runningTitleFont),
+            color: PDFReportStyle.ink
+        )
+        PDFReportStyle.line(
+            from: CGPoint(x: margin, y: y + 30 * k),
+            to: CGPoint(x: margin + width, y: y + 30 * k),
+            width: 0.8 * k,
+            color: PDFReportStyle.ink
+        )
     }
 
     /// "EXTRA WORK DONE · 19 – 22 OCTOBER 2026" in small orange capitals,

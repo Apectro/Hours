@@ -20,7 +20,8 @@ import UIKit
 /// for a chat (`ExtraWorkPictureRenderer`); this type only cuts its blocks
 /// into pages. Laid out before drawing, as the director's sheet is, so the
 /// footer knows the page count; jobs that do not fit carry on over the next
-/// pages under their headings again.
+/// pages under their headings again, each such page opening with the
+/// eyebrow and the site once more, smaller.
 enum ExtraWorkPDFRenderer {
     static let pageSize = CGSize(width: 595, height: 842)
 
@@ -83,6 +84,8 @@ enum ExtraWorkPDFRenderer {
                 pages.append(page)
                 page = Page()
                 y = metrics.top
+                // A later page says what it belongs to first.
+                page.blocks.append(.runningHeader)
                 // Rows that carry on over a page carry their heading with them.
                 switch block {
                 case .material: page.blocks.append(.materialHead)
@@ -103,7 +106,7 @@ enum ExtraWorkPDFRenderer {
             pages.append(page)
         } else {
             pages.append(page)
-            pages.append(Page(blocks: [], closes: true))
+            pages.append(Page(blocks: [.runningHeader], closes: true))
         }
         return pages
     }

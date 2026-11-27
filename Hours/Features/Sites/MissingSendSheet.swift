@@ -179,7 +179,9 @@ struct MissingSendSheet: View {
 /// The Missing list on one A4 page, in the look of the app's other exports:
 /// the orange eyebrow, the site, who it is from, then Quantity · Item ·
 /// Code · Note over thin rules. A list too long for one page carries on
-/// over the next.
+/// over the next under a running header — the eyebrow and the site again,
+/// smaller — and every page says "page 1 of 2": laid out first and drawn
+/// second, as the other reports are, so the count is known.
 enum MissingPDFRenderer {
     static let pageSize = CGSize(width: 595, height: 842)
 
@@ -199,39 +201,87 @@ enum MissingPDFRenderer {
         let font = UIFont.systemFont(ofSize: 10.5)
         let bottom = pageSize.height - margin - 24
 
-        return renderer.pdfData { context in
-            var page = 1
-            context.beginPage()
-            var y = drawHeader(message, at: margin, width: width)
-            y = drawHeadings(message.headings, columns: columns, at: y)
-            for row in message.rows {
-                let values = [row.quantity, row.name, row.code, row.note]
-                let height = values.enumerated().map { index, value in
-                    textHeight(value, width: columns[index] - rowPadding, font: font)
-                }.max() ?? font.lineHeight
-                let rowHeight = height + rowPadding * 2
-                if y + rowHeight > bottom {
-                    drawFooter(page: page, language: message.language)
-                    context.beginPage()
-                    page += 1
-                    y = drawHeadings(message.headings, columns: columns, at: margin)
-                }
-                var x = margin
-                for (index, value) in values.enumerated() {
-                    let cellFont = index == 0 ? UIFont.monospacedDigitSystemFont(ofSize: 10.5, weight: .semibold) : font
-                    PDFReportStyle.drawWrapping(
-                        value,
-                        in: CGRect(x: x, y: y + rowPadding, width: columns[index] - rowPadding, height: height + 1),
-                        font: cellFont,
-                        color: index == 3 ? PDFReportStyle.secondary : PDFReportStyle.ink
-                    )
-                    x += columns[index]
-                }
-                y += rowHeight
-                PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.5, color: PDFReportStyle.rule)
-            }
-            drawFooter(page: page, language: message.language)
+        // How tall each row's text is, then which rows go on which page: at
+        // least one a page, and one page even for a list with nothing on it.
+        let listed = message.rows
+        let textHeights = listed.map { row -> CGFloat in
+            let values = [row.quantity, row.name, row.code, row.note]
+            return values.enumerated().map { index, value in
+                textHeight(value, width: columns[index] - rowPadding, font: font)
+            }.max() ?? font.lineHeight
         }
+        var pages: [Range<Int>] = []
+        var first = 0
+        var filled = headerBottom(message, top: margin) + headingsHeight
+        for (index, height) in textHeights.enumerated() {
+            let rowHeight = height + rowPadding * 2
+            if filled + rowHeight > bottom && index > first {
+                pages.append(first..<index)
+                first = index
+                filled = margin + runningHeaderHeight + headingsHeight
+            }
+            filled += rowHeight
+        }
+        pages.append(first..<textHeights.count)
+
+        return renderer.pdfData { context in
+            for (number, rows) in pages.enumerated() {
+                context.beginPage()
+                var y = number == 0
+                    ? drawHeader(message, at: margin, width: width)
+                    : drawRunningHeader(message, at: margin, width: width)
+                y = drawHeadings(message.headings, columns: columns, at: y)
+                for rowIndex in rows {
+                    let row = listed[rowIndex]
+                    let values = [row.quantity, row.name, row.code, row.note]
+                    let height = textHeights[rowIndex]
+                    var x = margin
+                    for (index, value) in values.enumerated() {
+                        let cellFont = index == 0 ? UIFont.monospacedDigitSystemFont(ofSize: 10.5, weight: .semibold) : font
+                        PDFReportStyle.drawWrapping(
+                            value,
+                            in: CGRect(x: x, y: y + rowPadding, width: columns[index] - rowPadding, height: height + 1),
+                            font: cellFont,
+                            color: index == 3 ? PDFReportStyle.secondary : PDFReportStyle.ink
+                        )
+                        x += columns[index]
+                    }
+                    y += height + rowPadding * 2
+                    PDFReportStyle.line(from: CGPoint(x: margin, y: y), to: CGPoint(x: margin + width, y: y), width: 0.5, color: PDFReportStyle.rule)
+                }
+                drawFooter(page: number + 1, of: pages.count, language: message.language)
+            }
+        }
+    }
+
+    /// Where the first page's column headings start: under the eyebrow, the
+    /// site and, when there is one, the byline.
+    private static func headerBottom(_ message: MissingMessage, top: CGFloat) -> CGFloat {
+        top + 12 + 34 + (message.byline.isEmpty ? 0 : 16) + 14
+    }
+
+    /// The column headings and the rule under them.
+    private static let headingsHeight: CGFloat = 16
+    /// A later page's eyebrow, the site on one smaller line, and a gap.
+    private static let runningHeaderHeight: CGFloat = 38
+
+    /// A page after the first says what it belongs to, as the other
+    /// reports' later pages do: the orange eyebrow, then the site smaller.
+    private static func drawRunningHeader(_ message: MissingMessage, at top: CGFloat, width: CGFloat) -> CGFloat {
+        PDFReportStyle.draw(
+            "\(message.title) · \(message.dateText)".uppercased(with: message.language.locale),
+            in: CGRect(x: margin, y: top, width: width, height: 11),
+            font: PDFReportStyle.eyebrowFont,
+            color: PDFReportStyle.accent,
+            kern: 0.8
+        )
+        PDFReportStyle.draw(
+            message.siteName,
+            in: CGRect(x: margin, y: top + 12, width: width, height: 15),
+            font: PDFReportStyle.runningTitleFont,
+            color: PDFReportStyle.ink
+        )
+        return top + runningHeaderHeight
     }
 
     /// "MISSING MATERIAL · 3 NOV 2026" in the reports' orange eyebrow, the
@@ -262,6 +312,7 @@ enum MissingPDFRenderer {
             )
             y += 16
         }
+        // The same sum `headerBottom` lays the pages out by.
         return y + 14
     }
 
@@ -276,7 +327,7 @@ enum MissingPDFRenderer {
             )
             x += columns[index]
         }
-        let y = top + 16
+        let y = top + headingsHeight
         PDFReportStyle.line(
             from: CGPoint(x: margin, y: y),
             to: CGPoint(x: pageSize.width - margin, y: y),
@@ -286,14 +337,16 @@ enum MissingPDFRenderer {
         return y
     }
 
-    private static func drawFooter(page: Int, language: ExportLanguage) {
-        let pageText = [language(.page), String(page)].joined(separator: " ")
-        let text = ["Zeitkonto", pageText].joined(separator: " · ")
+    /// "Zeitkonto · page 1 of 2" at the foot on the right, as on the
+    /// extra-work report and the timesheets.
+    private static func drawFooter(page: Int, of count: Int, language: ExportLanguage) {
+        let text = ["Zeitkonto", language.pageOf(page, count)].joined(separator: " · ")
         PDFReportStyle.draw(
             text,
             in: CGRect(x: margin, y: pageSize.height - margin, width: pageSize.width - margin * 2, height: 12),
             font: PDFReportStyle.footerFont,
-            color: PDFReportStyle.faint
+            color: PDFReportStyle.faint,
+            alignment: .right
         )
     }
 

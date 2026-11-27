@@ -12,10 +12,14 @@ struct PDFAppendix {
     /// Printable images by photo id (see `DiaryPhotoProcessor.printableImage`).
     let photos: [UUID: UIImage]
 
+    /// Every page carries its heading — "SIGN-OFF" over the site and the
+    /// month — so a second page of diary days or of signatures still says
+    /// what it belongs to, as a later page of the table does with its
+    /// running header. `isFirst` marks the first page of each run.
     enum Page: Hashable {
-        /// A run of sign-off boxes; the first page of them carries the heading.
+        /// A run of sign-off boxes.
         case signOff(Range<Int>, isFirst: Bool)
-        /// A run of diary days; the first page of them carries the heading.
+        /// A run of diary days.
         case diary(Range<Int>, isFirst: Bool)
         /// A run of the site's open defects (1.3), after the sign-off.
         case defects(Range<Int>, isFirst: Bool)
@@ -56,7 +60,7 @@ struct PDFAppendix {
             var next = 0
             var isFirst = true
             while next < signOff.count {
-                let available = bottom - top - (isFirst ? PDFAppendix.headingHeight : 0)
+                let available = bottom - top - PDFAppendix.headingHeight
                 let rows = max(1, Int(available / rowHeight))
                 let end = min(signOff.count, next + rows * PDFAppendix.boxColumns)
                 pages.append(.signOff(next..<end, isFirst: isFirst))
@@ -70,7 +74,7 @@ struct PDFAppendix {
             var next = 0
             var isFirst = true
             while next < defects.count {
-                let available = bottom - top - (isFirst ? PDFAppendix.headingHeight : 0)
+                let available = bottom - top - PDFAppendix.headingHeight
                 let rows = max(1, Int(available / PDFAppendix.defectRowHeight))
                 let end = min(defects.count, next + rows)
                 pages.append(.defects(next..<end, isFirst: isFirst))
@@ -91,7 +95,7 @@ struct PDFAppendix {
                 if y + height > bottom && index > first {
                     pages.append(.diary(first..<index, isFirst: isFirst))
                     first = index
-                    y = top
+                    y = top + PDFAppendix.headingHeight
                     isFirst = false
                 }
                 y += height + PDFAppendix.blockGap
@@ -103,25 +107,21 @@ struct PDFAppendix {
 
     func draw(_ page: Page) {
         switch page {
-        case let .signOff(range, isFirst):
-            var y = top
-            if isFirst {
-                y = drawHeading(table.language(.signOff), at: y)
-            }
+        case let .signOff(range, _):
+            let y = drawHeading(table.language(.signOff), at: top)
             drawSignOff(range, from: y)
-        case let .defects(range, isFirst):
-            var y = top
-            if isFirst {
-                y = drawHeading(table.language(.openDefects), at: y)
-            }
+        case let .defects(range, _):
+            var y = drawHeading(table.language(.openDefects), at: top)
             for index in range {
                 drawDefect(table.openDefects[index], at: y)
                 y += PDFAppendix.defectRowHeight
             }
-        case let .diary(range, isFirst):
-            var y = top
-            if isFirst, let title = table.diary?.title {
-                y = drawHeading(title, at: y)
+        case let .diary(range, _):
+            // The room is kept whether or not there is a title to draw, as
+            // the pages were laid out.
+            var y = top + PDFAppendix.headingHeight
+            if let title = table.diary?.title {
+                y = drawHeading(title, at: top)
             }
             // Nothing is drawn past the content area, so a day longer than a
             // page is cut there rather than running into the footer.

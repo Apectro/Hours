@@ -158,6 +158,10 @@ final class ExtraWorkPDFTests: XCTestCase {
         let rendered = try pages(document(.english, jobs: 60))
         XCTAssertGreaterThan(rendered.count, 1)
         XCTAssertTrue(rendered[1].contains("WORK DONE, DAY BY DAY"), "the heading goes over with the rows")
+        // A later page opens with the site again, under the eyebrow.
+        for page in rendered.dropFirst() {
+            XCTAssertTrue(page.contains(site.name), "a later page does not say which site it is: \(page)")
+        }
         XCTAssertTrue(rendered.last?.contains("Quantities as fitted on site.") == true, "the legend closes the last page")
         XCTAssertTrue(rendered.last?.contains("page \(rendered.count) of \(rendered.count)") == true)
     }
