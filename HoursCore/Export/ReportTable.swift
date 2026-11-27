@@ -330,3 +330,18 @@ struct ReportTable: Hashable, Sendable {
         return titles.indices.contains(index) ? titles[index] : ""
     }
 }
+
+extension ReportTable {
+    /// A director's sheet's legend, naming only what the page has: how each
+    /// person's cells read, then orange where someone came late or left
+    /// early, the dash where one is printed, and the shading where a day is
+    /// shaded.
+    func siteLegend(lead: String, lateOrEarly: String, notOnSite: String, shaded: String, placeholder: String) -> String {
+        var parts = [lead]
+        let days = rows.filter { $0.role == .day }
+        if days.contains(where: { !$0.flagged.isEmpty }) { parts.append(lateOrEarly) }
+        if placeholder == "\u{2014}", days.contains(where: { $0.values.contains(placeholder) }) { parts.append(notOnSite) }
+        if hasDayHighlights { parts.append(shaded) }
+        return parts.joined(separator: " ")
+    }
+}

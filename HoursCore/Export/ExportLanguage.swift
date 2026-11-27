@@ -320,73 +320,57 @@ enum ExportLanguage: String, Codable, CaseIterable, Hashable, Sendable, Identifi
                                           es: "Personas {range} de {total}", pt: "Pessoas {range} de {total}",
                                           nl: "Personen {range} van {total}", pl: "Osoby {range} z {total}")
         case .siteLegend:     return pick(
-            en: "Each person: on site – off site, then hours after the break. Orange = came late or left early. "
-                + "— = not on this site that day.",
-            de: "Je Person: Ankunft – Abfahrt, dann die Stunden nach Abzug der Pause. Orange = später gekommen "
-                + "oder früher gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
-            hr: "Za svaku osobu: dolazak – odlazak, zatim sati nakon pauze. Narančasto = došao kasnije ili otišao "
-                + "ranije. — = taj dan nije bio na ovom gradilištu.",
-            sl: "Za vsako osebo: prihod – odhod, nato ure po odmoru. Oranžno = prišel pozneje ali odšel prej. "
-                + "— = ta dan ni bil na tem gradbišču.",
-            it: "Per ogni persona: arrivo – uscita, poi le ore al netto della pausa. Arancione = arrivato tardi o "
-                + "uscito prima. — = quel giorno non era in questo cantiere.",
-            fr: "Pour chaque personne : arrivée – départ, puis les heures après la pause. Orange = arrivé en retard "
-                + "ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
-            es: "Para cada persona: llegada – salida y después las horas descontada la pausa. Naranja = llegó tarde "
-                + "o se fue antes. — = no estuvo en esta obra ese día.",
-            pt: "Para cada pessoa: chegada – saída e depois as horas descontada a pausa. Laranja = chegou mais tarde "
-                + "ou saiu mais cedo. — = não esteve nesta obra nesse dia.",
-            nl: "Per persoon: aankomst – vertrek, daarna de uren na de pauze. Oranje = later gekomen of eerder "
-                + "vertrokken. — = die dag niet op deze bouwplaats.",
-            pl: "Dla każdej osoby: przyjście – wyjście, potem godziny po odjęciu przerwy. Pomarańczowy = przyszedł "
-                + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+            en: "Each person: on site – off site, then hours after the break.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Stunden nach Abzug der Pause.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim sati nakon pauze.",
+            sl: "Za vsako osebo: prihod – odhod, nato ure po odmoru.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore al netto della pausa.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures après la pause.",
+            es: "Para cada persona: llegada – salida y después las horas descontada la pausa.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas descontada a pausa.",
+            nl: "Per persoon: aankomst – vertrek, daarna de uren na de pauze.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem godziny po odjęciu przerwy."
         )
 
         // The same legend for a site whose job pays its breaks, and for a
         // month that has days of both kinds (the site moved jobs mid-month).
         case .siteLegendPaidBreaks: return pick(
-            en: "Each person: on site – off site, then hours worked, paid break included. Orange = came late or "
-                + "left early. — = not on this site that day.",
-            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden, bezahlte Pause inbegriffen. Orange = später "
-                + "gekommen oder früher gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
-            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati, plaćena pauza uključena. Narančasto = došao "
-                + "kasnije ili otišao ranije. — = taj dan nije bio na ovom gradilištu.",
-            sl: "Za vsako osebo: prihod – odhod, nato delovne ure, plačan odmor vključen. Oranžno = prišel pozneje "
-                + "ali odšel prej. — = ta dan ni bil na tem gradbišču.",
-            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate, pausa retribuita inclusa. Arancione = "
-                + "arrivato tardi o uscito prima. — = quel giorno non era in questo cantiere.",
-            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées, pause payée comprise. "
-                + "Orange = arrivé en retard ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
-            es: "Para cada persona: llegada – salida y después las horas trabajadas, pausa pagada incluida. "
-                + "Naranja = llegó tarde o se fue antes. — = no estuvo en esta obra ese día.",
-            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas, pausa paga incluída. Laranja = "
-                + "chegou mais tarde ou saiu mais cedo. — = não esteve nesta obra nesse dia.",
-            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren, betaalde pauze inbegrepen. Oranje = "
-                + "later gekomen of eerder vertrokken. — = die dag niet op deze bouwplaats.",
-            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny, z płatną przerwą. "
-                + "Pomarańczowy = przyszedł później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+            en: "Each person: on site – off site, then hours worked, paid break included.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden, bezahlte Pause inbegriffen.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati, plaćena pauza uključena.",
+            sl: "Za vsako osebo: prihod – odhod, nato delovne ure, plačan odmor vključen.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate, pausa retribuita inclusa.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées, pause payée comprise.",
+            es: "Para cada persona: llegada – salida y después las horas trabajadas, pausa pagada incluida.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas, pausa paga incluída.",
+            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren, betaalde pauze inbegrepen.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny, z płatną przerwą."
         )
         case .siteLegendMixedBreaks: return pick(
-            en: "Each person: on site – off site, then hours worked. Orange = came late or left early. "
-                + "— = not on this site that day.",
-            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden. Orange = später gekommen oder früher "
-                + "gegangen. — = an diesem Tag nicht auf dieser Baustelle.",
-            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati. Narančasto = došao kasnije ili otišao ranije. "
-                + "— = taj dan nije bio na ovom gradilištu.",
-            sl: "Za vsako osebo: prihod – odhod, nato delovne ure. Oranžno = prišel pozneje ali odšel prej. "
-                + "— = ta dan ni bil na tem gradbišču.",
-            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate. Arancione = arrivato tardi o uscito prima. "
-                + "— = quel giorno non era in questo cantiere.",
-            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées. Orange = arrivé en retard "
-                + "ou parti plus tôt. — = pas sur ce chantier ce jour-là.",
-            es: "Para cada persona: llegada – salida y después las horas trabajadas. Naranja = llegó tarde o se "
-                + "fue antes. — = no estuvo en esta obra ese día.",
-            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas. Laranja = chegou mais tarde ou "
-                + "saiu mais cedo. — = não esteve nesta obra nesse dia.",
-            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren. Oranje = later gekomen of eerder "
-                + "vertrokken. — = die dag niet op deze bouwplaats.",
-            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny. Pomarańczowy = przyszedł "
-                + "później lub wyszedł wcześniej. — = tego dnia nie było go na tej budowie."
+            en: "Each person: on site – off site, then hours worked.",
+            de: "Je Person: Ankunft – Abfahrt, dann die Arbeitsstunden.",
+            hr: "Za svaku osobu: dolazak – odlazak, zatim radni sati.",
+            sl: "Za vsako osebo: prihod – odhod, nato delovne ure.",
+            it: "Per ogni persona: arrivo – uscita, poi le ore lavorate.",
+            fr: "Pour chaque personne : arrivée – départ, puis les heures travaillées.",
+            es: "Para cada persona: llegada – salida y después las horas trabajadas.",
+            pt: "Para cada pessoa: chegada – saída e depois as horas trabalhadas.",
+            nl: "Per persoon: aankomst – vertrek, daarna de gewerkte uren.",
+            pl: "Dla każdej osoby: przyjście – wyjście, potem przepracowane godziny."
+        )
+
+        // The dash on a director's sheet, said only where one is printed.
+        case .notOnSiteLegend: return pick(
+            en: "— = not on this site that day.",
+            de: "— = an diesem Tag nicht auf dieser Baustelle.",
+            hr: "— = taj dan nije bio na ovom gradilištu.",
+            sl: "— = ta dan ni bil na tem gradbišču.",
+            it: "— = quel giorno non era in questo cantiere.",
+            fr: "— = pas sur ce chantier ce jour-là.",
+            es: "— = no estuvo en esta obra ese día.",
+            pt: "— = não esteve nesta obra nesse dia.",
+            nl: "— = die dag niet op deze bouwplaats.",
+            pl: "— = tego dnia nie było go na tej budowie."
         )
 
         // After the legend, when some day on the sheet is shaded in its day
@@ -695,6 +679,8 @@ enum ExportTerm: String, CaseIterable, Hashable, Sendable {
     /// One person's own sheet from the sites: what its hours are, and what
     /// orange means, each said only where the sheet has it.
     case hoursAfterBreakLegend, hoursWithPaidBreakLegend, lateOrEarlyLegend
+    /// The director's sheet: what its dash means, said only where one is printed.
+    case notOnSiteLegend
     /// Under the site sheet's totals, per person: days away sick, and on leave.
     case sickDays, leaveDays
     /// A site sheet listing every day: holidays off per person, and a

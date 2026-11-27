@@ -304,6 +304,39 @@ final class SiteSheetTests: XCTestCase {
         return siteDay
     }
 
+    /// The legend explains orange and the dash only on a sheet that has them.
+    func testTheLegendNamesOrangeAndTheDashOnlyWhereTheSheetHasThem() {
+        let ana = member("Ana")
+        let late = Attendance(memberID: ana.id, start: Fixture.time(8, 15))
+        let lead = ExportLanguage.english(.siteLegend)
+        let orange = ExportLanguage.english(.lateOrEarlyLegend)
+        let dash = ExportLanguage.english(.notOnSiteLegend)
+
+        let plain = table(crew: [ana], days: [day(3, present: [CrewMember.youID, ana.id])])
+        XCTAssertEqual(plain.legend, lead)
+
+        let cameLate = table(crew: [ana], days: [day(3, present: [CrewMember.youID, ana.id], own: [ana.id: late])])
+        XCTAssertEqual(cameLate.legend, [lead, orange].joined(separator: " "))
+
+        // Someone only gets a column for a month they were there at all.
+        let away = table(crew: [ana], days: [
+            day(3, present: [CrewMember.youID]), day(4, present: [CrewMember.youID, ana.id])
+        ])
+        XCTAssertEqual(away.legend, [lead, dash].joined(separator: " "))
+
+        let both = table(crew: [ana], days: [
+            day(3, present: [CrewMember.youID, ana.id], own: [ana.id: late]),
+            day(4, present: [CrewMember.youID])
+        ])
+        XCTAssertEqual(both.legend, [lead, orange, dash].joined(separator: " "))
+
+        // A file's empty cells print no dash, so there is none to explain.
+        let file = table(crew: [ana], days: [
+            day(3, present: [CrewMember.youID]), day(4, present: [CrewMember.youID, ana.id])
+        ], placeholder: "")
+        XCTAssertEqual(file.legend, lead)
+    }
+
     func testTheLegendSaysAfterTheBreakWhenBreaksAreUnpaid() {
         let t = table(crew: [], days: [day(3, present: [CrewMember.youID])], settings: settingsWithAPaidJob())
         XCTAssertEqual(t.legend, ExportLanguage.english(.siteLegend))

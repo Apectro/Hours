@@ -296,12 +296,21 @@ struct SiteSheetBuilder: Sendable {
         // site follows the job frozen on each day, so a month can hold both.
         let payRule = WorkdayCalculator(settings: settings, calendar: calendar)
         let paid = Set(byDate.values.map { payRule.breaksArePaid(forJob: $0.day.jobID) })
+        let legendLead: ExportTerm
         switch paid {
-        case [true]: table.legend = language(.siteLegendPaidBreaks)
-        case [true, false]: table.legend = language(.siteLegendMixedBreaks)
-        default: table.legend = language(.siteLegend)
+        case [true]: legendLead = .siteLegendPaidBreaks
+        case [true, false]: legendLead = .siteLegendMixedBreaks
+        default: legendLead = .siteLegend
         }
-        if table.hasDayHighlights { table.legend += " " + language(.dayHighlightLegend) }
+        // Orange, the dash and the shading are each said only where the
+        // sheet has them.
+        table.legend = table.siteLegend(
+            lead: language(legendLead),
+            lateOrEarly: language(.lateOrEarlyLegend),
+            notOnSite: language(.notOnSiteLegend),
+            shaded: language(.dayHighlightLegend),
+            placeholder: emptyPlaceholder
+        )
         // Signing is optional: switched off, the sheet has no line to sign
         // on and no sign-off boxes, whoever has signed.
         guard includesSignatures else { return table }
