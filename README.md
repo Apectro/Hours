@@ -198,9 +198,11 @@ only the days written, as before.
 sheet" adds other sites (each listed with the month's crew hours) to make one
 director's sheet for the month: the crews joined by name, each person's hours a
 day added up across the sites — a day someone moved reads as the whole day —
-the sites in the title, "Hauptstraße 12 · Trg Pravde", and a "By site" block
-with each site's address and hours and the total. The same grid, title block
-and closing rows as one site's sheet; PDF, Excel and CSV alike. "One sheet per
+the sites in the title, "Hauptstraße 12 · Trg Pravde", and each site's hours
+and the total "By site": at the end of the site's closing row on the PDF, with
+the addresses under the title, so a whole month for two sites stays on one
+page; as a block of its own in Excel and CSV. The same grid, title block
+and closing rows as one site's sheet. "One sheet per
 person" then covers only those sites, and each site's diary follows under its
 name. Drawn sign-offs stay on each site's own sheet.
 
@@ -215,10 +217,14 @@ director's sheet can carry the diary and the signatures; in the PDF, a crew too
 big for one page is printed a group of people at a time, never with times cut short.
 
 **A sheet for each person (1.2)** — the site export's "One sheet per person"
-shares a file per crew member instead of the director's sheet: their own days on
-every site they worked that month, in the timesheet's design, with the hours,
-days on site and any sick or leave days, and the lines to sign on when Signatures
-is on. The share button beside a name on the crew list opens that person's sheet
+shares a file per crew member instead of the director's sheet: their own month
+on every site they worked, in the crew sheet's own design — the same header,
+every day of the month (weekends quiet, public holidays and a pause named, a
+day away with its reason in the day type's colour, a day they were not on the
+crew left empty), and the same closing rows under their hours: month total,
+days worked, sick and leave days, public holidays, allowance days. "Show empty
+days" off lists only the days written for them. The lines to sign on are there
+when Signatures is on. The share button beside a name on the crew list opens that person's sheet
 for this month, to check against a payslip or to sign.
 
 **Extra work** — what the crew did beyond the contract, written down so the

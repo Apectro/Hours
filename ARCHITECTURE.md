@@ -1391,19 +1391,50 @@ hours to check against their payslip, and the supervisor wants to hand each of
 them a page. `CrewMemberSheetBuilder` (engine) makes one person's month across
 every site they appear on. A person is a `CrewSheetPerson`: you by your id, anyone
 else by their name folded as "Add from other sites" folds it (`CrewCandidates.key`),
-since each site keeps its own crew. It is a `.timesheet` `ReportTable` with the
-person's name as `ownerName`, so the PDF, the workbook and the CSV print it
-through the personal timesheet's own code and look, headline and tiles
-included; the sites go in the eyebrow and the title. A row per day they were
-ticked present (two on a day they were on two sites) and per day a reason was
-given for them not being there, one a day and none on a day they worked
-elsewhere; a day with neither is no row, which is also how it treats weekends
-and holidays, as the site sheet does. The site column appears only for more than
-one site, the reason and note columns only when a row has one; a note is the site
-day's, led by "Bad weather" as on the site sheet. Totals: hours and days on site,
-sick and leave days only when non-zero, counted by the site sheet's rule
-(`SiteSheetBuilder.absenceKind`). With the Signatures switch on it carries the
-timesheet's employee line and the site sheet's "checked" line; no drawn
+since each site keeps its own crew.
+
+It is the crew's sheet for one person (2026-11; it was a `.timesheet` table in
+the personal timesheet's look, listing only the days written for them): a
+`.siteSheet` `ReportTable` marked `isOnePersonSheet`, headed by the person
+(`ownerName`, which `headline` takes for it), so the PDF, the workbook and the
+CSV print it through the code the crew's sheet goes through — the orange
+"Site hours · August 2026" eyebrow, the two figures, the tightening row
+heights, the closing rows in the table, the legend and the footer. Its columns
+suit one person: date, day, the site only when they worked on more than one
+(`ReportColumn.site`), from–to, break, hours, notes — always the same, each a
+column group of one so the page rules them apart as it rules off the crew's
+people (`ReportTable.hasSpanningGroups` keeps a workbook and the preview to
+one heading row). The header's grey line names the site before its address,
+since the title is the person.
+
+The month is the crew sheet's `SiteSheetMonth`, built once for both
+(`ExportTableMaker.siteSheetMonth(in:)`): with "Show empty days" on, a row for
+every day. A day they were ticked present is a row per site, late or early in
+orange; a day a reason was given says the reason in the notes — no Reason
+column — in the crew sheet's words on the day type's wash (`dayTint`), one a
+day and none on a day they worked elsewhere ("Other site · Halle 3" for
+someone lent out). A day with nothing of theirs is what the crew's sheet makes
+of a day nobody wrote (`SiteSheetEmptyDay`, `emptyDayMark`), asked of the
+sites they have a day on: a quiet weekend, a public holiday by name, "Paused",
+or left empty; a day every such site recorded as no work says "No work · Day
+off" in its colour. The crew working without them, with no reason given, is
+such an empty day: not on the crew is not away. A holiday they worked keeps
+its mark (the name leads the note, date and day shaded). On the page a day
+with no times says what it was once, from their times to the notes
+(`ReportTable.dayBanner`, which reads a one-person sheet's leading columns
+instead of people's groups). The closing rows are the crew sheet's, each
+figure under the hours: month total (the breaks under the break), days worked,
+and sick, leave, public holidays off and allowance days only when non-zero
+(`SiteSheetBuilder.absenceKind`); the vehicle's kilometres belong to the day
+and stay on the crew's sheet. No summary block and no `totalRow`. The legend
+names only what the sheet has — what its hours are, orange, the shading
+(`ExportTerm.hoursAfterBreakLegend`, `hoursWithPaidBreakLegend`,
+`lateOrEarlyLegend`). `writtenDayCount` counts the days written for them,
+worked or away, which is what "anything to share" and "12 days" go by. With
+the Signatures switch on it carries the
+timesheet's employee line and the site sheet's "checked" line — the footer
+gives two lines to sign on six tenths of its band so the legend keeps its
+room; no drawn
 signatures, which belong to the site sheet. The site export's "One sheet per
 person" shares one file per person in the chosen format, all in one share
 (`ShareSheetPresenter.present(_ urls:)`), named "<Name> – <Month Year>"
@@ -1654,11 +1685,20 @@ day rows from 12 down to 10.5 (a site sheet only; a timesheet stops at 12),
 then closing rows to 12 — the roomiest that fits, so 31 days with five closing
 rows print at 11 and 14, and seven closing rows at 10.5 and 12. A sheet for
 several sites' whole month, with its row per site and its By site block, is
-more than one page holds at any readable height: it keeps full height and runs
-on, and the second page carries the last week of days under the headings, the
-closing rows and By site together (a sheet whose days run out a row or two
-before the closing rows takes about a week over with them,
-`daysCarriedWithTheClosingRows`).
+more than one page held while By site stood under the closing rows. On the
+page its figures are now in those rows (`ReportTable.printedWithBySiteInClosingRows`,
+engine; `PDFReportLayout` and `printedParts` print that form): each site's
+hours end its own closing row in the notes column, the crew's end "Month
+total", right-aligned and measured so they are never cut short (the vehicle's
+kilometres, which stood there already, too), and the addresses go under the
+title after their sites' names. Two sites' October — 33 day rows, six closing
+rows — fits one page at 10.5 and 12 points. A sheet with a row per site every
+day is past any readable height: it keeps full height and runs on, and the
+second page carries the last week of days under the headings and the closing
+rows together (a sheet whose days run out a row or two before the closing rows
+takes about a week over with them, `daysCarriedWithTheClosingRows`). The
+workbook and the CSV keep the By site block; so does a part of a split sheet
+that has no row for one of the sites.
 
 A big crew does not fit across A4 landscape: every person is two columns
 that may never be cut short ("07:00–16:00" and their hours), and the page
@@ -1720,7 +1760,7 @@ workbook and the CSV; a "Sites" tile goes beside Worked only while the header
 has fewer than five tiles. The eyebrow and the title name the sites in the
 order first worked, "Hauptstraße 12 · Trg Pravde", and beyond three the first
 two and "+2 more" in the export language (`ExportLanguage.combinedSiteNames`),
-as a crew member's sheet now does too; the PDF cuts the eyebrow with an
+as a crew member's sheet names them in its title and under the person's name; the PDF cuts the eyebrow with an
 ellipsis rather than wrapping it. Export's Sites picker ("All sites" or one)
 filters the timesheet to one site's shifts (`DayComputation.restricted`):
 that site's hours only, so nothing owed, no balance, no money and no
@@ -1752,10 +1792,10 @@ it is the site sheet's own grid, title block, tiles and closing rows:
   person, kilometres are every site's added up.
 - `ReportTable.bySite` holds each site's name, address and hours, then a
   total line (`ReportSiteTotal.isTotal`), the crew's hours. The PDF prints it
-  where a summary would stand, in the summary's style, keeping it on the
-  page when the day rows can shrink to make room (`PDFReportLayout.dayRowHeight`)
-  and otherwise on the next with the lines to sign on; a split sheet keeps it
-  for its last part only. The workbook writes it under the days, the figure in
+  in the closing rows (2026-11, above): each site's hours at the end of its
+  row, the crew's at the end of "Month total", the addresses under the title.
+  A split sheet has it on its last part only, and as the block it used to be
+  — where a summary would stand — when that part lost a site's row. The workbook writes it under the days, the figure in
   the notes column, the CSV after a blank line; the on-screen preview under the
   closing rows.
 - The title is the site names in the order chosen
@@ -1770,6 +1810,20 @@ The diary option takes each site's diary under its name
 (`SiteDiaryReport.combined`: each day's heading led by the site). "One sheet per
 person" covers everyone on any of the sites, each sheet holding only those
 sites' days.
+
+**Every PDF, one look (2026-11 audit).** The app makes these: your timesheet,
+the crew's month sheet (one site, several, or split for a big crew), one
+person's sheet from the sites, the sign-off, diary and open-defects pages
+after a crew sheet (`PDFAppendix`), the extra-work report, the defects list
+and the missing-material list. Each opens with the orange eyebrow over the
+title and closes every page with "Zeitkonto · … · page N of M", so each is
+laid out before it is drawn. A page after the first says what it belongs to:
+the table's running header, the appendix's heading on every page (it was on
+the first of each run only), the extra-work report's eyebrow and site
+(`ExtraWorkReportLayout.Block.runningHeader`), the defects list's title line,
+and the missing list's eyebrow and site (it had column headings only, and a
+footer that said "page 2" without "of"). Type, colours and text drawing are
+`PDFReportStyle` everywhere.
 
 CSV is RFC 4180 quoted, UTF-8 with an optional BOM (Excel on Windows needs it),
 with a configurable field separator, decimal separator, date format and
