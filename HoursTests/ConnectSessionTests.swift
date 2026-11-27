@@ -106,6 +106,57 @@ final class ConnectSessionTests: XCTestCase {
         }
     }
 
+    /// The user's own site, shared with the company, comes back from the web
+    /// as one of the company's at the next sync, and so do its people and
+    /// who is on it. The phone stops sending them then; that must not read
+    /// as the site, the people or the assignments being gone. (It did: the
+    /// phone sent deletes, the web removed the site, and the next sync
+    /// archived it on the phone, while the people were added and deleted
+    /// again at every sync.)
+    func testAPhoneMadeSiteSurvivesComingBackFromTheWeb() async throws {
+        let stub = ConnectStubTransport.sample()
+        let phone = Phone()
+        let paired = try await ConnectSession.pair(client: ConnectClient(baseURL: ConnectStubTransport.baseURL, transport: stub), code: ConnectStubTransport.code, device: ConnectV1.DeviceInfo(name: "Phone", appVersion: "1.3"), now: now)
+        let client = ConnectClient(baseURL: ConnectStubTransport.baseURL, transport: stub, token: paired.token)
+        func receive(_ state: ConnectState) async throws -> ConnectState {
+            try await ConnectSession.receive(client: client, state: state, lock: .unlocked, today: today, now: now, local: { phone.local }, apply: { phone.apply($0) })
+        }
+        func send(_ state: inout ConnectState) async -> ConnectSendReport {
+            await ConnectSession.send(client: client, state: &state, now: { self.now }, jitter: { 0.5 }, fileBytes: { _ in nil })
+        }
+        var state = try await receive(paired.state)
+
+        let own = Site(name: "Končar", sortOrder: 1)
+        phone.sites.append(own)
+        phone.crew += [CrewMember(siteID: own.id, name: "Duško"), CrewMember(siteID: own.id, name: "Danilo", sortOrder: 1)]
+        state.sharedSites.insert(own.id)
+        scan(phone, &state)
+        let first = await send(&state)
+        XCTAssertTrue(first.rejected.isEmpty)
+        let siteKey = ConnectID.string(own.id)
+        XCTAssertTrue(stub.holds(.site, siteKey), "the site is the company's now")
+
+        // Back from the web, three rounds: nothing is deleted, nothing flaps.
+        for round in 1...3 {
+            state = try await receive(state)
+            XCTAssertTrue(state.companySites.contains(own.id))
+            scan(phone, &state)
+            XCTAssertFalse(state.queue.contains(where: \.deleted), "round \(round): no delete is queued")
+            _ = await send(&state)
+            XCTAssertEqual(state.waitingCount, 0, "round \(round): nothing left to send")
+        }
+        XCTAssertTrue(stub.holds(.site, siteKey), "still on the web")
+        let people = phone.crew.filter { $0.siteID == own.id }
+        XCTAssertEqual(people.count, 2)
+        for row in people {
+            let person = try XCTUnwrap(state.people.rows[row.id])
+            XCTAssertTrue(stub.holds(.crewMember, ConnectID.string(person)), "\(row.name) is still the company's")
+            XCTAssertTrue(stub.holds(.assignment, ConnectID.string(ConnectUUID.assignmentID(siteID: own.id, personID: person))), "\(row.name) is still on the site")
+            XCTAssertFalse(row.isHidden)
+        }
+        XCTAssertEqual(phone.sites.first { $0.id == own.id }?.isArchived, false, "not archived on the phone")
+    }
+
     /// An upload that still holds the app's own "You" is refused by the
     /// server: the outbox never sends one.
     func testTheStubRefusesTheFixedYou() async throws {

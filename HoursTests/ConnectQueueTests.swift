@@ -70,6 +70,30 @@ final class ConnectQueueTests: XCTestCase {
         XCTAssertTrue(state.queue.isEmpty)
     }
 
+    /// What the web holds now is not deleted when the outbox stops sending
+    /// it: a site, person or assignment that came back as the company's.
+    func testAScanNeverDeletesWhatTheWebHolds() {
+        var state = ConnectState()
+        let person = UUID()
+        let assignment = ConnectID.string(ConnectUUID.assignmentID(siteID: site, personID: person))
+        state.enqueue([
+            try! ConnectOutgoing(kind: .site, id: ConnectID.string(site), record: ["name": "Končar"], siteIDs: [site]),
+            try! ConnectOutgoing(kind: .crewMember, id: ConnectID.string(person), record: ["name": "Duško"], siteIDs: [site]),
+            try! ConnectOutgoing(kind: .assignment, id: assignment, record: ["siteId": ConnectID.string(site)], siteIDs: [site]),
+        ], at: now)
+        state.queue = []
+        state.companySites.insert(site)
+        state.people.company[person] = ConnectPeople.ConnectPerson(name: "Duško", hidden: false)
+        state.assignments[assignment] = ConnectAssignmentMark(siteID: site, personID: person)
+        XCTAssertEqual(state.enqueueScan([], kinds: [.site, .crewMember, .assignment], sites: [site], at: now), 0)
+        XCTAssertTrue(state.queue.isEmpty, "nothing deleted")
+
+        // Gone from the web as well as from the phone: then it is a delete.
+        state.companySites.remove(site)
+        XCTAssertEqual(state.enqueueScan([], kinds: [.site], sites: [site], at: now), 1)
+        XCTAssertEqual(state.queue.map(\.deleted), [true])
+    }
+
     // MARK: - Batches
 
     func testSitesAndCrewGoFirst() {

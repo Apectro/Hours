@@ -106,6 +106,18 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
         }
     }
 
+    /// The company has this site, person or assignment now (not deleted).
+    func holds(_ kind: ConnectV1.RecordKind, _ id: String) -> Bool {
+        locked {
+            switch kind {
+            case .site: sites.contains { ConnectID.same($0.site.id, id) }
+            case .crewMember: crew.contains { ConnectID.same($0.member.id, id) }
+            case .assignment: assignments.contains { ConnectID.same($0.assignment.id, id) }
+            default: false
+            }
+        }
+    }
+
     /// The device is revoked from the office.
     func revoke() { locked { revoked = true } }
 
@@ -203,9 +215,11 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
     /// The protocol's idempotency rules, enough of them to drive the phone.
     private func result(_ record: ConnectV1.UploadRecord) -> ConnectV1.UploadResult {
         let key = ConnectRecordKey.make(record.kind, record.id)
-        let ownedByOffice = sites.contains { ConnectID.same($0.site.id, record.id) }
-            || crew.contains { ConnectID.same($0.member.id, record.id) }
-            || assignments.contains { ConnectID.same($0.assignment.id, record.id) }
+        // As the real server: the office owns what a director made; what a
+        // phone made stays the phone's to change.
+        let ownedByOffice = sites.contains { ConnectID.same($0.site.id, record.id) && $0.site.origin == "director" }
+            || crew.contains { ConnectID.same($0.member.id, record.id) && $0.member.origin == "director" }
+            || assignments.contains { ConnectID.same($0.assignment.id, record.id) && $0.assignment.origin == "director" }
         if record.kind.sendsFirst, ownedByOffice {
             return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .stale, version: 1, reason: "directorOwned", server: nil)
         }
@@ -215,7 +229,9 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
         }
         let base = record.baseVersion ?? (record.version - 1)
         guard let existing = stored[key] else {
+            if record.deleted { return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .accepted, version: record.version) }
             stored[key] = (record.version, record.data)
+            echo(record)
             return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .accepted, version: record.version)
         }
         if existing.data == record.data, record.version <= existing.version {
@@ -230,7 +246,37 @@ final class ConnectStubTransport: ConnectTransport, @unchecked Sendable {
         }
         stored[key] = (record.version, record.data)
         directorEdited[key] = nil
+        echo(record)
         return ConnectV1.UploadResult(kind: record.kind, id: record.id, status: .accepted, version: record.version)
+    }
+
+    /// As the real server: a site, person or assignment a phone sends
+    /// becomes one of the company's, and every phone gets it at its next
+    /// sync, the one that sent it included. A delete becomes a tombstone.
+    /// Called with the lock held.
+    private func echo(_ record: ConnectV1.UploadRecord) {
+        guard record.kind.sendsFirst else { return }
+        revision += 1
+        let id = record.id.lowercased()
+        sites.removeAll { ConnectID.same($0.site.id, id) }
+        crew.removeAll { ConnectID.same($0.member.id, id) }
+        assignments.removeAll { ConnectID.same($0.assignment.id, id) }
+        if record.deleted {
+            tombstones.append((revision, ConnectV1.Tombstone(kind: record.kind, id: id, deletedAt: "2026-11-02T10:00:00Z")))
+            return
+        }
+        guard case var .object(fields)? = record.data else { return }
+        fields["id"] = .string(id)
+        fields["version"] = .number(Double(record.version))
+        fields["origin"] = .string("device")
+        fields["updatedAt"] = .string("2026-11-02T10:00:00Z")
+        guard let bytes = try? ConnectJSON.encode(JSONValue.object(fields)) else { return }
+        switch record.kind {
+        case .site: if let site = try? ConnectJSON.decode(ConnectV1.Site.self, from: bytes) { sites.append((revision, site)) }
+        case .crewMember: if let member = try? ConnectJSON.decode(ConnectV1.CrewMember.self, from: bytes) { crew.append((revision, member)) }
+        case .assignment: if let assignment = try? ConnectJSON.decode(ConnectV1.Assignment.self, from: bytes) { assignments.append((revision, assignment)) }
+        default: break
+        }
     }
 
     private func containsYou(_ value: JSONValue) -> Bool {
