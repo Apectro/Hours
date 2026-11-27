@@ -117,6 +117,13 @@ extension ConnectState {
     /// the same kinds and sites that were sent before and are gone now.
     /// Only the kinds the outbox covers are compared, and only on the sites
     /// it looked at, so a site left out of a scan never reads as emptied.
+    ///
+    /// A site, person or assignment the web holds now is never deleted this
+    /// way. The outbox stops sending such a record once the web has it: a
+    /// site made here comes back as one of the company's after the next
+    /// sync, and so do its people and who is on it. That silence is not a
+    /// deletion on the phone, and reading it as one deleted the user's own
+    /// sites on the web, which then archived them on the phone.
     @discardableResult
     mutating func enqueueScan(
         _ records: [ConnectOutgoing],
@@ -130,10 +137,22 @@ extension ConnectState {
             let parts = key.split(separator: ":", maxSplits: 1).map(String.init)
             guard parts.count == 2 else { continue }
             let kind = ConnectV1.RecordKind(rawValue: parts[0])
-            guard kinds.contains(kind), !mark.siteIDs.isEmpty, mark.siteIDs.allSatisfy(sites.contains) else { continue }
+            guard kinds.contains(kind), !mark.siteIDs.isEmpty, mark.siteIDs.allSatisfy(sites.contains),
+                  !heldByWeb(kind, id: parts[1]) else { continue }
             deletes.append(ConnectOutgoing(deletedKind: kind, id: parts[1], siteIDs: mark.siteIDs))
         }
         return enqueue(records + deletes, at: now)
+    }
+
+    /// The web has this site, person or assignment as one of the company's,
+    /// as last received. Other kinds are never held this way.
+    func heldByWeb(_ kind: ConnectV1.RecordKind, id: String) -> Bool {
+        switch kind {
+        case .site: ConnectID.uuid(id).map(companySites.contains) ?? false
+        case .crewMember: ConnectID.uuid(id).map(people.isCompanyPerson) ?? false
+        case .assignment: assignments[id.lowercased()] != nil
+        default: false
+        }
     }
 
     // MARK: - Batches
